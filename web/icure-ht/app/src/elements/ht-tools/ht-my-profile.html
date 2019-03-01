@@ -528,9 +528,9 @@
                     </template>
 				</paper-tabs>
                 <div class="onlymobile">
-                    <paper-tooltip position="bottom" for="tab-access">[[localize('my_access','Mes accès',language)]]</paper-tooltip>
-                    <paper-tooltip position="bottom" for="tab-details">[[localize('my_details','Mes coordonnées',language)]]</paper-tooltip>
-                    <paper-tooltip position="bottom" for="tab-banking">[[localize('my_banking_details','Informations bancaires',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-access">[[localize('my_access','My access',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-details">[[localize('my_details','My details',language)]]</paper-tooltip>
+                    <paper-tooltip position="bottom" for="tab-banking">[[localize('my_banking_details','My banking details',language)]]</paper-tooltip>
                     <paper-tooltip position="bottom" for="tab-edmg">[[localize('edmg_subscription','EDMG',language)]]</paper-tooltip>
                     <paper-tooltip position="bottom" for="tab-printer">[[localize('def_printer','Default Printers',language)]]</paper-tooltip>
                 </div>
@@ -1358,7 +1358,7 @@
 
             apiReady() {
                 if (this.user && this.api && this.opened) {
-                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.api.register(hcp, 'hcp')).then(hcp => {
+                    this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => this.hcp = this.api.register(hcp, 'hcp',null,true)).then(hcp => {
                         if (!hcp.languages || !hcp.languages.length) hcp.languages = ['en'];
                         if (!hcp.type) hcp.type='persphysician';
                         if (!hcp.billingType) hcp.billingType='flatRate';
@@ -1366,10 +1366,11 @@
                         // Resolve for dataprovider / combobox
                         if( hcp.supervisorId || hcp.parentId || hcp.contactPersonHcpId) {
 
-                            Promise.all([ this.api.hcparty().getHealthcareParties( [hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId].join(',') )]).then(results => {
-                                const supervisor = _.chain(results[0]).filter({id:hcp.supervisorId}).head().value();
-                                const parent = _.chain(results[0]).filter({id:hcp.parentId}).head().value();
-                                const contactPerson = _.chain(results[0]).filter({id:hcp.contactPersonHcpId}).head().value();
+                            const hcpIdx = _.compact([hcp.supervisorId,hcp.parentId, hcp.contactPersonHcpId]).join(',')
+                            this.api.hcparty().getHealthcareParties(hcpIdx).then(results => {
+                                const supervisor = _.chain(results).filter({id:hcp.supervisorId}).head().value();
+                                const parent = _.chain(results).filter({id:hcp.parentId}).head().value();
+                                const contactPerson = _.chain(results).filter({id:hcp.contactPersonHcpId}).head().value();
 
                                 this.supervisorListItem = supervisor ? [{
                                     id: supervisor.id,
@@ -1400,46 +1401,11 @@
                                         ''
                                 }] : [];
 
-                                // Only affect when computed
-                                this.hcp = hcp;
-
-                                if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
-                                let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
-                                let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
-                                this.idAddress>=0 ? this.set('adr',{
-                                    addressType:"work",
-                                    street:this.hcp.addresses[this.idAddress].street,
-                                    houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
-                                    postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
-                                    postalCode:this.hcp.addresses[this.idAddress].postalCode,
-                                    city:this.hcp.addresses[this.idAddress].city,
-                                    country:this.hcp.addresses[this.idAddress].country,
-                                    phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
-                                    proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
-                                }) : ""
-
                             });
 
-                        } else {
-
-                            // Affect directly
-                            this.hcp = hcp;
-
-                            if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
-                            let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
-                            let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
-                            this.idAddress>=0 ? this.set('adr',{
-                                addressType:"work",
-                                street:this.hcp.addresses[this.idAddress].street,
-                                houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
-                                postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
-                                postalCode:this.hcp.addresses[this.idAddress].postalCode,
-                                city:this.hcp.addresses[this.idAddress].city,
-                                country:this.hcp.addresses[this.idAddress].country,
-                                phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
-                                proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
-                            }) : ""
                         }
+
+                        this._hcpChanged()
                     });
 
                     this.api.isElectronAvailable().then(isit=>this.set('electronAvailable',isit))
@@ -1469,6 +1435,28 @@
                     })
                 }
             }
+
+            _hcpChanged() {
+                if(this.api && this.hcp) {
+                    this.api.getRegistry('hcp').listeners['hcp-profile'] = {target: this, callbacks: [() => this._hcpChanged()], pool: [this.hcp.id]}
+
+                    if(this.idAddress===-1){this.idAddress=this.hcp.addresses.findIndex(adr=> adr.addressType==="work")}
+                    let idxPhone = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="phone")
+                    let idxMail = this.hcp.addresses[this.idAddress].telecoms.findIndex(tel => tel && tel.telecomType==="email")
+                    this.idAddress>=0 ? this.set('adr',{
+                        addressType:"work",
+                        street:this.hcp.addresses[this.idAddress].street,
+                        houseNumber:this.hcp.addresses[this.idAddress].houseNumber,
+                        postboxNumber:this.hcp.addresses[this.idAddress].postboxNumber,
+                        postalCode:this.hcp.addresses[this.idAddress].postalCode,
+                        city:this.hcp.addresses[this.idAddress].city,
+                        country:this.hcp.addresses[this.idAddress].country,
+                        phoneNumber: this.hcp.addresses[this.idAddress].telecoms[idxPhone] && this.hcp.addresses[this.idAddress].telecoms[idxPhone].telecomNumber || '',
+                        proMail: this.hcp.addresses[this.idAddress].telecoms[idxMail] && this.hcp.addresses[this.idAddress].telecoms[idxMail].telecomNumber || ''
+                    }) : ""
+                }
+            }
+
             _setPrinter(e) {
                 const target = 'selectedPrinter.'+e.target.getAttribute('target')
                 const value = e.target.dataset.item
@@ -1549,10 +1537,13 @@
                     //     .then(hcp => this.api.register(hcp,"hcp"))
                     //     .then(hcp => this.hcp = hcp)
                     //     .finally(() => this.$.dialog.close())
-
-                    this.api.user().modifyUser(this.user).then(
-                        user => this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
-                    ).then(() => this.api.hcparty().modifyHealthcareParty(this.hcp)).then(hcp => this.hcp = hcp).finally(() => this.$.dialog.close())
+                    Promise.all([this.api.user().modifyUser(this.user), this.api.hcparty().modifyHealthcareParty(this.hcp)])
+                    .then(([user,hcp]) => {
+                        this.api.register(hcp,'hcp');
+                        this.dispatchEvent(new CustomEvent('user-saved', {detail: user, bubbles: true, composed: true}))
+                        this.$.dialog.close()
+                    })
+                    .catch(err => console.error(err))
 
                 }
             }

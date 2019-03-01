@@ -1,0 +1,138 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="reports/ht-admin-reports-list-of-attestations.html">
+
+
+<dom-module id="ht-admin-reports">
+
+    <template>
+
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            :host *:focus{
+                outline:0!important;
+            }
+
+            .col-left{
+                position: relative;
+                box-sizing: border-box;
+                grid-column: 1 / 1;
+                grid-row: 1 / 1;
+                background:var(--app-background-color-dark);
+                @apply --shadow-elevation-3dp;
+                padding: 24px 0;
+                display:flex;
+                flex-flow: column nowrap;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                z-index: 25;
+            }
+
+
+        </style>
+
+        <template is="dom-if" if="[[listOfAttestationLayout]]">
+            <ht-admin-reports-list-of-attestations id="admin-reports-list-of-attestations" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]"></ht-admin-reports-list-of-attestations>
+        </template>
+
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+
+        class HtAdminReports extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-admin-reports'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        noReset: true
+                    },
+                    user: {
+                        type: Object,
+                        noReset: true
+                    },
+                    selectedSubMenu: {
+                        type: String,
+                        observer: '_selectedReportsSubMenuChanged'
+                    },
+                    listOfAttestationLayout:{
+                        type: Boolean,
+                        value: false
+                    }
+                }
+            }
+
+            static get observers() {
+                return [];
+            }
+
+            constructor() {
+                super()
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            _selectedReportsSubMenuChanged(){
+                this.selectedSubMenu === "listOfAttestationSubMenu" ? this.set('listOfAttestationLayout', true) : null
+            }
+
+        }
+
+        customElements.define(HtAdminReports.is, HtAdminReports)
+    </script>
+</dom-module>

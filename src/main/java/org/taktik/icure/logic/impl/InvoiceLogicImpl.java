@@ -204,8 +204,8 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 			).collect(Collectors.toList());
 		}
 
-		Set<Invoice> modifiedInvoices = new HashSet<>();
-		Set<Invoice> createdInvoices = new HashSet<>();
+		List<Invoice> modifiedInvoices = new LinkedList<>();
+		List<Invoice> createdInvoices = new LinkedList<>();
 
 		for (InvoicingCode invoicingCode : new ArrayList<>(invoicingCodes)) {
 			LocalDateTime icDateTime = FuzzyValues.getDateTime(invoicingCode.getDateCode());
@@ -226,7 +226,9 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				newInvoice.setSentMediumType(sentMediumType);
 				newInvoice.setRecipientId(insuranceId);
 				newInvoice.setRecipientType((type == InvoiceType.mutualfund || type == InvoiceType.payingagency) ? Insurance.class.getName() : Patient.class.getName());
-				newInvoice.setInvoicingCodes(invoicingCodes);
+				List<InvoicingCode> listWithFirstCode = new ArrayList<>();
+				listWithFirstCode.add(invoicingCode);
+				newInvoice.setInvoicingCodes(listWithFirstCode);
 				newInvoice.setAuthor(userId);
 				newInvoice.setResponsible(hcPartyId);
 				newInvoice.setCreated(System.currentTimeMillis());

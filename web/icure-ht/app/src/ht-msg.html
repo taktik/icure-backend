@@ -35,7 +35,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .container {
                 width: 100%;
-                height: calc(100vh - 64px);
+                height: calc(100vh - 64px - 20px);
                 display:grid;
                 grid-template-columns: 16% 84%;
                 grid-template-rows: 100%;
@@ -202,7 +202,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </template>
 
             <template is="dom-if" if="[[flatrateinvoicesLayout]]">
-                    <ht-msg-flatrate-invoice id="msg-flatrate-invoice" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" flatrate-menu-section="[[flatrateMenuSection]]"></ht-msg-flatrate-invoice>
+                    <ht-msg-flatrate-invoice
+                        id="msg-flatrate-invoice"
+                        api="[[api]]"
+                        i18n="[[i18n]]"
+                        language="[[language]]"
+                        resources="[[resources]]"
+                        user="[[user]]"
+                        flatrate-menu-section="[[flatrateMenuSection]]"
+                        on-selection-messages-change="handleMessageChange"
+                        on-initialize-batch-counter-j20="callInitializeBatchCounterJ20"
+                        on-do-route="_doRouteFlatRate"
+                    ></ht-msg-flatrate-invoice>
             </template>
 
             <template is="dom-if" if="[[mycarenetLayout]]">
@@ -369,7 +380,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _newMsg() {
-                this.$['new-msg'].open()
+                if (this.ehealthSession) this.$['new-msg'].open()
             }
 
             _fwMsg(e) {
@@ -381,6 +392,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             callInitializeBatchCounter(e){
                 this.shadowRoot.querySelector("#msg-menu").initializeBatchCounter(e)
+            }
+
+            callInitializeBatchCounterJ20(e){
+                this.shadowRoot.querySelector("#msg-menu").initializeBatchCounterJ20(e)
+            }
+            _doRouteFlatRate(e){
+                this.handleMenuChange({ detail: e.detail })
+                _.get(this, "$['msg-menu'].shadowRoot", false)
+                    && typeof _.get(this, "$['msg-menu'].shadowRoot.querySelectorAll", "") === "function"
+                    && _.get(this, "$['msg-menu'].shadowRoot", false).querySelectorAll("[data-status='" + _.get(e, "detail.selection.status", "") + "']")
+                    && _.map(_.get(this, "$['msg-menu'].shadowRoot", false).querySelectorAll("[data-status='" + _.get(e, "detail.selection.status", "") + "']"),e=>{ try{e.click()}catch(e){}})
             }
 
         }

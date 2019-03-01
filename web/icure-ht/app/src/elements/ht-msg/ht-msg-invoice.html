@@ -478,9 +478,14 @@
                     text-align: center;
                 }
 
+                .invoiceGrid {
+                    overflow-y: scroll;
+                    max-height: 20vh;
+                }
+            
                 vaadin-grid.subGrid {
                     overflow-y: auto;
-                    max-height: 20vh;
+                    max-height: 35vh;
                 }
 
                 #invoiceGrid .footer{
@@ -622,6 +627,13 @@
                     cursor: pointer;
                 }
 
+                @media screen and (max-height: 500px) {
+                    vaadin-grid.subGrid {
+                        overflow-y: auto;
+                        max-height: 20vh;
+                    }
+                }
+
                 @media screen and (max-width: 1024px) {
                     .hideOnMobile {display: none;opacity: 0;}
                 }
@@ -755,7 +767,7 @@
                                     <span class="center" style="width: 7%;">[[_formatAmount(item.sum.tot)]]€</span>
                                 </div>
                                 <div slot="collapse-content">
-                                    <vaadin-grid id="invoiceGrid" class="invoiceGrid subGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showInvoiceToBeSendDetails">
+                                    <vaadin-grid id="invoiceGrid" class="invoiceGrid" items="[[item.pat]]" multi-sort="[[multiSort]]" active-item="{{activeGridItem}}" on-tap="_showInvoiceToBeSendDetails">
                                         <vaadin-grid-column flex-grow="0" width="4%" class="recipient-col">
                                             <!--<template>[[item.invoice.sentMediumType]]</template>-->
                                         </vaadin-grid-column>
@@ -1839,6 +1851,7 @@
 
                                 return this.api.document().findByMessage(this.user.healthcarePartyId, msg)
                                     .then(docs => {
+                                        console.log(docs)
                                         const jsonDoc = docs.find(d => d.mainUti === "public.json" && _.endsWith(d.name, '_records'))
                                         return jsonDoc ? this.api.document().getAttachment(jsonDoc.id, jsonDoc.attachmentId, jsonDoc.secretForeignKeys).then(a => {
 
@@ -2028,17 +2041,17 @@
                         return `${dd}/${mm}/${yyyy}`;
                     case 'month' :
                         const monthStr =
-                            (mm.toString() === '01') ? this.localize('Jan',this.language) :
-                            (mm.toString() === '02') ? this.localize('Feb',this.language) :
-                            (mm.toString() === '03') ? this.localize('Mar',this.language) :
-                            (mm.toString() === '04') ? this.localize('Apr',this.language) :
-                            (mm.toString() === '05') ? this.localize('May',this.language) :
-                            (mm.toString() === '06') ? this.localize('Jun',this.language) :
-                            (mm.toString() === '07') ? this.localize('Jul',this.language) :
-                            (mm.toString() === '08') ? this.localize('Aug',this.language) :
-                            (mm.toString() === '09') ? this.localize('Sep',this.language) :
-                            (mm.toString() === '10') ? this.localize('Oct',this.language) :
-                            (mm.toString() === '11') ? this.localize('Nov',this.language) :
+                            (mm.toString() == '01') ? this.localize('Jan',this.language) :
+                            (mm.toString() == '02') ? this.localize('Feb',this.language) :
+                            (mm.toString() == '03') ? this.localize('Mar',this.language) :
+                            (mm.toString() == '04') ? this.localize('Apr',this.language) :
+                            (mm.toString() == '05') ? this.localize('May',this.language) :
+                            (mm.toString() == '06') ? this.localize('Jun',this.language) :
+                            (mm.toString() == '07') ? this.localize('Jul',this.language) :
+                            (mm.toString() == '08') ? this.localize('Aug',this.language) :
+                            (mm.toString() == '09') ? this.localize('Sep',this.language) :
+                            (mm.toString() == '10') ? this.localize('Oct',this.language) :
+                            (mm.toString() == '11') ? this.localize('Nov',this.language) :
                             this.localize('Dec',this.language)
                         return `${monthStr} ${yyyy}`
                 }
@@ -2670,7 +2683,7 @@
                                     try { a = JSON.parse( this.cleanStringForJsonParsing(new Uint8Array(a).reduce((data, byte) => data + String.fromCharCode(byte), ''))); } catch (ignored) {}
                                 }
 
-                                const zone1and90 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "1" || z.zone === "90"))
+                                const zone1and90 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "1" || z.zone == "90"))
                                 let errorString = ''
                                 Object.keys(zone1and90 && zone1and90.errorDetail || {}).find(key => {
                                     if(key.includes('rejectionCode')) {
@@ -2685,10 +2698,10 @@
 
                                 this.set('invoicesErrorMsg',errorString);
 
-                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "200"))
-                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "300"))
-                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "400"))
-                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone === "500"))
+                                const zone200 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "200"))
+                                const zone300 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "300"))
+                                const zone400 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "400"))
+                                const zone500 = a.message && a.message.find(enr => enr.zones.find(z => z.zone == "500"))
 
                                 let globalError = _.compact(_.uniq([zone200 && this.SEG_getErrSegment_200(zone200.zones || []),
                                     zone300 && this.SEG_getErrSegment_300(zone300.zones || []),
@@ -2741,7 +2754,7 @@
 
             receiveInvoices() {
                 const LastGet = parseInt(localStorage.getItem('lastInvoicesGet')) ? parseInt(localStorage.getItem('lastInvoicesGet')) : -1
-                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet===-1)
+                const mayGet = (LastGet < Date.now() + 60*60000 || LastGet==-1)
                 if (mayGet) {
                     this.set('cannotGet',true)
                     localStorage.setItem('lastInvoicesGet', Date.now())
@@ -2829,41 +2842,41 @@
 
             _getIconStatusClass(status) {
                 console.log("geticonstatus",status)
-                return (status === this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status === this.localize('inv_to_be_send','To be send',this.language)) ? (!this.statusToBeSend)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
-                    (status === this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "invoice-status--redStatus" :
-                    (status === this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
-                    (status === this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
-                    (status === this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
-                    (status === this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
-                    (status === this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
-                    (status === this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
-                    (status === this.localize('inv_arch','Archived',this.language)) ? "invoice-status--purpleStatus" :
-                    (status === this.localize('nmcl-rejected','Rejected',this.language)) ? "invoice-status--redStatus" :
-                    (status === this.localize('nmcl-accepted','Accepted',this.language)) ? "invoice-status--greenStatus" :
+                return (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_to_be_send','To be send',this.language)) ? (!this.statusToBeSend)  ? "invoice-status--blueStatus" : "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "invoice-status--redStatus" :
+                    (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "invoice-status--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "invoice-status--greenStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "invoice-status--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? (!this.statusToBeSend) ? "invoice-status--blueStatus" : "" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "invoice-status--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "invoice-status--purpleStatus" :
+                    (status == this.localize('nmcl-rejected','Rejected',this.language)) ? "invoice-status--redStatus" :
+                    (status == this.localize('nmcl-accepted','Accepted',this.language)) ? "invoice-status--greenStatus" :
                     ""
             }
             _getTxtStatusColor(status,amount) {
                 console.log("gettxtstatus",status,amount)
                 if (amount > 0) {
-                    return (status === this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
-                    (status === this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
-                    (status === this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "txtcolor-status--redStatus" :
-                    (status === this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
-                    (status === this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
-                    (status === this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
-                    (status === this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
-                    (status === this.localize('inv_arch','Archived',this.language)) ? "txtcolor--purpleStatus" :
-                    (status === this.localize('nmcl-rejected','Rejected',this.language)) ? "txtcolor--redStatus" :
-                    (status === this.localize('nmcl-accepted','Accepted',this.language)) ? "txtcolor--greenStatus" :
-                    (status === 'force-red') ? "txtcolor--redStatus" :
-                    (status === 'force-green') ? "txtcolor--greenStatus" :
+                    return (status == this.localize('inv_par_acc','Partially accepted',this.language)) ? "txtcolor--orangeStatus" :
+                    (status == this.localize('inv_full_acc','Fully accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_to_be_corrected','To be corrected',this.language))  ? "txtcolor-status--redStatus" :
+                    (status == this.localize('inv_acc_tre','Accepted for treatment',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_pen','Pending',this.language)) ? "txtcolor--blueStatus" :
+                    (status == this.localize('inv_tre','Treated',this.language)) ? "txtcolor--greenStatus" :
+                    (status == this.localize('inv_err','Error',this.language)) ? "txtcolor--redStatus" :
+                    (status == this.localize('inv_arch','Archived',this.language)) ? "txtcolor--purpleStatus" :
+                    (status == this.localize('nmcl-rejected','Rejected',this.language)) ? "txtcolor--redStatus" :
+                    (status == this.localize('nmcl-accepted','Accepted',this.language)) ? "txtcolor--greenStatus" :
+                    (status == 'force-red') ? "txtcolor--redStatus" :
+                    (status == 'force-green') ? "txtcolor--greenStatus" :
                     ""
                 }
             }
 
             _isEqual(a,b) {console.log('a',a);return (a == b)}
-            _isPartiallyAccepted(test) { return (test === this.localize('inv_par_acc','Partially accepted',this.language))}
+            _isPartiallyAccepted(test) { return (test == this.localize('inv_par_acc','Partially accepted',this.language))}
             _isMoreThen(a,b,so) {return (a>b)? so : 'false'}
 
             cleanStringForJsonParsing(inputValue) {

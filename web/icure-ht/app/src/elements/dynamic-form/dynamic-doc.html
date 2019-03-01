@@ -79,6 +79,10 @@
 				text-align:left;
                 word-break: break-word;
 			}
+            span.title {
+                height: 34px;
+                line-height: 34px;
+            }
 
 			pdf-element {
 				width: 100%;
@@ -115,9 +119,19 @@
                 box-sizing: border-box;
             }
 
+            .pointers-line {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+            }
+
             .hoverpointer {
                 cursor: pointer;
                 text-align: center;
+                flex-grow: 1;
+                margin: 8px 4px;
+                border-radius: 4px;
+                border: 1px solid var(--app-background-color-dark);
             }
 
             .resInfos {
@@ -180,87 +194,132 @@
                 position: absolute;
                 right: 8px;
                 top: 4px;
+                padding: 4px;
                 cursor: pointer;
-                height: 16px;
-                width: 16px;
+                height: 32px;
+                width: 32px;
                 box-sizing: border-box;
+                background: var(--app-secondary-color);
+                border-radius: 50%;
             }
 		</style>
         <template is="dom-if" if="[[!isLabOrProtocol]]">
             <paper-card class="pat-details-card">
                 <template is="dom-if" if="[[!_isEqual(document.documentLocation,'body')]]">
-                    <iron-icon id="assign-ico-[[item.id]]" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></iron-icon>
-                    <paper-tooltip for="assign-ico-[[item.id]]" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
+                    <template is="dom-if" if="[[!isPatDetail]]">
+                        <paper-icon-button id="assign-ico-attach" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></paper-icon-button>
+                        <paper-tooltip for="assign-ico-attach" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
+                    </template>
                 </template>
                 <template is="dom-if" if="[[!_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <template is="dom-if" if="[[!documentId]]">
                         <ht-spinner class="center" active></ht-spinner>
                     </template>
                     <template is="dom-if" if="[[_imageMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[_title(document.name, title)]]</span>
-                        <template is="dom-if" if="[[downloadable]]">
-                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                                [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                            </div>
-                        </template>
+                        <span class="title">[[_title(document.name, title)]]</span>
+                        <div class="pointers-line">
+                            <template is="dom-if" if="[[downloadable]]">
+                                <paper-button class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                    [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                                </paper-button>
+                            </template>
+                            <template is="dom-if" if="[[printable]]">
+                                <paper-button class="hoverpointer" on-tap="_print" to-print="[[item]]">
+                                    [[localize('print','Print',language)]] <paper-icon-button icon="print"></paper-icon-button>
+                                </paper-button>
+                            </template>
+                        </div>
                         <div class="img-container">
                             <img src$="[[dataUrl]]">
                         </div>
                     </template>
                     <template is="dom-if" if="[[_pdfMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
-                        <span>[[_title(document.name, title)]]</span>
+                        <span class="title">[[_title(document.name, title)]]</span>
                         <pdf-element src="[[dataUrl]]" elevation="5" downloadable fit-width fit-height enable-text-selection></pdf-element>
                     </template>
                     <template is="dom-if" if="[[_xmlMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                         <span>[[_title(document.name, title)]]</span>
-                        <template is="dom-if" if="[[downloadable]]">
-                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                                [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                            </div>
-                        </template>
+                        <div class="pointers-line">
+                            <template is="dom-if" if="[[downloadable]]">
+                                <paper-button class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                    [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                                </paper-button>
+                            </template>
+                            <template is="dom-if" if="[[printable]]">
+                                <paper-button class="hoverpointer" on-tap="_print" to-print="[[item]]">
+                                    [[localize('print','Print',language)]] <paper-icon-button icon="print"></paper-icon-button>
+                                </paper-button>
+                            </template>
+                        </div>
                     </template>
                 </template>
                 <template is="dom-if" if="[[_plainMimeType(document.mainUti, document.otherUtis.*)]]">
                     <template is="dom-if" if="[[attachmentContent.length]]">
-                        <span>[[localize('msg_body','Message body',language)]] :</span>
+                        <template is="dom-if" if="[[_isEqual(document.documentLocation,'body')]]">
+                            <span class="title">[[localize('msg_body','Message body',language)]] :</span>
+                        </template>
+                        <template is="dom-if" if="[[!_isEqual(document.documentLocation,'body')]]">
+                            <span class="title">[[_title(document.name, title)]]</span>
+                        </template>
                         <template is="dom-if" if="[[preview]]">
                             <pre class="txt-container">[[attachmentContent]]</pre>
                         </template>
-                        <template is="dom-if" if="[[downloadable]]">
-                            <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                                [[localize('dl','Download',language)]]
-                                <paper-icon-button icon="file-download"></paper-icon-button>
-                            </div>
-                        </template>
+                        <div class="pointers-line">
+                            <template is="dom-if" if="[[downloadable]]">
+                                <paper-button class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                    [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                                </paper-button>
+                            </template>
+                            <template is="dom-if" if="[[printable]]">
+                                <paper-button class="hoverpointer" on-tap="_print" to-print="[[item]]">
+                                    [[localize('print','Print',language)]] <paper-icon-button icon="print"></paper-icon-button>
+                                </paper-button>
+                            </template>
+                        </div>
                     </template>
                 </template>
                 <template is="dom-if" if="[[_unknownMimeType(document.mainUti, document.otherUtis.*, dataUrl)]]">
                     <span>[[_title(document.name, title)]]</span>
-                    <template is="dom-if" if="[[downloadable]]">
-                        <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                            [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                        </div>
-                    </template>
+                    <div class="pointers-line">
+                        <template is="dom-if" if="[[downloadable]]">
+                            <paper-button class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                                [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                            </paper-button>
+                        </template>
+                        <template is="dom-if" if="[[printable]]">
+                            <paper-button class="hoverpointer" on-tap="_print" to-print="[[item]]">
+                                [[localize('print','Print',language)]] <paper-icon-button icon="print"></paper-icon-button>
+                            </paper-button>
+                        </template>
+                    </div>
                 </template>
             </paper-card>
         </template>
 
         <template is="dom-if" if="[[isLabOrProtocol]]">
             <paper-card class="pat-details-card">
-                <iron-icon id="assign-ico-[[item.id]]" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></iron-icon>
-                <paper-tooltip for="assign-ico-[[item.id]]" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
-                <span>[[_title(document.name, title)]]</span>
+                <template is="dom-if" if="[[!isPatDetail]]">
+                    <paper-icon-button id="assign-ico-lab" class="assign-ico" icon="assignment-returned" on-tap="openSuggestions"  document$="[[item]]"></paper-icon-button>
+                    <paper-tooltip for="assign-ico-lab" position="left">[[localize('assign_to_pat','Assign to a patient',language)]]</paper-tooltip>
+                </template>
+                <span class="title">[[_title(document.name, title)]]</span>
                 <template is="dom-if" if="[[unassigned.length]]">
                     <paper-button id="patients-importBtn" class="assignToPat" on-tap="openSuggestions" document$="[[item]]">
                         [[localize('set_attach','Set attachment',language)]] <iron-icon id="patients-icon" icon="assignment-ind"></iron-icon>
                     </paper-button>
                 </template>
-                <template is="dom-if" if="[[downloadable]]">
-                    <hr/>
-                    <div class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
-                        [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
-                    </div>
-                </template>
+                <div class="pointers-line">
+                    <template is="dom-if" if="[[downloadable]]">
+                        <paper-button class="hoverpointer" on-tap="_downloadAnnex" dataUrl$='[[item.dataUrl]]'>
+                            [[localize('dl','Download',language)]] <paper-icon-button icon="file-download"></paper-icon-button>
+                        </paper-button>
+                    </template>
+                    <template is="dom-if" if="[[printable]]">
+                        <paper-button class="hoverpointer" on-tap="_print" to-print="[[item]]">
+                            [[localize('print','Print',language)]] <paper-icon-button icon="print"></paper-icon-button>
+                        </paper-button>
+                    </template>
+                </div>
                 <template is="dom-repeat" items="[[labOrProtocolContent]]" as="resInfo">
                     <div class="resInfos">
                         <h4>[[resInfo.sex]]. [[resInfo.firstName]] [[resInfo.lastName]]</h4>
@@ -317,6 +376,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
             downloadable:{
 			    type: Boolean
             },
+            printable: {
+			    type: Boolean,
+                value: false
+            },
             mailbody:{
 			    type: Boolean
             },
@@ -354,6 +417,10 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
             unassigned: {
 			    type: Object,
                 value: []
+            },
+            isPatDetail: {
+			    type: Boolean,
+                value: false
             }
 		};
 	}
@@ -413,6 +480,29 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 a.setAttribute('href', url);
                 a.click();
                 window.URL.revokeObjectURL(url);
+            })
+        }
+    }
+
+    _print(e) {
+	    const target = this.document || null
+        if (target) {
+            console.log('_print',target)
+            this.api.pdfReport(null,{}).then(({pdf:data, printed:printed}) =>{ // TODO format print
+                if (!printed) {
+                    let blob = new Blob([data],{type :'application/pdf'});
+
+                    let url = window.URL.createObjectURL(blob)
+
+                    let a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.style = "display: none";
+
+                    a.href = url;
+                    a.download = this.selectedInvoice.id+moment()+".pdf";
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
             })
         }
     }

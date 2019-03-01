@@ -72,6 +72,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="./dialog-style.html">
 <link rel="import" href="elements/ht-spinner/ht-spinner.html">
+<link rel="import" href="./elements/icons/icure-icons.html">
 
 <dom-module id="ht-app-tz">
 
@@ -293,40 +294,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 animation: notificationEhboxAnim 7.5s ease-in;
             }
 
-            .log-info {
-                align-self: center;
+            footer.log-info {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                padding: 0 24px;
+                height: 20px;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--app-background-color-light);
+                border-top: 1px solid var(--app-background-color-dark);
+                font-size: 12px;
+                box-sizing: border-box;
             }
 
-            .log-info p {
-                position: relative;
+            footer.log-info .user-email iron-icon, footer.log-info .eHealth-status-container iron-icon{
+                color: var(--app-text-color);
+                opacity: .5;
+                height: 14px;
+                width: 14px;
+                margin: 0 4px 0 0;
+                padding: 0;
+            }
+
+            footer.log-info .eHealth-status-container:hover, footer.log-info .user-email:hover, footer.log-info .versions span:hover{
+                background: var(--app-background-color-dark);
+            }
+
+
+            footer.log-info > div {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
                 font-family: 'Roboto', Arial, Helvetica, sans-serif;
                 font-size: 12px;
-                color: var(--app-text-color-light);
+                color: var(--app-text-color);
                 margin: 0;
             }
 
-            .log-info p .ehealth-connection-status {
-                content: '';
-                display: block;
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                right: -11px;
-                height: 7px;
-                width: 7px;
-                border-radius: 8px;
+            footer.log-info .user-email, footer.log-info .eHealth-status-container{
+                display:flex; 
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 0 8px 0 0;
+                border-right: 1px solid var(--app-background-color-dark);
             }
 
-            .log-info p .ehealth-mh-connection-status {
+            footer.log-info .eHealth-status-container{
+                padding: 0 8px 0 2px;
+            }
+
+            footer.log-info .eHealth-status-container .ehealth-connection-status, footer.log-info .eHealth-status-container .ehealth-mh-connection-status {
                 content: '';
                 display: block;
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                right: -24px;
                 height: 7px;
                 width: 7px;
                 border-radius: 8px;
+                margin-left: 4px;
+            }
+
+            footer.log-info .versions{
+                display:flex;
+                flex-flow: row wrap;
+                justify-content: flex-end;
+            }
+
+            footer.log-info .versions span{
+                border-left: 1px solid var(--app-background-color-dark);
+                padding: 0 8px;
+                display: block;
             }
 
             .connected {
@@ -502,7 +542,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .nok {
-                color: var(--app-status-color-nok);
+                color: var(--app-status-color-nok) !important;
             }
 
             .logo-text {
@@ -557,10 +597,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             #tutorialDialog{
                 height: 500px;
                 width: 600px;
-            }
-
-            .btnContainer{
-
             }
 
             #mikronoErrorDialog{
@@ -629,13 +665,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             @media screen and (max-width: 640px) {
-                div.log-info p .user-email {
-                    display: block;
-                    max-width: 80px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
                 .timer {
                     display: none;
                 }
@@ -673,12 +702,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 .logo {
                     display: none;
-                }
-            }
-
-            @media screen and (max-width: 200px) {
-                .log-info span.user-email {
-                    display: none !important;
                 }
             }
         </style>
@@ -738,24 +761,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-listbox id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
                                 <paper-button name="main" on-tap="doRoute">
                                     <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                    [[localize('sum')]]
+                                    [[localize('sum','Summary',language)]]
                                 </paper-button>
                                 <paper-button name="pat" on-tap="doRoute">
                                     <iron-icon icon="vaadin:user-heart"></iron-icon>
-                                    [[localize('pat')]]
+                                    [[localize('pat','Patients',language)]]
                                 </paper-button>
                                 <paper-button name="hcp" on-tap="doRoute">
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
-                                    [[localize('hc_par')]]
+                                    [[localize('hc_par','HC parties',language)]]
                                 </paper-button>
                                 <paper-button name="msg" on-tap="doRoute">
                                     <iron-icon icon="communication:email"></iron-icon>
-                                    [[localize('msg')]]
+                                    [[localize('msg','Message',language)]]
                                 </paper-button>
                                 <paper-button name="diary" on-tap="checkAndLoadMikrono">
-                                    <iron-icon icon="vaadin:calendar"></iron-icon>
-                                    [[localize('diary')]]
+                                    <iron-icon icon="date-range"></iron-icon>
+                                    [[localize('diary','Diary',language)]]
                                 </paper-button>
+                                <template is="dom-if" if="[[isAdmin]]">
+                                    <paper-button name="admin" on-tap="doRoute">
+                                        <iron-icon icon="vaadin:cog-o"></iron-icon>
+                                        [[localize('admin')]]
+                                    </paper-button>
+                                </template>
                             </paper-listbox>
                         </div>
                         </div>
@@ -763,56 +792,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
                             <paper-tab name="main" on-tap="doRoute">
                                 <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                [[localize('sum')]]
+                                [[localize('sum','Summary',language)]]
                             </paper-tab>
                             <paper-tab name="pat" on-tap="doRoute">
                                 <iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-                                [[localize('pat')]]
+                                [[localize('pat','Patients',language)]]
                             </paper-tab>
                             <paper-tab name="hcp" on-tap="doRoute">
                                 <iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-                                [[localize('hc_par')]]
+                                [[localize('hc_par','HC parties',language)]]
                             </paper-tab>
                             <paper-tab name="msg" on-tap="doRoute">
                                 <iron-icon class="smaller" icon="communication:email"></iron-icon>
-                                [[localize('msg')]]
+                                [[localize('msg','Message',language)]]
                             </paper-tab>
                             <paper-tab name="diary" on-tap="checkAndLoadMikrono">
-                                <iron-icon icon="vaadin:calendar"></iron-icon>
-                                [[localize('diary')]]
+                                <iron-icon icon="date-range"></iron-icon>
+                                [[localize('diary','Diary',language)]]
                             </paper-tab>
+                             <template is="dom-if" if="[[isAdmin]]">
+                                <paper-tab name="admin" on-tap="doRoute">
+                                    <iron-icon icon="settings"></iron-icon>
+                                    [[localize('admin')]]
+                                </paper-tab>
+                            </template>
                         </paper-tabs>
-                        <div class="log-info">
-                            <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
-                                <paper-tooltip for="frontend-version">frontend: [AIV]{version}[/AIV] - backend : [[backendVersion]]</paper-tooltip>
-                                <template is="dom-if" if="[[isElectron]]">
-                                    <span class$="user-email [[_versionOk(electronVersionOk,'true')]]">| e—[[electronVersion]]</span>
-                                </template>
-                                <span class="user-email">| [[user.login]] – </span>
-                                <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
-                                <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
-                                <template is="dom-if" if="[[hasMHCertificate]]">
-                                    <span id="eHealthMHStatus" class="ehealth-mh-connection-status pending"></span>
-                                    <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
-                                </template>
-                            </p>
-                            <paper-tooltip for="ehealth">
-                                <template is="dom-if" if="[[api.tokenId]]">
-                                    [[localize('ehe_is_con','eHealth is connected',language)]]
-                                </template>
-                                <template is="dom-if" if="[[!api.tokenId]]">
-                                    [[localize('ehe_is_not_con','eHealth is not connected',language)]]
-                                </template>
-                            </paper-tooltip>
-                            <paper-tooltip for="ehealthMH">
-                                <template is="dom-if" if="[[api.tokenIdMH]]">
-                                    [[localize('ehe_is_con','eHealth is connected',language)]]
-                                </template>
-                                <template is="dom-if" if="[[!api.tokenIdMH]]">
-                                    [[localize('ehe_is_not_con','eHealth is not connected',language)]]
-                                </template>
-                            </paper-tooltip>
-                        </div>
+                        
                         <div>
                             <!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  -->
                             <svg electronVersion="1.1"
@@ -1330,7 +1335,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </paper-item>
                                     <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
                                         <iron-icon icon="power-settings-new"></iron-icon>
-                                        [[localize('log_out')]]
+                                        [[localize('log_out','Log out',language)]]
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
@@ -1343,7 +1348,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         attr-for-selected="name"
                         fallback-selection="view404"
                         role="main">
-                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
+                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" route="{{subroute}}" socket="[[socket]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
@@ -1353,16 +1358,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-hcp>
-                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                    <ht-msg name="msg" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]" on-trigger-open-my-profile="_triggerOpenMyProfile" on-trigger-goto-admin="_triggerOpenAdminGroupsManagementSubMenu">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-msg>
                     <ht-diary id="htDiary" name="diary" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
                         <splash-screen-tz></splash-screen-tz>
                     </ht-diary>
+                    <ht-admin id="htAdmin" name="admin" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" credentials="[[credentials]]">
+                        <splash-screen-tz></splash-screen-tz>
+                    </ht-admin>
                     <ht-view404 name="view404"></ht-view404>
                 </iron-pages>
             </app-header-layout>
+            <footer class="log-info">
+                <div>
+                    <div class="user-email"><iron-icon icon="icons:account-circle"></iron-icon>[[user.login]]</div>
+                    <div class="eHealth-status-container">
+                        <iron-icon icon="icure-svg-icons:ehealth"></iron-icon>
+                        <span>eHealth</span>
+                        <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
+                        <paper-tooltip for="eHealthStatus" position="top">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
+                    </div>
+                    <template is="dom-if" if="[[hasMHCertificate]]">
+                        <div class="eHealth-status-container">
+                            <iron-icon icon="icure-svg-icons:ehealth"></iron-icon>
+                            <span>[[localize('medical_house','Medical House',language)]] eHealth</span>
+                            <span id="eHealthMHStatus" class="ehealth-mh-connection-status pending"></span>
+                            <paper-tooltip for="eHealthMHStatus" position="top">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
+                        </div>
+                    </template>
+                </div>
+                <div class$="versions [[_versionOk(electronVersionOk,backendVersionOk)]]">
+                    <span class="frontVersion">frontend: [AIV]{version}[/AIV]</span>
+                    <span class="backVersion">backend: [[backendVersion]]</span>
+                    <template is="dom-if" if="[[isElectron]]">
+                        <span class$="electronVersion [[_versionOk(electronVersionOk,'true')]]">e—[[electronVersion]]</span>
+                    </template>
+                </div>
+                <paper-tooltip for="ehealth" position="top">
+                    <template is="dom-if" if="[[api.tokenId]]">
+                        [[localize('ehe_is_con','eHealth is connected',language)]]
+                    </template>
+                    <template is="dom-if" if="[[!api.tokenId]]">
+                        [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                    </template>
+                </paper-tooltip>
+                <paper-tooltip for="ehealthMH" position="top">
+                    <template is="dom-if" if="[[api.tokenIdMH]]">
+                        [[localize('ehe_is_con','eHealth is connected',language)]]
+                    </template>
+                    <template is="dom-if" if="[[!api.tokenIdMH]]">
+                        [[localize('ehe_is_not_con','eHealth is not connected',language)]]
+                    </template>
+                </paper-tooltip>
+            </footer>
         </app-drawer-layout>
+
+        
 
         <template is="dom-if" if="[[busySpinner]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
 
@@ -1555,6 +1607,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             diary(){
                                 import(/* webpackChunkName: "ht-diary" */ './ht-diary.html')
                             },
+                            admin(){
+                                import(/* webpackChunkName: "ht-admin" */ './ht-admin.html')
+                            },
                             view404() {
                                 import(/* webpackChunkName: "ht-view404" */ './ht-view404.html')
                             }
@@ -1659,7 +1714,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     },
                     socket: {
                         type : Object,
-                        value : {}
+                        value : null
                     }
                 }
             }
@@ -1822,7 +1877,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 })
 
                 this.api.icure().getVersion().then(v => {
-                    this.set("backendVersion", v)
+                    this.set("backendVersion", v.substring(0, v.indexOf('-')))
                     this.set("backendVersionOk",this.versions.backend.includes(v))
                 })
 
@@ -2097,11 +2152,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this._selectEntities()
                     }
 
-                    console.log("test")
-
                     this.api.user().getCurrentSession().then(sessionId => this.api.set('sessionId', sessionId))
 
                     this.set('user', u)
+                    this.user.roles && this.user.roles.find(r => r === 'ADMIN' || r === 'MS-ADMIN') ? this.set('isAdmin', true) : this.set('isAdmin', false)
                     this.set('connectionTime', +new Date())
 
                     this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
@@ -2653,6 +2707,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }).catch((e)=>{this.busySpinner = false;})
                 }
 
+            }
+
+            _triggerOpenMyProfile(e) {
+                this._myProfile(parseInt(_.get(e,"detail.tabIndex",1)));
+            }
+
+            _triggerOpenAdminGroupsManagementSubMenu(e) {
+                this.set('routeData.page', "admin"); this._triggerMenu();
+                this.$['htAdmin'] && typeof this.$['htAdmin'].handleMenuChange === "function" && this.$['htAdmin'].handleMenuChange({detail:{selection:{item: 'management',submenu:'facturationFlatRateManagementSubMenu'}}});
             }
 
         }

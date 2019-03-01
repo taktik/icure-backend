@@ -480,21 +480,25 @@
             return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
         }
 
-        register(entity, domain, defer) {
+        register(entity, domain, defer, doNotOverride = false) {
             if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
 
             const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
             if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
-                _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
-                _.assign(current, entity)
 
-                Object.values(reg.listeners).forEach(l=>{
-                    if (!l.pool || l.pool.some(x => x === entity.id)) {
-                        l.paths && l.paths.forEach(path => l.target.notifyPath(path))
-                        l.callbacks && l.callbacks.forEach(cb => cb())
-                    }
-                })
+                if( !doNotOverride || Number(current.rev.split('-')[0]) < Number(entity.rev.split('-')[0]) ){
+                    _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
+                    _.assign(current, entity)
+
+                    Object.values(reg.listeners).forEach(l=>{
+                        if (!l.pool || l.pool.some(x => x === entity.id)) {
+                            l.paths && l.paths.forEach(path => l.target.notifyPath(path))
+                            l.callbacks && l.callbacks.forEach(cb => cb())
+                        }
+                    })
+                }
+
             } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
             }
@@ -718,6 +722,10 @@
             return inputContent.indexOf("-")>-1 || !_.trim(inputContent) ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
         }
 
+        formatBankAccount(inputContent) {
+            return _.trim([inputContent.slice(0,4),inputContent.slice(4,8),inputContent.slice(8,12),inputContent.slice(12,16)].join(" "));
+        }
+
         formatSsinNumber(inputContent) {
             inputContent = _.trim(inputContent).replace(/[^0-9]+/g, '')
             return _.trim([inputContent.slice(0,2),inputContent.slice(2,4),inputContent.slice(4,6)].join(".")) + "-" + _.trim([inputContent.slice(6,9),inputContent.slice(9,11)].join("."));
@@ -730,6 +738,16 @@
                 .then(() => true)
                 .catch(() => false)
         }
+
+        _powRoundFloatByPrecision(inputNumber,decimalPlaces=2){
+            return parseFloat(Math.round(parseFloat( _.trim(inputNumber).replace(',','.') ) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
+        }
+
+
+        hrFormatNumber(inputNumber) {
+            return parseFloat( _.trim(inputNumber).replace(',','.') ).toLocaleString("de-DE", {maximumFractionDigits:2, minimumFractionDigits:2})
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)
