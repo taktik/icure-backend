@@ -111,7 +111,7 @@
                     max-width: none !important;
                     top: 64px !important;
                     left: 0 !important;
-                    height: calc(100vh - 64px) !important; /* 64 = app-header */
+                    height: calc(100vh - 64px - 20px) !important; /* 64 = app-header 20 = footer */
                     width: 100% !important;
                 }
             }
@@ -145,7 +145,7 @@
 
         <paper-dialog id="dialog">
             <h2 class="modal-title">[[localize('pri_pre','Print prescription',language)]]</h2>
-            <vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,_drugsOnPrescriptions.*,servicesMap.*,_drugsRefresher)]] active-item="{{activeDrug}}">
+            <vaadin-grid id="entities-list" class="material" overflow="bottom" items=[[_drugsToBePrescribed(currentContact.services.*,drugsOnPrescriptions.*,servicesMap.*,drugsRefresher)]] active-item="{{activeDrug}}">
                 <vaadin-grid-column width="100px">
                     <template class="header">
                         <vaadin-grid-sorter path="description">[[localize('dru_des','Drug descr.',language)]]</vaadin-grid-sorter>
@@ -162,13 +162,13 @@
                         <div class="cell frozen">[[_drugPosology(item)]]</div>
                     </template>
                 </vaadin-grid-column>
-                <template is="dom-repeat" items="[[_splitColumns(currentContact.services.*,_drugsOnPrescriptions,_drugsOnPrescriptions.*, servicesMap.*)]]" as="column" index-as="columnIndex">
+                <template is="dom-repeat" items="[[_splitColumns(currentContact.services.*,drugsOnPrescriptions,drugsOnPrescriptions.*, servicesMap.*)]]" as="column" index-as="columnIndex">
                     <vaadin-grid-column flex-grow="0" width="50px">
                         <template class="header">
                             [[_columnName(columnIndex)]]
                         </template>
                         <template>
-                            <vaadin-checkbox id="[[item.id]]:[[columnIndex]]" disabled="[[!_enabled(columnIndex,index,_drugsOnPrescriptions,_drugsOnPrescriptions.*)]]" checked="[[_drugOnPrescription(item,columnIndex)]]" on-checked-changed="_setDrugOnPrescription"></vaadin-checkbox>
+                            <vaadin-checkbox id="[[item.id]]:[[columnIndex]]" disabled="[[!_enabled(columnIndex,index,drugsOnPrescriptions,drugsOnPrescriptions.*)]]" checked="[[_drugOnPrescription(item,columnIndex)]]" on-checked-changed="_setDrugOnPrescription"></vaadin-checkbox>
                         </template>
                     </vaadin-grid-column>
                 </template>
@@ -230,6 +230,15 @@
                     patient: {
                         type: Object
                     },
+                    servicesMap: {
+                        type: Array
+                    },
+                    drugsOnPrescriptions: {
+                        type: Array
+                    },
+                    drugsRefresher: {
+                        type: Number
+                    },
                     selectedFormat: {
                         type: String,
                         value: 'presc'
@@ -243,15 +252,12 @@
                     },
                     globalHcp: {
                         type: Object
-                    },
-                    _drugsOnPrescriptions: {
-                        type: Array
                     }
                 };
             }
 
             static get observers() {
-				return ['_setPrintSize(selectedFormat)'];
+				return ['_setPrintSize(selectedFormat)','_currentContactChanged(currentContact, currentContact.*)'];
 			}
 
             static get observers() {
@@ -260,7 +266,7 @@
 
             ready() {
                 super.ready();
-                this.set('selectedFormat', localStorage.getItem('prefillFormat') ? localStorage.getItem('prefillFormat') : 'A4')
+                this.set('selectedFormat', localStorage.getItem('prefillFormat') || 'A4')
             }
 
             open() {
@@ -718,7 +724,10 @@
             }
 
             _safeDrugsOnPrescriptions() {
-				return this._drugsOnPrescriptions ||
+
+                const drugsToBePrescribed = this._drugsToBePrescribed()
+
+				return this.drugsOnPrescriptions && this.drugsOnPrescriptions.filter((d,idx) => drugsToBePrescribed[idx] && d.id === drugsToBePrescribed[idx].id ).length === drugsToBePrescribed.length ? this.drugsOnPrescriptions :
 				this._drugsToBePrescribed().reduce((accu, s) => {
 					const availableSpace = accu.reduce((acc,drug) => {
 						acc[drug.column] >= 0 ? acc[drug.column]-- : acc[drug.column] = 4;
@@ -765,8 +774,8 @@
 					current.push({ id: id, column: column });
 				}
 
-				if (!_.isEqual(current, this._drugsOnPrescriptions)) {
-					this.set('_drugsOnPrescriptions', current);
+				if (!_.isEqual(current, this.drugsOnPrescriptions)) {
+					this.set('drugsOnPrescriptions', current);
 				}
             }
             

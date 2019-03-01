@@ -480,21 +480,25 @@
             return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
         }
 
-        register(entity, domain, defer) {
+        register(entity, domain, defer, doNotOverride = false) {
             if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
 
             const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
             if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
-                _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
-                _.assign(current, entity)
 
-                Object.values(reg.listeners).forEach(l=>{
-                    if (!l.pool || l.pool.some(x => x === entity.id)) {
-                        l.paths && l.paths.forEach(path => l.target.notifyPath(path))
-                        l.callbacks && l.callbacks.forEach(cb => cb())
-                    }
-                })
+                if( !doNotOverride || Number(current.rev.split('-')[0]) < Number(entity.rev.split('-')[0]) ){
+                    _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
+                    _.assign(current, entity)
+
+                    Object.values(reg.listeners).forEach(l=>{
+                        if (!l.pool || l.pool.some(x => x === entity.id)) {
+                            l.paths && l.paths.forEach(path => l.target.notifyPath(path))
+                            l.callbacks && l.callbacks.forEach(cb => cb())
+                        }
+                    })
+                }
+
             } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
             }
