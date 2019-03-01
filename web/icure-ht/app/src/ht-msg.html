@@ -212,6 +212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         flatrate-menu-section="[[flatrateMenuSection]]"
                         on-selection-messages-change="handleMessageChange"
                         on-initialize-batch-counter-j20="callInitializeBatchCounterJ20"
+                        on-do-route="_doRouteFlatRate"
                     ></ht-msg-flatrate-invoice>
             </template>
 
@@ -395,6 +396,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             callInitializeBatchCounterJ20(e){
                 this.shadowRoot.querySelector("#msg-menu").initializeBatchCounterJ20(e)
+            }
+            _doRouteFlatRate(e){
+                this.handleMenuChange({ detail: e.detail })
+                _.get(this, "$['msg-menu'].shadowRoot", false)
+                    && typeof _.get(this, "$['msg-menu'].shadowRoot.querySelectorAll", "") === "function"
+                    && _.get(this, "$['msg-menu'].shadowRoot", false).querySelectorAll("[data-status='" + _.get(e, "detail.selection.status", "") + "']")
+                    && _.map(_.get(this, "$['msg-menu'].shadowRoot", false).querySelectorAll("[data-status='" + _.get(e, "detail.selection.status", "") + "']"),e=>{ try{e.click()}catch(e){}})
             }
 
         }
