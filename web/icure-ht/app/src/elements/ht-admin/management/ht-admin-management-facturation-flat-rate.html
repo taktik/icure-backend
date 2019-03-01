@@ -338,8 +338,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _addFlatRateTarification(){
                 this.set('flatRateTarification', {})
                 this.set('flatRateNmclSelectedItemIdx', 0)
-                this.set('flatRateTarification.monthValidity', parseInt(parseInt(moment().format('MM'))))
-                this.set('flatRateTarification.yearValidity', parseInt(parseInt(moment().format('YYYY'))))
+                this.set('flatRateTarification.monthValidity', parseInt(moment().format('MM')))
+                this.set('flatRateTarification.yearValidity', parseInt(moment().format('YYYY')))
                 this.$['addedFlatRateTarificationDialog'].open()
 
             }
@@ -347,7 +347,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _addTarification(){
                 console.log(this.flatRateTarification)
 
-                const startOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').startOf('month').format('YYYYMMDD') : null
+                const startValidityMonth = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.monthValidity < 10 ? '0'+this.flatRateTarification.monthValidity :
+                    this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.monthValidity > 10 ? this.flatRateTarification.monthValidity
+                        : null
+                const startOfValidity = this.flatRateTarification && startValidityMonth && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+startValidityMonth+'-01').startOf('month').format('YYYYMMDD') : null
 
                 if(!this.hcpParent.flatRateTarifications){
                     _.assign(this.hcpParent, {flatRateTarifications : []})
