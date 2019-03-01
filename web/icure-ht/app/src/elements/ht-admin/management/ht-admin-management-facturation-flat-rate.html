@@ -202,7 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    <vaadin-combo-box id="tarificationMonth" filtered-items="[[_getTarificationMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getTarificationCurrentMonth()]]" selected-item="{{selectedTarificationMonth}}"></vaadin-combo-box>
                    <vaadin-combo-box id="tarificationYear" filtered-items="[[_getTarificationYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getTarificationCurrentYear()]]" selected-item="{{selectedTarificationYear}}"></vaadin-combo-box>
                 </div>
-                <paper-input label="Reimbursement" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
+                <paper-input type="number" label="[[localize('flatrate_reimb', 'Reimbursement', language)]]" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
             </div>
 
             <div class="buttons">
