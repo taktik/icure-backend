@@ -3098,7 +3098,7 @@
                     this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
                 //column headers
                 let fileName = "flat-file-oa-" + batch.ioFederationCode + ".txt"
-                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]",fileName).replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
+                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef.substr(0,3)).replace("[batch.fileName]",fileName).replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
                 let columnHeaders = "---------------------------------------------------------------------------\n" +
                     this.localize('flatrate_slipfile_18',this.language) + "\n" +
                     this.localize('flatrate_slipfile_19',this.language) + "\n" +
@@ -3210,6 +3210,7 @@
                         itm.dateCode = invCd.dateCode;
                         itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
                         itm.reimbursedAmount = invCd.reimbursement * 100;
+                        itm.units = 1;
                         inv.items.push(itm);
                     })
                 });
