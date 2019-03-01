@@ -1133,9 +1133,12 @@
     "noDataToExport": "No data to export",
     "rejectInvoice" : "Reject invoice",
     "rejectVerb" : "Reject",
-    "missingMhHcpContactPerson": "Please provide with an invoicing contact person",
+    "missingMhHcpContactPerson1": "Please provide an invoicing contact person",
+    "missingMhHcpContactPerson2": "Information is required by Insurances",
     "missingMhBce": "Please provide with a valid BCE",
-    "missingMhBankAccount": "Please provide with a valid bank account"
+    "missingMhBankAccount": "Please provide with a valid bank account",
+    "flatRateInvoicingAlreadyRan": "You already exported your flat rates invoicing this month",
+    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2356,9 +2359,12 @@
     "flatrate_slipfile_25":"Signature :.........................                Signature :.........",
     "rejectInvoice" : "Rejeter la facture",
     "rejectVerb" : "Rejeter",
-    "missingMhHcpContactPerson": "Veuillez svp renseigner une personne de contact pour la facturation au forfait. Cette information est requise par les Assurances",
+    "missingMhHcpContactPerson1": "Veuillez svp renseigner une personne de contact pour la facturation au forfait",
+    "missingMhHcpContactPerson2": "Cette information est requise par les Assurances",
     "missingMhBce": "Veuillez svp renseigner votre numéro BCE",
-    "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte"
+    "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte",
+    "flatRateInvoicingAlreadyRan": "Vous avez déjà exporté votre facturation ce mois-ci",
+    "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3584,8 +3590,11 @@
     "flatrate_slipfile_25":"Handtekening :............................          Handtekening :......",
     "rejectInvoice" : "Reject invoice",
     "rejectVerb" : "Reject",
-    "missingMhHcpContactPerson": "Please provide an invoicing contact person",
+    "missingMhHcpContactPerson1": "Please provide an invoicing contact person",
+    "missingMhHcpContactPerson2": "Information is required by Insurances",
     "missingMhBce": "Please provide with a valid BCE",
-    "missingMhBankAccount": "Please provide with a valid bank account"
+    "missingMhBankAccount": "Please provide with a valid bank account",
+    "flatRateInvoicingAlreadyRan": "You already exported your flat rates invoicing this month",
+    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation"
   }
 }

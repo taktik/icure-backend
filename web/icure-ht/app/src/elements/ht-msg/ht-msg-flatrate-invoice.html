@@ -150,6 +150,18 @@
                     min-width: 25px;
                 }
 
+                .bold {
+                    font-weight: 700!important;
+                }
+
+                .underlined {
+                    text-decoration:underline!important;
+                }
+
+                .textDecorationNone {
+                    text-decoration:none!important;
+                }
+
                 .ref-col{
                     min-width: 75px;
                 }
@@ -509,6 +521,10 @@
                     min-width: 100px;
                     padding: 10px 1.2em;
                     text-transform: capitalize;
+                }
+
+                .colorAppSecondaryColorDark {
+                    color:var(--app-secondary-color-dark)
                 }
 
                 .modal-input{
@@ -953,8 +969,8 @@
                 }
 
                 .modalDialog{
-                    height: 300px;
-                    width: 500px;
+                    height: 350px;
+                    width: 600px;
                 }
 
                 .modalDialogContent{
@@ -1274,7 +1290,7 @@
 
             <paper-dialog class="modalDialog" id="archiveDialog">
                 <h2 class="modal-title"><iron-icon icon="markunread-mailbox"></iron-icon> [[localize('j20_archive_batch','Archive batch',language)]]</h2>
-                <div class="modalDialogContent">
+                <div class="modalDialogContent m-t-50">
                     <p>[[localize('archiveBatchConfirmation',"Voulez-vous vraiment archiver l'envoi",language)]] <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
                     <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</p>
                 </div>
@@ -1287,7 +1303,8 @@
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
                     <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
-                    <p class="textAlignCenter">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
+                    <p class="textAlignCenter m-t-25">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1297,8 +1314,9 @@
             <paper-dialog class="modalDialog" id="missingMedicalHouseValorisations" no-cancel-on-outside-click no-cancel-on-esc-key>
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
-                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
-                    <p class="textAlignCenter"><b>[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</b></p>
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1308,7 +1326,8 @@
             <paper-dialog class="modalDialog" id="noDataToExport" no-cancel-on-outside-click no-cancel-on-esc-key>
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
-                    <p class="textAlignCenter"><b>[[localize('noDataToExport','Incomplete user profile',language)]].</b></p>
+                    <h3 class="textAlignCenter">[[localize('noDataToExport','We could not find any data to export',language)]].</h3>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1318,7 +1337,8 @@
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
                     <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
-                    <p class="textAlignCenter m-t-25">[[localize('missingMhHcpContactPerson','Please provide an invoicing contact person',language)]].</p>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhHcpContactPerson1','Please provide an invoicing contact person',language)]].<br />[[localize('missingMhHcpContactPerson2','Required information for Insurances',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1330,6 +1350,7 @@
                 <div class="modalDialogContent m-t-50">
                     <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
                     <p class="textAlignCenter m-t-25">[[localize('missingMhBce','Please provide a valid BCE',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1341,10 +1362,22 @@
                 <div class="modalDialogContent m-t-50">
                     <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
                     <p class="textAlignCenter m-t-25">[[localize('missingMhBankAccount','Please provide with a valid bank account',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                     <paper-button class="modal-button" on-tap="_gotoMyProfileTab3"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="exportAlreadyRan" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('flatRateInvoicingAlreadyRan','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('getInTouchWithUsToUnlock','Please provide with a valid bank account',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                 </div>
             </paper-dialog>
 
@@ -3656,6 +3689,11 @@
                 this.$["noHcpBankAccount"].open()
             }
 
+            _showWarningExportAlreadyRan() {
+                this.set("_bodyOverlay", true);
+                this.$["exportAlreadyRan"].open()
+            }
+
             _showWarningNoHcpNihii() {
                 this.set("_bodyOverlay", true);
                 this.$["missingNihiiDialog"].open()
@@ -3858,6 +3896,28 @@
                             || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
                         ) throw new Error("missing-flatrate-tarification");
 
+                        // Check for existing exports - did it run already?
+                        return this.api.getRowsUsingPagination(
+                            (key,docId) =>
+                                this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
+                                    .then(pl => { return {
+                                        rows:_.filter(pl.rows, m => {
+                                            return m
+                                                && _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId
+                                                && _.get(m, "recipients", []).indexOf(this.user.healthcarePartyId) > -1
+                                                && parseInt( _.get(m, "metas.batchExportTstamp", 0) )
+                                                && parseInt( _.size( _.get(m, "invoiceIds", [] ) ) )
+                                        }),
+                                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                        done: !pl.nextKeyPair
+                                    }})
+                                    .catch(()=>{ return Promise.resolve(); })
+                        ).then(x=>x)
+
+                    })
+                    .then(exportAlreadyRanMessages=>{
+                        if(_.size(exportAlreadyRanMessages)) throw new Error("export-already-ran");
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -4231,6 +4291,7 @@
                         this.api.triggerFileDownload( this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob, "application/zip", this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName )
                     })
                     .catch((e)=>{
+                        console.log(e);
                         return (
                             ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() && e :
                             ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() && e :
@@ -4238,6 +4299,7 @@
                             ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() && e :
                             ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() && e :
                             ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() && e :
+                            ( _.trim(e).indexOf('export-already-ran') > -1 ) ? this._showWarningExportAlreadyRan() && e :
                             e
                         )
                     })
