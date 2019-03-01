@@ -3796,9 +3796,9 @@
 
                         this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth = _.merge(
                             [
-                                {code: "109616", price: 0.00, flatRateType: "physician"},  // Doctor
-                                {code: "409614", price: 0.00, flatRateType: "nurse"},  // Nurse
-                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"}   // Kine
+                                {code: "109616", price: 0.00, flatRateType: "physician"},           // Doctor
+                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"},     // Kine
+                                {code: "409614", price: 0.00, flatRateType: "nurse"}                // Nurse
                             ],
                             _.compact(
                                 _.chain(_.get(this.hcp, "flatRateTarifications", []))
@@ -3842,9 +3842,9 @@
 
                         this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth = _.merge(
                             [
-                                {code: "109616", price: 0.00, flatRateType: "physician"},  // Doctor
-                                {code: "409614", price: 0.00, flatRateType: "nurse"},  // Nurse
-                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"}   // Kine
+                                {code: "109616", price: 0.00, flatRateType: "physician"},           // Doctor
+                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"},     // Kine
+                                {code: "409614", price: 0.00, flatRateType: "nurse"}                // Nurse
                             ],
                             _.compact(
                                 _.chain(_.get(this.hcp, "flatRateTarifications", []))
@@ -3886,9 +3886,9 @@
                             )
                         )
 
-                        // HCP NIHII last 3 digits = booleans (0/1) tell us whether or not HCP has (respectively) KMI availabilities (respectively: K = physiotherapist, M = physician & I = nurse)
+                        // HCP NIHII last 3 digits = booleans (0/1) tell us whether or not HCP has (respectively) MKI availabilities (respectively: M = physician, K = physiotherapist & I = nurse)
                         const medicalHouseNihiiLastThreeDigits = _.trim(this.hcp.nihii).slice(-3).split("")
-                        const medicalHouseAvailableValorisationsByNihii = _.compact( _.map( ["physiotherapist", "physician", "nurse" ], (v,k) => { return !!parseInt(medicalHouseNihiiLastThreeDigits[k]) ? { flatRateType: v } : false }) )
+                        const medicalHouseAvailableValorisationsByNihii = _.compact( _.map( ["physician", "physiotherapist", "nurse" ], (v,k) => { return !!parseInt(medicalHouseNihiiLastThreeDigits[k]) ? { flatRateType: v } : false }) )
 
                         // At least one MH valorisation is missing
                         if(
