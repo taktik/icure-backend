@@ -150,18 +150,6 @@
                     min-width: 25px;
                 }
 
-                .bold {
-                    font-weight: 700!important;
-                }
-
-                .underlined {
-                    text-decoration:underline!important;
-                }
-
-                .textDecorationNone {
-                    text-decoration:none!important;
-                }
-
                 .ref-col{
                     min-width: 75px;
                 }
@@ -521,10 +509,6 @@
                     min-width: 100px;
                     padding: 10px 1.2em;
                     text-transform: capitalize;
-                }
-
-                .colorAppSecondaryColorDark {
-                    color:var(--app-secondary-color-dark)
                 }
 
                 .modal-input{
@@ -969,8 +953,8 @@
                 }
 
                 .modalDialog{
-                    height: 350px;
-                    width: 600px;
+                    height: 300px;
+                    width: 500px;
                 }
 
                 .modalDialogContent{
@@ -1290,7 +1274,7 @@
 
             <paper-dialog class="modalDialog" id="archiveDialog">
                 <h2 class="modal-title"><iron-icon icon="markunread-mailbox"></iron-icon> [[localize('j20_archive_batch','Archive batch',language)]]</h2>
-                <div class="modalDialogContent m-t-50">
+                <div class="modalDialogContent">
                     <p>[[localize('archiveBatchConfirmation',"Voulez-vous vraiment archiver l'envoi",language)]] <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
                     <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</p>
                 </div>
@@ -1303,8 +1287,7 @@
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
                     <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
-                    <p class="textAlignCenter m-t-25">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                    <p class="textAlignCenter">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1314,9 +1297,8 @@
             <paper-dialog class="modalDialog" id="missingMedicalHouseValorisations" no-cancel-on-outside-click no-cancel-on-esc-key>
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
-                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
-                    <p class="textAlignCenter m-t-25">[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</p>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
+                    <p class="textAlignCenter"><b>[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</b></p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1326,8 +1308,7 @@
             <paper-dialog class="modalDialog" id="noDataToExport" no-cancel-on-outside-click no-cancel-on-esc-key>
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
-                    <h3 class="textAlignCenter">[[localize('noDataToExport','We could not find any data to export',language)]].</h3>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                    <p class="textAlignCenter"><b>[[localize('noDataToExport','Incomplete user profile',language)]].</b></p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1337,8 +1318,7 @@
                 <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
                 <div class="modalDialogContent m-t-50">
                     <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
-                    <p class="textAlignCenter m-t-25">[[localize('missingMhHcpContactPerson1','Please provide an invoicing contact person',language)]].<br />[[localize('missingMhHcpContactPerson2','Required information for Insurances',language)]].</p>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhHcpContactPerson','Please provide an invoicing contact person',language)]].</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1350,7 +1330,6 @@
                 <div class="modalDialogContent m-t-50">
                     <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
                     <p class="textAlignCenter m-t-25">[[localize('missingMhBce','Please provide a valid BCE',language)]].</p>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
@@ -1362,22 +1341,10 @@
                 <div class="modalDialogContent m-t-50">
                     <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
                     <p class="textAlignCenter m-t-25">[[localize('missingMhBankAccount','Please provide with a valid bank account',language)]].</p>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
                 </div>
                 <div class="buttons">
                     <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                     <paper-button class="modal-button" on-tap="_gotoMyProfileTab3"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
-                </div>
-            </paper-dialog>
-            <paper-dialog class="modalDialog" id="exportAlreadyRan" no-cancel-on-outside-click no-cancel-on-esc-key>
-                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
-                <div class="modalDialogContent m-t-50">
-                    <h3 class="textAlignCenter">[[localize('flatRateInvoicingAlreadyRan','Incomplete user profile',language)]].</h3>
-                    <p class="textAlignCenter m-t-25">[[localize('getInTouchWithUsToUnlock','Please provide with a valid bank account',language)]].</p>
-                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
-                </div>
-                <div class="buttons">
-                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                 </div>
             </paper-dialog>
 
@@ -3460,104 +3427,18 @@
                     };
                 }); // Loop OA
 
-                const maxEntriesPerPage = 47;
 
-                const pdfDataToPrint = _.compact(
-                    _.map( pdfData, (oaData)=> {
 
-                        let totalPages = 1;
-                        let currentPage = 0;
-                        let pdfTemplate = this._getExportPdfHeader();
+                // <NOT FOR PROD, just to test page breaks with large records amount>
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
+                // </NOT FOR PROD, just to test page breaks with large records amount>
 
-                        // Eval total pages
-                        _.forEach( oaData.entries, (listEntries)=> { if(!parseInt(_.size(listEntries))) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; }); })
 
-                        _.forEach( oaData.entries, (listEntries, listKey)=> {
-
-                            if(!parseInt(_.size(listEntries))) return;
-                            let listIndex = parseInt(listKey.replace('list',''));
-                            let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
-
-                            this.flatRateInvoicingDataObject.oaTotalPrices.push({
-                                oaId: oaData.oa.id,
-                                listId: listKey,
-                                listTotal: this.api._powRoundFloatByPrecision(_.sumBy( _.map( listEntries, i => this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( i, "invoicingCodes" ), "totalAmount" ) ), 2 ) ), i=>parseFloat(i) ), 2)
-                            })
-
-                            _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
-                                currentPage++;
-                                pdfTemplate +=
-                                    this._getExportPageHeader(oaData.oa, true) +
-                                    this._getExportListHeader(listIndex, true) +
-                                    this._getExportListContentForInvoicing(listIndex,entriesChunk) +
-                                    this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
-                            });
-
-                        })
-
-                        const totalAmount = this.api._powRoundFloatByPrecision( _.sumBy(_.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) }), i=>parseFloat(i.listTotal)), 2);
-
-                        // List totals
-                        currentPage++
-                        pdfTemplate +=
-                            this._getExportPageHeader(oaData.oa, true) +
-                            "<div style='margin-top:100px'></div>" +
-                            "<p class='bold fs10'>" +
-                                _.compact(
-                                    _.map(oaData.entries, (listEntries, listKey) => {
-                                        let listIndex = parseInt(listKey.replace('list',''));
-                                        return !parseInt(_.size(listEntries)) ? false :
-                                            this.localize('flatrate_invoicing_listTotal',this.language) + ' ('+_.trim(listIndex)+') "<span class="italic colorBlue">'+_.trim(this.localize('flatrate_invoicing_'+_.trim(listIndex)+'_subheader',this.language)).toLowerCase()+'</span>": ' +
-                                            this.api.hrFormatNumber(_.get( _.filter(this.flatRateInvoicingDataObject.oaTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) && _.trim(i.listId)=== _.trim(listKey) }), "[0].listTotal", 0 )) + ' €'
-                                    })
-                                ) .join("<br />") +
-                            "</p>" +
-                            "<p class='bold fs15 mt20 colorBlue uppercase italic'>" + this.localize('flatrate_invoicing_insTotal',this.language) + ': ' + this.api.hrFormatNumber(totalAmount) + ' €</p>' +
-                            this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true) +
-                            this._getExportPdfFooter();
-
-                        return {
-                            oaId: _.trim(oaData.oa.id),
-                            parentOaId: _.trim(oaData.oa.parent),
-                            invoiceIds: _.compact( _.map( _.flatMap( oaData.entries ), i =>_.trim(_.get(i, "invoices[0].id", "")) )),
-                            totalAmount: totalAmount,
-                            template: pdfTemplate,
-                            totalPages: parseInt(totalPages)
-                        }
-
-                    })
-                );
-
-                return new Promise(resolve =>resolve(pdfDataToPrint))
-
-            }
-
-            _generateJ20PdfTemplateParentOaObjects() {
-
-                let pdfData = {};
-
-                _.forEach( this.flatRateInvoicingDataObject.insurancesData, (oa,k)=> {
-                    pdfData[oa.id] = {
-                        oa: {
-                            id: _.get(oa, "id", ""),
-                            parent: _.get(oa, "parent", ""),
-                            finalName: _.get(oa, "finalName", ""),
-                            code: _.get(oa, "code", ""),
-                            address: _.trim(_.compact([_.get(oa, "address.street", ""), _.get(oa, "address.houseNumber", ""), _.get(oa, "address.postboxNumber", "")]).join(' ')),
-                            postalCode: _.get(oa, "address.postalCode", ""),
-                            city: _.get(oa, "address.city", "")
-                        },
-                        entries: {
-                            list5: _.filter(this.flatRateInvoicingDataObject.listsData.list5, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // New patients WITHOUT tryout
-                            list6: _.filter(this.flatRateInvoicingDataObject.listsData.list6, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // New patients WITH tryout
-                            list8: _.filter(this.flatRateInvoicingDataObject.listsData.list8, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // "Old" patients
-                        }
-                    };
-                }); // Loop OA
-
-                console.log("_generateJ20PdfTemplateParentOaObjects");
-                console.log(pdfData);
-                this.bug();
 
                 const maxEntriesPerPage = 47;
 
@@ -3690,11 +3571,6 @@
                 this.$["noHcpBankAccount"].open()
             }
 
-            _showWarningExportAlreadyRan() {
-                this.set("_bodyOverlay", true);
-                this.$["exportAlreadyRan"].open()
-            }
-
             _showWarningNoHcpNihii() {
                 this.set("_bodyOverlay", true);
                 this.$["missingNihiiDialog"].open()
@@ -3705,7 +3581,7 @@
                 this.set('_isLoading', true );
                 this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1',this.language), icon:"arrow-forward"});
 
-                // Force refresh - could be new "valorisation" / bce / bank account / contact person / ... was just set
+                // Force refresh - could be new "valorisation" was just set
                 if(_.size(_.get(this.api.hcparty().cache, _.get(this.user, "healthcarePartyId", "" )))) delete this.api.hcparty().cache[_.get(this.user, "healthcarePartyId", "" )];
 
                 this.api.hcparty().getHealthcareParty(_.get(this.user, "healthcarePartyId", "" ))
@@ -3897,28 +3773,6 @@
                             || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
                         ) throw new Error("missing-flatrate-tarification");
 
-                        // Check for existing exports - did it run already?
-                        return this.api.getRowsUsingPagination(
-                            (key,docId) =>
-                                this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
-                                    .then(pl => { return {
-                                        rows:_.filter(pl.rows, m => {
-                                            return m
-                                                && _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId
-                                                && _.get(m, "recipients", []).indexOf(this.user.healthcarePartyId) > -1
-                                                && parseInt( _.get(m, "metas.batchExportTstamp", 0) )
-                                                && parseInt( _.size( _.get(m, "invoiceIds", [] ) ) )
-                                        }),
-                                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
-                                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
-                                        done: !pl.nextKeyPair
-                                    }})
-                                    .catch(()=>{ return Promise.resolve(); })
-                        ).then(x=>x)
-
-                    })
-                    .then(exportAlreadyRanMessages=>{
-                        if(_.size(exportAlreadyRanMessages)) throw new Error("export-already-ran");
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -4032,29 +3886,19 @@
                         this.flatRateInvoicingDataObject.listsData = listsData
 
                         // Drop patients we couldn't find in list (no valorisation)
-                        const patientsInLists = _.uniq(_.compact(_.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
-                        this.flatRateInvoicingDataObject.patientsData = _.compact(_.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ))
+                        const patientsInLists = _.uniq( _.compact( _.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
+                        this.flatRateInvoicingDataObject.patientsData = _.compact( _.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ) )
                         if(!parseInt(_.size(this.flatRateInvoicingDataObject.patientsData)||0)) throw new Error("no-data-to-export")
-
-                        // Drop when not in use
-                        this.flatRateInvoicingDataObject.insurancesData = _.compact(_.map( this.flatRateInvoicingDataObject.insurancesData, i=> !!( (_.uniq(_.compact(_.map( this.flatRateInvoicingDataObject.patientsData, pat => _.get(pat, "finalInsurability.insuranceId", "")))) ||[]).indexOf(_.trim(i.id)) > -1 ) ? i : false ))
-                        this.flatRateInvoicingDataObject.iosData = _.compact(_.map( this.flatRateInvoicingDataObject.iosData, i=> !!( (_.uniq(_.compact(_.map( this.flatRateInvoicingDataObject.insurancesData, oa => _.get(oa, "parent", ""))))).indexOf(_.trim(i.id)) > -1 ) ? i : false ))
 
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
+
                         return this._createOrUpdateMedicalHousePatientsInvoices().then(x=>x)
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7',this.language), icon:"arrow-forward"});
-
-                        // return this._generateJ20PdfTemplateParentOaObjects().then(parentOaPdfTemplateObjects=>{
-                        //     console.log("RETURN OF _generateJ20PdfTemplateParentOaObjects" );
-                        //     console.log(parentOaPdfTemplateObjects);
-                        //     this.bug();
-                        // })
-
                         return this._generateJ20FlatFiles().then(x=>x)
                     })
                     .then(flatFileObjects=>{
@@ -4237,17 +4081,6 @@
                                 .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
                         })).then(x=>x)
                     })
-
-                    // .then(()=>{
-                    //     return this._generateJ20PdfTemplateParentOaObjects().then(x=>x)
-                    // })
-                    // .then((parentOaPdfTemplateObjects)=>{
-                    //     console.log(parentOaPdfTemplateObjects);
-                    //     this.bug();
-                    // })
-                    // Next = generate PARENT OA pdf files
-                    // Next = archive (message + document + encrypt PARENT OA pdf files)
-
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_8',this.language), icon:"arrow-forward"})
@@ -4292,19 +4125,17 @@
                         this.api.triggerFileDownload( this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob, "application/zip", this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName )
                     })
                     .catch((e)=>{
-                        console.log(e);
                         return (
-                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() && e :
-                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() && e :
-                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() && e :
-                            ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() && e :
-                            ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() && e :
-                            ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() && e :
-                            ( _.trim(e).indexOf('export-already-ran') > -1 ) ? this._showWarningExportAlreadyRan() && e :
-                            e
+                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() :
+                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() :
+                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() :
+                            ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() :
+                            ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() :
+                            ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() :
+                            console.log(e)
                         )
                     })
-                    .finally(()=>{
+                    .finally((e)=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false );
@@ -4313,7 +4144,7 @@
                         this.set('messagesGridData', null );
                         const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
                         const invGridDetail = this.root.querySelector('#invoiceAndBatchesGridDetail'); invGridDetail && invGridDetail.clearCache();
-                        this._fetchJ20Messages(true).then(()=>{ this.dispatchEvent(new CustomEvent('do-route', { bubbles: true, composed: true, detail: { selection : { item : "e_flatrateinvOut", status: "j20_process" }}})); })
+                        this._fetchJ20Messages(true).then(()=>{ this.set('flatrateMenuSection', "j20_process" ); })
                     })
 
             }
