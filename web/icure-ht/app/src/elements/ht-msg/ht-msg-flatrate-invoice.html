@@ -2569,7 +2569,7 @@
 
                 return this.api.getRowsUsingPagination(
                     (key,docId) =>
-                        this.api.hcparty().listHealthcareParties( key && JSON.stringify(key), docId, 1000)
+                        this.api.hcparty().listHealthcareParties( key /* && JSON.stringify(key)*/, docId, 1000)
                             .then(pl => {
                                 pl.rows = _
                                     .chain(pl.rows)
