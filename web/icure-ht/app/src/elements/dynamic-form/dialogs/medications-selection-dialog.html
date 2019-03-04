@@ -70,7 +70,13 @@
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
-                font-weight: 700;
+                font-weight: 700 !important;
+            }
+            .modal-button--force {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                color: var(--app-light-color) !important;
+                font-weight: 700 !important;
+                background: var(--app-status-color-nok);
             }
             .modal-button[disabled] {
                 background-color: var(--app-secondary-color-dark);
@@ -245,7 +251,8 @@
             #checkintol {
                 display: flex;
                 flex-direction: column;
-                max-height: 50vh;
+                min-height: 640px;
+                max-height: 50vh !important;
             }
 
             #checkintol em {
@@ -275,16 +282,19 @@
                 border-bottom: 1px solid var(--app-background-color-dark);
                 box-sizing: border-box;
             }
-            #checkintol div.list > div:nth-child(2n) {
+            #checkintol div.list > div:nth-child(2n-1) {
                 background-color: var(--app-background-color-dark);
             }
-
+            #checkintol div.list > div > iron-icon {
+                height: 16px;
+            }
             #checkintol div.endline {
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-end;
                 margin: 8px 0;
-                padding: 0 8px;
+                padding: 0;
+                min-height: 40px;
             }
             #checkintol div.endline span {
                 line-height: 40px;
@@ -292,7 +302,8 @@
             }
 
             @media screen and (max-width: 936px) {
-                paper-dialog#medication-selection {
+                paper-dialog#medication-selection,
+                #checkintol {
                     position: fixed;
                     max-width: none !important;
                     top: 64px;
@@ -301,6 +312,9 @@
                     width: 100vw !important;
                     margin: 0;
                     transform: none;
+                }
+                #checkintol {
+                    max-height: none !important;
                 }
             }
 
@@ -462,20 +476,21 @@
             </div>
         </paper-dialog>
         <paper-dialog id="checkintol" always-on-top="true">
+            <h2 class="modal-title">[[localize('warning','Warning',language)]] !</h2>
             <div class="warn">
-                [[localize('patient_has_adr','Le patient possède une contre-indication pour la médication',language)]]
+                <iron-icon icon="icons:warning"></iron-icon> [[localize('patient_has_adr','Le patient possède une contre-indication pour la médication',language)]]
                  <em>[[medicationToBeAdded_label]]</em>.
             </div>
             <div class="con">[[localize('con_list','Contraindication list',language)]] :</div>
             <div class="list">
                 <template is="dom-repeat" items="[[intolItems]]" as="intol">
-                    <div> [[getIcpcLabel(intol)]] <i>[[_heShortDateFormat(intol.openingDate, intol.valueDate)]]</i>: [[intol.descr]] </div>
+                    <div><iron-icon icon="[[_getIntolIcon(intol)]]"></iron-icon> [[getIcpcLabel(intol)]] <i>[[_heShortDateFormat(intol.openingDate, intol.valueDate)]]</i>: [[intol.descr]] </div>
                 </template>
             </div>
             <div class="endline">
                 <span>[[localize('continue','Continue',language)]] ?</span>
                 <paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('no','no',language)]]</paper-button>
-                <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="continueAddMedication">[[localize('yes','Yes',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--force" dialog-confirm autofocus on-tap="continueAddMedication">[[localize('yes','Yes',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -1165,6 +1180,17 @@
                 }
                 return Promise.resolve([])
 
+            }
+
+            _getIntolIcon(intol) {
+                const iconsMapping = {
+                    allergy: "image:filter-vintage",
+                    adr: "vaadin:pill",
+                    risk: "vaadin:exclamation-circle",
+                    socialrisk: "vaadin:group",
+                    professionalrisk: "icons:work"
+                }
+                return iconsMapping[(intol.tags.find(c => (c.type === 'CD-ITEM' || c.type === 'CD-ITEM-EXT-CHARACTERIZATION')) || {}).code || '']
             }
         }
 
