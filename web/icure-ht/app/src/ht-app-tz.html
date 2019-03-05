@@ -195,7 +195,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 left: 0;
                 bottom: 0;
                 background: var(--app-light-color);
-                height: calc(100vh - 64px);
                 overflow: hidden;
                 width: 180px;
                 transform: translateX(-180px); /* 180 = menu-width */
@@ -203,7 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 visibility: hidden;
                 @apply --shadow-elevation-6dp;
                 padding: 0 1em;
-                height: calc(100vh - 64px); /* 64px = app-header height */
+                height: calc(100vh - 84px); /* 84px = app-header height and log */
                 overflow-y: auto;
             }
 
@@ -238,7 +237,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 top: 64px;
                 left: 0;
                 width: 100vw;
-                height: calc(100vh - 64px);
+                height: calc(100vh - 84px);
                 display: none;
                 background: var(--app-text-color-disabled);
             }
