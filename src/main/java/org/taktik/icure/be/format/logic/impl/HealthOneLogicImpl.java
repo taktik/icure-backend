@@ -525,7 +525,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 					}
 				}
 			}
-			if (lrl.value == null) {
+			if (lrl.value == null || lrl.value.equals("")) {
 				lrl.value = parts[7].trim();
 			}
 			if (lrl.analysisType.equals("")) {
