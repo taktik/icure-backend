@@ -19,6 +19,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="./shared-styles.html">
 <link rel="import" href="./scrollbar-style.html">
 
+<link rel="import" href="./elements/ht-spinner/ht-spinner.html">
+
 <script src="../bower_components/moment/moment.js"></script>
 <script src="../bower_components/base64-js/base64js.min.js"></script>
 <script src="../bower_components/webcrypto-shim/webcrypto-shim.js"></script>
@@ -35,6 +37,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height: calc(100% - 20px);
                 /*padding: 10px;*/
             }
+
+            .loading-pat {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 100vw;
+                z-index: 9999999;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            .loading-pat ht-spinner {
+                position: relative;
+                left: 50vw;
+                height: 128px;
+                width: 128px;
+                transform: translateX(-50%);
+            }
         </style>
 
         <app-route route="{{route}}" pattern="/:selectedPatientId" data="{{routeData}}"></app-route>
@@ -43,6 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <ht-pat-detail id="pat-detail" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" patient="{{selectedPatient}}" socket="[[socket]]"></ht-pat-detail>
         </template>
         <template is="dom-if" if="[[!selectedPatient]]">
+            <template is="dom-if" if="[[isLoadingPat]]"><div class="loading-pat"><ht-spinner active></ht-spinner></div></template>
             <ht-pat-list id="pat-list" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" selected-patient="{{selectedPatient}}" socket="[[socket]]"></ht-pat-list>
         </template>
 
@@ -79,6 +102,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 socket : {
                     type : Object,
                     value : null
+                },
+                isLoadingPat : {
+                    type: Boolean,
+                    value: false
                 }
             };
         }
@@ -102,6 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         _patientChanged() {
             if (!this.selectedPatient || this.selectedPatient === null) {
+                this.set('isLoadingPat',false)
                 if (this.routeData && this.routeData.selectedPatientId) {
                     this.set('routeData.selectedPatientId', '');
                 }
@@ -112,6 +140,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     }, 0);
                 }
             } else if (this.selectedPatient.id !== this.routeData.selectedPatientId) {
+                this.set('isLoadingPat',true)
                 this.set('routeData.selectedPatientId', this.selectedPatient.id);
             } else if(this.selectedPatient.id === this.routeData.selectedPatientId){
                 if(this.socket && this.route.prefix==="/pat"){
@@ -128,9 +157,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.notifyPath("socket")
             }
             if (!this.routeData || !this.routeData.selectedPatientId || this.routeData.selectedPatientId.length === 0) {
+                this.set('isLoadingPat',false)
                 this.set('selectedPatient', null);
             } else if (!this.selectedPatient || this.selectedPatient.id !== this.routeData.selectedPatientId) {
-                this.api.patient().getPatientWithUser(this.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => this.set('selectedPatient', p));
+                this.set('isLoadingPat',true)
+                this.api.patient().getPatientWithUser(this.user, this.routeData.selectedPatientId).then(p=>this.api.register(p, 'patient')).then(p => {
+                    this.set('selectedPatient', p)
+                    this.set('isLoadingPat',false)
+                });
             }
         }
 
