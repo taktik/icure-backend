@@ -173,6 +173,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 width: 20px;
                 padding:4px;
                 color: var(--app-text-color);
+                opacity: .7;
             }
 
             collapse-button paper-icon-button{
@@ -311,19 +312,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .sub-menu-icon{
-                height: 14px;
-                width: 14px;
+                height: 16px;
+                width: 16px;
+                margin-right: 8px;
+                opacity: .7;
             }
 
         </style>
 
         <div class="col-left">
-
             <collapse-button id="managementcollapse">
                 <paper-item id="management" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_management" elevation="">
                     <div class="one-line-menu list-title management-line">
                         <div>
-                            <iron-icon icon="vaadin:workplace" class="force-left"></iron-icon>
+                            <iron-icon icon="communication:business" class="force-left"></iron-icon>
                             <span class="force-left force-ellipsis box-txt">[[localize('manag','Management of office / medical house',language)]]</span>
                         </div>
                     </div>
@@ -339,10 +341,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-item>
                     -->
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="facturationFlatRateManagementSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:package"></iron-icon> [[localize('fac_fla_rat','Flat rate facturation',language)]]
+                        <iron-icon class="sub-menu-icon" icon="icons:shopping-cart"></iron-icon> [[localize('fac_fla_rat','Flat rate facturation',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="formsManagementSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:form"></iron-icon> [[localize('forms','Forms',language)]]
+                        <iron-icon class="sub-menu-icon" icon="av:library-books"></iron-icon> [[localize('forms','Forms',language)]]
                     </paper-item>
                     <!--
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="groupsManagementSubMenu">
@@ -350,7 +352,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-item>
                     -->
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="usersManagementSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:users"></iron-icon> [[localize('users','Users',language)]]
+                        <iron-icon class="sub-menu-icon" icon="social:group"></iron-icon> [[localize('users','Users',language)]]
                     </paper-item>
                     <!--
                     <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="delegationsManagementSubMenu">
@@ -364,7 +366,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-item id="account" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_account" elevation="">
                     <div class="one-line-menu list-title account-line">
                         <div>
-                            <iron-icon icon="vaadin:male" class="force-left"></iron-icon>
+                            <iron-icon icon="icons:account-circle" class="force-left"></iron-icon>
                             <span class="force-left force-ellipsis box-txt">[[localize('my_pro','My profil',language)]]</span>
                         </div>
                     </div>
@@ -372,19 +374,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-item>
                 <paper-listbox id="accountlist" class="menu-content sublist" selected="{{accountSelectionIndex}}" selected-item="{{accountSelectionItem}}" selectable="paper-item">
                     <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="edmgInformationSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:folder-open"></iron-icon> [[localize('acc_edmg_info','Edmg informations',language)]]
+                        <iron-icon class="sub-menu-icon" icon="icons:folder"></iron-icon> [[localize('acc_edmg_info','Edmg informations',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="printersInformationSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:print"></iron-icon> [[localize('acc_print_info','Printers',language)]]
+                        <iron-icon class="sub-menu-icon" icon="icons:print"></iron-icon> [[localize('acc_print_info','Printers',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="accountInformationSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:info-circle"></iron-icon> [[localize('acc_info','Account informations',language)]]
+                        <iron-icon class="sub-menu-icon" icon="icons:info"></iron-icon> [[localize('acc_info','Account informations',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="bankInformationsSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:institution"></iron-icon> [[localize('acc_bank_info','Bank informations',language)]]
+                        <iron-icon class="sub-menu-icon" icon="icons:account-balance"></iron-icon> [[localize('acc_bank_info','Bank informations',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="myDelegationsSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegation',language)]]
+                        <iron-icon class="sub-menu-icon" icon="communication:vpn-key"></iron-icon> [[localize('deleg','My delegation',language)]]
                     </paper-item>
                     <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="preferencesSubMenu">
                         <iron-icon class="sub-menu-icon" icon="vaadin:sliders"></iron-icon> [[localize('acc_prefs','Preferences',language)]]
@@ -396,7 +398,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <paper-item id="reports" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_report" elevation="">
                     <div class="one-line-menu list-title reports-line">
                         <div>
-                            <iron-icon icon="vaadin:chart-3d" class="force-left"></iron-icon>
+                            <iron-icon icon="av:equalizer" class="force-left"></iron-icon>
                             <span class="force-left force-ellipsis box-txt">[[localize('reports','Reports',language)]]</span>
                         </div>
                     </div>
@@ -404,7 +406,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-item>
                 <paper-listbox id="reportlist" class="menu-content sublist" selected="{{reportSelectionIndex}}" selected-item="{{reportSelectionItem}}" selectable="paper-item">
                     <paper-item class="one-line-menu menu-item flex-start" id="reports" data-submenu="listOfAttestationSubMenu">
-                        <iron-icon class="sub-menu-icon" icon="vaadin:lines-list"></iron-icon> [[localize('lst_att','List of attestations',language)]]
+                        <iron-icon class="sub-menu-icon" icon="icons:list"></iron-icon> [[localize('lst_att','List of attestations',language)]]
                     </paper-item>
                 </paper-listbox>
             </collapse-button>

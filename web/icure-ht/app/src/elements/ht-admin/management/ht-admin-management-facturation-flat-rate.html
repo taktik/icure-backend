@@ -109,12 +109,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .warningMessageBody {
                 padding:20px 35px;
-                color:#7E0000;
+                color: var(--app-status-color-nok);
                 background-color: rgba(255, 0, 0, 0.15);
                 font-weight: 700;
-                border:1px dashed #7e0000;
+                border:1px dashed var(--app-status-color-nok);
                 text-transform: uppercase;
                 text-align: center;
+            }
+
+            .add-btn{
+                color: var(--app-text-color);
+                height: 24px;
+                width: 24px; 
+                padding: 4px;
             }
 
         </style>
@@ -127,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
             </div>
             <div class="add_line">
-                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
+                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button class="add-btn" icon="icons:add-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
             <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]" active-item="{{selectedPrice}}">
                 <vaadin-grid-column>

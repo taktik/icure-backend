@@ -181,30 +181,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 position: relative;
                 flex-basis: 30%;
                 flex-grow: 1;
-                background-color: white;
-                border-radius: 8px;
-                margin: 12px;
+                background-color: var(--app-background-color);
                 min-height: 200px;
                 overflow: hidden;
-                box-shadow: var(--app-shadow-elevation-1);
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 padding-bottom: 8px;
                 min-height:360px;
             }
 
             .singleFinancialInstitutionInformationContainer .header {
-                display:flex;
+                display: flex;
                 flex-flow: row wrap;
-                align-items: center;
                 justify-content: flex-start;
-                text-align:center;
-                background-color: var(--app-background-color-dark);
+                align-items: center;
+                background: #fff;
                 padding: 16px;
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0;
+                height: 56px;
+                font-size: 16px;
+                font-weight: 700;
+                text-align: left;
                 color: var(--app-text-color);
-                font-size: 14px;
-                font-weight: 400;
-                text-transform: capitalize;
-                position: relative;
             }
+
+             .singleFinancialInstitutionInformationContainer .header iron-icon{
+                opacity: .5;
+                margin-right: 8px;
+             }
+
             .singleFinancialInstitutionInformationContainer .header .delete {
                 position: absolute;
                 top: 50%;
@@ -229,10 +235,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 color: var(--app-primary-color-dark);
                 text-transform: capitalize;
                 font-size: 14px;
-                font-weight: 400;
+                font-weight: 700;
                 position: absolute;
                 top: 50%;
                 left: 50%;
+                letter-spacing: 0.3px;
                 transform: translate(-50%, -50%);
             }
 

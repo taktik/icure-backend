@@ -49,8 +49,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             :host {
                 display: block;
                 height: calc(100% - 20px);
-                --grid-columns: 1fr 1fr;
-				--grid-rows: 50px 1fr 1fr;
             }
 
             :host *:focus{
@@ -58,11 +56,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .printer-panel{
-                display: grid;
                 width: 100%;
                 height: 100%;
-                grid-template-columns: var(--grid-columns);
-                grid-template-rows: var(--grid-rows);
                 grid-column-gap: 24px;
                 grid-row-gap: 24px;
                 padding: 0 24px;
@@ -147,21 +142,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 position: relative;
                 z-index: 0;
                 transition: all .24s cubic-bezier(.075,.82,.165,1);
-            }
-
-            .print-tile.colors{
-                grid-row: 2 / span 1;
-                grid-column: 1 / span 1;
-            }
-
-            .print-tile.labels{
-                grid-row: 3 / span 1;
-                grid-column: 1 / span 1;
-            }
-
-            .print-tile.bandw{
-                grid-row: 2 / span 2;
-                grid-column: 2 / span 1;
+                width: 50%;
+                margin-bottom: 24px;
             }
 
             .print-tile  .title{
@@ -181,13 +163,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 flex-flow: row wrap;
                 align-items: flex-end;
                 justify-content: space-between;
-                padding: 16px;
             }
             .print-tile .format .left {
                 flex-grow: initial;
                 line-height: 47px;
                 text-align: center;
                 font-weight: bold;
+                padding: 0 16px;
             }
 
             .print-tile .format .right {
@@ -217,6 +199,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .section-title{
                 grid-column: 2 span;
                 grid-row: 1;
+            }
+
+            paper-dropdown-menu, paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
         </style>
