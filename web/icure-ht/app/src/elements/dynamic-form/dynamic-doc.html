@@ -429,7 +429,7 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
             },
             isLoading: {
 			    type: Boolean,
-                value: true
+                value: false
             }
 		};
 	}
@@ -441,6 +441,11 @@ class DynamicDoc extends Polymer.TkLocalizerMixin(Polymer.Element) {
     constructor() {
 		super();
 	}
+
+	ready() {
+	    super.ready()
+        this.set('isLoading',true)
+    }
 
     _title(name, fallback) {
 	    return name && name !== 'No title' ? name : fallback
