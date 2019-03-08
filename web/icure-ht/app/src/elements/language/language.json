@@ -1312,6 +1312,7 @@
     "ch4Rejected": "Rejeté",
     "ch4_request_type": "Type de requête",
     "change": "Changer",
+    "changed": "changé",
     "changeDuring": "Assurabilité modifiée au cours de la période de consultation",
     "chap-iv": "Chapitre IV",
     "chapter": "Chapitre",
@@ -1596,6 +1597,7 @@
     "inc_fil": "Dossier incomplet",
     "inc_res": "Résultat incomplet",
     "inc_req": "Requête incomplète",
+    "indeterminate": "indéterminé",
     "info": "Informations",
     "ins_start_date": "Date de début de l'assurance",
     "ins_end_date": "Date de fin de l'assurance",
@@ -2346,7 +2348,8 @@
     "flatrate_slipfile_24":"Fonction :..........................                ....................",
     "flatrate_slipfile_25":"Signature :.........................                Signature :.........",
     "rejectInvoice" : "Rejeter la facture",
-    "rejectVerb" : "Rejeter"
+    "rejectVerb" : "Rejeter",
+    "unknown": "inconnu"
   },
   "nl": {
     "AFF": "Lidnummer",
