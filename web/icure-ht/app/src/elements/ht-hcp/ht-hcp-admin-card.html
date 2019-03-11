@@ -207,8 +207,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				});
 			}.bind(this),
             addSubForm: function (key, guid){
-                this.flushSave(); //Important
-                (root[key] || (root[key] = [])).push({});
+                this.flushSave()
+                ;(root[key] || (root[key] = [])).push({});
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.hcp);
 

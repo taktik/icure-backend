@@ -954,7 +954,7 @@
 
 
             open(medicationDetail, selectedMedicationContentWithId, boxes) {
-                (!this.reimbursementCodeRecipe || this.reimbursementCodeRecipe.length === 0 || !this.timeUnit || this.timeUnit.length === 0 ? this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
+                ;(!this.reimbursementCodeRecipe || this.reimbursementCodeRecipe.length === 0 || !this.timeUnit || this.timeUnit.length === 0 ? this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
                     .then(reimb => this.set("reimbursementCodeRecipe", _.orderBy(reimb.rows, ['label.fr'], ['asc'])))
                     .then(() => this.api.code().findPaginatedCodes('be', 'CD-TIMEUNIT', ''))
                     .then(timeunit => this.set("timeUnit", _.orderBy(_.filter(_.get(timeunit, "rows", []), i => ["ns", "us", "ms", "s", "min"].indexOf(_.trim(_.get(i, "code"))) == -1), ['label.fr'], 'asc'))) : Promise.resolve())
@@ -1194,7 +1194,7 @@
             _regimenTableDataProvider(frequency) {
 
                 const getTimeOfDayRegimen = (regimen, frequency, relativetime, scores) => {
-                    
+
                     const empty = (meal) => ({
                         administratedQuantity: { quantity: 0 },
                         dayPeriod: {type: "CD-DAYPERIOD", code: relativetime + meal},
@@ -1223,7 +1223,7 @@
 
                     const startIndex = params.page * params.pageSize
                     const regs = this.selectedMedicationContentWithId.medicationValue.regimen
-    
+
                     const scores = this.api.contact().medication().regimenScores()
 
                     const {beforeMeal, duringMeal, afterMeal, extras} = getBeforeDuringAfterMeal(regs, frequency, scores)

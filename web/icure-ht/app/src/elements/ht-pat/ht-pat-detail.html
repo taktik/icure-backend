@@ -3315,7 +3315,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
-                            (hesByHeId[he.healthElementId] || (hesByHeId[he.healthElementId] = [])).push(he)
+                            ;(hesByHeId[he.healthElementId] || (hesByHeId[he.healthElementId] = [])).push(he)
                         }
                     })
                     _.values(hesByHeId).forEach(a => a.sort((he1, he2) => (he2.modified || 0) - (he1.modified || 0)))
@@ -3737,9 +3737,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId));
                 const contact = year.contacts.find(c => c.id === ctcId);
 
-                const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+                const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel')
 
-                (ctcDetailPanel && ctcDetailPanel.shouldSave() && this.saveCurrentContact() || Promise.resolve(this.currentContact)).then(() => {
+                ;(ctcDetailPanel && ctcDetailPanel.shouldSave() && this.saveCurrentContact() || Promise.resolve(this.currentContact)).then(() => {
                     if (contact) {
                         if (!contact.rev && (!contact.services || contact.services.length === 0)) {
                             const idx = this.contactYears[0].contacts.indexOf(this.currentContact);
@@ -3990,7 +3990,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (s.action === 'unselect') {
                         this.set('selectedAdminOrCompleteFileIndex',null);
                     }
-                    (s.items || this.selectedHealthcareElements.map(he => this.getHeId(he))).forEach(id => {
+                    ;(s.items || this.selectedHealthcareElements.map(he => this.getHeId(he))).forEach(id => {
                         const item = this.root.querySelector('#' + id);
                         if (item) {
                             const listBox = this.getPaperListboxParent(item);
