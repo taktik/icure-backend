@@ -1138,7 +1138,8 @@
     "missingMhBce": "Please provide with a valid BCE",
     "missingMhBankAccount": "Please provide with a valid bank account",
     "flatRateInvoicingAlreadyRan": "You already exported your flat rates invoicing this month",
-    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation"
+    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation",
+    "groupGrandTotal": "Group^total"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -2364,7 +2365,8 @@
     "missingMhBce": "Veuillez svp renseigner votre numéro BCE",
     "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte",
     "flatRateInvoicingAlreadyRan": "Vous avez déjà exporté votre facturation ce mois-ci",
-    "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation"
+    "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation",
+    "groupGrandTotal": "Grand total du Groupement"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -3595,6 +3597,7 @@
     "missingMhBce": "Please provide with a valid BCE",
     "missingMhBankAccount": "Please provide with a valid bank account",
     "flatRateInvoicingAlreadyRan": "You already exported your flat rates invoicing this month",
-    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation"
+    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation",
+    "groupGrandTotal": "Grand total du Groupement"
   }
 }
