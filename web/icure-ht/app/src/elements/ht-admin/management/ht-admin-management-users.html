@@ -287,8 +287,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <vaadin-checkbox checked="{{agendaCreated}}" disabled>[[localize('agd_crea','Agenda created',language)]]</vaadin-checkbox>
                             <paper-dropdown-menu class="input" label="[[localize('status','Status',language)]]">
                                 <paper-listbox slot="dropdown-content" selected="{{selectedUser.status}}" attr-for-selected="id" selected-item="{{userStatus}}" on-selected-changed="_selectedUserStatusChanged">
-                                    <paper-item id="ACTIVE">[[localize('stat_act','Active',language)]]</paper-item>
-                                    <paper-item id="DISABLED">[[localize('ina','Disabled',language)]]</paper-item>
+                                    <paper-item id="ACTIVE">[[localize('user_act','Active',language)]]</paper-item>
+                                    <paper-item id="DISABLED">[[localize('user_in','Disabled',language)]]</paper-item>
                                 </paper-listbox>
                             </paper-dropdown-menu>
                         </div>
@@ -301,7 +301,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 </paper-listbox>
                             </paper-dropdown-menu>
                             <paper-dropdown-menu class="input" label="[[localize('spe','Speciality',language)]]">
-                                <paper-listbox slot="dropdown-content" attr-for-selected="id" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
+                                <paper-listbox slot="dropdown-content" selected="{{selectedHcpSpecialityIdx}}" selected-item="{{selectedHcpSpeciality}}" on-selected-changed="_hcpSpecialityChanged">
                                     <template is="dom-repeat" items="[[hcpartyList]]" as="hcparty">
                                         <paper-item id="[[hcparty.id]]">[[_getLabel(hcparty.label)]]</paper-item>
                                     </template>
@@ -501,7 +501,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _selectedUserStatusChanged(){
-                this.selectedUser && this.userStatus && this.this.userStatus.id ?  this.set('selectedUser.status', this.userStatus.id) : null
+                this.selectedUser && this.userStatus && this.userStatus.id ?  this.set('selectedUser.status', this.userStatus.id) : null
             }
 
             _saveUser(){
@@ -552,7 +552,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _getLabel(label){
-                return label[this.language]
+                return label && this.language && label[this.language]
             }
 
             _selectedHcpStatusChanged(){

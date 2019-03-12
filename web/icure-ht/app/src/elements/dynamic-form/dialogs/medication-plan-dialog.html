@@ -1414,11 +1414,11 @@
             }
 
             _hasValidChap4(s) {
-                (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.accepted && (!!z.end || this.api.moment(z.end).isAfter(moment())))
+                ;(((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.accepted && (!!z.end || this.api.moment(z.end).isAfter(moment())))
             }
 
             _hasPendingChap4(s) {
-                (((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.inTreatment)
+                ;(((this.api.contact().preferredContent(s, this.language) || {}).medicationValue || {}).agreements || []).some(z => z.inTreatment)
             }
 
             _hasValidChap4Class(s) {

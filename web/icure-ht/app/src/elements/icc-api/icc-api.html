@@ -655,9 +655,9 @@
             if(!fileRawContent || !_.trim(mimeType) || !_.trim(downloadFileName) ) return;
 
             let aObject = document.createElement("a");
-            let urlObject = window.URL.createObjectURL( new Blob([fileRawContent],{type :mimeType}) );
+            let urlObject = window.URL.createObjectURL( new Blob([fileRawContent],{type :mimeType}) )
 
-            (appendTarget?appendTarget:document.body).appendChild( aObject );
+            ;(appendTarget?appendTarget:document.body).appendChild( aObject );
 
             aObject.style = "display: none";
             aObject.href = urlObject;
