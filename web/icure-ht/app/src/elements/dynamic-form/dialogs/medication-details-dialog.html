@@ -610,7 +610,7 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('morning','Morning',language)]]</template>
+                                        <template class="header bt">[[localize('mom_morning','Morning',language)]]</template>
                                         <template>
                                             <template is="dom-if" if="[[item.morning]]">
                                                 <paper-input no-label-float value="{{item.morning.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
@@ -618,7 +618,7 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('midday','Noon',language)]]</template>
+                                        <template class="header bt">[[localize('mom_midday','Noon',language)]]</template>
                                         <template>
                                             <template is="dom-if" if="[[item.midday]]">
                                                 <paper-input no-label-float value="{{item.midday.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
@@ -626,7 +626,7 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('evening','Evening',language)]]</template>
+                                        <template class="header bt">[[localize('mom_evening','Evening',language)]]</template>
                                         <template>
                                             <template is="dom-if" if="[[item.evening]]">
                                                 <paper-input no-label-float value="{{item.evening.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
