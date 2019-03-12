@@ -576,7 +576,9 @@
     "mom_dinner": "Dinner",
     "dinner": "Dinner",
     "mom_during": "During",
+    "mom_evening":"Evening",
     "mom_lunch": "Lunch",
+    "mom_midday":"Midday",
     "mom_morning": "Morning",
     "mom_wakeup": "Wake-up",
     "mon": "Monthly",
@@ -1138,7 +1140,8 @@
     "missingMhBce": "Please provide with a valid BCE",
     "missingMhBankAccount": "Please provide with a valid bank account",
     "flatRateInvoicingAlreadyRan": "You already exported your flat rates invoicing this month",
-    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation"
+    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation",
+    "groupGrandTotal": "Group^total"
   },
   "fr": {
     "AFF": "N° d'affiliation",
@@ -1770,6 +1773,7 @@
     "mom_during": "Pendant",
     "mom_evening": "Le soir",
     "mom_lunch": "Repas de midi",
+    "mom_midday":"Midi",
     "mom_morning": "Le matin",
     "mom_wakeup": "Au lever",
     "mon": "mensuel",
@@ -2364,7 +2368,8 @@
     "missingMhBce": "Veuillez svp renseigner votre numéro BCE",
     "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte",
     "flatRateInvoicingAlreadyRan": "Vous avez déjà exporté votre facturation ce mois-ci",
-    "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation"
+    "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation",
+    "groupGrandTotal": "Grand total du Groupement"
   },
   "nl": {
     "AFF": "Lidnummer",
@@ -2995,8 +3000,10 @@
     "mom_dinner": "Dinner",
     "dinner": "diner",
     "mom_during": "During",
+    "mom_evening":"Avond",
     "mom_lunch": "Lunch",
-    "mom_morning": "Morning",
+    "mom_midday":"Middag",
+    "mom_morning": "Ochtend",
     "mom_wakeup": "Wake-up",
     "mon": "Maandelijks",
     "month_1": "Januari",
@@ -3595,6 +3602,7 @@
     "missingMhBce": "Please provide with a valid BCE",
     "missingMhBankAccount": "Please provide with a valid bank account",
     "flatRateInvoicingAlreadyRan": "You already exported your flat rates invoicing this month",
-    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation"
+    "getInTouchWithUsToUnlock": "Please get in touch with us to unlock the situation",
+    "groupGrandTotal": "Grand total du Groupement"
   }
 }

@@ -56,7 +56,9 @@ class HtHcp extends Polymer.TkLocalizerMixin(Polymer.Element) {
 			},
 			selectedHcp: {
 				type: Object,
-				value: null,
+				value: {
+					id : ''
+				},
 				observer : '_hcpChanged'
 			},
             route: {
@@ -93,20 +95,19 @@ class HtHcp extends Polymer.TkLocalizerMixin(Polymer.Element) {
             if (this.routeData && this.routeData.selectedHcpId) {
                 this.set('routeData.selectedHcpId', '');
             }
-        } else if (this.selectedHcp.id !== this.routeData.selectedHcpId) {
-            this.set('routeData.selectedHcpId', this.selectedHcp.id);
-        }
-
-        console.log(this.routeData.selectedHcpId)
-    }
+        } else if (this.selectedHcp.id === '') {
+            this.set("selectedHcp.id",this.routeData.selectedHcpId);
+        } else if (this.routeData.selectedHcpId === '') {
+			this.set("routeData.selectedHcpId",this.selectedHcp.id);
+		}
+	}
 
     _routeChanged() {
-	    console.log("ici")
         if (!this.routeData || !this.routeData.selectedHcpId || this.routeData.selectedHcpId.length === 0) {
             if (this.selectedHcp) {
                 this.set('selectedHcp', null);
             }
-        } else if (!this.selectedHcp || this.selectedHcp.id !== this.routeData.selectedHcpId) {
+        } else if (!this.selectedHcp || this.selectedHcp.id !== this.routeData.selectedHcpId || Object.keys(this.selectedHcp).length!==2) {
 			this.api.hcparty().getHealthcareParty(this.routeData.selectedHcpId).then(hcp => this.api.register(hcp,"hcp")).then(hcp => this.set('selectedHcp',hcp))
         }
     }

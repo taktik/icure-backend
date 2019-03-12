@@ -610,7 +610,7 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('morning','Morning',language)]]</template>
+                                        <template class="header bt">[[localize('mom_morning','Morning',language)]]</template>
                                         <template>
                                             <template is="dom-if" if="[[item.morning]]">
                                                 <paper-input no-label-float value="{{item.morning.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
@@ -618,7 +618,7 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('midday','Noon',language)]]</template>
+                                        <template class="header bt">[[localize('mom_midday','Noon',language)]]</template>
                                         <template>
                                             <template is="dom-if" if="[[item.midday]]">
                                                 <paper-input no-label-float value="{{item.midday.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
@@ -626,7 +626,7 @@
                                         </template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column width="50px">
-                                        <template class="header bt">[[localize('evening','Evening',language)]]</template>
+                                        <template class="header bt">[[localize('mom_evening','Evening',language)]]</template>
                                         <template>
                                             <template is="dom-if" if="[[item.evening]]">
                                                 <paper-input no-label-float value="{{item.evening.administratedQuantity.quantity}}" type="number" class="regimen-grid-quantity" min="0" on-change="_selectSingleQuantityFromTable"></paper-input>
@@ -954,7 +954,7 @@
 
 
             open(medicationDetail, selectedMedicationContentWithId, boxes) {
-                (!this.reimbursementCodeRecipe || this.reimbursementCodeRecipe.length === 0 || !this.timeUnit || this.timeUnit.length === 0 ? this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
+                ;(!this.reimbursementCodeRecipe || this.reimbursementCodeRecipe.length === 0 || !this.timeUnit || this.timeUnit.length === 0 ? this.api.code().findPaginatedCodes('be', 'CD-REIMBURSEMENT-RECIPE', '')
                     .then(reimb => this.set("reimbursementCodeRecipe", _.orderBy(reimb.rows, ['label.fr'], ['asc'])))
                     .then(() => this.api.code().findPaginatedCodes('be', 'CD-TIMEUNIT', ''))
                     .then(timeunit => this.set("timeUnit", _.orderBy(_.filter(_.get(timeunit, "rows", []), i => ["ns", "us", "ms", "s", "min"].indexOf(_.trim(_.get(i, "code"))) == -1), ['label.fr'], 'asc'))) : Promise.resolve())
@@ -1194,7 +1194,7 @@
             _regimenTableDataProvider(frequency) {
 
                 const getTimeOfDayRegimen = (regimen, frequency, relativetime, scores) => {
-                    
+
                     const empty = (meal) => ({
                         administratedQuantity: { quantity: 0 },
                         dayPeriod: {type: "CD-DAYPERIOD", code: relativetime + meal},
@@ -1223,7 +1223,7 @@
 
                     const startIndex = params.page * params.pageSize
                     const regs = this.selectedMedicationContentWithId.medicationValue.regimen
-    
+
                     const scores = this.api.contact().medication().regimenScores()
 
                     const {beforeMeal, duringMeal, afterMeal, extras} = getBeforeDuringAfterMeal(regs, frequency, scores)
