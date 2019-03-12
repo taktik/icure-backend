@@ -48,10 +48,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <style include="shared-styles">
             :host {
                 display: block;
+                height: 100%;
             }
 
             :host *:focus{
                 outline:0!important;
+            }
+
+            .panel-title {
+                margin-bottom: 0;
             }
 
             .forms-panel {
@@ -60,6 +65,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 padding: 0 20px;
                 box-sizing: border-box;
                 position:relative;
+
+                display: flex;
+                flex-direction: column;
             }
 
             .forms-panel .panel-content {
@@ -67,8 +75,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
                 border-bottom: 1px solid var(--app-background-color-dark);
                 box-sizing: border-box;
-                height: 400px;
                 overflow-y: auto;
+            }
+
+            .grid {
+                min-height: 0;
+            }
+
+            .grids-section {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
             }
 
             paper-tabs {
@@ -149,11 +166,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
 
         <div class="forms-panel">
-            <h4>[[localize('man_forms', 'Management - Forms', language)]]</h4>
+            <h4 class="panel-title">[[localize('man_forms', 'Management - Forms', language)]]</h4>
 
-            <div id="activesFormsListDiv">
+            <div id="activesFormsListDiv" class="grids-section">
                 <h4>[[localize('list_act_forms', 'List of actives forms', language)]]</h4>
-                <vaadin-grid id="activeUsersList" class="material" items="[[listOfActivesForms]]" active-item="{{selectedForm}}">
+                <vaadin-grid id="activeUsersList" class="material grid" items="[[listOfActivesForms]]" active-item="{{selectedForm}}">
                     <vaadin-grid-column>
                         <template class="header">
                             [[localize('Id','Id',language)]]
@@ -190,9 +207,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
 
 
-            <div id="inactivesFormsListDiv">
+            <div id="inactivesFormsListDiv" class="grids-section">
                 <h4>[[localize('list_inact_forms', 'List of inactives forms', language)]]</h4>
-                <vaadin-grid id="activeUsersList" class="material" items="[[listOfInactivesForms]]" active-item="{{selectedForm}}">
+                <vaadin-grid id="activeUsersList" class="material grid" items="[[listOfInactivesForms]]" active-item="{{selectedForm}}">
                     <vaadin-grid-column>
                         <template class="header">
                             [[localize('Id','Id',language)]]

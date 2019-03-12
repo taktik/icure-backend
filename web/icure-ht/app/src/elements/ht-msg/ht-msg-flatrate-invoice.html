@@ -150,6 +150,18 @@
                     min-width: 25px;
                 }
 
+                .bold {
+                    font-weight: 700!important;
+                }
+
+                .underlined {
+                    text-decoration:underline!important;
+                }
+
+                .textDecorationNone {
+                    text-decoration:none!important;
+                }
+
                 .ref-col{
                     min-width: 75px;
                 }
@@ -287,7 +299,7 @@
                     color: var(--paper-amber-800);
                 }
                 *.txtcolor--greenStatus {
-                    color: var(--app-secondary-color-dark);
+                    color: #36a201;
                 }
                 *.txtcolor--blueStatus {
                     color: var(--paper-blue-400);
@@ -509,6 +521,10 @@
                     min-width: 100px;
                     padding: 10px 1.2em;
                     text-transform: capitalize;
+                }
+
+                .colorAppSecondaryColorDark {
+                    color:var(--app-secondary-color-dark)
                 }
 
                 .modal-input{
@@ -952,12 +968,12 @@
                     margin-right: 10px;
                 }
 
-                #archiveDialog{
-                    height: 300px;
-                    width: 500px;
+                .modalDialog{
+                    height: 350px;
+                    width: 600px;
                 }
 
-                .archiveDialogContent{
+                .modalDialogContent{
                     height: 250px;
                     width: auto;
                     margin: 10px;
@@ -965,6 +981,9 @@
 
                 .mr5 {margin-right:5px}
                 .smallIcon { width:16px; height:16px; }
+                .displayNone {
+                    display:none!important
+                }
 
             </style>
         </custom-style>
@@ -972,6 +991,9 @@
         <div class="invoice-panel">
 
 
+            <template is="dom-if" if="[[_bodyOverlay]]">
+                <div id="loadingContainer"></div>
+            </template>
             <template is="dom-if" if="[[_isLoading]]">
                 <div id="loadingContainer">
                     <div id="loadingContentContainer">
@@ -1100,70 +1122,68 @@
                         <div id="messagesGridContainer" class="invoiceSubContainerMiddle">
                             <div class="scrollBox">
                                 <vaadin-grid id="messagesGrid" class="processTable" items="[[messagesGridData]]" data-status$="[[_getBatchStatusByMenuSection(flatrateMenuSection)]]" active-item="{{activeGridItem}}" on-tap="_toggleBatchDetails">
-                                    <vaadin-grid-column flex-grow="0" width="13%" class="recipient-col">
-                                        <template class="header">
-                                            <vaadin-grid-sorter path="messageInfo.hcp">[[localize('inv_prest','Physician',language)]]</vaadin-grid-sorter>
-                                        </template>
-                                        <template>[[item.messageInfo.hcp]]</template>
-                                    </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="4%" class="oa-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.parentOaCode">[[localize('inv_oa','Oa',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.parentOaCode]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="18%" class="ref-col">
+                                    <vaadin-grid-column flex-grow="0" width="24%" class="ref-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.parentOaLabel">[[localize('name','Name',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.parentOaLabel]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="7%" class="invoice-col">
+                                    <vaadin-grid-column flex-grow="0" width="8%" class="invoice-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.batchReference">[[localize('inv_batch_num','Batch reference',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.batchReference]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="7%" class="month-col">
+                                    <vaadin-grid-column flex-grow="0" width="8%" class="month-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.invoicedMonth">[[localize('inv_batch_month','Billed month',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.invoicedMonth]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="9%" class="invoiceDate-col">
+                                    <vaadin-grid-column flex-grow="0" width="10%" class="invoiceDate-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.generationDate">[[localize('inv_date_fact','Invoice date',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template>[[item.messageInfo.generationDate]]</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="invAmount-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="invAmount-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.invoicedAmount"> [[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_invoiced','Invoiced',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.messageInfo.invoiceStatus,item.messageInfo.invoicedAmount)]]">[[item.messageInfo.invoicedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.messageInfo.invoiceStatusHr,item.messageInfo.invoicedAmount)]]">[[item.messageInfo.invoicedAmount]]€</span></template>
                                         <template class="footer">[[_invoicedAmount(flatrateMenuSection, 'flatFiles')]]€</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="accAmount-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="accAmount-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.acceptedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_acc','Accepted',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template><span class$="[[_getTxtStatusColor('force-green',item.messageInfo.acceptedAmount)]]">[[item.messageInfo.acceptedAmount]]€</span></template>
                                         <template class="footer">[[_acceptedAmount(flatrateMenuSection, 'flatFiles')]]€</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="refAmount-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="refAmount-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.refusedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_rej','Rejected',language)]]</vaadin-grid-sorter>
                                         </template>
                                         <template><span class$="[[_getTxtStatusColor('force-red',item.messageInfo.refusedAmount)]]">[[item.messageInfo.refusedAmount]]€</span></template>
                                         <template class="footer">[[_rejectedAmount(flatrateMenuSection, 'flatFiles')]]€</template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="8%" class="stat-col">
+                                    <vaadin-grid-column flex-grow="0" width="9%" class="stat-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="messageInfo.refusedAmount">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatus)]]"></iron-icon> [[item.messageInfo.invoiceStatus]]</span></template>
+                                        <template><span class$="invoice-status [[_getIconStatusClass(item.messageInfo.invoiceStatusHr)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.messageInfo.invoiceStatusHr)]]"></iron-icon> [[item.messageInfo.invoiceStatusHr]]</span></template>
                                     </vaadin-grid-column>
-                                    <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
+                                    <vaadin-grid-column flex-grow="1" class="stat-col">
+                                        <template class="header"><vaadin-grid-sorter path="id">[[localize('download',"Télécharger",language)]] PDF</vaadin-grid-sorter></template>
+                                        <template><paper-button class="grid-btn-small noBg noPad" on-tap="_downloadParentOaPdf" data-message-id$="[[item.id]]"><iron-icon icon="image:picture-as-pdf" class="force-left textRed" data-message-id$="[[item.id]]"></iron-icon> &nbsp; PDF</paper-button></template>
+                                    </vaadin-grid-column>
+                                    <vaadin-grid-column flex-grow="1" class="stat-col">
                                         <template class="header"><vaadin-grid-sorter path="id">[[localize('downloadArchive',"Télécharger l'archive",language)]]</vaadin-grid-sorter></template>
                                         <template><paper-button class="grid-btn-small" on-tap="_downloadParentOaArchive" data-message-id$="[[item.id]]"><iron-icon icon="icons:folder" class="force-left" data-message-id$="[[item.id]]"></iron-icon> &nbsp; ZIP</paper-button></template>
                                     </vaadin-grid-column>
@@ -1233,32 +1253,35 @@
                                         <template class="header">
                                             <vaadin-grid-sorter path="invoicedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_invoiced','Invoiced',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceHrStatus,item.invoicedAmount)]]">[[item.invoicedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceStatusHr,item.invoicedAmount)]]">[[item.invoicedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="acceptedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_acc','Accepted',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceHrStatus,item.acceptedAmount)]]">[[item.acceptedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor('force-green',item.acceptedAmount)]]">[[item.acceptedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                     <vaadin-grid-column flex-grow="0" width="5%" class="recipient-col">
                                         <template class="header">
                                             <vaadin-grid-sorter path="refusedAmount">[[localize('inv_batch_amount','Amount',language)]]<br/>[[localize('inv_batch_amount_rej','Rejected',language)]]</vaadin-grid-sorter>
                                         </template>
-                                        <template><span class$="invoice-status [[_getTxtStatusColor(item.invoiceHrStatus,item.refusedAmount)]]">[[item.refusedAmount]]€</span></template>
+                                        <template><span class$="invoice-status [[_getTxtStatusColor('force-red',item.refusedAmount)]]">[[item.refusedAmount]]€</span></template>
                                     </vaadin-grid-column>
                                 </vaadin-grid-column-group>
-                                <vaadin-grid-column flex-grow="0" width="10%" class="recipient-col">
+                                <vaadin-grid-column flex-grow="1" class="recipient-col">
                                     <template class="header">
-                                        <vaadin-grid-sorter path="invoiceHrStatus">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
+                                        <vaadin-grid-sorter path="invoiceStatusHr">[[localize('inv_stat','Status',language)]]</vaadin-grid-sorter>
                                     </template>
                                     <template>
-                                        <span class$="invoice-status [[_getIconStatusClass(item.invoiceHrStatus)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.invoiceHrStatus)]]"></iron-icon> [[item.invoiceHrStatus]]</span>
+                                        <span class$="invoice-status [[_getIconStatusClass(item.invoiceStatusHr)]]"><iron-icon icon="vaadin:circle" class$="statusIcon [[_getIconStatusClass(item.invoiceStatusHr)]]"></iron-icon> [[item.invoiceStatusHr]]</span>
                                     </template>
                                 </vaadin-grid-column>
-                                <vaadin-grid-column flex-grow="0" width="10%" class="stat-col">
+                                <vaadin-grid-column flex-grow="1" class="stat-col">
                                     <template class="header"><vaadin-grid-sorter path="id">[[localize('download',"Télécharger",language)]] PDF</vaadin-grid-sorter></template>
                                     <template><paper-button class="grid-btn-small noBg noPad" on-tap="_downloadOaPdfByMessageId" data-message-id$="[[item.id]]"><iron-icon icon="image:picture-as-pdf" class="force-left textRed" data-message-id$="[[item.id]]"></iron-icon> &nbsp; PDF</paper-button></template>
+                                </vaadin-grid-column>
+                                <vaadin-grid-column flex-grow="1" class="stat-col">
+                                    <template><paper-button class$="grid-btn-small modal-button-rejected [[_showRejectInvoiceButton(item.messageOriginalStatus, item.invoiceFinalStatus)]]" on-tap="_rejectInvoice" data-message-id$="[[item.id]]" data-invoice-id$="[[item.invoiceData.id]]" ><iron-icon icon="cancel" class="force-left" data-message-id$="[[item.id]]" data-invoice-id$="[[item.invoiceData.id]]"></iron-icon> &nbsp; [[localize('rejectVerb',"Reject",language)]]</paper-button></template>
                                 </vaadin-grid-column>
                             </vaadin-grid>
                         </div>
@@ -1269,14 +1292,96 @@
 
 
 
-            <paper-dialog id="archiveDialog">
+            <paper-dialog class="modalDialog" id="archiveDialog">
                 <h2 class="modal-title"><iron-icon icon="markunread-mailbox"></iron-icon> [[localize('j20_archive_batch','Archive batch',language)]]</h2>
-                <div class="archiveDialogContent">
-                    <p>Voulez-vous vraiment archiver l'envoi <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
-                    <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</div>
+                <div class="modalDialogContent m-t-50">
+                    <p>[[localize('archiveBatchConfirmation',"Voulez-vous vraiment archiver l'envoi",language)]] <b>[[activeGridItem.messageInfo.batchReference]]</b></p>
+                    <p>OA <span class="txtcolor--blueStatus">[[activeGridItem.messageInfo.parentOaCode]]</span> [[activeGridItem.messageInfo.parentOaLabel]] ?</p>
+                </div>
                 <div class="buttons">
                     <paper-button class="modal-button" dialog-dismiss><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button" on-tap="_archiveBatch"><iron-icon icon="icons:save" class="mr5 smallIcon" ></iron-icon> [[localize('confirm','Confirm',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="missingNihiiDialog" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <p class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</p>
+                    <p class="textAlignCenter m-t-25">[[localize('provideNihiiNumber','Please provide your number',language)]] <b>[[localize('inami','INAMI',language)]]</b>.</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab1"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="missingMedicalHouseValorisations" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('provideMissingValorisations','Please provide your flat rates',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyAdmin"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noDataToExport" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('noDataToExport','We could not find any data to export',language)]].</h3>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noHcpContactPerson" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhHcpContactPerson1','Please provide an invoicing contact person',language)]].<br />[[localize('missingMhHcpContactPerson2','Required information for Insurances',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab1"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noHcpBce" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhBce','Please provide a valid BCE',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab2"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="noHcpBankAccount" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('incompleteUserProfile','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('missingMhBankAccount','Please provide with a valid bank account',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
+                    <paper-button class="modal-button" on-tap="_gotoMyProfileTab3"><iron-icon icon="icons:settings" class="mr5 smallIcon" ></iron-icon> [[localize('configure','Configure',language)]]</paper-button>
+                </div>
+            </paper-dialog>
+            <paper-dialog class="modalDialog" id="exportAlreadyRan" no-cancel-on-outside-click no-cancel-on-esc-key>
+                <h2 class="modal-title"><iron-icon icon="icons:warning"></iron-icon> [[localize('warning','Warning',language)]]</h2>
+                <div class="modalDialogContent m-t-50">
+                    <h3 class="textAlignCenter">[[localize('flatRateInvoicingAlreadyRan','Incomplete user profile',language)]].</h3>
+                    <p class="textAlignCenter m-t-25">[[localize('getInTouchWithUsToUnlock','Please provide with a valid bank account',language)]].</p>
+                    <p class="textAlignCenter m-t-25 bold"><iron-icon icon="communication:phone" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="tel:+3223192241" class="textDecorationNone">+32(0)2/319.22.41</a> - <iron-icon icon="icons:mail" class="mr5 smallIcon colorAppSecondaryColorDark" ></iron-icon> <a href="mailto:support@topaz.care" class="textDecorationNone">support@topaz.care</a>.</p>
+                </div>
+                <div class="buttons">
+                    <paper-button class="modal-button" on-tap="_closeDialogs"><iron-icon icon="icons:close" class="mr5 smallIcon" ></iron-icon> [[localize('clo','Close',language)]]</paper-button>
                 </div>
             </paper-dialog>
 
@@ -1373,6 +1478,10 @@
                         type: Boolean,
                         value: false,
                         observer: '_loadingStatusChanged'
+                    },
+                    _bodyOverlay: {
+                        type: Boolean,
+                        value: false
                     },
                     _isLoadingSmall: {
                         type: Boolean,
@@ -1953,6 +2062,37 @@
                 return moment().subtract(1, 'month').endOf('month').format('DD/MM/YYYY')
             }
 
+            _closeDialogs() {
+                this.set("_bodyOverlay", false);
+                _.map( this.shadowRoot.querySelectorAll('.modalDialog'), i=> i && typeof i.close === "function" && i.close() )
+            }
+
+            _gotoMyProfileTab1() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:0} }));
+            }
+
+            _gotoMyProfileTab2() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:1} }));
+            }
+
+            _gotoMyProfileTab3() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-open-my-profile', { bubbles: true, composed: true, detail: {tabIndex:2} }));
+            }
+
+            _gotoMyAdmin() {
+                this._closeDialogs()
+                this.dispatchEvent(new CustomEvent('trigger-goto-admin', { bubbles: true, composed: true, detail: {} }));
+            }
+
+            _showRejectInvoiceButton(messageOriginalStatus, invoiceFinalStatus) {
+                return _.trim(messageOriginalStatus) !== "partiallyAccepted" ? "displayNone" :
+                    ( _.trim(invoiceFinalStatus) === "fullyAccepted" ) ? "" :
+                        "displayNone"
+            }
+
             _isEqual(a,b) {
                 return a === b
             }
@@ -1973,7 +2113,7 @@
             _getInsuranceTitularyInfo(inputPatientsList=false) {
                 return new Promise(resolve =>{
                     const insuranceTitularyIds = _.uniq(_.filter( (inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i)=>{ return _.trim(_.get(i, "titularyId", "")) }).map(i=>i.titularyId) );
-                    return !_.size(insuranceTitularyIds) ? resolve(null) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
+                    return !_.size(insuranceTitularyIds) ? resolve((inputPatientsList?inputPatientsList:this.flatRateAllPatients)) : this.api.patient().getPatientsWithUser(this.user, new models.ListOfIdsDto({ ids: insuranceTitularyIds })).then(results => {
                         return resolve(
                             _.map((inputPatientsList?inputPatientsList:this.flatRateAllPatients), (i=>{
                                 if(!_.trim(_.get(i,"titularyId", "" ))) return i
@@ -2433,7 +2573,7 @@
 
                 return this.api.getRowsUsingPagination(
                     (key,docId) =>
-                        this.api.hcparty().listHealthcareParties( key && JSON.stringify(key), docId, 1000)
+                        this.api.hcparty().listHealthcareParties( key /* && JSON.stringify(key)*/, docId, 1000)
                             .then(pl => {
                                 pl.rows = _
                                     .chain(pl.rows)
@@ -2476,7 +2616,7 @@
                                             _.chain(i.insurabilities)
                                                 .filter(i=>{return(
                                                     i
-                                                    && i.identificationNumber
+                                                    // && i.identificationNumber
                                                     && i.insuranceId
                                                     && (
                                                         moment(_.get(i, "startDate"+"", 0), 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') ||
@@ -2507,7 +2647,7 @@
                                                     return ins &&
                                                     _.size(ins) &&
                                                     !!_.trim(_.get( ins, "insuranceId", "" ) ) &&
-                                                    !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
+                                                    // !!_.trim(_.get( ins, "identificationNumber", "" ) ) &&
                                                     (
                                                         moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isBefore(this.reportCurrentDateMomentObject, 'date') ||
                                                         moment(_.get(ins, "startDate"+"", 0), 'YYYYMMDD').isSame(this.reportCurrentDateMomentObject, 'date') ||
@@ -2802,7 +2942,7 @@
 
             _sleep (time) {
                 return new Promise((resolve) => setTimeout(resolve, time));
-            }            
+            }
 
             _createOrUpdateMedicalHousePatientsInvoices() {
                 return Promise.all(_.toPairs(this.flatRateInvoicingDataObject.listsData).map(list => {
@@ -2823,8 +2963,7 @@
                                 accepted: false,
                                 pending: false,
                                 resent: false,
-                                // dateCode: val.type === "current" ? moment().startOf('month').format('YYYYMMDD') : val.type === "previous" ? moment().startOf('month').subtract(1, 'month').format('YYYYMMDD') : null,
-                                dateCode: moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format('YYYYMMDD'),
+                                dateCode: val.type === "current" ? parseInt( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').format('YYYYMMDD') ) : val.type === "previous" ? parseInt( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf('month').subtract(1, 'month').format('YYYYMMDD') ) : null,
                                 id: this.api.crypto().randomUuid(),
                                 logicalId: this.api.crypto().randomUuid()
                             }))}
@@ -2843,7 +2982,7 @@
                                     this.api.crypto().extractDelegationsSFKs(pat, this.user.healthcarePartyId)
                                         .then(secretForeignKeys => {
                                                 const insParent = parentInsurances.find(i => i.id === this.flatRateInvoicingDataObject.insurancesData.find(ins => ins.id === pat.finalInsurability.insuranceId).parent)
-                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, 0, pat.invoicingCodes, null, (366*2))
+                                                return this.api.invoice().appendCodes(this.user.id, "patient", "cdrom", (pat.finalInsurability && pat.finalInsurability.insuranceId ? pat.finalInsurability.insuranceId : ''), secretForeignKeys.extractedKeys.join(","), null, (365*2), pat.invoicingCodes)
                                                     .then(invoices =>
                                                         !_.trim(_.get(invoices, "[0].id", "")) ? this.api.invoice().newInstance(this.user, pat, invoices[0])
                                                             .then(inv => this.api.invoice().createInvoice(inv, 'invoice:' + this.user.healthcarePartyId + ':' + (insParent && insParent.code ? insParent.code : '000') + ':'))
@@ -2862,23 +3001,18 @@
             }
 
             _generateJ20FlatFiles(){
-
-                //const OAs = ['100','200','300','400','500','600','900'];
-                const OAs = this.flatRateInvoicingDataObject.iosData.map(ioDt => ioDt.code);
-                //loop OA
-
-                return Promise.all(OAs.map(OA => {
+                return Promise.all(this.flatRateInvoicingDataObject.iosData.map(OA => {
                     let ib  = new fhcmodels.InvoicesBatch('');
                     ib.invoicingYear = this.flatRateInvoicingDataObject.exportedDate.substr(0,4);
                     ib.invoicingMonth = this.flatRateInvoicingDataObject.exportedDate.substr(4,2);
                     ib.fileRef = 'xxx';//not used
-                    ib.batchRef = this.getBatchRef(this.flatRateInvoicingDataObject.exportedDate, OA);
-                    ib.ioFederationCode = OA;
+                    ib.batchRef = this.getBatchRef(this.flatRateInvoicingDataObject.exportedDate, OA.code);
+                    ib.ioFederationCode = _.trim(_.get(OA, "code", ""));
                     ib.uniqueSendNumber = this.getUniqueSendNr(this.flatRateInvoicingDataObject.exportedDate);
                     ib.sender = {};
                     ib.sender.bce = this.flatRateInvoicingDataObject.hcpData.cbe.replace(/[^\d]/g, '');
-                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(' ', '').replace('-', '');
-                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount.replace(/[^\d]/g, '');
+                    ib.sender.bic = this.flatRateInvoicingDataObject.hcpData.financialInfo.bic.replace(/ /g, '').replace(/-/g, '');
+                    ib.sender.iban = this.flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount.replace(/ /g, '').replace(/-/g, '');
                     ib.sender.firstName = ''
                     ib.sender.lastName = this.flatRateInvoicingDataObject.hcpData.name;
                     ib.sender.nihii = this.flatRateInvoicingDataObject.hcpData.nihii;
@@ -2888,23 +3022,18 @@
                     ib.invoiceContent = 0;
                     ib.magneticInvoice = true;
                     let invoices = []
+
                     //loop patients of OA
-                    const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(insdt => insdt.code.substr(0,1) === OA.substr(0,1));
+                    const oaMuts = this.flatRateInvoicingDataObject.insurancesData.filter(i=> _.trim(_.get(i, "parent", "")) === _.trim(_.get(OA, "id", "")));
                     const oaMutIds = oaMuts.map(oaMut => oaMut.id);//.join(",");
                     const oaInvoicesData = this.flatRateInvoicingDataObject.invoicesData.filter(idt => oaMutIds.includes(idt.insurabilities[0].insuranceId));
-                    oaInvoicesData.map(idt => {
-                        if(idt.invoicingCodes.length > 0) {
-                            invoices.push(this.getPatientInvoice(idt, OA));
-                        }
-                    })
-
-                    //invoices.push(this.getPatientInvoice(this.flatRateInvoicingDataObject.invoicesData[0], iNr));
+                    oaInvoicesData.map(idt => parseInt(_.size(_.get(idt, "invoicingCodes", false))) ? invoices.push(this.getPatientInvoice(idt, _.trim(_.get(OA, "code", "")))) : false )
                     ib.invoices = invoices; //1 per patient
 
                     //end loop patients of OA
                     return this.api.fhc().Efactcontroller().makeFlatFileCoreUsingPOST(ib).then(flatRes => {
                         return {
-                            io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id,
+                            io:_.get(this.flatRateInvoicingDataObject.iosData.filter(io => io.code === _.trim(_.get(OA, "code", ""))), "[0].id", ""),
                             file: flatRes.flatFile,
                             metadata: flatRes.metadata,
                             slip: this.slipDataFromBatchAndFlatFile(ib, flatRes),
@@ -2914,7 +3043,7 @@
                         };
                     }).catch(err => {
                         return {
-                            io:this.flatRateInvoicingDataObject.iosData.filter(io => io.code === OA)[0].id,
+                            io:_.get(this.flatRateInvoicingDataObject.iosData.filter(io => io.code === _.trim(_.get(OA, "code", ""))), "[0].id", ""),
                             file: "",
                             metadata: "",
                             slip: "",
@@ -2927,7 +3056,7 @@
             }
 
             slipDataFromBatchAndFlatFile(batch, flatWithMetadata){
-               
+
                 //title
                 let title= this.localize('flatrate_slipfile_01',this.language) + "\n" +
                     "------------------------------------------------\n" +
@@ -2962,7 +3091,8 @@
                     this.localize('flatrate_slipfile_16',this.language) + "[batch.creationDate]\n" +
                     this.localize('flatrate_slipfile_17',this.language) + "[mm.contactPerson]\n";
                 //column headers
-                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef).replace("[batch.fileName]","flatFile.txt").replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
+                let fileName = "flat-file-oa-" + batch.ioFederationCode + ".txt"
+                fileInfo = fileInfo.replace("[batch.version]","0001999").replace("[batch.nr]",batch.batchRef.substr(0,3)).replace("[batch.fileName]",fileName).replace("[batch.yearMonth]", batch.invoicingMonth + '/' + batch.invoicingYear).replace("[batch.creationDate]", moment().format("DD/MM/YYYY")).replace("[mm.contactPerson]",hcp.contactPerson);
                 let columnHeaders = "---------------------------------------------------------------------------\n" +
                     this.localize('flatrate_slipfile_18',this.language) + "\n" +
                     this.localize('flatrate_slipfile_19',this.language) + "\n" +
@@ -3054,6 +3184,7 @@
                 inv.patient.dateOfBirth = this.convertDate(patientData.DateOfBirth);
                 inv.patient.ssin = patientData.ssin;
                 inv.patient.insurabilities = [];
+                inv.patient.gender = patientData.gender;
                 let ins = new fhcmodels.Insurability('');
                 const patIns = patientData.insurabilities[0];
                 ins.insuranceCode = this.flatRateInvoicingDataObject.insurancesData.filter(idt => idt.id === patIns.insuranceId)[0].code;
@@ -3062,7 +3193,7 @@
                 inv.invoiceNumber = Number(patientData.invoices[0].invoiceReference);
                 patientData.invoiceNumber = patientData.invoices[0].invoiceReference;
                 inv.invoiceRef = patientData.externalId ? patientData.externalId : patientData.ssin; //R20Z28
-                inv.ioCode = ins.insuranceCode;
+                inv.ioCode = ins.insuranceCode.padEnd(3," ").substr(0,3);
                 inv.reason = 'Other';
                 inv.startOfCoveragePeriod= patientData.medicalHouseContracts[0].startOfContract;
                 inv.items = [];
@@ -3073,6 +3204,7 @@
                         itm.dateCode = invCd.dateCode;
                         itm.endDateCode = Number(this.api.moment(invCd.dateCode).endOf('month').format("YYYYMMDD"));
                         itm.reimbursedAmount = invCd.reimbursement * 100;
+                        itm.units = 1;
                         inv.items.push(itm);
                     })
                 });
@@ -3116,32 +3248,39 @@
 
             _updateBatchStatus( action ) {
 
-                const actionSettings = action === "reject" ? { newStatusKey: "rejected", newInvoicesCodesKey: "canceled" } :
-                    action === "accept" ? { newStatusKey: "fullyAccepted", newInvoicesCodesKey: "accepted" } :
-                    action === "partialAccept" ? { newStatusKey: "partiallyAccepted", newInvoicesCodesKey: "accepted" } :
-                    action === "archive" ? { newStatusKey: "archived", newInvoicesCodesKey: "archived" } :
+                const actionSettings = action === "reject" ? { newStatusKey: "rejected", newInvoicingCodeStatus: "canceled" } :
+                    action === "accept" ? { newStatusKey: "fullyAccepted", newInvoicingCodeStatus: "accepted" } :
+                    action === "partialAccept" ? { newStatusKey: "partiallyAccepted", newInvoicingCodeStatus: "accepted" } :
+                    // action === "archive" ? { newStatusKey: "archived", newInvoicingCodeStatus: "archived" } :
+                    action === "archive" ? { newStatusKey: "archived", newInvoicingCodeStatus: "" } :
                     {}
 
                 if ( _.size(this.activeGridItem) && _.size(actionSettings) ) {
                     this.set('_isLoadingSmall', true );
-
-                    // TO DO - FZ : Pour définir (=concaténer) le BON status (afin de garder historique)
-                    // const newStatus = ANCIEN STATUS | this.invoiceMessageStatuses[actionSettings.newStatusKey].status
-                    const newStatus = this.invoiceMessageStatuses[actionSettings.newStatusKey].status
-
+                    const newStatus = parseInt(_.get(this, "activeGridItem.status")) | parseInt(this.invoiceMessageStatuses[actionSettings.newStatusKey].status)
                     Promise.all(
                         _.filter( this.messagesCachedData.roughData, i => {
                             return _.size(i)
                                 && parseInt(_.get(i, "metas.batchExportTstamp", 0)) === parseInt( _.get( this.activeGridItem, "metas.batchExportTstamp", 0 ))
                                 && _.trim(_.get(i, "transportGuid", "")) !== "MH:FLATRATE:INVOICING-BATCH-ZIP"
                                 && _.trim(_.get(i, "metas.parentOaId", "")) === _.trim( _.get( this.activeGridItem, "metas.parentOaId", "" ))
-                        }).map(message => this.api.message().modifyMessage(_.merge(message, {status:newStatus})).then(msg => this.api.register(msg, 'message')) )
-                    ).then(messages=>{
-                        this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(messages, msg=>msg.invoiceIds.map(i => i))))}))
-                            .then(invoices => invoices.map(inv => {
-                                inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicesCodesKey] = true)
-                                this.api.invoice().modifyInvoice(inv).then(inv => this.api.register(inv,'invoice'))
-                            }))
+                        }).map(singleMessage => this.api.message().modifyMessage(_.merge(singleMessage, {status:newStatus})).then(msg =>this.api.register(msg, 'message')) )
+                    ).then(allMessages=>{
+                        return ( !_.trim(actionSettings.newInvoicingCodeStatus) ) ? false : this.api.invoice().getInvoices(new models.ListOfIdsDto({ids: _.uniq(_.flatten( _.map(allMessages, msg=>msg.invoiceIds.map(i => i))))}))
+                            .then(invoices => {
+                                return Promise.all(invoices.map(inv => {
+                                    inv.invoicingCodes.map(ic => ic[actionSettings.newInvoicingCodeStatus] = true)
+                                    return this.api.invoice().modifyInvoice(inv).then(inv =>this.api.register(inv,'invoice'))
+                                }))
+                            })
+                            .then(invoices => {
+                                if((actionSettings.newStatusKey!=="rejected") || !_.size(invoices)) return false;
+                                const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].canceled", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                let updatedFlatFileMessage = _.get(_.filter(allMessages, {id:this.activeGridItem.id}), "[0]", {})
+                                updatedFlatFileMessage.metas = _.merge(updatedFlatFileMessage.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                return this.api.message().modifyMessage(updatedFlatFileMessage).then(msg =>this.api.register(msg,'message'))
+                            })
                     })
                     .catch((e)=>{console.log(e)})
                     .finally(() => {
@@ -3151,6 +3290,38 @@
                     })
                 }
 
+            }
+
+            _rejectInvoice(e) {
+
+                this.set('_isLoadingSmall', true );
+                const invoiceId = _.get(e, "target.dataset.invoiceId", "")
+                let oldActiveGridItemId = _.trim(_.get(this, "activeGridItem.id", ""))
+
+                this.api.invoice().getInvoice(invoiceId)
+                    .then(invoice => {
+                        invoice.invoicingCodes.map(ic => { ic.accepted = false; ic.resent = true; return ic;  })
+                        try{ delete(invoice.sentDate); } catch(e){}
+                        return this.api.invoice().modifyInvoice(invoice).then(invoice => this.api.register(invoice,'invoice'))
+                    })
+                    .then(() => {
+                        return this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids:_.compact(_.uniq(_.map(_.get(this, "activeGridItem.invoiceIds", []),i=>i))) }))
+                            .then(invoices => {
+                                const acceptedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"accepted"}  ), i=>parseFloat(i.amount) ), 2)
+                                const refusedAmount = this.api._powRoundFloatByPrecision( _.sumBy( _.filter( _.map(invoices, inv => { return { acceptedOrRefused: !!_.get( inv, "invoicingCodes[0].resent", false ) ? "refused" : "accepted", amount: this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( inv, "invoicingCodes" ), i=>parseFloat(i.totalAmount) ) ), 2 ) } }),  {acceptedOrRefused:"refused"}  ), i=>parseFloat(i.amount) ), 2)
+                                this.activeGridItem.metas = _.merge(this.activeGridItem.metas, {acceptedAmount:acceptedAmount, refusedAmount:refusedAmount});
+                                return this.api.message().modifyMessage(this.activeGridItem).then(msg => { this.api.register(msg,'message'); })
+                            })
+                    })
+                    .catch((e)=>{console.log(e)})
+                    .finally(() => {
+                        this.set('_isLoadingSmall', false );
+                        this.set('activeGridItem', null )
+                        this._fetchJ20Messages(true).then(()=>{
+                            _.size(_.get(_.filter(this.messagesGridData, {id:oldActiveGridItemId}), "[0]")) && this.set('activeGridItem', _.get(_.filter(this.messagesGridData, {id:oldActiveGridItemId}), "[0]") );
+                            _.size(this.activeGridItem) && this._toggleBatchDetails({currentTarget:{dataset:{status:"partiallyAccepted"}}})
+                        })
+                    })
             }
 
             _downloadParentOaArchive(e) {
@@ -3166,6 +3337,25 @@
                     .then(doc => (doc && doc[0] && doc[0].id && doc[0].attachmentId && doc[0].secretForeignKeys) ? this.api.document().getAttachment(doc[0].id, doc[0].attachmentId, doc[0].secretForeignKeys).then(attachment=>{return {doc:_.head(doc),attachment:attachment }}) : prom )
                     .then(({doc,attachment})=> attachment ? this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("decrypt", this.user.healthcarePartyId, doc, attachment).then(decryptedContent=>{return {doc:doc,decryptedContent:decryptedContent }}) : prom)
                     .then(({doc,decryptedContent})=> this.api.triggerFileDownload(decryptedContent,"application/zip",_.get( doc, "name", doc.id + ".zip")))
+                    .catch(e=>{console.log(e)})
+                    .finally(()=>{this.set('_isLoadingSmall', false );})
+
+            }
+
+            _downloadParentOaPdf(e) {
+
+                let prom = Promise.resolve([])
+                const messageId = _.get(e, "target.dataset.messageId", "")
+                if(messageId) this.set('_isLoadingSmall', true );
+
+                const batchExportedDate = _.get( _.filter( this.messagesCachedData.roughData, {id:messageId}), "[0].metas.exportedDate", "")
+                const batchParentOaId = _.trim(_.get( _.filter( this.messagesCachedData.roughData, {id:messageId}), "[0].metas.parentOaId", ""))
+                const batchMessage = _.get( _.filter( this.messagesCachedData.roughData, i=> i.metas.exportedDate === batchExportedDate && i.transportGuid === "MH:FLATRATE:PARENT-OA-INVOICING-PDF" && i.metas.parentOaId === batchParentOaId ), "[0]", "")
+
+                return !messageId ? null : this.api.document().findByMessage(this.user.healthcarePartyId, batchMessage)
+                    .then(doc => (doc && doc[0] && doc[0].id && doc[0].attachmentId && doc[0].secretForeignKeys) ? this.api.document().getAttachment(doc[0].id, doc[0].attachmentId, doc[0].secretForeignKeys).then(attachment=>{return {doc:_.head(doc),attachment:attachment }}).catch(e=>{console.log(e)}) : prom )
+                    .then(({doc,attachment})=> attachment ? this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("decrypt", this.user.healthcarePartyId, doc, attachment).then(decryptedContent=>{return {doc:doc,decryptedContent:decryptedContent }}) : prom)
+                    .then(({doc,decryptedContent})=> this.api.triggerFileDownload(decryptedContent,"application/pdf",_.get( doc, "name", doc.id + ".pdf")))
                     .catch(e=>{console.log(e)})
                     .finally(()=>{this.set('_isLoadingSmall', false );})
 
@@ -3240,6 +3430,26 @@
                 }
             }
 
+            _DEVELOPERS_ONLY_deleteFlatrateMessagesAndInvoices() {
+
+                this.api.getRowsUsingPagination(
+                    (key,docId) =>
+                        this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
+                            .then(pl => { return {
+                                rows:_.filter(pl.rows, m => _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId ),
+                                nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                done: !pl.nextKeyPair
+                            }})
+                            .catch(()=>{ return Promise.resolve(); })
+                ).then(messages=>{
+                    Promise.all(_.uniq( _.flatten(_.map(messages, i=>i.invoiceIds))).map(i => this.api.invoice().deleteInvoice(i).catch(()=>{}) ))
+                        .then(()=> this.api.message().deleteMessagesBatch(new models.ListOfIdsDto({ids: _.map(messages, i=>i.id)})).catch(()=>{}) );
+                })
+                .catch((e)=>console.log(e))
+
+            }
+
             _generateJ20PdfTemplateObjects() {
 
                 let pdfData = {};
@@ -3262,19 +3472,6 @@
                         }
                     };
                 }); // Loop OA
-
-
-
-                // <NOT FOR PROD, just to test page breaks with large records amount>
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // _(pdfData).forEach((oa)=>{_(oa.entries).forEach((entries)=>{if( !entries.length ) return;_.forEach(entries, (i)=>{ entries.push(i); })})});
-                // </NOT FOR PROD, just to test page breaks with large records amount>
-
-
 
                 const maxEntriesPerPage = 47;
 
@@ -3348,6 +3545,138 @@
 
             }
 
+            _generateJ20PdfTemplateParentOaObjects() {
+
+                let pdfData = {};
+                let pdfDataToPrint = [];
+
+                _.forEach( this.flatRateInvoicingDataObject.insurancesData, (oa,k)=> {
+                    pdfData[oa.id] = {
+                        oa: {
+                            id: _.get(oa, "id", ""),
+                            parent: _.get(oa, "parent", ""),
+                            finalName: _.get(oa, "finalName", ""),
+                            code: _.get(oa, "code", ""),
+                            address: _.trim(_.compact([_.get(oa, "address.street", ""), _.get(oa, "address.houseNumber", ""), _.get(oa, "address.postboxNumber", "")]).join(' ')),
+                            postalCode: _.get(oa, "address.postalCode", ""),
+                            city: _.get(oa, "address.city", "")
+                        },
+                        entries: {
+                            list5: _.filter(this.flatRateInvoicingDataObject.listsData.list5, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // New patients WITHOUT tryout
+                            list6: _.filter(this.flatRateInvoicingDataObject.listsData.list6, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // New patients WITH tryout
+                            list8: _.filter(this.flatRateInvoicingDataObject.listsData.list8, (i=>_.trim(_.get(i, "finalInsurability.insuranceId", "" )) === _.trim(oa.id))),   // "Old" patients
+                        }
+                    };
+                }); // Loop OA
+
+                const maxEntriesPerPage = 47;
+
+                // Group by PARENT OA
+                pdfDataToPrint = _.map( this.flatRateInvoicingDataObject.iosData, (parentOaData)=> {
+
+                    let totalPages = 1;
+                    let currentPage = 0;
+                    let oasTotalPrices = [];
+                    let invoiceIds = [];
+                    let pdfTemplate = this._getExportPdfHeader();
+
+                    // Eval total pages
+                    _.map( _.filter(pdfData, i=> _.trim(_.get(i,"oa.parent","")) === _.trim(_.get(parentOaData, "id", "" ))), (oaData)=> { _.forEach( oaData.entries, (listEntries)=> { if(!parseInt(_.size(listEntries))) return; let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage ); _.forEach(pageBreakentriesChunks, ()=>{ totalPages++; }); }); totalPages++; /* For list totals */ })
+
+                    _.map( _.filter(pdfData, i=> _.trim(_.get(i,"oa.parent","")) === _.trim(_.get(parentOaData, "id", "" ))), (oaData)=> {
+
+                        _.forEach( oaData.entries, (listEntries, listKey)=> {
+
+                            if(!parseInt(_.size(listEntries))) return;
+                            let listIndex = parseInt(listKey.replace('list',''));
+                            let pageBreakentriesChunks = _.chunk(listEntries, maxEntriesPerPage );
+
+                            oasTotalPrices.push({
+                                poaId: parentOaData.id,
+                                oaId: oaData.oa.id,
+                                listId: listKey,
+                                listTotal: this.api._powRoundFloatByPrecision(_.sumBy( _.map( listEntries, i => this.api._powRoundFloatByPrecision( parseFloat( _.sumBy( _.get( i, "invoicingCodes" ), "totalAmount" ) ), 2 ) ), i=>parseFloat(i) ), 2)
+                            })
+
+                            _.forEach(pageBreakentriesChunks, (entriesChunk)=>{
+                                currentPage++;
+                                pdfTemplate +=
+                                    this._getExportPageHeader(oaData.oa, true) +
+                                    this._getExportListHeader(listIndex, true) +
+                                    this._getExportListContentForInvoicing(listIndex,entriesChunk) +
+                                    this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
+                            });
+
+                        })
+
+                        const totalAmount = this.api._powRoundFloatByPrecision( _.sumBy(_.filter(oasTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) }), i=>parseFloat(i.listTotal)), 2);
+
+                        // List totals
+                        currentPage++
+                        pdfTemplate +=
+                            this._getExportPageHeader(oaData.oa, true) +
+                            "<div style='margin-top:100px'></div>" +
+                            "<p class='bold fs10'>" +
+                                _.compact(
+                                    _.map(oaData.entries, (listEntries, listKey) => {
+                                        let listIndex = parseInt(listKey.replace('list',''));
+                                        return !parseInt(_.size(listEntries)) ? false :
+                                            this.localize('flatrate_invoicing_listTotal',this.language) + ' ('+_.trim(listIndex)+') "<span class="italic colorBlue">'+_.trim(this.localize('flatrate_invoicing_'+_.trim(listIndex)+'_subheader',this.language)).toLowerCase()+'</span>": ' +
+                                            this.api.hrFormatNumber(_.get( _.filter(oasTotalPrices, i=>{ return _.trim(i.oaId)=== _.trim(oaData.oa.id) && _.trim(i.listId)=== _.trim(listKey) }), "[0].listTotal", 0 )) + ' €'
+                                    })
+                                ) .join("<br />") +
+                            "</p>" +
+                            "<p class='bold fs15 mt20 colorBlue uppercase italic'>" + this.localize('flatrate_invoicing_insTotal',this.language) + ': ' + this.api.hrFormatNumber(totalAmount) + ' €</p>' +
+                            this._getExportPageFooter(currentPage,totalPages,oaData.oa.code, true)
+
+                        invoiceIds = _.concat(invoiceIds,  _.compact( _.map( _.flatMap( oaData.entries ), i =>_.trim(_.get(i, "invoices[0].id", "")) )))
+
+                    })
+
+                    parentOaData = _.merge(parentOaData, {
+                        address: _.trim(_.compact([_.get(parentOaData, "address.street", ""), _.get(parentOaData, "address.houseNumber", ""), _.get(parentOaData, "address.postboxNumber", "")]).join(' ')),
+                        postalCode: _.get(parentOaData, "address.postalCode", ""),
+                        city: _.get(parentOaData, "address.city", "")
+                    })
+
+                    let computedPrices = { list5: 0, list6: 0, list8: 0}
+                    _.map( oasTotalPrices, i => computedPrices[i.listId] += parseFloat(i.listTotal) )
+                    let poaTotalPrice = this.api._powRoundFloatByPrecision( computedPrices.list5 + computedPrices.list6 + computedPrices.list8, 2 )
+
+                    // PARENT OA List totals
+                    currentPage++
+                    pdfTemplate +=
+                        this._getExportPageHeader(parentOaData, true) +
+                        "<div style='margin-top:100px'></div>" +
+                        "<div style='padding:10px; border:3px solid #101079'>" +
+                            "<p class='bold fs15 mt20 colorBlue uppercase'>" + _.get(parentOaData, "code", "") + ' - ' + _.get(parentOaData, "finalName", "") + '</p>' +
+                            "<p class='bold fs10'>" +
+                                _.map(computedPrices, (totalPrice, listKey) => {
+                                    let listIndex = parseInt(listKey.replace('list',''));
+                                    return "" +
+                                        this.localize('flatrate_invoicing_listTotal',this.language) + ' ('+_.trim(listIndex)+') "<span class="italic colorBlue">'+_.trim(this.localize('flatrate_invoicing_'+_.trim(listIndex)+'_subheader',this.language)).toLowerCase()+'</span>": ' +
+                                        this.api.hrFormatNumber( this.api._powRoundFloatByPrecision(totalPrice) ) + ' €'
+                                }).join("<br />") +
+                            "</p>" +
+                            "<p class='bold fs15 mt20 colorBlue uppercase italic'>" + this.localize('groupGrandTotal',this.language) + ' <span style="color:#000000">' + _.get(parentOaData, "code", "") + '</span>: ' + this.api.hrFormatNumber( poaTotalPrice ) + ' €</p>' +
+                        "</div>" +
+                        this._getExportPageFooter(currentPage,totalPages,parentOaData.code, true)
+
+                    return {
+                        oaId: _.trim(parentOaData.id),
+                        parentOaId: _.trim(parentOaData.id),
+                        invoiceIds: invoiceIds,
+                        totalAmount: poaTotalPrice,
+                        template: pdfTemplate + this._getExportPdfFooter(),
+                        totalPages: parseInt(totalPages)
+                    }
+
+                })
+
+                return new Promise(resolve =>resolve(pdfDataToPrint))
+
+            }
+
             _createMhExportZipArchive() {
 
                 let zipArchive = new jsZip();
@@ -3359,15 +3688,16 @@
 
                     zipArchive
                         .folder(parentOaFolderName)
-                            .file("slipFile.txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.slips, {parentOaId:parentOa.id}),"[0].fileContent", ""))
-                            .file("flatFile.txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.flatFiles, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+                            .file("bordereau-oa-"+_.trim(_.get(parentOa, "code", ""))+".txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.slips, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+                            .file("flat-file-oa-"+_.trim(_.get(parentOa, "code", ""))+".txt", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.flatFiles, {parentOaId:parentOa.id}),"[0].fileContent", ""))
+                            .file("listes-A4-oa-"+_.trim(_.get(parentOa, "code", ""))+".pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.oaPdfs, {parentOaId:parentOa.id}),"[0].fileContent", ""))
 
                     _.map(_.filter(this.flatRateInvoicingDataObject.insurancesData, {parent:parentOa.id}), oa => {
                         zipArchive
                             .folder(parentOaFolderName)
                                 // .folder(_.kebabCase( _.compact([ _.trim(_.get(oa, "code", "")), _.trim(_.get(oa, "finalName", "")) ]).join(" ")))
-                                .folder( _.trim(_.get(oa, "code", "")))
-                                    .file("lists-A4-export.pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.pdfs, {oaId:oa.id}),"[0].fileContent", ""))
+                                .folder(_.trim(_.get(oa, "code", "")))
+                                    .file("listes-A4-oa-"+_.trim(_.get(oa, "code", ""))+".pdf", _.get(_.filter(this.flatRateInvoicingDataObject.generatedFiles.pdfs, {oaId:oa.id}),"[0].fileContent", ""))
                     })
 
                 })
@@ -3382,18 +3712,54 @@
 
             }
 
+            _showWarningNoHcpFlatrateTarification() {
+                this.set("_bodyOverlay", true);
+                this.$["missingMedicalHouseValorisations"].open()
+            }
+
+            _showWarningNoDataToExport() {
+                this.set("_bodyOverlay", true);
+                this.$["noDataToExport"].open()
+            }
+
+            _showWarningNoHcpContactPerson() {
+                this.set("_bodyOverlay", true);
+                this.$["noHcpContactPerson"].open()
+            }
+
+            _showWarningNoCbe() {
+                this.set("_bodyOverlay", true);
+                this.$["noHcpBce"].open()
+            }
+
+            _showWarningNoBankAccount() {
+                this.set("_bodyOverlay", true);
+                this.$["noHcpBankAccount"].open()
+            }
+
+            _showWarningExportAlreadyRan() {
+                this.set("_bodyOverlay", true);
+                this.$["exportAlreadyRan"].open()
+            }
+
+            _showWarningNoHcpNihii() {
+                this.set("_bodyOverlay", true);
+                this.$["missingNihiiDialog"].open()
+            }
+
             _exportFlatRateInvoicing() {
 
                 this.set('_isLoading', true );
                 this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1',this.language), icon:"arrow-forward"});
 
-                // Force refresh - could be new "valorisation" was just set
+                // Force refresh - could be new "valorisation" / bce / bank account / contact person / ... was just set
                 if(_.size(_.get(this.api.hcparty().cache, _.get(this.user, "healthcarePartyId", "" )))) delete this.api.hcparty().cache[_.get(this.user, "healthcarePartyId", "" )];
 
                 this.api.hcparty().getHealthcareParty(_.get(this.user, "healthcarePartyId", "" ))
                     .then(hcp => {
 
                         this.set("hcp",hcp);
+                        if(!_.trim(_.get(this, "hcp.nihii", ""))) throw new Error("no-nihii");
 
                         this.flatRateInvoicingDataObject = {
                             hcpData: {
@@ -3404,7 +3770,7 @@
                                 nihii: _.trim(_.get(this.hcp, "nihii", "")),
                                 nihiiFormated: this.api.formatInamiNumber(_.trim(_.get(this.hcp, "nihii", ""))),
                                 contactPersonHcpId: _.trim(_.get(this.hcp, "contactPersonHcpId", "")),
-                                contactPerson: _.trim(_.get(this, "contactPerson", "")),
+                                contactPerson: "",  // Make it empty at first, done on purpose
                                 financialInfo: _.head( _.filter( _.get(this.hcp, "financialInstitutionInformation", []), i => { return !!i && _.trim(_.get(i, "bankAccount", "")) }) )
                             },
                             patientsData: [],
@@ -3421,6 +3787,7 @@
                             ),
                             generatedFiles: {
                                 pdfs: {},
+                                oaPdfs: {},
                                 flatFiles: {},
                                 slips: {}
                             },
@@ -3440,9 +3807,7 @@
                                 ]).join(" ")) + ".zip"
                             }
                         }
-
                         this.reportCurrentDateMomentObject = moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD")
-
                         this.flatRateInvoicingDataObject.hcpData = _.merge(this.flatRateInvoicingDataObject.hcpData,{
                             phone: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "phone"}), "[0].telecomNumber", "")) || _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "mobile"}), "[0].telecomNumber", "")),
                             email: _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.hcpData.address.telecoms, {telecomType: "email"}), "[0].telecomNumber", "")),
@@ -3454,11 +3819,34 @@
                             }
                         })
 
+
+
+                        // Make sure - refuse to proceed if missing
+                        if(!_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.cbe"))) throw new Error("missing-cbe");
+
+                        // Make sure - refuse to proceed if missing
+                        if(!_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.contactPersonHcpId"))) throw new Error("missing-contact-person");
+
+                        // Make sure - refuse to proceed if missing
+                        if(!_.size(this.flatRateInvoicingDataObject.hcpData.financialInfo) || !_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.financialInfo.bankAccount", ""))) throw new Error("missing-bank-account");
+
+                        // Check again, even if already done in this.super() - could be got updated meanwhile & this.super() is only called !once
+                        this.api.hcparty().getHealthcareParty(_.trim(_.get(this, "flatRateInvoicingDataObject.hcpData.contactPersonHcpId")))
+                            .then(hcpContactPerson => {
+                                if(!_.size(hcpContactPerson) || !_.trim(_.get(hcpContactPerson, "id", "")) || !_.trim(_.get(hcpContactPerson, "lastName", "")) || !_.trim(_.get(hcpContactPerson, "firstName", ""))) throw new Error("missing-contact-person");
+                                const contactPerson = _.trim(_.trim(_.get(hcpContactPerson, "lastName", "")) + " " + _.trim(_.get(hcpContactPerson, "firstName", "")))
+                                this.set("contactPerson", contactPerson );
+                                this.flatRateInvoicingDataObject.hcpData.contactPerson = contactPerson
+                            })
+                            .catch((e)=>{ throw new Error("missing-contact-person"); })
+
+
+
                         this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth = _.merge(
                             [
-                                {code: "109616", price: 0.00, flatRateType: "physician"},  // Doctor
-                                {code: "409614", price: 0.00, flatRateType: "nurse"},  // Nurse
-                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"}   // Kine
+                                {code: "109616", price: 0.00, flatRateType: "physician"},           // Doctor
+                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"},     // Kine
+                                {code: "409614", price: 0.00, flatRateType: "nurse"}                // Nurse
                             ],
                             _.compact(
                                 _.chain(_.get(this.hcp, "flatRateTarifications", []))
@@ -3502,9 +3890,9 @@
 
                         this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth = _.merge(
                             [
-                                {code: "109616", price: 0.00, flatRateType: "physician"},  // Doctor
-                                {code: "409614", price: 0.00, flatRateType: "nurse"},  // Nurse
-                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"}   // Kine
+                                {code: "109616", price: 0.00, flatRateType: "physician"},           // Doctor
+                                {code: "509611", price: 0.00, flatRateType: "physiotherapist"},     // Kine
+                                {code: "409614", price: 0.00, flatRateType: "nurse"}                // Nurse
                             ],
                             _.compact(
                                 _.chain(_.get(this.hcp, "flatRateTarifications", []))
@@ -3546,6 +3934,39 @@
                             )
                         )
 
+                        // HCP NIHII last 3 digits = booleans (0/1) tell us whether or not HCP has (respectively) MKI availabilities (respectively: M = physician, K = physiotherapist & I = nurse)
+                        const medicalHouseNihiiLastThreeDigits = _.trim(this.hcp.nihii).slice(-3).split("")
+                        const medicalHouseAvailableValorisationsByNihii = _.compact( _.map( ["physician", "physiotherapist", "nurse" ], (v,k) => { return !!parseInt(medicalHouseNihiiLastThreeDigits[k]) ? { flatRateType: v } : false }) )
+
+                        // At least one MH valorisation is missing
+                        if(
+                            !parseInt(_.size( medicalHouseAvailableValorisationsByNihii ))
+                            || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsCurrentMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
+                            || _.size( medicalHouseAvailableValorisationsByNihii ) !== _.size(_.compact( _.map(medicalHouseAvailableValorisationsByNihii, mhValorisation => !!parseInt( _.size( _.filter(this.flatRateInvoicingDataObject.hcpValorisationsPreviousMonth, i=> { return _.trim(i.flatRateType) === _.trim(mhValorisation.flatRateType) && parseFloat(_.get(i, "price", 0)) }) ) )) ))
+                        ) throw new Error("missing-flatrate-tarification");
+
+                        // Check for existing exports - did it run already?
+                        return this.api.getRowsUsingPagination(
+                            (key,docId) =>
+                                this.api.message().findMessagesByTransportGuid('MH:FLATRATE:*', null, key, docId, 1000)
+                                    .then(pl => { return {
+                                        rows:_.filter(pl.rows, m => {
+                                            return m
+                                                && _.get(m,'fromHealthcarePartyId',false)===this.user.healthcarePartyId
+                                                && _.get(m, "recipients", []).indexOf(this.user.healthcarePartyId) > -1
+                                                && parseInt( _.get(m, "metas.batchExportTstamp", 0) )
+                                                && parseInt( _.size( _.get(m, "invoiceIds", [] ) ) )
+                                        }),
+                                        nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                        nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                        done: !pl.nextKeyPair
+                                    }})
+                                    .catch(()=>{ return Promise.resolve(); })
+                        ).then(x=>x)
+
+                    })
+                    .then(exportAlreadyRanMessages=>{
+                        if(_.size(exportAlreadyRanMessages)) throw new Error("export-already-ran");
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_1_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
@@ -3597,6 +4018,7 @@
                             })
                         )
 
+                        // Assign startOfCoverage if not set yet
                         _.map( myPatients, pat => {
                             pat.finalMedicalHouseContracts = parseInt(_.get(pat.finalMedicalHouseContracts, "startOfCoverage", 0)) ?
                                 pat.finalMedicalHouseContracts :
@@ -3630,7 +4052,8 @@
                             // Start of month of start cover must be BEFORE (start of export month -1 month)
                             // Ie: start of coverage began 2+ month before exported month
                             list8: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
-                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') )
+                                !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isBefore( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
 
                             // New patients WITHOUT tryout (double amounts / must appear twice)
@@ -3638,7 +4061,8 @@
                             // AND Start of month of cover - 1 month === Start of month of contract
                             list5: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
                                 !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
-                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isSame( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
 
                             // New patients WITH tryout (double amounts / must appear twice)
@@ -3646,16 +4070,29 @@
                             // AND Start of month of cover - 1 month > Start of month of contract
                             list6: _.filter( this.flatRateInvoicingDataObject.patientsData, pat => { return(
                                 !!moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").isSame( moment(_.trim(this.flatRateInvoicingDataObject.exportedDate), "YYYYMMDD").startOf("month").subtract(1, 'month') ) &&
-                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") )
+                                !!(moment(pat.finalMedicalHouseContracts.startOfCoverage, "YYYYMMDD").startOf("month").subtract(1, 'month')).isAfter( moment(pat.finalMedicalHouseContracts.startOfContract, "YYYYMMDD").startOf("month") ) &&
+                                (!!_.get(pat, "finalMedicalHouseContracts.gp", false) || !!_.get(pat, "finalMedicalHouseContracts.kine", false) || !!_.get(pat, "finalMedicalHouseContracts.nurse", false))
                             )}),
                         }
 
                     })
                     .then((listsData)=>{
                         this.flatRateInvoicingDataObject.listsData = listsData
+
+                        // Drop patients we couldn't find in list (no valorisation)
+                        const patientsInLists = _.uniq(_.compact(_.flatMap(_.get(this, "flatRateInvoicingDataObject.listsData", {})).map(i=>i.id) ))||[]
+                        this.flatRateInvoicingDataObject.patientsData = _.compact(_.map( this.flatRateInvoicingDataObject.patientsData, i=> !!(patientsInLists.indexOf(_.trim(i.id)) > -1) ? i : false ))
+                        if(!parseInt(_.size(this.flatRateInvoicingDataObject.patientsData)||0)) throw new Error("no-data-to-export")
+
+                        // Drop when not in use
+                        this.flatRateInvoicingDataObject.insurancesData = _.compact(_.map( this.flatRateInvoicingDataObject.insurancesData, i=> !!( (_.uniq(_.compact(_.map( this.flatRateInvoicingDataObject.patientsData, pat => _.get(pat, "finalInsurability.insuranceId", "")))) ||[]).indexOf(_.trim(i.id)) > -1 ) ? i : false ))
+                        this.flatRateInvoicingDataObject.iosData = _.compact(_.map( this.flatRateInvoicingDataObject.iosData, i=> !!( (_.uniq(_.compact(_.map( this.flatRateInvoicingDataObject.insurancesData, oa => _.get(oa, "parent", ""))))).indexOf(_.trim(i.id)) > -1 ) ? i : false ))
+
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_5_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_4',this.language), icon:"arrow-forward"});
-                        return this._createOrUpdateMedicalHousePatientsInvoices(this.flatRateInvoicingDataObject).then(x=>x)
+                        console.log("--- before create invoices ---");
+                        console.log(this.flatRateInvoicingDataObject);
+                        return this._createOrUpdateMedicalHousePatientsInvoices().then(x=>x)
                     })
                     .then(invoicesData=>{
                         this.flatRateInvoicingDataObject.invoicesData = invoicesData
@@ -3752,7 +4189,7 @@
                                     _.merge(singleFileObject, {documentId:createdDocument.id})
                                     return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(singleFileObject.fileContent))).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
                                 })
-                                .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                                .then(({createdDocument, encryptedFileContent}) => { return this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent).then(x=>x).catch((e)=>{console.log("---error upload attachment flatfile---");console.log(createdDocument);console.log(encryptedFileContent);}) })
                         }))
                             .then(()=>{
                                 return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.slips.map( singleFileObject =>  {
@@ -3784,8 +4221,16 @@
                                             _.merge(singleFileObject, {documentId:createdDocument.id})
                                             return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.api.crypto().utils.ua2ArrayBuffer(this.api.crypto().utils.text2ua(singleFileObject.fileContent))).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
                                         })
-                                        .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                                        .then(({createdDocument, encryptedFileContent}) => { return this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent).then(x=>x).catch((e)=>{console.log("---error upload attachment slip---");console.log(createdDocument);console.log(encryptedFileContent);}) })
                                 })).then(x=>x)
+                        }).then(()=>{
+                            return this.api.invoice().getInvoices(new models.ListOfIdsDto({ ids: _.uniq( _.compact( _.map( _.get(this.flatRateInvoicingDataObject, "invoicesData", []), i => _.get(i, "invoices[0].id", false )))) }))
+                                .then(invoices => {
+                                    return Promise.all(invoices.map(inv => {
+                                        inv.sentDate = moment().format("YYYYMMDD")
+                                        return this.api.invoice().modifyInvoice(inv).then(inv =>this.api.register(inv,'invoice'))
+                                    }))
+                                }).then(x=>x)
                         }).then(()=>{
                             this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_7_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                             this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_5',this.language), icon:"arrow-forward"});
@@ -3840,7 +4285,61 @@
                                     _.merge(singlePdfFileObject, {documentId:createdDocument.id})
                                     return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.fileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
                                 })
-                                .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                                .then(({createdDocument, encryptedFileContent}) => { return this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent).then(x=>x).catch((e)=>{console.log("---error upload attachment pdf---");console.log(createdDocument);console.log(encryptedFileContent);}) })
+                        })).then(x=>x)
+                    })
+                    .then(()=>{
+                        return this._generateJ20PdfTemplateParentOaObjects().then(x=>x)
+                    })
+                    .then((parentOaPdfTemplateObjects)=>{
+                        return Promise.all(parentOaPdfTemplateObjects.map( singlePdfFileObject => this.api.pdfReport(mustache.render(singlePdfFileObject.template, {})).then(x=>_.merge(singlePdfFileObject, {fileContent:x.pdf})) ))
+                    })
+                    .then(generatedOaPdfFiles=>{
+
+                        this.flatRateInvoicingDataObject.generatedFiles.oaPdfs = _.map(generatedOaPdfFiles,i=>{
+                            try{ delete(i.template); } catch(e){}
+                            i.downloadFileName = _.kebabCase(_.compact([
+                                moment().format('YYYY-MM-DD-HH[h]-mm[m]-ss[s]'),
+                                "medical house invoicing export pdf parent oa",
+                                _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.iosData, {id:i.oaId}), "[0].code" )),
+                                _.trim(_.get(_.filter(this.flatRateInvoicingDataObject.iosData, {id:i.oaId}), "[0].finalName" )),
+                                +new Date()
+                            ]).join(" ")) + ".pdf"
+                            return i;
+                        })
+
+                        return Promise.all(this.flatRateInvoicingDataObject.generatedFiles.oaPdfs.map( singlePdfFileObject =>  {
+                            return this.api.message().newInstance(this.user)
+                                .then(newMessageInstance => this.api.message().createMessage(
+                                    _.merge(newMessageInstance, {
+                                        transportGuid: "MH:FLATRATE:PARENT-OA-INVOICING-PDF",
+                                        recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id))],
+                                        recipientsType: "org.taktik.icure.entities.HealthcareParty",
+                                        metas: {
+                                            totalPages: parseInt(singlePdfFileObject.totalPages),
+                                            filename: _.trim(singlePdfFileObject.downloadFileName),
+                                            totalInvoices: parseInt(_.size(singlePdfFileObject.invoiceIds)),
+                                            exportedDate: parseInt(this.flatRateInvoicingDataObject.exportedDate),
+                                            batchExportTstamp: parseInt(this.flatRateInvoicingDataObject.batchExportTstamp),
+                                            totalAmount: singlePdfFileObject.totalAmount,
+                                            oaId: _.trim(_.get(singlePdfFileObject, "oaId", "")),
+                                            parentOaId: _.trim(_.get(singlePdfFileObject, "parentOaId", ""))
+                                        },
+                                        toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.hcp.id)))],
+                                        subject: "MH: Flatrate invoicing Parent OA PDF export",
+                                        status: this.invoiceMessageStatuses.pending.status,
+                                        invoiceIds: _.compact(singlePdfFileObject.invoiceIds)
+                                    }))
+                                )
+                                .then(createdMessage => {
+                                    _.merge(singlePdfFileObject, {messageId:createdMessage.id})
+                                    return this.api.document().newInstance(this.user, createdMessage, {documentType: 'report', mainUti: this.api.document().uti("application/pdf"), name: _.trim(singlePdfFileObject.downloadFileName)}).then(newDocumentInstance => this.api.document().createDocument(newDocumentInstance))
+                                })
+                                .then(createdDocument => {
+                                    _.merge(singlePdfFileObject, {documentId:createdDocument.id})
+                                    return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, singlePdfFileObject.fileContent).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
+                                })
+                                .then(({createdDocument, encryptedFileContent}) => { return this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent).then(x=>x).catch((e)=>{console.log("---error upload attachment parent oa pdf---");console.log(createdDocument);console.log(encryptedFileContent);}) })
                         })).then(x=>x)
                     })
                     .then(()=>{
@@ -3879,26 +4378,45 @@
                                 _.merge(this.flatRateInvoicingDataObject.finalArchive, {documentId:createdDocument.id})
                                 return this.api.encryptDecryptFileContentByUserHcpIdAndDocumentObject("encrypt", this.user.healthcarePartyId, createdDocument, this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob).then(encryptedFileContent => ({createdDocument, encryptedFileContent}))
                             })
-                            .then(({createdDocument, encryptedFileContent}) => this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent))
+                            .then(({createdDocument, encryptedFileContent}) => { return this.api.document().setAttachment(createdDocument.id, null, encryptedFileContent).then(x=>x).catch((e)=>{console.log("---error upload attachment batch---");console.log(createdDocument);console.log(encryptedFileContent);}) })
                     })
                     .then(()=>{
                         this._setLoadingMessage({ message:this.localize('mhInvoicing.spinner.step_8_done',this.language), icon:"check-circle", updateLastMessage: true, done:true});
                         this._setLoadingMessage({ message:this.localize('mhListing.spinner.step_8',this.language), icon:"arrow-forward"})
                         this.api.triggerFileDownload( this.flatRateInvoicingDataObject.finalArchive.batchZipFileBlob, "application/zip", this.flatRateInvoicingDataObject.finalArchive.archiveDownloadFileName )
                     })
-                    .catch((e)=>{console.log(e)})
+                    .catch((e)=>{
+                        console.log(e);
+                        return (
+                            ( _.trim(e).indexOf('no-nihii') > -1 ) ? this._showWarningNoHcpNihii() && e :
+                            ( _.trim(e).indexOf('missing-flatrate-tarification') > -1 ) ? this._showWarningNoHcpFlatrateTarification() && e :
+                            ( _.trim(e).indexOf('no-data-to-export') > -1 ) ? this._showWarningNoDataToExport() && e :
+                            ( _.trim(e).indexOf('missing-contact-person') > -1 ) ? this._showWarningNoHcpContactPerson() && e :
+                            ( _.trim(e).indexOf('missing-cbe') > -1 ) ? this._showWarningNoCbe() && e :
+                            ( _.trim(e).indexOf('missing-bank-account') > -1 ) ? this._showWarningNoBankAccount() && e :
+                            ( _.trim(e).indexOf('export-already-ran') > -1 ) ? this._showWarningExportAlreadyRan() && e :
+                            e
+                        )
+                    })
                     .finally(()=>{
                         console.log(this.flatRateInvoicingDataObject);
                         this.flatRateInvoicingDataObject = {}
                         this.set('_isLoading', false );
-                        this._fetchJ20Messages(true);
+                        this.set('activeGridItem', null );
+                        this.set('messagesCachedData', null );
+                        this.set('messagesGridData', null );
+                        const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
+                        const invGridDetail = this.root.querySelector('#invoiceAndBatchesGridDetail'); invGridDetail && invGridDetail.clearCache();
+                        this._fetchJ20Messages(true).then(()=>{ this.dispatchEvent(new CustomEvent('do-route', { bubbles: true, composed: true, detail: { selection : { item : "e_flatrateinvOut", status: "j20_process" }}})); })
                     })
 
             }
 
             _fetchJ20Messages( forceRefresh = false ) {
 
-                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return;
+                let prom = Promise.resolve(null)
+
+                if( !forceRefresh && this.messagesCachedData.cachedTstamp > (+new Date() - this.cachedDataTTL) ) return prom;
 
                 this.set('_isLoadingSmall', true );
 
@@ -3909,7 +4427,7 @@
 
                 let dataObject = {}
 
-                this._getPatientsByHcp(_.get(this.hcp, "id"))
+                return this._getPatientsByHcp(_.get(this.hcp, "id"))
                     .then(myPatients=>{
                         dataObject = _.merge(dataObject, { patients: _.chain(myPatients).uniqBy('ssin').orderBy(['lastName', 'firstName'],['asc','asc']).value() })
                         return this._getInsurancesDataByPatientsList(dataObject.patients).then(x=>x)
@@ -3942,44 +4460,76 @@
                     })
                     .then(messages => {
 
-                        // this.api.message().deleteMessagesBatch(new models.ListOfIdsDto({ids: _.map(messages, i=>i.id)})); this.stopHere();
-
                         let dataByStatus = {}
                         let countByStatus = {}
                         this.messagesCachedData = _.merge( this.messagesCachedData, {
                             cachedTstamp: +new Date(),
                             insurancesData: dataObject.insurancesData,
                             parentInsurancesData: dataObject.parentInsurancesData,
-                            roughData: _.chain(messages).uniqBy('id').value().map(message=> _.merge(message, {
-                                messageInfo: {
-                                    hcp:                    _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
-                                    parentOaId:             _.get(message, "metas.parentOaId", "" ),
-                                    parentOaCode:           _.get(_.filter(dataObject.parentInsurancesData, {id:_.get(message, "metas.parentOaId", "" )}), "[0].code"),
-                                    parentOaLabel:          _.get(_.filter(dataObject.parentInsurancesData, {id:_.get(message, "metas.parentOaId", "" )}), "[0].finalName"),
-                                    hcpReference:           "-",
-                                    batchReference:         _.get(message, "metas.batchExportTstamp", "" ),
-                                    invoicedMonth:          this.localize('month_' + parseInt(moment( _.get(message, "metas.exportedDate", 0 ), "YYYYMMDD" ).format('M')), this.language) + " " + _.trim(_.get(message, "metas.exportedDate", _.get(message, "metas.exportDate", "" ) )).slice(0,4),
-                                    generationDate:         moment( parseInt(_.get(message, "created", 0 )) ).format("DD/MM/YYYY"),
-                                    invoicedAmount:         this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( parseFloat(_.get(message, "metas.totalAmount", "0.00"))) ),
-                                    acceptedAmount:         ( ["j20_reject", "j20_process"].indexOf(_.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" )) > -1 ) ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( parseFloat(_.get(message, "metas.totalAmount", "0.00"))) ),
-                                    refusedAmount:          _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" ) !== "j20_reject" ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( parseFloat(_.get(message, "metas.totalAmount", "0.00"))) ),
-                                    invoiceStatus:          this.localize( _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].llKey", "" ), this.language),
-                                    rejectionReason:        "-",
-                                    paymentReference:       "-",
-                                    paymentDate:            "-",
-                                    amountPaid:             "-",
-                                    paymentAccount:         this.api.formatBankAccount( _.get( _.head( _.filter( _.get(this.hcp, "financialInstitutionInformation", []), i => { return !!i && _.trim(_.get(i, "bankAccount", "")) }) ),"bankAccount", "")),
-                                    paid: false,
-                                },
-                            }))
+                            roughData: _.chain(messages).uniqBy('id').value().map(message=> {
+                                const st = message.status
+                                const invoiceStatus =
+                                    !!(st & (1 << 21)) ? { hrLabel: this.localize('inv_arch','Archived',this.language), finalStatus:"archived" }:
+                                        !!(st & (1 << 17)) ? { hrLabel: this.localize('inv_err','Error',this.language), finalStatus:"error" }:
+                                            !!(st & (1 << 16)) ? { hrLabel: this.localize('inv_par_acc','Partially accepted',this.language), finalStatus:"partiallyAccepted" }:
+                                                !!(st & (1 << 15)) ? { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }:
+                                                    !!(st & (1 << 12)) ? { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" }:
+                                                        !!(st & (1 << 11)) ? { hrLabel: this.localize('inv_tre','Treated',this.language), finalStatus:"treated" }:
+                                                            !!(st & (1 << 10)) ? { hrLabel: this.localize('inv_acc_tre','Accepted for treatment',this.language), finalStatus:"acceptedForTreatment" }:
+                                                                !!(st & (1 << 9))  ? { hrLabel: this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language), finalStatus:"successfullySentToOA" }:
+                                                                    !!(st & (1 << 8))  ? { hrLabel: this.localize('inv_pen','Pending',this.language), finalStatus:"pending" }: ""
+
+                                const acceptedAmount =
+                                    _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "rejected" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))):
+                                    _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.acceptedAmount", _.get(message, "metas.totalAmount", "0.00"))))):
+                                    _.get(invoiceStatus, "finalStatus") === "archived" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.acceptedAmount", _.get(message, "metas.totalAmount", "0.00"))))):
+                                    "0,00"
+
+                                const refusedAmount =
+                                    _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                    _.get(invoiceStatus, "finalStatus") === "rejected" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))) :
+                                    _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? "0,00":
+                                    _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.refusedAmount", "0.00")))):
+                                    _.get(invoiceStatus, "finalStatus") === "archived" ? this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.refusedAmount", "0.00")))):
+                                    "0,00"
+
+                                return _.merge(message, {
+                                    messageInfo: {
+                                        hcp: _.trim(_.get(this.hcp, "name", "")) || _.trim(_.trim(_.get(this.hcp, "firstName", "")) + " " + _.trim(_.get(this.hcp, "lastName", ""))) || _.trim(_.get(this.user, "name", "")),
+                                        parentOaId: _.get(message, "metas.parentOaId", ""),
+                                        parentOaCode: _.get(_.filter(dataObject.parentInsurancesData, {id: _.get(message, "metas.parentOaId", "")}), "[0].code"),
+                                        parentOaLabel: _.get(_.filter(dataObject.parentInsurancesData, {id: _.get(message, "metas.parentOaId", "")}), "[0].finalName"),
+                                        hcpReference: "-",
+                                        batchReference: _.get(message, "metas.batchExportTstamp", ""),
+                                        invoicedMonth: this.localize('month_' + parseInt(moment(_.get(message, "metas.exportedDate", 0), "YYYYMMDD").format('M')), this.language) + " " + _.trim(_.get(message, "metas.exportedDate", _.get(message, "metas.exportDate", ""))).slice(0, 4),
+                                        generationDate: moment(parseInt(_.get(message, "created", 0))).format("DD/MM/YYYY"),
+                                        invoicedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(parseFloat(_.get(message, "metas.totalAmount", "0.00")))),
+                                        acceptedAmount: acceptedAmount,
+                                        refusedAmount: refusedAmount,
+                                        invoiceStatusHr: _.get(invoiceStatus, "hrLabel"),
+                                        invoiceFinalStatus: _.get(invoiceStatus, "finalStatus"),
+                                        rejectionReason: "-",
+                                        paymentReference: "-",
+                                        paymentDate: "-",
+                                        amountPaid: "-",
+                                        paymentAccount: this.api.formatBankAccount(_.get(_.head(_.filter(_.get(this.hcp, "financialInstitutionInformation", []), i => {
+                                            return !!i && _.trim(_.get(i, "bankAccount", ""))
+                                        })), "bankAccount", "")),
+                                        paid: false,
+                                    }
+                                })
+                            })
                         });
 
                         _.map( this.invoiceMessageStatuses, (invMsgStatus,statusKey) =>{
                             dataByStatus[statusKey] = {
-                                batches : _.orderBy(_.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-BATCH-ZIP" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc']),
-                                flatFiles : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-FLATFILE" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc']),
-                                slips : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-SLIP" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc']),
-                                pdfs : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.status===invMsgStatus.status && i.transportGuid === "MH:FLATRATE:INVOICING-PDF" ), ['metas.exportedDate','created','metas.parentOaId'],['desc','desc','asc'])
+                                batches : _.orderBy(_.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-BATCH-ZIP" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                flatFiles : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-FLATFILE" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                slips : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-SLIP" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                pdfs : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:INVOICING-PDF" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc']),
+                                oaPdfs : _.orderBy( _.filter(this.messagesCachedData.roughData, i=> i.messageInfo.invoiceFinalStatus===statusKey && i.transportGuid === "MH:FLATRATE:PARENT-OA-INVOICING-PDF" ), ['metas.exportedDate','metas.parentOaId'],['desc','asc'])
                             }
                             countByStatus[statusKey] = parseInt(_.size(dataByStatus[statusKey].flatFiles))
                         })
@@ -3994,17 +4544,20 @@
                     })
                     .catch((e)=>console.log(e))
                     .finally(()=>{
-
                         this.set("messagesGridData", this._getBatchDataByMenuSection(this.flatrateMenuSection, 'flatFiles'))
                         const messagesGrid = this.root.querySelector('#messagesGrid'); messagesGrid && messagesGrid.clearCache();
-
                         this.set('_isLoadingSmall', false )
-
+                        return prom
                     })
 
             }
 
             _toggleBatchDetails(e) {
+
+                if( _.get(e, "path", false) ) {
+                    var paths = _.map( e.path, (pathNode,index)=> { return { index:index, nodeName:_.get( pathNode, "nodeName", "" ), target: _.get( pathNode, "id", "" ).toLowerCase()==="messagesgrid" } })
+                    if( !parseInt(_.size(_.compact(_.map( paths.slice( 0, _.get( _.filter(paths,"target"), "[0].index", 0 ) ), (path, index) => { return ["vaadin-grid-cell-content", "slot", "td", "tr" ].indexOf( _.trim(path.nodeName).toLowerCase() ) > -1 } )))) ) return;
+                }
 
                 if ( _.size(this.activeGridItem) ) {
 
@@ -4022,8 +4575,44 @@
                             _.flatMap(
                                 _.map(batchExportPdfs, message => {
                                     return _.map(_.get(message, "invoiceIds", []), invoiceId => {
+
                                         let invoiceData = _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} )
                                         invoiceData = _.merge(invoiceData, {invoiceDate:_.trim(_.get(invoiceData, "invoiceDate","")) || moment(_.get(invoiceData, "created","0")).startOf('month').format("YYYYMMDD") })
+
+                                        const st = message.status
+                                        let invoiceStatus =
+                                            !!(st & (1 << 21)) ? { hrLabel: this.localize('inv_arch','Archived',this.language), finalStatus:"archived" }:
+                                                !!(st & (1 << 17)) ? { hrLabel: this.localize('inv_err','Error',this.language), finalStatus:"error" }:
+                                                    !!(st & (1 << 16)) ? { hrLabel: this.localize('inv_par_acc','Partially accepted',this.language), finalStatus:"partiallyAccepted" }:
+                                                        !!(st & (1 << 15)) ? { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }:
+                                                            !!(st & (1 << 12)) ? { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" }:
+                                                                !!(st & (1 << 11)) ? { hrLabel: this.localize('inv_tre','Treated',this.language), finalStatus:"treated" }:
+                                                                    !!(st & (1 << 10)) ? { hrLabel: this.localize('inv_acc_tre','Accepted for treatment',this.language), finalStatus:"acceptedForTreatment" }:
+                                                                        !!(st & (1 << 9))  ? { hrLabel: this.localize('inv_succ_tra_oa','Successfully transmitted to OA',this.language), finalStatus:"successfullySentToOA" }:
+                                                                            !!(st & (1 << 8))  ? { hrLabel: this.localize('inv_pen','Pending',this.language), finalStatus:"pending" }: ""
+
+                                        const acceptedAmount =
+                                            _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "rejected" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ):
+                                            _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent ? parseFloat(i.totalAmount) : 0) ):
+                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !i.resent&&!i.canceled ? parseFloat(i.totalAmount) : 0) ):
+                                            "0,00"
+
+                                        const refusedAmount =
+                                            _.get(invoiceStatus, "finalStatus") === "pending" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "rejected" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) :
+                                            _.get(invoiceStatus, "finalStatus") === "fullyAccepted" ? "0,00" :
+                                            _.get(invoiceStatus, "finalStatus") === "partiallyAccepted" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent ? parseFloat(i.totalAmount) : 0) ):
+                                            _.get(invoiceStatus, "finalStatus") === "archived" ? _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>( !!i.resent||!!i.canceled ? parseFloat(i.totalAmount) : 0) ):
+                                            "0,00"
+
+                                        const messageOriginalStatus = invoiceStatus
+
+                                        invoiceStatus = _.get(invoiceStatus, "finalStatus")!=="partiallyAccepted" ? invoiceStatus :
+                                            (_.size(_.compact(_.map( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>!!i.resent )))) ?
+                                                { hrLabel: this.localize('inv_rej','Rejected',this.language), finalStatus:"rejected" } : { hrLabel: this.localize('inv_full_acc','Fully accepted',this.language), finalStatus:"fullyAccepted" }
+
                                         return {
                                             id: _.get(message, "id", ""),
                                             oaId: _.get(message, "metas.oaId", ""),
@@ -4035,9 +4624,11 @@
                                             invoiceData: invoiceData,
                                             patientData: _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][1]", {} ),
                                             invoicedAmount: this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) ) ),
-                                            acceptedAmount: ( ["j20_reject", "j20_process"].indexOf(_.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" )) > -1 ) ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) )) ),
-                                            refusedAmount: _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].menuSection", "" ) !== "j20_reject" ? "0,00" : this.api.hrFormatNumber( this.api._powRoundFloatByPrecision( _.sumBy( _.get( _.get(_.filter(invoicesAndPatient, i=>_.get(i, "[0].id", "")===invoiceId), "[0][0]", {} ), "invoicingCodes", [] ), i=>parseFloat(i.totalAmount) ) ) ),
-                                            invoiceHrStatus: this.localize( _.get( _.filter(this.invoiceMessageStatuses, {status : message.status}), "[0].llKey", "" ), this.language),
+                                            acceptedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(acceptedAmount)),
+                                            refusedAmount: this.api.hrFormatNumber(this.api._powRoundFloatByPrecision(refusedAmount)),
+                                            invoiceStatusHr: _.get(invoiceStatus, "hrLabel"),
+                                            invoiceFinalStatus: _.get(invoiceStatus, "finalStatus"),
+                                            messageOriginalStatus: _.get(messageOriginalStatus, "finalStatus"),
                                             messageData: message
                                         }
                                     })

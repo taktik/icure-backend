@@ -68,7 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .container {
                 width: 80%;
-                height: calc(100vh - 64px);
+                height: calc(100vh - 64px - 20px);
                 position: fixed;
                 top: 64px;
                 left: 20%;
@@ -251,7 +251,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         static get observers() {
-            return [];
+            return ['ready(hcp)'];
         }
 
         constructor() {
@@ -266,25 +266,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return;
             }
             let promises=[]
-            let hcpList = [this.hcp];
             let list =[];
 
 
-            ;(this.hcp && this.hcp.type && this.hcp.type.toLowerCase()==="medicalhouse" ? this.api.hcparty().listHealthcareParties( null,null, 1000,"asc").then(hcps =>{
-                hcpList = hcps && hcps.rows
-            }) : Promise.resolve(this.hcp.type)).then(x=>{
-                return hcpList.map(hcp =>{
-                    promises.push(this.api.patient().listPatientsByHcPartyWithUser(this.user, hcp.id, "name", null, null, 500, "asc").then(patients => {
-                        list=list.concat(patients && patients.rows)
-                        this.set("hasHcpPatients", list.length > 0)
-                    }))
-                })
-            })
-            .then(x =>{
-                Promise.all(promises).then(x =>{
-                    if(this.hasHcpPatients)this.set("patientsList",_.uniqBy(list,'id'))
-                })
-            })
+            const promesse = this.hcp && this.hcp.type && this.hcp.type.toLowerCase()==="medicalhouse" ?
+                this.api.hcparty().listHealthcareParties( null,null, 1000,"asc") :
+                Promise.resolve({ rows : [this.hcp]})
+
+            promesse.then(hcps => hcps && hcps.rows && Promise.all(hcps.rows.map( hcp => this.api.patient().listPatientsByHcPartyWithUser(this.user, hcp.id, "name", null, null, 500, "asc"))))
+                .then(patientsArrays => patientsArrays.map(patients => this.set("patientsList",_.uniqBy(this.patientsList.concat(patients && patients.rows),"id"))))
         }
 
 

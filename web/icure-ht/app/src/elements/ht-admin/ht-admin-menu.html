@@ -202,7 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .menu-item{
-                @apply --padding-right-left-16;
+                @apply --padding-menu-item;
                 height:48px;
                 @apply --paper-font-button;
                 text-transform: inherit;
@@ -311,7 +311,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .sub-menu-icon{
-                heigth: 14px;
+                height: 14px;
                 width: 14px;
             }
 
@@ -476,7 +476,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 e.stopPropagation()
                 e.preventDefault()
 
-                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'management', submenu: 'groupsManagementSubMenu'}}}));
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'management', submenu: 'usersManagementSubMenu'}}}));
 
                 //this.set('managementSelectionIndex', null)
                 this.set('accountSelectionIndex', null)
