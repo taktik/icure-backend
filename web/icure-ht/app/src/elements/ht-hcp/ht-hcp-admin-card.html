@@ -118,20 +118,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	hcpFormChanged() {
-		/*if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
+		if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
 			this.set('combinedForm', this.hcpForm);
-		}*/
+		}
 	}
 
 	hcpChanged() {
-		if( this.api && !this.prevHcp && this.hcp) {
-			//execute on first time we have this.hcp available, to make sure it's registered
-			this.prevHcp = true
-			this.hcp = this.api.register(this.hcp,'hcp')
-			return 
-
-		}
-
 		if (this.api && this.user && this.hcp) {
 			this.set('hcpForm', require((this.hcp && this.hcp.type && this.hcp.type.toLowerCase()==="medicalhouse")? "./rsrc/MedicalHouseHcpAdministrativeForm.json" : "./rsrc/HcpAdministrativeForm.json"));
             this.api.getRegistry('hcp').listeners['ht-hcp-admin'] = {target: this, pool: [this.hcp.id], callbacks: [() => this.hcpChanged()]}

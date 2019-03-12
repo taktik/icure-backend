@@ -2765,7 +2765,11 @@
                             prom = prom.then(() =>
                                 new Promise((resolve) => {
                                     if (message.detail) {
-                                        this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+moment().year()+":")
+                                        const enreg20 = message && message.message && message.message.find(m => m.zones[0].value === '20') || null
+                                        const mut = enreg20 && enreg20.zones && enreg20.zones.find(z => z.zone === "18") && enreg20.zones.find(z => z.zone === "18").value || null
+                                        const oa = mut && mut.substr(0,1) + "00" || null
+
+                                        this.api.message().processEfactMessage(this.user, this.hcp, message, "invoice:"+this.user.healthcarePartyId+":"+oa ? oa : "000"+":")
                                             .then(msg => {
                                                 msg ? resolve(message) : resolve()
                                             })
