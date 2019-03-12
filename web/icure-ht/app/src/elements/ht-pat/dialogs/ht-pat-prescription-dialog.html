@@ -35,7 +35,7 @@
                 color: black;
                 border: 1px solid var(--app-background-color-dark);
             }
-            
+
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
@@ -124,7 +124,7 @@
 					line-height: normal;
 				}
 			}
-        
+
             @media screen and (max-width: 672px) {
                 .modal-button {
                     margin: 4px 0;
@@ -202,14 +202,14 @@
     </template>
 
     <script>
-    
+
         import _ from 'lodash/lodash';
         import JsBarcode from 'JsBarcode';
         import mustache from "mustache/mustache.js";
         import moment from 'moment/src/moment';
 
         class HtPatPrescriptionDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
-        
+
             static get is() {
                 return 'ht-pat-prescription-dialog';
             }
@@ -289,11 +289,11 @@
 				const col = this._splitColumns()[index];
 				return svc && col && col.includes(svc.id);
             }
-            
+
             _drugPosology(svc) {
 				return svc && this.api.contact().medication().posologyToString(this.api.contact().medicationValue(svc, this.language), this.language) || "N/A";
 			}
-            
+
             _drugsToBePrescribed() {
                 let tbp = this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
                 return tbp.length > 0 ? tbp : this._drugsAlreadyPrescribed();
@@ -676,7 +676,7 @@
                                 {
                                     transportGuid: "PRESCRIPTION:PHARMACEUTICALS:ARCHIVE",
                                     recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
-                                    metas: pdfPrintingData.documentMetas,
+//TODO                              metas: pdfPrintingData.documentMetas,
                                     toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
                                     subject: pdfPrintingData.documentMetas.title
                                 }
@@ -778,7 +778,7 @@
 					this.set('drugsOnPrescriptions', current);
 				}
             }
-            
+
             _splitColumns() {
 				const drugs = this._drugsToBePrescribed();
 				const drugs2 = this._drugsAlreadyPrescribed();
@@ -795,9 +795,9 @@
 				{
 					const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
 						const id = mark.id;
-                        const column = mark.column;
-                        (columns[column] || (columns[column] = [])).push(id)
-                        return columns;
+                        const column = mark.column
+                        ;(columns[column] || (columns[column] = [])).push(id)
+                        return columns
 						}, [[]]);
 					if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
 						columns.push([]);
@@ -805,11 +805,11 @@
 					return columns;
 				}
 			}
-        
+
         }
 
         customElements.define(HtPatPrescriptionDialog.is, HtPatPrescriptionDialog);
-    
+
     </script>
 
 </dom-module>

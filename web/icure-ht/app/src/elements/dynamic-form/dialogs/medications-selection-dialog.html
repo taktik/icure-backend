@@ -566,7 +566,7 @@
                             }
                             grid.latestResults = _.slice(res.rows, startIndex, endIndex)
                             if (grid.latestResults.length) {
-                                (grid.drugsCache || (grid.drugsCache = []))[startIndex] = null
+                                ;(grid.drugsCache || (grid.drugsCache = []))[startIndex] = null
                                 grid.drugsCache.splice(startIndex, grid.latestResults.length, ...grid.latestResults)
                             }
                             callback(grid.latestResults)
@@ -635,7 +635,7 @@
 
             _addCompound(e){
                 if (this.compoundPrescriptionText && this.compoundPrescriptionText.length) {
-                    ((this.selectedCompound || (this.selectedCompound = {})).medicationValue || (this.selectedCompound.medicationValue = {})).compoundPrescription = this.compoundPrescriptionText
+                    ;((this.selectedCompound || (this.selectedCompound = {})).medicationValue || (this.selectedCompound.medicationValue = {})).compoundPrescription = this.compoundPrescriptionText
                     if (!this.selectedCompound.id) { this.selectedCompound.id = this.compoundPrescriptionText }
                     this.selectMedicationFromList(this.selectedCompound)
 

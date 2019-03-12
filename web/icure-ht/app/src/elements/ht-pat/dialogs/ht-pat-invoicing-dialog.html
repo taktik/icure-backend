@@ -4065,7 +4065,8 @@
                 console.log("envoie")
 
                 const sentDate=moment().format("YYYYMMDD")
-                (this.selectedInvoice.careProviderType === "traineesupervised" ?
+
+                ;(this.selectedInvoice.careProviderType === "traineesupervised" ?
                     this.api.hcparty().findBySsinOrNihii(this.selectedInvoice.internshipNihii,0,0,1000,'asc') : Promise.resolve({rows:[]}))
                     .then(hcps => this.api.fhc().Eattestcontroller().sendAttestWithResponseUsingPOST(this.patient.ssin, this.api.keystoreId,this.api.tokenId,this.api.credentials.ehpassword,(hcps.rows && hcps.rows.length && hcps.rows[0].nihii) ||this.hcp.nihii,(hcps.rows && hcps.rows.length && hcps.rows[0].ssin) || this.hcp.ssin, (hcps.rows && hcps.rows.length && hcps.rows[0].firstName) || this.hcp.firstName,(hcps.rows && hcps.rows.length && hcps.rows[0].lastName) || this.hcp.lastName,(hcps.rows && hcps.rows.length && hcps.rows[0].cbe) || this.hcp.cbe, this.patient.firstName, this.patient.lastName, this.patient.gender, eattest,sentDate))
                     .then(fhcEattest => this.api.logMcn(fhcEattest, this.user, this.selectedInvoice.id, 'eattest', 'notify'))

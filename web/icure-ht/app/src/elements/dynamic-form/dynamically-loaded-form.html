@@ -822,7 +822,7 @@
                                 sl[0].svc.content = {};
                                 sl[0].svc.endOfLife = +new Date() * 1000;
                             } else {
-                                (this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
+                                ;(this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
                                     content: {},
                                     endOfLife: +new Date() * 1000
                                 })));
@@ -856,7 +856,7 @@
                                 sl[0].svc.content = {};
                                 sl[0].svc.endOfLife = +new Date() * 1000;
                             } else {
-                                (this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
+                                ;(this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
                                     content: {},
                                     endOfLife: +new Date() * 1000
                                 })));
@@ -882,8 +882,8 @@
                                     formTemplateId: formTemplates[0].id,
                                     parent: form.id
                                 }).then(f => this.api.form().createForm(f)).then(f => {
-                                    f.template = formTemplates[0]; //Important
-                                    (form.children || (form.children = [])).push(f);
+                                    f.template = formTemplates[0]
+                                    ;(form.children || (form.children = [])).push(f);
                                     this.currentContact.subContacts.push({formId: f.id, descr: key, services: []});
 
                                     this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
@@ -1030,8 +1030,8 @@
                 if (!this.currentContact) {
                     return null;
                 }
-                const svc = this.api.contact().service().newInstance(this.user, serviceId ? {id: serviceId, label: label} : {label: label});
-                (this.currentContact.services || (this.currentContact.services = [])).push(svc);
+                const svc = this.api.contact().service().newInstance(this.user, serviceId ? {id: serviceId, label: label} : {label: label})
+                ;(this.currentContact.services || (this.currentContact.services = [])).push(svc);
 
                 let sc = this.currentContact.subContacts.find(sc => sc.formId === formId);
                 if (!sc) {
