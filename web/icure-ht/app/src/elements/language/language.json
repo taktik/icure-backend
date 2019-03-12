@@ -2371,7 +2371,7 @@
     "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte",
     "flatRateInvoicingAlreadyRan": "Vous avez déjà exporté votre facturation ce mois-ci",
     "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation",
-    "groupGrandTotal": "Grand total du Groupement"
+    "groupGrandTotal": "Grand total du Groupement",
     "unknown": "inconnu"
   },
   "nl": {
