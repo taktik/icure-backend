@@ -70,7 +70,13 @@
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
-                font-weight: 700;
+                font-weight: 700 !important;
+            }
+            .modal-button--force {
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                color: var(--app-light-color) !important;
+                font-weight: 700 !important;
+                background: var(--app-status-color-nok);
             }
             .modal-button[disabled] {
                 background-color: var(--app-secondary-color-dark);
@@ -242,8 +248,62 @@
                 display: initial;
             }
 
+            #checkintol {
+                display: flex;
+                flex-direction: column;
+                min-height: 640px;
+                max-height: 50vh !important;
+            }
+
+            #checkintol em {
+                font-weight: bold;
+            }
+
+            #checkintol div.warn {
+                color: var(--app-status-color-nok);
+                font-size: 1.2em;
+            }
+
+            #checkintol div.con {
+                margin: 16px 0 8px 0;
+            }
+
+            #checkintol div.list {
+                flex-grow: 1;
+                margin: 8px 32px;
+                padding: 0;
+                overflow-y: auto;
+                border: 1px solid var(--app-background-color-dark);
+            }
+
+            #checkintol div.list > div {
+                padding: 4px 16px;
+                height: 32px;
+                border-bottom: 1px solid var(--app-background-color-dark);
+                box-sizing: border-box;
+            }
+            #checkintol div.list > div:nth-child(2n-1) {
+                background-color: var(--app-background-color-dark);
+            }
+            #checkintol div.list > div > iron-icon {
+                height: 16px;
+            }
+            #checkintol div.endline {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                margin: 8px 0;
+                padding: 0;
+                min-height: 40px;
+            }
+            #checkintol div.endline span {
+                line-height: 40px;
+                padding: 0 24px;
+            }
+
             @media screen and (max-width: 936px) {
-                paper-dialog#medication-selection {
+                paper-dialog#medication-selection,
+                #checkintol {
                     position: fixed;
                     max-width: none !important;
                     top: 64px;
@@ -252,6 +312,9 @@
                     width: 100vw !important;
                     margin: 0;
                     transform: none;
+                }
+                #checkintol {
+                    max-height: none !important;
                 }
             }
 
@@ -412,6 +475,25 @@
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="validateMedications" disabled="[[!medicationAccumulator.length]]">[[localize('valid','Validate',language)]]</paper-button>
             </div>
         </paper-dialog>
+        <paper-dialog id="checkintol" always-on-top="true">
+            <h2 class="modal-title">[[localize('warning','Warning',language)]] !</h2>
+            <div class="warn">
+                <iron-icon icon="icons:warning"></iron-icon> [[localize('patient_has_adr','Le patient possède une contre-indication pour la médication',language)]]
+                 <em>[[medicationToBeAdded_label]]</em>.
+            </div>
+            <div class="con">[[localize('con_list','Contraindication list',language)]] :</div>
+            <div class="list">
+                <template is="dom-repeat" items="[[intolItems]]" as="intol">
+                    <div><iron-icon icon="[[_getIntolIcon(intol)]]"></iron-icon> [[getIcpcLabel(intol)]] <i>[[_heShortDateFormat(intol.openingDate, intol.valueDate)]]</i>: [[intol.descr]] </div>
+                </template>
+            </div>
+            <div class="endline">
+                <span>[[localize('continue','Continue',language)]] ?</span>
+                <paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('no','no',language)]]</paper-button>
+                <paper-button class="modal-button modal-button--force" dialog-confirm autofocus on-tap="continueAddMedication">[[localize('yes','Yes',language)]]</paper-button>
+            </div>
+        </paper-dialog>
+
     </template>
     <script>
         import _ from 'lodash/lodash'
@@ -494,6 +576,7 @@
 
             static get observers() {
                 return [
+                    'medicationTypeChanged(medicationType)',
                 ];
             }
 
@@ -589,25 +672,34 @@
                             })
 
                         this.loadCheapAlternativesIfNeeded(this.selectedMedicationFromList).then(alternatives => {
-                            const cheapAlternativeSearchSeedIndex = this.cheapAlternativeSearchSeed ? grid.drugsCache.findIndex(mpp => mpp.id.id === this.cheapAlternativeSearchSeed.id.id) : -1
+                            const cheapAlternativeSearchSeedIndex = this.cheapAlternativeSearchSeed ? grid.drugsCache.findIndex(mpp => this._id(mpp) === this._id(this.cheapAlternativeSearchSeed)) : -1
                             const cacheEndIndex = cheapAlternativeSearchSeedIndex === -1 ? endIndex :
                                 (cheapAlternativeSearchSeedIndex < endIndex ? endIndex - alternatives.length : endIndex)
                             ;((grid.drugsCache && grid.drugsCache.length >= cacheEndIndex) ? Promise.resolve(grid.drugsCache) : fillCache(cacheEndIndex)).then(cache => {
                                 this.setGridSize(grid, cache.length + alternatives.length)
 
+                                let fullVirtualDataSet = cache.map(it => it)
                                 if (cheapAlternativeSearchSeedIndex === -1 || endIndex <= cheapAlternativeSearchSeedIndex) {
-                                    callback(cache.slice(startIndex, endIndex))
+                                    fullVirtualDataSet = cache.slice(startIndex, endIndex)
                                 } else if (cheapAlternativeSearchSeedIndex + alternatives.length < startIndex) {
-                                    callback(cache.slice(startIndex - alternatives.length, endIndex - alternatives.length))
+                                    fullVirtualDataSet = cache.slice(startIndex - alternatives.length, endIndex - alternatives.length)
                                 } else {
-                                    const fullVirtualDataSet = cache.map(it => it)
                                     fullVirtualDataSet.splice(cheapAlternativeSearchSeedIndex + 1, 0, ...alternatives)
-                                    callback(fullVirtualDataSet.slice(startIndex, endIndex))
+                                    fullVirtualDataSet = fullVirtualDataSet.slice(startIndex, endIndex)
                                 }
+                                grid.fullVirtualDataSet = fullVirtualDataSet
+                                callback(grid.fullVirtualDataSet)
                             })
                         })
                     }
                 };
+            }
+
+            medicationTypeChanged(name) {
+               if(this.medicationType === 'substanceProduct' || this.medicationType === 'medicinalProduct')  {
+                   let grid = this.$['entities-list'];
+                   grid.clearCache()
+               }
             }
 
             setGridSize(grid, size) {
@@ -624,13 +716,18 @@
 
             _addCnkDci(e) {
                 const grid = this.$['entities-list'];
-                const med = grid.drugsCache.find(d => this._id(d) === e.target.id)
-                this.selectMedicationFromList(med)
+                let med = null
+                if(this.medicationType == 'substanceProduct') {
+                    med = grid.latestResults.find(d => this._id(d) === e.target.id)
+                } else {
+                    med = grid.fullVirtualDataSet.find(d => this._id(d) === e.target.id)
+                }
+                this.checkAdr(med, ()=> this.selectMedicationFromList(med) )
             }
 
             _addChron(e) {
                 const med = this.medications.find(d => d.id === e.target.id)
-                this.selectChron(med)
+                this.checkAdr(med, ()=> this.selectChron(med) )
             }
 
             _addCompound(e){
@@ -737,8 +834,8 @@
                 const selected = this.selectedMedicationFromList;
 
                 console.log('selected ',selected,' - ',this.latestSelected);
-                if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
-                    this.select(this.latestSelected);
+                if (this.inDoubleClick && (this._id(this.latestSelected) === this._id(selected) || this.latestSelected && !selected || !this.latestSelected && selected)) {
+                    this._addCnkDci({target: {id: this._id(this.latestSelected)}})
                 } else {
                     if (selected) this.latestSelected = selected;
                     this.inDoubleClick = true;
@@ -760,7 +857,7 @@
 
                 console.log('selected ',selected,' - ',this.latestSelected);
                 if (this.inDoubleClick && (this.latestSelected === selected || this.latestSelected && !selected || !this.latestSelected && selected)) {
-                    this.selectChron(this.latestSelected);
+                    this._addChron({target: {id: this._id(this.latestSelected)}})
                 } else {
                     if (selected) this.latestSelected = selected;
                     this.inDoubleClick = true;
@@ -783,7 +880,7 @@
                     }
                     this.cheapAlternativeSearchSeed = searchSeed
                     return this.api.bedrugs().getCachedCheapAlternativesBasedOnAtc(searchSeed.id.id, 'fr')
-                        .then(packs => packs.filter(mpp => searchSeed.id.id !== mpp.id.id).sort((mpp1, mpp2) => (mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp => _.extend(_.extend({}, mpp), {cheap: 'cheap'})))
+                        .then(packs => packs.filter(mpp => this._id(searchSeed) !== this._id(mpp)).sort((mpp1, mpp2) => (mpp1.index || 10000000) - (mpp2.index || 10000000)).map(mpp => _.extend(_.extend({}, mpp), {cheap: 'cheap'})))
                 } else {
                     this.cheapAlternativeSearchSeed = null
                     return Promise.resolve([])
@@ -984,6 +1081,116 @@
                     this.set('selectedCompound', null);
                     this.set('compoundPrescriptionText','')
                 }
+            }
+
+
+            checkAdr(med, thenfun) {
+                // check if patient have adverse drug reaction to this drug
+
+                if(!this.user || !this.patient) {
+                    console.log("no user or patient, abort")
+                    return
+                }
+                if(!med) {
+                    return
+                }
+                this.set('continueAddMedication', thenfun)
+                this.api.helement().findBy(this.user.healthcarePartyId, this.patient).then(hes => {
+                    console.log(hes)
+                    this._fillMedecineCodes(med).then(() => {
+
+                        const intols = hes
+                            .filter(he => he.tags.find(tag => tag.type == "CD-ITEM" && tag.code == "adr"))
+                            .filter(he =>
+                                he.codes.find(hecode =>
+                                    med.codes.find(medcode => hecode.type == medcode.type && hecode.code == medcode.code)
+                                )
+                            )
+
+                        if(intols.length) {
+                            this.set('intolItems', intols)
+                            this.set('medicationToBeAdded', med)
+                            if(!med.content) {
+                                this.set('medicationToBeAdded_label', med.name)
+                            } else {
+                                const content = med.content[this.language]
+                                this.set('medicationToBeAdded_label',
+                                    this._any(
+                                        content.medicationValue.medicinalProduct && content.medicationValue.medicinalProduct.intendedname,
+                                        content.medicationValue.substanceProduct && content.medicationValue.substanceProduct.intendedname,
+                                        content.medicationValue.compoundPrescription
+                                    )
+                                )
+                            }
+                            this.$['checkintol'].open()
+                        } else {
+                            console.log("no intol")
+                            return thenfun()
+                        }
+                    })
+                })
+
+            }
+
+            getIcpcLabel(he) {
+                const icpc = he.codes && he.codes.find(t=>t.type==='ICPC' || t.type==='ICPC2')
+                return icpc && ((icpc.code || icpc.id.split('|')[1]) + ' - ')
+            }
+
+            _heShortDateFormat(date, altDate) {
+                return (date || altDate) && "'"+this.api.moment((date || altDate)).format('YY') || '';
+            }
+
+            _any(a,b,c,d,e) {
+                return a||b||c||d||e
+            }
+
+            _fillMedecineCodes(med) {
+                // add codes to med in place and return promise
+                if (med.id && med.id.id) {
+                    //by productName
+                    return this.api.bedrugs().getMppInfos(med.id.id, this.language === 'en' ? 'fr' : this.language || 'fr').then(mppInfos => {
+
+                        med.id.id && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-DRUG-CNK') || (med.codes[med.codes.length] = {
+                            type: 'CD-DRUG-CNK',
+                            version: '0.0.1'
+                        })).code = med.id.id)
+                        mppInfos.atcCode && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-ATC') || (med.codes[med.codes.length] = {
+                            type: 'CD-ATC',
+                            version: '0.0.1'
+                        })).code = mppInfos.atcCode)
+
+                    })
+                } else {
+                    //by molecule
+                    if (med.inncluster) {
+
+                        med.inncluster && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-INNCLUSTER') || (med.codes[med.codes.length] = {
+                            type: 'CD-INNCLUSTER',
+                            version: '0.0.1'
+                        })).code = med.inncluster)
+                        med.atcCode && (((med.codes || (med.codes = [])).find(c => c.type === 'CD-ATC') || (med.codes[med.codes.length] = {
+                            type: 'CD-ATC',
+                            version: '0.0.1'
+                        })).code = med.atcCode)
+                    } else {
+                        //Compound prescription
+
+                    }
+                }
+                return Promise.resolve([])
+
+            }
+
+            _getIntolIcon(intol) {
+                const iconsMapping = {
+                    allergy: "image:filter-vintage",
+                    adr: "vaadin:pill",
+                    risk: "vaadin:exclamation-circle",
+                    socialrisk: "vaadin:group",
+                    professionalrisk: "icons:work"
+                }
+                return iconsMapping[(intol.tags.find(c => (c.type === 'CD-ITEM' || c.type === 'CD-ITEM-EXT-CHARACTERIZATION')) || {}).code || '']
             }
         }
 
