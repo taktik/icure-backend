@@ -208,7 +208,7 @@
         import mustache from "mustache/mustache.js";
         import moment from 'moment/src/moment';
 
-        class HtPatPrescriptionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
+        class HtPatPrescriptionDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
 
             static get is() {
                 return 'ht-pat-prescription-dialog';
@@ -259,10 +259,6 @@
             static get observers() {
 				return ['_setPrintSize(selectedFormat)','_currentContactChanged(currentContact, currentContact.*)'];
 			}
-            
-            constructor() {
-                super();
-            }
 
             ready() {
                 super.ready();
