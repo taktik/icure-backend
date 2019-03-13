@@ -48,6 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <style include="shared-styles">
             :host {
                 display: block;
+                height: calc(100% - 20px);
             }
 
             :host *:focus{
@@ -55,11 +56,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .printer-panel{
-                height: 100%;
                 width: 100%;
-                padding: 0 20px;
+                height: 100%;
+                grid-column-gap: 24px;
+                grid-row-gap: 24px;
+                padding: 0 24px;
                 box-sizing: border-box;
-                position:relative;
             }
 
             .line {
@@ -119,31 +121,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow-y: auto;
             }
 
-            paper-tabs {
-                background: var(--app-background-color);
-                --paper-tabs-selection-bar-color: var(--app-secondary-color);
-                --paper-tabs: {
-                    color: var(--app-text-color);
-                };
-            }
-
-            paper-tab {
-                --paper-tab-ink: var(--app-text-color);
-            }
-
-            paper-tab.iron-selected {
-                font-weight: bold;
-            }
-
-            paper-tab.iron-selected iron-icon{
-                opacity: 1;
-            }
-
-            paper-tab iron-icon{
-                opacity: 0.5;
-                color: var(--app-text-color);
-            }
-
             .flex-horizontal, .flex-horizontal .format {
                 display: flex;
                 flex-direction: row;
@@ -156,217 +133,198 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 border-bottom: 0;
             }
 
-            .flex-horizontal > div {
-                flex-grow: 1;
-                box-sizing: border-box;
-                border: 1px solid var(--app-background-color-darker);
-                margin: 16px 8px;
-                border-radius: 4px;
-            }
-            .flex-horizontal > div.col {
-                border: 0;
-                margin: initial;
-                border-radius: 0;
-            }
-            .flex-horizontal div.print-tile {
-                border: 1px solid var(--app-background-color-darker);
-                margin: 16px 8px;
-                border-radius: 4px;
+            .print-tile {
+                color: var(--app-text-color);
+                background: var(--app-background-color);
+                border-radius: 2px;
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                overflow: auto;
+                position: relative;
+                z-index: 0;
+                transition: all .24s cubic-bezier(.075,.82,.165,1);
+                width: 50%;
+                margin-bottom: 24px;
             }
 
-            .flex-horizontal h2 {
-                background: var(--app-background-color-dark);
-                padding: 8px;
+            .print-tile  .title{
+                background: #ffffff;
+                padding: 16px;
                 width: 100%;
-                text-align: center;
                 box-sizing: border-box;
                 margin: 0;
+                height: 56px;
+                font-size: 16px;
+                font-weight: 700;
+                text-align: left;
+                color: var(--app-text-color);
             }
-            .flex-horizontal .format {
-                flex-direction: row;
+            .print-tile .format {
+                display: flex;
+                flex-flow: row wrap;
+                align-items: flex-end;
+                justify-content: space-between;
             }
-            .flex-horizontal .format .left {
+            .print-tile .format .left {
                 flex-grow: initial;
-                width: 128px;
-                line-height: 64px;
+                line-height: 47px;
                 text-align: center;
                 font-weight: bold;
+                padding: 0 16px;
             }
 
-            .flex-horizontal .format .right {
+            .print-tile .format .right {
                 flex-grow: 1;
                 padding: 0 16px;
             }
-            .flex-horizontal .format .right paper-dropdown-menu {
+            .print-tile .format .right paper-dropdown-menu {
                 width: 100%;
             }
 
-            .flex-horizontal paper-listbox {
+            .print-tile paper-listbox {
                 max-height: 256px;
                 max-width: 256px;
             }
-            .flex-horizontal paper-item {
+            .print-tile paper-item {
                 cursor: pointer;
                 box-sizing: border-box;
             }
-            .flex-horizontal paper-item:hover {
+            .print-tile paper-item:hover {
                 background: var(--app-background-color-dark);
             }
-            .flex-horizontal paper-item:active,
-            .flex-horizontal paper-item:focus {
+            .print-tile paper-item:active,
+            .print-tile paper-item:focus {
                 background: var(--app-background-color-darker);
+            }
+
+            .section-title{
+                grid-column: 2 span;
+                grid-row: 1;
+            }
+
+            paper-dropdown-menu, paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
         </style>
 
         <div class="printer-panel">
-            <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_print_info', 'Printers', language)]]</h4>
+            <h4 class="section-title">[[localize('my_pro', 'My profil', language)]] - [[localize('acc_print_info', 'Printers', language)]]</h4>
 
-            <div class="flex-horizontal">
-
-                <div class="col">
-                    <div class="print-tile">
-                        <h2>[[localize('color','Color',language)]]</h2>
-                        <div class="format afour">
-                            <div class="left">
-                                <span>A4</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.color]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="a4.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                        <div class="format afive">
-                            <div class="left">
-                                <span>A5</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.color]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="a5.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                        <div class="format presc">
-                            <div class="left">
-                                <span>Prescription</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.color]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="presc.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="print-tile">
-                        <h2>[[localize('props','Properties',language)]] [[localize('stickers','Stickers',language)]]</h2>
-                        <div class="format size-stickers">
-                            <div class="left">
-                                <span>H</span>
-                            </div>
-                            <div class="right">
-                                <paper-input on-value-changed="_setPrinter" target="stickers.h" data-item$="[[numericSelectedPrinter.stickers.h]]" value="{{numericSelectedPrinter.stickers.h}}" label="mm" type="number" min="0"></paper-input>
-                            </div>
-                        </div>
-                        <div class="format size-stickers">
-                            <div class="left">
-                                <span>L</span>
-                            </div>
-                            <div class="right">
-                                <paper-input on-value-changed="_setPrinter" target="stickers.w" data-item$="[[numericSelectedPrinter.stickers.w]]" value="{{numericSelectedPrinter.stickers.w}}" label="mm" type="number" min="0"></paper-input>
-                            </div>
-                        </div>
+            <div class="print-tile colors">
+                <h4 class="title">[[localize('color','Color',language)]]</h4>
+                <div class="format afour">
+                    <div class="right">
+                        <paper-dropdown-menu label="A4">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.color]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="a4.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
                     </div>
                 </div>
-
-                <div class="col">
-                    <div class="print-tile">
-                        <h2>[[localize('b_and_w','Black and white',language)]]</h2>
-                        <div class="format afour">
-                            <div class="left">
-                                <span>A4</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.bw]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="a4.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                        <div class="format afive">
-                            <div class="left">
-                                <span>A5</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.bw]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="a5.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                        <div class="format presc">
-                            <div class="left">
-                                <span>Prescription</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.bw]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="presc.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                        <div class="format stickers">
-                            <div class="left">
-                                <span>[[localize('stickers','Stickers',language)]]</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.stickers.bw]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="stickers.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
-                        <div class="format regulations">
-                            <div class="left">
-                                <span>[[localize('regulations','Regulations',language)]]</span>
-                            </div>
-                            <div class="right">
-                                <paper-dropdown-menu>
-                                    <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.regulations.bw]]">
-                                        <template is="dom-repeat" items="[[printers]]" as="printer">
-                                            <paper-item on-tap="_setPrinter" target="regulations.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
-                                        </template>
-                                    </paper-listbox>
-                                </paper-dropdown-menu>
-                            </div>
-                        </div>
+                <div class="format afive">
+                    <div class="right">
+                        <paper-dropdown-menu label="A5">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.color]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="a5.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+                <div class="format presc">
+                    <div class="right">
+                        <paper-dropdown-menu label="Prescription">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.color]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="presc.color" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
                     </div>
                 </div>
             </div>
+            <div class="print-tile labels">
+                <h4 class="title">[[localize('props','Properties',language)]] [[localize('stickers','Stickers',language)]]</h4>
+                <div class="format size-stickers">
+                    <div class="left">
+                        <span>H</span>
+                    </div>
+                    <div class="right">
+                        <paper-input on-value-changed="_setPrinter" target="stickers.h" data-item$="[[numericSelectedPrinter.stickers.h]]" value="{{numericSelectedPrinter.stickers.h}}" label="mm" type="number" min="0"></paper-input>
+                    </div>
+                </div>
+                <div class="format size-stickers">
+                    <div class="left">
+                        <span>L</span>
+                    </div>
+                    <div class="right">
+                        <paper-input on-value-changed="_setPrinter" target="stickers.w" data-item$="[[numericSelectedPrinter.stickers.w]]" value="{{numericSelectedPrinter.stickers.w}}" label="mm" type="number" min="0"></paper-input>
+                    </div>
+                </div>
+            </div>
+
+            <div class="print-tile bandw">
+                <h4 class="title">[[localize('b_and_w','Black and white',language)]]</h4>
+                <div class="format afour">
+                    <div class="right">
+                        <paper-dropdown-menu label="A4">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a4.bw]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="a4.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+                <div class="format afive">
+                    <div class="right">
+                        <paper-dropdown-menu label="A5">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.a5.bw]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="a5.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+                <div class="format presc">
+                    <div class="right">
+                        <paper-dropdown-menu label="Prescription">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.presc.bw]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="presc.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+                <div class="format stickers">
+                    <div class="right">
+                        <paper-dropdown-menu label="[[localize('stickers','Stickers',language)]]">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.stickers.bw]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="stickers.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+                <div class="format regulations">
+                    <div class="right">
+                        <paper-dropdown-menu label="[[localize('regulations','Regulations',language)]]">
+                            <paper-listbox slot="dropdown-content" selected="[[numericSelectedPrinter.regulations.bw]]">
+                                <template is="dom-repeat" items="[[printers]]" as="printer">
+                                    <paper-item on-tap="_setPrinter" target="regulations.bw" data-item$="[[printer.name]]">[[printer.name]]</paper-item>
+                                </template>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </template>
 
