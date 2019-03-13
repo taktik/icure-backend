@@ -1745,12 +1745,14 @@
                         <head>
 
                             <style>
-
-                                @page {size: A4; width: 210mm; height: 297mm; margin: 0; padding:0; }
-                                body {margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
-                                .page { width: 148mm; height: 251mm; overflow:hidden; color:#000000; font-size:18px; margin-top:23mm; margin-left:31mm; }
+                                @page{size:A5;margin:0;padding:0;}
+                                html {margin:0;padding:0;box-sizing:border-box;}
+                                body {margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;box-sizing:border-box; }
+                                .page {width:148mm;height:209mm; overflow:hidden; color:#000000; font-size:12px; padding: 4mm; margin:0; box-sizing: border-box; }
 
                                 p {margin-top:0}
+								p.title {font-weight: bold;font-size: 18px;}
+								p.comment {height: 20mm;}
 
                                 .alignCenter {text-align: center;}
                                 .alignLeft {text-align: left;}
@@ -1770,7 +1772,7 @@
                                 .pb0 {padding-bottom: 0px!important;} .pb1 {padding-bottom: 1px!important;} .pb2 {padding-bottom: 2px!important;} .pb3 {padding-bottom: 3px!important;} .pb4 {padding-bottom: 4px!important;} .pb5 {padding-bottom: 5px!important;} .pb10 {padding-bottom: 10px!important;} .pb15 {padding-bottom: 15px!important;} .pb20 {padding-bottom: 20px!important;}
                                 .pl0 {padding-left: 0px!important;} .pl1 {padding-left: 1px!important;} .pl2 {padding-left: 2px!important;} .pl3 {padding-left: 3px!important;} .pl4 {padding-left: 4px!important;} .pl5 {padding-left: 5px!important;} .pl10 {padding-left: 10px!important;} .pl15 {padding-left: 15px!important;} .pl20 {padding-left: 20px!important;}
 
-                                .doctorDetails { padding-left:15px; padding-right:15px; border:1px solid #000000; }
+                                .doctorDetails { padding-left:15px; padding-right:15px; border:1px solid #000000;}
 
                             </style>
                             </head>
@@ -2083,7 +2085,7 @@
 
                         const pdfContent = `
                         <div class="page">
-                            <p>` + this.localize("certificate_stop_activity",this.language) + `</p>
+                            <p class="title">${this.localize("certificate_stop_activity",this.language)}</p>
                             <p>` + this.localize("date",this.language) + `: ` + moment().format('DD/MM/YYYY') + `</p>
                             <p class="italic">` + this.localize("csa_txt001",this.language) + `:</p>
                             <p class="bold fs15em mt15 mb20">` + patientName + `</p>
@@ -2105,9 +2107,9 @@
                             this.localize("csa_txt007",this.language) + ` ` + precentageValueAndUnit + `
                                     ` + ( incapacityCompletelyFinished ? "<br /><span class='italic'>" + this.localize("csa_txt010",this.language) + ":</span> " + moment(incapacityCompletelyFinished).format("DD/MM/YYYY") : "" ) + `
                             </p>` +
-                            ( doctorComment ? "<p><span class='italic'>" + doctorComment + "</span></p>"  : "" ) +
-                            `<p class="mb5" style="margin-top: 20mm;">` + this.localize("csa_txt008",this.language) + `</p>
-                            <div class="doctorDetails">
+                            ( doctorComment ? `<p class="comment"><span class="italic">${doctorComment}</span></p>`  : "" ) +
+                            `<p class="mb5">${this.localize("csa_txt008",this.language)}</p>
+                            <div class="doctorDetails ml5 mr5">
                                 <p class="mb3 mt5">` + this.localize("csa_txt009",this.language) + ` ` + _.trim( _.get(this.globalHcp, "lastName", "") ).toUpperCase() + ` ` + _.trim( _.get(this.globalHcp, "firstName", "") ) + `</p>
                                 <p class="mb3">`+ _.trim( _.get(hcpAddress, "street", "") ) +`` + (_.trim( _.get(hcpAddress, "houseNumber", "") ) ? ", " + _.trim( _.get(hcpAddress, "houseNumber", "") ) : "" ) + `` + (_.trim( _.get(hcpAddress, "postboxNumber", "") ) ? "/" + _.trim( _.get(hcpAddress, "postboxNumber", "") ) : "" ) + `</p>
                                 <p class="mb3">`+ _.trim( _.get(hcpAddress, "postalCode", "") ) +` `+ _.trim( _.get(hcpAddress, "city", "") ) +`</p>
@@ -2120,7 +2122,7 @@
                         return _.assign({pdfContent:pdfContent},resourcesObject)
 
                     })
-                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent"} ).then(({pdf:pdfFileContent, printed:printed}) => _.assign({pdfFileContent:pdfFileContent, printed: printed}, resourcesObject)))
+                    .then(resourcesObject => this.api.pdfReport(this._getA5PdfHeader() + _.trim(resourcesObject.pdfContent) + this._getPdfFooter(), {completionEvent:"pdfDoneRenderingEvent", option:'a5',paperWidth:148,paperHeight:210,marginLeft: 0,marginRight: 0,marginTop: 0,marginBottom: 0}).then(({pdf:pdfFileContent, printed:printed}) => _.assign({pdfFileContent:pdfFileContent, printed: printed}, resourcesObject)))
                     .then(resourcesObject => this.api.message().newInstanceWithPatient(this.user, this.patient)
                         .then(newMessageInstance=>_.assign({newMessageInstance: newMessageInstance}, resourcesObject))
                         .then(resourcesObject=>this.api.message().createMessage(
