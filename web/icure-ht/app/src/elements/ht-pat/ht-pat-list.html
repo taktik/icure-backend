@@ -1895,7 +1895,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _showInactivePatientsChanged() {
-                this.$['patients-list'].clearCache()
+                const grid = this.$['patients-list']
+                grid.cache = []
+                grid.clearCache()
             }
 
             _any(a,b,c) {
@@ -1923,6 +1925,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 grid.lastParams = null //Used to prevent double calls
                 grid.size = 0
                 grid.pageSize = 50
+                grid.cache = []
+
                 grid.dataProvider = (params, callback) => {
                     const sort = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].path || 'lastName'
                     const desc = params.sortOrders && params.sortOrders[0] && params.sortOrders[0].direction === 'desc' || false
@@ -2003,45 +2007,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         }, {})
                                         const importedAESHcPartyKeys = {}
 
-                                        return Promise.all(services.map(s => this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(hcpId, document.id, s.cryptedForeignKeys).then(({extractedKeys:cfks}) => cfks)))
-                                            .then(cfksLists => this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
+                                        return Promise.all(services.map(s => this.api.crypto().extractKeysFromDelegationsForHcpHierarchy(hcpId, document.id, s.cryptedForeignKeys)
+                                            .then(({extractedKeys: cfks}) => cfks)))
+                                            .then(cfksLists => this.api.patient().filterByWithUser(this.user, null, null, endIndex, params.index, sort, desc, {
                                                 filter: {
                                                     '$type': 'PatientByIdsFilter',
                                                     'ids': _.uniqBy(_.compact(_.flatMap(cfksLists)))
                                                 }
                                             }))
-                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter})
-/*
-                                        return this.api.hcparty().getHcPartyKeysForDelegate(hcpId).then(keys =>
-                                            Promise.all(Object.keys(ownersOfDelegations)
-                                                .map(ownerId => this.api.crypto().decryptHcPartyKey(ownerId, hcpId, keys[ownerId])
-                                                    .then(importedAESHcPartyKey => importedAESHcPartyKeys[ownerId] = importedAESHcPartyKey)))
-                                        ).then(() => Promise.all(services.map(s => Promise.all(
-                                            s.cryptedForeignKeys[hcpId].map(k => this.api.crypto().AES.decrypt(importedAESHcPartyKeys[k.owner].key, this.api.crypto().utils.hex2ua(k.key)))
-                                        )))).then(arraysOfArraysOfPatIdsAsUa => {
-                                            return this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {
-                                                filter: {
-                                                    '$type': 'PatientByIdsFilter',
-                                                    'ids': _.uniqBy(_.compact(_.flatMap(arraysOfArraysOfPatIdsAsUa).map(ua => this.api.crypto().utils.ua2text(ua).split(':')[1])))
+                                    }).then(res => res.rows.filter(p => this.showInactive || p.active).slice(startIndex, endIndex)) : this.api.getRowsUsingPagination((key, docId, pageSize) =>
+                                    this.api.patient().filterByWithUser(this.user, key, docId, pageSize || 50, 0, sort, desc, {filter: filter})
+                                        .then(pl => {
+                                                return {
+                                                    rows: pl.rows,
+                                                    nextKey: pl.nextKeyPair && pl.nextKeyPair.startKey,
+                                                    nextDocId: pl.nextKeyPair && pl.nextKeyPair.startKeyDocId,
+                                                    done: !pl.nextKeyPair
                                                 }
                                             })
-                                        })
-                                    }) : this.api.patient().filterByWithUser(this.user, null, null, endIndex || grid.pageSize, params.index, sort, desc, {filter: filter}) */
+                                            .catch(() => {
+                                                return Promise.resolve()
+                                            })
+                                , p => this.showInactive || p.active, startIndex, endIndex, grid.cache || ((grid.cache = [])))
                             ).then(res => {
                                 if (grid.lastParams !== thisParams) {
                                     console.log("Cancelling obsolete search")
                                     return
                                 }
-                                const keptPatients = _.slice(res.rows, startIndex, endIndex).filter(p => this.showInactive || p.active)
-
-                                if (keptPatients.length > 0) {
+                                if (res.length > 0 || startIndex > 0) {
                                     this.btnSelectionPatient = true
                                 }
-
-                                if (grid.size !== res.totalSize - (res.rows.length - keptPatients.length)) {
-                                    grid.set("size", res.totalSize - (res.rows.length - keptPatients.length))
-                                }
-                                callback(keptPatients.map(this.pimpPatient))
+                                callback(res.map(this.pimpPatient), res.length >= endIndex - startIndex ? res.length + startIndex + pageSize : res.length + startIndex)
                             }).finally(() => {
                                 this.set('hideSpinner', true)
                                 this.set('isLoadingPatient', false)
@@ -2145,7 +2141,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 setTimeout(() => {
                     if (previousValue === this.filterValue) {
                         console.log("Triggering search for " + this.filterValue)
-                        this.$['patients-list'].clearCache()
+                        const grid = this.$['patients-list']
+                        grid.cache = []
+                        grid.clearCache()
                     } else {
                         console.log("Skipping search for new value " + this.filterValue + " != " + previousValue)
                     }
@@ -2737,7 +2735,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('selectedFilters', this.selectedFilterIndexes.map(i => activeFilters[i]))
                 if (this.selectedFilters.length) {
                     this.set('filterValue', this._selectedFiltersAsString())
-                    this.$['patients-list'].clearCache()
+                    const grid = this.$['patients-list']
+                    grid.cache = []
+                    grid.clearCache()
                 }
             }
 
