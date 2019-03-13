@@ -34,8 +34,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="ht-pat-list">
     <template>
+        <style include="dialog-style"></style>
         <custom-style>
-            <style is="custom-style dialog-style">
+            <style include="custom-style">
                 :host {
                     display: block;
                     height: 100%;
@@ -439,19 +440,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #sharePatientDialog {
                     width: 1000px;
-                    display: flex;
-                    flex-direction: column;
-                    height: 60vh;
-                    justify-content: space-between;
+                    height: 60vh;  
                 }
 
-                #sharePatientDialog > * {
-                    width: 100%;
-                    box-sizing: border-box;
+                #sharePatientDialog .content{
+                    padding-bottom: 24px;
                 }
-                #sharePatientDialog > h2 {
-                    min-height: 54px;
+
+                #sharePatientDialog vaadin-grid{
+                    min-height: 400px;
+                    margin-top: 24px;
                 }
+
                 #sharePatientDialog #hcpFilter, #hcp-list {
                     margin: 0;
                 }
@@ -459,13 +459,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     max-height: 62px;
                 }
                 #sharePatientDialog #hcp-list {
-                    flex-grow: 1;
+                    height: calc(100% - 24px - 64px);
                 }
-                #sharePatientDialog div.buttons {
-                    display: block;
-                    text-align: right;
-                    flex-direction: row;
-                    height: 56px;
+
+                #sharePatientDialog .buttons paper-checkbox{
+                    --paper-checkbox-checked-color: var(--app-secondary-color);
                 }
 
                 #inputGender {
@@ -488,36 +486,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     width: 50%;
                 }
 
+                #fusionDialog .content{
+                    padding-top: 24px;
+                    padding-bottom: calc(24px + 52px);
+                }
+
+                #fusionDialog .content paper-input-container{
+                    --paper-input-container-focus-color: var(--app-primary-color);
+                }
+
                 #duplicate-list {
                     max-height: 200px;
                 }
 
                 #sharePatientDelegationDialog {
-                    width: 920px;
+                    width: 50%;
                 }
 
-                #sharePatientDelegationDialog > * {
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-                #sharePatientDelegationDialog > div.content,
-                #sharingPatientStatus > div.content {
-                    margin-top: 8px;
+                #sharePatientDelegationDialog .content{
+                    padding-bottom: calc(52px + 24px);
+                    padding-top: 24px;
                 }
 
                 #importPatientStatus {
-                    width: 920px;
+                    width: 50%;
                     display: flex;
                     flex-direction: column;
                 }
 
-                #importPatientStatus vaadin-grid {
-                    width: calc(100% - 96px);
-                    margin: auto;
+                #importPatientStatus .content {
+                    padding-top: 24px;
+                    padding-bottom: calc(24px + 52px);
                 }
 
                 #sharingPatientStatus {
-                    width: 920px;
+                    width: 50%;
                     display: flex;
                     flex-direction: column;
                 }
@@ -540,34 +543,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     margin: 0;
                 }
 
-                .modal-title {
-                    background: var(--app-background-color-dark);
-                    margin-top: 0;
-                    margin-bottom: 0;
-                    padding: 16px 24px;
-                }
-
-                .modal-button {
-                    --paper-button-ink-color: var(--app-secondary-color-dark);
-                    color: var(--app-text-color);
-                    font-weight: 400;
-                    font-size: 14px;
-                    height: 40px;
-                    min-width: 100px;
-                    padding: 10px 1.2em;
-                    text-transform: capitalize;
-                }
-                .modal-button--cancel {
-                    background: transparent;
-                    color: black;
-                    border: 1px solid var(--app-background-color-dark);
-                }
-                .modal-button--save {
-                    box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
-                    background: var(--app-secondary-color);
-                    color: var(--app-primary-color-dark);
-                    font-weight: 700;
-                }
 
                 paper-button.filter-tag.iron-selected {
                     background: var(--app-secondary-color);
@@ -651,10 +626,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     box-shadow: none;
                 }
 
-                .add-pat-buttons {
-                    margin-top: 0 !important;
-                }
-
                 @media screen and (max-width: 1120px) {
                     div.container {
                         display: inherit;
@@ -728,16 +699,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     .eid {
                         padding-top: 12px;
-                    }
-
-                    .administrative-panel {
-                        height: 100%;
-                        background: var(--app-background-color);
-                        margin: 0;
-                        width: 100%;
-                        grid-column: 2 / 4;
-                        /*grid-template-columns: 40px 200px 200px 40px;*/
-                        grid-row: 1 / 1;
                     }
 
                     paper-tabs {
@@ -822,14 +783,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 #add-patient-dialog .administrative-panel {
                     padding: 0;
+                    margin-bottom: calc(52px + 24px);
                 }
 
                 #add-patient-dialog .administrative-panel paper-tabs {
                     border-radius: 2px 2px 0 0;
+                    
                 }
 
                 #add-patient-dialog .administrative-panel iron-pages {
                     padding: 0 24px;
+                }
+
+                #add-patient-dialog .administrative-panel .horizontal{
+                    justify-content: space-between;
+                }
+
+                 #add-patient-dialog .administrative-panel .horizontal paper-input{
+                    flex-grow: 1;
+                }
+
+                #add-patient-dialog .administrative-panel .horizontal paper-icon-button{
+                    margin-top: 8px;
                 }
 
                 .extra-info{
@@ -852,9 +827,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 vaadin-upload {
                     overflow-y: auto;
-                    height: 40vh;
-                    /*width: 100%;*/
-                    margin: 16px;
+                    margin-top: 24px;
+                    margin-bottom: calc(24px + 52px);
                     min-height: 280px;
                     background: var(--app-background-color);
                     --vaadin-upload-buttons-primary: {
@@ -939,6 +913,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     z-index: 1000;
                 }
 
+                .search-field-container {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .search-field-container paper-input {
+                    flex-grow: 1;
+                }
+
+                .search-field-container paper-button {
+                    margin: 20px 24px 0 0;
+                }
+
             </style>
         </custom-style>
 
@@ -1004,14 +993,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </div>
                 </template>
                 <template is="dom-if" if="{{!_isPatientsSelected(nbPatientSelected.*)}}">
-
-                    <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}">
-                        <div slot="suffix">
-                            <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter" disabled="[[!filterValue.length]]"></paper-icon-button>
-                            <paper-tooltip for="save-filter" position="left">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
-                        </div>
-                    </paper-input>
-
+                    <div class="search-field-container">
+                        <paper-button class="modal-button modal-button--save" on-tap="displayAllPatients">View All Patients</paper-button>
+                        <paper-input id="filter" label="[[localize('fil','Filter',language)]]" value="{{filterValue}}">
+                            <div slot="suffix">
+                                <paper-icon-button icon="star" id="save-filter" class="save-filter" on-tap="_saveFilter" disabled="[[!filterValue.length]]"></paper-icon-button>
+                                <paper-tooltip for="save-filter" position="left">[[localize('save_filter','Save filter',language)]]</paper-tooltip>
+                            </div>
+                        </paper-input>
+                    </div>
                     <div id="saved-filters" class="saved-filters">
                         <paper-listbox id="filters" selectable="paper-button" multi toggle-shift selected-values="{{selectedFilterIndexes}}">
                             <template is="dom-repeat" items="[[_activeFilters(user.properties.*)]]" as="filter"
@@ -1197,7 +1187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     on-upload-success="_mfFileUploaded"></vaadin-upload>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
             </div>
         </paper-dialog>
 
@@ -1206,7 +1196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="administrative-panel" style="width:100%">
                 <paper-tabs selected="{{tabs}}" style="background: var(--app-secondary-color); --paper-tabs-selection-bar-color: var(--app-text-color-disabled)">
                     <paper-tab class="adm-tab">
-                        <iron-icon style="margin-right:10px" icon="vaadin:clipboard-text"></iron-icon>
+                        <iron-icon style="margin-right:10px" icon="icons:assignment-ind"></iron-icon>
                         [[localize('subscription_form_physical_person','Physical person',language)]]
                     </paper-tab>
                     <paper-tab class="adm-tab doNotDisplay" id="medicalHouseTabView">
@@ -1216,9 +1206,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-tabs>
 
                 <div class="content">
-                <iron-pages selected="[[tabs]]" class="">
+                <iron-pages selected="[[tabs]]">
                     <page>
-                        <div class="horizontal" style="margin-top:20px">
+                        <div class="content-block horizontal">
                             <paper-icon-button icon="vaadin:health-card" id="read-eid" class="eid" on-tap="_readEid"></paper-icon-button>
                             <paper-tooltip for="read-eid" position="top">[[localize('fill_with_eid','Fill with eID',language)]]</paper-tooltip>
                             <paper-input label="[[localize('las_nam','Last name',language)]]" style="min-width:200px" value="{{lastName}}"></paper-input>
@@ -1246,7 +1236,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </page>
                     <page>
                         <!--Medical houses-->
-                        <div class="horizontal" style="margin-top:20px">
+                        <div class="content-block horizontal" style="margin-top:20px">
 
                             <vaadin-combo-box
                                     id="mh-search" filtered-items="[[mhListItem]]" item-label-path="hrLabel" style="width:30%"
@@ -1334,7 +1324,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 </div>
                 </div>
-               <div class="buttons add-pat-buttons" style="margin-top:30px; float:right">
+               <div class="buttons">
                     <paper-button class="modal-button modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                     <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirm" disabled="[[!canAddPat]]">[[localize('cre','Create',language)]]</paper-button>
                 </div>
@@ -1360,55 +1350,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <paper-dialog id="sharePatientDialog">
             <h2 class="modal-title">[[localize('share_to_what_hcp','With which provider do you want to share these patients',language)]] ?</h2>
-            <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}"></paper-input>
-            <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
-                <vaadin-grid-column width="40px">
-                    <template class="header">
-                        <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
-                    </template>
-                    <template>
-                        <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp" disabled="[[shareAll]]"></vaadin-checkbox>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="100px">
-                    <template class="header">
-                        <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
-                        </vaadin-grid-sorter>
-                    </template>
-                    <template>
-                        <div class="cell frozen">[[_any(item.lastName, item.name, item)]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="100px">
-                    <template class="header">
-                        <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
-                        </vaadin-grid-sorter>
-                    </template>
-                    <template>
-                        <div class="cell frozen">[[item.firstName]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="100px">
-                    <template class="header">
-                        <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
-                        </vaadin-grid-sorter>
-                    </template>
-                    <template>
-                        <div class="cell frozen">[[item.speciality]]</div>
-                    </template>
-                </vaadin-grid-column>
-                <vaadin-grid-column width="100px">
-                    <template class="header">
-                        <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
-                        </vaadin-grid-sorter>
-                    </template>
-                    <template>
-                        <div class="cell frozen">[[item.email]]</div>
-                    </template>
-                </vaadin-grid-column>
-            </vaadin-grid>
+            <div class="content">
+                <paper-input id="hcpFilter" label="[[localize('fil','Filter',language)]]" value="{{hcpFilterValue}}"></paper-input>
+                <vaadin-grid id="hcp-list" class="material" multi-sort="[[multiSort]]" items="[[hcp]]" active-item="{{activeHcp}}">
+                    <vaadin-grid-column width="40px">
+                        <template class="header">
+                            <vaadin-checkbox on-checked-changed="_toggleBoxes"></vaadin-checkbox>
+                        </template>
+                        <template>
+                            <vaadin-checkbox class="checkbox" id="[[item.id]]" checked="[[_sharingHcp(item, hcp.*)]]" on-checked-changed="_checkHcp" disabled="[[shareAll]]"></vaadin-checkbox>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="lastName">[[localize('las_nam','Last name',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[_any(item.lastName, item.name, item)]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="firstName">[[localize('fir_nam','First name',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.firstName]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="speciality">[[localize('spe','Speciality',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.speciality]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column width="100px">
+                        <template class="header">
+                            <vaadin-grid-sorter path="email">[[localize('ema','Email',language)]]
+                            </vaadin-grid-sorter>
+                        </template>
+                        <template>
+                            <div class="cell frozen">[[item.email]]</div>
+                        </template>
+                    </vaadin-grid-column>
+                </vaadin-grid>
+            </div>
             <div class="buttons">
-                <vaadin-checkbox on-checked-changed="displayAllHcps">[[localize('disp_all_hcps','Display all HCPs', language)]]</vaadin-checkbox>
+                <paper-checkbox on-checked-changed="displayAllHcps">[[localize('disp_all_hcps','Display all HCPs', language)]]</paper-checkbox>
                 <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmSharingNextStep">[[localize('share_pat','Share
                     patients',language)]]
@@ -1606,7 +1598,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-input-container>
             </div>
             <div class="buttons">
-                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
+                <paper-button class="modal-button" dialog-dismiss>[[localize('can','Cancel',language)]]</paper-button>
                 <paper-button class="modal-button modal-button--save" dialog-confirm autofocus on-tap="confirmFusion">[[localize('fus_pat','Fusion patients',language)]]
                 </paper-button>
             </div>
@@ -2092,6 +2084,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             displayAllHcps(checked) {
                 this._allHcpsChecked = checked.detail.value
+            }
+
+            displayAllPatients() {
+                this.filterValue = "  "
             }
 
             _hcpFilterChanged(e) {
