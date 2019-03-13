@@ -988,8 +988,6 @@
 
                         this.set('fullProfile', workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== "" ? true : false)
                     }
-
-
                 })
 
 			}
@@ -1374,7 +1372,7 @@
 			}
 
 			_allContactsChanged() {
-				this.set('servicesMap', this.allContacts.reduce((map, ctc) => {
+				this.set('servicesMap', (this.currentContact && !this.allContacts.find(c => c === this.currentContact) ? this.allContacts.concat(this.currentContact) : this.allContacts).reduce((map, ctc) => {
 					const svcMap = ctc.subContacts.reduce((svcMap, subContact) => {
 						subContact.services.reduce((svcMap, svcLink) => {
 							(svcMap[svcLink.serviceId] || (svcMap[svcLink.serviceId] = [])).push(subContact);
