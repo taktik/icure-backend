@@ -152,7 +152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			}
 
 			collapse-button > .menu-item.iron-selected {
-				@apply --padding-right-left-16;
+				@apply --padding-menu-item;
 				color:var(--app-text-color-light);
 				background:var(--app-primary-color);
 				@apply --text-shadow;
@@ -433,8 +433,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	_isMedicalHouse(){
 		return this.hcp && this.hcp.type && this.hcp.type.toLowerCase() ==="medicalhouse"
 	}
-
-
 }
 
 customElements.define(HtHcpDetail.is, HtHcpDetail);

@@ -48,6 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <style include="shared-styles">
             :host {
                 display: block;
+                height: calc(100% - 20px)
             }
 
             :host *:focus{
@@ -177,7 +178,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 border-top: 2px solid var(--app-secondary-color);
             }
 
-            .statusBulletContainer { height:65px; display:flex; align-items: center; }
+            .statusBulletContainer { 
+                height:65px; 
+                display:flex; 
+                align-items: center; 
+                border-bottom: 1px solid var(--app-background-color-dark);
+            }
 
             .statusBullet {
                 display:block;
@@ -199,9 +205,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .headerField {
                 display: flex;
                 flex-flow: row wrap;
-                justify-content: center;
+                justify-content: flex-start;
                 align-items: center;
-                background-color: var(--app-background-color-dark);
+                background-color: #ffffff;
                 height: 48px;
                 --paper-input-container-underline: {
                     display: none
@@ -212,13 +218,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-input-container-underline-disabled: {
                     display: none
                 };
+                --paper-input-container-disabled: {
+                    opacity: 1;
+                };
                 font-weight: 700;
-                color: var(--app-primary-color);
+                color: var(--app-text-color);
             }
 
             .marginRight10 { margin-right:10px; }
 
-            .row { display:block; width:100% }
+            .row { 
+                display:block; 
+                width:100%;
+                background-color: var(--app-background-color);
+            }
             .col-10 { flex-grow: 1; width: 10%; box-sizing: border-box; float:left }
             .col-15 { flex-grow: 1; width: 15%; box-sizing: border-box; float:left }
             .col-25 { flex-grow: 1; width: 25%; box-sizing: border-box; float:left }
@@ -241,19 +254,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .modal-button{
                 --paper-button-ink-color: var(--app-secondary-color-dark);
                 color: var(--app-text-color);
-                font-weight: 400;
+                font-weight: 700;
                 font-size: 14px;
                 height: 40px;
                 min-width: 100px;
                 padding: 10px 1.2em;
                 text-transform: capitalize;
+                max-width: 164px;
+                place-self: center;
+                margin: 16px;
+                letter-spacing: 0.3px;
             }
 
             .modal-button--save{
                 box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
                 background: var(--app-secondary-color);
                 color: var(--app-primary-color-dark);
-
+                
+            }
+            .col-10 paper-input{
+                --paper-input-container-underline-focus: {
+                    display: none
+                };
+                --paper-input-container-underline-disabled: {
+                    display: none
+                };
+                --paper-input-container-disabled: {
+                    opacity: 1;
+                };
             }
             .left-col, .right-col{
                 flex-grow: 1;
@@ -268,11 +296,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 flex-wrap: wrap;
                 flex-basis: 100%;
                 align-items: center;
+                box-shadow: var(--app-shadow-elevation-2);
             }
 
             .horizontal paper-input {
                 @apply --padding-right-left-16;
                 height: 65px;
+                border-bottom: 1px solid var(--app-background-color-dark);
+                --paper-input-container-focus-color: var(--app-primary-color-dark);
             }
 
             .horizontal .tile paper-input {
@@ -303,7 +334,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="edmg-panel">
             <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_edmg_info', 'Edmg informations', language)]]</h4>
 
-            <div class="horizontal" style="padding-top:10px;">
+            <div class="horizontal">
 
                 <template is="dom-if" if="[[allEDmgregistered]]">
                     <ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
@@ -312,7 +343,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <iron-icon icon="check-circle"></iron-icon>
                             <p>[[localize('edmg_completed','EDMG REGISTRATION COMPLETED',language)]]</p>
                         </div>
-                        <div class="col-15">
+                        <div class="col-10">
                             <paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
                             <paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
                             <paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
@@ -322,7 +353,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
                             <paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
                         </div>
-                        <div class="col-45">
+                        <div class="col-50">
                             <paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
                             <paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
                             <paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" readonly><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
@@ -360,17 +391,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <ht-iban-validator validator-name="ht-iban-validator"></ht-iban-validator>
                     <div class="row" style="position:relative">
 
-                        <div class="col-20">
+                        <div class="col-10">
                             <paper-input value="OA" readonly disabled class="headerField borderTop borderLeft"></paper-input>
-                            <paper-input value="OA 100" readonly disabled class="headerField borderRight borderLeft"></paper-input>
-                            <paper-input value="OA 200" readonly disabled class="headerField borderRight borderLeft"></paper-input>
-                            <paper-input value="OA 300" readonly disabled class="headerField borderRight borderLeft"></paper-input>
-                            <paper-input value="OA 400" readonly disabled class="headerField borderRight borderLeft"></paper-input>
-                            <paper-input value="OA 500" readonly disabled class="headerField borderRight borderLeft"></paper-input>
-                            <paper-input value="OA 600" readonly disabled class="headerField borderRight borderLeft"></paper-input>
-                            <paper-input value="OA 900" readonly disabled class="headerField borderRight borderLeft borderBottom"></paper-input>
+                            <paper-input value="OA 100" readonly disabled class="borderRight borderLeft"></paper-input>
+                            <paper-input value="OA 200" readonly disabled class="borderRight borderLeft"></paper-input>
+                            <paper-input value="OA 300" readonly disabled class="borderRight borderLeft"></paper-input>
+                            <paper-input value="OA 400" readonly disabled class="borderRight borderLeft"></paper-input>
+                            <paper-input value="OA 500" readonly disabled class="borderRight borderLeft"></paper-input>
+                            <paper-input value="OA 600" readonly disabled class="borderRight borderLeft"></paper-input>
+                            <paper-input value="OA 900" readonly disabled class="borderRight borderLeft borderBottom"></paper-input>
                         </div>
-                        <div class="col-40">
+                        <div class="col-50">
                             <paper-input label="IBAN" readonly disabled class="headerField borderTop borderBottom"></paper-input>
                             <paper-input label="IBAN" value="{{userIBAN_100}}" id="userIBAN_100" rel="100" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic"><iron-icon class="icon-button" slot="suffix" on-tap="replicateIbanValueToAllFields" icon="content-copy" alt="Copy in all fields" title="Copy in all fields"></iron-icon><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
                             <paper-input label="IBAN" value="{{userIBAN_200}}" id="userIBAN_200" rel="200" validator="ht-iban-validator" auto-validate on-value-changed="_evalBic" on-tap="_evalBic" ><iron-icon icon="account-balance" slot="suffix"></iron-icon></paper-input>
@@ -391,7 +422,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-input label="BIC" value="{{userBIC_900}}" id="userBIC_900" rel="900" readonly><iron-icon icon="settings" slot="suffix"></iron-icon></paper-input>
                         </div>
                         <div class="col-10">
-                            <paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom"></paper-input>
+                            <paper-input label="STATUS" readonly disabled class="headerField borderTop borderRight borderBottom textAlignCenter"></paper-input>
                             <div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_100_cssClass]]" rel="100" id="statusBullet_100"></div></div>
                             <div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_200_cssClass]]" rel="200" id="statusBullet_200"></div></div>
                             <div class="statusBulletContainer"><div class$="statusBullet [[statusBullet_300_cssClass]]" rel="300" id="statusBullet_300"></div></div>
@@ -406,14 +437,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
                 <template is="dom-if" if="[[!allEDmgregistered]]">
-                    <div class="horizontal" style="margin-top:10px">
-                        <div class="row">
-                            <div class="col-35">&nbsp;</div>
-                            <div class="col-30 textAlignCenter"><paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button></div>
-                            <div class="col-35">&nbsp;</div>
-                        </div>
-                    </div>
-                    <div class="horizontal">&nbsp;</div>
+                        <paper-button disabled="[[!registerEnabled]]" on-tap="_registerToEDMG" class="modal-button modal-button--save">[[localize('reg_dmg','Register to eDmg',language)]]</paper-button>
                 </template>
 
             </div>

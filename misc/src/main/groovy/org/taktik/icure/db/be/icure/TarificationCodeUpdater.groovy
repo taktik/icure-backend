@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory
 
 class TarificationCodeUpdater {
     static void main(String... args) {
-        ((Logger) LoggerFactory.getLogger("org.apache.http")).setLevel(Level.ERROR);
-        ((Logger) LoggerFactory.getLogger("org.apache.http.wire")).setLevel(Level.ERROR);
-        ((Logger) LoggerFactory.getLogger("org.apache.http.headers")).setLevel(Level.ERROR);
-        ((Logger) LoggerFactory.getLogger("org.apache.http")).setLevel(Level.ERROR);
-        ((Logger) LoggerFactory.getLogger("org.ektorp.impl")).setLevel(Level.ERROR);
+        ((Logger) LoggerFactory.getLogger("org.apache.http")).setLevel(Level.ERROR)
+        ((Logger) LoggerFactory.getLogger("org.apache.http.wire")).setLevel(Level.ERROR)
+        ((Logger) LoggerFactory.getLogger("org.apache.http.headers")).setLevel(Level.ERROR)
+        ((Logger) LoggerFactory.getLogger("org.apache.http")).setLevel(Level.ERROR)
+        ((Logger) LoggerFactory.getLogger("org.ektorp.impl")).setLevel(Level.ERROR)
 
         def start = System.currentTimeMillis()
 

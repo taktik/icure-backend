@@ -109,12 +109,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .warningMessageBody {
                 padding:20px 35px;
-                color:#7E0000;
+                color: var(--app-status-color-nok);
                 background-color: rgba(255, 0, 0, 0.15);
                 font-weight: 700;
-                border:1px dashed #7e0000;
+                border:1px dashed var(--app-status-color-nok);
                 text-transform: uppercase;
                 text-align: center;
+            }
+
+            .add-btn{
+                color: var(--app-text-color);
+                height: 24px;
+                width: 24px; 
+                padding: 4px;
             }
 
         </style>
@@ -127,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
             </div>
             <div class="add_line">
-                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button icon="vaadin:plus-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
+                <h5>[[localize('flat_rat_tar', 'Flat rate tarifications', language)]] <paper-icon-button class="add-btn" icon="icons:add-circle" on-tap="_addFlatRateTarification"></paper-icon-button></h5>
             </div>
             <vaadin-grid id="flatRateFacturation" class="material" items="[[flatRateTarificationTab]]" active-item="{{selectedPrice}}">
                 <vaadin-grid-column>
@@ -202,7 +209,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                    <vaadin-combo-box id="tarificationMonth" filtered-items="[[_getTarificationMonthsList()]]" item-label-path="label" item-value-path="id" label="[[localize('month','Month',language)]]" value="[[_getTarificationCurrentMonth()]]" selected-item="{{selectedTarificationMonth}}"></vaadin-combo-box>
                    <vaadin-combo-box id="tarificationYear" filtered-items="[[_getTarificationYearsList()]]" item-label-path="label" item-value-path="id" label="[[localize('year','Year',language)]]" value="[[_getTarificationCurrentYear()]]" selected-item="{{selectedTarificationYear}}"></vaadin-combo-box>
                 </div>
-                <paper-input label="Reimbursement" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
+                <paper-input type="number" label="[[localize('flatrate_reimb', 'Reimbursement', language)]]" class="flex" id="reimbursement" value="{{flatRateTarification.reimbursement}}"></paper-input>
             </div>
 
             <div class="buttons">
@@ -338,8 +345,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _addFlatRateTarification(){
                 this.set('flatRateTarification', {})
                 this.set('flatRateNmclSelectedItemIdx', 0)
-                this.set('flatRateTarification.monthValidity', parseInt(parseInt(moment().format('MM'))))
-                this.set('flatRateTarification.yearValidity', parseInt(parseInt(moment().format('YYYY'))))
+                this.set('flatRateTarification.monthValidity', parseInt(moment().format('MM')))
+                this.set('flatRateTarification.yearValidity', parseInt(moment().format('YYYY')))
                 this.$['addedFlatRateTarificationDialog'].open()
 
             }
@@ -347,7 +354,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _addTarification(){
                 console.log(this.flatRateTarification)
 
-                const startOfValidity = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+this.flatRateTarification.monthValidity+'-01').startOf('month').format('YYYYMMDD') : null
+                const startValidityMonth = this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.monthValidity < 10 ? '0'+this.flatRateTarification.monthValidity :
+                    this.flatRateTarification && this.flatRateTarification.monthValidity && this.flatRateTarification.monthValidity > 10 ? this.flatRateTarification.monthValidity
+                        : null
+                const startOfValidity = this.flatRateTarification && startValidityMonth && this.flatRateTarification.yearValidity ? moment(this.flatRateTarification.yearValidity+'-'+startValidityMonth+'-01').startOf('month').format('YYYYMMDD') : null
 
                 if(!this.hcpParent.flatRateTarifications){
                     _.assign(this.hcpParent, {flatRateTarifications : []})

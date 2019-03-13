@@ -114,7 +114,11 @@ public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements Do
     @Override
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     public List<Document> listConflicts() {
-        return queryView("conflicts");
+        ViewQuery viewQuery = createQuery("conflicts")
+                .limit(200)
+                .includeDocs(true);
+
+        return db.queryView(viewQuery, Document.class);
     }
 
     @Override
