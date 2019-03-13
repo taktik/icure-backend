@@ -579,8 +579,10 @@
                         if (!this.currentContact) {
                             return s && s.svc;
                         }
-                        //Make sure we have exactly the one that is in currentContact if it exists
-                        s.svc = s && s.svc && (this.currentContact.services.find(ss => ss.id === s.svc.id) || s.svc) || null
+                        if (s) {
+                            //Make sure we have exactly the one that is in currentContact if it exists
+                            s.svc = s.svc && (this.currentContact.services.find(ss => ss.id === s.svc.id) || s.svc) || null
+                        }
                         return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
                     },
                     getOrCreateContent: (svc, lng) => svc && (svc.content && this.api.contact().preferredContent(svc, lng) || ((svc.content || (svc.content = {}))[lng] = {})),
