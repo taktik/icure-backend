@@ -741,17 +741,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 };
             }
 
-            static get observers() {
-                return [
-                    '_inboxSelectionIndexChanged(inboxSelectionIndex)',
-                    '_sentboxSelectionIndexChanged(sentboxSelectionIndex)',
-                    '_invoiceSelectionIndexChanged(invoiceSelectionIndex)',
-                    '_flatRateInvoicingSelectionIndexChanged(flatRateInvoicingSelectionIndex)',
-                    '_checkForMedicalHouse(user)',
-                    '_trashSelectionIndexChanged(trashSelectionIndex)',
-                    '_updateUnreadCount(messages)'
-                ];
-            }
+	static get observers() {
+		return ['_inboxSelectionIndexChanged(inboxSelectionIndex)', '_sentboxSelectionIndexChanged(sentboxSelectionIndex)', '_invoiceSelectionIndexChanged(invoiceSelectionIndex)', '_flatrateinvoiceSelectionIndexChanged(flatrateinvoiceSelectionIndex)', '_checkForMedicalHouse(user)', '_trashSelectionIndexChanged(trashSelectionIndex)','_updateUnreadCount(messages)','_isConnectedToEhbox(api.tokenId)'];
+	}
 
             constructor() {
                 super();

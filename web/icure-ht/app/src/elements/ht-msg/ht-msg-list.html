@@ -525,6 +525,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="table-top">
                 <div class="checkbox">
                     <vaadin-checkbox id="checkerAll" on-tap="_toggleSelectAll" checked$="[[allSelected]]"></vaadin-checkbox>
+                    <paper-tooltip for="checkerAll">[[localize('sel_all','Select all',language)]]</paper-tooltip>
                 </div>
 
                 <div class="actions">
@@ -879,7 +880,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             static get observers() {
-                return ['_refresh(selectList,selectList.*)','_messagesChanged(messages, page)','_getBoxCapacity(messages)','_isConnectedToEhbox(api.tokenId)'];
+                return ['_refresh(selectList,selectList.*)','_messagesChanged(messages, page)','_getBoxCapacity(messages)',
+                        '_isConnectedToEhbox(api.tokenId)','_getBoxCapacity(messages,page)','_deselectAll(messages,page)',
+                        '_isRefreshAllowed(messages,page)'];
             }
 
             ready() {
@@ -959,8 +962,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     // pagination ends here
                     this._scrollToTop()
                 }
-                this._getBoxCapacity()
-                this._deselectAll()
                 this.set('isLoadingMailList', false)
             }
 
@@ -994,7 +995,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         .filter(m=>!((m.status&1<<14)!==0))
                 }).then(messages => {
                     this.set('messages', _.orderBy(messages, ['received'], ['desc']))
-                    this._deselectAll()
                 });
             }
 
@@ -1068,8 +1068,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(m=>(m.status&(1<<14)) !== 1);
                 }).then(messages => {
                     this.set('messages', messages || [])
-                    this._deselectAll()
-                    this._isRefreshAllowed()
                 });
             }
             _getPatsFromMsg(m) {
@@ -1147,8 +1145,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDates(msg).filter(m=>(m.status&(1<<14)) !== 1);
                 }).then(messages => {
                     this.set('messages', messages || [])
-                    this._deselectAll()
-                    this._isRefreshAllowed()
                 });
             }
             getUnassigned(){ // unassigned labresult
@@ -1161,8 +1157,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     return this.sortByDates(msg).filter(msg => !msg.transportGuid.startsWith('BIN')).filter(m=>(m.status&(1<<14)) !== 1);
                 }).then(messages => {
                     this.set('messages', messages || [])
-                    this._deselectAll()
-                    this._isRefreshAllowed()
                 });
             }
 
@@ -1244,8 +1238,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('isLabresultBox', (item === "labResult") ? true : false )
                 }
                 this.dispatchEvent(new CustomEvent('selection-messages-change', { detail: { selection: { item: null } } }));
-                this._isRefreshAllowed()
-                this._deselectAll();
                 this.updateGridElementsSize()
             }
 
