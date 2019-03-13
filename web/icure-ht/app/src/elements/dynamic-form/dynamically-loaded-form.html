@@ -206,8 +206,9 @@
                 super();
             }
 
-            detached() {
-                this.flushSave();
+            disconnectedCallback() {
+                this.flushSave()
+                super.disconnectedCallback()
             }
 
             _dateFormat(date) {
@@ -419,9 +420,8 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-                    this.dataProvider.computeFormulas(['OnSave']).then(
-						() => this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
-					)
+                    console.log("Saving...")
+                    this.dispatchEvent(new CustomEvent('must-save-contact', {detail: {contact: ctc, preSave: () => this.dataProvider.computeFormulas(['OnSave'])}, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
@@ -575,10 +575,12 @@
                         return svc;
                     },
                     promoteOrCreateService: (label, formId, poaIds, heIds, init) => {
-                        const s = self.getServiceInContact(label);
+                        let s = self.getServiceInContact(label);
                         if (!this.currentContact) {
                             return s && s.svc;
                         }
+                        //Make sure we have exactly the one that is in currentContact if it exists
+                        s.svc = s && s.svc && (this.currentContact.services.find(ss => ss.id === s.svc.id) || s.svc) || null
                         return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
                     },
                     getOrCreateContent: (svc, lng) => svc && (svc.content && this.api.contact().preferredContent(svc, lng) || ((svc.content || (svc.content = {}))[lng] = {})),
@@ -1009,7 +1011,7 @@
                     .forEach(svc => {
                         this.promoteServiceInCurrentContact(svc.svc, this.form.id, null, [he.id], null);
                     });
-                this.scanServicesAndScheduleSave(this.currentContact);
+                this.scanServicesAndScheduleSave(this.currentContact);servicesMap
             }
 
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id

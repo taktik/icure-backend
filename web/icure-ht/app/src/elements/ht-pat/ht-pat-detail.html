@@ -3116,8 +3116,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$.savedIndicator.classList.add("saved");
             }
 
-            saveContact(ctc) {
-                return (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
+            saveContact(ctc, ps) {
+                return (ps ? ps() : Promise.resolve()).finally(() => (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
                     ctc.rev = c.rev;
                     console.log("contact saved: " + ctc.id + ":" + ctc.rev);
 
@@ -3126,7 +3126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this._refreshFromServices()
 
                     return c;
-                });
+                }))
             }
 
             saveCurrentContact() {
@@ -3134,7 +3134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _saveContact(event) {
-                this.saveContact(event.detail);
+                this.saveContact(event.detail.contact, event.detail.preSave);
             }
 
             filterEvents() {
@@ -3413,7 +3413,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         Promise.all(unclosedContacts.map(unclosedContact => {
                             return (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
                                 this.api.contact().modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate: parseInt(moment().format('YYYYMMDDHHmmss'))}))
-                                    .then(() => null)
+                                    .then(() => null).catch(() => null)
                                 : Promise.resolve(unclosedContact)})
                         )
                         .then(ctcs =>
