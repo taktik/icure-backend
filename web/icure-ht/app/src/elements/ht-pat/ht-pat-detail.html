@@ -3336,7 +3336,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         const oneWeekAgo = moment().subtract(7, 'days')
                         this.set('medications', _.sortBy(hesAsServices.filter(s =>
-                            s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
+                            s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMomentAsString && this.api.moment(c.medicationValue.endMomentAsString).isBefore(oneWeekAgo)))
                         ).map(m => {
                             return Object.assign(m, {
                                 colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || ""
