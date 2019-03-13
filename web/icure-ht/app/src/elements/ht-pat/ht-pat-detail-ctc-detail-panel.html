@@ -784,8 +784,7 @@
 						type: Array,
 						value: function () {
 							return [];
-						},
-						observer: '_allContactsChanged'
+						}
 					},
 					servicesMap: {
 						type: Object,
@@ -931,7 +930,7 @@
 	}
 
 			static get observers() {
-				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_servicesFilter(serviceFilters)'];
+				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_servicesFilter(serviceFilters)','_allContactsChanged(allContacts.*, currentContact._rev)'];
 			}
 
 			constructor() {
@@ -1268,10 +1267,7 @@
 			}
 
             forceSaveCtc() {
-                this.api.contact().modifyContactWithUser(this.user, this.currentContact).then(modified=>{
-                    console.log('modified ?',modified)
-                    this.flushSave()
-                })
+                this.flushSave()
             }
 
             _reportTemplateSelected(e, reportTemplate) {
