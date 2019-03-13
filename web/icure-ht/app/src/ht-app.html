@@ -45,6 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
@@ -164,6 +165,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 --paper-tab-ink: var(--app-secondary-color);
             }
 
+            paper-tab:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
             paper-tab.iron-selected {
                 font-weight: bold;
             }
@@ -240,7 +245,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: none;
             }
 
-            .ehbox-notification-panel {
+            .ehbox-notification-panel,
+            .electron-notification-panel{
                 position: fixed;
                 top: 50%;
                 right: 0;
@@ -447,7 +453,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .formNewHcp paper-input{
-                --paper-input-container-focus-color: var(--app-secondary-color);
+                --paper-input-container-focus-color: var(--app-primary-color);
             }
 
             .top-gradient {
@@ -579,6 +585,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 transform: translateY(8px) scale(1.5);
             }
 
+            paper-button[disabled] {
+                background-color: var(--app-secondary-color-dark);
+                color: var(--app-text-color-disabled);
+                box-shadow: none;
+            }
+
             @media screen and (max-width: 640px) {
                 div.log-info p .user-email {
                     display: block;
@@ -690,23 +702,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-listbox id="mobileMenu" class="mobile-menu" selected="[[routeData.page]]" attr-for-selected="name">
                                 <paper-button name="main" on-tap="doRoute">
                                     <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                    [[localize('sum')]]
+                                    [[localize('sum','Summary',language)]]
                                 </paper-button>
                                 <paper-button name="pat" on-tap="doRoute">
                                     <iron-icon icon="vaadin:user-heart"></iron-icon>
-                                    [[localize('pat')]]
+                                    [[localize('pat','Patients',language)]]
                                 </paper-button>
                                 <paper-button name="hcp" on-tap="doRoute">
                                     <iron-icon icon="vaadin:hospital"></iron-icon>
-                                    [[localize('hc_par')]]
+                                    [[localize('hc_par','HC parties',language)]]
                                 </paper-button>
                                 <paper-button name="msg" on-tap="doRoute">
                                     <iron-icon icon="communication:email"></iron-icon>
-                                    [[localize('msg')]]
+                                    [[localize('msg','Message',language)]]
                                 </paper-button>
-                                <paper-button name="diary" on-tap="doRoute">
+                                <paper-button name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
-                                    [[localize('diary')]]
+                                    [[localize('diary','Diary',language)]]
                                 </paper-button>
                             </paper-listbox>
                         </div>
@@ -756,32 +768,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             <paper-tabs selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
                                 <paper-tab name="main" on-tap="doRoute">
                                     <iron-icon class="iron-icon" icon="home"></iron-icon>
-                                    [[localize('sum')]]
+                                    [[localize('sum','Summary',language)]]
                                 </paper-tab>
                                 <paper-tab name="pat" on-tap="doRoute">
                                     <iron-icon class="smaller" icon="vaadin:user-heart"></iron-icon>
-                                    [[localize('pat')]]
+                                    [[localize('pat','Patients',language)]]
                                 </paper-tab>
                                 <paper-tab name="hcp" on-tap="doRoute">
                                     <iron-icon class="smaller" icon="vaadin:hospital"></iron-icon>
-                                    [[localize('hc_par')]]
+                                    [[localize('hc_par','HC parties',language)]]
                                 </paper-tab>
                                 <paper-tab name="msg" on-tap="doRoute">
                                     <iron-icon class="smaller" icon="communication:email"></iron-icon>
-                                    [[localize('msg')]]
+                                    [[localize('msg','Message',language)]]
                                 </paper-tab>
                                 <paper-tab name="diary" on-tap="checkAndLoadMikrono">
                                     <iron-icon icon="vaadin:calendar"></iron-icon>
-                                    [[localize('diary')]]
+                                    [[localize('diary','Diary',language)]]
                                 </paper-tab>
                             </paper-tabs>
                         </div>
                         <div class="log-info">
-                            <p><span class="user-email">[[user.login]] –</span>
+                            <p> <span id="frontend-version" class$="user-email [[_versionOk(electronVersionOk,backendVersionOk)]]">[AIV]{version}[/AIV]</span>
+                                <paper-tooltip for="frontend-version">frontend: [AIV]{version}[/AIV] - backend : [[backendVersion]]</paper-tooltip>
+                                <template is="dom-if" if="[[isElectron]]">
+                                    <span class$="user-email [[_versionOk(electronVersionOk,true)]]">| e—[[electronVersion]]</span>
+                                </template>
+                                <span class="user-email">| [[user.login]] – </span>
                                 <span id="eHealthStatus" class="ehealth-connection-status pending"></span>
                                 <paper-tooltip for="eHealthStatus">[[localize('ehe','eHealth status',language)]]</paper-tooltip>
+                                <template is="dom-if" if="[[hasMHCertificate]]">
                                 <span id="eHealthMHStatus"class="ehealth-mh-connection-status pending"></span>
                                 <paper-tooltip for="eHealthMHStatus">[[localize('eheMM','eHealth status for Medical House certificats',language)]]</paper-tooltip>
+                                </template>
                             </p>
                             <div class="timer" id="timer">[[localize('time_lft','Time left:',language)]] {{disconnectionTimer}} m.</div>
                             <paper-tooltip for="ehealth">
@@ -849,7 +868,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </paper-item>
                                     <paper-item class="extra-menu-item" name="logout" on-tap="doRoute">
                                         <iron-icon icon="power-settings-new"></iron-icon>
-                                        [[localize('log_out')]]
+                                        [[localize('log_out','Log out',language)]]
                                     </paper-item>
                                 </paper-listbox>
                             </paper-menu-button>
@@ -864,11 +883,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         attr-for-selected="name"
                         fallback-selection="view404"
                         role="main">
-                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]">
+                    <ht-main name="main" api="[[api]]" user="[[user]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" route="{{subroute}}" socket="[[socket]]">
                         <splash-screen></splash-screen>
                     </ht-main>
                     <ht-pat name="pat" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}"
-                            on-user-saved="_userSaved" on-idle="resetTimer" on-open-utility="_openUtility">
+                            socket="[[socket]]" on-user-saved="_userSaved" on-idle="resetTimer">
                         <splash-screen></splash-screen>
                     </ht-pat>
                     <ht-hcp name="hcp" api="[[api]]" i18n="[[i18n]]" language="[[language]]" resources="[[resources]]" user="[[user]]" route="{{subroute}}">
@@ -900,9 +919,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="buttons">
                 <span class="warn">[[warn]]</span>
                 <paper-button dialog-dismiss class="modal-button modal-button--cancel">[[localize('can','Cancel',language)]]</paper-button>
-                <template is="dom-if" if="[[validInvite]]">
-                    <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save">[[localize('invite','Invite',language)]]</paper-button>
-                </template>
+                <paper-button dialog-confirm autofocus on-tap="confirmUserInvitation" class="modal-button modal-button--save" disabled="[[!validInvite]]">[[localize('invite','Invite',language)]]</paper-button>
             </div>
         </paper-dialog>
         <paper-dialog id="ht-invite-hcp-link">
@@ -943,6 +960,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             [[ehboxWebWorkerMessage]]
         </paper-item>
 
+        <paper-item id="electronMessage" class="electron-notification-panel">
+            <iron-icon icon="icons:warning"></iron-icon>
+            [[localize('electron_update_available','New electron version available',language)]]
+        </paper-item>
+
         <paper-dialog id="mikronoErrorDialog">
             <h3>Erreur lors de la création de votre compte agenda</h3>
             <div class="errorMikrono">
@@ -976,6 +998,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script>
         import moment from 'moment/src/moment'
         import Worker from 'worker-loader!./workers/ehboxWebworker.js'
+        const runtime = require('offline-plugin/runtime');
+
+        import io from 'socket.io-client';
 
         class HtApp extends Polymer.TkLocalizerMixin(Polymer.Element) {
             static get is() {
@@ -984,6 +1009,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             static get properties() {
                 return {
+                    versions: {
+                        type: Object,
+                        value: function () {
+                            return require('../versions.json');
+                        }
+                    },
                     api: {
                         type: Object,
                         noReset: true,
@@ -1131,6 +1162,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: Boolean,
                         value: false
                     },
+                    updateMessage: {
+                        type: String,
+                        value: null
+                    },
+                    updateAction: {
+                        type: String,
+                        value: null
+                    },
                     validInvite: {
                         type: Boolean,
                         value: false
@@ -1141,6 +1180,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     validMail: {
                         type: Boolean,
                         value: null
+                    },
+                    isElectron :{
+                        type: Boolean,
+                        value: false
+                    },
+                    electronVersion : {
+                        type : String,
+                        value : ""
+                    },
+                    electronVersionOk : {
+                        type : Boolean,
+                        value : true
+                    },
+                    backendVersionOk : {
+                        type : Boolean,
+                        value : true
+                    },
+                    socket: {
+                        type : Object,
+                        value : null
                     }
                 }
             }
@@ -1240,6 +1299,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 this.set('api', this.$.api)
 
+                //init socket io
+                this.api.isElectronAvailable().then(electron => {
+                    if (this.electron) {
+                        this.set("socket",io('http://localhost:16042'))
+
+                        this.socket.on("connect", () => {
+                            console.log("connection avec le socket de electron")
+                        })
+
+                        this.socket.on("update-downloaded", msg => {
+                            console.log(msg)
+                            this.$['electronMessage'].classList.add('notification');
+                            setTimeout(() => {
+                                this.$['electronMessage'].classList.remove('notification');
+                            }, 7500);
+                        })
+
+                        this.notifyPath("socket")
+                    }
+
+                })
+
                 document.onmousemove = this.resetTimer.bind(this)
                 document.onkeypress = this.resetTimer.bind(this)
 
@@ -1264,6 +1345,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.set('updateMessage', this.localize('upd_fail','Update failed, please refresh.'))
                     }
                 });
+
+                this.api.isElectronAvailable().then(electron => {
+                    this.set("isElectron",electron)
+                    if(this.isElectron){
+                        fetch('http://127.0.0.1:16042/getVersion')
+                            .then((response) => {
+                                return response.json()
+                            })
+                            .then(res => {
+                                if (res.version) {
+                                    this.set("electronVersion", res.version)
+                                    this.set("electronVersionOk",this.versions.electron.includes(res.version))
+                                }
+                            })
+                    } else {
+                        this.set("electronVersionOk", true)
+                    }
+                })
+
+                this.api.icure().getVersion().then(v => {
+                    this.set("backendVersion", v)
+                    this.set("backendVersionOk",this.versions.backend.includes(v))
+                })
+
                 this._checkShowWelcomePage()
                 this._startCheckInactiveTimer()
             }
@@ -1314,8 +1419,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _timeCheck(period = 30000) {
                 setTimeout(() => {
-                    if (this.api.tokenId) {
-                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.tokenId).then(isTokenValid => {
+                    if (this.api.isMH ? this.api.tokenIdMH : this.api.tokenId) {
+                        this.api.fhc().Stscontroller().checkTokenValidUsingGET(this.api.isMH ? this.api.tokenIdMH : this.api.tokenId).then(isTokenValid => {
                             if (!isTokenValid) {
                                 this.uploadKeystoreAndCheckToken().then(() => {
                                     this._timeCheck()
@@ -1352,19 +1457,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }, period)
             }
 
-            _inboxMessageCheck(period = 600000) {
-                clearInterval(this.timeOutId)
-                if (this.EhboxCheckingActive == false) {
-                    this.set('EhboxCheckingActive', true)
-                    console.log("First launch, check msgs")
-                    this.checkEhboxMessage()
-                } else {
-                    console.log("ehbox already active, launch the interval",period)
+            _inboxMessageCheck(period = 20000) {
+                this.timeOutId && clearInterval(this.timeOutId)
                     this.timeOutId = setInterval(() => {
-                        (this.api.tokenId) ? this.checkEhboxMessage() : this._inboxMessageCheck()
+                    this.api.tokenId && this.checkEhboxMessage()
                     }, period)
                 }
-            }
 
             _routePageChanged(page) {
                 if (page === 'logout') {
@@ -1372,10 +1470,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     this.authenticated = false
 
-                    this.reset()
-
                     this.worker && this.worker.terminate()
-                    this.set('view', 'auth')
+
+                    this.reset()
+                    this.set('routeData.page', '/')
+                    setTimeout(() => window.location.reload(), 100)
                 } else {
                     console.log("page is -> " + page)
 
@@ -1452,14 +1551,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             _getToken() {
                 return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, hcp.ssin, this.api.keystoreId).then(res => {
+                {
+                    const isMH = hcp.type && hcp.type.toLowerCase() === 'medicalhouse';
+                    return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpassword, isMH ? hcp.nihii.substr(0,8): hcp.ssin, this.api.keystoreId, isMH).then(res => {
                         this.$.eHealthStatus.classList.remove('pending')
                         this.$.eHealthStatus.classList.remove('disconnected')
                         this.$.eHealthStatus.classList.add('connected')
 
+                        this.set('api.isMH', isMH)
+                        if(isMH){
+                            this.credentials.ehpasswordMH = this.credentials.ehpassword
+
+                            this.set('api.keystoreIdMH', this.api.keystoreId)
+                            this.set('api.tokenIdMH', res.tokenId)
+                            this.set('api.tokenMH', res.token)
+                            this.set('api.nihiiMH', hcp.nihii)
+
+                            if(hcp.contactPersonHcpId){
+                                this.$.api.hcparty().getHealthcareParty(hcp.contactPersonHcpId).then(hcpCt =>{
+                                    this.set('api.MHContactPersonName', hcpCt.lastName + ' ' + hcpCt.firstName)
+                                    this.set('api.MHContactPersonSsin', hcpCt.ssin)
+                                });
+                            }
+
+                        }else {
                         this.set('api.tokenId', res.tokenId)
                         this.set('api.token', res.token)
-
+                        }
                         return res.tokenId
                     }).catch((e) => {
                         this.$.eHealthStatus.classList.remove('pending')
@@ -1467,39 +1585,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         this.$.eHealthStatus.classList.add('disconnected')
                         throw(e)
                     })
+                }
                 )
             }
-
-
+            _versionOk(a,b) {
+                return a && b ? '' : 'nok'
+            }
             _getMHToken() {
                 //TODO: change the request for MH
                 //this.api.fhc().Stscontroller().requestTokenUsingGET(k.passPhrase, this.getNihii8(MHNihii), k.uuid, true )
                 //get the password from local storage
                 //let mhPassword= "";
                 const MHNihii = "84450178101";
-                return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp =>
-                    this.$.api.hcparty().getHealthcareParty(hcp.parentId).then(hcpMH =>
-                    this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpasswordMH, hcpMH.nihii.substr(0,8), this.api.keystoreIdMH, true).then(res => {
-                        this.$.eHealthMHStatus.classList.remove('pending')
-                        this.$.eHealthMHStatus.classList.remove('disconnected')
-                        this.$.eHealthMHStatus.classList.add('connected')
+                return this.$.api.hcparty().getHealthcareParty(this.user.healthcarePartyId)
+                    .then(hcp => this.$.api.hcparty().getHealthcareParty(hcp.parentId))
+                    .then(hcpMH => {
+                        this.set('hasMHCertificate', hcpMH && this.api.keystoreIdMH)
+                        return this.$.api.fhc().Stscontroller().requestTokenUsingGET(this.credentials.ehpasswordMH, hcpMH.nihii.substr(0, 8), this.api.keystoreIdMH, true).then(res => {
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('disconnected')
+                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('connected')
 
                         this.set('api.tokenIdMH', res.tokenId)
                         this.set('api.tokenMH', res.token)
                         this.set('api.nihiiMH', hcpMH.nihii)
                         return res.tokenId
+                        })
                     }).catch((e) => {
-                        this.$.eHealthMHStatus.classList.remove('pending')
-                        this.$.eHealthMHStatus.classList.remove('connected')
-                        this.$.eHealthMHStatus.classList.add('disconnected')
-                        throw(e)
-                    })).catch((e) => {
-                        this.$.eHealthMHStatus.classList.remove('pending')
-                        this.$.eHealthMHStatus.classList.remove('connected')
-                        this.$.eHealthMHStatus.classList.add('disconnected')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                         throw(e)
                     })
-                )
             }
 
             loginAndRedirect(page) {
@@ -1538,6 +1655,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         language && this.set('language', language)
 
                         this.$.loginDialog.opened = false
+
+                        this.api.isElectronAvailable().then(electron => {
+                            if (electron === true) {
+                                //request electron tc.
+                                fetch('http://localhost:16042/tc', {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json; charset=utf-8"
+                                    },
+                                    body: JSON.stringify({
+                                        "userId": this.user.id,
+                                        "token": this.user.applicationTokens.MIKRONO || this.user.applicationTokens.tmp || this.user.applicationTokens.tmpFirstLogin
+                                    })
+                                })
+                            }
+                        })
 
                         this.set('credentials.twofa', null)
                     u.groupId ? this.set('credentials.userId', u.groupId+"/"+u.id) : this.set('credentials.userId', u.id)
@@ -1581,7 +1714,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         })
                     }
                     this._timeCheck()
-                    this._timeCheckMH()
+                        this._timeCheckMH(0)//Should launch directly, no wait in this case!!!
                     this._inboxMessageCheck()
                     })
                 }).catch(function (e) {
@@ -1660,31 +1793,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         if(localStorage.getItem(kA) === val){
                             this.getDecryptedValueFromLocalstorage(this.user.healthcarePartyId, kA.replace("keychain.","keychain.password."))
                                 .then( password => {
+                                    if (password) {
                                     this.credentials.ehpasswordMH = password
-                                    if (this.credentials.ehpasswordMH) {
                                         const ehKeychain = this.$.api.crypto().loadKeychainFromBrowserLocalStorage("MMH."+ this.user.healthcarePartyId)
                                         if (ehKeychain) {
                                             return this.$.api.fhc().Stscontroller().uploadKeystoreUsingPOST(ehKeychain).then(res => {
                                                 this.$.api.keystoreIdMH = res.uuid
                                                 return this._getMHToken()
                                             }).catch((e) => {
-                                                this.$.eHealthMHStatus.classList.remove('pending')
-                                                this.$.eHealthMHStatus.classList.remove('connected')
-                                                this.$.eHealthMHStatus.classList.add('disconnected')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                                if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                                 throw(e)
                                             })
                                         } else {
                                             //TODO: notif for no MH session
                                             //this.$.noehealth.classList.add("notification")
-
-                                            this.$.eHealthMHStatus.classList.remove('pending')
-                                            this.$.eHealthMHStatus.classList.remove('connected')
-                                            this.$.eHealthMHStatus.classList.add('disconnected')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                            if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                         }
                                     } else {
-                                        this.$.eHealthMHStatus.classList.remove('pending')
-                                        this.$.eHealthMHStatus.classList.remove('connected')
-                                        this.$.eHealthMHStatus.classList.add('disconnected')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('pending')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.remove('connected')
+                                        if(this.root.getElementById('eHealthMHStatus')) this.root.getElementById('eHealthMHStatus').classList.add('disconnected')
                                     }
                                     return Promise.resolve(null);
                                 });
@@ -1759,22 +1891,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             checkEhboxMessage() {
+                if (!this.user) { return }
                 const lastLoad = parseInt(localStorage.getItem('lastEhboxRefresh')) ? parseInt(localStorage.getItem('lastEhboxRefresh')) : -1
-                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad==-1)
+                const shouldLoad = (lastLoad + (10*60000) <= Date.now() || lastLoad === -1)
                 console.log('checkEhboxMessage', lastLoad+ (10*60000) +'<='+Date.now() ,shouldLoad)
-                if (localStorage.getItem('receiveMailAuto') == 'true' && shouldLoad) {
+                if (localStorage.getItem('receiveMailAuto') === 'true' && shouldLoad) {
                     localStorage.setItem('lastEhboxRefresh', Date.now())
-                    const keyPair = this.api.crypto().RSA.loadKeyPairNotImported(this.user.healthcarePartyId)
+
+                    const getParents = (id, keyPairs) => this.api.hcparty().getHealthcareParty(id).then(hcp => {
+                        keyPairs[hcp.id] = this.api.crypto().RSA.loadKeyPairNotImported(id)
+                        if (hcp.parentId) {
+                            return getParents(hcp.parentId, keyPairs)
+                        }
+                        return keyPairs
+                    })
+
                     this.$.ehboxInboxMessage.classList.remove('notificationEhbox')
 
-                    this.worker = new Worker()
+                    if (!this.worker) { this.worker = new Worker() }
 
-                    this.getAlternateKeystores().then(alternateKeystores => {
+                    getParents(this.user.healthcarePartyId, {}).then(kp => this.getAlternateKeystores().then(alternateKeystores => {
                         this.worker.postMessage({
                             action: "loadEhboxMessage",
                             hcpartyBaseApi: this.api.hcpartyLight(),
                             fhcHost: this.api.fhc().host,
                             fhcHeaders: JSON.stringify(this.api.fhc().headers),
+                            language: this.language,
                             iccHost: this.api.host,
                             iccHeaders: JSON.stringify(this.api.headers),
                             tokenId: this.api.tokenId,
@@ -1783,9 +1925,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             ehpassword: this.credentials.ehpassword,
                             boxId: ["INBOX","SENTBOX"],
                             alternateKeystores: ({keystores: alternateKeystores.filter(ak => ak.passPhrase)}),
-                            keyPair: keyPair
+                            keyPairs: kp
                         })
-                    })
+				    }))
 
                     this.worker.onmessage = e => {
                         this.set('ehboxWebWorkerMessage', e.data.message)
@@ -1921,7 +2063,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             const addresses = hcp && hcp.addresses || null
                             const workAddresses = addresses.find(adr => adr.addressType === "work") || null
                             const telecoms = workAddresses && workAddresses.telecoms
-                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile") || null
+                            const workMobile = telecoms && telecoms.find(tel => tel.telecomType === "mobile" || tel.telecomType === "phone") || null
                             const workEmail = telecoms && telecoms.find(tel => tel.telecomType === "email") || null
 
                             if(workMobile && workMobile.telecomNumber !== "" && workEmail && workEmail.telecomNumber !== ""){
@@ -2009,8 +2151,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                     // TODO: Restore me
                     // this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(1, 'months').format('YYYYMMDDHHmmss'), moment().add(3, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-                    this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(12, 'months').format('YYYYMMDDHHmmss'), moment().add(12, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId).then(items => {
-
+                    this.api.hcparty().getCurrentHealthcareParty().then(hcp => {
+                        return Promise.all([this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(6, 'months').format('YYYYMMDDHHmmss'), this.user.healthcarePartyId)].concat(
+                            hcp.parentId ? [this.api.calendaritem().getCalendarItemsByPeriodAndHcPartyId(moment().subtract(15, 'days').format('YYYYMMDDHHmmss'), moment().add(6, 'months').format('YYYYMMDDHHmmss'), hcp.parentId)] : []
+                        )).then(([a, b]) => {
+                            const items = a.concat(b.filter(calItem => calItem.responsible === hcp.id))
                         this.push("migrationItems", {status: "", item: "Traitement de vos rendez-vous en cours..."})
                         return items.filter( item => parseInt(_.get(item, "startTime", 0)) && parseInt(_.get(item, "endTime", 0)) && !_.get(item, "wasMigrated", false) ).map(item => ({
                             comments: _.trim(_.get(item, "details", ""))||null,
@@ -2023,7 +2168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             street: _.trim(_.get(item, "addressText", ""))||null,
                             originalObject: _.merge({wasMigrated: true}, item)
                         }))
-
+                        })
                     }).then(apps => {
 
                         console.log(apps);

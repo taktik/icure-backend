@@ -93,7 +93,7 @@
             this.accesslogicc = new api.iccAccesslogApi(this.host, this.headers)
             this.authicc = new api.iccAuthApi(this.host, this.headers)
             this.bemikronoicc = new api.iccBemikronoApi(this.host, this.headers)
-            this.onlineBeMikronoicc = new api.iccBemikronoApi("https://backend.svc.icure.cloud/rest/v1", this.headers)
+            this.onlineBeMikronoicc = new api.iccBemikronoApi(this.host && this.host.match(/https:\/\/backend.(.+).icure.cloud.+/) ? this.host : "https://backend.svc.icure.cloud/rest/v1", this.headers)
             this.beresultexporticc = new api.iccBeresultexportApi(this.host, this.headers)
             this.beresultimporticc = new api.iccBeresultimportApi(this.host, this.headers)
             this.doctemplateicc = new api.iccDoctemplateApi(this.host, this.headers)
@@ -441,7 +441,7 @@
                     return acc
                 }, {}))
                 return Promise.all(_.chunk(users.rows,100).map(uChunk => this.hcparty().getHealthcareParties(uChunk.map(u => u.healthcarePartyId).filter(id => !!id).join(','))))
-            }).then(hcps => this.set('hcParties', _.flatMap(hcps).reduce((acc, hcp) => {
+            }).then(hcps => this.set('hcParties', _.flatMap(hcps).map(hcp => this.register(hcp, 'hcp')).reduce((acc, hcp) => {
                 acc[hcp.id] = hcp
                 return acc
             }, {}))
@@ -480,21 +480,25 @@
             return (thisPromise || Promise.resolve(entity)).then(e =>{ timeout && clearTimeout(timeout); return [e, defer] })
         }
 
-        register(entity, domain, defer) {
+        register(entity, domain, defer, doNotOverride = false) {
             if (!entity || !entity.id) { defer && defer.resolve(entity); return entity }
 
             const reg = this.getRegistry(domain)
             let current = reg.entities[entity.id]
             if (current && (!current.rev || Number(current.rev.split('-')[0])) <= Number(entity.rev.split('-')[0])) {
-                _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
-                _.assign(current, entity)
 
-                Object.values(reg.listeners).forEach(l=>{
-                    if (!l.pool || l.pool.some(x => x === entity.id)) {
-                        l.paths && l.paths.forEach(path => l.target.notifyPath(path))
-                        l.callbacks && l.callbacks.forEach(cb => cb())
-                    }
-                })
+                if( !doNotOverride || Number(current.rev.split('-')[0]) < Number(entity.rev.split('-')[0]) ){
+                    _.difference(_.keys(current), _.keys(entity)).forEach(k => delete current[k])
+                    _.assign(current, entity)
+
+                    Object.values(reg.listeners).forEach(l=>{
+                        if (!l.pool || l.pool.some(x => x === entity.id)) {
+                            l.paths && l.paths.forEach(path => l.target.notifyPath(path))
+                            l.callbacks && l.callbacks.forEach(cb => cb())
+                        }
+                    })
+                }
+
             } else if (!current) {
                 current = (reg.entities[entity.id] = entity)
             }
@@ -507,10 +511,11 @@
         pdfReport(html, options = {}) {
             const optionsString = _.toPairs(options).map(([k,v]) => `${k}=${v}`).join('&')
 
-
-            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : 'a4'
             const printersPrefs = JSON.parse(localStorage.getItem('selectedPrinter') || '{}')
-            const printerName = printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null) || null
+            const stickersPrefs = printersPrefs.stickers
+
+            const paperSize = options.paperWidth === 105 ? 'presc' : options.paperHeight === 210 ? 'a5' : (stickersPrefs && options.paperWidth === stickersPrefs.w && options.paperHeight === stickersPrefs.h) ? 'stickers' : 'a4'
+            const printerName = options.printer ? printersPrefs[options.printer] && printersPrefs[options.printer].bw || "" : (printersPrefs[paperSize] && (printersPrefs[paperSize].bw && printersPrefs[paperSize].bw.length ? printersPrefs[paperSize].bw : printersPrefs[paperSize].color && printersPrefs[paperSize].color.length ? printersPrefs[paperSize].color : null)) || null
 
             return (printerName ? Promise.resolve(printerName) : this.printers().then( printers => printers.find(p => p.isDefault)).then(p => p && p.name)).then( printerName => {
                 return this.isElectronAvailable().then(electron =>
@@ -717,6 +722,10 @@
             return inputContent.indexOf("-")>-1 || !_.trim(inputContent) ? inputContent : _.trim([inputContent.slice(0,1),inputContent.slice(1,6),inputContent.slice(6,8),inputContent.slice(8,11)].join("-"));
         }
 
+        formatBankAccount(inputContent) {
+            return _.trim([inputContent.slice(0,4),inputContent.slice(4,8),inputContent.slice(8,12),inputContent.slice(12,16)].join(" "));
+        }
+
         formatSsinNumber(inputContent) {
             inputContent = _.trim(inputContent).replace(/[^0-9]+/g, '')
             return _.trim([inputContent.slice(0,2),inputContent.slice(2,4),inputContent.slice(4,6)].join(".")) + "-" + _.trim([inputContent.slice(6,9),inputContent.slice(9,11)].join("."));
@@ -729,6 +738,16 @@
                 .then(() => true)
                 .catch(() => false)
         }
+
+        _powRoundFloatByPrecision(inputNumber,decimalPlaces=2){
+            return parseFloat(Math.round(parseFloat( _.trim(inputNumber).replace(',','.') ) * Math.pow(10, decimalPlaces)) / Math.pow(10,decimalPlaces)).toFixed(decimalPlaces);
+        }
+
+
+        hrFormatNumber(inputNumber) {
+            return parseFloat( _.trim(inputNumber).replace(',','.') ).toLocaleString("de-DE", {maximumFractionDigits:2, minimumFractionDigits:2})
+        }
+
     }
 
     customElements.define(IccApi.is, IccApi)

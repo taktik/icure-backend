@@ -1,0 +1,574 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-meta/iron-meta.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../../../bower_components/iron-iconset/iron-iconset.html">
+
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/iron-collapse-button/iron-collapse-button.html">
+<link rel="import" href="../../../bower_components/vaadin-material-theme/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+
+<link rel="import" href="../filter-panel/filter-panel.html">
+
+<link rel="import" href="../collapse-button/collapse-button.html">
+
+<link rel="import" href="../icons/icure-icons.html">
+<link rel="import" href="../../icd-styles.html">
+
+<link rel="import" href="../dynamic-form/entity-selector.html">
+<link rel="import" href="../dynamic-form/health-problem-selector.html">
+
+
+<dom-module id="ht-admin-menu">
+
+    <template>
+
+        <style include="shared-styles">
+            :host {
+                display: block;
+            }
+
+            :host *:focus{
+                outline:0!important;
+            }
+
+            .col-left{
+                position: relative;
+                box-sizing: border-box;
+                grid-column: 1 / 1;
+                grid-row: 1 / 1;
+                background:var(--app-background-color-dark);
+                @apply --shadow-elevation-3dp;
+                padding: 24px 0;
+                display:flex;
+                flex-flow: column nowrap;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                z-index: 25;
+            }
+            paper-listbox{
+                background:transparent;
+                padding: 0;
+            }
+
+            paper-item{
+                background:transparent;
+                outline:0;
+                height: 32px;
+                align-items: center;
+                --paper-item-selected:{
+
+                };
+
+                --paper-item-disabled-color:{
+                    color: red;
+                };
+
+                --paper-item-focused: {
+                    background:transparent;
+                };
+                --paper-item-focused-before: {
+                    background:transparent;
+                };
+
+            }
+
+            paper-listbox {
+                outline:0;
+                --paper-listbox-selected-item: {
+                    color:var(--app-text-color-light);
+                    background:var(--app-primary-color);
+                };
+                --paper-listbox-disabled-color:{
+                    color: red;
+                };
+            }
+
+            collapse-button {
+                outline:0;
+                width: 100%;
+                user-select: none;
+                --paper-listbox-selected-item: {
+                    color:var(--app-text-color-light);
+                    background:var(--app-primar y-color);
+                };
+                margin-bottom: 15px;
+                transition: var(--transition_-_transition);
+                background: var(--app-background-color-dark);
+            }
+            collapse-button paper-item {
+                font-size: 13px;
+                font-weight: bold;
+            }
+
+            collapse-button[opened] {
+                background: white;
+            }
+
+            collapse-button .menu-item.iron-selected,
+            collapse-button paper-item.iron-selected{
+                @apply --padding-right-left-16;
+                color:var(--app-text-color-light);
+                background:var(--app-primary-color);
+                @apply --text-shadow;
+            }
+
+            collapse-button paper-item.iron-selected{
+                background: var(--app-background-color-dark);
+                color: black;
+                text-shadow: none;
+            }
+            collapse-button paper-item.opened{
+                background: #fff;
+            }
+
+            collapse-button paper-item.iron-selected iron-icon{
+                color: var(--app-secondary-color) !important;
+                opacity: 1;
+            }
+
+            collapse-button paper-item.iron-selected {
+                color: white;
+                background: var(--app-primary-color);
+            }
+
+            collapse-button paper-item iron-icon, paper-item iron-icon{
+                height: 20px;
+                width: 20px;
+                padding:4px;
+                color: var(--app-text-color);
+            }
+
+            collapse-button paper-icon-button{
+                min-width: 40px;
+                min-height: 40px;
+            }
+
+            .opened{
+                color:var(--app-text-color);
+                background:var(--app-text-color-light);
+                border-radius:2px 2px 0 0;
+
+            }
+
+            .sublist{
+                background:var(--app-light-color);
+                margin:0 0 8px -30px;
+                padding:0;
+                padding-bottom:4px;
+                border-radius:0 0 2px 2px;
+            }
+
+            paper-item.list-info {
+                font-weight: lighter;
+                font-style: italic;
+                height:48px;
+            }
+
+            .menu-item{
+                @apply --padding-menu-item;
+                height:48px;
+                @apply --paper-font-button;
+                text-transform: inherit;
+                justify-content: space-between;
+                cursor: pointer;
+                @apply --transition;
+            }
+
+            .sublist .menu-item {
+                font-size: 13px;
+                min-height:32px;
+                height:32px;
+            }
+            .sublist .menu-item.flex-start {
+                justify-content: flex-start;
+            }
+
+            .menu-item:hover{
+                /*background: var(--app-dark-color-faded);*/
+                @apply --transition;
+            }
+
+            .menu-item .iron-selected{
+                background:var(--app-primary-color);
+            }
+
+            .menu-item .opened{
+                background:white!important;
+                width:80%;
+                border-radius:2px;
+            }
+
+            .menu-item-icon--selected{
+                width:0;
+            }
+
+            .opened .menu-item-icon--selected{
+                width: 18px;
+            }
+
+            .opened > .menu-item-icon{
+                transform: scaleY(-1);
+            }
+
+            paper-item.menu-item.opened {
+                /*@apply --padding-right-left-16;*/
+            }
+
+            .submenu-item{
+                cursor:pointer;
+            }
+
+            .submenu-item.iron-selected{
+                background:var(--app-primary-color-light);
+                color:var(--app-text-color-light);
+                @apply --text-shadow;
+            }
+
+            .submenu-item-icon{
+                height:14px;
+                width:14px;
+                color:var(--app-text-color-light);
+                margin-right:10px;
+            }
+
+            .one-line-menu.list-title {
+                max-width: 100%;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                align-items: center;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: flex-start;
+            }
+
+            .menu-trigger{
+                padding: 0 8px;
+            }
+
+            #management {
+                flex-direction: row;
+            }
+
+            #account {
+                flex-direction: row;
+            }
+
+            #reports {
+                flex-direction: row;
+            }
+
+            .management-line.one-line-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .account-line.one-line-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .reports-line.one-line-menu {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .sub-menu-icon{
+                height: 14px;
+                width: 14px;
+            }
+
+        </style>
+
+        <div class="col-left">
+
+            <collapse-button id="managementcollapse">
+                <paper-item id="management" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_management" elevation="">
+                    <div class="one-line-menu list-title management-line">
+                        <div>
+                            <iron-icon icon="vaadin:workplace" class="force-left"></iron-icon>
+                            <span class="force-left force-ellipsis box-txt">[[localize('manag','Management of office / medical house',language)]]</span>
+                        </div>
+                    </div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="managementlist" class="menu-content sublist" selected="{{managementSelectionIndex}}" selected-item="{{managementSelectionItem}}" selectable="paper-item">
+                    <!--
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="parentManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:office"></iron-icon> [[localize('off_mh','Office / Medical house',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="facturationServiceFeeManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:invoice"></iron-icon> [[localize('fac_ser_fee','Service fee facturation',language)]]
+                    </paper-item>
+                    -->
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="facturationFlatRateManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:package"></iron-icon> [[localize('fac_fla_rat','Flat rate facturation',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="formsManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:form"></iron-icon> [[localize('forms','Forms',language)]]
+                    </paper-item>
+                    <!--
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="groupsManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:split"></iron-icon> [[localize('grps','Groups of users',language)]]
+                    </paper-item>
+                    -->
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="usersManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:users"></iron-icon> [[localize('users','Users',language)]]
+                    </paper-item>
+                    <!--
+                    <paper-item class="one-line-menu menu-item flex-start" id="management" data-submenu="delegationsManagementSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegations',language)]]
+                    </paper-item>
+                    -->
+                </paper-listbox>
+            </collapse-button>
+<!--
+            <collapse-button id="accountcollapse">
+                <paper-item id="account" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_account" elevation="">
+                    <div class="one-line-menu list-title account-line">
+                        <div>
+                            <iron-icon icon="vaadin:male" class="force-left"></iron-icon>
+                            <span class="force-left force-ellipsis box-txt">[[localize('my_pro','My profil',language)]]</span>
+                        </div>
+                    </div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="accountlist" class="menu-content sublist" selected="{{accountSelectionIndex}}" selected-item="{{accountSelectionItem}}" selectable="paper-item">
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="edmgInformationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:folder-open"></iron-icon> [[localize('acc_edmg_info','Edmg informations',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="printersInformationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:print"></iron-icon> [[localize('acc_print_info','Printers',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="accountInformationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:info-circle"></iron-icon> [[localize('acc_info','Account informations',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="bankInformationsSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:institution"></iron-icon> [[localize('acc_bank_info','Bank informations',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="myDelegationsSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:key"></iron-icon> [[localize('deleg','My delegation',language)]]
+                    </paper-item>
+                    <paper-item class="one-line-menu menu-item flex-start" id="account" data-submenu="preferencesSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:sliders"></iron-icon> [[localize('acc_prefs','Preferences',language)]]
+                    </paper-item>
+                </paper-listbox>
+            </collapse-button>
+-->
+            <collapse-button id="reportcollapse">
+                <paper-item id="reports" slot="sublist-collapse-item" class="menu-trigger menu-item" on-tap="_report" elevation="">
+                    <div class="one-line-menu list-title reports-line">
+                        <div>
+                            <iron-icon icon="vaadin:chart-3d" class="force-left"></iron-icon>
+                            <span class="force-left force-ellipsis box-txt">[[localize('reports','Reports',language)]]</span>
+                        </div>
+                    </div>
+                    <paper-icon-button class="menu-item-icon" icon="hardware:keyboard-arrow-down" hover="none" on-tap="toggleMenu"></paper-icon-button>
+                </paper-item>
+                <paper-listbox id="reportlist" class="menu-content sublist" selected="{{reportSelectionIndex}}" selected-item="{{reportSelectionItem}}" selectable="paper-item">
+                    <paper-item class="one-line-menu menu-item flex-start" id="reports" data-submenu="listOfAttestationSubMenu">
+                        <iron-icon class="sub-menu-icon" icon="vaadin:lines-list"></iron-icon> [[localize('lst_att','List of attestations',language)]]
+                    </paper-item>
+                </paper-listbox>
+            </collapse-button>
+
+        </div>
+    </template>
+
+    <script>
+
+        import moment from 'moment/src/moment';
+        import _ from 'lodash/lodash';
+        import styx from '../../../scripts/styx';
+
+        class HtAdminMenu extends Polymer.TkLocalizerMixin(Polymer.Element) {
+            static get is() {
+                return 'ht-admin-menu'
+            }
+
+            static get properties() {
+                return {
+                    api: {
+                        type: Object,
+                        noReset: true
+                    },
+                    user: {
+                        type: Object,
+                        noReset: true
+                    },
+                    managementSelectionIndex: {
+                        type: Number,
+                        value: null
+                    },
+                    reportSelectionIndex:{
+                        type: Number,
+                        value: null
+                    },
+                    accountSelectionIndex: {
+                        type: Number,
+                        value: null
+                    },
+                    managementSelectionItem:{
+                        type: Object,
+                        value: () => {}
+                    },
+                    accountSelectionItem: {
+                        type: Object,
+                        value: () => {}
+                    },
+                    reportSelectionItem:{
+                        type: Object,
+                        value: () => {}
+                    }
+                }
+            }
+
+            static get observers() {
+                return ['_managementSelectionIndexChanged(managementSelectionIndex)', '_accountSelectionIndexChanged(accountSelectionIndex)', '_reportSelectionIndexChanged(reportSelectionIndex)'];
+            }
+
+            constructor() {
+                super()
+            }
+
+            ready() {
+                super.ready()
+            }
+
+            _management(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'management', submenu: 'usersManagementSubMenu'}}}));
+
+                //this.set('managementSelectionIndex', null)
+                this.set('accountSelectionIndex', null)
+                this.set('reportSelectionIndex', null)
+
+                this.$.management.classList.add('iron-selected')
+                //this.$.account.classList.remove('iron-selected')
+                this.$.reports.classList.remove('iron-selected')
+            }
+
+            _account(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'account', submenu: 'accountSubMenu'}}}));
+
+                this.set('managementSelectionIndex', null)
+                //this.set('accountSelectionIndex', null)
+                this.set('reportSelectionIndex', null)
+
+                this.$.management.classList.remove('iron-selected')
+                //this.$.account.classList.add('iron-selected')
+                this.$.reports.classList.remove('iron-selected')
+            }
+
+            _report(e){
+                e.stopPropagation()
+                e.preventDefault()
+
+                this.dispatchEvent(new CustomEvent('selection-change', {detail: {selection: {item: 'report', submenu: 'reportsSubMenu'}}}));
+
+                this.set('managementSelectionIndex', null)
+                this.set('accountSelectionIndex', null)
+                //this.set('reportSelectionIndex', null)
+
+                this.$.management.classList.remove('iron-selected')
+                //this.$.account.classList.remove('iron-selected')
+                this.$.reports.classList.add('iron-selected')
+            }
+
+            _managementSelectionIndexChanged(){
+                if (this.managementSelectionIndex !== null && this.managementSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.managementSelectionItem.id, submenu: this.managementSelectionItem.dataset.submenu} } }));
+
+                    //this.set('managementSelectionIndex', null)
+                    this.set('accountSelectionIndex', null)
+                    this.set('reportSelectionIndex', null)
+
+                    this.$.management.classList.remove('iron-selected')
+                   // this.$.account.classList.remove('iron-selected')
+                    this.$.reports.classList.remove('iron-selected')
+                }
+            }
+
+            _accountSelectionIndexChanged(){
+                if (this.accountSelectionIndex !== null && this.accountSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.accountSelectionItem.id, submenu: this.accountSelectionItem.dataset.submenu} } }));
+
+                    this.set('managementSelectionIndex', null)
+                   // this.set('accountSelectionIndex', null)
+                    this.set('reportSelectionIndex', null)
+
+                    this.$.management.classList.remove('iron-selected')
+                    //this.$.account.classList.remove('iron-selected')
+                    this.$.reports.classList.remove('iron-selected')
+                }
+            }
+
+            _reportSelectionIndexChanged(){
+                if (this.reportSelectionIndex !== null && this.reportSelectionIndex !== undefined) {
+                    this.dispatchEvent(new CustomEvent('selection-change', { detail: { selection: { item: this.reportSelectionItem.id, submenu: this.reportSelectionItem.dataset.submenu} } }));
+
+                    this.set('managementSelectionIndex', null)
+                    this.set('accountSelectionIndex', null)
+                    //this.set('reportSelectionIndex', null)
+
+                    this.$.management.classList.remove('iron-selected')
+                    //this.$.account.classList.remove('iron-selected')
+                    this.$.reports.classList.remove('iron-selected')
+                }
+            }
+
+            toggleMenu(e){
+                e.stopPropagation();
+                e.preventDefault();
+
+                styx.parent(e.target, el => el.tagName.toLowerCase() === 'collapse-button').toggle();
+                styx.parent(e.target, el => el.tagName.toLowerCase() === 'paper-item').classList.toggle('opened');
+            }
+
+        }
+
+        customElements.define(HtAdminMenu.is, HtAdminMenu)
+    </script>
+</dom-module>

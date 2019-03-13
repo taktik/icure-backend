@@ -33,7 +33,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 			:host {
 				display: block;
 				padding: 12px 24px 24px;
-				height: calc(100vh - 64px);
+				height: calc(100vh - 64px - 20px);
 				box-sizing: border-box;
 				--grid-columns: 1fr 1fr;
 				--grid-rows: 1fr 1fr 1fr;
@@ -96,7 +96,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				transition: all .24s cubic-bezier(0.075, 0.82, 0.165, 1);
 			}
 
-			.card-title-container:hover paper-icon-button, .card-title-container:focus-within paper-icon-button{
+			.card:hover .card-title-container paper-icon-button{
 				color: var(--app-text-color-disabled);
 				padding: 0;
 			}
@@ -551,7 +551,74 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
             }
 
+			.eid-notification-panel{
+				display: flex;
+				flex-direction: column;
+				position: fixed;
+				top: 84px;
+				right: -264px;
+				padding: 0;
+				background: var(--app-background-color);
+				color: var(--app-text-color);
+				font-size: 13px;
+				min-width: 208px;
+				opacity: 0;
+				z-index: 1000;
+				border-radius: 3px 0 0 3px;
+				box-shadow: var(--app-shadow-elevation-1);
+				overflow: hidden;
+				transition: all .5s ease-in;
+			}
+
+			.notification {
+				opacity: 1;
+				right: 16px;
+			}
+
+            div.panel-header {
+                background: var(--app-secondary-color-dark);
+                margin-bottom: 8px;
+                font-size: 1.5em;
+                width: 100%;
+                text-align: center;
+                padding: 8px 16px;
+                box-sizing: border-box;
+            }
+            vaadin-grid.eid-patients-list {
+                width: 448px;
+                max-height: 256px;
+                overflow-y: auto;
+                margin: 0 8px;
+            }
+            div.panel-bottom-btns {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+            }
+            div.panel-bottom-btns > paper-button {
+                flex-grow: 1;
+                height: 40px;
+                margin: 4px;
+                padding: 4px;
+                text-align: center;
+                cursor: pointer;
+                border-radius: 2px;
+                transition: .25s ease;
+            }
+            div.panel-bottom-btns > paper-button:hover {
+                background: var(--app-secondary-color-dark);
+            }
+
 		</style>
+
+		<paper-item id="eidFound" class="eid-notification-panel">
+			<div class="panel-header"><iron-icon icon="vaadin:health-card"></iron-icon> [[localize('eid_found','eid found',language)]], [[localize('open_pat','open patient',language)]] ?</div>
+			<div class="panel-bottom-btns">
+				<paper-button on-tap="closeEidPanel" panel="eidFound"><iron-icon icon="cancel" panel="eidFound"></iron-icon>[[localize('no','No',language)]]</paper-button>
+				<paper-button on-tap="checkNiss"><iron-icon icon="check-circle"></iron-icon> [[localize('yes','Yes',language)]]</paper-button>
+			</div>
+		</paper-item>
 
 		<div class="layout-buttons">
 			<!-- <paper-icon-button id="addWidgetButton" icon="add-box"></paper-icon-button> -->
@@ -565,7 +632,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 					<div id="[[widget.id]]" class="card latest-patients-card" style="--area:latestPatientsWidget;" draggable="true" on-dragstart="_dragWidgetStart" on-dragover="_dragWidgetOver" on-dragenter="_dragWidgetEnter" on-dragleave="_dragWidgetLeave" on-dragEnd="_dragWidgetEnd" on-drop="_dropWidget">
 						<div class="card-title-container">
 							<h1 class="card-title">[[localize('lat_pat','Latest Patients',language)]]</h1>
-							<paper-menu-button class="widget-settings-menu" horizontal-align="right" close-on-activate no-overlap no-animations focused="false">
+							<paper-menu-button class="widget-settings-menu" horizontal-align="right" no-overlap no-animations focused="false">
 								<paper-icon-button id="settings-latestpat" icon="settings" slot="dropdown-trigger" alt="widget settings menu" ></paper-icon-button>
 								<div slot="dropdown-content">
 									<paper-input type="number" min="1" always-float-label label="[[localize('nr_of_col','Nr of columns',language)]]" value="{{widget.nrCols}}"></paper-input>
@@ -577,13 +644,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell" on-tap="_sortList" list="accessLogs" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="accessLogs" sort="patient.lastName">[[localize('pati','Patient',language)]]</div>
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="accessLogs" sort="access.date">[[localize('last_edi','last edit',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[accessLogs]]" as="access">
 								<div class="row latest-patients-row" data-id$="[[access.patient.id]]" on-tap="openPatient">
 									<div class="consultations-patient-photo"><img src$="[[picture(access.patient)]]"></div>
-									<div class="consultations-patient-name">[[access.patient.firstName]] [[access.patient.lastName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
+									<div class="consultations-patient-name">[[access.patient.lastName]] [[access.patient.firstName]] <span class="patient-dateofbirth">°[[_timeFormat(access.patient.dateOfBirth)]]</span> <span class="patient-age">°[[_ageFormat(access.patient.dateOfBirth)]]</span></div>
 									<div class="divider"></div>
 									<div class="consultations-time">[[_timeFormat(access.access.date)]]</div>
 								</div>
@@ -608,7 +675,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="patient.lastName">[[localize('pati','Patient',language)]]</div>
 								<div class="card-header-cell" on-tap="_sortList" list="appointments" sort="type">[[localize('type','Type',language)]]</div>
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="appointments" sort="startTime">[[localize('hour','Hour',language)]]</div>
 							</div>
@@ -616,7 +683,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 								<template is="dom-repeat" items="[[appointments]]" as="appointment">
 									<div class="row latest-consultations-row" data-id$="[[appointment.patient.id]]" on-tap="openPatient">
 										<div class="consultations-patient-photo"><img src$="[[picture(appointment.patient)]]"></div>
-										<div class="consultations-patient-name">[[appointment.patient.firstName]] [[appointment.patient.lastName]]</div>
+										<div class="consultations-patient-name">[[appointment.patient.lastName]] [[appointment.patient.firstName]]</div>
 										<div class="consultations-patient-type">#[[appointment.type]]</div>
 										<div class="divider"></div>
 										<div class="consultations-time">[[_shortTimeFormat(appointment.startTime)]]</div>
@@ -649,13 +716,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						<div class="card-body">
 							<div class="card-table-header row">
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="labResults" sort="created">[[localize('dat','Date',language)]]</div>
-								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.name">[[localize('pat_ident','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="labResults" sort="patient.lastName">[[localize('pat_ident','Patient',language)]]</div>
 								<div class="card-header-cell lab-name" on-tap="_sortList" list="labResults" sort="descr">[[localize('sender','sender',language)]]</div>
 							</div>
 							<template is="dom-repeat" items="[[labResults]]" as="result">
 								<div class="row card-table-row" data-id$="[[result.patient.id]]" on-tap="openPatient">
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] card-table-cell--date">[[_timeFormat(result.created)]]</div>
-									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patientName]]</div>
+									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]]">[[result.patient.lastName]] [[result.patient.firstName]]</div>
 									<div class$="card-table-cell [[_isUnreadResult(result, isLoadingLabResults)]] lab-name">[[result.descr]]</div>
 								</div>
 							</template>
@@ -679,7 +746,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 						</div>
 						<div class="card-body">
 							<div class="card-table-header row">
-								<div class="card-header-cell" on-tap="_sortList" list="services" sort="patient.firstName">[[localize('pati','Patient',language)]]</div>
+								<div class="card-header-cell" on-tap="_sortList" list="services" sort="patient.lastName">[[localize('pati','Patient',language)]]</div>
 								<div class="card-header-cell card-header-cell--date" on-tap="_sortList" list="services" sort="service.valueDate">[[localize('due_dat','Due date',language)]]</div>
 								<div class="card-header-cell" on-tap="_sortList" list="services" sort="service.content.language.stringValue">[[localize('des','Description',language)]]</div>
 							</div>
@@ -689,7 +756,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 										<div class="row card-table-row" data-id$="[[service.service.id]]">
 											<div class="card-table-cell main-cell">
 												<div class="consultations-patient-photo"><img src$="[[picture(service.patient)]]"></div>
-												<div class="consultations-patient-name">[[service.patient.firstName]] [[service.patient.lastName]]</div>
+												<div class="consultations-patient-name">[[service.patient.lastName]] [[service.patient.firstName]]</div>
 											</div>
 											<div class="card-table-cell card-table-cell--date">[[_timeFormat(service.service.valueDate)]]</div>
 											<div class="card-table-cell">[[service.service.content.language.stringValue]]</div>
@@ -852,12 +919,24 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
             unreadCount: {
 			    type: Number,
                 value: 0
-            }
+            },
+			route: {
+				type: Object,
+				notify: true
+			},
+			socket: {
+				type: Object,
+				value : null
+			},
+			cardData : {
+				type: Object,
+				value : {}
+			}
 		};
 	}
 
     static get observers() {
-        return ['apiReady(user,api)', 'widgetsChanged(widgets.*)'];
+        return ['apiReady(user,api)', 'widgetsChanged(widgets.*)','_routeChanged(route,route.*,socket,socket.*)'];
     }
 
     constructor() {
@@ -869,6 +948,26 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
         Object.keys(props).forEach(k => { if (!props[k].noReset) { this.set(k, (typeof props[k].value === 'function' ? props[k].value() : (props[k].value || null))) }})
     }
 
+	_routeChanged(){
+		if(this.route.prefix==="/main" && this.socket){
+			if(this.socket) {
+				this.socket.removeAllListeners("auto-read-card-eid")
+				this.notifyPath("socket")
+			}
+			this.setSocket();
+		}
+	}
+
+	setSocket(){
+		this.socket.on("auto-read-card-eid",cards =>{
+			const res = JSON.parse(cards)
+			if (res.cards[0]) {
+				this.set('cardData',res.cards[0])
+				this.$['eidFound'].classList.add('notification');
+			}
+		})
+	}
+
     ready() {
 
 		super.ready();
@@ -879,8 +978,8 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
     }
 
     _sortList(e) {
-	    const list = e.target.getAttribute('list')
-        const sort = e.target.getAttribute('sort')
+        const list = e && e.target && e.target.getAttribute('list') || ''
+        const sort = e && e.target && e.target.getAttribute('sort') || ''
         const target =
             list == 'accessLogs' ? this.accessLogs :
             list == 'appointments' ? this.appointments :
@@ -1016,6 +1115,7 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                                 patient: pat,
                                 created: x[0].valueDate,
                                 patientName: pat.firstName + ' ' + pat.lastName,
+                                contactId: x[0].contactId,
                                 descr: (this.api.contact().preferredContent(x[0], this.language) || {}).stringValue
                             })
                         })
@@ -1026,31 +1126,23 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
                 return this.api.message().findMessagesByTransportGuid('INBOX:*', null, null, null, 1000)
                     .then(messages => {
                         this.set('unreadCount', _.filter(messages.rows, m => {
-                            return ((m.status & (1 << 1)) !== 0) && (
-								(m.assignedResults && Object.keys(m.assignedResults).length)
-								|| (m.unassignedResults && m.unassignedResults.length)
-							)
+                            return ((m.status & (1 << 1)) !== 0) && (m.assignedResults && Object.keys(m.assignedResults).length)
                         }).length)
-                        this.messagesByResultId = {}
+                        this.messagesByContactId = {}
                         messages.rows && messages.rows.forEach (mes => {
-                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(resid => {
-                                this.messagesByResultId[resid] = mes
+                            mes.assignedResults && Object.keys(mes.assignedResults).forEach(conid => {
+                                this.messagesByContactId[conid] = mes
 							})
                         })
-						console.log("end loading mes", this.messagesByResultId)
                     })
             })
             .finally(() => {
-				//console.log("FINISHED LOAD MESSAGES")
                 this.set('isLoadingLabResults', false)
             })
     }
 
     _isUnreadResult(res) {
-	    //console.log("is unread ?", this.messagesByResultId, this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : 'read' , res)
-        //return 'unread'
-		// FIXME: WIP: no unread messages found
-	    return this.messagesByResultId && this.messagesByResultId[res.id] && ((this.messagesByResultId[res.id].status & 1 << 1) !== 0) ? 'unread' : ''
+	    return this.messagesByContactId && this.messagesByContactId[res.contactId] && ((this.messagesByContactId[res.contactId].status & 1 << 1) !== 0) ? 'unread' : ''
     }
 
 	_timeFormat(date) {
@@ -1247,6 +1339,10 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
 		if((index + 1)) {
 
+			if(!this.widgets[index].nrRows || !this.widgets[index].nrCols) {
+				return
+			}
+
 			const newWidget = this.layoutGrid.computeCardSize(this.widgets[index])
 
 			const currentWidget = this.widgets[index];
@@ -1268,6 +1364,80 @@ class HtMain extends Polymer.TkLocalizerMixin(Polymer.Element) {
 		}
 
 	}
+
+
+	checkNiss(){
+		this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(currentHcp => {
+			const ssinFilter = /^[0-9]{11}$/.test(this.cardData.nationalNumber) && ({
+				'$type': 'PatientByHcPartyAndSsinFilter',
+				'healthcarePartyId': currentHcp.parentId || this.user.healthcarePartyId,
+				'ssin': this.cardData.nationalNumber
+			})
+			this.$['eidFound'].classList.remove('notification');
+			this.api.patient().filterByWithUser(this.user, null, null, 50, 0, 1, 'desc', {filter: ssinFilter})
+					.then(patients => {
+						if (patients.rows.length) {
+							const selected = patients.rows[0]
+							this.api.patient().getPatientWithUser(this.user, selected.id).then(p => {
+								p.ssin = p.ssin || this.cardData.nationalNumber
+								if(!p.addresses.find(ad => ad.addressType==="home")){
+									let streetData = _.trim(this.cardData.street).split(" ")
+									const number = streetData.find(str => str.match(/\d/g))
+									const boxNumber = streetData[streetData.length-1]!==number ? streetData[streetData.length-1] :""
+									const street = streetData.reduce((tot,str)=>{
+										if(!tot)tot="";
+										if(!(str===number || str===boxNumber ))
+											tot = tot.concat(" ",str)
+										return tot;
+									})
+
+									p.addresses.push({
+										addressType: "home",
+										street: street,
+										houseNumber: number,
+										postboxNumber: boxNumber,
+										postalCode: this.cardData.zipCode,
+										city: this.cardData.municipality,
+										country: this.cardData.country
+									})
+								}
+
+								p.gender = p.gender || this.cardData.gender === 'M' ? 'male' : 'female'
+								p.placeOfBirth = p.placeOfBirth || this.cardData.locationOfBirth
+								p.dateOfBirth = p.dateOfBirth || parseInt(this.api.moment(this.cardData.dateOfBirth * 1000).format('YYYYMMDD'))
+								p.nationality = p.nationality || this.cardData.nationality
+								p.picture = p.picture || this.cardData.picture
+								p.firstName = p.firstName || this.cardData.firstName
+								p.lastName = p.lastName || this.cardData.surname
+
+								return p
+							})
+									.then( p => this.api.patient().modifyPatientWithUser(this.user,p))
+									.then( p => this.api.register(p, 'patient'))
+									.then(p => {
+										location.replace(location.href.replace(/(.+?)#.*/, `$1#/pat/${p.id}`));
+										return p
+									})
+									.then(p => {
+										this.api.hcparty().getHealthcareParty(this.user.healthcarePartyId).then(hcp => {
+											this.api.fhc().Therlinkcontroller().registerTherapeuticLinkUsingPOST1(this.api.keystoreId, this.api.tokenId, this.api.credentials.ehpassword,
+													hcp.nihii, hcp.ssin, hcp.firstName, hcp.lastName,
+													p.ssin, p.firstName, p.lastName, this.cardData.logicalNumber, "", null, null, null, null, null)
+
+										})
+									})
+						}
+					})
+		})
+	}
+
+	closeEidPanel(e) {
+		const target = e && e.target && e.target.getAttribute('panel') || ''
+		if (this.$[target] && this.$[target].classList.contains('notification') ){
+			this.$[target].classList.remove('notification');
+		}
+	}
+
 
 }
 

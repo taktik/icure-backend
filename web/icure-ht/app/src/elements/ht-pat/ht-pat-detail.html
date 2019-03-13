@@ -87,7 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .container {
                 width: 100%;
-                height: calc(100vh - 64px);
+                height: calc(100vh - 64px - 20px);
                 display:grid;
                 grid-template-columns: 20% 30% 50%;
                 grid-template-rows: 100%;
@@ -141,15 +141,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             .first-panel{
                 display: flex;
                 flex-direction: column;
-                height:calc(100vh - 64px); /* 64px = app-header */
+                height:calc(100vh - 64px - 20px); /* 64px = app-header */
                 background: var(--app-background-color-dark);
                 top:64px;
                 left:0;
-                @apply --shadow-elevation-3dp;
+                box-shadow: var(--app-shadow-elevation-2);
                 grid-column: 1 / 1;
                 grid-row:1 / 1;
                 z-index:3;
                 overflow:hidden;
+                /*transition: .5s ease;*/
             }
 
             #_contacts_listbox {
@@ -212,7 +213,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             collapse-button > .menu-item.iron-selected {
-                @apply --padding-right-left-16;
+                @apply --padding-menu-item;
                 color:var(--app-text-color-light);
                 background:var(--app-primary-color);
                 @apply --text-shadow;
@@ -268,7 +269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .menu-item{
-                @apply --padding-right-left-16;
+                @apply --padding-menu-item;
                 height:48px;
                 @apply --paper-font-button;
                 text-transform: inherit;
@@ -467,6 +468,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 justify-content: center;
                 flex-wrap: nowrap;
                 padding-top:8px;
+                margin-bottom: 20px;
             }
 
             .selection-toast-button{
@@ -584,7 +586,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .contact label.hcp {
                 position: absolute;
-                right: 0;
+                right: 16px;
                 max-width: 80px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -858,6 +860,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            .edmg-hcps {
+                position: fixed;
+                top: 190px;
+                left: 0;
+                display: flex;
+                flex-direction: column;
+                background: rgba(69, 90, 100,.95); /* is --app-primary-color with opacity 95% */
+                color: white;
+                width: calc(20% - 16px); /* 20% is first col wdth, 16px is for margins */
+                padding: 16px;
+                margin: 0 8px;
+                z-index: 10;
+                border-radius: 8px;
+                box-sizing: border-box;
+            }
+
+            .edmg-hcps > p {
+                font-size: 1.3em;
+                margin-top: 0;
+                margin-bottom: 8px;
+            }
+            .edmg-hcps > p > span.ul {
+                text-decoration: underline;
+            }
+            .edmg-hcps > p > small {
+                margin: 8px 4px 12px 0;
+                font-size: 1em;
+                padding-left: 4px;
+                display: block;
+            }
+
             #insuranceStatus.medicalHouse, #edmgStatus.edmgPending {
                 --paper-fab-background: var(--app-status-color-pending);
             }
@@ -874,6 +907,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             }
 
+            #select-more-options-dialog {
+                display: flex;
+                flex-direction: column;
+            }
+            #select-more-options-dialog .buttons {
+                position: initial;
+            }
+
+
             .display-left-menu{
                 display:none;
                 position:fixed;
@@ -883,14 +925,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 background: var(--app-background-color-dark);
                 transform:translateY(-50%) rotate(0);
                 border-radius:0 50% 50% 0;
-                transition: transform 0.2s ease-in;
-
+                transition: .5s ease;
+                box-shadow: var(--app-shadow-elevation-1);
             }
             .display-left-menu.open{
-                left:50vw;
-                border-radius:50% 0 0  50% ;
-                transform:translateY(-50%) rotate(180deg);
-                transition: transform 0.2s ease-in;
+                left: 208px;
+                border-radius: 0 50% 50% 0;
+                transform: translateY(-50%);
             }
 
             @media screen and (max-width: 1168px) {
@@ -917,10 +958,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 .container.expanded{
                     /*grid-template-columns: 20% 30% 50%;*/
                 }
+                .container .first-panel {
+                    transform: translateX(-100%);
+                }
                 .container.expanded .first-panel {
-                    width: 50vw;
+                    width: 208px;
                     z-index: 1001;
-                    width: 208px !important;
+                    transform: none;
                 }
                 .container.expanded .fit-bottom {
                     /*left:20%!important;*/
@@ -936,16 +980,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
                 .display-left-menu{
                     display:inherit;
-                    box-shadow: var(--app-shadow-elevation-1);
                 }
-                .display-left-menu.open {
-                    border-radius: 0 50% 50% 0;
-                    transform: none;
-                    left: 208px !important;
-                }
-                .display-left-menu.open iron-icon#icon {
-                    transform: rotate(180deg);
-                }
+                /* WIP */
+                /*.display-left-menu.open iron-icon#icon {*/
+                    /*transform: rotate(180deg);*/
+                /*}*/
                 .floating-action-bar {
                     position: fixed;
                     left: 0;
@@ -957,7 +996,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             @media screen and (max-width:800px){
                 .contact label {
-                    max-width: 50% !important;
+                    max-width: 40% !important;
                 }
                 .contact h4 {
                     max-width: 80%;
@@ -1266,23 +1305,128 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 height:100px;
             }
 
+            .postit-header {
+                box-sizing: border-box;
+                padding: 11px;
+                text-align: center;
+                min-width: 200px;
+                width: 100%;
+                margin: 0;
+                font-weight: 600;
+                display: inline-block;
+                background: var(--app-background-color-dark);
+            }
+
+            .postit-button {
+                position: absolute;
+                min-width: 0;
+                margin: 0;
+            }
+
+            .postit-close {
+                left: 0;
+                top: 0;
+            }
+
+            .postit-edit {
+                top: 0;
+                right: 0;
+            }
+
+            .postit-body {
+                padding: 24px;
+                max-height: 220px;
+                overflow: auto;
+                /*background: white;*/
+            }
+
+            .postit-body p {
+                margin: 0;
+                max-width: 300px;
+                font-size: 14px;
+            }
+
+            #postit-notification {
+                position: fixed;
+                top: calc(46px + 15%);
+                right: 10px;
+                transform: translateX(110%);
+                z-index: 1000;
+                /*background: var(--app-secondary-color);*/
+                background: white;
+                opacity: 0;
+                transition: .3s cubic-bezier(0,.07,.45,.99);
+            }
+
+            #postit-notification.show-postit:hover {
+                opacity: 1;
+                transition: .2s;
+            }
+
+            #postit-notification.show-postit .postit-body {
+                opacity: .5;
+                transition: .2s;
+            }
+            #postit-notification.show-postit:hover .postit-body {
+                opacity: 1;
+                transition: .2s;
+            }
+
+            #postit-notification.show-postit {
+                opacity: .5;
+                transform: translateX(0);
+                transition: .4s cubic-bezier(0,.07,.45,.99);
+            }
+
+            div.planned {
+                display: flex;
+            }
+
+            img.button_list_vaccine_history {
+                line-height: 1;
+                width: 40px;
+                height: 40px;
+                padding: 8px;
+                box-sizing: border-box;
+                cursor: pointer;
+            }
+
         </style>
 
         <div class="container">
             <template is="dom-if" if="[[SpinnerActive]]"><div id="busySpinner"><div id="busySpinnerContainer"><ht-spinner class="spinner" active></ht-spinner></div></div></template>
+
+            <paper-card id="postit-notification">
+                <paper-button name="closePostit" class="postit-button postit-close" on-tap="closePostit">
+                    <iron-icon class="iron-icon" icon="clear"></iron-icon>
+                </paper-button>
+                <p class="postit-header">[[localize('postit','Post-it',language)]]</p>
+                <paper-button name="editPostit" class="postit-button postit-edit" on-tap="editPostit">
+                    <iron-icon class="iron-icon" icon="create"></iron-icon>
+                </paper-button>
+                <div class="postit-body">
+                    <p>[[postitMsg]]</p>
+                </div>
+            </paper-card>
+
             <paper-item id="savedIndicator">[[localize('sav','SAVED',language)]]
                 <iron-icon icon="icons:check"></iron-icon>
             </paper-item>
             <template is="dom-if" if="[[isAdminSelected(selectedAdminOrCompleteFileIndex)]]">
-                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" cardData="[[cardData]]" on-card-changed="_cardChanged" on-patient-saved="_patientSaved"></ht-pat-admin-card>
+                <ht-pat-admin-card class="second-third-panel" id="pat-admin-card" api="[[api]]" user="[[user]]" patient="{{patient}}" i18n="[[i18n]]" resources="[[resources]]" language="[[language]]" tab-index="[[adminTabIndex]]" cardData="[[cardData]]" on-card-changed="_cardChanged" on-patient-saved="_patientSaved"></ht-pat-admin-card>
             </template>
-            <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            <template is="dom-if" if="[[!leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu" icon="chevron-right" on-tap="_expandColumn"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[leftMenuOpen]]">
+                <paper-icon-button class="display-left-menu open" icon="chevron-left" on-tap="_closeColumn"></paper-icon-button>
+            </template>
+            <paper-tooltip for="pat-close" position="right">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
             <div class="first-panel">
                 <paper-material class="zone compact-menu">
                     <paper-listbox class="padding-0" id="adminFileMenu" selected="{{selectedAdminOrCompleteFileIndex}}" selectable="paper-item">
                         <paper-item id="_admin_info" class="horizontal layout patient-info-container" on-tap="_expandColumn">
                             <paper-fab id="pat-close" class="btn-pat-close" mini icon="close" on-tap="close"></paper-fab>
-                            <paper-tooltip for="pat-close" position="left">[[localize('back_to_pat_list','Back to patients list',language)]]</paper-tooltip>
                             <div class="patient-picture-container"><img src$="[[picture(patient)]]"></div>
                             <div class="patient-info">
                                 <div class="patient-name">[[getGender(patient.gender)]] [[patient.firstName]] [[patient.lastName]]</div>
@@ -1297,11 +1441,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     <paper-fab id="hubStatus" mini icon="hardware:device-hub" on-tap="_openHubDialog"></paper-fab>
                                     <paper-tooltip for="hubStatus">Hub</paper-tooltip>
                                     <paper-fab id="edmgStatus" mini icon="vaadin:clipboard-pulse" on-tap="_openEdmgDialog"></paper-fab>
-                                    <paper-tooltip for="edmgStatus"><div style="min-width: 280px;"><h4>[[localize('edmg','e-DMG',language)]]</h4>
-                                        <template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
-                                            <p>Début: [[_dateFormat(item.startDate)]] - Fin: [[_dateFormat(item.endDate)]] [[item.comment]]</p>
+                                    <paper-tooltip for="edmgStatus">[[localize('edmg','e-DMG',language)]]
+                                        <template is="dom-if" if="[[refPeriods.length]]">
+                                            <div class="edmg-hcps">
+                                                <template is="dom-repeat" items="[[_myReferralPeriods(patient.patientHealthCareParties)]]">
+                                                    <p><span class="ul">[[localize('begin','Begin',language)]]: <b>[[_dateFormat(item.startDate)]]</b> - [[localize('end','End',language)]]: <b>[[_dateFormat(item.endDate)]]</b></span>
+                                                        <template is="dom-if" if="[[item.comment.length]]"><br/><small>[[item.comment]]</small></template>
+                                                    </p>
+                                                </template>
+                                            </div>
                                         </template>
-                                    </div></paper-tooltip>
+                                    </paper-tooltip>
                                     <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet" src="[[_ebmPicture()]]"></paper-fab>
                                     <paper-tooltip for="ebmPracticeNet">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
                                 </div>
@@ -1476,10 +1626,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <paper-listbox id="_contacts_listbox" focused multi toggle-shift selectable="paper-material" selected-values="{{selectedContactIds}}" attr-for-selected="id">
                             <span class="contact-year" on-click="openToast">
                                 <div>[[localize('to_do','To Do',language)]]</div>
-                                <div>
+                                <div class="planned">
                                     <paper-icon-button id="button_list_plan_of_action-eventslgt" icon="history" on-tap="showListPlanOfAction"></paper-icon-button>
                                     <paper-tooltip position="bottom" for="button_list_plan_of_action-eventslgt">[[localize('plan_of_act','Plan of action',language)]]</paper-tooltip>
-                                    <paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>
+                                    <!--<paper-icon-button id="button_list_vaccine_history" icon="maps:local-hospital" on-tap="showVaccineHistory"></paper-icon-button>-->
+                                    <img id="button_list_vaccine_history" class="button_list_vaccine_history" src="./svg/syringe.svg" alt="vaccine-history" on-tap="showVaccineHistory">
                                     <paper-tooltip position="bottom" for="button_list_vaccine_history">[[localize('vacc_his','Vaccine history',language)]]</paper-tooltip>
                                 </div>
                             </span>
@@ -1893,8 +2044,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-dialog>
 
         <paper-dialog id="select-more-options-dialog">
+            <label><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
             <div class="horizontal">
-                <label style="display:flex;"><b>[[localize("slctBtw2Date","Select between 2 dates",language)]]</b></label>
                 <vaadin-date-picker label="[[localize('startDate','Start date',language)]]" i18n="[[i18n]]" value="{{dateStartAsString}}"></vaadin-date-picker>
                 <vaadin-date-picker label="[[localize('endDate','End date',language)]]" i18n="[[i18n]]" value="{{dateEndAsString}}"></vaadin-date-picker>
             </div>
@@ -1909,7 +2060,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-radio-group>
             </div>
             <div class="buttons">
-                <paper-button dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
+                <paper-button class="modal-button--cancel" dialog-dismiss>[[localize('clo','Close',language)]]</paper-button>
             </div>
         </paper-dialog>
         <ht-pat-list-plan-dialog id="listActions" api="[[api]]" user="[[user]]" resources="[[resources]]" language="[[language]]" i18n="[[i18n]]" contacts="[[contacts]]" on-open-action="openActionDialog"></ht-pat-list-plan-dialog>
@@ -2241,16 +2392,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type:Boolean,
                         value: false
                     },
+                    postitMsg: {
+                        type:String,
+                        value: null
+                    },
+                    adminTabIndex: {
+                        type: Number,
+                        value: 0
+                    },
                     cardData:{
                         type: Object,
                         value: {},
                         observer : "cardDataChanged"
+                    },
+                    leftMenuOpen:{
+                        type: Boolean,
+                        value: false
+                    },
+                    socket : {
+                        type : Object,
+                        value: {}
+                    },
+                    refPeriods: {
+                        type: Array,
+                        value: []
                     }
                 };
             }
 
             static get observers() {
-                return ['patientOpened(patient.id,api,user)', 'patientChanged(api,user,patient)', 'selectedHealthcareElementsSpliced(selectedHealthcareElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
+                return ['patientOpened(patient.id,api,user)', 'postitChanged(postitMsg)', 'patientChanged(api,user,patient)', 'selectedHealthcareElementsSpliced(selectedHealthcareElements.splices)', 'selectedContactIdsChanged(selectedContactIds.*)'];
             }
 
             constructor() {
@@ -2945,8 +3116,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$.savedIndicator.classList.add("saved");
             }
 
-            saveContact(ctc) {
-                return (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
+            saveContact(ctc, ps) {
+                return (ps ? ps() : Promise.resolve()).finally(() => (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
                     ctc.rev = c.rev;
                     console.log("contact saved: " + ctc.id + ":" + ctc.rev);
 
@@ -2955,7 +3126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this._refreshFromServices()
 
                     return c;
-                });
+                }))
             }
 
             saveCurrentContact() {
@@ -2963,13 +3134,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _saveContact(event) {
-                this.saveContact(event.detail);
+                this.saveContact(event.detail.contact, event.detail.preSave);
             }
 
             filterEvents() {
                 const filteredEvents = this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE')).filter(s => s.tags.some(t => t.type === 'CD-LIFECYCLE' && (t.code === 'planned' || t.code === 'pending')))
                 this.set('events', _.sortBy(filteredEvents, it => this.api.moment(it.valueDate)));
-                const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
+                /*const age = moment().diff(this.api.moment(this.patient.dateOfBirth),'years')
                 if(age>=25 && age<=65 && this.patient.gender==="female" &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(3,"years")) && s.codes.some(c => c.code==="X37.002")).length){//frottis de col pour dépistage
                     this.createEvent("BE-THESAURUS-PROCEDURES|X37.002|3.1.0");
@@ -2981,7 +3152,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(age>=50 && age<=74 &&
                     !this.api.contact().filteredServices(this.contacts, s => s.tags.some(t => t.type === 'CD-LIFECYCLE') && this.api.moment(s.valueDate).isSameOrAfter(moment().subtract(2,"years")) && s.codes.some(c => c.code==="D36.002")).length){//recherche de sang occulte dans les selles
                     this.createEvent("BE-THESAURUS-PROCEDURES|D36.002|3.1.0")
-                }
+                }*/
             }
 
             _lateEventCssClass(e) {
@@ -3078,12 +3249,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set('selectedContactIds', [])
 
                 this.set('currentContact', null)
+
+                this.set('adminTabIndex',0);
                 if (this.api && this.user && this.patient) {
                     this.refreshPatient()
                 }
 
                 let cfp = Polymer.dom(this.root).querySelector("#contactFilterPanel"); cfp && cfp.reset();
-
+                this.set('refPeriods', patient && this._myReferralPeriods(patient.patientHealthCareParties) || [])
             }
 
 
@@ -3125,6 +3298,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this.set('risks', (this.risks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && (c.code === 'risk' || c.code === 'socialrisk'))))
                     this.set('familyrisks', (this.familyrisks || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'familyrisk')))
                     this.set('surgicalHealthElements', (this.surgicalHealthElements || []).concat(svcHes).filter(it => (it.status & 2) === 0 && it.tags.find(c => c.type === 'CD-ITEM' && c.code === 'surgery')))
+                    this.filterEvents()
                 }
             }
 
@@ -3134,9 +3308,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const now = moment()
 
                 const currentlySelectedContactsIds = (this.selectedContactIds || []).map(id => id && id.substr(4) /* format is ctc_... see DOM */)
+                this.set('postitMsg',this.patient.note)
                 //console.log("Before load "+(+new Date() - start))
                 Promise.all([this.api.contact().findBy(this.user.healthcarePartyId, patient).then(ctcs => ctcs.map(ctc => this.api.register(ctc, 'contact'))), this.api.helement().findBy(this.user.healthcarePartyId, patient, true)]).then(([ctcs, allHes]) => {
                     //console.log("After load "+(+new Date() - start))
+
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
@@ -3160,10 +3336,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                         const oneWeekAgo = moment().subtract(7, 'days')
                         this.set('medications', _.sortBy(hesAsServices.filter(s =>
-                            s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMoment && this.api.moment(c.medicationValue.endMoment).isBefore(oneWeekAgo)))
-                        ).map(m =>
-                            Object.assign(m, {colour: `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}`})), sorter)
-                        )
+                            s.tags.some(c => c.type === 'CD-ITEM' && c.code === 'medication' && !_.values(s.content).some(c => c && c.medicationValue && c.medicationValue.endMomentAsString && this.api.moment(c.medicationValue.endMomentAsString).isBefore(oneWeekAgo)))
+                        ).map(m => {
+                            return Object.assign(m, {
+                                colour: m.codes && m.codes.length && `ATC--${((m.codes.find(c => c.type === 'CD-ATC') || {code: 'V'}).code || 'V').substr(0, 1)}` || ""
+                            })
+                        }), sorter))
 
                         const combinedHes = _.sortBy(_.concat(svcHes, hes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
                         const combinedHesWithHistory = _.sortBy(_.concat(svcHes, allHes.filter(it => it.descr && !it.descr.startsWith('Etat g') && !it.descr.startsWith('Algemeen t') && it.descr !== 'INBOX')), sorter)
@@ -3235,7 +3413,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         Promise.all(unclosedContacts.map(unclosedContact => {
                             return (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
                                 this.api.contact().modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate: parseInt(moment().format('YYYYMMDDHHmmss'))}))
-                                    .then(() => null)
+                                    .then(() => null).catch(() => null)
                                 : Promise.resolve(unclosedContact)})
                         )
                         .then(ctcs =>
@@ -3283,6 +3461,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 return acc
                             }, {})
 
+                            const noCodeMedications = this.medications.filter(m => !m.codes || !m.codes.length).map(m => {
+                                const medValue = this.api.contact().medicationValue(m)
+                                const codes = (medValue && medValue.medicinalProduct && medValue.medicinalProduct.intendedcds || []).reduce((map, cds) => (cds.code && cds.type && map.concat([{code: cds.code, type: cds.type, version: "1"}]) || map), [])
+                                return Object.assign(m, { codes })
+                            })
+
+                            if(noCodeMedications && noCodeMedications.length) {
+                                this._updateServices( {detail: {services: noCodeMedications}} )
+                            }
+
                             console.log("Before ctcs years"+(+new Date() - start))
 
                             this.set('contactYears', _.sortBy(_.values(_.reduce(this.contacts, (acc, ctc) => {
@@ -3318,6 +3506,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                         pm.classList.add('iron-selected')
                                     }
                                 }), 0)
+
+
                         })
                     }) // icc contact then end
 
@@ -3518,16 +3708,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 if(!this.hubSupportsConsent){
                     this.$.hubStatus.classList.add('accessOk');
                 } else {
-                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error));
-                    this._getHubHcpConsent().then(consentResp => {
-                            if (consentResp) {
-                                this.set('hcpHubConsent', consentResp)
-                                hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
-                                this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
-                                Polymer.updateStyles(this.$.hubStatus)
+                    this.$.patHubDialog.putHubPatient().then(hubPat => this.set('putPatientResult', hubPat)).catch(error=> console.log(error)).then(() => {
+                        this._getHubHcpConsent().then(consentResp => {
+                                if (consentResp) {
+                                    this.set('hcpHubConsent', consentResp)
+                                    hcpHubCons = (consentResp.author && consentResp.author.hcparties[0])
+                                    this.$.hubStatus.classList.add(hcpHubCons ? 'accessOk' : 'noAccess');
+                                    Polymer.updateStyles(this.$.hubStatus)
+                                }
                             }
-                        }
-                    )
+                        )
+                    })
                 }
             }
 
@@ -3875,7 +4066,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             isAdminSelected(el) {
-                return el === 0;
+                if(el === 0) {
+                    this.closePostit()
+                    return true;
+                }else {
+                    if(this.patient){
+                        this.set('postitMsg',this.patient.note)
+                    }
+                    return false;
+                }
             }
 
             highlightedServiceLabels(user) {
@@ -3913,7 +4112,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             shortServiceDescription(svc, lng) {
                 let rawDesc
-                console.log(svc)
                 if(svc && svc.tags && svc.tags.some(t => t.type == "SOAP" && t.code == "Plan")) {
                     rawDesc = svc.content && svc.content.descr && svc.content.descr.stringValue || ""
                 }else {
@@ -4173,13 +4371,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _expandColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.toggle('open');
-                this.root.querySelector('.container').classList.toggle('expanded');
+                this.set('leftMenuOpen',true)
+                this.root.querySelector('.container').classList.add('expanded');
                 this._updateFilterPanels();
             }
             _closeColumn(e) {
-                this.root.querySelector('.display-left-menu').classList.remove('open');
+                this.set('leftMenuOpen',false)
                 this.root.querySelector('.container').classList.remove('expanded');
+                this._updateFilterPanels();
             }
 
             _concat(a, b, c, d, e) {
@@ -4373,6 +4572,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$["planActionForm"].open(e.detail.service,lifecycle.code === "cancelled" || lifecycle.code === "completed")
             }
 
+
+
+            postitChanged(value) {
+                const trimmedValue = value && value.trim()
+                if(trimmedValue && trimmedValue.length) {
+                    this.$["postit-notification"].classList.add('show-postit')
+                }else {
+                    this.closePostit()
+                }
+            }
+
+            editPostit() {
+                this.set('adminTabIndex',3);
+                this.set('selectedAdminOrCompleteFileIndex',0);
+            }
+
+            closePostit() {
+                this.$["postit-notification"].classList.remove('show-postit')
+            }
+
             createEvent(codeId){
                 this.api.code().getCode(codeId).then(procedure =>{
                     const service = {
@@ -4442,6 +4661,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.set("cardData",e.detail.cardData)
             }
 
+            setSocket(){
+                if(!this.socket)return;
+                this.socket.on("auto-read-card-eid",cards =>{
+                    const res = JSON.parse(cards)
+                    if (res.cards[0] && this.patient.ssin===res.cards[0].nationalNumber) {
+                        this.set('cardData',res.cards[0])
+                        this.set("eidCardNumber",this.cardData.logicalNumber)
+                        if(!this.haveTherLinks){
+                            this._registerNationalAndHubTherLink();
+                        }
+                    }
+                })
+            }
         }
 
         customElements.define(HtPatDetail.is, HtPatDetail);

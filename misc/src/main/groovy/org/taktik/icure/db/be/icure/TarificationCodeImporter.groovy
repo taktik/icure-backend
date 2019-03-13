@@ -483,7 +483,7 @@ class TarificationCodeImporter extends Importer {
             valTypes.forEach { k, v ->
                 def frt = (Normalizer.normalize(v.fr, Normalizer.Form.NFD).replaceAll(/\p{InCombiningDiacriticalMarks}+/, "").toLowerCase())
                         .replaceAll(/[^a-z0-9]+/, "_")
-                        .replaceAll("(honoraires?|rembour?sement|intervention|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
+                        .replaceAll("(honoraires?|rembour?sement|intervention(?:.+l_assurance)?|montant_de_l_de_l_assurance_|montant_+de_+l_+de_+l_+assurance|montant_de_l_indemnite|part_personnelle_|beneficiaires?)_?", "")
                         .replaceAll("_pour_prestation_dans_categorie.+", "").replaceAll("__+", "_")
                         .replaceAll("__+", "_").replaceAll("__+", "_").replaceAll("__+", "_")
 
