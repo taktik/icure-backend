@@ -121,7 +121,7 @@
                     min-width: 0!important;
                     max-height: none !important;
                     max-width: none !important;
-                    height: calc(100vh - 64px)!important;
+                    height: calc(100vh - 84px)!important;
                     width: 100%;
                     margin: 0;
                     top: 64px!important;
@@ -593,11 +593,6 @@
             planAction() {
                 console.log('planAction',this.plannedAction)
                 if (this.plannedAction && this.plannedAction.ProcedureId && this.plannedAction.Status !== '') {
-                    // if(!(this.plannedAction.ProfessionId && this.plannedAction.ProfessionId.match(new RegExp('^.+\|.+\|.+$')))){
-                    //     console.log('Procédure incorrecte !');
-                    //     this.set('errMsg',this.localize('proc_error','Procédure incorrecte',this.language))
-                    //     return;
-                    // }
                     const tabProfession = this.plannedAction.ProfessionId ? this.plannedAction.ProfessionId.split("|") : []
                     Promise.all(
                         [

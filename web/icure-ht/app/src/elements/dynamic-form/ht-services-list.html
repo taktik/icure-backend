@@ -136,6 +136,12 @@ class HtServicesList extends Polymer.TkLocalizerMixin(Polymer.Element) {
         super();
     }
 
+    ready() {
+        super.ready()
+
+        this._notifyResize()
+    }
+
     _services(contacts) {
         return _.sortBy(_.flatMap(contacts, c => c.services), ['modified']);
     }
@@ -160,6 +166,13 @@ class HtServicesList extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
     _shortDescription(svc) {
         return this.api.contact().shortServiceDescription(svc, this.language);
+    }
+
+    _notifyResize() {
+        const grid = this.$['dynamic-list']
+        if (grid) {
+            grid.notifyResize()
+        }
     }
 
 }

@@ -60,6 +60,7 @@
 				line-height: 0.5;
 				text-align: center;
 				height: 18px;
+                overflow-x: hidden;
 			}
 			.fancy span {
 				display: inline-block;
@@ -205,8 +206,9 @@
                 super();
             }
 
-            detached() {
-                this.flushSave();
+            disconnectedCallback() {
+                this.flushSave()
+                super.disconnectedCallback()
             }
 
             _dateFormat(date) {
@@ -418,9 +420,8 @@
                     clearTimeout(this.saveTimeout);
                 }
                 this.saveAction = () => {
-                    this.dataProvider.computeFormulas(['OnSave']).then(
-						() => this.dispatchEvent(new CustomEvent('must-save-contact', {detail: ctc, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
-					)
+                    console.log("Saving...")
+                    this.dispatchEvent(new CustomEvent('must-save-contact', {detail: {contact: ctc, preSave: () => this.dataProvider.computeFormulas(['OnSave'])}, bubbles: true, composed: true})) //Must be fired before the end of the save otherwise the element won't exist anymore and the event will not bubble up
                 };
                 this.saveTimeout = setTimeout(this.saveAction, 10000);
             }
@@ -574,9 +575,13 @@
                         return svc;
                     },
                     promoteOrCreateService: (label, formId, poaIds, heIds, init) => {
-                        const s = self.getServiceInContact(label);
+                        let s = self.getServiceInContact(label);
                         if (!this.currentContact) {
                             return s && s.svc;
+                        }
+                        if (s) {
+                            //Make sure we have exactly the one that is in currentContact if it exists
+                            s.svc = s.svc && (this.currentContact.services.find(ss => ss.id === s.svc.id) || s.svc) || null
                         }
                         return s && s.svc && (s.ctc.id === this.currentContact.id ? initWrapper(label, init)(s.svc) : self.dispatchService(this.promoteServiceInCurrentContact(s.svc, formId, poaIds, heIds, initWrapper(label, init)))) || self.dispatchService(this.createService(label, formId, poaIds, heIds, null, initWrapper(label, init)));
                     },
@@ -821,7 +826,7 @@
                                 sl[0].svc.content = {};
                                 sl[0].svc.endOfLife = +new Date() * 1000;
                             } else {
-                                (this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
+                                ;(this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
                                     content: {},
                                     endOfLife: +new Date() * 1000
                                 })));
@@ -855,7 +860,7 @@
                                 sl[0].svc.content = {};
                                 sl[0].svc.endOfLife = +new Date() * 1000;
                             } else {
-                                (this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
+                                ;(this.currentContact.services || (this.currentContact.services = [])).push(self.dispatchService(_.extend(_.cloneDeep(sl[0].svc), {
                                     content: {},
                                     endOfLife: +new Date() * 1000
                                 })));
@@ -881,8 +886,8 @@
                                     formTemplateId: formTemplates[0].id,
                                     parent: form.id
                                 }).then(f => this.api.form().createForm(f)).then(f => {
-                                    f.template = formTemplates[0]; //Important
-                                    (form.children || (form.children = [])).push(f);
+                                    f.template = formTemplates[0]
+                                    ;(form.children || (form.children = [])).push(f);
                                     this.currentContact.subContacts.push({formId: f.id, descr: key, services: []});
 
                                     this.root.querySelector('#dynamic-form').notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
@@ -1008,7 +1013,7 @@
                     .forEach(svc => {
                         this.promoteServiceInCurrentContact(svc.svc, this.form.id, null, [he.id], null);
                     });
-                this.scanServicesAndScheduleSave(this.currentContact);
+                this.scanServicesAndScheduleSave(this.currentContact);servicesMap
             }
 
             //Returns an array of arrays of svcStructs (a svcStruct is a map with the ctc, the svc and the subContacts this svc belongs to). All svcStructs in the second array share the same svc id
@@ -1029,8 +1034,8 @@
                 if (!this.currentContact) {
                     return null;
                 }
-                const svc = this.api.contact().service().newInstance(this.user, serviceId ? {id: serviceId, label: label} : {label: label});
-                (this.currentContact.services || (this.currentContact.services = [])).push(svc);
+                const svc = this.api.contact().service().newInstance(this.user, serviceId ? {id: serviceId, label: label} : {label: label})
+                ;(this.currentContact.services || (this.currentContact.services = [])).push(svc);
 
                 let sc = this.currentContact.subContacts.find(sc => sc.formId === formId);
                 if (!sc) {

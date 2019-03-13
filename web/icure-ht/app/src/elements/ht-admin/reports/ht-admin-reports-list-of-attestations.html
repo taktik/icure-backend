@@ -55,46 +55,137 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             .list-of-attestations{
-                height: 100%;
+                display: flex;
+                flex-direction: column;
+                height: calc(100vh - 64px); /* all height less header */
                 width: 100%;
                 padding: 0 20px;
                 box-sizing: border-box;
                 position:relative;
             }
 
+            div.row {
+                display: flex;
+                flex-direction: row;
+            }
+
+            div.col {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .settings-row {
+                padding: 0 0 16px 0;
+            }
+            .date-pickers {
+                min-width: 40%;
+            }
+            .date-pickers > .row {
+                width: 100%;
+            }
+            .date-pickers > .row > * {
+                flex-grow: 1;
+            }
+            .top-row vaadin-form-item {
+                padding-right: 8px;
+            }
+            .full-width {
+                width: 100%;
+                padding-right: 16px;
+                box-sizing: border-box;
+            }
+            .filter-container {
+                background: var(--app-background-color-dark);
+                flex-grow: 1;
+                padding: 16px;
+                box-sizing: border-box;
+                border-radius: 8px;
+                justify-content: center;
+            }
+            .filter-list {
+                justify-content: space-around;
+            }
+            .filter-list > .col {
+                flex-grow: 1;
+                justify-content: space-around;
+            }
+            #invoiceGrid {
+                flex-grow: 1;
+            }
+            .last-line {
+                justify-content: space-between;
+                padding: 16px 0;
+            }
+
+            .anon-checkbox {
+                padding-top: 12px;
+            }
+            .modal-button {
+                background: var(--app-secondary-color);
+                margin: 0;
+                box-shadow: var(--app-shadow-elevation-1);
+            }
+
+            @media screen and (max-width: 1025px) {
+                .list-of-attestations {
+                    display: block;
+                    width: 100vw;
+                    overflow-y: auto;
+                }
+                .row.responsive {
+                    flex-direction: column;
+                }
+                .date-pickers {
+                    width: initial;
+                }
+            }
+
         </style>
 
         <div class="list-of-attestations">
             <h4>[[localize('rap_att_list', 'Rapports - List of attestations', language)]]</h4>
-            <vaadin-form-layout>
-                <vaadin-form-item  colspan="1">
-                    <vaadin-date-picker id="date-picker" label="De" value="{{dateFrom}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
-                </vaadin-form-item >
-                <vaadin-form-item  colspan="1">
-                    <vaadin-date-picker id="date-picker" label="A" value="{{dateTo}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
-                </vaadin-form-item >
-                <vaadin-form-item  colspan="2">
-                    <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" on-value-changed="filterInvoiceList" selected-item="{{selectedHcpItem}}" label="Prestataire" readonly="[[readonly]]"></vaadin-combo-box>
-                </vaadin-form-item>
-            </vaadin-form-layout>
-
-            <vaadin-checkbox checked="{{invoiceType_mutualfund}}">Mutuelle</vaadin-checkbox>
-            <vaadin-checkbox checked="{{invoiceType_patient}}">Patient</vaadin-checkbox>
-            <vaadin-checkbox checked="{{invoiceType_others}}">Autres Organismes</vaadin-checkbox>
-
-            <vaadin-checkbox checked="{{sentMediumType_eattest}}">e-Attest</vaadin-checkbox>
-            <vaadin-checkbox checked="{{sentMediumType_efact}}">e-Fact</vaadin-checkbox>
-            <vaadin-checkbox checked="{{sentMediumType_mediprima}}">Mediprima</vaadin-checkbox>
-            <vaadin-checkbox checked="{{sentMediumType_paper}}">Papier</vaadin-checkbox>
-
-            <vaadin-checkbox checked="{{paymentType_cash}}">Especes</vaadin-checkbox>
-            <vaadin-checkbox checked="{{paymentType_debitcard}}">Carte debit</vaadin-checkbox>
-            <vaadin-checkbox checked="{{paymentType_creditcard}}">Carte credit</vaadin-checkbox>
-            <vaadin-checkbox checked="{{paymentType_wired}}">Virement</vaadin-checkbox>
+            <div class="row responsive settings-row">
+                <div class="col date-pickers">
+                    <div class="row responsive top-row">
+                        <vaadin-form-item  colspan="1">
+                            <vaadin-date-picker id="date-picker" class="full-width" label="[[localize('from','From',language)]]" value="{{dateFrom}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                        </vaadin-form-item >
+                        <vaadin-form-item  colspan="1">
+                            <vaadin-date-picker id="date-picker" class="full-width" label="[[localize('to','To',language)]]" value="{{dateTo}}" i18n="[[i18n]]" on-value-changed="_checkIsDeadline"></vaadin-date-picker>
+                        </vaadin-form-item >
+                    </div>
+                    <div class="row responsive">
+                        <vaadin-form-item  colspan="2">
+                            <vaadin-combo-box class="full-width" filtered-items="[[hcpListItem]]" id="hcp-list" item-label-path="name" item-value-path="id" on-filter-changed="_hcpFilterChanged" on-value-changed="filterInvoiceList" selected-item="{{selectedHcpItem}}" label="Prestataire" readonly="[[readonly]]"></vaadin-combo-box>
+                        </vaadin-form-item>
+                    </div>
+                </div>
+                <div class="col filter-container">
+                    <div class="row filter-list">
+                        <div class="col">
+                            <vaadin-checkbox checked="{{invoiceType_mutualfund}}">[[localize('inv_mut','Mutual',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{invoiceType_patient}}">[[localize('inv_pat','Patient',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{invoiceType_others}}">[[localize('oth_orgs','Other organisms',language)]]</vaadin-checkbox>
+                        </div>
+                        <div class="col">
+                            <vaadin-checkbox checked="{{sentMediumType_eattest}}">e-Attest</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{sentMediumType_efact}}">e-Fact</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{sentMediumType_mediprima}}">Mediprima</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{sentMediumType_paper}}">[[localize('paper','Paper',language)]]</vaadin-checkbox>
+                        </div>
+                        <div class="col">
+                            <vaadin-checkbox checked="{{paymentType_cash}}">[[localize('cash','Cash',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{paymentType_debitcard}}">[[localize('card_flow','Flow card',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{paymentType_creditcard}}">[[localize('card_credit','Credit card',language)]]</vaadin-checkbox>
+                            <vaadin-checkbox checked="{{paymentType_wired}}">[[localize('transfer','Transfert',language)]]</vaadin-checkbox>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <vaadin-grid id="invoiceGrid" class="material" items="[[filteredInvoiceItems]]" active-item="{{selectedInvoice}}">
 
-                <vaadin-grid-column flex-grow="0" width="5%">
+                <vaadin-grid-column flex-grow="0" width="46px">
                     <template class="header">
                         <vaadin-checkbox checked$="[[allSelected]]" on-tap="_toggleSelectAll"></vaadin-checkbox>
                     </template>
@@ -104,7 +195,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Prestataire
+                        [[localize('persphysicianRole','Persphysician',language)]]
                     </template>
                     <template>
                         <div>[[item.author]]</div>
@@ -112,7 +203,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Date
+                        [[localize('dat','Date',language)]]
                     </template>
                     <template>
                         <div>[[item.date]]</div>
@@ -120,7 +211,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Patient
+                        [[localize('inv_pat','Patient',language)]]
                     </template>
                     <template>
                         <div>[[item.patient]]</div>
@@ -128,7 +219,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        N° d'attestation
+                        [[localize('cert_num','Certificate n°',language)]]
                     </template>
                     <template>
                         <div>[[item.invoiceReference]]</div>
@@ -144,7 +235,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Mutuelle
+                        [[localize('inv_mut','Mutual',language)]]
                     </template>
                     <template>
                         <div>[[item.insurance]]</div>
@@ -152,7 +243,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Type de facturation
+                        [[localize('fac_type','Billing type',language)]]
                     </template>
                     <template>
                         <div>[[item.invoiceType]]</div>
@@ -170,7 +261,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 -->
                 <vaadin-grid-column>
                     <template class="header">
-                        Mode facturation
+                        [[localize('fac_mode','Billing mode',language)]]
                     </template>
                     <template>
                         <div>[[item.paymentType]]</div>
@@ -178,7 +269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Espèces
+                        [[localize('cash','Cash',language)]]
                     </template>
                     <template>
                         <div>[[item.cash]]</div>
@@ -186,7 +277,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Carte debit
+                        [[localize('card_flow','Flow card',language)]]
                     </template>
                     <template>
                         <div>[[item.debitCard]]</div>
@@ -194,7 +285,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Carte crédit
+                        [[localize('card_credit','Credit card',language)]]
                     </template>
                     <template>
                         <div>[[item.creditCard]]</div>
@@ -202,7 +293,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Virement
+                        [[localize('transfer','Transfert',language)]]
                     </template>
                     <template>
                         <div>[[item.wired]]</div>
@@ -210,16 +301,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </vaadin-grid-column>
                 <vaadin-grid-column>
                     <template class="header">
-                        Montant total
+                        [[localize('tot_amount','Total amount',language)]]
                     </template>
                     <template>
                         <div>[[item.totalAmount]]</div>
                     </template>
                 </vaadin-grid-column>
             </vaadin-grid>
-
-            <vaadin-checkbox checked="{{isExportAnonyme}}">Export Anonyme</vaadin-checkbox>
-            <paper-button on-tap="exportToCsv" class="modal-button">Exporter</paper-button>
+            <div class="row last-line">
+                <vaadin-checkbox class="anon-checkbox" checked="{{isExportAnonyme}}">[[localize('anon_export','Anonymous export',language)]]</vaadin-checkbox>
+                <paper-button on-tap="exportToCsv" class="modal-button">[[localize('export','Export',language)]]</paper-button>
+            </div>
         </div>
 
     </template>

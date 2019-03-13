@@ -72,6 +72,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				type: Object,
 				notify: true
 			},
+			prevHcp: {
+				type: Boolean,
+				value: false,
+			},
             hcpMap: {
                 type: Object,
                 notify: true
@@ -114,16 +118,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	}
 
 	hcpFormChanged() {
-		/*if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
+		if (this.hcpForm && this.addressForm && this.telecomForm  && this.medicalHouseContractsForm) {
 			this.set('combinedForm', this.hcpForm);
-		}*/
+		}
 	}
 
 	hcpChanged() {
 		if (this.api && this.user && this.hcp) {
-            this.set('hcpForm', require((this.hcp && this.hcp.type && this.hcp.type.toLowerCase()==="medicalhouse")? "./rsrc/MedicalHouseHcpAdministrativeForm.json" : "./rsrc/HcpAdministrativeForm.json"));
-            this.api.getRegistry('hcp').listeners['ht-hcp-admin'] = {target: this, pool: [this.hcp.id]}
-			this.flushSave();
+			this.set('hcpForm', require((this.hcp && this.hcp.type && this.hcp.type.toLowerCase()==="medicalhouse")? "./rsrc/MedicalHouseHcpAdministrativeForm.json" : "./rsrc/HcpAdministrativeForm.json"));
+            this.api.getRegistry('hcp').listeners['ht-hcp-admin'] = {target: this, pool: [this.hcp.id], callbacks: [() => this.hcpChanged()]}
+			// this.flushSave();
             this.api.code().getCodes(this.hcp.languages.map(l=>'ISO-639-1|'+l+'|1').join(',') || "ISO-639-1|en|1").then( codes => {
                 this.set('dataProvider', this.hcpDataProvider(this.hcp, '', this.hcp && this.hcp.id,codes));
                 this.set("hcpMap", _.cloneDeep(this.hcp));
@@ -137,18 +141,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 		}
 	}
 
-	scheduleSave(hcp) {
+	scheduleSave() {
 		if (this.saveTimeout) {
 			clearTimeout(this.saveTimeout);
 		}
-		this.saveAction = function () {
-			this.api.hcparty().modifyHealthcareParty(this.hcp || hcp)
-				.then(hcp => this.api.register(hcp,"hcp"))
-				.then(h => this.hcp.rev = h.rev)
-				.catch(e => this.api.hcparty().getHealthcareParty((this.hcp && this.hcp.id) || (hcp && hcp.id))
-					.then(p => this.hcp = this.api.register(p, 'hcp')))
+		this.saveAction = () => {
+			this.api.hcparty().modifyHealthcareParty(this.hcp)
+				.catch(e => this.api.hcparty().getHealthcareParty((this.hcp && this.hcp.id) || (hcp && hcp.id)))
+				.then(p => this.api.register(p,"hcp"))
 				.finally( () => this.dispatchEvent(new CustomEvent("hcp-saved",{ detail: {hcp : this.hcp},params: null})));
-		}.bind(this);
+		};
 		this.saveTimeout = setTimeout(this.saveAction, 10000);
 	}
 
@@ -197,8 +199,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				});
 			}.bind(this),
             addSubForm: function (key, guid){
-                this.flushSave(); //Important
-                (root[key] || (root[key] = [])).push({});
+                this.flushSave()
+                ;(root[key] || (root[key] = [])).push({});
                 this.$[this.root.activeElement.id].notify((rootPath.length ? rootPath + '.' : '') + key + '.*');
                 this.scheduleSave(this.hcp);
 

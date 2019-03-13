@@ -33,9 +33,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             .container {
                 width: 100%;
-                height: calc(100vh - 64px);
+                height: calc(100vh - 64px - 20px);
                 display:grid;
-                grid-template-columns: 16% 84%;
+                grid-template-columns: 20% 80%;
                 grid-template-rows: 100%;
                 position: fixed;
                 top: 64px;
@@ -102,11 +102,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             @media screen and (max-width:1025px){
                 .container{
-                    grid-template-columns: 0 40% 60%;
+                    grid-template-columns: 0 100%;
 
                 }
                 .container.expanded {
-                    grid-template-columns: 20% 30% 50%;
+                    grid-template-columns: 20% 80%;
                 }
                 .sub-container {
                     left: 0%;
@@ -154,6 +154,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ht-admin-detail.selected {
                     transform: none;
                     opacity: 1;
+                }
+
+                ht-admin-account {
+                    grid-column: 2 / span 1;
+                    grid-row: 1 / span 1;
                 }
             }
 

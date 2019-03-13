@@ -135,14 +135,12 @@ public class DocumentLogicImpl extends GenericLogicImpl<Document, DocumentDAO> i
 	public void solveConflicts(List<String> ids) {
 		List<Document> documentsInConflict = ids == null ? documentDAO.listConflicts().stream().map(it -> documentDAO.get(it.getId(), Option.CONFLICTS)).collect(Collectors.toList()) : ids.stream().map(it -> documentDAO.get(it, Option.CONFLICTS)).collect(Collectors.toList());
 		documentsInConflict.forEach(doc -> {
-			List<Document> conflicted = Arrays.stream(doc.getConflicts()).map(c -> documentDAO.get(doc.getId(), c)).collect(Collectors.toList());
-			conflicted.forEach(cp -> {
-				doc.solveConflictWith(cp);
-			});
-			documentDAO.save(doc);
-			conflicted.forEach(cp -> {
-				documentDAO.purge(cp);
-			});
+			if (doc != null && doc.getConflicts() != null) {
+				List<Document> conflicted = Arrays.stream(doc.getConflicts()).map(c -> documentDAO.get(doc.getId(), c)).collect(Collectors.toList());
+				conflicted.forEach(doc::solveConflictWith);
+				documentDAO.save(doc);
+				conflicted.forEach(cp -> documentDAO.purge(cp));
+			}
 		});
 
 	}
