@@ -449,7 +449,7 @@
                     height: calc(100vh - 64px) !important; /* 64 = app-header */
                     width: 100% !important;
                 }
-                
+
                 .floating-action-bar paper-button {
                     min-width: 0 !important;
                 }
@@ -930,7 +930,7 @@
 	}
 
 			static get observers() {
-				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_servicesFilter(serviceFilters)','_allContactsChanged(allContacts.*, currentContact._rev)'];
+				return ['ifRecipeAvailable(user)','_filesChanged(files.*)','_servicesFilter(serviceFilters)','_allContactsChanged(allContacts.*, currentContact, currentContact._rev)'];
 			}
 
 			constructor() {
@@ -943,7 +943,7 @@
                     this.set('globalHcp',tempHcp)
                 })
             }
-            
+
             _servicesFilter() {
                 if(!this.contacts) {
                     return;
@@ -952,20 +952,20 @@
                 if(!this.serviceFilters || !this.serviceFilters.length) {
                     this.set('filteredServiceIds',[]);
                     this._contactsChanged()
-                    return 
+                    return
                 }
-                
+
                 const filterCodesByType = {}
                 _.flatten(this.serviceFilters).forEach( filter => {
                     const codesArray = filterCodesByType[filter.type] || []
                     filterCodesByType[filter.type] = codesArray.concat(filter.code)
                 })
-                
-                this.set('filteredServiceIds',_.flatten(this.contacts.map( contact => 
-                    (contact.services.filter( service => 
-                        service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code) ) && 
+
+                this.set('filteredServiceIds',_.flatten(this.contacts.map( contact =>
+                    (contact.services.filter( service =>
+                        service.tags.some( tag => filterCodesByType[tag.type] && filterCodesByType[tag.type].includes(tag.code) ) &&
                         Object.values( this.api.contact().preferredContent(service, this.language) || {} ).some(value => value)
-                    ) || []).map(service => 
+                    ) || []).map(service =>
                         service.id
                     )
                 )))
@@ -1213,7 +1213,7 @@
                         })
                     }
                 }
-                
+
             }
 
 			hideAll() {
@@ -1408,8 +1408,8 @@
 
                 const seenForms = {}
                 const formGroups = this.contacts.reduce((contacts, contact) => {
-                    
-                    const forms = ((this.serviceFilters && this.serviceFilters.length ? 
+
+                    const forms = ((this.serviceFilters && this.serviceFilters.length ?
                     contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) && sc.services.some( s => this.filteredServiceIds.find(fsId => fsId === s.serviceId))):
                     contact.subContacts.filter(sc => !(sc.formId && seenForms[sc.formId]) ))|| [])
                     .map(sc => {
@@ -1422,9 +1422,9 @@
 
                     const docIds = _.flatMap(forms, f => f.docs.map(d => d.id))
 
-                    const unmappedServices = this.serviceFilters && this.serviceFilters.length ? 
+                    const unmappedServices = this.serviceFilters && this.serviceFilters.length ?
                     _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) && this.filteredServiceIds.some(fsId => fsId === svc.id) ), 'created'):
-                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) ), 'created')  
+                    _.sortBy(contact.services.filter(svc => !docIds.includes(svc.id) && !contact.subContacts.some(sc => sc.formId && sc.services.some(ssc => ssc.serviceId === svc.id)) ), 'created')
 
                     if((forms && forms.length) || (unmappedServices && unmappedServices.length)) {
                         contacts.push({
