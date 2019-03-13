@@ -208,7 +208,7 @@
         import mustache from "mustache/mustache.js";
         import moment from 'moment/src/moment';
 
-        class HtPatPrescriptionDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
+        class HtPatPrescriptionDialog extends Polymer.TkLocalizerMixin(Polymer.Element) {
 
             static get is() {
                 return 'ht-pat-prescription-dialog';
@@ -259,14 +259,14 @@
             static get observers() {
 				return ['_setPrintSize(selectedFormat)','_currentContactChanged(currentContact, currentContact.*)'];
 			}
-
-            static get observers() {
-                return [];
+            
+            constructor() {
+                super();
             }
 
             ready() {
                 super.ready();
-                this.set('selectedFormat', localStorage.getItem('prefillFormat') || 'A4')
+                this.set('selectedFormat', localStorage.getItem('prefillFormat') || 'presc')
             }
 
             open() {
@@ -276,6 +276,10 @@
             _columnName(idx) {
 				return `#${idx + 1}`;
 			}
+
+            _setPrintSize(selectedFormat) {
+                localStorage.setItem('prefillFormat', selectedFormat)
+            }
 
             _drugsAlreadyPrescribed() {
 				return this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
@@ -379,10 +383,7 @@
 				})
 				this.$.loading.close();
 			} // print end
-
-            _localize(a,b,c) {
-                return app.localize(a,b,c)
-            }
+            
 			_formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rid) {
                 
 				// console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
@@ -432,12 +433,12 @@
                     <img src="${jpegUrl}" alt="code-bar">
                     <div class="barcode-num">${ridLabel}</div>
                     <hr>
-                    <h2>${this._localize('proof_of_e_prescription','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}</h2>
+                    <h2>${this.localize('proof_of_e_prescription','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}</h2>
                     <hr>
-                    <p class="center">${this._localize('ple_present_doc','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}.</p>
+                    <p class="center">${this.localize('ple_present_doc','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}.</p>
                     <hr>
                     <div class="profile">
-                        <small>${this._localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}&nbsp;:</small>
+                        <small>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}&nbsp;:</small>
                         <ul class="prescripteur-details">
                             <li><b>${hcp.firstName} ${hcp.lastName}</b></li>
                             <li><b>`+ this.localize('inami','inami',this.language) +`&nbsp;:</b> ${hcp.nihii}</li>
@@ -445,7 +446,7 @@
                     </div>
                     <hr>
                     <div class="profile">
-                        <small>${this._localize("benef_name_lastname","Name and surname of the beneficiary",this.language)}&nbsp;:</small>
+                        <small>${this.localize("benef_name_lastname","Name and surname of the beneficiary",this.language)}&nbsp;:</small>
                         <ul class="patient-details">
                             <li><b>${this.patient.firstName} ${this.patient.lastName}</b></li>
                             <li><b>NISS&nbsp;:</b> ${this.patient.ssin}</li>
@@ -453,19 +454,19 @@
                     </div>
                     <hr>
                 </header>
-                <h2>${this._localize('content_of_e_prescription','Content of electronical prescription',this.language)}</h2>
+                <h2>${this.localize('content_of_e_prescription','Content of electronical prescription',this.language)}</h2>
                 <hr>
                 <div class="prescription-content">
                     ${prescriContent}
                 </div>
                 <footer>
                     <hr>
-                    <p class="center">${this._localize('no_man_ad','No manuscript additions will be taken into account',this.language)}.</p>
+                    <p class="center">${this.localize('no_man_ad','No manuscript additions will be taken into account',this.language)}.</p>
                     <hr>
-                    <small class="center">${this._localize('date','Date',this.language)}&nbsp;:</small>
+                    <small class="center">${this.localize('date','Date',this.language)}&nbsp;:</small>
                     <p class="center">${deliveryDate}</p>
                     <hr>
-                    <small class="center">${this._localize('deliv_from','Deliverable from',this.language)}&nbsp;:</small>
+                    <small class="center">${this.localize('deliv_from','Deliverable from',this.language)}&nbsp;:</small>
                     <p class="center">${deliveryDate}</p>
                 </footer>
             </article>` : prescriContent; // create single prescription body
@@ -527,20 +528,20 @@
 												<span>${onePrescription.rid}</span>
 											</div>
 											<div class="cell w50">
-												<p>${this._localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}</p>
+												<p>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}</p>
 												<p class="bold">Dr. ${hcp.lastName} ${hcp.firstName}</p>
 											</div>
 										</div>
 									</header>
 									<div class="horiz w100">
 										<div class="vert bt bb flex1 cell">
-											<p class="uppercase">${this._localize("complete_by_prescriber","To be completed by the prescriber",this.language)}</p>
-											<p>${this._localize("benef_name_lastname","Name and surname of the beneficiary",this.language)} : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
+											<p class="uppercase">${this.localize("complete_by_prescriber","To be completed by the prescriber",this.language)}</p>
+											<p>${this.localize("benef_name_lastname","Name and surname of the beneficiary",this.language)} : <span class="bold">${this.patient.firstName} ${this.patient.lastName}</span></p>
 										</div>
 									</div>
 									<main id="main" class="flexbox flex1 horiz bb">
 										<div class="cell br w33">
-											<p>${this._localize("reserved_sticker","Reserved for the packaging sticker",this.language)}</p>
+											<p>${this.localize("reserved_sticker","Reserved for the packaging sticker",this.language)}</p>
 										</div>
 										<div class="cell">
 											${onePrescription.body}
@@ -548,7 +549,7 @@
 									</main>
 									<footer id="footer" class="flex horiz bb">
 										<div class="flex1 cell br w50">
-											<p class="title bold center w100">${this._localize("prescriber_stamp","Prescriber's stamp",this.language)}</p>
+											<p class="title bold center w100">${this.localize("prescriber_stamp","Prescriber's stamp",this.language)}</p>
 											<ul>
 												<li>Dr. ${hcp.lastName} ${hcp.firstName}</li>` +
 
@@ -562,11 +563,11 @@
 										<div class="w50">
 											<div class="vert w100">
 												<div class="cell bb center">
-													<p class="mt0">${this._localize('date_and_sign_of_presc',"Date and prescriber's signature",this.language)}</p>
+													<p class="mt0">${this.localize('date_and_sign_of_presc',"Date and prescriber's signature",this.language)}</p>
 													<p>${deliveryDate}</p>
 												</div>
 												<div class="cell">
-													<p class="center">${this._localize('deliv_date','Deliverable from the specified date or from',this.language)}&nbsp;:</p>
+													<p class="center">${this.localize('deliv_date','Deliverable from the specified date or from',this.language)}&nbsp;:</p>
 													<p class="signdate center bold w100">${deliveryDate}</p>
 												</div>
 											</div>
@@ -574,7 +575,7 @@
 									</footer>
 									<aside>
 										<div class="horiz">
-											<p class="big uppercase center w100 bold fs1">${this._localize('presc_of_med','Prescription of drugs',this.language)}</p>
+											<p class="big uppercase center w100 bold fs1">${this.localize('presc_of_med','Prescription of drugs',this.language)}</p>
 										</div>
 									</aside>
 								</div>`
