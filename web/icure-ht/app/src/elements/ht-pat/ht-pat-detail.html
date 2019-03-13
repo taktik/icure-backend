@@ -848,7 +848,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 overflow: hidden;
             }
 
-            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus, #ebmPracticeNet  {
+            #insuranceStatus, #hubStatus, #tlStatus, #consentStatus, #edmgStatus, #ebmPracticeNet, #cbipLink  {
                 --paper-fab-background: var(--app-background-color-dark);
                 --paper-fab-keyboard-focus-background: var(--app-background-color);
                 color: var(--app-primary-color-dark);
@@ -1454,6 +1454,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     </paper-tooltip>
                                     <paper-fab id="ebmPracticeNet" mini on-tap="_linkToEbPracticeNet" src="[[_ebmPicture()]]"></paper-fab>
                                     <paper-tooltip for="ebmPracticeNet">[[localize('adm_ebm','ebmPracticeNet',language)]]</paper-tooltip>
+                                    <paper-fab id="cbipLink" mini on-tap="_linkToCBIP" src="[[_cbipPicture()]]"></paper-fab>
+                                    <paper-tooltip for="cbipLink">[[localize('cbip','CBIP',language)]]</paper-tooltip>
                                 </div>
                             </div>
                         </paper-item>
@@ -4551,9 +4553,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             _linkToEbPracticeNet(){
                 window.open("https://www.ebpnet.be/fr/Pages/default.aspx",'_blank');
             }
+            _linkToCBIP(){
+                window.open("http://www.cbip.be/fr/start",'_blank');
+            }
 
             _ebmPicture(){
                 return require('../../../images/EbpracticeNet-logo-square.png')
+            }
+            _cbipPicture(){
+                return require('../../../images/cbip-logo.png')
             }
 
             showListPlanOfAction(e){
