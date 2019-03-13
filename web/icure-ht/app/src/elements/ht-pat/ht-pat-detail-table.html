@@ -142,13 +142,13 @@ class HtPatDetailTable extends Polymer.TkLocalizerMixin(Polymer.Element) {
     _updateTable(contacts) {
         const services = _.sortBy(_.flatMap(contacts, c => c.services.filter(s => this.api.contact().isNumeric(s, this.language) && !s.endOfLife)), ['modified']);
         const datesServices = services.reduce((acc, s) => {
-            s.modified = s.modified ? s.modified : new Date().getTime();
-            s.created = s.created ? s.created : new Date().getTime();
-            (acc[s.modified || s.created] || (acc[s.modified || s.created] = [])).push(s);
+            s.modified = s.modified ? s.modified : new Date().getTime()
+            s.created = s.created ? s.created : new Date().getTime()
+            ;(acc[s.modified || s.created] || (acc[s.modified || s.created] = [])).push(s)
             return acc;
         }, {});
         const labelsServices = services.reduce((acc, s) => {
-            (acc[s.label] || (acc[s.label] = { label: s.label, services: [] })).services.push(s);
+            ;(acc[s.label] || (acc[s.label] = { label: s.label, services: [] })).services.push(s)
             return acc;
         }, {});
         this.set('labelsServices', labelsServices);

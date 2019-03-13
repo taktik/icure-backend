@@ -35,7 +35,7 @@
                 color: black;
                 border: 1px solid var(--app-background-color-dark);
             }
-            
+
 			.modal-button--save{
 				box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
 				background: var(--app-secondary-color);
@@ -124,7 +124,7 @@
 					line-height: normal;
 				}
 			}
-        
+
             @media screen and (max-width: 672px) {
                 .modal-button {
                     margin: 4px 0;
@@ -202,14 +202,14 @@
     </template>
 
     <script>
-    
+
         import _ from 'lodash/lodash';
         import JsBarcode from 'JsBarcode';
         import mustache from "mustache/mustache.js";
         import moment from 'moment/src/moment';
 
         class HtPatPrescriptionDialog extends Polymer.TkLocalizerMixin(Polymer.mixinBehaviors([Polymer.IronResizableBehavior], Polymer.Element)) {
-        
+
             static get is() {
                 return 'ht-pat-prescription-dialog';
             }
@@ -260,13 +260,9 @@
 				return ['_setPrintSize(selectedFormat)','_currentContactChanged(currentContact, currentContact.*)'];
 			}
 
-            static get observers() {
-                return [];
-            }
-
             ready() {
                 super.ready();
-                this.set('selectedFormat', localStorage.getItem('prefillFormat') || 'A4')
+                this.set('selectedFormat', localStorage.getItem('prefillFormat') || 'presc')
             }
 
             open() {
@@ -276,6 +272,10 @@
             _columnName(idx) {
 				return `#${idx + 1}`;
 			}
+
+            _setPrintSize(selectedFormat) {
+                localStorage.setItem('prefillFormat', selectedFormat)
+            }
 
             _drugsAlreadyPrescribed() {
 				return this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
@@ -289,11 +289,11 @@
 				const col = this._splitColumns()[index];
 				return svc && col && col.includes(svc.id);
             }
-            
+
             _drugPosology(svc) {
 				return svc && this.api.contact().medication().posologyToString(this.api.contact().medicationValue(svc, this.language), this.language) || "N/A";
 			}
-            
+
             _drugsToBePrescribed() {
                 let tbp = this.api && this.currentContact && this.currentContact.services && this.currentContact.services.filter(s => s.tags.find(t => t.type === 'CD-ITEM' && t.code === 'treatment') && !s.endOfLife && !s.tags.find(t => t.type === 'CD-LIFECYCLE' && ['ordered', 'completed', 'delivered'].includes(t.code)) && this.api.contact().medicationValue(s, this.language)) || [];
                 return tbp.length > 0 ? tbp : this._drugsAlreadyPrescribed();
@@ -379,8 +379,9 @@
 				})
 				this.$.loading.close();
 			} // print end
-
+            
 			_formatPrescriptionsBody(splitColumns,drugsToBePrescribed,patient,hcp,deliveryDate,element,rid) {
+                
 				// console.log('_formatPrescriptionsBody, hello hcp is : ',hcp)
 				let prescriToPrint = [], allPages = []
 				let prescNum = 0, pageNum = 1
@@ -421,6 +422,8 @@
 						articleMedWithPoso.push({medR: onePrescri.R, poso: onePrescri.poso})//add medication with posology to the list
 						medicName = onePrescri.R
 					}) // map end
+                    
+                    
 					const prescri = (this.patient.ssin && this.api.tokenId && rid[idx]) ? `<article class="prescription">
                 <header>
                     <img src="${jpegUrl}" alt="code-bar">
@@ -428,7 +431,7 @@
                     <hr>
                     <h2>${this.localize('proof_of_e_prescription','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}</h2>
                     <hr>
-                    <p class="center">${this.localize('ple_present_doc','',this.language)}.</p>
+                    <p class="center">${this.localize('ple_present_doc','Please present this document to the pharmacist to scan the barcode and issue the prescribed medications',this.language)}.</p>
                     <hr>
                     <div class="profile">
                         <small>${this.localize("prescriber_name_lastname","Prescriber first name and last name",this.language)}&nbsp;:</small>
@@ -676,7 +679,7 @@
                                 {
                                     transportGuid: "PRESCRIPTION:PHARMACEUTICALS:ARCHIVE",
                                     recipients: [_.get(this.user, 'healthcarePartyId', _.trim(this.user.id))],
-                                    metas: pdfPrintingData.documentMetas,
+//TODO                              metas: pdfPrintingData.documentMetas,
                                     toAddresses: [_.get(this.user, 'email', _.get(this.user, 'healthcarePartyId', _.trim(this.user.id)))],
                                     subject: pdfPrintingData.documentMetas.title
                                 }
@@ -778,7 +781,7 @@
 					this.set('drugsOnPrescriptions', current);
 				}
             }
-            
+
             _splitColumns() {
 				const drugs = this._drugsToBePrescribed();
 				const drugs2 = this._drugsAlreadyPrescribed();
@@ -795,9 +798,9 @@
 				{
 					const columns = this._safeDrugsOnPrescriptions().reduce((columns, mark) => {
 						const id = mark.id;
-                        const column = mark.column;
-                        (columns[column] || (columns[column] = [])).push(id)
-                        return columns;
+                        const column = mark.column
+                        ;(columns[column] || (columns[column] = [])).push(id)
+                        return columns
 						}, [[]]);
 					if (!columns.find(c => !c || !c.length) && columns.length < drugs.length) {
 						columns.push([]);
@@ -805,11 +808,11 @@
 					return columns;
 				}
 			}
-        
+
         }
 
         customElements.define(HtPatPrescriptionDialog.is, HtPatPrescriptionDialog);
-    
+
     </script>
 
 </dom-module>

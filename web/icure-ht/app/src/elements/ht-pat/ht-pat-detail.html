@@ -3116,8 +3116,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this.$.savedIndicator.classList.add("saved");
             }
 
-            saveContact(ctc) {
-                return (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
+            saveContact(ctc, ps) {
+                return (ps ? ps() : Promise.resolve()).finally(() => (ctc.rev ? this.api.contact().modifyContactWithUser(this.user, ctc) : this.api.contact().createContactWithUser(this.user, ctc)).then(c=>this.api.register(c,'contact')).then(c => {
                     ctc.rev = c.rev;
                     console.log("contact saved: " + ctc.id + ":" + ctc.rev);
 
@@ -3126,7 +3126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     this._refreshFromServices()
 
                     return c;
-                });
+                }))
             }
 
             saveCurrentContact() {
@@ -3134,7 +3134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             _saveContact(event) {
-                this.saveContact(event.detail);
+                this.saveContact(event.detail.contact, event.detail.preSave);
             }
 
             filterEvents() {
@@ -3316,7 +3316,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     const hesByHeId = {}
                     allHes.forEach(he => {
                         if (he.healthElementId) {
-                            (hesByHeId[he.healthElementId] || (hesByHeId[he.healthElementId] = [])).push(he)
+                            ;(hesByHeId[he.healthElementId] || (hesByHeId[he.healthElementId] = [])).push(he)
                         }
                     })
                     _.values(hesByHeId).forEach(a => a.sort((he1, he2) => (he2.modified || 0) - (he1.modified || 0)))
@@ -3413,7 +3413,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         Promise.all(unclosedContacts.map(unclosedContact => {
                             return (!unclosedContact.openingDate || this.api.moment(unclosedContact.openingDate).isBefore(youngest)) ?
                                 this.api.contact().modifyContactWithUser(this.user, Object.assign(unclosedContact, {closingDate: parseInt(moment().format('YYYYMMDDHHmmss'))}))
-                                    .then(() => null)
+                                    .then(() => null).catch(() => null)
                                 : Promise.resolve(unclosedContact)})
                         )
                         .then(ctcs =>
@@ -3738,9 +3738,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 const year = this.contactYears.find(y => y.contacts.find(c => c.id === ctcId));
                 const contact = year.contacts.find(c => c.id === ctcId);
 
-                const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel');
+                const ctcDetailPanel = this.shadowRoot.querySelector('#ctcDetailPanel')
 
-                (ctcDetailPanel && ctcDetailPanel.shouldSave() && this.saveCurrentContact() || Promise.resolve(this.currentContact)).then(() => {
+                ;(ctcDetailPanel && ctcDetailPanel.shouldSave() && this.saveCurrentContact() || Promise.resolve(this.currentContact)).then(() => {
                     if (contact) {
                         if (!contact.rev && (!contact.services || contact.services.length === 0)) {
                             const idx = this.contactYears[0].contacts.indexOf(this.currentContact);
@@ -3991,7 +3991,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     if (s.action === 'unselect') {
                         this.set('selectedAdminOrCompleteFileIndex',null);
                     }
-                    (s.items || this.selectedHealthcareElements.map(he => this.getHeId(he))).forEach(id => {
+                    ;(s.items || this.selectedHealthcareElements.map(he => this.getHeId(he))).forEach(id => {
                         const item = this.root.querySelector('#' + id);
                         if (item) {
                             const listBox = this.getPaperListboxParent(item);
