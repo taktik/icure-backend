@@ -39,6 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../../bower_components/paper-checkbox/paper-checkbox.html">
 
 
 <dom-module id="ht-admin-account-preferences">
@@ -54,28 +55,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 outline:0!important;
             }
 
-            .users-panel{
-                height: 100%;
+            .users-panel{ 
                 width: 100%;
-                padding: 0 20px;
+                height: 100%;
+                padding: 0 24px;
                 box-sizing: border-box;
-                position:relative;
             }
 
-            .col-lg-6.tile {
-                box-sizing: border-box;
-                border-radius: 4px;
-                border: 1px solid var(--app-background-color-darker);
-                background: var(--app-background-color);
-                margin: 16px calc(.5 * var(--vaadin-form-layout-column-gap));
-            }
-            .tile h2 {
-                background: var(--app-background-color-dark);
+            .section-title{
                 width: 100%;
-                text-align: center;
-                margin: 0 0 8px 0;
-                padding: 8px;
-                box-sizing: border-box;;
             }
 
             .line {
@@ -241,51 +229,104 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 display: flex;
             }
 
+            .card{
+                box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+                margin-bottom: 24px;
+            }
+
+            .card .header{
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: flex-start;
+                align-items: center;
+                background: #fff;
+                padding: 16px;
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0;
+                height: 56px;
+                font-size: 16px;
+                font-weight: 700;
+                text-align: left;
+                color: var(--app-text-color);
+            }
+
+            .card .content{
+                padding: 16px;
+                background: var(--app-background-color);
+            }
+
+            .card .content paper-checkbox{
+                --paper-checkbox-checked-color: var(--app-secondary-color);
+                --paper-checkbox-unchecked-ink-color: var(--app-secondary-color-dark);
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .card .content paper-input{
+                --paper-input-container-focus-color: var(--app-primary-color-dark);
+            }
+
+            .card.dossier, .card.ehbox, .card.hubs{
+                width:50%;
+            }
+
+            .card.facturation{
+                width: 100%;
+            }
+
         </style>
 
         <div class="users-panel">
-            <h4>[[localize('my_pro', 'My profil', language)]] - [[localize('acc_prefs', 'Preferences', language)]]</h4>
+            <h4 class="section-title">[[localize('my_pro', 'My profil', language)]] - [[localize('acc_prefs', 'Preferences', language)]]</h4>
 
-            <div>
-                <h5>Dossier patient</h5>
-                <vaadin-checkbox checked="{{openPostItAuto}}">[[localize('open_post_it','Open post-it with patient folder',language)]]</vaadin-checkbox>
+            <div class="card dossier">
+                <h5 class="header">Dossier patient</h5>
+                <div class="content">
+                    <paper-checkbox checked="{{openPostItAuto}}">[[localize('open_post_it','Open post-it with patient folder',language)]]</paper-checkbox>
+                </div>
             </div>
 
 
-            <div>
-                <h5>Ehbox</h5>
-                <vaadin-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</vaadin-checkbox>
-                <vaadin-checkbox checked="{{assignMailAuto}}">[[localize('','Assign mails automatically',language)]]</vaadin-checkbox>
+            <div class="card ehbox">
+                <h5 class="header">Ehbox</h5>
+                <div class="content">
+                    <paper-checkbox checked="{{receiveMailAuto}}">[[localize('auto_ehbox','Receive mails automatically',language)]]</paper-checkbox>
+                    <paper-checkbox checked="{{assignMailAuto}}">[[localize('','Assign mails automatically',language)]]</paper-checkbox>
+                </div>
             </div>
 
-            <div>
-                <h5>Hubs</h5>
-                <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
-                    <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
-                        <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
-                        <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
-                        <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-
-                <paper-radio-group selected="{{userEHealthEnv}}">
-                    <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
-                    <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
-                </paper-radio-group>
+            <div class="card hubs">
+                <h5 class="header">Hubs</h5>
+                <div class="content">
+                    <paper-dropdown-menu id="preferredHub" label="[[localize('pre_hub','Preferred hub',language)]]">
+                        <paper-listbox slot="dropdown-content" attr-for-selected="name" selected="{{userPreferredHub}}">
+                            <paper-item name="rsb">[[localize('rsw','RSB',language)]]</paper-item>
+                            <paper-item name="rsw">[[localize('rsb','RSW',language)]]</paper-item>
+                            <paper-item name="vitalink">[[localize('vitalink','Vitalink',language)]]</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+    
+                    <paper-radio-group selected="{{userEHealthEnv}}">
+                        <paper-radio-button name="acc">[[localize('acc','Acceptance',language)]]</paper-radio-button>
+                        <paper-radio-button name="prd">[[localize('prd','Production',language)]]</paper-radio-button>
+                    </paper-radio-group>
+                </div>
             </div>
 
-            <div>
-                <h5>Facturation</h5>
-                <h5>Gestion des numéros d'envois</h5>
-                <paper-input label="OA 100" value="{{_getBatchNumber(100)}}"></paper-input>
-                <paper-input label="OA 200" value="{{_getBatchNumber(200)}}"></paper-input>
-                <paper-input label="OA 300" value="{{_getBatchNumber(300)}}"></paper-input>
-                <paper-input label="OA 400" value="{{_getBatchNumber(400)}}"></paper-input>
-                <paper-input label="OA 500" value="{{_getBatchNumber(500)}}"></paper-input>
-                <paper-input label="OA 600" value="{{_getBatchNumber(600)}}"></paper-input>
-                <paper-input label="OA 900" value="{{_getBatchNumber(900)}}"></paper-input>
+            <div class="card facturation">
+                <h5 class="header">Facturation</h5>
+                <div class="content">
+                    <h5>Gestion des numéros d'envois</h5>
+                    <paper-input label="OA 100" value="{{_getBatchNumber(100)}}"></paper-input>
+                    <paper-input label="OA 200" value="{{_getBatchNumber(200)}}"></paper-input>
+                    <paper-input label="OA 300" value="{{_getBatchNumber(300)}}"></paper-input>
+                    <paper-input label="OA 400" value="{{_getBatchNumber(400)}}"></paper-input>
+                    <paper-input label="OA 500" value="{{_getBatchNumber(500)}}"></paper-input>
+                    <paper-input label="OA 600" value="{{_getBatchNumber(600)}}"></paper-input>
+                    <paper-input label="OA 900" value="{{_getBatchNumber(900)}}"></paper-input>
+                </div> 
             </div>
-
         </div>
 
 

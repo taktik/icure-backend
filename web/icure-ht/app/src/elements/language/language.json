@@ -1324,6 +1324,7 @@
     "ch4Rejected": "Rejeté",
     "ch4_request_type": "Type de requête",
     "change": "Changer",
+    "changed": "changé",
     "changeDuring": "Assurabilité modifiée au cours de la période de consultation",
     "chap-iv": "Chapitre IV",
     "chapter": "Chapitre",
@@ -1609,6 +1610,7 @@
     "inc_fil": "Dossier incomplet",
     "inc_res": "Résultat incomplet",
     "inc_req": "Requête incomplète",
+    "indeterminate": "indéterminé",
     "info": "Informations",
     "ins_start_date": "Date de début de l'assurance",
     "ins_end_date": "Date de fin de l'assurance",
@@ -1771,10 +1773,10 @@
     "mom_dinner": "Repas du soir",
     "dinner": "dîner",
     "mom_during": "Pendant",
-    "mom_evening": "Le soir",
+    "mom_evening": "Soir",
     "mom_lunch": "Repas de midi",
     "mom_midday":"Midi",
-    "mom_morning": "Le matin",
+    "mom_morning": "Matin",
     "mom_wakeup": "Au lever",
     "mon": "mensuel",
     "month_1": "Janvier",
@@ -2369,7 +2371,8 @@
     "missingMhBankAccount": "Veuillez svp renseigner votre numéro de compte",
     "flatRateInvoicingAlreadyRan": "Vous avez déjà exporté votre facturation ce mois-ci",
     "getInTouchWithUsToUnlock": "Veuillez svp prendre contact avec nous afin de débloquer la situation",
-    "groupGrandTotal": "Grand total du Groupement"
+    "groupGrandTotal": "Grand total du Groupement",
+    "unknown": "inconnu"
   },
   "nl": {
     "AFF": "Lidnummer",
