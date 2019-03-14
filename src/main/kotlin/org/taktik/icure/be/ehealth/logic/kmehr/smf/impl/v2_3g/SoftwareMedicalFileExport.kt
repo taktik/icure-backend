@@ -225,7 +225,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 						contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
 						hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
-            
+
 						hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
 						// forms
@@ -688,7 +688,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, config: Config): List<HealthElement> {
 		return excludeHealthElementsForPMF(
 				healthElementLogic?.findByHCPartySecretPatientKeys(hcPartyId, sfks)?.filterNot {
-					it.descr.matches("INBOX|Etat général.*|Algemeen toestand.*".toRegex())
+					it.descr?.matches("INBOX|Etat général.*|Algemeen toestand.*".toRegex()) ?: false
 				} ?: emptyList()
 		, config)
 	}

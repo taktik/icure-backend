@@ -1,8 +1,0 @@
-*
-!app/
-app/bower_components
-!/author/*
-!docker/
-!.bowerrc
-!*.*
-__.*
