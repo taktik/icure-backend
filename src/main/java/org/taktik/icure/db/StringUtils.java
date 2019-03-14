@@ -95,6 +95,10 @@ public class StringUtils {
 					// from cp850 (likely): LATIN SMALL LETTER C WITH CEDILLA
 					// from cp1252 (unlikely): DOUBLE DAGGER
 					score++;
+				} else if (c == '\u00b3') {
+					// from cp850 (likely): SUPERSCRIPT THREE
+					// from cp1252 (unlikely): LATIN SMALL LETTER U WITH DIAERESIS
+					score++;
 				} else if (c == '\u00b5') {
 					// from cp850 (likely): MICRO SIGN
 					// from cp1252 (unlikely): LATIN SMALL LETTER AE
@@ -119,6 +123,9 @@ public class StringUtils {
 					// from cp850 (unlikely): LATIN CAPITAL LETTER A WITH ACUTE
 					// from cp1252 (likely): MICRO SIGN
 					score--;
+				} else if (c == '\u2502') {
+					// from cp850 (unlikely): BOX DRAWINGS LIGHT VERTICAL
+					// from cp1252 (likely): SUPERSCRIPT THREE
 				}
 			}
 			return score > 0 ? "cp850" : "cp1252";
