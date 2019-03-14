@@ -8,7 +8,7 @@ steps:
 
     -   name: 'gcr.io/cloud-builders/javac' # java + docker
         entrypoint: 'bash'
-        args: [ '-c', './gradlew :dockerize -x test -PskipFrontend -PdockerPush :dockerizeFrontend -PdockerPush' ]
+        args: [ '-c', './gradlew :dockerize -x test -PdockerPush' ]
 
 options:
     machineType: 'N1_HIGHCPU_8'
