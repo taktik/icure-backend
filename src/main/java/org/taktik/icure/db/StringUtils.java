@@ -80,24 +80,44 @@ public class StringUtils {
 			int c;
 			while ((c = br.read()) != -1) {
 				if (c == '\u00e8') {
+					// from cp850 (likely): LATIN SMALL LETTER E WITH GRAVE
+					// from cp1252 (unlikely): LATIN CAPITAL LETTER S WITH CARON
 					score++;
 				} else if (c == '\u00e9') {
+					// from cp850 (likely): LATIN SMALL LETTER E WITH ACUTE
+					// from cp1252 (unlikely): SINGLE LOW-9 QUOTATION MARK
 					score++;
 				} else if (c == '\u00e0') {
+					// from cp850 (likely): LATIN SMALL LETTER A WITH GRAVE
+					// from cp1252 (unlikely): HORIZONTAL ELLIPSIS
 					score++;
 				} else if (c == '\u00e7') {
+					// from cp850 (likely): LATIN SMALL LETTER C WITH CEDILLA
+					// from cp1252 (unlikely): DOUBLE DAGGER
 					score++;
 				} else if (c == '\u00b5') {
+					// from cp850 (likely): MICRO SIGN
+					// from cp1252 (unlikely): LATIN SMALL LETTER AE
 					score++;
 				} else if (c == '\u00d3') {
+					// from cp850 (unlikely): LATIN CAPITAL LETTER O WITH ACUTE
+					// from cp1252 (likely): LATIN SMALL LETTER A WITH GRAVE
 					score--;
 				} else if (c == '\u00fe') {
+					// from cp850 (unlikely): LATIN SMALL LETTER THORN
+					// from cp1252 (likely): LATIN SMALL LETTER C WITH CEDILLA
 					score--;
 				} else if (c == '\u00de') {
+					// from cp850 (unlikely): LATIN CAPITAL LETTER THORN
+					// from cp1252 (likely): LATIN SMALL LETTER E WITH GRAVE
 					score--;
 				} else if (c == '\u00da') {
+					// from cp850 (unlikely): LATIN CAPITAL LETTER U WITH ACUTE
+					// from cp1252 (likely): LATIN SMALL LETTER E WITH ACUTE
 					score--;
 				} else if (c == '\u00c1') {
+					// from cp850 (unlikely): LATIN CAPITAL LETTER A WITH ACUTE
+					// from cp1252 (likely): MICRO SIGN
 					score--;
 				}
 			}
