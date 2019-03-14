@@ -23,6 +23,10 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -86,14 +90,20 @@ public abstract class GenericResultFormatLogicImpl {
 
 	protected String decodeRawData(byte[] rawData) throws IOException {
 		String text;
-		String frenchCp850OrCp1252 = org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252(rawData);
-		if ("cp850".equals(frenchCp850OrCp1252)) {
-			text = new String(rawData, "cp850");
-		} else if ("cp1252".equals(frenchCp850OrCp1252)) {
-			text = new String(rawData, "cp1252");
-		} else {
-			text = new String(rawData, StandardCharsets.UTF_8);
+
+		CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
+		try {
+			CharBuffer decodedChars = utf8Decoder.decode(ByteBuffer.wrap(rawData));
+			text = decodedChars.toString();
+		} catch (CharacterCodingException e) {
+			String frenchCp850OrCp1252 = org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252(rawData);
+			if ("cp850".equals(frenchCp850OrCp1252)) {
+				text = new String(rawData, "cp850");
+			} else {
+				text = new String(rawData, "cp1252");
+			}
 		}
+
 		return text;
 	}
 

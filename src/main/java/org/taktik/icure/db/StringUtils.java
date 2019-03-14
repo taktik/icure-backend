@@ -101,7 +101,7 @@ public class StringUtils {
 					score--;
 				}
 			}
-			return score > 3 ? "cp850" : score < -3 ? "cp1252" : null;
+			return score > 0 ? "cp850" : "cp1252";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
