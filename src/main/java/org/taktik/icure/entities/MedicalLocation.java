@@ -4,12 +4,15 @@ package org.taktik.icure.entities;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Address;
 
+import java.util.List;
+
 public class MedicalLocation extends StoredDocument {
     protected String name;
     protected String description;
     protected String responsible;
 
     protected Address address;
+    protected List<String> agendaIds;
 
     public String getName() {
         return name;
@@ -42,4 +45,8 @@ public class MedicalLocation extends StoredDocument {
     public void setResponsible(String responsible) {
         this.responsible = responsible;
     }
+
+    public List<String> getAgendaIds() { return agendaIds; }
+
+    public void setAgendaIds(List<String> agendaIds) { this.agendaIds = agendaIds; }
 }

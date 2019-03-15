@@ -298,7 +298,13 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 			if (lrl.severity.equals("+")
 					|| lrl.severity.equals("++")
 					|| lrl.severity.equals("-")
-					|| lrl.severity.equals("--")) {
+					|| lrl.severity.equals("--")
+					|| lrl.severity.equals("H")
+					|| lrl.severity.equals("HH")
+					|| lrl.severity.equals("L")
+					|| lrl.severity.equals("LL")
+					|| lrl.severity.equals("*")
+			) {
 				m.setSeverity(1);
 			}
 		}
@@ -590,7 +596,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 					}
 				}
 			}
-			if (lrl.value == null) {
+			if (lrl.value == null || lrl.value.equals("")) {
 				lrl.value = parts[7].trim();
 			}
 			if (lrl.analysisType.equals("")) {
@@ -700,7 +706,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output) {
 		PrintWriter pw;
 		try {
-			pw = new PrintWriter(new OutputStreamWriter(output, "ISO-8859-1"));
+			pw = new PrintWriter(new OutputStreamWriter(output, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}

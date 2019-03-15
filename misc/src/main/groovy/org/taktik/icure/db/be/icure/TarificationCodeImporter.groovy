@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger
 import com.google.common.collect.Sets
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import groovy.json.JsonOutput
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.ektorp.CouchDbInstance
 import org.ektorp.DbAccessException
@@ -26,6 +27,118 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+
+class NomensoftValorisation {
+    String fr
+    String nl
+    String type
+    Date from
+    Date to
+    Double fee
+    Double reimbursement
+    Double patientIntervention
+
+    NomensoftValorisation(e, NomenFeeCode valType) {
+        // FIXME@fthuin move this as global or somewhere else; no need to reassign in each valo
+        List<String> fee = ['01']
+        List<String> rei = ['02', '03', '04', '06']
+        List<String> tm = ['05']
+
+        this.fr                  = valType.fr
+        this.nl                  = valType.nl
+        this.type                = e.fee_code.text()
+        this.from                = Date.parse(e.dbegin_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin_fee.text())
+        this.to                  = Date.parse(e.dend_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dend_fee.text())
+        this.fee                 = new Double(fee.contains(valType.cat) ? Double.parseDouble(e.fee.text()) : 0.0)
+        this.reimbursement       = new Double(rei.contains(valType.cat) ? Double.parseDouble(e.fee.text()) : 0.0)
+        this.patientIntervention = new Double(tm.contains(valType.cat) ? Double.parseDouble(e.fee.text()) : 0.0)
+    }
+
+}
+
+/**
+ * Stores information of an INAMI code from Nomensoft
+ */
+class NomensoftTarification {
+    String id
+    Boolean amb
+    Date startCode
+    String fr
+    String nl
+    Rubric rubric
+    String letter1
+    String letter_index1
+    String coeff1
+    String letter1_value
+    String letter2
+    String letter_index2
+    String coeff2
+    String letter2_value
+    String letter3
+    String letter_index3
+    String coeff3
+    String letter3_value
+    List<NomensoftValorisation> valorisations
+
+    NomensoftTarification(e, Rubric r) {
+        this.id            = e.nomen_code.text()
+        this.amb           = e.ambhos_pat_cat.text() != "2"
+        this.startCode     = Date.parse(e.dbegin.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin.text())
+        this.fr            = e.nomen_desc_fr.text()
+        this.nl            = e.nomen_desc_nl.text()
+        this.rubric        = r
+        this.letter1       = e.key_letter1.text()
+        this.letter_index1 = e.key_letter_index1.text()
+        this.coeff1        = e.key_coeff1.text()
+        this.letter1_value = e.key_letter1_value.text()
+        this.letter2       = e.key_letter2.text()
+        this.letter_index2 = e.key_letter_index2.text()
+        this.coeff2        = e.key_coeff2.text()
+        this.letter2_value = e.key_letter2_value.text()
+        this.letter3       = e.key_letter3.text()
+        this.letter_index3 = e.key_letter_index3.text()
+        this.coeff3        = e.key_coeff3.text()
+        this.letter3_value = e.key_letter3_value.text()
+        this.valorisations = []
+    }
+}
+
+/**
+ * Stores information of one Group N
+ */
+class Rubric {
+    String id
+    String fr
+    String nl
+    List<NomensoftTarification> tarifications
+
+    Rubric(e) {
+        this.id = e.nomen_grp_n.text()
+        this.fr = e.nomen_grp_n_desc_fr.text()
+        this.nl = e.nomen_grp_n_desc_nl.text()
+        this.tarifications = []
+    }
+}
+
+/**
+ * Stores the information contained in a XML node of NOMEN_FEECODES.xml
+ */
+class NomenFeeCode {
+    String key
+    String fr
+    String nl
+    String cat
+    String predicate
+    String code
+    ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>> predicateSource
+
+    NomenFeeCode(e) {
+        this.key = e.fee_code.text()
+        this.fr = e.fee_code_desc_fr.text()
+        this.nl = e.fee_code_desc_nl.text()
+        this.cat = e.fee_code_cat.text()
+    }
+}
 
 class TarificationCodeImporter extends Importer {
     def language = 'fr'
@@ -254,7 +367,7 @@ class TarificationCodeImporter extends Importer {
         List<String> relatedCodes
     }
 
-    private void initHttpClient(username, password, couchdbBase = 'icure-base', couchdbPatient = 'icure-patient', couchdbContact = 'icure-healthdata', couchdbConfig = 'icure-config') {
+    private void initHttpClient(String username, password, String couchdbBase = 'icure-base', String couchdbPatient = 'icure-patient', String couchdbContact = 'icure-healthdata', String couchdbConfig = 'icure-config') {
         HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("${DB_PROTOCOL ?: "http"}://${DB_HOST ?: "127.0.0.1"}:" + DB_PORT).username(username ?: System.getProperty("dbuser") ?: "icure").password(password ?: System.getProperty("dbpass") ?: "S3clud3dM@x1m@").build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient)
         // if the second parameter is true, the database will be created if it doesn't exists
@@ -277,9 +390,9 @@ class TarificationCodeImporter extends Importer {
         initHttpClient(username, password, couchdbBase, couchdbPatient, couchdbContact, couchdbConfig)
     }
 
-    TarificationCodeImporter(dbprotocol, dbhost, dbport, dbname, username, password, lang) {
-        this.DB_PROTOCOL = dbprotocol
-        this.DB_HOST = dbhost
+    TarificationCodeImporter(String db_protocol, String db_host, dbport, dbname, username, password, lang) {
+        this.DB_PROTOCOL = db_protocol
+        this.DB_HOST = db_host
         this.DB_PORT = dbport
         this.DB_NAME = dbname
         this.language = lang
@@ -295,10 +408,10 @@ class TarificationCodeImporter extends Importer {
         def options = args
         ((Logger) LoggerFactory.getLogger("org.apache.http")).setLevel(Level.ERROR);
 
-        def language = 'fr'
-        def keyRoot = null
-        def src_file = options[-1]
-        def type = 'INAMI-RIZIV'
+        String language = 'fr'
+        String keyRoot = null
+        String src_file = options[-1]
+        String type = 'INAMI-RIZIV'
 
         options.each {
             if (it.startsWith("lang=")) {
@@ -319,8 +432,8 @@ class TarificationCodeImporter extends Importer {
         ((Logger) LoggerFactory.getLogger("org.apache.http")).setLevel(Level.ERROR);
         ((Logger) LoggerFactory.getLogger("org.ektorp.impl")).setLevel(Level.ERROR);
 
-        importer.language = language;
-        importer.keyRoot = keyRoot ?: importer.DEFAULT_KEY_DIR;
+        importer.language = language
+        importer.keyRoot = keyRoot ?: importer.DEFAULT_KEY_DIR
 
         File root = new File(src_file)
         assert root?.exists()
@@ -349,13 +462,71 @@ class TarificationCodeImporter extends Importer {
         return filtersMap
     }
 
-    def doScan(File root, String type, List<Tarification> newCodes = null, List<String> subset = null) {
+    List<Tarification> getTarificationsFromDb() {
+        return couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class)
+    }
+
+    /**
+     * Parse the XML file containing all INAMI codes definition and returns them
+     * Mutates tarifications to fill it with all inami codes
+     * @param root
+     * @param tarifications
+     * @return
+     */
+    LinkedHashMap<String, Rubric> getTarificationsFromNomensoft(File root, tarifications, treated, subset) {
+        LinkedHashMap<String, Rubric> rubrics = [:]
+
+        new File(root, 'NOMEN_SUMMARY_EXT.xml').withInputStream {
+            new XmlSlurper().parse(it).NOMEN_SUMMARY_EXT.each { e ->
+                if (!treated[e.nomen_code.text()]  && (subset == null || subset.contains(e.nomen_code.text()))) {
+                    treated[e.nomen_code.text()] = true
+
+                    Rubric r = rubrics[e.nomen_grp_n.text()] ?: (rubrics[e.nomen_grp_n.text()] = new Rubric(e))
+
+                    r.tarifications << (tarifications[e.nomen_code.text()] = new NomensoftTarification(e, r))
+                }
+            }
+        }
+
+        return rubrics
+    }
+
+    LinkedHashMap<String, NomenFeeCode> getValorisationTypesFromNomensoft(File root) {
+        LinkedHashMap<String, NomenFeeCode> valTypes = [:]
+
+        new File(root, 'NOMEN_FEECODES.xml').withInputStream {
+            new XmlSlurper().parse(it).NOMEN_FEECODES.each { e ->
+                if (e.fee_code_cat.text() != '07') valTypes[e.fee_code.text()] = new NomenFeeCode(e)
+            }
+        }
+
+        return valTypes
+    }
+
+    void populateValorisations(File root, LinkedHashMap<String, NomensoftTarification> tarifications, LinkedHashMap<String, NomenFeeCode> valTypes) {
+        new File(root, 'NOMEN_CODE_FEE_LIM.xml').withInputStream { f ->
+            new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
+                def parseVal = { e ->
+                    NomensoftTarification t = tarifications[e.nomen_code.text()]
+                    if (t && valTypes[e.fee_code.text()]) {
+                        t.valorisations << new NomensoftValorisation(e, valTypes[e.fee_code.text()])
+                    } else {
+                        println("${e.nomen_code.text()} valorisation not found")
+                    }
+                }
+                new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
+                new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
+            }
+        }
+    }
+
+    List<Tarification> doScan(File root, String type, List<Tarification> newCodes = null, List<String> subset = null) {
         def YEAR = 2019
 
         def codes = newCodes ?: []
 
         if (codes.size() == 0) {
-            def refsValues = [:]
+            LinkedHashMap<String, List<String>> refsValues = [:]
             refs.each { key, value ->
                 def parts = value.split(",")
                 parts.each {
@@ -372,83 +543,23 @@ class TarificationCodeImporter extends Importer {
                 }
             }
 
-            def rubrics = [:]
-            def valTypes = [:]
-            def tarifications = [:]
-            def unknownCodes = [:]
-            def fee = ['01']
-            def rei = ['02', '03', '04', '06']
-            def tm = ['05']
-
             def treated = [:]
 
-            def groups = [
+            LinkedHashMap<String, NomensoftTarification> tarifications = [:]
+            LinkedHashMap<String, Rubric> rubrics = getTarificationsFromNomensoft(root, tarifications, treated, subset)
+            LinkedHashMap<String, NomenFeeCode> valTypes = getValorisationTypesFromNomensoft(root)
+            LinkedHashMap unknownCodes = [:]
+
+
+            LinkedHashMap<String, List<String>> groups = [
                     Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1bis', 'Prestations techniques urgentes - Article 26, §1 et §1ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
                     Full: ['Accouchements - accoucheuses', 'Bandages, ceintures et protheses des seins', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radio-isotopes', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
                     //Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
             ]
 
-            new File(root, 'NOMEN_SUMMARY_EXT.xml').withInputStream {
-                new XmlSlurper().parse(it).NOMEN_SUMMARY_EXT.each { e ->
-
-                    if (!treated[e.nomen_code.text()] && (subset == null || subset.contains(e.nomen_code.text()))) {
-                        treated[e.nomen_code.text()] = true
-                        def r = rubrics[e.nomen_grp_n.text()] ?: (rubrics[e.nomen_grp_n.text()] = [id: e.nomen_grp_n.text(), fr: e.nomen_grp_n_desc_fr.text(), nl: e.nomen_grp_n_desc_nl.text(), tarifications: []])
-
-                        r.tarifications << (tarifications[e.nomen_code.text()] = [
-                                id           : e.nomen_code.text(),
-                                amb          : e.ambhos_pat_cat.text() != "2",
-                                startCode    : Date.parse(e.dbegin.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin.text()),
-                                fr           : e.nomen_desc_fr.text(),
-                                nl           : e.nomen_desc_nl.text(),
-                                rubric       : r,
-                                letter1      : e.key_letter1.text(),
-                                letter_index1: e.key_letter_index1.text(),
-                                coeff1       : e.key_coeff1.text(),
-                                letter1_value: e.key_letter1_value.text(),
-                                letter2      : e.key_letter2.text(),
-                                letter_index2: e.key_letter_index2.text(),
-                                coeff2       : e.key_coeff2.text(),
-                                letter2_value: e.key_letter2_value.text(),
-                                letter3      : e.key_letter3.text(),
-                                letter_index3: e.key_letter_index3.text(),
-                                coeff3       : e.key_coeff3.text(),
-                                letter3_value: e.key_letter3_value.text(),
-                                valorisations: []
-                        ])
-                    }
-                }
-            }
-
-            new File(root, 'NOMEN_FEECODES.xml').withInputStream {
-                new XmlSlurper().parse(it).NOMEN_FEECODES.each { e ->
-                    if (e.fee_code_cat.text() != '07') valTypes[e.fee_code.text()] = [key: e.fee_code.text(), fr: e.fee_code_desc_fr.text(), nl: e.fee_code_desc_nl.text(), cat: e.fee_code_cat.text()]
-                }
-            }
-
-            new File(root, 'NOMEN_CODE_FEE_LIM.xml').withInputStream { f ->
-                new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
-                    def parseVal = { e ->
-                        def t = tarifications[e.nomen_code.text()]
-                        if (t && valTypes[e.fee_code.text()]) {
-                            t.valorisations << [
-                                    fr                 : valTypes[e.fee_code.text()].fr,
-                                    nl                 : valTypes[e.fee_code.text()].nl,
-                                    type               : e.fee_code.text(),
-                                    from               : Date.parse(e.dbegin_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dbegin_fee.text()),
-                                    to                 : Date.parse(e.dend_fee.text()?.contains('T') ? "yyyy-MM-dd'T'HH:mm:ss" : "yyyy-MM-dd", e.dend_fee.text()),
-                                    fee                : new Double(fee.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
-                                    reimbursement      : new Double(rei.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0),
-                                    patientIntervention: new Double(tm.contains(valTypes[e.fee_code.text()].cat) ? Double.parseDouble(e.fee.text()) : 0.0)
-                            ]
-                        }
-                    }
-                    new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
-                    new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
-                }
-            }
 
 
+            populateValorisations(root, tarifications, valTypes)
 
             Map<String, String> conditions = [:]
             refsValues.each { String key, options ->
@@ -505,22 +616,21 @@ class TarificationCodeImporter extends Importer {
                 }
             }
 
-            //println(new Gson().toJson(valTypes.values()))
+            //println(JsonOutput.toJson(valTypes.values()))
 
             [false, true].forEach { amb ->
                 println "Amb: $amb"
                 groups.each { kg, g ->
                     println g
-                    def rubKeys = new ArrayList(rubrics.keySet()).sort { a, b -> a <=> b }
+                    ArrayList<String> rubKeys = new ArrayList(rubrics.keySet()).sort { a, b -> a <=> b }
                     rubKeys.each { kr ->
-
-                        def r = rubrics[kr]
+                        Rubric r = rubrics[kr]
                         if (!g.contains(r.fr)) {
                             println "Skipping : ${r.fr}"
                             return
                         }
 
-                        r.tarifications.findAll { map -> map.amb == amb && map.rubric.id == kr }.sort { it.id }.each { map ->
+                        r.tarifications.findAll { NomensoftTarification map -> map.amb == amb && map.rubric.id == kr }.sort { it.id }.each { map ->
                             def label = [:]
                             label.fr = map.fr
                             label.nl = map.nl
@@ -548,7 +658,7 @@ class TarificationCodeImporter extends Importer {
                             int i = 0
 
                             code.valorisations = new HashSet(map.valorisations.collect { val ->
-                                def vt = valTypes[val.type]
+                                NomenFeeCode vt = valTypes[val.type]
 
                                 if (vt) {
                                     return new Valorisation(
@@ -631,7 +741,7 @@ class TarificationCodeImporter extends Importer {
 
         }
 
-        Map<String, Tarification> current = [:]
+        Map<String, Tarification> currentTarifications = [:]
         boolean retry = true;
         while (retry) {
             retry = false;
@@ -639,11 +749,11 @@ class TarificationCodeImporter extends Importer {
                 if (subset && subset.size()<20) {
                     subset.each {
                         def t = couchdbBase.find(Tarification.class, "INAMI-RIZIV|${it}|1.0")
-                        if (t) {  current[t.id] = t }
+                        if (t) {  currentTarifications[t.id] = t }
                     }
                 } else {
                     couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/Tarification").viewName("all"), Tarification.class).each { Tarification t ->
-                        current[t.id] = t
+                        currentTarifications[t.id] = t
                     }
                 }
             } catch (DbAccessException e) {
@@ -663,8 +773,8 @@ class TarificationCodeImporter extends Importer {
         def gson = new Gson()
 
         codes.each { newCode ->
-            if (current.containsKey(newCode.id)) {
-                Tarification modCode = current[newCode.id]
+            if (currentTarifications.containsKey(newCode.id)) {
+                Tarification modCode = currentTarifications[newCode.id]
 
                 def originalVals = new HashSet<>(modCode.valorisations.collect { gson.fromJson(gson.toJson(it), Valorisation.class) })
 
@@ -696,7 +806,7 @@ class TarificationCodeImporter extends Importer {
                         }
                     }
                     return v
-                }.findAll { vv -> vv && vv.startOfValidity < vv.endOfValidity }
+                }.findAll { Valorisation vv -> vv && vv.startOfValidity < vv.endOfValidity }
 
                 def combinedVals = new HashSet<Valorisation>(keptVals)
                 combinedVals.addAll(newCode.valorisations)

@@ -284,7 +284,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 	public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output) {
 		PrintWriter pw;
 		try {
-			pw = new PrintWriter(new OutputStreamWriter(output, "ISO-8859-1"));
+			pw = new PrintWriter(new OutputStreamWriter(output, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}
