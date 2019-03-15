@@ -36,6 +36,7 @@ public class EntityTemplate extends StoredDocument {
 	String descr;
 	@NotNull
 	String entityType;
+	String subType;
 	Boolean defaultTemplate;
 
 	List<Map<String,Object>> entity;
@@ -63,6 +64,10 @@ public class EntityTemplate extends StoredDocument {
 	public void setEntityType(String entityType) {
 		this.entityType = entityType;
 	}
+
+	public String getSubType() { return subType; }
+
+	public void setSubType(String subType) { this.subType = subType; }
 
 	public List<Map<String, Object>> getEntity() {
 		return entity;

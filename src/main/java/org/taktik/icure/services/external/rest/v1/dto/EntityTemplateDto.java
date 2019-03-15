@@ -28,6 +28,8 @@ public class EntityTemplateDto extends StoredDto implements Serializable {
 
 	String entityType;
 	Boolean defaultTemplate;
+
+	String subType;
 	List<Map<String,Object>> entity;
 
 	public String getUserId() {
@@ -53,6 +55,10 @@ public class EntityTemplateDto extends StoredDto implements Serializable {
 	public void setEntityType(String entityType) {
 		this.entityType = entityType;
 	}
+
+	public String getSubType() { return subType; }
+
+	public void setSubType(String subType) { this.subType = subType; }
 
 	public List<Map<String, Object>> getEntity() {
 		return entity;

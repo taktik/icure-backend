@@ -206,7 +206,7 @@ public class UserFacade implements OpenApiFacade{
 
 	@ApiOperation(
 			value = "Get the list of users by healthcare party id",
-			response = LabelledOccurenceDto.class,
+			response = String.class,
 			responseContainer = "Array",
 			httpMethod = "GET",
 			notes = ""
