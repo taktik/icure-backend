@@ -176,7 +176,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		val specialPrescriptions = mutableListOf<TransactionType>()
 
 		contacts.forEachIndexed { index, encContact ->
-			progressor?.progress((1.0 * index) / contacts.size)
+			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
@@ -386,7 +386,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			Unit
 		}
 
-		documents.forEach{
+		documents.forEachIndexed{ index, it ->
+			progressor?.progress((1.0 * (index + contacts.size)) / (contacts.size + documents.size))
 			val (docid, svc, con) = it
 			folder.transactions.add( TransactionType().apply {
 				ids.add(idKmehr(startIndex))
