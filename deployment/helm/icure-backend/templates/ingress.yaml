@@ -7,7 +7,7 @@ metadata:
         #ingress.appscode.com/stats: "true"
         #ingress.appscode.com/stats-port: "1936"
         #ingress.appscode.com/stats-secret-name: basicauth
-        #ingress.appscode.com/default-timeout: '{"connect": "5s", "client": "5m", "server": "1d"}'
+        ingress.appscode.com/default-timeout: '{"connect": "5s", "client": "5m", "server": "1d", "tunnel": "20m"}'
         #ingress.appscode.com/max-connections: "10000"
       {{- if .Values.ingressIP }}
         ingress.appscode.com/load-balancer-ip: {{ .Values.ingressIP }}
