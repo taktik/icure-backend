@@ -30,7 +30,8 @@ node_modules/
 dist/
 dist-tz/
 
-#IntelliJ files
+#IntelliJ & eclipse files
+.project
 *.iml
 .idea
 .gradle
