@@ -56,9 +56,9 @@ public class ICureLogicImpl implements ICureLogic {
 	public String getVersion() {
 		Manifest manifest = JarUtils.getManifest();
 		if (manifest != null) {
-			return manifest.getMainAttributes().getValue("Build-revision");
+			return manifest.getMainAttributes().getValue("Build-revision").trim();
 		} else {
-			return propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier());
+			return propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier()).toString().trim();
 		}
 	}
 
@@ -72,7 +72,7 @@ public class ICureLogicImpl implements ICureLogic {
 		this.allDaos = allDaos;
 	}
 
-	@Context
+	@Autowired
 	public void setPropertyLogic(PropertyLogic propertyLogic) {
 		this.propertyLogic = propertyLogic;
 	}
