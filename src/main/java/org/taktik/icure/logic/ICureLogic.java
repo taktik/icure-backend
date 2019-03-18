@@ -18,10 +18,13 @@
 
 package org.taktik.icure.logic;
 
+import javax.ws.rs.core.Response;
 import java.util.Map;
 
 public interface ICureLogic {
 	Map<String,Number> getIndexingStatus();
 
 	void updateDesignDoc(String daoEntityName);
+
+	Response getVersion();
 }

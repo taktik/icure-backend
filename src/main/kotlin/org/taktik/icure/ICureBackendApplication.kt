@@ -50,8 +50,10 @@ import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.logic.CodeLogic
+import org.taktik.icure.logic.ICureLogic
 import org.taktik.icure.logic.PropertyLogic
 import org.taktik.icure.logic.ReplicationLogic
+import org.taktik.icure.logic.impl.ICureLogicImpl
 import org.taktik.icure.services.external.http.WebSocketServlet
 import javax.servlet.ServletContext
 import javax.servlet.ServletRegistration
@@ -71,9 +73,10 @@ class ICureBackendApplication {
     }
 
     @Bean
-    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
+    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
         //Check that core types have corresponding codes
-        log.info("icure (" + propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.identifier) + ") is initialised")
+        log.info("icure (" + iCureLogic.version + ") is initialised")
+
         taskExecutor.execute {
             listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
                    Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
@@ -98,7 +101,7 @@ class ICureBackendApplication {
         taskScheduler.scheduleAtFixedRate({ replicationLogic.startReplications() }, 60_000L)
         taskScheduler.scheduleAtFixedRate({ allDaos.forEach { it.refreshIndex() } }, 240_000L)
 
-        log.info("icure (" + propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.identifier) + ") is started")
+        log.info("icure (" + iCureLogic.version + ") is started")
     }
 }
 
