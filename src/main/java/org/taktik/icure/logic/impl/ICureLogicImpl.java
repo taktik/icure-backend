@@ -27,14 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.applications.utils.JarUtils;
 import org.taktik.icure.constants.PropertyTypes;
-import org.taktik.icure.dao.GenericDAO;
 import org.taktik.icure.dao.ICureDAO;
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.logic.ICureLogic;
 import org.taktik.icure.logic.PropertyLogic;
 
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 
 @Service
 public class ICureLogicImpl implements ICureLogic {
@@ -56,12 +53,12 @@ public class ICureLogicImpl implements ICureLogic {
 	}
 
 	@Override
-	public Response getVersion() {
+	public String getVersion() {
 		Manifest manifest = JarUtils.getManifest();
 		if (manifest != null) {
-			return Response.ok(manifest.getMainAttributes().getValue("Build-revision")).build();
+			return manifest.getMainAttributes().getValue("Build-revision");
 		} else {
-			return Response.ok(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier())).build();
+			return propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier());
 		}
 	}
 

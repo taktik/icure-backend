@@ -87,7 +87,7 @@ public class ICureFacade implements OpenApiFacade{
 	@Path("/v")
 	@Produces({"text/plain"})
 	public Response getVersion() {
-		return iCureLogic.getVersion();
+		return Response.ok(iCureLogic.getVersion()).build();
 	}
 
 	@ApiOperation(

@@ -18,7 +18,6 @@
 
 package org.taktik.icure.logic;
 
-import javax.ws.rs.core.Response;
 import java.util.Map;
 
 public interface ICureLogic {
@@ -26,5 +25,5 @@ public interface ICureLogic {
 
 	void updateDesignDoc(String daoEntityName);
 
-	Response getVersion();
+	String getVersion();
 }
