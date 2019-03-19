@@ -613,6 +613,51 @@ public class ContactFacade implements OpenApiFacade {
         return response;
     }
 
+    @ApiOperation(
+        value = "List contacts bu opening date parties with(out) pagination",
+        response = org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList.class,
+        httpMethod = "GET",
+        notes = "Returns a list of contacts."
+    )
+    @GET
+    @Path("/byOpeningDate")
+    public Response listContactsByOpeningDate(
+            @ApiParam(value = "The contact openingDate", required = true) @QueryParam("startKey") Long startKey,
+            @ApiParam(value = "The contact max openingDate", required = true) @QueryParam("endKey") Long endKey,
+            @ApiParam(value = "hcpartyid", required = true) @QueryParam("hcpartyid") String hcpartyid,
+            @ApiParam(value = "A contact party document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit) {
+
+        Response response;
+
+        PaginationOffset<Object> paginationOffset = new PaginationOffset<>(startKey, startDocumentId, null, limit);
+
+        PaginatedList<Contact> contacts;
+        contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset);
+
+        if (contacts != null) {
+            if (contacts.getRows() == null) {
+                contacts.setRows(new ArrayList<>());
+            }
+
+            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto> paginatedContactDtoList =
+                    new org.taktik.icure.services.external.rest.v1.dto.PaginatedList<>();
+            mapper.map(
+                    contacts,
+                    paginatedContactDtoList,
+                    new TypeBuilder<PaginatedList<Contact>>() {
+                    }.build(),
+                    new TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto>>() {
+                    }.build()
+            );
+            response = ResponseUtils.ok(paginatedContactDtoList);
+        } else {
+            response = ResponseUtils.internalServerError("Listing contacts failed.");
+        }
+
+        return response;
+    }
+
     @Context
     public void setMapper(MapperFacade mapper) {
         this.mapper = mapper;
