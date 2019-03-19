@@ -426,16 +426,16 @@ public class InvoiceFacade implements OpenApiFacade{
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@GET
 	@Path("/toPatients")
-	public List<InvoiceDto> listToPatients() {
-		return invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+	public List<InvoiceDto> listToPatients(@QueryParam("hcPartyId") String hcPartyId) {
+		return invoiceLogic.listByHcPartyRecipientIds((hcPartyId == null) ? sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId() : hcPartyId,
 				Collections.singleton(null)).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
 	}
 
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@GET
 	@Path("/toPatients/unsent")
-	public List<InvoiceDto> listToPatientsUnsent() {
-		return invoiceLogic.listByHcPartyRecipientIdsUnsent(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+	public List<InvoiceDto> listToPatientsUnsent(@QueryParam("hcPartyId") String hcPartyId) {
+		return invoiceLogic.listByHcPartyRecipientIdsUnsent((hcPartyId == null) ? sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId() : hcPartyId,
 				Collections.singleton(null)).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
 	}
 
