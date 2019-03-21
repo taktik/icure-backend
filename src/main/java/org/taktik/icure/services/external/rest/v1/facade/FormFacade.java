@@ -351,7 +351,7 @@ public class FormFacade implements OpenApiFacade {
 		if (specialityCode == null) {
 			response = ResponseUtils.badRequest("Cannot retrieve form templates: provided speciality Code is null");
 		} else {
-			List<FormTemplate> formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, false);
+			List<FormTemplate> formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, loadLayout);
 			return ResponseUtils.ok(formTemplates.stream().map((ft) -> mapper.map(ft, FormTemplateDto.class)).collect(Collectors.toList()));
 		}
 

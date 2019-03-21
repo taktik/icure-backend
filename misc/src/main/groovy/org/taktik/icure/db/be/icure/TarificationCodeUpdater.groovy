@@ -33,10 +33,10 @@ class TarificationCodeUpdater {
         new File(args[0]).withReader { it.eachLine {
             String[] fields = it.split("\\s")
             def db_group_name = fields[0]
-            def password = fields[1]
-            def lang = fields[2]
+            def password = fields.length > 1 ? fields[1] : null
+            def lang = fields.length > 2 ? fields[2] : null
             def importer = fields.length == 3 ?
-                    new TarificationCodeImporter(db_protocol, db_host, db_port,"icure-" + db_group_name, db_group_name, password, lang) :
+                    new TarificationCodeImporter(db_protocol, db_host, db_port, db_group_name, db_group_name, password, lang) :
                     new TarificationCodeImporter(db_protocol, db_host, db_port, db_group_name, null,null,null, "template","804e5824-8d79-4074-89be-def87278b51f", db_group_name.replaceAll(".+-",""))
             def type = 'INAMI-RIZIV'
             println "Importing ${db_group_name}"
