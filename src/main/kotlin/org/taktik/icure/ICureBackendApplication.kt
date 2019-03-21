@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.SpringApplication
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.web.servlet.ServletContextInitializer
@@ -32,9 +31,6 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.web.WebApplicationInitializer
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
-import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.migration.DbMigration
 import org.taktik.icure.entities.embed.AddressType
@@ -53,10 +49,8 @@ import org.taktik.icure.logic.CodeLogic
 import org.taktik.icure.logic.ICureLogic
 import org.taktik.icure.logic.PropertyLogic
 import org.taktik.icure.logic.ReplicationLogic
-import org.taktik.icure.logic.impl.ICureLogicImpl
+import org.taktik.icure.services.external.http.ReportServlet
 import org.taktik.icure.services.external.http.WebSocketServlet
-import javax.servlet.ServletContext
-import javax.servlet.ServletRegistration
 
 @SpringBootApplication(exclude = [FreeMarkerAutoConfiguration::class])
 @EnableWebSecurity
@@ -66,10 +60,10 @@ class ICureBackendApplication {
 
 
     @Bean
-    fun initializer(webSocketServlet: WebSocketServlet) = ServletContextInitializer {
-        val servlet = it.addServlet("webSocketServlet", webSocketServlet)
-        servlet.setLoadOnStartup(1);
-        servlet.addMapping("/ws/*");
+    fun initializer(webSocketServlet: WebSocketServlet, reportServlet: ReportServlet) = ServletContextInitializer {
+        val webSocketServletReg = it.addServlet("webSocketServlet", webSocketServlet)
+        webSocketServletReg.setLoadOnStartup(1);
+        webSocketServletReg.addMapping("/ws/*")
     }
 
     @Bean
