@@ -75,7 +75,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
     @Override
     @View(name = "by_hcparty_openingdate", map = "classpath:js/contact/By_hcparty_openingdate.js")
     public PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long startOpeningDate, Long endOpeningDate, PaginationOffset pagination) {
-      ComplexKey startKey =  ComplexKey.of(hcPartyId, startOpeningDate);
+      ComplexKey startKey =  pagination.getStartKey() != null ? ComplexKey.of(hcPartyId, startOpeningDate) : ComplexKey.of(hcPartyId, pagination.getStartKey());
       ComplexKey endKey = ComplexKey.of(hcPartyId, endOpeningDate);
       return pagedQueryView("by_hcparty_openingdate", startKey, endKey, pagination, false);
     }
