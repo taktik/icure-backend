@@ -338,9 +338,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 
 	@Override
 	public PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long startOpeningDate, Long endOpeningDate, PaginationOffset offset) {
-		PaginatedList<Contact> contacts;
-		contacts = contactDAO.listContactsByOpeningDate(hcPartyId, startOpeningDate, endOpeningDate, offset);
-		return contacts;
+		return contactDAO.listContactsByOpeningDate(hcPartyId, startOpeningDate, endOpeningDate, offset);
 	}
 
 }

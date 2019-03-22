@@ -630,7 +630,7 @@ public class ContactFacade implements OpenApiFacade {
 
         Response response;
 
-        PaginationOffset<Object> paginationOffset = new PaginationOffset<>(startKey, startDocumentId, null, limit);
+        PaginationOffset<Long> paginationOffset = new PaginationOffset<>(startKey, startDocumentId, null, limit);
 
         PaginatedList<Contact> contacts;
         contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset);
@@ -640,14 +640,14 @@ public class ContactFacade implements OpenApiFacade {
                 contacts.setRows(new ArrayList<>());
             }
 
-            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto> paginatedContactDtoList =
-                    new org.taktik.icure.services.external.rest.v1.dto.PaginatedList<>();
+            org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList paginatedContactDtoList =
+                    new org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList();
             mapper.map(
                     contacts,
                     paginatedContactDtoList,
                     new TypeBuilder<PaginatedList<Contact>>() {
                     }.build(),
-                    new TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto>>() {
+                    new TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList>() {
                     }.build()
             );
             response = ResponseUtils.ok(paginatedContactDtoList);
