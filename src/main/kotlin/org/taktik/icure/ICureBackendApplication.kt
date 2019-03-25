@@ -49,7 +49,6 @@ import org.taktik.icure.logic.CodeLogic
 import org.taktik.icure.logic.ICureLogic
 import org.taktik.icure.logic.PropertyLogic
 import org.taktik.icure.logic.ReplicationLogic
-import org.taktik.icure.services.external.http.ReportServlet
 import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(exclude = [FreeMarkerAutoConfiguration::class])
@@ -60,7 +59,7 @@ class ICureBackendApplication {
 
 
     @Bean
-    fun initializer(webSocketServlet: WebSocketServlet, reportServlet: ReportServlet) = ServletContextInitializer {
+    fun initializer(webSocketServlet: WebSocketServlet) = ServletContextInitializer {
         val webSocketServletReg = it.addServlet("webSocketServlet", webSocketServlet)
         webSocketServletReg.setLoadOnStartup(1);
         webSocketServletReg.addMapping("/ws/*")
