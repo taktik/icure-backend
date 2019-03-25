@@ -24,4 +24,6 @@ public interface ICureLogic {
 	Map<String,Number> getIndexingStatus(String groupId);
 
 	void updateDesignDoc(String groupId, String daoEntityName);
+    
+    String getVersion();
 }

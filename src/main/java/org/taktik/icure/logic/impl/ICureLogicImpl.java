@@ -18,23 +18,26 @@
 
 package org.taktik.icure.logic.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import org.ektorp.support.CouchDbRepositorySupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.taktik.icure.applications.utils.JarUtils;
+import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.dao.GenericDAO;
 import org.taktik.icure.dao.ICureDAO;
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.logic.GroupLogic;
 import org.taktik.icure.logic.ICureLogic;
+import org.taktik.icure.logic.PropertyLogic;
+
+import java.util.List;
+import java.util.Map;
+import java.util.jar.Manifest;
 
 @Service
 public class ICureLogicImpl implements ICureLogic {
 	ICureDAO iCureDAO;
 	GroupLogic groupLogic;
+    private PropertyLogic propertyLogic;
 	List<GenericDAO> allDaos;
 
 	@Override
@@ -58,6 +61,16 @@ public class ICureLogicImpl implements ICureLogic {
 		this.groupLogic = groupLogic;
 	}
 
+	@Override
+	public String getVersion() {
+		Manifest manifest = JarUtils.getManifest();
+		if (manifest != null) {
+			return manifest.getMainAttributes().getValue("Build-revision").trim();
+		} else {
+			return propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier()).toString().trim();
+		}
+	}
+
 	@Autowired
 	public void setiCureDAO(ICureDAO iCureDAO) {
 		this.iCureDAO = iCureDAO;
@@ -67,5 +80,11 @@ public class ICureLogicImpl implements ICureLogic {
 	public void setAllDaos(List<GenericDAO> allDaos) {
 		this.allDaos = allDaos;
 	}
+
+	@Autowired
+	public void setPropertyLogic(PropertyLogic propertyLogic) {
+		this.propertyLogic = propertyLogic;
+	}
+
 
 }
