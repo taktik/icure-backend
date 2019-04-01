@@ -38,7 +38,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val hazelcast: Haz
 
     protected abstract val entityType: Class<T>
 
-    protected abstract fun getAllIds(groupId: String, dbInstanceUrl: String): List<String>
+    protected abstract fun getAllIds(groupId: String, dbInstanceUrl: String?): List<String>
 
     protected abstract fun prepareReplication(group: Group)
 

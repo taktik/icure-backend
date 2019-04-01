@@ -17,7 +17,7 @@ class UserReplicator(hazelcast: HazelcastInstance, private var userDAO: UserDAO?
     override val entityType: Class<User>
         get() = User::class.java
 
-    override fun getAllIds(groupId: String, dbInstanceUrl: String): List<String> {
+    override fun getAllIds(groupId: String, dbInstanceUrl: String?): List<String> {
         return userDAO!!.getUsersOnDb(groupId, dbInstanceUrl).map { it.id }
     }
 

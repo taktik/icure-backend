@@ -68,7 +68,7 @@ class NewGroupObserver(private val hazelcast: HazelcastInstance, private val ssl
             startObserver()
             val groups = groupDAO.all.sortedBy { it.id }
             var f = CompletableFuture.completedFuture(true)
-            groups.forEach { group ->
+            groups.reversed().forEach { group ->
                 //Compose them so they do not start all at the same time
                 f = f.thenCompose { _ -> prepareDesignDocumentsAndStartReplications(group) }.exceptionally { t ->
                     log.error("An error occurred during Observers start", t)
