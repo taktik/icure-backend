@@ -286,7 +286,16 @@ public class InvoiceFacade implements OpenApiFacade{
 	@Path("/byauthor/{userId}")
 	public InvoicePaginatedList findByAuthor(@PathParam("userId") String userId, @QueryParam("fromDate") Long fromDate, @QueryParam("toDate") Long toDate, @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
 			"components to form the Complex Key's startKey") @QueryParam("startKey") String startKey, @ApiParam(value = "A patient document ID") @QueryParam("startDocumentId") String startDocumentId, @ApiParam(value = "Number of rows") @QueryParam("limit") Integer limit) {
-		return mapper.map(invoiceLogic.findByAuthor(userId, fromDate, toDate, startKey == null ? null : new PaginationOffset<>(ComplexKey.of((Object[])(startKey.split(","))), startDocumentId, 0, limit)), InvoicePaginatedList.class);
+
+		String[] sk;
+		String startKey1 = "";
+		Long startKey2 = 0L;
+	    if(startKey != null) {
+			sk = startKey.split(",");
+			startKey1 = sk[0];
+			startKey2 = Long.parseLong(sk[1]);
+		}
+		return mapper.map(invoiceLogic.findByAuthor(userId, fromDate, toDate, startKey == null ? null : new PaginationOffset<>(ComplexKey.of(new Object[]{startKey1, startKey2}), startDocumentId, 0, limit)), InvoicePaginatedList.class);
 	}
 
 	@ApiOperation(
