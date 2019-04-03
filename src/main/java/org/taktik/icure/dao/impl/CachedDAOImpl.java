@@ -123,7 +123,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         if (value == null) {
             log.debug("Cache MISS = {}", fullId);
             T e = super.find(id, options);
-            log.debug("Cache SAVE = {}, {} - {}", fullId, e.getId(), e.getRev());
+            log.debug("Cache SAVE = {}, {} - {}", fullId, e == null ? "<MISSING>" : e.getId(), e == null ? "<MISSING>" : e.getRev());
             cache.put(fullId, e);
             return e;
         } else {
