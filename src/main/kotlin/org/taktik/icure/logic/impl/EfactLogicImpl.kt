@@ -1,14 +1,8 @@
 package org.taktik.icure.logic.impl
 
-import com.thoughtworks.xstream.XStream
 import ma.glasnost.orika.MapperFacade
-import org.apache.commons.codec.binary.Base64
-import org.apache.commons.io.IOUtils
 import org.springframework.stereotype.Service
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Insurance
@@ -18,7 +12,6 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
-import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.EfactLogic
@@ -32,7 +25,6 @@ import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.EIDItem
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.EfactMessage
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceItem
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoiceSender
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicesBatch
@@ -42,14 +34,10 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingSideCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDay
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
-import java.io.IOException
 import java.math.BigInteger
-import java.net.URI
-import java.net.URISyntaxException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoField
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.Calendar
@@ -57,10 +45,7 @@ import java.util.HashMap
 import java.util.LinkedList
 import java.util.Optional
 import java.util.UUID
-import java.util.stream.Collectors
-import java.util.zip.DataFormatException
 import javax.security.auth.login.LoginException
-import javax.xml.ws.soap.SOAPFaultException
 
 @Service
 class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
@@ -307,7 +292,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
     private fun acceptAndMaskMessage(msg: Message, hasError: Boolean) {
         msg.status = msg.status or Message.STATUS_MASKED
         if (hasError) {
-            msg.status = msg.status or Message.STATUS_WARNING
+            msg.status = msg.status or Message.STATUS_PARTIAL_SUCCESS
         }
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
@@ -324,17 +309,17 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
     @Throws(LoginException::class, MissingRequirementsException::class)
     private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): List<org.taktik.icure.entities.Invoice> {
-        msg.status = msg.status or Message.STATUS_ERROR
+        msg.status = msg.status or Message.STATUS_FULL_ERROR
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
             parent.setStatus(parent.getStatus() or Message.STATUS_REJECTED)
-            parent.setStatus(parent.getStatus() or Message.STATUS_ERROR)
+            parent.setStatus(parent.getStatus() or Message.STATUS_FULL_ERROR)
             messageLogic.modifyMessage(parent)
             if (parent.getParentId() != null) {
                 val parentParent = messageLogic.get(parent.getParentId())
                 parentParent.setStatus(parentParent.getStatus() or Message.STATUS_REJECTED)
-                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_ERROR)
+                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_FULL_ERROR)
                 messageLogic.modifyMessage(parentParent)
                 val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.getInvoiceIds()).orElse(LinkedList()))
                 for (iv in invoices) {
