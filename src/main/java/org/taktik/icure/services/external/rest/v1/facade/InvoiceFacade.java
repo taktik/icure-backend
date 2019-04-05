@@ -283,10 +283,19 @@ public class InvoiceFacade implements OpenApiFacade{
 
 	@ApiOperation(response = InvoicePaginatedList.class, value = "Gets all invoices for author at date")
 	@GET
-	@Path("/byauthor/{userId}")
-	public InvoicePaginatedList findByAuthor(@PathParam("userId") String userId, @QueryParam("fromDate") Long fromDate, @QueryParam("toDate") Long toDate, @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
+	@Path("/byauthor/{hcPartyId}")
+	public InvoicePaginatedList findByAuthor(@PathParam("hcPartyId") String hcPartyId, @QueryParam("fromDate") Long fromDate, @QueryParam("toDate") Long toDate, @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
 			"components to form the Complex Key's startKey") @QueryParam("startKey") String startKey, @ApiParam(value = "A patient document ID") @QueryParam("startDocumentId") String startDocumentId, @ApiParam(value = "Number of rows") @QueryParam("limit") Integer limit) {
-		return mapper.map(invoiceLogic.findByAuthor(userId, fromDate, toDate, startKey == null ? null : new PaginationOffset<>(ComplexKey.of((Object[])(startKey.split(","))), startDocumentId, 0, limit)), InvoicePaginatedList.class);
+
+		String[] sk;
+		String startKey1 = "";
+		Long startKey2 = 0L;
+	    if(startKey != null) {
+			sk = startKey.split(",");
+			startKey1 = sk[0];
+			startKey2 = Long.parseLong(sk[1]);
+		}
+		return mapper.map(invoiceLogic.findByAuthor(hcPartyId, fromDate, toDate, startKey == null ? null : new PaginationOffset<>(ComplexKey.of(new Object[]{startKey1, startKey2}), startDocumentId, 0, limit)), InvoicePaginatedList.class);
 	}
 
 	@ApiOperation(
@@ -426,16 +435,16 @@ public class InvoiceFacade implements OpenApiFacade{
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@GET
 	@Path("/toPatients")
-	public List<InvoiceDto> listToPatients() {
-		return invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+	public List<InvoiceDto> listToPatients(@QueryParam("hcPartyId") String hcPartyId) {
+		return invoiceLogic.listByHcPartyRecipientIds((hcPartyId == null) ? sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId() : hcPartyId,
 				Collections.singleton(null)).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
 	}
 
 	@ApiOperation(response = InvoiceDto.class, responseContainer = "Array", value = "Gets all invoices for author at date")
 	@GET
 	@Path("/toPatients/unsent")
-	public List<InvoiceDto> listToPatientsUnsent() {
-		return invoiceLogic.listByHcPartyRecipientIdsUnsent(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+	public List<InvoiceDto> listToPatientsUnsent(@QueryParam("hcPartyId") String hcPartyId) {
+		return invoiceLogic.listByHcPartyRecipientIdsUnsent((hcPartyId == null) ? sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId() : hcPartyId,
 				Collections.singleton(null)).stream().map((i)->mapper.map(i, InvoiceDto.class)).collect(Collectors.toList());
 	}
 
