@@ -455,7 +455,7 @@ public class FormFacade implements OpenApiFacade {
 		if (payload == null || formTemplateId == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
-		FormTemplate formTemplate = formTemplateLogic.get(formTemplateId);
+		FormTemplate formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId);
 		formTemplate.setLayout(payload);
 		formTemplate = formTemplateLogic.modifyFormTemplate(formTemplate);
 

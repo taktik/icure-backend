@@ -46,7 +46,7 @@ import java.util.List;
 
 @Repository("formTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc._id, null )}")
-class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTemplateDAO {
+class FormTemplateDAOImpl extends GenericDAOImpl<FormTemplate> implements FormTemplateDAO {
 	private static final Logger log = LoggerFactory.getLogger(FormTemplateDAOImpl.class);
 
 	private UUIDGenerator uuidGenerator;
@@ -58,7 +58,7 @@ class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTem
 
 	@Autowired
     public FormTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
-        super(FormTemplate.class, couchdb, idGenerator, cacheManager);
+        super(FormTemplate.class, couchdb, idGenerator);
         initStandardDesignDocument();
     }
 
@@ -99,10 +99,6 @@ class FormTemplateDAOImpl extends CachedDAOImpl<FormTemplate> implements FormTem
 		return formTemplates;
 	}
 
-
-	public void evictFromCache(FormTemplate entity) {
-		super.evictFromCache(entity);
-	}
 
 	public FormTemplate createFormTemplate(FormTemplate entity) {
 		super.save(true, entity);
