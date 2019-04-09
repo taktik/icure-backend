@@ -68,6 +68,7 @@ public class InvoicingCodeDto implements Serializable {
 	protected Boolean pending;
 	protected Boolean resent;
 	protected Boolean archived;
+	protected Boolean lost;
 
     protected Integer insuranceJustification;
 	protected Integer cancelPatientInterventionReason;
@@ -355,6 +356,14 @@ public class InvoicingCodeDto implements Serializable {
 	public Boolean getArchived() { return archived; }
 
 	public void setArchived(Boolean archived) { this.archived = archived; }
+
+	public Boolean getLost() {
+		return lost;
+	}
+
+	public void setLost(Boolean lost) {
+		this.lost = lost;
+	}
 
 	public String getEidReadingValue() {
 		return eidReadingValue;

@@ -35,6 +35,8 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	public static final long STATUS_ACCEPTED = 16;
 	public static final long STATUS_RESENT = 32;
 
+	public static final long STATUS_LOST = 64;
+
 	protected Long dateCode;
 
 	protected String id;
@@ -96,6 +98,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 	protected Boolean pending;
 	protected Boolean resent;
 	protected Boolean archived;
+	protected Boolean lost;
 
     protected Integer insuranceJustification;
 
@@ -442,6 +445,14 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
 	public void setArchived(Boolean archived) {
 		this.archived = archived;
+	}
+
+	public Boolean getLost() {
+		return lost;
+	}
+
+	public void setLost(Boolean lost) {
+		this.lost = lost;
 	}
 
 	public Long getStatus() {
