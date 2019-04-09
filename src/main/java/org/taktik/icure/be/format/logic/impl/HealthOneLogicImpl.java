@@ -61,6 +61,7 @@ import java.util.regex.Pattern;
 public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements HealthOneLogic {
 	private static Logger log = LoggerFactory.getLogger(HealthOneLogicImpl.class);
 
+	static SimpleDateFormat shorterDateFormat = new SimpleDateFormat("ddMMyy");
 	static SimpleDateFormat shortDateFormat = new SimpleDateFormat("ddMMyyyy");
 	private final DateTimeFormatter shortDateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
 	static SimpleDateFormat extraDateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -298,7 +299,13 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 			if (lrl.severity.equals("+")
 					|| lrl.severity.equals("++")
 					|| lrl.severity.equals("-")
-					|| lrl.severity.equals("--")) {
+					|| lrl.severity.equals("--")
+					|| lrl.severity.equals("H")
+					|| lrl.severity.equals("HH")
+					|| lrl.severity.equals("L")
+					|| lrl.severity.equals("LL")
+					|| lrl.severity.equals("*")
+			) {
 				m.setSeverity(1);
 			}
 		}
@@ -590,7 +597,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 					}
 				}
 			}
-			if (lrl.value == null) {
+			if (lrl.value == null || lrl.value.equals("")) {
 				lrl.value = parts[7].trim();
 			}
 			if (lrl.analysisType.equals("")) {
@@ -637,7 +644,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 			ril.complete = parts.length <= 5 || parts[5].toLowerCase().contains("c");
 			if (parts.length > 3) {
 				try {
-					ril.demandDate = Instant.ofEpochMilli(shortDateFormat.parse(parts[3]).getTime());
+				    if (parts[3].length() > 6) {
+					    ril.demandDate = Instant.ofEpochMilli(shortDateFormat.parse(parts[3]).getTime());
+                    } else {
+					    ril.demandDate = Instant.ofEpochMilli(shorterDateFormat.parse(parts[3]).getTime());
+                    }
 				} catch (ParseException | NumberFormatException e) {
 					log.error("Date {} could not be parsed", parts[3]);
 					ril.demandDate = Instant.now();
@@ -700,7 +711,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output) {
 		PrintWriter pw;
 		try {
-			pw = new PrintWriter(new OutputStreamWriter(output, "ISO-8859-1"));
+			pw = new PrintWriter(new OutputStreamWriter(output, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}

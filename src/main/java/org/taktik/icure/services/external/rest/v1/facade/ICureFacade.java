@@ -24,9 +24,7 @@ import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
-import org.taktik.icure.applications.utils.JarUtils;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.entities.embed.DatabaseSynchronization;
 import org.taktik.icure.logic.ContactLogic;
@@ -36,7 +34,6 @@ import org.taktik.icure.logic.HealthElementLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.MessageLogic;
 import org.taktik.icure.logic.PatientLogic;
-import org.taktik.icure.logic.PropertyLogic;
 import org.taktik.icure.logic.ReplicationLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
@@ -56,7 +53,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 @Component
@@ -69,7 +65,6 @@ public class ICureFacade implements OpenApiFacade{
 
 	private static Logger logger = LoggerFactory.getLogger(ICureFacade.class);
 
-	private PropertyLogic propertyLogic;
 	private ReplicationLogic replicationLogic;
 	private ICureLogicImpl iCureLogic;
 	private PatientLogic patientLogic;
@@ -92,12 +87,7 @@ public class ICureFacade implements OpenApiFacade{
 	@Path("/v")
 	@Produces({"text/plain"})
 	public Response getVersion() {
-		Manifest manifest = JarUtils.getManifest();
-		if (manifest != null) {
-			return Response.ok(manifest.getMainAttributes().getValue("Build-revision")).build();
-		} else {
-			return Response.ok(propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier())).build();
-		}
+		return Response.ok(iCureLogic.getVersion()).build();
 	}
 
 	@ApiOperation(
@@ -238,11 +228,6 @@ public class ICureFacade implements OpenApiFacade{
 
 	@POST @Path("/conflicts/document")
 	public Response resolveDocumentsConflicts(@QueryParam("ids") String ids) throws Exception { documentLogic.solveConflicts(ids != null ? Arrays.asList(ids.split(",")) : null); return Response.ok().build(); }
-
-	@Context
-	public void setPropertyLogic(PropertyLogic propertyLogic) {
-		this.propertyLogic = propertyLogic;
-	}
 
 	@Context
 	public void setReplicationLogic(ReplicationLogic replicationLogic) {
