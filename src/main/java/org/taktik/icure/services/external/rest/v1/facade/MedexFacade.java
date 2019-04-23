@@ -80,9 +80,11 @@ public class MedexFacade implements OpenApiFacade {
     @ApiOperation(
             value = "Generate a Medex XML String",
             response = String.class,
-            httpMethod = "POST"
+            httpMethod = "POST",
+            produces = "application/xml"
     )
     @POST
+    @Produces("application/xml")
     @Path("/generate")
     public Response generateMedex(MedexInfoDto infos) {
         Response response = ResponseUtils.ok(medexLogic.createMedex(
