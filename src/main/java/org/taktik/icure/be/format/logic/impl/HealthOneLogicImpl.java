@@ -297,8 +297,12 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		if (lrl.severity.trim().length() > 0) {
 			if (lrl.severity.equals("+")
 					|| lrl.severity.equals("++")
+					|| lrl.severity.equals("+++")
+					|| lrl.severity.equals("++++")
 					|| lrl.severity.equals("-")
 					|| lrl.severity.equals("--")
+					|| lrl.severity.equals("---")
+					|| lrl.severity.equals("----")
 					|| lrl.severity.equals("H")
 					|| lrl.severity.equals("HH")
 					|| lrl.severity.equals("L")
