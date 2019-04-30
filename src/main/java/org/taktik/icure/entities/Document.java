@@ -65,9 +65,29 @@ public class Document extends StoredICureDocument implements Serializable {
 
 	public Document solveConflictWith(Document other) {
 		super.solveConflictsWith(other);
+
+		this.mergeFrom(other);
+		return this;
+	}
+
+
+	public void mergeFrom(Document other) {
 		this.otherUtis.addAll(other.otherUtis);
 
-		return this;
+		if (this.documentLocation == null && other.documentLocation != null) { this.documentLocation = other.documentLocation; }
+		if (this.documentType == null && other.documentType != null) { this.documentType = other.documentType; }
+		if (this.documentStatus == null && other.documentStatus != null) { this.documentStatus = other.documentStatus; }
+		if (this.externalUri == null && other.externalUri != null) { this.externalUri = other.externalUri; }
+		if (this.mainUti == null && other.mainUti != null) { this.mainUti = other.mainUti; }
+		if (this.name == null && other.name != null) { this.name = other.name; }
+		if (this.storedICureDocumentId == null && other.storedICureDocumentId != null) { this.storedICureDocumentId = other.storedICureDocumentId; }
+
+		if (this.attachment == null) {
+			this.attachment = other.attachment;
+		} else if (other.attachment != null && this.attachment.length < other.attachment.length) {
+			this.attachment = other.attachment;
+			this.attachmentId = null;
+		}
 	}
 
 	public String getAttachmentId() {

@@ -30,7 +30,6 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.DocumentDAO;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
-import org.taktik.icure.entities.Contact;
 import org.taktik.icure.entities.Document;
 import org.taktik.commons.uti.UTI;
 
@@ -103,7 +102,7 @@ public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements Do
         if (entity.getAttachmentId() != null) {
             try {
                 InputStream attachmentIs = entity.getAttachmentId().contains("|") ? new BufferedInputStream(new FileInputStream(entity.getAttachmentId().split("\\|")[1])) :
-                        getAttachmentInputStream(entity.getId(), entity.getAttachmentId());
+                        getAttachmentInputStream(entity.getId(), entity.getAttachmentId(), entity.getRev());
                 byte[] layout = ByteStreams.toByteArray(attachmentIs);
                 entity.setAttachment(layout);
             } catch (IOException e) {
@@ -115,7 +114,11 @@ public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements Do
     @Override
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     public List<Document> listConflicts() {
-        return queryView("conflicts");
+        ViewQuery viewQuery = createQuery("conflicts")
+                .limit(200)
+                .includeDocs(true);
+
+        return db.queryView(viewQuery, Document.class);
     }
 
     @Override
@@ -144,8 +147,8 @@ public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements Do
     }
 
     @Override
-    public InputStream readAttachment(String documentId, String attachmentId) {
-        return getAttachmentInputStream(documentId, attachmentId);
+    public InputStream readAttachment(String documentId, String attachmentId, String rev) {
+        return getAttachmentInputStream(documentId, attachmentId, rev);
     }
 
 }

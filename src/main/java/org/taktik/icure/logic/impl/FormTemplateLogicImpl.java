@@ -101,46 +101,6 @@ public class FormTemplateLogicImpl extends GenericLogicImpl<FormTemplate, FormTe
 	}
 
 	@Override
-	public FormTemplate get(String formId) {
-		Preconditions.checkNotNull(formId, "Form ID is not allowed to be null.");
-
-		FormTemplate formTemplate = null;
-		InputStreamReader templateStreamReader = null;
-
-		try {
-			// TODO: at the moment, we load the layout from the file system. Later, a DAO will get it from DB.
-			InputStream templateStream = this.getClass().getResourceAsStream("/forms/" + formId + ".xml");
-			if (templateStream == null) {
-				throw new FileNotFoundException("Could not find template file '" + "/forms/" + formId + ".xml'");
-			}
-			templateStreamReader = new InputStreamReader(templateStream, UTF_8);
-			FormLayout formLayout = new FormUtils().parseXml(templateStreamReader);
-
-			// to UTF8 byte[]
-			String formLayoutJsonString = gsonMapper.toJson(formLayout, FormLayout.class);
-			byte[] formLayoutBytes = formLayoutJsonString.getBytes(UTF_8);
-
-			formTemplate = new FormTemplate();
-			formTemplate.setLayout(formLayoutBytes);
-
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new RuntimeException("An unexpected error was encountered while retrieving a FormTemplate. ", e);
-
-		} finally {
-			if (templateStreamReader != null) {
-				try {
-					templateStreamReader.close();
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-
-		return formTemplate;
-	}
-
-	@Override
 	public List<FormTemplate> getFormTemplatesBySpecialty(String specialityCode, boolean loadLayout) {
 		return formTemplateDAO.findBySpecialtyGuid(specialityCode, null, loadLayout);
 	}

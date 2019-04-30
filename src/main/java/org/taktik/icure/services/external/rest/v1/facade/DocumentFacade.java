@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.taktik.commons.uti.UTI;
 import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
@@ -141,7 +142,7 @@ public class DocumentFacade implements OpenApiFacade{
 	@GET
 	@Path("/{documentId}/attachment/{attachmentId}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public Response getAttachment(@PathParam("documentId") String documentId, @PathParam("attachmentId") String attachmentId, @QueryParam("enckeys") String enckeys) {
+	public Response getAttachment(@PathParam("documentId") String documentId, @PathParam("attachmentId") String attachmentId, @QueryParam("enckeys") String enckeys, @QueryParam("fileName") String fileName) {
 		Response response;
 
 		if (documentId == null) {
@@ -158,7 +159,14 @@ public class DocumentFacade implements OpenApiFacade{
 			byte[] attachment = document.decryptAttachment(isBlank(enckeys) ? null : Arrays.asList(enckeys.split(",")));
 			if (attachment != null) {
 				byte[] finalAttachment = attachment;
-				response = ResponseUtils.ok((StreamingOutput) output -> {
+				UTI uti = UTI.get(document.getMainUti());
+
+				String mimeType = uti != null && uti.getMimeTypes().size()>0 ? uti.getMimeTypes().get(0) : "application/octet-stream";
+
+				response = Response.ok()
+						.header("Content-Type", mimeType)
+						.header("Content-Disposition",  "attachment; filename=\""+(fileName != null ? fileName : document.getName())+"\"")
+						.entity((StreamingOutput) output -> {
 					if (StringUtils.equals(document.getMainUti(),"org.taktik.icure.report")) {
 						String styleSheet = "DocumentTemplateLegacyToNew.xml";
 
@@ -175,7 +183,7 @@ public class DocumentFacade implements OpenApiFacade{
 					} else {
 						IOUtils.write(finalAttachment, output);
 					}
-				});
+				}).build();
 			} else {
 				response = ResponseUtils.notFound("AttachmentDto not found");
 			}

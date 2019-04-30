@@ -26,5 +26,4 @@ public interface FormTemplateDAO  extends GenericDAO<FormTemplate> {
 	FormTemplate createFormTemplate(FormTemplate entity);
 	List<FormTemplate> findByUserGuid(String userId, String guid, boolean loadLayout);
 	List<FormTemplate> findBySpecialtyGuid(String specialityCode, String guid, boolean loadLayout);
-	void evictFromCache(FormTemplate entity);
 }

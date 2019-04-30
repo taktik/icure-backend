@@ -49,4 +49,6 @@ public interface DocumentLogic extends EntityPersister<Document, String> {
 	List<Document> getDocuments(List<String> documentIds);
 
 	List<Document> updateDocuments(List<Document> documents);
+
+	void solveConflicts(List<String> ids);
 }
