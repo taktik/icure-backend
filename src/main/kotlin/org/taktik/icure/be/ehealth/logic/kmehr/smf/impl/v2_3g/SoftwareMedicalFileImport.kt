@@ -20,6 +20,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
+import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
@@ -37,7 +38,9 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.axis2.databinding.types.xsd.Integer
 import org.taktik.icure.logic.*
+import org.taktik.icure.validation.aspect.Check
 import javax.xml.bind.JAXBElement
 
 
@@ -235,6 +238,27 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 Unit
             }
             Unit
+        }
+        return allRes
+    }
+
+    fun checkIfSMFPatientsExists(inputStream: InputStream,
+                  author: User,
+                  language: String,
+                  mappings: Map<String, List<ImportMapping>>,
+                  dest: Patient? = null): List<CheckSMFPatientResult> {
+
+        val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+
+        val unmarshaller = jc.createUnmarshaller()
+        val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
+
+
+        val allRes = LinkedList<CheckSMFPatientResult>()
+        val fakeResult = ImportResult()
+
+        kmehrMessage.folders.forEach { folder ->
+            allRes.add( checkIfPatientExists(folder.patient, author, fakeResult, dest))
         }
         return allRes
     }
@@ -1054,10 +1078,29 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
     }
 
-    protected fun createOrProcessPatient(p: PersonType,
-                                         author: User,
-                                         v: ImportResult,
-                                         dest: Patient? = null): Patient? {
+    protected fun checkIfPatientExists(p: PersonType,
+                                     author: User,
+                                     v: ImportResult,
+                                     dest: Patient? = null): CheckSMFPatientResult {
+        val res  = CheckSMFPatientResult()
+        val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
+        v.notNull(niss, "Niss shouldn't be null for patient $p")
+        res.ssin = niss ?: ""
+        res.dateOfBirth = Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
+        res.firstName = p.firstnames.first()
+        res.lastName = p.familyname
+
+        val dbPatient : Patient? = getExistingPatient(p, author, v, dest)
+
+        res.exists = (dbPatient != null)
+        res.existingPatientId = dbPatient?.id
+        return res
+    }
+
+    protected fun getExistingPatient(p: PersonType,
+                                     author: User,
+                                     v: ImportResult,
+                                     dest: Patient? = null): Patient? {
         val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
@@ -1077,6 +1120,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 ?: false
                     } else null
                 }
+
+        return dbPatient
+    }
+
+    protected fun createOrProcessPatient(p: PersonType,
+                                         author: User,
+                                         v: ImportResult,
+                                         dest: Patient? = null): Patient? {
+        val dbPatient : Patient? = getExistingPatient(p, author, v, dest)
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
             this.delegations = mapOf(author.healthcarePartyId to setOf())
