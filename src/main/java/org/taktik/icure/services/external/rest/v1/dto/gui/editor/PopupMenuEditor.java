@@ -39,6 +39,9 @@ public class PopupMenuEditor extends Editor implements ValueDateEditor {
     @XStreamAsAttribute
     boolean displayAllAlways;
 
+    @XStreamAsAttribute
+    boolean isFreeText;
+
 	public PopupMenuEditor() {
 		super();
 	}
@@ -59,6 +62,14 @@ public class PopupMenuEditor extends Editor implements ValueDateEditor {
 
     public void setDisplayAllAlways(boolean displayAllAlways) {
         this.displayAllAlways = displayAllAlways;
+    }
+
+    public boolean getIsFreeText() {
+        return isFreeText;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setIsFreeText(boolean isFreeText) {
+        this.isFreeText = isFreeText;
     }
 
 
