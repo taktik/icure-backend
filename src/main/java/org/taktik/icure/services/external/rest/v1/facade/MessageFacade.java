@@ -289,7 +289,7 @@ public class MessageFacade implements OpenApiFacade{
 	@GET
 	@Path("/byTransportGuid")
 	public Response findMessagesByTransportGuid(@QueryParam("transportGuid") String transportGuid, @QueryParam("received") Boolean received, @QueryParam("startKey") String startKey,
-												@QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit) throws LoginException {
+												@QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit, @QueryParam("hcpId") String hcpId) throws LoginException {
 		Response response;
 
 		boolean receivedPrimitive = (received != null ? received : false);
@@ -302,10 +302,14 @@ public class MessageFacade implements OpenApiFacade{
 
 		PaginatedList<Message> messages;
 
+		if(hcpId == null) {
+		    hcpId = sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId();
+        }
+
 		if(receivedPrimitive){
-            messages = messageLogic.findByTransportGuidReceived(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), transportGuid, paginationOffset);
+            messages = messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset);
         } else {
-            messages = messageLogic.findByTransportGuid(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), transportGuid, paginationOffset);
+            messages = messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset);
         }
 
 		if (messages != null) {
@@ -362,13 +366,17 @@ public class MessageFacade implements OpenApiFacade{
     @GET
     @Path("/byToAddress")
     public Response findMessagesByToAddress(@QueryParam("toAddress") String toAddress, @QueryParam("startKey") String startKey,
-                                                @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit, @QueryParam("reverse") Boolean reverse) throws LoginException {
+                                                @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit, @QueryParam("reverse") Boolean reverse, @QueryParam("hcpId") String hcpId) throws LoginException {
         Response response;
 
 		Object[] startKeyElements = new Gson().fromJson(startKey, Object[].class);
 		PaginationOffset paginationOffset = new PaginationOffset<>(startKeyElements==null?null:Arrays.asList(startKeyElements), startDocumentId, null, limit == null ? null : limit);
 
-        PaginatedList<Message> messages = messageLogic.findByToAddress(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), toAddress, paginationOffset, reverse);
+        if(hcpId == null) {
+            hcpId = sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId();
+        }
+
+        PaginatedList<Message> messages = messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse);
         if (messages != null) {
 			response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
         } else {
@@ -386,13 +394,17 @@ public class MessageFacade implements OpenApiFacade{
     @GET
     @Path("/byFromAddress")
     public Response findMessagesByFromAddress(@QueryParam("fromAddress") String fromAddress, @QueryParam("startKey") String startKey,
-                                                @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit) throws LoginException {
+                                                @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit, @QueryParam("hcpId") String hcpId) throws LoginException {
         Response response;
 
 		Object[] startKeyElements = new Gson().fromJson(startKey, Object[].class);
 		PaginationOffset paginationOffset = new PaginationOffset<>(startKeyElements==null?null:Arrays.asList(startKeyElements), startDocumentId, null, limit == null ? null : limit);
 
-        PaginatedList<Message> messages = messageLogic.findByFromAddress(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), fromAddress,paginationOffset);
+        if(hcpId == null) {
+            hcpId = sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId();
+        }
+
+        PaginatedList<Message> messages = messageLogic.findByFromAddress(hcpId, fromAddress,paginationOffset);
         if (messages != null) {
             response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
         } else {
