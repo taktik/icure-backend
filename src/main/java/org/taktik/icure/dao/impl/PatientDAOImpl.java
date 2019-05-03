@@ -169,7 +169,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 		ComplexKey endKey;
 
 		//Not transactional aware
-		if (ssin != null && ssin != "") {
+		if (ssin != null) {
 			ssin = ssin.replaceAll(" ", "").replaceAll("\\W", "");
 			startKey = ComplexKey.of(healthcarePartyId, ssin);
 			endKey = ComplexKey.of(healthcarePartyId, ssin + "\ufff0");
