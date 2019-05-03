@@ -165,7 +165,7 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     @Override
     public CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl, boolean allowFallback) {
         try {
-            if (groupId == null && allowFallback) { throw new IllegalArgumentException("Missing group id"); }
+            if (groupId == null && !allowFallback) { throw new IllegalArgumentException("Missing group id"); }
             return groupId==null ? fallbackConnector : connectors.get(new CouchDbConnectorReference(dbInstanceUrl == null ? this.couchDbProperties.getUrl() : dbInstanceUrl, groupId, allowFallback));
         } catch (ExecutionException e) {
             throw new IllegalStateException(e);
