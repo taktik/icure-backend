@@ -30,6 +30,7 @@ import org.taktik.icure.entities.Document;
 import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.entities.embed.AddressType;
 import org.taktik.icure.entities.embed.Content;
@@ -261,23 +262,28 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	}
 
 	private Service importPlainStringLaboResult(String language, LaboResultLine lrl, long position, ResultsInfosLine ril) {
+		Service s = new Service();
+
 		String value = lrl.value + " " + lrl.unit;
 		if (lrl.referenceValues.trim().length() > 0) {
 			value += " (" + lrl.referenceValues + " )";
 		}
+
 		if (lrl.severity.trim().length() > 0) {
 			value += " (" + lrl.severity.trim() + " )";
+			s.getCodes().add(new CodeStub("CD-SEVERITY","abnormal","1"));
 		}
-		Service s = new Service();
+
 		s.setId(uuidGen.newGUID().toString());
 		s.getContent().put(language, new Content(value));
 		s.setLabel(lrl.analysisType);
-		s.setIndex((long) position);
+		s.setIndex(position);
 		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
 		return s;
 	}
 
 	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
+		Service s = new Service();
 		Measure m = new Measure();
 
 		m.setValue(d);
@@ -297,10 +303,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
 		if (lrl.severity.trim().length() > 0) {
 			m.setSeverity(1);
-			m.setSeverityCode(lrl.severity);
+			m.setSeverityCode(lrl.severity.trim());
+			s.getCodes().add(new CodeStub("CD-SEVERITY","abnormal","1"));
 		}
 
-		Service s = new Service();
 		s.setId(uuidGen.newGUID().toString());
 		s.getContent().put(language, new Content(m));
 		s.setLabel(lrl.analysisType);

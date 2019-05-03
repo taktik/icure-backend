@@ -91,6 +91,9 @@ public abstract class GenericResultFormatLogicImpl {
 	protected String decodeRawData(byte[] rawData) throws IOException {
 		String text;
 
+		//Test BOM
+
+
 		CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
 		try {
 			CharBuffer decodedChars = utf8Decoder.decode(ByteBuffer.wrap(rawData));
