@@ -57,6 +57,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.taktik.icure.utils.FuzzyValues.isSsin;
+
 @org.springframework.stereotype.Service
 public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements HealthOneLogic {
 	private static Logger log = LoggerFactory.getLogger(HealthOneLogicImpl.class);
@@ -185,7 +187,6 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		}
 	}
 
-
 	private Service importProtocol(String language, List protoList, long position, ResultsInfosLine ril) {
 		String text = ((ProtocolLine) protoList.get(0)).text;
 		for (int i = 1; i < protoList.size(); i++) {
@@ -236,13 +237,12 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				s.setId(uuidGen.newGUID().toString());
 				s.getContent().put(language, new Content(value));
 				s.setLabel(label);
-				s.setIndex((long) position);
+				s.setIndex(position);
 				s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
 
 				result.add(s);
 			}
 		} else {
-			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
 			result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, null);
 		}
 		return result;
@@ -296,18 +296,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		}
 
 		if (lrl.severity.trim().length() > 0) {
-			if (lrl.severity.equals("+")
-					|| lrl.severity.equals("++")
-					|| lrl.severity.equals("-")
-					|| lrl.severity.equals("--")
-					|| lrl.severity.equals("H")
-					|| lrl.severity.equals("HH")
-					|| lrl.severity.equals("L")
-					|| lrl.severity.equals("LL")
-					|| lrl.severity.equals("*")
-			) {
-				m.setSeverity(1);
-			}
+			m.setSeverity(1);
+			m.setSeverityCode(lrl.severity);
 		}
 
 		Service s = new Service();
@@ -669,8 +659,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 			if (parts.length > 1) {
 				psl.protocol = parts[1];
 			}
-			if (parts.length > 3) {
+			if (parts.length > 3 && isSsin(parts[3])) {
 				psl.ssin = parts[3];
+			}
+			if (parts.length > 4 && isSsin(parts[4])) {
+				psl.ssin = parts[4];
 			}
 			return psl;
 		} catch (Exception e) {
