@@ -28,12 +28,15 @@ import java.util.List;
 
 @XStreamAlias("PopupMenuEditor")
 public class PopupMenuEditor extends Editor implements ValueDateEditor {
-    
+
     @XStreamImplicit(itemFieldName = "menuOption")
     private List<String> menuOptions;
 
     @XStreamAsAttribute
     boolean displayValueDate;
+
+    @XStreamAsAttribute
+    boolean displayAllAlways;
 
     @Override
     public boolean getDisplayValueDate() {
@@ -43,6 +46,14 @@ public class PopupMenuEditor extends Editor implements ValueDateEditor {
     @Override
     public void setDisplayValueDate(boolean displayValueDate) {
         this.displayValueDate = displayValueDate;
+    }
+
+    public boolean getDisplayAllAlways() {
+        return displayAllAlways;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setDisplayAllAlways(boolean displayAllAlways) {
+        this.displayAllAlways = displayAllAlways;
     }
 
     public List<String> getMenuOptions() {

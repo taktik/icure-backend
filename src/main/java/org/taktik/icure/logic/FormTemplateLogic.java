@@ -24,7 +24,6 @@ import org.taktik.icure.entities.FormTemplate;
 import java.util.List;
 
 public interface FormTemplateLogic extends EntityPersister<FormTemplate, String> {
-    FormTemplate get(String formId);
     List<FormTemplate> getFormTemplatesBySpecialty(String specialityCode, boolean loadLayout);
     List<FormTemplate> getFormTemplatesByUser(String id, boolean loadLayout);
     FormTemplate modifyFormTemplate(FormTemplate formTemplate);
