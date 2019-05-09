@@ -150,7 +150,7 @@ public class MikronoFacade implements OpenApiFacade {
 				userLogic.save(u);
 
 				String mikronoServerUrl = mikronoLogic.getMikronoServer(credentials.getServerUrl());
-				String mikronoToken = mikronoLogic.register(credentials.getServerUrl(), u.getId(), token);
+				String mikronoToken = mikronoLogic.register(mikronoServerUrl, u.getId(), token);
 
 				if (mikronoToken == null) {
 					return ResponseUtils.badRequest("Cannot obtain mikrono token");
