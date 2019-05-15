@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.squareup.moshi.Json;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.utils.InstantDeserializer;
 import org.taktik.icure.utils.InstantSerializer;
@@ -37,39 +38,50 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Content implements Serializable {
-    @JsonProperty("s")
-    String stringValue;
+	@JsonProperty("s")
+	@Json(name = "s")
+	String stringValue;
 
-    @JsonProperty("n")
-    Double numberValue;
+	@JsonProperty("n")
+	@Json(name = "n")
+	Double numberValue;
 
-    @JsonProperty("b")
-    Boolean booleanValue;
+	@JsonProperty("b")
+	@Json(name = "b")
+	Boolean booleanValue;
 
-    @JsonProperty("i")
-    @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer.class)
-    Instant instantValue;
+	@JsonProperty("i")
+	@Json(name = "i")
+	@JsonSerialize(using = InstantSerializer.class, include = JsonSerialize.Inclusion.NON_NULL)
+	@JsonDeserialize(using = InstantDeserializer.class)
+	Instant instantValue;
 
 	@JsonProperty("dt")
+	@Json(name = "dt")
 	Long fuzzyDateValue;
 
 	@JsonProperty("x")
-    byte[] binaryValue;
+	@Json(name = "x")
+	byte[] binaryValue;
 
-    @JsonProperty("d")
-    String documentId;
+	@JsonProperty("d")
+	@Json(name = "d")
+	String documentId;
 
-    @JsonProperty("m")
-    Measure measureValue;
+	@JsonProperty("m")
+	@Json(name = "m")
+	Measure measureValue;
 
-    @JsonProperty("p")
-    Medication medicationValue;
+	@JsonProperty("p")
+	@Json(name = "p")
+	Medication medicationValue;
 
 	@JsonProperty("c")
+	@Json(name = "c")
 	Map<String, Service> compoundValue;
 
 	@JsonProperty("l")
+	@Json(name = "l")
 	List<Service> multipleValue;
 
 	@JsonIgnore

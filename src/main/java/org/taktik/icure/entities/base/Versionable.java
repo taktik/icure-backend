@@ -26,5 +26,7 @@ import java.util.Map;
 public interface Versionable<T> extends Identifiable<T> {
 
 	Map<String, String> getRevHistory();
+
 	String getRev();
+	void setRev(String rev);
 }

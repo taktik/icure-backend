@@ -15,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,11 +46,12 @@ public class ClusterFacade implements OpenApiFacade {
 		if (!GroupLogicImpl.ADMIN_GROUP.equals(userLogic.getUserOnFallbackDb(id).getGroupId())) {
 			throw new IllegalAccessException("No registered user");
 		}
-
-		return userReplicator.getReplicatorJobsStatusesByGroupId().entrySet().stream()
-				.map(e -> new SyncStatusDto(e.getKey(), e.getValue().getTimestamp(), e.getValue().getUpdates()))
-				.sorted(Comparator.comparing(SyncStatusDto::getGroupId))
-				.collect(Collectors.toList());
+		// FIXME AB Implement
+		return Collections.emptyList();
+//		return userReplicator.getReplicatorJobsStatusesByGroupId().entrySet().stream()
+//				.map(e -> new SyncStatusDto(e.getKey(), e.getValue().getTimestamp(), e.getValue().getUpdates()))
+//				.sorted(Comparator.comparing(SyncStatusDto::getGroupId))
+//				.collect(Collectors.toList());
 	}
 
 	@Autowired

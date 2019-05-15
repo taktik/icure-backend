@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.squareup.moshi.Json;
 import org.ektorp.Attachment;
 import org.ektorp.util.Assert;
 import org.taktik.icure.entities.embed.RevisionInfo;
@@ -39,24 +40,32 @@ import java.util.TreeMap;
 public class StoredDocument implements Versionable<String> {
 
 	@JsonProperty("_attachments")
+	@Json(name = "_attachments")
 	private Map<String, Attachment> attachments = new HashMap<>();
 
 	//Do not use deleted as a field... because it is translated to _deleted by ektorp :-(
 	@JsonProperty("deleted")
+	@Json(name = "deleted")
 	protected Long deletionDate;
 	@JsonProperty("_id")
+	@Json(name = "_id")
 	protected String id;
 	@JsonProperty("_rev")
+	@Json(name = "_rev")
 	protected String rev;
 	@JsonProperty("_revs_info")
+	@Json(name = "_revs_info")
 	protected RevisionInfo[] revisionsInfo;
 	@JsonProperty("_conflicts")
+	@Json(name = "_conflicts")
 	protected String[] conflicts;
 	@JsonProperty("java_type")
+	@Json(name = "java_type")
 	protected String _type = this.getClass().getName();
 	@JsonProperty("rev_history")
+	@Json(name = "rev_history")
 	protected Map<String, String> revHistory = reversedTreeMap();
-	
+
 	@JsonIgnore
 	public void addInlineAttachment(Attachment a) {
 		Assert.notNull(a, "attachment may not be null");
@@ -93,27 +102,32 @@ public class StoredDocument implements Versionable<String> {
 
 	@Override
 	@JsonProperty("_id")
+	@Json(name = "_id")
 	public String getId() {
 		return id;
 	}
 
 	@JsonProperty("_rev")
+	@Json(name = "_rev")
 	public String getRev() {
 		return rev;
 	}
 
 	@Override
 	@JsonProperty("rev_history")
+	@Json(name = "rev_history")
 	public Map<String, String> getRevHistory() {
 		return revHistory == null ? reversedTreeMap() : revHistory;
 	}
 
 	@JsonProperty("_revs_info")
+	@Json(name = "_revs_info")
 	public RevisionInfo[] getRevisionsInfo() {
 		return revisionsInfo;
 	}
 
 	@JsonProperty("_conflicts")
+	@Json(name = "_conflicts")
 	public String[] getConflicts() {
 		return conflicts;
 	}
@@ -124,16 +138,19 @@ public class StoredDocument implements Versionable<String> {
 
 	@Override
 	@JsonProperty("_id")
+	@Json(name = "_id")
 	public void setId(String id) {
 		this.id = id;
 	}
 
 	@JsonProperty("_rev")
+	@Json(name = "_rev")
 	public void setRev(String rev) {
 		this.rev = rev;
 	}
 
 	@JsonProperty("rev_history")
+	@Json(name = "rev_history")
 	public void setRevHistory(Map<String, String> revHistory) {
 		this.revHistory = revHistory;
 	}

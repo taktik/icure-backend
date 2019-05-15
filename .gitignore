@@ -46,6 +46,5 @@ dist-tz/
 test.json
 .gradletasknamecache
 bin/
-misc/
 .classpath
 .settings

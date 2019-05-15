@@ -3,6 +3,7 @@ package org.taktik.icure.entities.base;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.squareup.moshi.Json;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CodeStub implements Serializable, CodeIdentification {
 	@JsonProperty("_id")
+	@Json(name = "_id")
 	String id;
 	String code;
 	String type;
