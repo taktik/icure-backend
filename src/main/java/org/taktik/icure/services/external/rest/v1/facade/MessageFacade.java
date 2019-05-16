@@ -42,6 +42,7 @@ import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto;
 import org.taktik.icure.services.external.rest.v1.dto.MessagePaginatedList;
+import org.taktik.icure.services.external.rest.v1.dto.MessagesReadStatusUpdate;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -438,6 +439,18 @@ public class MessageFacade implements OpenApiFacade{
 	@Path("/status/{status}")
 	public Response setMessagesStatusBits(@PathParam("status") int status, ListOfIdsDto messageIds) throws MissingRequirementsException {
 		return ResponseUtils.ok(messageLogic.setStatus(messageIds.getIds(),status).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList()));
+	}
+
+	@ApiOperation(
+			value = "Set read status for given list of messages",
+			httpMethod = "PUT",
+			responseContainer = "List",
+			response = MessageDto.class
+	)
+	@PUT
+	@Path("/readstatus")
+	public Response setMessagesReadStatus(MessagesReadStatusUpdate data) throws MissingRequirementsException {
+		return ResponseUtils.ok(messageLogic.setReadStatus(data.getIds(), data.getUserId(), data.getStatus(), data.getTime() ).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList()));
 	}
 
 	@ApiOperation(response = MessageDto.class, value = "Adds a delegation to a message")
