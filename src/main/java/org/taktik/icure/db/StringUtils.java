@@ -126,6 +126,7 @@ public class StringUtils {
 				} else if (c == '\u2502') {
 					// from cp850 (unlikely): BOX DRAWINGS LIGHT VERTICAL
 					// from cp1252 (likely): SUPERSCRIPT THREE
+					score--;
 				}
 			}
 			return score > 0 ? "cp850" : "cp1252";
