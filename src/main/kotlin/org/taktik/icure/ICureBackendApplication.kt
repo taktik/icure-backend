@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.SpringApplication
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.web.servlet.ServletContextInitializer
@@ -32,9 +31,6 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.web.WebApplicationInitializer
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
-import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.migration.DbMigration
 import org.taktik.icure.entities.embed.AddressType
@@ -50,11 +46,10 @@ import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.logic.CodeLogic
+import org.taktik.icure.logic.ICureLogic
 import org.taktik.icure.logic.PropertyLogic
 import org.taktik.icure.logic.ReplicationLogic
 import org.taktik.icure.services.external.http.WebSocketServlet
-import javax.servlet.ServletContext
-import javax.servlet.ServletRegistration
 
 @SpringBootApplication(exclude = [FreeMarkerAutoConfiguration::class])
 @EnableWebSecurity
@@ -65,15 +60,16 @@ class ICureBackendApplication {
 
     @Bean
     fun initializer(webSocketServlet: WebSocketServlet) = ServletContextInitializer {
-        val servlet = it.addServlet("webSocketServlet", webSocketServlet)
-        servlet.setLoadOnStartup(1);
-        servlet.addMapping("/ws/*");
+        val webSocketServletReg = it.addServlet("webSocketServlet", webSocketServlet)
+        webSocketServletReg.setLoadOnStartup(1);
+        webSocketServletReg.addMapping("/ws/*")
     }
 
     @Bean
-    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
+    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
         //Check that core types have corresponding codes
-        log.info("icure (" + propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.identifier) + ") is initialised")
+        log.info("icure (" + iCureLogic.version + ") is initialised")
+
         taskExecutor.execute {
             listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
                    Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
@@ -98,7 +94,7 @@ class ICureBackendApplication {
         taskScheduler.scheduleAtFixedRate({ replicationLogic.startReplications() }, 60_000L)
         taskScheduler.scheduleAtFixedRate({ allDaos.forEach { it.refreshIndex() } }, 240_000L)
 
-        log.info("icure (" + propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.identifier) + ") is started")
+        log.info("icure (" + iCureLogic.version + ") is started")
     }
 }
 

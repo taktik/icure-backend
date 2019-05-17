@@ -220,80 +220,8 @@ dependencies {
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
-// Adding specific windows compilation for taktik frontend
-task npmInstallWindows(type: Exec) {
-    description 'start npm on Windows systems'
-    workingDir "$projectDir/web/icure-ht"
-    executable  'npm.cmd'
-    args 'i'
-}
-task bowerInstallWindows(type: Exec) {
-    description 'start bower on Windows systems'
-    workingDir "$projectDir/web/icure-ht"
-    executable  'bower.cmd'
-    args 'install'
-}
 
-task installWebResourcesDependencies(type: Exec) {
-    group 'build'
-    description 'Package web resources'
-
-    workingDir "$projectDir/web/icure-ht"
-    commandLine "npm", "install"
-    commandLine "bower", "install"
-}
-npmInstallWindows.onlyIf{ Os.isFamily(Os.FAMILY_WINDOWS)}
-bowerInstallWindows.onlyIf{ Os.isFamily(Os.FAMILY_WINDOWS)}
-bowerInstallWindows.dependsOn(npmInstallWindows)
-
-installWebResourcesDependencies.onlyIf{ !Os.isFamily(Os.FAMILY_WINDOWS)}
-
-
-task packageHtWebResources(type: Exec) {
-    group 'build'
-    description 'Package web resources'
-
-    workingDir "$projectDir/web/icure-ht"
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine "cmd", "/c node_modules\\.bin\\webpack.cmd --config webpack.config.js --mode production --devtool none"
-    } else {
-        commandLine "node_modules/.bin/webpack", "--config", "webpack.config.js", "--mode", "production", "--devtool", "none"
-    }
-}
-
-task packageTzWebResources(type: Exec) {
-    group 'build'
-    description 'Package web resources'
-
-    workingDir "$projectDir/web/icure-ht"
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine "cmd", "/c node_modules\\.bin\\webpack.cmd --config webpack.config.tz.js --mode production --devtool none"
-    } else {
-        commandLine "node_modules/.bin/webpack", "--config", "webpack.config.tz.js", "--mode", "production", "--devtool", "none"
-    }
-}
-
-packageHtWebResources.dependsOn(installWebResourcesDependencies)
-packageTzWebResources.dependsOn(installWebResourcesDependencies)
-packageHtWebResources.dependsOn(bowerInstallWindows)
-packageTzWebResources.dependsOn(bowerInstallWindows)
-
-task copyHtWebResources(type: Copy) {
-    from "$projectDir/web/icure-ht/dist"
-    into "${buildDir}/resources/main/static/ht"
-}
-
-task copyTzWebResources(type: Copy) {
-    from "$projectDir/web/icure-ht/dist-tz"
-    into "${buildDir}/resources/main/static/tz"
-}
-
-copyHtWebResources.dependsOn(packageHtWebResources)
-copyTzWebResources.dependsOn(packageTzWebResources)
 compileJava.dependsOn(processResources)
-
-bootRepackage.dependsOn(copyHtWebResources)
-bootRepackage.dependsOn(copyTzWebResources)
 
 // Setup resolution strategy
 configurations.all {
@@ -319,33 +247,6 @@ configurations.all {
 
 springBoot {
     mainClass = "org.taktik.icure.ICureBackendApplicationKt"
-}
-
-/*
- * Exclude Frontend Generation in order to compile only backend
- * Usage : -P skipFrontend=0
- */
-bowerInstallWindows.onlyIf { !project.hasProperty('skipFrontend') }
-installWebResourcesDependencies.onlyIf { !project.hasProperty('skipFrontend') }
-packageHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
-packageTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
-copyHtWebResources.onlyIf { !project.hasProperty('skipFrontend') }
-copyTzWebResources.onlyIf { !project.hasProperty('skipFrontend') }
-
-task dockerizeFrontend(type: Exec) {
-    def push = project.hasProperty("dockerPush")
-    def dryRun = project.hasProperty("noDockerBuild")
-
-    def v = project.ext.gitVersion // get version from git-version plugin
-    def tag = "docker.taktik.be/icure-frontend:$v"
-
-    if (!dryRun) {
-        def buildCommand = ['docker', 'build', './web/icure-ht', '-t', "$tag"]
-        if (push && !v.contains("dirty")) {
-            buildCommand += ['&&', 'docker', 'push', "$tag"]
-        }
-        setCommandLine(["bash", "-c" , buildCommand.join(" ")])
-    }
 }
 
 bootRun {

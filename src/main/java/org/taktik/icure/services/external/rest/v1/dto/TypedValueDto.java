@@ -29,7 +29,7 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto> {
 
 	private TypedValuesType type;
 
-	private Integer booleanValue;
+	private Boolean booleanValue;
 	private Integer integerValue;
 	private Double doubleValue;
 	private String stringValue;
@@ -52,7 +52,7 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto> {
 
 		switch (type) {
 			case BOOLEAN :
-				return (T) (booleanValue == null ? null : booleanValue == 1);
+				return (T) booleanValue;
 			case INTEGER :
 				return (T) integerValue;
 			case DOUBLE :
@@ -102,7 +102,7 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto> {
 			switch (type) {
 				case BOOLEAN :
 					if (value instanceof Boolean) {
-						booleanValue = ((Boolean) value) ? 1 : 0;
+						booleanValue = (Boolean) value;
 					}
 					break;
 				case INTEGER :
@@ -148,11 +148,11 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto> {
 	}
 
 	public Boolean getBooleanValue() {
-		return booleanValue == null ? null : booleanValue == 1;
+		return booleanValue;
 	}
 
 	public void setBooleanValue(Boolean booleanValue) {
-		this.booleanValue = booleanValue == null ? null : (booleanValue ? 1 : 0);
+		this.booleanValue = booleanValue;
 	}
 
 	public Date getDateValue() {

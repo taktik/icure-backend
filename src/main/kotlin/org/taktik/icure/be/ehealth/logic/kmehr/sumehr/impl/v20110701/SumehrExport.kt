@@ -454,8 +454,7 @@ class SumehrExport : KmehrExport() {
         }
     }
 
-    private fun
-            addHealthCareElement(trn: TransactionType, eds: HealthElement) {
+    private fun addHealthCareElement(trn: TransactionType, eds: HealthElement) {
         try {
 			val items = if (eds.closingDate != null) {
 				getHistory(trn).headingsAndItemsAndTexts
