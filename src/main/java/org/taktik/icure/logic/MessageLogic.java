@@ -55,6 +55,8 @@ public interface MessageLogic extends EntityPersister<Message, String> {
 
 	List<Message> setStatus(List<String> messageIds, int status) ;
 
+	List<Message> setReadStatus(List<String> messageIds, String userId, boolean status, Long time) ;
+
 	PaginatedList<Message> findForCurrentHcParty(PaginationOffset paginationOffset) throws LoginException;
 
 	Message addDelegations(String messageId, List<Delegation> delegations);

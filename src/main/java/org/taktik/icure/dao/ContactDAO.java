@@ -52,7 +52,7 @@ public interface ContactDAO extends GenericDAO<Contact> {
 
     PaginatedList<Contact> listContacts(String hcPartyId, PaginationOffset<String> pagination);
 
-    PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long openingDate, PaginationOffset<List<Serializable>> pagination);
+    PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long startOpeningDate, Long endOpeningDate, PaginationOffset pagination);
 
     List<Contact> findByHcPartyFormId(String hcPartyId, String formId);
 

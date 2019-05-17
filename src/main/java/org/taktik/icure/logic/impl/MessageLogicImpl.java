@@ -35,7 +35,9 @@ import org.taktik.icure.exceptions.CreationException;
 import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.MessageLogic;
+import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus;
 import org.taktik.icure.validation.aspect.Check;
+import org.taktik.icure.utils.FuzzyValues;
 
 import javax.security.auth.login.LoginException;
 import javax.validation.constraints.NotNull;
@@ -60,6 +62,23 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	public List<Message> setStatus(List<String> messageIds, int status) {
 		return messageDAO.save(messageDAO.getList(messageIds).stream().map(m -> {
 			m.setStatus(m.getStatus() != null ? (m.getStatus() | status) : status); return m;
+		}).collect(Collectors.toList()));
+	}
+
+	@Override
+	public List<Message> setReadStatus(List<String> messageIds, String userId, boolean status, Long time) {
+		return messageDAO.save(messageDAO.getList(messageIds).stream().map(m -> {
+			Map<String, MessageReadStatus> readStatus = m.getReadStatus();
+
+			if(readStatus.get(userId) == null || FuzzyValues.compare(readStatus.get(userId).getTime(), time) == -1) {
+				MessageReadStatus userReadStatus = new MessageReadStatus();
+				userReadStatus.setRead(status);
+				userReadStatus.setTime(time);
+
+				readStatus.put(userId, userReadStatus);
+			}
+
+			return m;
 		}).collect(Collectors.toList()));
 	}
 
