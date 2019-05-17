@@ -497,6 +497,27 @@ public class Patient extends StoredICureDocument implements Person {
 				this.getAddresses().add(fromAddress);
 			}
 		}
+
+		//insurabilities
+        for(Insurability fromInsurability:other.insurabilities){
+            Optional<Insurability> destInsurability = this.getInsurabilities().stream().filter(insurability -> insurability.getInsuranceId() == fromInsurability.getInsuranceId()).findAny();
+            if(destInsurability.isPresent()){
+                //do nothing : un-mergable
+            } else {
+                this.getInsurabilities().add(fromInsurability);
+            }
+        }
+        //Todo: cleanup insurabilities (enddates ...)
+        
+        //medicalhousecontracts
+        for(MedicalHouseContract fromMedicalHouseContract:other.medicalHouseContracts){
+            Optional<MedicalHouseContract> destMedicalHouseContract = this.getMedicalHouseContracts().stream().filter(medicalHouseContract -> medicalHouseContract.getMmNihii() == fromMedicalHouseContract.getMmNihii()).findAny();
+            if(destMedicalHouseContract.isPresent()){
+                //do nothing : un-mergable
+            } else {
+                this.getMedicalHouseContracts().add(fromMedicalHouseContract);
+            }
+        }
 	}
 
 	public void forceMergeFrom(Patient other) {
