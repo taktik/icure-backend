@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -46,6 +47,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -133,7 +135,18 @@ public final class GsonMessageBodyHandler implements MessageBodyWriter<Object>,
 		private Base64 b64 = new Base64();
 
 		public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-			return b64.decode(json.getAsString());
+			if (json.isJsonArray()) {
+				JsonArray asJsonArray = json.getAsJsonArray();
+				byte[] res = new byte[asJsonArray.size()];
+				int i = 0;
+				Iterator<JsonElement> bi = asJsonArray.iterator();
+				while (bi.hasNext()) {
+					res[i++] = bi.next().getAsByte();
+				}
+				return res;
+			} else {
+				return b64.decode(json.getAsString());
+			}
 		}
 
 		public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
