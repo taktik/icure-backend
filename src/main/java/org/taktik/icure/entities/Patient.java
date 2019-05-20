@@ -489,6 +489,10 @@ public class Patient extends StoredICureDocument implements Person {
 		if (this.picture == null && other.picture != null) { this.picture = other.picture; }
 		if (this.externalId == null && other.externalId != null) { this.externalId = other.externalId; }
 
+        if (this.alias == null && other.alias != null) { this.alias = other.alias; }
+        if ((this.administrativeNote == null) || (this.administrativeNote.trim().equals("")) && other.administrativeNote != null) { this.administrativeNote = other.administrativeNote; }
+        if (this.warning == null && other.warning != null) { this.warning = other.warning; }
+
 		for (Address fromAddress:other.addresses) {
 			Optional<Address> destAddress = this.getAddresses().stream().filter(address -> address.getAddressType() == fromAddress.getAddressType()).findAny();
 			if (destAddress.isPresent()) {
@@ -501,9 +505,7 @@ public class Patient extends StoredICureDocument implements Person {
 		//insurabilities
         for(Insurability fromInsurability:other.insurabilities){
             Optional<Insurability> destInsurability = this.getInsurabilities().stream().filter(insurability -> insurability.getInsuranceId().equals(fromInsurability.getInsuranceId())).findAny();
-            if(destInsurability.isPresent()){
-                //do nothing : un-mergable
-            } else {
+            if(!destInsurability.isPresent()){
                 this.getInsurabilities().add(fromInsurability);
             }
         }
@@ -512,12 +514,41 @@ public class Patient extends StoredICureDocument implements Person {
         //medicalhousecontracts
         for(MedicalHouseContract fromMedicalHouseContract:other.medicalHouseContracts){
             Optional<MedicalHouseContract> destMedicalHouseContract = this.getMedicalHouseContracts().stream().filter(medicalHouseContract -> medicalHouseContract.getMmNihii().equals(fromMedicalHouseContract.getMmNihii())).findAny();
-            if(destMedicalHouseContract.isPresent()){
-                //do nothing : un-mergable
-            } else {
+            if(!destMedicalHouseContract.isPresent()){
                 this.getMedicalHouseContracts().add(fromMedicalHouseContract);
             }
         }
+
+        for (String fromLanguage:other.languages) {
+            Optional<String> destLanguage = this.getLanguages().stream().filter(language -> language == fromLanguage).findAny();
+            if (!destLanguage.isPresent()) {
+                this.getLanguages().add(fromLanguage);
+            }
+        }
+
+        for (Partnership fromPartnership:other.partnerships) {
+            //Todo: check comparision:
+            Optional<Partnership> destPartnership = this.getPartnerships().stream().filter(partnership -> partnership.getPartnerId() == fromPartnership.getPartnerId()).findAny();
+            if (!destPartnership.isPresent()) {
+                this.getPartnerships().add(fromPartnership);
+            }
+        }
+
+        for (PatientHealthCareParty fromPatientHealthCareParty:other.patientHealthCareParties) {
+            Optional<PatientHealthCareParty> destPatientHealthCareParty = this.getPatientHealthCareParties().stream().filter(patientHealthCareParty -> patientHealthCareParty.getHealthcarePartyId() == fromPatientHealthCareParty.getHealthcarePartyId()).findAny();
+            if (!destPatientHealthCareParty.isPresent()) {
+                this.getPatientHealthCareParties().add(fromPatientHealthCareParty);
+            }
+        }
+
+        for (FinancialInstitutionInformation fromFinancialInstitutionInformation:other.financialInstitutionInformation) {
+            Optional<FinancialInstitutionInformation> destFinancialInstitutionInformation = this.getFinancialInstitutionInformation().stream().filter(financialInstitutionInformation -> financialInstitutionInformation.getBankAccount() == fromFinancialInstitutionInformation.getBankAccount()).findAny();
+            if (!destFinancialInstitutionInformation.isPresent()) {
+                this.getFinancialInstitutionInformation().add(fromFinancialInstitutionInformation);
+            }
+        }
+
+
 	}
 
 	public void forceMergeFrom(Patient other) {
