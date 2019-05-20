@@ -176,4 +176,7 @@ public class MedicalHouseContract {
 
 	public void setNoNurse(boolean noNurse) { this.noNurse = noNurse; }
 
+	public void mergeFrom(MedicalHouseContract other) {
+		//TODO: implement
+	}
 }
