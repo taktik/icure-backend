@@ -102,7 +102,11 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         if (value == null) {
             log.debug("Cache MISS = {}", fullId);
             T e = super.get(id, options);
-            log.debug("Cache SAVE = {}, {} - {}", fullId, e.getId(), e.getRev());
+            if (e != null) {
+                log.debug("Cache SAVE = {}, {} - {}", fullId, e.getId(), e.getRev());
+            } else {
+                log.debug("Cache Save  = {}, Null value", fullId);
+            }
             cache.put(fullId, e);
             return e;
         } else {
