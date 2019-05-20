@@ -68,6 +68,10 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	public final static int STATUS_ERRORS_IN_PRELIMINARY_CONTROL = 1 << 22;
 
+    public final static int STATUS_DRAFT = 1 << 23;
+    public final static int STATUS_SCANNED = 1 << 24;
+    public final static int STATUS_IMPORTED = 1 << 25;
+
 	private String fromAddress;
 	private String fromHealthcarePartyId;
 	private String formId;
