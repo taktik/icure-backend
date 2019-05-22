@@ -463,18 +463,23 @@ class SumehrExport : KmehrExport() {
 			}
 
             listOf("healthcareelement", "allergy", "adr", "familyrisk", "risk").forEach { edType ->
-                if(eds?.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
+                if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
                     createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr), edType)).filterNotNull())?.let {
-                        it.contents.add(ContentType().apply {
-                            eds?.codes?.forEach { c ->
-                                try{
-                                    val cdt = CDCONTENTschemes.fromValue(c.type)
-                                    this.cds.add(CDCONTENT().apply { s(cdt); sl = c.type; dn = c.type; sv = c.version; value = c.code })
-                                } catch (ignored : IllegalArgumentException) {
-                                    log.error(ignored)
+                        if(!eds.codes.isEmpty()){
+                            // Notice the content can not be empty (sumehr validator)
+                            it.contents.add(ContentType().apply {
+                                eds.codes?.forEach { c ->
+                                    try{
+                                        val cdt = CDCONTENTschemes.fromValue(c.type)
+                                        // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+                                        val version = if (c.type == "CD-ATC") "1.0" else c.version
+                                        this.cds.add(CDCONTENT().apply { s(cdt); sl = c.type; dn = c.type; sv = version; value = c.code })
+                                    } catch (ignored : IllegalArgumentException) {
+                                        log.error(ignored)
+                                    }
                                 }
-                            }
-                        })
+                            })
+                        }
                         items.add(it)
                     }
                 }
