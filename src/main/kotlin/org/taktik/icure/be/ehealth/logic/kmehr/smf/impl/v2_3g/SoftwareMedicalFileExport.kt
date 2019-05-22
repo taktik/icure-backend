@@ -176,7 +176,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		val specialPrescriptions = mutableListOf<TransactionType>()
 
 		contacts.forEachIndexed { index, encContact ->
-			progressor?.progress((1.0 * index) / contacts.size)
+			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
@@ -225,7 +225,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 						contact.encounterType?.let { headingsAndItemsAndTexts.add(makeEncounterType(headingsAndItemsAndTexts.size + 1, it)) }
 
 						hesByContactId[contact.id].orEmpty().map { he -> addHealthCareElement(trn, he, 0, config) }
-            
+
 						hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
 						// forms
@@ -386,7 +386,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			Unit
 		}
 
-		documents.forEach{
+		documents.forEachIndexed{ index, it ->
+			progressor?.progress((1.0 * (index + contacts.size)) / (contacts.size + documents.size))
 			val (docid, svc, con) = it
 			folder.transactions.add( TransactionType().apply {
 				ids.add(idKmehr(startIndex))
@@ -688,7 +689,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, config: Config): List<HealthElement> {
 		return excludeHealthElementsForPMF(
 				healthElementLogic?.findByHCPartySecretPatientKeys(hcPartyId, sfks)?.filterNot {
-					it.descr.matches("INBOX|Etat général.*|Algemeen toestand.*".toRegex())
+					it.descr?.matches("INBOX|Etat général.*|Algemeen toestand.*".toRegex()) ?: false
 				} ?: emptyList()
 		, config)
 	}

@@ -31,8 +31,8 @@ public class PatientByHcPartyAndExternalIdFilter extends Filter<Patient> impleme
     public PatientByHcPartyAndExternalIdFilter() {
     }
 
-    public PatientByHcPartyAndExternalIdFilter(String ssin, String healthcarePartyId) {
-        this.externalId = ssin;
+    public PatientByHcPartyAndExternalIdFilter(String externalId, String healthcarePartyId) {
+        this.externalId = externalId;
         this.healthcarePartyId = healthcarePartyId;
     }
 

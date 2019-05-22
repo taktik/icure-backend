@@ -207,7 +207,9 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 				try {
 					Comparable ap = (Comparable) pub.getProperty(a, sort != null ? sort : "id");
 					Comparable bp = (Comparable) pub.getProperty(b, sort != null ? sort : "id");
-					return desc!=null&&desc?ObjectUtils.compare(bp, ap):ObjectUtils.compare(ap, bp);
+					return (ap instanceof String && bp instanceof String) ?
+							(desc!=null && desc ? StringUtils.compareIgnoreCase((String)bp, (String)ap) : StringUtils.compareIgnoreCase((String)ap, (String)bp)) :
+							(desc!=null && desc ? ObjectUtils.compare(bp, ap) : ObjectUtils.compare(ap, bp));
 				} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {}
 				return 0;
 			});
@@ -519,13 +521,14 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			from.setDeletionDate(Instant.now().toEpochMilli());
 
 			patient.mergeFrom(from);
-			patient.getMergedIds().addAll(fromPatients.stream().map(p->p.getId()).collect(Collectors.toList()));
 			try {
 				modifyPatient(from);
 			} catch (MissingRequirementsException e) {
 				throw new IllegalStateException(e);
 			}
 		}
+
+		patient.getMergedIds().addAll(fromPatients.stream().map(p->p.getId()).collect(Collectors.toList()));
 
 		try {
 			return modifyPatient(patient);

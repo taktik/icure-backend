@@ -25,6 +25,7 @@ import com.google.common.base.Objects;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.utils.MergeUtil;
+import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -50,21 +51,23 @@ public class Message extends StoredICureDocument implements Serializable {
 	public final static int STATUS_SUBMITTED 				= 1 << 8; //tack
 	public final static int STATUS_RECEIVED 				= 1 << 9; //tack
 	public final static int STATUS_ACCEPTED_FOR_TREATMENT 	= 1 << 10; //931000
-	public final static int STATUS_ACCEPTED 				= 1 << 11; //920098
+	public final static int STATUS_ACCEPTED 				= 1 << 11; //920098 920900 920099
 	public final static int STATUS_REJECTED 				= 1 << 12; //920999
 
 	public final static int STATUS_TACK 					= 1 << 13;
 	public final static int STATUS_MASKED 					= 1 << 14;
 
-	public final static int STATUS_SUCCESS 					= 1 << 15; //920900 920098
-	public final static int STATUS_WARNING 					= 1 << 16; //920900
-	public final static int STATUS_ERROR 					= 1 << 17; //920099
+	public final static int STATUS_FULL_SUCCESS             = 1 << 15; //920900 920098
+	public final static int STATUS_PARTIAL_SUCCESS          = 1 << 16; //920900
+	public final static int STATUS_FULL_ERROR               = 1 << 17; //920099 920999
 
 	public final static int STATUS_ANALYZED 				= 1 << 18;
 	public final static int STATUS_DELETED_ON_SERVER 		= 1 << 19;
 	public final static int STATUS_SHOULD_BE_DELETED_ON_SERVER 	= 1 << 20;
 
 	public final static int STATUS_ARCHIVED					= 1 << 21;
+
+	public final static int STATUS_ERRORS_IN_PRELIMINARY_CONTROL = 1 << 22;
 
 	private String fromAddress;
 	private String fromHealthcarePartyId;
@@ -79,6 +82,8 @@ public class Message extends StoredICureDocument implements Serializable {
 	private Long sent;
 
 	private Map<String, String> metas = new HashMap<>();
+
+	private Map<String, MessageReadStatus> readStatus = new HashMap<>();
 
 	/*
 		CHAP4:IN:   ${Mycarenet message ref}
@@ -325,5 +330,13 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	public void setAssignedResults(Map<String, String> assignedResults) {
 		this.assignedResults = assignedResults;
+	}
+
+	public Map<String, MessageReadStatus> getReadStatus() {
+		return readStatus;
+	}
+
+	public void setReadStatus(Map<String, MessageReadStatus> readStatus) {
+		this.readStatus = readStatus;
 	}
 }

@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.logic.FormLogic;
 import org.taktik.icure.logic.FormTemplateLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
+import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.FormDto;
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
@@ -51,6 +53,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
@@ -351,7 +354,7 @@ public class FormFacade implements OpenApiFacade {
 		if (specialityCode == null) {
 			response = ResponseUtils.badRequest("Cannot retrieve form templates: provided speciality Code is null");
 		} else {
-			List<FormTemplate> formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, false);
+			List<FormTemplate> formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, loadLayout == null?true:loadLayout);
 			return ResponseUtils.ok(formTemplates.stream().map((ft) -> mapper.map(ft, FormTemplateDto.class)).collect(Collectors.toList()));
 		}
 
@@ -364,10 +367,10 @@ public class FormFacade implements OpenApiFacade {
 			value = "Gets all form templates for current user")
 	@GET
 	@Path("/template")
-	public Response findFormTemplates() {
+	public Response findFormTemplates(@QueryParam("loadLayout") Boolean loadLayout) {
 		List<FormTemplate> formTemplates;
 		try {
-			formTemplates = formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), false);
+			formTemplates = formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), loadLayout == null?true:loadLayout);
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			return Response.status(400).type("text/plain").entity(e.getMessage()).build();
@@ -442,6 +445,23 @@ public class FormFacade implements OpenApiFacade {
 			return Response.status(500).type("text/plain").entity("Form modification failed.").build();
 		}
 	}
+
+	@ApiOperation(response = String.class, value = "Update a form template's layout")
+	@PUT
+	@Path("/template/{formTemplateId}/attachment/multipart")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, @FormDataParam("attachment") byte[] payload) {
+
+		if (payload == null || formTemplateId == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+		FormTemplate formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId);
+		formTemplate.setLayout(payload);
+		formTemplate = formTemplateLogic.modifyFormTemplate(formTemplate);
+
+		return Response.ok(formTemplate.getRev()).build();
+	}
+
 
 	@ApiOperation(
 			value = "Convert legacy format layouts to a list of FormLayout",
