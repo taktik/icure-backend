@@ -148,11 +148,11 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto> {
 	}
 
 	public Boolean getBooleanValue() {
-		return booleanValue == null ? null : booleanValue == 1;
+		return booleanValue;
 	}
 
 	public void setBooleanValue(Boolean booleanValue) {
-		this.booleanValue = booleanValue == null ? null : (booleanValue ? 1 : 0);
+		this.booleanValue = booleanValue;
 	}
 
 	public Date getDateValue() {
