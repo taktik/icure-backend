@@ -521,13 +521,14 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			from.setDeletionDate(Instant.now().toEpochMilli());
 
 			patient.mergeFrom(from);
-			patient.getMergedIds().addAll(fromPatients.stream().map(p->p.getId()).collect(Collectors.toList()));
 			try {
 				modifyPatient(from);
 			} catch (MissingRequirementsException e) {
 				throw new IllegalStateException(e);
 			}
 		}
+
+		patient.getMergedIds().addAll(fromPatients.stream().map(p->p.getId()).collect(Collectors.toList()));
 
 		try {
 			return modifyPatient(patient);
