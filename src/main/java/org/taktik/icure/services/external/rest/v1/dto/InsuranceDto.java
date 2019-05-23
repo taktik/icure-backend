@@ -28,6 +28,8 @@ public class InsuranceDto extends StoredDto {
     protected boolean ambulatoryInsurance = false;
 
     protected String code;
+    protected String agreementNumber;
+
     protected String parent;
     protected AddressDto address= new AddressDto();
 
@@ -55,6 +57,14 @@ public class InsuranceDto extends StoredDto {
 
     public void setAmbulatoryInsurance(boolean ambulatoryInsurance) {
         this.ambulatoryInsurance = ambulatoryInsurance;
+    }
+
+    public String getAgreementNumber() {
+        return agreementNumber;
+    }
+
+    public void setAgreementNumber(String agreementNumber) {
+        this.agreementNumber = agreementNumber;
     }
 
     public String getCode() {
