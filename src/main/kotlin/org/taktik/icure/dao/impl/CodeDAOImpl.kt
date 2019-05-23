@@ -28,7 +28,6 @@ import org.springframework.stereotype.Repository
 import org.taktik.icure.dao.CodeDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
-import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
@@ -135,8 +134,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 
     @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
     override fun findCodesByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> {
-        var label1 = label
-        label1 = if (label1 != null) StringUtils.sanitizeString(label1) else null
+        val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val startKey = if (pagination == null) null else pagination.startKey as MutableList<Any?>
         if (startKey != null && startKey.size > 2 && startKey[2] != null) {
 			startKey[2] = StringUtils.sanitizeString(startKey[2] as String)
@@ -145,14 +143,14 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
             ComplexKey.of(
                     region ?: "\u0000",
                     language ?: "\u0000",
-                    if (label1 == null) "\u0000" else label1
+                    if (sanitizedLabel == null) "\u0000" else sanitizedLabel
             )
         else
             ComplexKey.of(*startKey.toTypedArray())
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
-                if (language == null) ComplexKey.emptyObject() else if (label1 == null) language + "\ufff0" else language,
-                if (label1 == null) ComplexKey.emptyObject() else label1 + "\ufff0"
+                if (language == null) ComplexKey.emptyObject() else if (sanitizedLabel == null) language + "\ufff0" else language,
+                if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
 
         return pagedQueryView(
@@ -166,8 +164,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 
     @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
     override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> {
-        var label1 = label
-        label1 = if (label1 != null) StringUtils.sanitizeString(label1) else null
+        val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val startKey = if (pagination == null || pagination.startKey == null) null else pagination.startKey as MutableList<Any?>
         if (startKey != null && startKey.size > 3 && startKey[3] != null) {
 			startKey[3] = StringUtils.sanitizeString(startKey[3] as String)
@@ -177,7 +174,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                     region ?: "\u0000",
                     language ?: "\u0000",
                     type ?: "\u0000",
-                    if (label1 == null) "\u0000" else label1
+                    if (sanitizedLabel == null) "\u0000" else sanitizedLabel
             )
         else
             ComplexKey.of(*startKey.toTypedArray())
@@ -185,7 +182,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 			if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
 			language ?: ComplexKey.emptyObject(),
 			type ?: ComplexKey.emptyObject(),
-			if (label1 == null) ComplexKey.emptyObject() else label1 + "\ufff0"
+			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
 
         return pagedQueryView(
@@ -197,10 +194,8 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                              )
     }
 
-    @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
     override fun listCodeIdsByLabel(region: String?, language: String?, label: String?): List<String> {
-        var sanitizedLabel = label
-        sanitizedLabel = if (sanitizedLabel != null) StringUtils.sanitizeString(sanitizedLabel) else null
+        val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
             ComplexKey.of(
                 region ?: "\u0000",
@@ -220,10 +215,8 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
             .endKey(to), String::class.java)
     }
 
-    @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
     override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String> {
-        var sanitizedLabel = label
-        sanitizedLabel = if (sanitizedLabel != null) StringUtils.sanitizeString(sanitizedLabel) else null
+        val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
             ComplexKey.of(
                 region ?: "\u0000",
