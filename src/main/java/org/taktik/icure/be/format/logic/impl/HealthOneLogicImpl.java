@@ -202,7 +202,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private List<Service> importLaboResult(String language, List labResults, long position, ResultsInfosLine ril) {
+	protected List<Service> importLaboResult(String language, List labResults, long position, ResultsInfosLine ril) {
 		List<Service> result = new ArrayList<>();
 		if (labResults.size() > 1) {
 			LaboResultLine lrl = (LaboResultLine) labResults.get(0);
