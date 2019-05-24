@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.v20110701
 
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
@@ -59,17 +60,17 @@ import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
 open class KmehrExport {
-    var patientLogic: PatientLogic? = null
-    var codeLogic: CodeLogic? = null
-    var drugsLogic: DrugsLogic? = null
-    var healthElementLogic: HealthElementLogic? = null
-    var healthcarePartyLogic: HealthcarePartyLogic? = null
-    var contactLogic: ContactLogic? = null
-    var documentLogic: DocumentLogic? = null
-    var mainLogic: MainLogic? = null
-    var sessionLogic: SessionLogic? = null
-    var filters: Filters? = null
-    var mapper: MapperFacade? = null
+    @Autowired var patientLogic: PatientLogic? = null
+    @Autowired var codeLogic: CodeLogic? = null
+    @Autowired var drugsLogic: DrugsLogic? = null
+    @Autowired var healthElementLogic: HealthElementLogic? = null
+    @Autowired var healthcarePartyLogic: HealthcarePartyLogic? = null
+    @Autowired var contactLogic: ContactLogic? = null
+    @Autowired var documentLogic: DocumentLogic? = null
+    @Autowired var mainLogic: MainLogic? = null
+    @Autowired var sessionLogic: SessionLogic? = null
+    @Autowired var filters: Filters? = null
+    @Autowired var mapper: MapperFacade? = null
 
     internal val STANDARD = "20110701"
     internal val ICUREVERSION = "4.0.0"
