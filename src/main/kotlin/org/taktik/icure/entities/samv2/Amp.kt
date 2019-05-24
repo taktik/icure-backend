@@ -1,7 +1,6 @@
 package org.taktik.icure.entities.samv2
 
 import org.taktik.icure.entities.samv2.embed.*
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed.MedicineTypeDto
 
 class Amp(
         from: Long? = null,
@@ -12,7 +11,7 @@ class Amp(
         var status: AmpStatus? = null,
         var name: SamText? = null,
         var blackTriangle: Boolean = false,
-        var medicineType: MedicineTypeDto? = null,
+        var medicineType: MedicineType? = null,
         var company: Company? = null,
         var abbreviatedName: SamText? = null,
         var proprietarySuffix: SamText? = null,

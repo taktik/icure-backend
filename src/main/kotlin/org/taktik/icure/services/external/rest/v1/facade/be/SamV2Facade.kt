@@ -7,13 +7,12 @@ import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
 import ma.glasnost.orika.metadata.TypeBuilder
 import org.springframework.stereotype.Component
-import org.taktik.icure.be.samlv2.logic.SamV2Logic
+import org.taktik.icure.be.samv2.logic.SamV2Logic
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpDto
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpPaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpDto

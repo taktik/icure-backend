@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.taktik.icure.be.ehealth.samws.v2.consultation.ConsultVmpComponentType;
 import org.taktik.icure.be.ehealth.samws.v2.virtual.common.ChangeVmpComponentType;
 import org.taktik.icure.be.ehealth.samws.v2.virtual.common.VmpComponentType;
-import org.taktik.icure.entities.samv2.entities.VmpComponentFullDataType;
+import org.taktik.icure.be.samv2.entities.VmpComponentFullDataType;
 
 
 /**

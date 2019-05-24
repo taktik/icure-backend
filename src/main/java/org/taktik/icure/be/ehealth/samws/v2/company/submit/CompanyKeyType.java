@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.taktik.icure.be.ehealth.samws.v2.consultation.ConsultCompanyType;
-import org.taktik.icure.entities.samv2.entities.CompanyFullDataType;
+import org.taktik.icure.be.samv2.entities.CompanyFullDataType;
 
 
 /**

@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.taktik.icure.be.ehealth.samws.v2.consultation.ConsultReimbursementContextType;
 import org.taktik.icure.be.ehealth.samws.v2.core.DeliveryEnvironmentType;
 import org.taktik.icure.be.ehealth.samws.v2.core.DmppCodeTypeType;
-import org.taktik.icure.entities.samv2.entities.ReimbursementContextFullDataType;
+import org.taktik.icure.be.samv2.entities.ReimbursementContextFullDataType;
 
 
 /**
