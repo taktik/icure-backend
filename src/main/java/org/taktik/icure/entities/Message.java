@@ -25,6 +25,7 @@ import com.google.common.base.Objects;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.utils.MergeUtil;
+import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -81,6 +82,8 @@ public class Message extends StoredICureDocument implements Serializable {
 	private Long sent;
 
 	private Map<String, String> metas = new HashMap<>();
+
+	private Map<String, MessageReadStatus> readStatus = new HashMap<>();
 
 	/*
 		CHAP4:IN:   ${Mycarenet message ref}
@@ -327,5 +330,13 @@ public class Message extends StoredICureDocument implements Serializable {
 
 	public void setAssignedResults(Map<String, String> assignedResults) {
 		this.assignedResults = assignedResults;
+	}
+
+	public Map<String, MessageReadStatus> getReadStatus() {
+		return readStatus;
+	}
+
+	public void setReadStatus(Map<String, MessageReadStatus> readStatus) {
+		this.readStatus = readStatus;
 	}
 }

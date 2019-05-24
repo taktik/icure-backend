@@ -335,4 +335,10 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		});
 	}
 
+
+	@Override
+	public PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long startOpeningDate, Long endOpeningDate, PaginationOffset offset) {
+		return contactDAO.listContactsByOpeningDate(hcPartyId, startOpeningDate, endOpeningDate, offset);
+	}
+
 }
