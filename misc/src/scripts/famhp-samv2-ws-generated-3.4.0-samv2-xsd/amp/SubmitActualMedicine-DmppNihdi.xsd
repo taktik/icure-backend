@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:actual:priceinfo" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:actual="urn:be:fgov:ehealth:samws:v2:actual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:actual:priceinfo" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common" schemaLocation="SubmitActualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddDmppNihdiRequest" type="AddDmppNihdiRequestType"/>
+  <xs:element name="AddDmppNihdiResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeDmppNihdiRequest" type="ChangeDmppNihdiRequestType"/>
+  <xs:element name="ChangeDmppNihdiResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveDmppNihdiRequest" type="RemoveDmppNihdiRequestType"/>
+  <xs:element name="RemoveDmppNihdiResponse" type="core:StandardResponseType"/>
+  <xs:element name="UpdateDmppReimbursementStatusRequest" type="UpdateDmppReimbursementStatusRequestType"/>
+  <xs:element name="UpdateDmppReimbursementStatusResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddDmppNihdiRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:AddDmppNihdiType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeDmppNihdiRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:ChangeDmppNihdiType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveDmppNihdiRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:RemoveDmppType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="UpdateDmppReimbursementStatusRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:UpdateDmppReimbursementStatusType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

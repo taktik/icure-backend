@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:virtual:virtualdefinition" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           xmlns:virtual="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:virtual:virtualdefinition" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common" schemaLocation="SubmitVirtualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddVirtualDefinitionRequest" type="AddVirtualDefinitionRequestType"/>
+  <xs:element name="AddVirtualDefinitionResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeVirtualDefinitionRequest" type="ChangeVirtualDefinitionRequestType"/>
+  <xs:element name="ChangeVirtualDefinitionResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveVirtualDefinitionRequest" type="RemoveVirtualDefinitionRequestType"/>
+  <xs:element name="RemoveVirtualDefinitionResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddVirtualDefinitionRequestType">
+    <xs:sequence>
+      <xs:element name="Vmp" type="virtual:AddVmpType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeVirtualDefinitionRequestType">
+    <xs:sequence>
+      <xs:element name="Vmp" type="virtual:ChangeVmpType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveVirtualDefinitionRequestType">
+    <xs:sequence>
+      <xs:element name="Vmp" type="virtual:RemoveVmpType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
