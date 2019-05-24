@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:reimbursement:submit" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:reimbursement:submit" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:element name="SubmitReimbursementRequest" type="SubmitReimbursementRequestType">
+    <xs:annotation>
+      <xs:documentation>Comment describing your root element</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="SubmitReimbursementResponse" type="core:StandardResponseType">
+    <xs:annotation>
+      <xs:documentation>Comment describing your root element</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <!--- REIMBURSEMENT PART-->
+  <xs:complexType name="CopaymentType">
+    <xs:complexContent>
+      <xs:extension base="CopaymentKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="CopaymentFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CopaymentKeyType">
+    <xs:attribute name="regimeType" type="RegimeTypeType" use="required"/>
+  </xs:complexType>
+  <xs:group name="CopaymentFields">
+    <xs:sequence>
+      <xs:element name="FeeAmount" type="core:Decimal10d4Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="ReimbursementContextType">
+    <xs:complexContent>
+      <xs:extension base="ReimbursementContextKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="ReimbursementContextFields"/>
+          <xs:group ref="ReimbursementContextReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReimbursementContextKeyType">
+    <xs:attribute name="deliveryEnvironment" type="core:DeliveryEnvironmentType" use="required">
+      <xs:annotation>
+        <xs:documentation>Type of environment in which a medicinal product is delivered.
+          Possible values :
+          - ‘P’ for Public,
+          - ‘A’ for Ambulatory,
+          - ‘H’ for Hospital,
+          - ‘R’ For Residential care
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="code" type="core:DmppCodeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Code number used to uniquely identify a package or a group of packages being delivered in a
+          given environment and reimbursed according to the same rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="codeType" type="core:DmppCodeTypeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Type of the mentioned code, among the following:
+          - ‘CNK’: Code National – Nationale Kode . This code is attributed by the APB (“Association Pharmaceutique
+          Belge”) to identify unequivocally one medicinal product package, or by the NIHDI for identifying tarification
+          units, which meet to the same reimbursement criteria.
+          - ‘PSEUDO’: Pseudo-code used for the flat-pricing of drugs in certain environments such as radiopharmaca in
+          hospitals.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="legalReferencePath" type="core:LegalReferencePathType" use="required">
+      <xs:annotation>
+        <xs:documentation>Path to the legal reference concerning this reimbursement, starting with the legal basis key.
+          Path elements are separated by a '-'. For example: 'RD19910507-CH1-ART1'.
+          There can be a maximum of 4 levels of Legal References.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="ReimbursementContextFields">
+    <xs:sequence>
+      <xs:element name="Multiple" type="MultipleType" minOccurs="0"/>
+      <xs:element name="Temporary" type="xs:boolean"/>
+      <xs:element name="Reference" type="xs:boolean"/>
+      <xs:element name="FlatRateSystem" type="xs:boolean"/>
+      <xs:element name="ReimbursementBasePrice" type="core:Decimal10d4Type"/>
+      <xs:element name="ReferenceBasePrice" type="core:Decimal10d4Type"/>
+      <xs:element name="CopaymentSupplement" type="core:Decimal10d4Type" minOccurs="0"/>
+      <xs:element name="PricingUnit" type="PricingUnitType"/>
+      <xs:element name="PricingSlice" type="PricingUnitType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="ReimbursementContextReferences">
+    <xs:sequence>
+      <xs:element name="ReimbursementCriterionCategory" type="core:String10Type"/>
+      <xs:element name="ReimbursementCriterionCode" type="core:String20Type"/>
+    </xs:sequence>
+  </xs:group>
+  <!--[ Complex Types ]-->
+  <xs:complexType name="SubmitCopaymentType">
+    <xs:complexContent>
+      <xs:extension base="CopaymentType">
+        <xs:attributeGroup ref="core:addChangeRemoveMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitReimbursementContextType">
+    <xs:complexContent>
+      <xs:extension base="ReimbursementContextType">
+        <xs:sequence>
+          <xs:element name="Copayment" type="SubmitCopaymentType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitReimbursementRequestType">
+    <xs:sequence>
+      <xs:element name="ReimbursementContext" type="SubmitReimbursementContextType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PricingRangeType">
+    <xs:sequence minOccurs="1">
+      <xs:element name="Min" type="core:Decimal9d3Type"/>
+      <xs:element name="Max" type="core:Decimal9d3Type"/>
+    </xs:sequence>
+    <xs:attribute name="unit" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <!--[ Enum restrictions ]-->
+  <xs:simpleType name="MultipleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="M"/>
+      <xs:enumeration value="V"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="RegimeTypeType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="PricingUnitType">
+    <xs:sequence>
+      <xs:element name="Quantity" type="core:Decimal20d4Type"/>
+      <xs:element name="Label" type="core:Text255Type"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

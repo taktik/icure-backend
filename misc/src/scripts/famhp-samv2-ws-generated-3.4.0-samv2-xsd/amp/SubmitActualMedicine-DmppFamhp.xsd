@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:actual:dmpp:famhp" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:actual="urn:be:fgov:ehealth:samws:v2:actual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:actual:dmpp:famhp" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common" schemaLocation="SubmitActualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddDmppFamhpRequest" type="AddDmppFamhpRequestType"/>
+  <xs:element name="AddDmppFamhpResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeDmppFamhpRequest" type="ChangeDmppFamhpRequestType"/>
+  <xs:element name="ChangeDmppFamhpResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveDmppFamhpRequest" type="RemoveDmppFamhpRequestType"/>
+  <xs:element name="RemoveDmppFamhpResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddDmppFamhpRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:AddDmppToAmppType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeDmppFamhpRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:ChangeDmppType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveDmppFamhpRequestType">
+    <xs:sequence>
+      <xs:element name="Dmpp" type="actual:RemoveDmppType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

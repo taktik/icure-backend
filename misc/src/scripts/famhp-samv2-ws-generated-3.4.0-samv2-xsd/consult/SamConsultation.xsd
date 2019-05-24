@@ -1,0 +1,2416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:consultation" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:amp="urn:be:fgov:ehealth:samws:v2:actual:common"
+           xmlns:company="urn:be:fgov:ehealth:samws:v2:company:submit" xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           xmlns:legaltext="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit"
+           xmlns:refdata="urn:be:fgov:ehealth:samws:v2:refdata"
+           xmlns:reimbursement="urn:be:fgov:ehealth:samws:v2:reimbursement:submit"
+           xmlns:vmp="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           xmlns:compounding="urn:be:fgov:ehealth:samws:v2:compounding:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:consultation" elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common"
+             schemaLocation="../amp/SubmitActualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:company:submit"
+             schemaLocation="../company/SubmitCompany-Company.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit"
+             schemaLocation="../legaltexts/SubmitReimbursementLaw.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:refdata" schemaLocation="../ref/SamReferences.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:reimbursement:submit"
+             schemaLocation="../reimbursements/SubmitReimbursement.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common"
+             schemaLocation="../vmp/SubmitVirtualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:compounding:common"
+             schemaLocation="../compounding/SubmitCompoundMedicine-Common.xsd"/>
+  <xs:element name="FindAmpRequest" type="FindAmpRequestType">
+    <xs:annotation>
+      <xs:documentation>Find an AMP based on one or more criteria</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="FindAmpResponse" type="FindAmpResponseType"/>
+  <xs:element name="FindCompanyRequest" type="FindCompanyRequestType"/>
+  <xs:element name="FindCompanyResponse" type="FindCompanyResponseType"/>
+  <xs:element name="FindVmpRequest" type="FindVmpRequestType"/>
+  <xs:element name="FindVmpResponse" type="FindVmpResponseType"/>
+  <xs:element name="FindLegislationTextRequest" type="FindLegislationTextRequestType"/>
+  <xs:element name="FindLegislationTextResponse" type="FindLegislationTextResponseType"/>
+  <xs:element name="FindReimbursementRequest" type="FindReimbursementRequestType"/>
+  <xs:element name="FindReimbursementResponse" type="FindReimbursementResponseType"/>
+  <xs:element name="FindReferencesRequest" type="FindReferencesRequestType"/>
+  <xs:element name="FindReferencesResponse" type="FindReferencesResponseType"/>
+  <xs:element name="FindVmpGroupRequest" type="FindVmpGroupRequestType"/>
+  <xs:element name="FindVmpGroupResponse" type="FindVmpGroupResponseType"/>
+  <xs:element name="FindVtmRequest" type="FindVtmRequestType"/>
+  <xs:element name="FindVtmResponse" type="FindVtmResponseType"/>
+  <xs:element name="FindCommentedClassificationRequest" type="FindCommentedClassificationRequestType"/>
+  <xs:element name="FindCommentedClassificationResponse" type="FindCommentedClassificationResponseType"/>
+  <xs:element name="FindCompoundingIngredientRequest" type="FindCompoundingIngredientRequestType"/>
+  <xs:element name="FindCompoundingIngredientResponse" type="FindCompoundingIngredientResponseType"/>
+  <xs:element name="FindCompoundingFormulaRequest" type="FindCompoundingFormulaRequestType"/>
+  <xs:element name="FindCompoundingFormulaResponse" type="FindCompoundingFormulaResponseType"/>
+  <xs:element name="FindNonMedicinalProductRequest" type="FindNonMedicinalProductRequestType"/>
+  <xs:element name="FindNonMedicinalProductResponse" type="FindNonMedicinalProductResponseType"/>
+  <!--Web services definition - Requests-->
+  <xs:complexType name="FindAmpRequestType">
+    <xs:sequence>
+      <xs:element name="FindByProduct" type="FindByActualProductType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Search by AMP code or a combination of name parts. All AMPs matching all name parts are
+            returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByPackage" type="FindByPackageType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Search an AMP based on an AMPP identifier or any package name part. If an AMPP matches, the
+            complete AMP is returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByDmpp" type="amp:DmppKeyType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Search an AMP based on a DMPP identifier. All products with packages linked to the given
+            DMPP are returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByIngredient" type="FindByIngredientType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Search an AMP based on ingredients. All AMPs containing all requested ingredients are
+            returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByVirtualProduct" type="FindByVirtualProductType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Search an AMP based on corresponding VMP code or name. For more complex searches, first call
+            the FindVmp service to get the VMPCodes.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByGenericPrescriptionGroup" type="FindByGenericPrescriptionGroupType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Search an AMP based on corresponding Generic Prescription Group code or name.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByCompany" type="FindByCompanyType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Search an AMP based on the distributing company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HasComponentWith" type="HasActualComponentWithType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Must be combined with at least one FindBy element. Only those AMPs who have a component
+            matching these attributes will be returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindAmpResponseType">
+    <xs:choice>
+      <xs:element name="Amp" type="ConsultAmpType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindCompanyRequestType">
+    <xs:choice>
+      <xs:element name="CompanyActorNr" type="core:CompanyActorNrType"/>
+      <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+      <xs:element name="VatNr" type="company:VatNrPerCountryType"/>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindCompanyResponseType">
+    <xs:choice>
+      <xs:element name="Company" type="ConsultCompanyType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindVmpRequestType">
+    <xs:sequence>
+      <xs:element name="FindByGenericPrescriptionGroup" type="FindByGenericPrescriptionGroupType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Returns all VMPs in the given Generic Prescription Group</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByTherapeuticMoiety" type="FindByTherapeuticMoietyType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Returns all VMPs containing the given Therapeutic Moiety</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByProduct" type="FindByVirtualProductType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Returns all VMPs matching the given code or name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByIngredient" type="FindByIngredientType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Returns all VMPs containing the given ingredient.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HasComponentWith" type="HasVirtualComponentWithType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Must be combined with at least one FindBy element. Only those VMPs who have a component
+            matching these attributes will be returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HasWadaClassification" type="HasWadaClassificationType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Must be combined with at least one FindBy element. Only those VMPs categorized by the World
+            Anti Doping Agency in the requested classification will be returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindVmpResponseType">
+    <xs:choice>
+      <xs:element name="Vmp" type="ConsultVmpType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindLegislationTextRequestType">
+    <xs:choice>
+      <xs:element name="FindLegalBases" type="FindLegalBasesType">
+        <xs:annotation>
+          <xs:documentation>Gets a list of all legal bases known in the system, inluding the first level legal reference
+            (if available). Using this result, a user can continue digging in the legislation tree using the
+            FindByLegalReferencePath element.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByLegalReferencePath" type="core:LegalReferencePathType">
+        <xs:annotation>
+          <xs:documentation>Returns the children of a legal reference identified by a path. If the referenced legal
+            reference is a leaf reference (no child legal references), the entire legal reference and all children
+            (legal text, formal interpretation) is returned. If the legal reference contains legal reference children,
+            only the direct children are returned.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByDmpp" type="amp:DmppKeyType">
+        <xs:annotation>
+          <xs:documentation>Returns all legal references concerning the medicinal product identified by this Dmpp
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindLegislationTextResponseType">
+    <xs:choice>
+      <xs:element name="LegalBasis" type="ConsultLegalBasisType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindReimbursementRequestType">
+    <xs:choice>
+      <xs:element name="FindByPackage" type="FindByPackageType"/>
+      <xs:element name="FindByDmpp" type="amp:DmppKeyType"/>
+      <xs:element name="FindByLegalReferencePath" type="core:LegalReferencePathType"/>
+      <xs:element name="FindByGenericPrescriptionGroup" type="FindByGenericPrescriptionGroupType"/>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindReimbursementResponseType">
+    <xs:choice>
+      <xs:element name="ReimbursementContexts" type="ConsultReimbursementContextType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindReferencesRequestType">
+    <xs:sequence>
+      <xs:element name="ReferenceEntity" type="ReferenceEntityType">
+        <xs:annotation>
+          <xs:documentation>Returns all references in the database for the given type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FindReferencesResponseType">
+    <xs:choice>
+      <xs:sequence>
+        <xs:group ref="FamhpMainEntities"/>
+        <xs:group ref="BcpiMainEntities"/>
+        <xs:group ref="NihdiEntities"/>
+        <xs:group ref="ReferenceAdditionalEntities"/>
+      </xs:sequence>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FindVmpGroupRequestType">
+    <xs:choice>
+      <xs:element name="FindByGenericPrescriptionGroup" type="FindByGenericPrescriptionGroupType">
+        <xs:annotation>
+          <xs:documentation>Returns the VMP Group(s) identified by the given name or code</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByProduct" type="FindByVirtualProductType">
+        <xs:annotation>
+          <xs:documentation>Returns the VMP Group(s) referenced by the product(s) matching the given code or name.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindVmpGroupResponseType">
+    <xs:choice>
+      <xs:element name="VmpGroup" type="ConsultVmpGroupType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindVtmRequestType">
+    <xs:choice>
+      <xs:element name="FindByTherapeuticMoiety" type="FindByTherapeuticMoietyType">
+        <xs:annotation>
+          <xs:documentation>Returns all VTMs identified by the given name or code</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByProduct" type="FindByVirtualProductType">
+        <xs:annotation>
+          <xs:documentation>Returns all VTMs referenced by the product(s) matching the given code or name.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindVtmResponseType">
+    <xs:choice>
+      <xs:element name="Vtm" type="ConsultVtmType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindCommentedClassificationRequestType">
+    <xs:choice>
+      <xs:element name="FindByCommentedClassification" type="FindByCommentedClassificationType">
+        <xs:annotation>
+          <xs:documentation>Returns the Commented Classification Tree(s) with root identified by the given code or title
+            matching the given AnyNamePart
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByProduct" type="FindByVirtualProductType">
+        <xs:annotation>
+          <xs:documentation>Returns all CommentedClassification referenced by the product(s) matching the given code or
+            name.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindCommentedClassificationResponseType">
+    <xs:choice>
+      <xs:element name="CommentedClassification" type="ConsultCommentedClassificationTreeType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindCompoundingIngredientRequestType">
+    <xs:choice>
+      <xs:element name="FindByCNK" type="core:DmppCodeType">
+        <xs:annotation>
+          <xs:documentation>Returns the Compounding Ingredient identified by the given CNK number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByOfficialName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Returns all Compounding Ingredients where the official name matches the given string. A name
+            matches when the name begins with the given string (case insensitive). The given string is at least 3
+            characters. The Language attribute is not used.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByAnyName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Returns all Compounding Ingredients where any name or synonym matches the given string. A
+            name matches when the name begins with the given string (case insensitive). The given string is at least 3
+            characters. The Language attribute is not used.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindCompoundingIngredientResponseType">
+    <xs:choice>
+      <xs:element name="CompoundingIngredient" type="ConsultCompoundingIngredientType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindCompoundingFormulaRequestType">
+    <xs:choice>
+      <xs:element name="FindByCNK" type="core:DmppCodeType">
+        <xs:annotation>
+          <xs:documentation>Returns the Compounding Formula identified by the given CNK number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByOfficialName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Returns all Compounding Formulae where the official name matches the given string. A name
+            matches when the name begins with the given string (case insensitive). The given string is at least 3
+            characters. The Language attribute is not used.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByAnyName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Returns all Compounding Formulae where any name or synonym matches the given string. A name
+            matches when the name begins with the given string (case insensitive). The given string is at least 3
+            characters. The Language attribute is not used.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindCompoundingFormulaResponseType">
+    <xs:choice>
+      <xs:element name="CompoundingFormula" type="ConsultCompoundingFormulaType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="FindNonMedicinalProductRequestType">
+    <xs:choice>
+      <xs:element name="FindByCNK" type="core:DmppCodeType">
+        <xs:annotation>
+          <xs:documentation>Returns the Non Medicinal Product identified by the given CNK number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FindByName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Returns all Non Medicinal Products where the name matches the given string. A name matches
+            when the name begins with the given string (case insensitive). The given string is at least 3 characters.
+            The Language attribute is not used.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+    <xs:attribute ref="xml:lang" use="required"/>
+    <xs:attribute name="searchDate" type="xs:date"/>
+  </xs:complexType>
+  <xs:complexType name="FindNonMedicinalProductResponseType">
+    <xs:choice>
+      <xs:element name="NonMedicinalProduct" type="ConsultNonMedicinalProductType" maxOccurs="unbounded"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="searchDate" type="xs:date" use="required"/>
+  </xs:complexType>
+  <!--Actual Search Criteria-->
+  <xs:complexType name="ComponentEquivalentType">
+    <xs:sequence>
+      <xs:element name="Content" type="core:QuantityType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FindByActualProductType">
+    <xs:choice>
+      <xs:element name="AmpCode" type="amp:AmpCodeType"/>
+      <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FindByPackageType">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name="AuthorisationNr" type="core:String50Type"/>
+        <xs:element name="CtiExtendedCode" type="core:CtiExtendedType"/>
+        <xs:element name="AtcCode" type="core:String7Type"/>
+        <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+      </xs:choice>
+      <xs:element name="Commercialised" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="InSupplyProblem" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="ComponentEquivalent" type="ComponentEquivalentType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FindByCompanyType">
+    <xs:choice>
+      <xs:element name="CompanyActorNr" type="core:CompanyActorNrType"/>
+      <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+      <xs:element name="VatNr" type="company:VatNrPerCountryType"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="HasActualComponentWithType">
+    <xs:sequence>
+      <xs:choice minOccurs="0">
+        <xs:element name="PharmaceuticalFormCode" type="StandardFormCodeCriterionType"/>
+        <xs:element name="PharmaceuticalFormName" type="StandardFormNameCriterionType"/>
+      </xs:choice>
+      <xs:choice minOccurs="0">
+        <xs:element name="RouteOfAdministrationCode" type="StandardRouteCodeCriterionType"/>
+        <xs:element name="RouteOfAdministrationName" type="StandardRouteNameCriterionType"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <!--Legal Text Search Criteria-->
+  <xs:complexType name="FindLegalBasesType"/>
+  <xs:complexType name="FindRecursiveLegalReferenceType">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name="Key" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Key of the legal reference</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Title" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Full or partial title of the legal reference</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="Type" type="legaltext:LegalReferenceTypeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Limit Legal Reference results to legal reference of given type</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LegalReference" type="FindRecursiveLegalReferenceType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--Virtual Search Criteria-->
+  <xs:complexType name="FindByTherapeuticMoietyType">
+    <xs:choice>
+      <xs:element name="TherapeuticMoietyCode" type="xs:positiveInteger"/>
+      <xs:element name="TherapeuticMoietyName" type="core:SearchStringType"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FindByVirtualProductType">
+    <xs:choice>
+      <xs:element name="VmpCode" type="xs:positiveInteger"/>
+      <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="HasVirtualComponentWithType">
+    <xs:sequence>
+      <xs:choice minOccurs="0">
+        <xs:element name="VirtualFormCode" type="StandardFormCodeCriterionType"/>
+        <xs:element name="VirtualFormName" type="StandardFormNameCriterionType"/>
+      </xs:choice>
+      <xs:choice minOccurs="0">
+        <xs:element name="RouteOfAdministrationCode" type="StandardRouteCodeCriterionType"/>
+        <xs:element name="RouteOfAdministrationName" type="StandardRouteNameCriterionType"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="HasWadaClassificationType">
+    <xs:choice>
+      <xs:element name="WadaCode" type="core:String10Type">
+        <xs:annotation>
+          <xs:documentation>International standard number given by the WADA institution that categorizes medicinal
+            products according to harmonized anti-doping policies. Ex. : ‘A’, ‘B’, ‘AO’, ‘Hman’.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WadaName" type="core:SearchStringType">
+        <xs:annotation>
+          <xs:documentation>The full or partial name of the WADA classification in any language.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FindByGenericPrescriptionGroupType">
+    <xs:choice>
+      <xs:element name="GenericPrescriptionGroupCode" type="xs:positiveInteger"/>
+      <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+    </xs:choice>
+  </xs:complexType>
+  <!--Reimbursement Search Criteria-->
+  <!--Common Search Criteria-->
+  <xs:complexType name="FindByIngredientType">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name="SubstanceCode" type="StandardSubstanceCodeCriterionType"/>
+        <xs:element name="SubstanceName" type="StandardSubstanceNameCriterionType"/>
+      </xs:choice>
+      <xs:element name="Strength" type="core:QuantityType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--Special Complex Types definition-->
+  <xs:complexType name="StandardFormCodeCriterionType">
+    <xs:simpleContent>
+      <xs:extension base="core:String20Type">
+        <xs:attribute name="standard" type="refdata:StdFrmAllStandardsType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="StandardFormNameCriterionType">
+    <xs:simpleContent>
+      <xs:extension base="core:SearchStringType">
+        <xs:attribute name="standard" type="refdata:StdFrmAllStandardsType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteCodeCriterionType">
+    <xs:simpleContent>
+      <xs:extension base="core:String20Type">
+        <xs:attribute name="standard" type="refdata:StdRteAllStandardsType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteNameCriterionType">
+    <xs:simpleContent>
+      <xs:extension base="core:SearchStringType">
+        <xs:attribute name="standard" type="refdata:StdRteAllStandardsType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceCodeCriterionType">
+    <xs:simpleContent>
+      <xs:extension base="core:String20Type">
+        <xs:attribute name="standard" type="refdata:StdSbstAllStandardsType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceNameCriterionType">
+    <xs:simpleContent>
+      <xs:extension base="core:SearchStringType">
+        <xs:attribute name="standard" type="refdata:StdSbstAllStandardsType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <!--Other Complex Types definition-->
+  <xs:complexType name="PharmaceuticalFormWithStandardsType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PharmaceuticalFormKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="StandardForm" type="ConsultStandardFormType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RouteOfAdministrationWithStandardsType">
+    <xs:complexContent>
+      <xs:extension base="refdata:RouteOfAdministrationKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="StandardRoute" type="ConsultStandardRouteType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardFormKeyType">
+    <xs:attribute name="standard" type="refdata:StdFrmAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteKeyType">
+    <xs:attribute name="standard" type="refdata:StdRteAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceKeyType">
+    <xs:attribute name="standard" type="refdata:StdSbstAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="SubstanceWithStandardsType">
+    <xs:complexContent>
+      <xs:extension base="refdata:SubstanceKeyType">
+        <xs:sequence>
+          <xs:element name="ChemicalForm" type="core:String10Type" minOccurs="0"/>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="Note" type="ConsultTextType" minOccurs="0"/>
+          <xs:element name="StandardSubstance" type="ConsultStandardSubstanceType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualFormWithStandardsType">
+    <xs:complexContent>
+      <xs:extension base="refdata:VirtualFormKeyType">
+        <xs:sequence>
+          <xs:element name="Abbreviation" type="ConsultTextType"/>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+          <xs:element name="StandardForm" type="ConsultStandardFormType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Find Amp Complex Types-->
+  <xs:complexType name="ConsultAmpType">
+    <xs:sequence>
+      <xs:element name="Status" type="amp:AmpStatusType">
+        <xs:annotation>
+          <xs:documentation>The status can be one of the following:
+            - ACTIVE: the medicinal product has an authorization number for marketing in Belgium and can be
+            commercialized;
+            - SUSPENDED: the medicinal product can’t temporarily be commercialized due to i.a. health problem;
+            - REVOKED: the medicinal product is finally removed from the Belgian market and can’t be commercialized
+            anymore.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="ConsultTextType">
+        <xs:annotation>
+          <xs:documentation>The translations of the AMP’s official name of the AMP in French, Dutch, German and
+            English.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BlackTriangle" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>Marks an AMP with a black triangle indicating that it is subject to additional monitoring.
+            This mark draws the attention to the fact that experience with such a product is limited or that safety
+            questions have been raised.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MedicineType" type="amp:MedicineTypeType">
+        <xs:annotation>
+          <xs:documentation>Used to indicate whether a medicinal product is a conventional medicine or a homeopathic
+            product. Values: ‘ALLOPATHIC’ or ‘HOMEOPATHIC’
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OfficialName" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The AMP’s official name in the language mentioned on the marketing authorisation.
+            The name contains the strength of the medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AbbreviatedName" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Abbreviation of the medicinal product name.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProprietarySuffix" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Suffix given to a medicinal product by its distributor.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+
+            Example: ‘Antizuur-Antireflux Unidose’.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescriptionName" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Standard name identifying a medicinal product for prescriptions, structured uniformly by
+            BCPI.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CompanyActorNr" type="core:CompanyActorNrType">
+        <xs:annotation>
+          <xs:documentation>Identifier of the company responsible for marketing the medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AmpComponent" type="ConsultAmpComponentType" maxOccurs="unbounded"/>
+      <xs:element name="Ampp" type="ConsultAmppType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required"/>
+    <xs:attribute name="vmpCode" type="xs:positiveInteger"/>
+    <xs:attributeGroup ref="validityPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultAmpComponentType">
+    <xs:sequence>
+      <xs:element name="Dividable" type="amp:DividableType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether it concerns a dividable pharmaceutical form:
+            2 – at least dividable in 2 equal parts
+            3 – at least dividable in 3 equal parts
+            4 – at least dividable in 4 equals part
+            N – not dividable in equal parts
+            X – not applicable (not a tablet)
+            null – missing data
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Scored" type="amp:ScoredType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether it concerns a scored tablet or not:
+            2 – scored as to allow division in at least 2 parts
+            3 – scored as to allow division in at least 3 parts
+            4 – scored as to allow division in at least 4 parts
+            N – not scored
+            X – not applicable (not a tablet)
+            null – missing data
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Crushable" type="amp:CrushableType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether it concerns a crushable tablet:
+            Y – crushable
+            N – not crushable
+            X – not applicable (not a tablet)
+            null – missing data
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContainsAlcohol" type="amp:ContainsAlcoholType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether the product contains alcohol.
+            Y – contains alcohol
+            N – doesn't contain alcohol
+            X – not applicable
+            Default is null (missing data).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SugarFree" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The product does not contain glucose, sucrose or fructose for products whose AMP have an
+            oral liquid form.
+            Default is null (missing data).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ModifiedReleaseType" type="amp:ModifiedReleaseTypeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Type of release modification:
+            0 – release not modified
+            1 – prolonged release
+            2 – delayed release
+            3 – multiphasic release
+            4 – depot
+            – transdermal
+            null – missing data
+
+            Other values can be added later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpecificDrugDevice" type="amp:SpecificDrugDeviceType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether a specific device is needed:
+            0 – a device is neither required nor optional
+            1 – a specific device is required and is included
+            2 – a specific device is required but not included
+            3 – an optional device is included
+            4 – an optional device is not included
+            50 – this AMP is a pen device
+            99 – not applicable
+            null – missing data
+
+            Other values can be added later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Dimensions" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Text field with the dimensions of the product in the case of e.g. adhesives.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Uniformly structured name given by the BCPI to identify the specific component from the
+            medicinal product.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Note" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Useful textual information related to the component.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PharmaceuticalForm" type="PharmaceuticalFormWithStandardsType" maxOccurs="unbounded"/>
+      <xs:element name="RouteOfAdministration" type="RouteOfAdministrationWithStandardsType" maxOccurs="unbounded"/>
+      <xs:element name="RealActualIngredient" type="ConsultRealActualIngredientType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="sequenceNr" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="vmpComponentCode" type="xs:positiveInteger"/>
+    <xs:attributeGroup ref="validityPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultRealActualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="amp:RealActualIngredientKeyType">
+        <xs:sequence>
+          <xs:element name="Type" type="core:IngredientTypeType">
+            <xs:annotation>
+              <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+                Substance).
+                Possible values :
+                - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+                - EXCIPIENT: not active substance.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="KnownEffect" type="xs:boolean" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>This ingredient (always excipient) has known effect(s). Default is null, meaning this
+                excipient is considered as an excipient without a known effect.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:choice minOccurs="0">
+            <xs:element name="Strength" type="core:QuantityType">
+              <xs:annotation>
+                <xs:documentation>Strength of the ingredient when it is an Active Substance.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="StrengthDescription" type="core:String50Type">
+              <xs:annotation>
+                <xs:documentation>Alternative description of the strength that not fits in the fields Strength Quantity
+                  / Strength Unit. This field is empty when these fields can be filled in.
+                  In the case where the ingredient really contained in the medicinal product has an unknown strength,
+                  the following value is mentioned: “Quantum satis”.
+
+                  Examples:
+                  - ‘50 U DL50’ for ingredient ‘Clostridium Botulinum Toxin, Type A’
+                  - ‘MT’ for ingredient ‘Calendula Officinalis’
+                  - ‘D1’ for ingredient ‘Aconitum Napellus’
+                  - ‘Quantum satis’ for ingredient ‘Clopidogrel Hydrogen Sulphate’
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:choice>
+          <xs:element name="AdditionalInformation" type="core:String255Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Additional (textual) information about the active ingredient.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+          <xs:element name="RealActualIngredientEquivalent" type="ConsultRealActualIngredientEquivalentType"
+                      minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultRealActualIngredientEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="amp:RealActualIngredientEquivalentKeyType">
+        <xs:sequence>
+          <xs:element name="Type" type="core:IngredientTypeType">
+            <xs:annotation>
+              <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+                Substance).
+                Possible values :
+                - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+                - EXCIPIENT: not active substance.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="KnownEffect" type="xs:boolean" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>This ingredient (always excipient) has known effect(s). Default is null, meaning this
+                excipient is considered as an excipient without a known effect.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:choice minOccurs="0">
+            <xs:element name="Strength" type="core:QuantityType">
+              <xs:annotation>
+                <xs:documentation>Strength of the ingredient when it is an Active Substance.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="StrengthDescription" type="core:String50Type">
+              <xs:annotation>
+                <xs:documentation>Alternative description of the strength that not fits in the fields Strength Quantity
+                  / Strength Unit. This field is empty when these fields can be filled in.
+                  In the case where the ingredient really contained in the medicinal product has an unknown strength,
+                  the following value is mentioned: “Quantum satis”.
+
+                  Examples:
+                  - ‘50 U DL50’ for ingredient ‘Clostridium Botulinum Toxin, Type A’
+                  - ‘MT’ for ingredient ‘Calendula Officinalis’
+                  - ‘D1’ for ingredient ‘Aconitum Napellus’
+                  - ‘Quantum satis’ for ingredient ‘Clopidogrel Hydrogen Sulphate’
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:choice>
+          <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultAmppType">
+    <xs:sequence>
+      <xs:element name="Orphan" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>This AMPP is an orphan drug.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LeafletLink" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to the leaflet for this AMPP, specified according to the language French, Dutch, German
+            and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpcLink" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to SPC specified according to the language French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RmaPatientLink" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to the RMA (Risk Minimization Activities) material (patients) for this AMPP, specified
+            according to the language: French, Dutch and German.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RmaProfessionalLink" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to the RMA material (health care professionals) for this AMPP, specified according to
+            the language: French and Dutch.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ParallelCircuit" type="amp:ParallelCircuitType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Possible values:
+            0 – No parallel circuit
+            1 – Parallel import
+            2 – Parallel distribution
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ParallelDistributor" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Value can only be set when field Parallel Circuit = ‘2’. If that field is set to another
+            value, this value is to be set to null.
+            This field indicates the denomination of the company responsible for the parallel distribution of a
+            medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackMultiplier" type="xs:positiveInteger" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Multiplier of total Amount of the Pack Size.
+            Only filled in case of Packs with different components which need further specification on total pack level.
+
+            Example: Three-phase medicinal product
+            ‘3’ in 3 x 28 (12 + 10 + 6)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackAmount" type="amp:PackAmountType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Total Amount of the Pack Size.
+            Only filled in case of Packs with different components which need further specification on total pack level.
+
+            Example: Three-phase medicinal product
+            ‘28’ in 3 x 28 (12 + 10 + 6)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackDisplayValue" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Calculated field based on information in the fields Pack Multiplier (AMPP), Pack Amount
+            (AMPP), Content Multiplier (AMPPC), Content Amount (AMPPCES), Content Unit (AMPPCES), Pack Specification
+            (AMPPC).
+
+            Examples:
+            ‘2 x 10 doses (25 ml)’
+            ‘3 x 500 mg + 3 x 10 ml + 3 x Needle’
+            ‘3 x 50 ml Easyflex N’
+            ‘3 x 28 (12 + 10 + 6)’
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AuthorisationNr" type="core:String50Type">
+        <xs:annotation>
+          <xs:documentation>Authorisation number given by FAMPH or European Commission when authorised to be
+            commercialised on the Belgian market.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SingleUse" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Is this medicinal product to be used a single time?</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpeciallyRegulated" type="amp:SpeciallyRegulatedType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The AMPP is specially regulated.
+            Possible values:
+            0 – No special regulation
+            1 – Yes, no narcotic
+            2 – Yes, narcotic
+            Other values can be added later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AbbreviatedName" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Abbreviated name of the medicinal product package.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescriptionName" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Structured and uniformly attributed name of the AMPP given by the BCPI as it is intended for
+            consultation by the medicine prescriber.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Note" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Any useful textual information related to the medicinal product package.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PosologyNote" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Note about the posology for the AMPP.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CrmLink" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>URL Link to the online commented directory of medicines page for this AMPP.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExFactoryPrice" type="core:Decimal10d4Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Ex-factory price in Euro.
+            This information is available only for reimbursable medicinal product packages.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReimbursementCode" type="amp:ReimbursementCodeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Possible status of the reimbursement:
+            0 – Original
+            1 – Copy
+            2 – Generic
+            3 – Reference
+            4 - Reference (exception)
+            5 - Reference (combi)
+            6 - Reference (exception combi)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Atc" type="AtcClassificationType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModus" type="DeliveryModusType"/>
+      <xs:element name="DeliveryModusSpecification" type="DeliveryModusSpecificationType" minOccurs="0"/>
+      <xs:element name="NoGenericPrescriptionReason" type="NoGenericPrescriptionReasonType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="DefinedDailyDose" type="core:QuantityType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Defined daily doses (DDDs) are a WHO statistical measure of drug consumption. DDDs are used
+            to standardize the comparative usage of various drugs between themselves or between different health care
+            environments. The DDD is the assumed average maintenance dose per day for a drug used for its main
+            indication in adults. (Maximum of 6 digits). DDD’s are defined at the WHO.
+            For example, paracetamol has a DDD of 3g, which means that an average patient who takes paracetamol for pain
+            relief (Paracetamol main indication) uses 3 gram per day. This is equivalent to six standard (500mg)
+            tablets. If a patient consumes twenty four (500mg) tablets (i.e. 12g of paracetamol in total) in six days,
+            he can have said to have consumed four DDDs of this drug.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DistributorActorNr" type="core:CompanyActorNrType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Identifier of the company responsible for distributing this package, if different from the
+            company marketing the product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AmppComponent" type="ConsultAmppComponentType" maxOccurs="unbounded"/>
+      <xs:element name="Commercialization" type="ConsultCommercializationType" minOccurs="0"/>
+      <xs:element name="SupplyProblem" type="ConsultSupplyProblemType" minOccurs="0"/>
+      <xs:element name="DerogationImport" type="ConsultDerogationImportType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Dmpp" type="ConsultDmppType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+    <xs:attributeGroup ref="validityPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultCommercializationType">
+    <xs:attributeGroup ref="validityPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultDmppType">
+    <xs:complexContent>
+      <xs:extension base="amp:DmppKeyType">
+        <xs:sequence>
+          <xs:group ref="amp:DmppFields"/>
+          <xs:group ref="amp:DmppReimbursementFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultSupplyProblemType">
+    <xs:sequence>
+      <xs:element name="ExpectedEndOn" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Expected end date of the supply problem.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReportedBy" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name of the reporter of the supply problem: company ,doctor, patient, pharmacist, other.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReportedOn" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date of the notification of the supply problem.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactName" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact name for the supply problem.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactMail" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact’s mail address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactCompany" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact’s company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Phone" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact’s phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Reason" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>If there is a supply problem, here’s why.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="validityPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultDerogationImportType">
+    <xs:complexContent>
+      <xs:extension base="amp:DerogationImportKeyType">
+        <xs:sequence>
+          <xs:element name="Note" type="ConsultTextType">
+            <xs:annotation>
+              <xs:documentation>Available information (identification or description) of the imported drug.
+                When it is specified, French and Dutch versions are mandatory and others are optional.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultAmppComponentType">
+    <xs:complexContent>
+      <xs:extension base="amp:AmppComponentKeyType">
+        <xs:sequence>
+          <xs:element name="ContentType" type="amp:ContentTypeType">
+            <xs:annotation>
+              <xs:documentation>Code value for the type of the component:
+                - ACTIVE_ COMPONENT: part of the packaging information on the active substance(s) described as AMP
+                component(s);
+                - SOLVENT: part of the packaging information describing what solvent is contained in the AMPP;
+                - DEVICE: medical device added to the packaging.
+                - EXCIPIENT: packaging of other non-active components of the product
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ContentMultiplier" type="xs:positiveInteger" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Multiplier of the concerned component.
+                Example: ‘3’ in ‘3 x 500 mg’.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PackSpecification" type="core:String255Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Specification of the concerned component.
+                Example: ‘FreeFlex’, ‘EasyFlex N’
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DeviceType" type="DeviceTypeType" minOccurs="0"/>
+          <xs:element name="PackagingClosure" type="PackagingClosureType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="PackagingMaterial" type="PackagingMaterialType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="PackagingType" type="PackagingTypeType" minOccurs="0"/>
+          <xs:element name="AmppComponentEquivalent" type="ConsultAmppComponentEquivalentType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultAmppComponentEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="amp:AmppComponentEquivalentKeyType">
+        <xs:sequence>
+          <xs:element name="Content" type="core:QuantityType"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Find VMP Complex Types-->
+  <xs:complexType name="ConsultVmpType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="Abbreviation" type="ConsultTextType"/>
+          <xs:element name="Wada" type="WadaType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="CommentedClassification" type="ConsultCommentedClassificationType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:element name="VmpGroup" type="ConsultVmpGroupType"/>
+          <xs:element name="Vtm" type="ConsultVtmType" minOccurs="0"/>
+          <xs:element name="VmpComponent" type="ConsultVmpComponentType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultVtmType">
+    <xs:complexContent>
+      <xs:extension base="vmp:VtmKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultVmpGroupType">
+    <xs:complexContent>
+      <xs:extension base="vmp:VmpGroupKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType">
+            <xs:annotation>
+              <xs:documentation>Name of this group.
+                This field is translated in French, Dutch, German and English.
+                French and Dutch versions are mandatory and others are optional.
+
+                Example: ‘amoxicilline 1g oraal’.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="NoGenericPrescriptionReason" type="NoGenericPrescriptionReasonType" minOccurs="0"/>
+          <xs:element name="NoSwitchReason" type="NoSwitchReasonType" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultVmpComponentType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpComponentKeyType">
+        <xs:sequence>
+          <xs:element name="PhaseNumber" type="xs:positiveInteger" minOccurs="0"/>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="VirtualForm" type="VirtualFormWithStandardsType"/>
+          <xs:element name="RouteOfAdministration" type="RouteOfAdministrationWithStandardsType" maxOccurs="unbounded"/>
+          <xs:element name="VirtualIngredient" type="ConsultVirtualIngredientType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="vmp:VirtualIngredientKeyType">
+        <xs:sequence>
+          <xs:element name="Type" type="core:IngredientTypeType">
+            <xs:annotation>
+              <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+                Substance).
+                Possible values :
+                - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+                - EXCIPIENT: not active substance used to make the medicinal product more attractive.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Strength" type="core:StrengthRangeType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Strength of the specified substance. Some substance quantities cannot be specified
+                exactly, so a range is provided. If an exact quantity is known, minimum and maximum will have the same
+                value.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+          <xs:element name="RealVirtualIngredient" type="ConsultRealVirtualIngredientType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultRealVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="vmp:RealVirtualIngredientKeyType">
+        <xs:sequence>
+          <xs:element name="Type" type="core:IngredientTypeType">
+            <xs:annotation>
+              <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+                Substance).
+                Possible values :
+                - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+                - EXCIPIENT: not active substance used to make the medicinal product more attractive.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Strength" type="core:StrengthRangeType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Strength of the specified substance. Some substance quantities cannot be specified
+                exactly, so a range is provided. If an exact quantity is known, minimum and maximum will have the same
+                value.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultCommentedClassificationType">
+    <xs:complexContent>
+      <xs:extension base="vmp:CommentedClassificationKeyType">
+        <xs:sequence>
+          <xs:element name="Title" type="ConsultTextType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Title of the referenced classification level.
+                This field is translated in French, Dutch, German and English.
+                French and Dutch versions are mandatory and others are optional.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Content" type="ConsultTextType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Content of the referenced classification level.
+                This field is translated in French, Dutch, German and English.
+                French and Dutch versions are mandatory and others are optional.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PosologyNote" type="ConsultTextType">
+            <xs:annotation>
+              <xs:documentation>Any note about the posology for the referenced classification level.
+                This field is translated in French, Dutch, German and English.
+                French and Dutch versions are mandatory and others are optional.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Url" type="ConsultTextType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>URL to relevant information from BCPI about the referenced classification level.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultCommentedClassificationTreeType">
+    <xs:complexContent>
+      <xs:extension base="ConsultCommentedClassificationType">
+        <xs:sequence>
+          <xs:element name="CommentedClassification" type="ConsultCommentedClassificationTreeType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Find Reimbursement Law Complex Types-->
+  <xs:complexType name="ConsultAttachmentType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:AttachmentKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="TemplateUrl" type="core:String255Type"/>
+          <xs:element name="Appendix" type="AppendixType"/>
+          <xs:element name="FormCategory" type="FormCategoryType"/>
+          <xs:element name="Mandatory" type="xs:boolean" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultCompanyType">
+    <xs:complexContent>
+      <xs:extension base="company:CompanyKeyType">
+        <xs:sequence>
+          <xs:element name="AuthorisationNr" type="core:String50Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Authorisation number delivered by the FAMHP to a Belgian company when it is officially
+                allowed to manufacture, pack, distribute, import or export medicinal products on (or from) the Belgian
+                Market.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="VatNr" type="company:VatNrPerCountryType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Value-Added Tax number of a pharmaceutical company.
+                Initially, this field contains both VAT country code and VAT number. In the future, the country code
+                will be isolated in the field VAT Country Code.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="EuropeanNr" type="company:EuropeanNrType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Data Universal Numbering System Number (D-U-N-S). This is a 9 digit identification
+                number identifying company entities and delivered by Dun &amp; Bradstreet (D&amp;B).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Denomination" type="core:String255Type">
+            <xs:annotation>
+              <xs:documentation>Official name of the company.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LegalForm" type="core:String30Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Legal form of the company.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Building" type="core:String50Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Name used as additional information to the address of the company to identify its
+                location.
+                Example: ‘Granta Park’, ‘Business Park South’.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="StreetName" type="core:String50Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Street name of the address of the company.
+                Currently, this contains the name, the number and the postbox of the address. In the future, these three
+                data will be split so that only the name remains in this field, the number in the field Street Num and
+                the postbox in the field Postbox.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="StreetNum" type="core:String10Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Street number of the address of the company.
+                Currently contained in Street Name. This one will be filled in later.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Postbox" type="core:String50Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Postbox of the address of the company.
+                Currently contained in Street Name. This one will be filled in later.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Postcode" type="core:String10Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>ZIP code of the city of the address of the company.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="City" type="core:String50Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Name of the city of the address of the company.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CountryCode" type="company:CountryCodeType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>ISO 3166-1 alpha 2 country code of the address of the company.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Phone" type="core:String30Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Phone number of the company’s responsible to contact when a communication is required.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Language" type="company:CompanyLanguageType">
+            <xs:annotation>
+              <xs:documentation>Official language of the company.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Website" type="core:String255Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>URL address of the Company’s official website.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultCopaymentType">
+    <xs:complexContent>
+      <xs:extension base="reimbursement:CopaymentKeyType">
+        <xs:sequence>
+          <xs:element name="FeeAmount" type="core:Decimal10d4Type"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultFormalInterpretationType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:FormalInterpretationKeyType">
+        <xs:sequence>
+          <xs:element name="Rule" type="xs:string"/>
+          <xs:element name="ReimbursementCondition" type="ConsultReimbursementConditionType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:element name="ReimbursementTerm" type="ConsultReimbursementTermType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultLegalBasisType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:LegalBasisKeyType">
+        <xs:sequence>
+          <xs:element name="Title" type="ConsultTextType"/>
+          <xs:element name="Type" type="legaltext:LegalBasisTypeType"/>
+          <xs:element name="EffectiveOn" type="xs:date" minOccurs="0"/>
+          <xs:element name="LegalReference" type="ConsultRecursiveLegalReferenceType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultLegalReferenceType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:LegalReferenceKeyType">
+        <xs:sequence>
+          <xs:element name="Title" type="ConsultTextType"/>
+          <xs:element name="Type" type="legaltext:LegalReferenceTypeType">
+            <xs:annotation>
+              <xs:documentation>ARTICLE, CHAPTER, PARAGRAPH, SECTION</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="FirstPublishedOn" type="xs:date" minOccurs="0"/>
+          <xs:element name="LastModifiedOn" type="xs:date" minOccurs="0"/>
+          <xs:element name="LegalReferenceTrace" type="ConsultLegalReferenceTraceType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultLegalReferenceTraceType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:LegalReferenceKeyType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultLegalTextType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:LegalTextKeyType">
+        <xs:sequence>
+          <xs:group ref="legaltext:LegalTextFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultRecursiveLegalReferenceType">
+    <xs:complexContent>
+      <xs:extension base="ConsultLegalReferenceType">
+        <xs:choice>
+          <xs:element name="LegalReference" type="ConsultRecursiveLegalReferenceType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:sequence>
+            <xs:element name="FormalInterpretation" type="ConsultFormalInterpretationType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+            <xs:element name="LegalText" type="ConsultRecursiveLegalTextType" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultRecursiveLegalTextType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:LegalTextKeyType">
+        <xs:sequence>
+          <xs:element name="Content" type="ConsultTextType"/>
+          <xs:element name="Type" type="legaltext:LegalTextTypeType">
+            <xs:annotation>
+              <xs:documentation>ALINEA, POINT</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SequenceNr" type="xs:integer"/>
+          <xs:element name="LastModifiedOn" type="xs:date" minOccurs="0"/>
+          <xs:element name="LegalText" type="ConsultRecursiveLegalTextType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultReimbursementConditionType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:ReimbursementConditionKeyType">
+        <xs:sequence>
+          <xs:element name="Expression" type="xs:string"/>
+          <xs:element name="Attachment" type="ConsultAttachmentType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultReimbursementContextType">
+    <xs:complexContent>
+      <xs:extension base="reimbursement:ReimbursementContextKeyType">
+        <xs:sequence>
+          <xs:element name="Multiple" type="reimbursement:MultipleType" minOccurs="0"/>
+          <xs:element name="Temporary" type="xs:boolean"/>
+          <xs:element name="Reference" type="xs:boolean"/>
+          <xs:element name="FlatRateSystem" type="xs:boolean"/>
+          <xs:element name="ReimbursementBasePrice" type="core:Decimal10d4Type"/>
+          <xs:element name="ReferenceBasePrice" type="core:Decimal10d4Type"/>
+          <xs:element name="CopaymentSupplement" type="core:Decimal10d4Type" minOccurs="0"/>
+          <xs:element name="PricingUnit" type="ConsultPricingUnitType"/>
+          <xs:element name="PricingSlice" type="ConsultPricingUnitType" minOccurs="0"/>
+          <xs:element name="ReimbursementCriterion" type="ReimbursementCriterionType"/>
+          <xs:element name="Copayment" type="ConsultCopaymentType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultReimbursementTermType">
+    <xs:complexContent>
+      <xs:extension base="legaltext:ReimbursementTermKeyType">
+        <xs:sequence>
+          <xs:element name="ValueUnit" type="legaltext:ParameterValueType"/>
+          <xs:element name="ParameterName" type="core:String100Type"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="validityPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Find Compounding Complex Types-->
+  <xs:complexType name="ConsultCompoundingIngredientType">
+    <xs:complexContent>
+      <xs:extension base="compounding:CompoundingIngredientKeyType">
+        <xs:sequence>
+          <xs:element name="Synonym" type="compounding:SynonymType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultCompoundingFormulaType">
+    <xs:complexContent>
+      <xs:extension base="compounding:CompoundingFormulaKeyType">
+        <xs:sequence>
+          <xs:element name="Synonym" type="compounding:SynonymType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Find Non Medicinal Product Types-->
+  <xs:complexType name="ConsultNonMedicinalProductType">
+    <xs:sequence>
+      <xs:element name="Name" type="ConsultTextType"/>
+      <xs:element name="Category">
+        <xs:annotation>
+          <xs:documentation>"S" = spécialité
+            "H" = homéopathie
+            "D" = diététique - nutrition - alimentation
+            "C" = cosmétique
+            "E" = hygiène
+            "M" = matière première
+            "B" = bandage et pansement
+            "I" = stomie et incontinence
+            "A" = accessoire
+            "R" = réactif
+            "F" = pesticide à usage agricole
+            "G" = dispositif médical
+            "O" = autre
+            "T" = moyen diagnostique
+            "K" = biocide
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="S"/>
+            <xs:enumeration value="H"/>
+            <xs:enumeration value="D"/>
+            <xs:enumeration value="C"/>
+            <xs:enumeration value="E"/>
+            <xs:enumeration value="M"/>
+            <xs:enumeration value="B"/>
+            <xs:enumeration value="I"/>
+            <xs:enumeration value="A"/>
+            <xs:enumeration value="R"/>
+            <xs:enumeration value="F"/>
+            <xs:enumeration value="G"/>
+            <xs:enumeration value="O"/>
+            <xs:enumeration value="T"/>
+            <xs:enumeration value="K"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="CommercialStatus">
+        <xs:annotation>
+          <xs:documentation>"M" = sur le marché
+            "S" = retiré du marché
+            "I" = interdit par A.R. ou A.M.
+            "O" = suspendu par A.M. ou A.R.
+            "U" = coffret d'urgence et pas sur le marché belge
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="M"/>
+            <xs:enumeration value="S"/>
+            <xs:enumeration value="I"/>
+            <xs:enumeration value="O"/>
+            <xs:enumeration value="U"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Producer" type="ConsultTextType">
+        <xs:annotation>
+          <xs:documentation>Name of the producer of the product</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Distributor" type="ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name of the distributor of the product</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="code" type="core:DmppCodeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Non Medicinal Products are uniquely identified by a CNK code.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="codeType" type="core:DmppCodeTypeType" default="CNK">
+      <xs:annotation>
+        <xs:documentation>Code Type for Non Medicinal Products is always CNK. Code Type is present in the KeyType for
+          uniformity with other SAM components.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="validityPeriod"/>
+  </xs:complexType>
+  <!--Find Reference Entity-->
+  <xs:group name="BcpiMainEntities">
+    <xs:sequence>
+      <xs:element name="NoSwitchReason" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="VirtualForm" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Abbreviation" type="ConsultTextType"/>
+            <xs:element name="Name" type="ConsultTextType"/>
+            <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Wada" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+            <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="NoGenericPrescriptionReason" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="FamhpMainEntities">
+    <xs:sequence>
+      <xs:element name="AtcClassification" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="xs:string"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String7Type"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeliveryModus" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String7Type"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeliveryModusSpecification" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String7Type"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DeviceType" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+            <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+            <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String8Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PackagingClosure" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+            <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+            <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String8Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PackagingMaterial" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String8Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PackagingType" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+            <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+            <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String8Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PharmaceuticalForm" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="RouteOfAdministration" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Name" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String20Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Substance" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="ChemicalForm" type="core:String10Type" minOccurs="0"/>
+            <xs:element name="Name" type="ConsultTextType"/>
+            <xs:element name="Note" type="ConsultTextType" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="NihdiEntities">
+    <xs:sequence>
+      <xs:element name="Appendix" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FormCategory" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType"/>
+          </xs:sequence>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="UnitType" type="refdata:UnitTypeType"/>
+            <xs:element name="Domain" type="DomainType" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+          <xs:attribute name="name" type="core:String100Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ReimbursementCriterion" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="category" type="core:String2Type" use="required"/>
+          <xs:attribute name="code" type="core:String10Type" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="ReferenceAdditionalEntities">
+    <xs:sequence>
+      <xs:element name="StandardForm" type="ConsultStandardFormAndPhFrmAndVtlFrmType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="StandardRoute" type="ConsultStandardRouteAndRouteOfAdministrationType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="StandardSubstance" type="ConsultStandardSubstanceAndSubstanceType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="StandardUnit" type="StandardUnitFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="ConsultStandardFormType">
+    <xs:sequence>
+      <xs:element name="Name" type="ConsultTextType" minOccurs="0"/>
+      <xs:element name="Definition" type="ConsultTextType" minOccurs="0"/>
+      <xs:element name="Url" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="standard" type="refdata:StdFrmAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultStandardFormAndPhFrmAndVtlFrmType">
+    <xs:complexContent>
+      <xs:extension base="ConsultStandardFormType">
+        <xs:sequence>
+          <xs:element name="PharmaceuticalForm" type="refdata:PharmaceuticalFormKeyType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:element name="VirtualForm" type="refdata:VirtualFormKeyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultStandardRouteType">
+    <xs:sequence>
+      <xs:element name="Name" type="ConsultTextType" minOccurs="0"/>
+      <xs:element name="Definition" type="ConsultTextType" minOccurs="0"/>
+      <xs:element name="Url" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="standard" type="refdata:StdRteAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultStandardRouteAndRouteOfAdministrationType">
+    <xs:complexContent>
+      <xs:extension base="ConsultStandardRouteType">
+        <xs:sequence>
+          <xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationKeyType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ConsultStandardSubstanceType">
+    <xs:sequence>
+      <xs:element name="Name" type="ConsultTextType" minOccurs="0"/>
+      <xs:element name="Definition" type="ConsultTextType" minOccurs="0"/>
+      <xs:element name="Url" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="standard" type="refdata:StdSbstAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="ConsultStandardSubstanceAndSubstanceType">
+    <xs:complexContent>
+      <xs:extension base="ConsultStandardSubstanceType">
+        <xs:sequence>
+          <xs:element name="Substance" type="refdata:SubstanceKeyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Refdata types-->
+  <xs:complexType name="AtcClassificationType">
+    <xs:complexContent>
+      <xs:extension base="refdata:AtcClassificationKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DeviceTypeType">
+    <xs:complexContent>
+      <xs:extension base="refdata:DeviceTypeKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+          <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DeliveryModusType">
+    <xs:complexContent>
+      <xs:extension base="refdata:DeliveryModusKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DeliveryModusSpecificationType">
+    <xs:complexContent>
+      <xs:extension base="refdata:DeliveryModusSpecificationKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PackagingClosureType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PackagingClosureKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+          <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PackagingMaterialType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PackagingMaterialKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PackagingTypeType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PackagingTypeKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+          <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PharmaceuticalFormType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PharmaceuticalFormKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NoSwitchReasonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:NoSwitchReasonKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualFormType">
+    <xs:complexContent>
+      <xs:extension base="refdata:VirtualFormKeyType">
+        <xs:sequence>
+          <xs:element name="Abbreviation" type="ConsultTextType"/>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="WadaType">
+    <xs:complexContent>
+      <xs:extension base="refdata:WadaKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NoGenericPrescriptionReasonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:NoGenericPrescriptionReasonKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RouteOfAdministrationType">
+    <xs:complexContent>
+      <xs:extension base="refdata:RouteOfAdministrationKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubstanceType">
+    <xs:complexContent>
+      <xs:extension base="refdata:SubstanceKeyType">
+        <xs:sequence>
+          <xs:element name="ChemicalForm" type="core:String10Type" minOccurs="0"/>
+          <xs:element name="Name" type="ConsultTextType"/>
+          <xs:element name="Note" type="ConsultTextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardUnitFamhpType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardUnitKeyFamhpType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AppendixType">
+    <xs:complexContent>
+      <xs:extension base="refdata:AppendixKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DomainType">
+    <xs:choice>
+      <xs:element name="Quantity" type="core:QuantityType"/>
+      <xs:element name="QuantityRange" type="core:RangeType"/>
+      <xs:element name="Strength" type="core:StrengthType"/>
+      <xs:element name="StrengthRange" type="core:StrengthRangeType"/>
+      <xs:element name="Code" type="core:String20Type"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FormCategoryType">
+    <xs:complexContent>
+      <xs:extension base="refdata:FormCategoryKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ParameterType">
+    <xs:complexContent>
+      <xs:extension base="refdata:ParameterKeyType">
+        <xs:sequence>
+          <xs:element name="UnitType" type="refdata:UnitTypeType"/>
+          <xs:element name="Domain" type="refdata:DomainType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReimbursementCriterionType">
+    <xs:complexContent>
+      <xs:extension base="refdata:ReimbursementCriterionKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="ConsultTextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Reference Fields Groups per Business Concept-->
+  <xs:group name="ActualIngredientReferenceFields">
+    <xs:sequence>
+      <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmpReferenceFields">
+    <xs:sequence>
+      <xs:element name="Company" type="ConsultCompanyType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmpComponentReferenceFields">
+    <xs:sequence>
+      <xs:element name="PharmaceuticalForm" type="PharmaceuticalFormWithStandardsType" maxOccurs="unbounded"/>
+      <xs:element name="RouteOfAdministration" type="RouteOfAdministrationWithStandardsType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppBcpiReferenceFields">
+    <xs:sequence>
+      <xs:element name="NoGenericPrescriptionReason" type="NoGenericPrescriptionReasonType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppComponentReferenceFields">
+    <xs:sequence>
+      <xs:element name="DeviceType" type="DeviceTypeType" minOccurs="0"/>
+      <xs:element name="PackagingClosure" type="PackagingClosureType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingMaterial" type="PackagingMaterialType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingType" type="PackagingTypeType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppFamhpReferenceFields">
+    <xs:sequence>
+      <xs:element name="Atc" type="AtcClassificationType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModus" type="DeliveryModusType"/>
+      <xs:element name="DeliveryModusSpecification" type="DeliveryModusSpecificationType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AttachmentReferenceFields">
+    <xs:sequence>
+      <xs:element name="Appendix" type="AppendixType"/>
+      <xs:element name="FormCategory" type="FormCategoryType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="RealActualIngredientReferenceFields">
+    <xs:sequence>
+      <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="RealVirtualIngredientReferenceFields">
+    <xs:sequence>
+      <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="ReimbursementContextReferenceFields">
+    <xs:sequence>
+      <xs:element name="ReimbursementCriterion" type="ReimbursementCriterionType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="ReimbursementTermReferenceFields">
+    <xs:sequence>
+      <xs:element name="Parameter" type="ParameterType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VirtualIngredientReferenceFields">
+    <xs:sequence>
+      <xs:element name="Substance" type="SubstanceWithStandardsType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VmpComponentReferenceFields">
+    <xs:sequence>
+      <xs:element name="VirtualForm" type="VirtualFormWithStandardsType"/>
+      <xs:element name="RouteOfAdministration" type="RouteOfAdministrationWithStandardsType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VmpGroupReferenceFields">
+    <xs:sequence>
+      <xs:element name="NoGenericPrescriptionReason" type="NoGenericPrescriptionReasonType" minOccurs="0"/>
+      <xs:element name="NoSwitchReason" type="NoSwitchReasonType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VmpReferenceFields">
+    <xs:sequence>
+      <xs:element name="Wada" type="WadaType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:simpleType name="ReferenceEntityType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AtcClassification"/>
+      <xs:enumeration value="DeliveryModus"/>
+      <xs:enumeration value="DeliveryModusSpecification"/>
+      <xs:enumeration value="DeviceType"/>
+      <xs:enumeration value="PackagingClosure"/>
+      <xs:enumeration value="PackagingMaterial"/>
+      <xs:enumeration value="PackagingType"/>
+      <xs:enumeration value="PharmaceuticalForm"/>
+      <xs:enumeration value="RouteOfAdministration"/>
+      <xs:enumeration value="Substance"/>
+      <xs:enumeration value="NoSwitchReason"/>
+      <xs:enumeration value="VirtualForm"/>
+      <xs:enumeration value="Wada"/>
+      <xs:enumeration value="NoGenericPrescriptionReason"/>
+      <xs:enumeration value="Appendix"/>
+      <xs:enumeration value="FormCategory"/>
+      <xs:enumeration value="Parameter"/>
+      <xs:enumeration value="ReimbursementCriterion"/>
+      <xs:enumeration value="StandardForm"/>
+      <xs:enumeration value="StandardRoute"/>
+      <xs:enumeration value="StandardSubstance"/>
+      <xs:enumeration value="StandardUnit"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--Temporality-->
+  <xs:attributeGroup name="validityPeriod">
+    <xs:attribute name="StartDate" type="xs:date" use="required"/>
+    <xs:attribute name="EndDate" type="xs:date" use="optional"/>
+  </xs:attributeGroup>
+  <xs:complexType name="ConsultTextType">
+    <xs:annotation>
+      <xs:documentation>To conform to the eHealth requirements, multi-lingual text fields are returned with the xml:lang
+        attribute instead of specific language tags.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Text" minOccurs="2" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>At least two translations (dutch and french) are required for a multi-language text field.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute ref="xml:lang" use="required"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="FindByCommentedClassificationType">
+    <xs:choice>
+      <xs:element name="CommentedClassificationCode" type="core:String10Type"/>
+      <xs:element name="AnyNamePart" type="core:SearchStringType"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="ConsultPricingUnitType">
+    <xs:sequence>
+      <xs:element name="Quantity" type="core:Decimal20d4Type"/>
+      <xs:element name="Label" type="ConsultTextType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:monitoring" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" targetNamespace="urn:be:fgov:ehealth:samws:v2:monitoring"
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AliveCheckRequest">
+    <xs:annotation>
+      <xs:documentation>Request without arguments. Simply loops over all back end services. If anomalies discovered,
+        return them in the response type.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="AliveCheckResponse" type="core:StandardResponseType">
+    <xs:annotation>
+      <xs:documentation>If anomalies discovered during the alive check, they will be listed in this element. If no
+        anomalies, the response element will be empty.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+</xs:schema>

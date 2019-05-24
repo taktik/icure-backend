@@ -1,0 +1,18 @@
+<jxb:bindings version="2.1"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+              jxb:extensionBindingPrefixes="xjc">
+    <jxb:globalBindings>
+        <xjc:simple/>
+        <xjc:serializable uid="2"/>
+    </jxb:globalBindings>
+
+
+    <jxb:bindings schemaLocation="./famhp-samv2-ws-generated-3.4.0-samv2-xsd/export/SamExport.xsd">
+        <jxb:schemaBindings>
+            <jxb:package name="org.taktik.icure.be.samv2.entities"/>
+        </jxb:schemaBindings>
+    </jxb:bindings>
+
+</jxb:bindings>

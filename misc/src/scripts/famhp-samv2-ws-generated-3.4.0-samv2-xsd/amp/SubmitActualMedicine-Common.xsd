@@ -1,0 +1,1507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:actual:common" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" targetNamespace="urn:be:fgov:ehealth:samws:v2:actual:common"
+           elementFormDefault="qualified" attributeFormDefault="unqualified"
+           version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <!--[ Complex Types by entity ]-->
+  <!--Actual Medicinal Product-->
+  <xs:complexType name="AmpKeyType">
+    <xs:attribute name="code" type="AmpCodeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Unique identifier created by FAMHP composed of a prefix 'SAM', 6 digits and 2 digits separated
+          by an hyphen.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="AmpBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:sequence>
+          <xs:group ref="AmpBcpiFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmpFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:sequence>
+          <xs:group ref="AmpFamhpFields"/>
+          <xs:group ref="AmpFamhpReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:group name="AmpBcpiFields">
+    <xs:sequence>
+      <xs:element name="AbbreviatedName" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Abbreviation of the medicinal product name.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProprietarySuffix" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Suffix given to a medicinal product by its distributor.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+
+            Example: ‘Antizuur-Antireflux Unidose’.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescriptionName" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Standard name identifying a medicinal product for prescriptions, structured uniformly by
+            BCPI.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmpFamhpFields">
+    <xs:sequence>
+      <xs:element name="OfficialName" type="core:String255Type">
+        <xs:annotation>
+          <xs:documentation>The AMP’s official name in the language mentioned on the marketing authorisation.
+            The name contains the strength of the medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Status" type="AmpStatusType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The status can be one of the following:
+            - AUTHORIZED: the medicinal product has an authorization number for marketing in Belgium and can be
+            commercialized;
+            - SUSPENDED: the medicinal product can’t temporarily be commercialized due to i.a. health problem;
+            - REVOKED: the medicinal product is finally removed from the Belgian market and can’t be commercialized
+            anymore.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>The translations of the AMP’s official name of the AMP in French, Dutch, German and
+            English.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BlackTriangle" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>Marks an AMP with a black triangle indicating that it is subject to additional monitoring.
+            This mark draws the attention to the fact that experience with such a product is limited or that safety
+            questions have been raised.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MedicineType" type="MedicineTypeType">
+        <xs:annotation>
+          <xs:documentation>Used to indicate whether a medicinal product is a conventional medicine or a homeopathic
+            product. Values: ‘ALLOPATHIC’ or ‘HOMEOPATHIC’
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmpFamhpReferences">
+    <xs:sequence>
+      <xs:element name="CompanyActorNr" type="core:CompanyActorNrType">
+        <xs:annotation>
+          <xs:documentation>Identifier of the company responsible for marketing the medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddAmpBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmpBcpiType">
+        <xs:sequence>
+          <xs:element name="AmpComponent" type="AddAmpComponentBcpiType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmpFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmpFamhpType">
+        <xs:sequence>
+          <xs:element name="AmpComponent" type="AddAmpComponentFamhpType" maxOccurs="unbounded"/>
+          <xs:element name="Ampp" type="AddAmppFamhpType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmpBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="AmpBcpiFields"/>
+          </xs:sequence>
+          <xs:element name="AmpComponent" type="ChangeAmpComponentBcpiType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmpFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="AmpFamhpFields"/>
+            <xs:group ref="AmpFamhpReferences"/>
+          </xs:sequence>
+          <xs:element name="AmpComponent" type="ChangeAmpComponentFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="Ampp" type="ChangeAmppFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmppFamhpToExistingAmpType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:sequence>
+          <xs:element name="Ampp" type="AddAmppFamhpType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveAmpType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--AMP Component-->
+  <xs:complexType name="AmpComponentBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentKeyType">
+        <xs:sequence>
+          <xs:group ref="AmpComponentBcpiFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmpComponentFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentKeyType">
+        <xs:sequence>
+          <xs:group ref="AmpComponentFamhpReferences"/>
+          <xs:element name="RealActualIngredient" type="AddRealActualIngredientType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmpComponentKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required">
+      <xs:annotation>
+        <xs:documentation>Number determined for distinguishing an AMPC from another. In case of many AMPCs under an AMP,
+          the order has no significance.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="AmpComponentBcpiFields">
+    <xs:sequence>
+      <xs:element name="Dividable" type="DividableType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether it concerns a dividable pharmaceutical form:
+            2 – at least dividable in 2 equal parts
+            4 – at least dividable in 4 equals part
+            N – not dividable in equal parts
+            X – not applicable (not a tablet)
+            null – missing data
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Scored" type="ScoredType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether it concerns a scored tablet or not:
+            2 – scored as to allow division in at least 2 parts
+            4 – scored as to allow division in at least 4 parts
+            N – not scored
+            X – not applicable (not a tablet)
+            null – missing data
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Crushable" type="CrushableType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether it concerns a crushable tablet:
+            Y – crushable
+            N – not crushable
+            X – not applicable (not a tablet)
+            null – missing data
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContainsAlcohol" type="ContainsAlcoholType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether the product contains alcohol.
+            Y – contains alcohol
+            N – doesn't contain alcohol
+            X – not applicable
+            Default is null (missing data).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SugarFree" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The product does not contain glucose, sucrose or fructose for products whose AMP have an
+            oral liquid form.
+            Default is null (missing data).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ModifiedReleaseType" type="ModifiedReleaseTypeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Type of release modification:
+            0 – release not modified
+            1 – prolonged release
+            2 – delayed release
+            3 – multiphasic release
+            4 – depot
+            – transdermal
+            null – missing data
+
+            Other values can be added later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpecificDrugDevice" type="SpecificDrugDeviceType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates whether a specific device is needed:
+            0 – a device is neither required nor optional
+            1 – a specific device is required and is included
+            2 – a specific device is required but not included
+            3 – an optional device is included
+            4 – an optional device is not included
+            5 – a specific device is required but may or may not be included (depending on packaging)
+            11 – a specific device is required and is included (risk of medicinal errors)
+            50 – this AMP is a pen device
+            99 – not applicable
+            null – missing data
+
+            Other values can be added later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Dimensions" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Text field with the dimensions of the product in the case of e.g. adhesives.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Uniformly structured name given by the BCPI to identify the specific component from the
+            medicinal product.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Note" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Useful textual information related to the component.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmpComponentFamhpReferences">
+    <xs:sequence>
+      <xs:element name="PharmaceuticalFormCode" type="core:String10Type" maxOccurs="unbounded"/>
+      <xs:element name="RouteOfAdministrationCode" type="core:String10Type" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddAmpComponentFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentFamhpType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmpComponentBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentBcpiType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmpComponentFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="AmpComponentFamhpReferences"/>
+          </xs:sequence>
+          <xs:element name="RealActualIngredient" type="ChangeRealActualIngredientType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmpComponentBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentKeyType">
+        <xs:sequence>
+          <xs:group ref="AmpComponentBcpiFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--AMPP-->
+  <xs:complexType name="AmppBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppBcpiFields"/>
+          <xs:group ref="AmppBcpiReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmppFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppFamhpFields"/>
+          <xs:group ref="AmppFamhpReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmppNihdiType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppNihdiFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmppNihdiBisType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppNihdiBisFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmppKeyType">
+    <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+  </xs:complexType>
+  <xs:group name="AmppBcpiFields">
+    <xs:sequence>
+      <xs:element name="SingleUse" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Is this medicinal product to be used a single time?</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpeciallyRegulated" type="SpeciallyRegulatedType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The AMPP is specially regulated.
+            Possible values:
+            0 – No special regulation
+            1 – Yes, no narcotic
+            2 – Yes, narcotic
+            Other values can be added later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AbbreviatedName" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Abbreviated name of the medicinal product package.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescriptionName" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Structured and uniformly attributed name of the AMPP given by the BCPI as it is intended for
+            consultation by the medicine prescriber.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Note" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Any useful textual information related to the medicinal product package.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PosologyNote" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Note about the posology for the AMPP.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CrmLink" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>URL Link to the online commented directory of medicines page for this AMPP.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppFamhpFields">
+    <xs:sequence>
+      <xs:element name="AuthorisationNr" type="core:String50Type">
+        <xs:annotation>
+          <xs:documentation>Authorisation number given by FAMPH or European Commission when authorised to be
+            commercialised on the Belgian market.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Orphan" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>This AMPP is an orphan drug.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LeafletLink" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to the leaflet for this AMPP, specified according to the language French, Dutch, German
+            and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpcLink" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to SPC specified according to the language French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RmaPatientLink" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to the RMA (Risk Minimization Activities) material (patients) for this AMPP, specified
+            according to the language: French, Dutch and German.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RmaProfessionalLink" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Link to the RMA material (health care professionals) for this AMPP, specified according to
+            the language: French and Dutch.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ParallelCircuit" type="ParallelCircuitType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Possible values:
+            0 – No parallel circuit
+            1 – Parallel import
+            2 – Parallel distribution
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ParallelDistributor" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Value can only be set when field Parallel Circuit = ‘2’. If that field is set to another
+            value, this value is to be set to null.
+            This field indicates the denomination of the company responsible for the parallel distribution of a
+            medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackMultiplier" type="core:PositiveShortType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Multiplier of total Amount of the Pack Size.
+            Only filled in case of Packs with different components which need further specification on total pack level.
+
+            Example: Three-phase medicinal product
+            ‘3’ in 3 x 28 (12 + 10 + 6)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackAmount" type="PackAmountType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Total Amount of the Pack Size.
+            Only filled in case of Packs with different components which need further specification on total pack level.
+
+            Example: Three-phase medicinal product
+            ‘28’ in 3 x 28 (12 + 10 + 6)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackDisplayValue" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Calculated field based on information in the fields Pack Multiplier (AMPP), Pack Amount
+            (AMPP), Content Multiplier (AMPPC), Content Amount (AMPPCES), Content Unit (AMPPCES), Pack Specification
+            (AMPPC).
+
+            Examples:
+            ‘2 x 10 doses (25 ml)’
+            ‘3 x 500 mg + 3 x 10 ml + 3 x Needle’
+            ‘3 x 50 ml Easyflex N’
+            ‘3 x 28 (12 + 10 + 6)’
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Status" type="AmpStatusType">
+        <xs:annotation>
+          <xs:documentation>The status can be one of the following:
+            - AUTHORIZED: the medicinal product has an authorization number for marketing in Belgium and can be
+            commercialized;
+            - SUSPENDED: the medicinal product can’t temporarily be commercialized due to i.a. health problem;
+            - REVOKED: the medicinal product is finally removed from the Belgian market and can’t be commercialized
+            anymore.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GTIN" type="core:String20Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The Global Trade Item Number is a globally unique 14-digit number used to identify trade
+            items, products, or services.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppNihdiFields">
+    <xs:sequence>
+      <xs:element name="ExFactoryPrice" type="core:Decimal10d4Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Ex-factory price in Euro.
+            This information is available only for reimbursable medicinal product packages.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReimbursementCode" type="ReimbursementCodeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Possible status of the reimbursement:
+            0 – Original
+            1 – Copy
+            2 – Generic
+            3 – Reference
+            4 – Reference (exception)
+            5 – Reference (combi)
+            6 – Reference (exception combi)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppNihdiBisFields">
+    <xs:sequence>
+      <xs:element name="DefinedDailyDose" type="core:QuantityType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Defined daily doses (DDDs) are a WHO statistical measure of drug consumption. DDDs are used
+            to standardize the comparative usage of various drugs between themselves or between different health care
+            environments. The DDD is the assumed average maintenance dose per day for a drug used for its main
+            indication in adults. (Maximum of 6 digits). DDD’s are defined at the WHO.
+            For example, paracetamol has a DDD of 3g, which means that an average patient who takes paracetamol for pain
+            relief (Paracetamol main indication) uses 3 gram per day. This is equivalent to six standard (500mg)
+            tablets. If a patient consumes twenty four (500mg) tablets (i.e. 12g of paracetamol in total) in six days,
+            he can have said to have consumed four DDDs of this drug.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppMinEcoFields">
+    <xs:sequence>
+      <xs:element name="OfficialExFactoryPrice" type="core:Decimal10d4Type">
+        <xs:annotation>
+          <xs:documentation>Ex-factory price in Euro, as defined in the agreement with FPS Economy.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RealExFactoryPrice" type="core:Decimal10d4Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Ex-factory price in Euro, as accounted in practice.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PricingInformationDecisionDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Date of the agreement with FPS Economy</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppBcpiReferences">
+    <xs:sequence>
+      <xs:element name="NoGenericPrescriptionReasonCode" type="core:String10Type" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>An AMPP represents a specific packaging belonging to an AMP. This AMP belongs to a VMP if it
+            is available on the Belgian market. The VMPs in turn belong to a VMP Group which can be marked as being
+            valid for a generic prescription or not. However, an AMPP can be linked to a VMP group which is marked as
+            valid for generic prescription although the AMPP itself can't be the subject of a generic prescription due
+            to regulation, e.g. because it is too big.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppFamhpReferences">
+    <xs:sequence>
+      <xs:element name="AtcCode" type="core:String7Type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModusCode" type="core:String7Type"/>
+      <xs:element name="DeliveryModusSpecificationCode" type="core:String7Type" minOccurs="0"/>
+      <xs:element name="DistributorCompanyActorNr" type="core:CompanyActorNrType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Identifier of the company responsible for distributing this package, if different from the
+            company marketing the product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddAmppFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmppFamhpType">
+        <xs:sequence>
+          <xs:element name="AmppComponent" type="AddAmppComponentType" maxOccurs="unbounded"/>
+          <xs:element name="Commercialization" type="AddCommercializationType" minOccurs="0"/>
+          <xs:element name="SupplyProblem" type="AddSupplyProblemType" minOccurs="0"/>
+          <xs:element name="DerogationImport" type="AddDerogationImportType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmppBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmppBcpiType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmppNihdiType">
+    <xs:complexContent>
+      <xs:extension base="AmppNihdiType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmppNihdiBisType">
+    <xs:complexContent>
+      <xs:extension base="AmppNihdiBisType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddAmppMinEcoType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:element name="ExFactoryPrice" type="core:Decimal10d4Type">
+            <xs:annotation>
+              <xs:documentation>Ex-factory price in Euro, as defined in the agreement with FPS Economy.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RealExFactoryPrice" type="core:Decimal10d4Type" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Ex-factory price in Euro, as accounted in practice.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DecisionDate" type="xs:date">
+            <xs:annotation>
+              <xs:documentation>Date of the agreement with FPS Economy</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmppFamhpType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="AmppFamhpFields"/>
+            <xs:group ref="AmppFamhpReferences"/>
+          </xs:sequence>
+          <xs:element name="AmppComponent" type="ChangeAmppComponentType" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="SupplyProblem" type="ChangeSupplyProblemType" minOccurs="0"/>
+          <xs:element name="DerogationImport" type="ChangeDerogationImportType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmppBcpiType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppBcpiFields"/>
+          <xs:group ref="AmppBcpiReferences"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmppNihdiType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppNihdiFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmppNihdiBisType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppNihdiBisFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveAmppType">
+    <xs:complexContent>
+      <xs:extension base="AmppKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--AMPP Component-->
+  <xs:complexType name="AmppComponentType">
+    <xs:complexContent>
+      <xs:extension base="AmppComponentKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppComponentFields"/>
+          <xs:group ref="AmppComponentReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmppComponentKeyType">
+    <xs:attribute name="ampcSequenceNr" type="core:PositiveShortType">
+      <xs:annotation>
+        <xs:documentation>An AMPP Component is the packaging of exactly one AMP Component when the type of this
+          packaging is not a device.
+          When the AMPP Component is of type ‘device’, it has no AMP Component.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required">
+      <xs:annotation>
+        <xs:documentation>Number determined by the provider for distinguishing an AMPPC from another. In case of many
+          AMPPCs under an AMPP, the order has no significance.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="AmppComponentFields">
+    <xs:sequence>
+      <xs:element name="ContentType" type="ContentTypeType">
+        <xs:annotation>
+          <xs:documentation>Code value for the type of the component:
+            - ACTIVE_ COMPONENT: part of the packaging information on the active substance(s) described as AMP
+            component(s);
+            - SOLVENT: part of the packaging information describing what solvent is contained in the AMPP;
+            - DEVICE: medical device added to the packaging.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContentMultiplier" type="xs:int" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Multiplier of the concerned component.
+            Example: ‘3’ in ‘3 x 500 mg’.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackSpecification" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Specification of the concerned component.
+            Example: ‘FreeFlex’, ‘EasyFlex N’
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AmppComponentReferences">
+    <xs:sequence>
+      <xs:element name="DeviceTypeCode" type="core:String8Type" minOccurs="0"/>
+      <xs:element name="PackagingClosureCode" type="core:String8Type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingMaterialCode" type="core:String8Type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingTypeCode" type="core:String8Type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddAmppComponentType">
+    <xs:complexContent>
+      <xs:extension base="AmppComponentType">
+        <xs:sequence>
+          <xs:element name="AmppComponentEquivalent" type="AddAmppComponentEquivalentType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmppComponentType">
+    <xs:complexContent>
+      <xs:extension base="AmppComponentKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="AmppComponentFields"/>
+            <xs:group ref="AmppComponentReferences"/>
+          </xs:sequence>
+          <xs:element name="AmppComponentEquivalent" type="ChangeAmppComponentEquivalentType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--AMPP Component Equivalent-->
+  <xs:complexType name="AmppComponentEquivalentType">
+    <xs:annotation>
+      <xs:documentation>This extra detail level in the AMPPC has been created because the packaging described in an AMPP
+        can have one or many equivalent specification(s) which have to be specified for the medicinal product
+        prescription.
+
+        For example, a substance is described on the package with a quantity of “10 doses”. It is important to also
+        specify that these doses are equivalent to “10x 20ml” of that substance.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="AmppComponentEquivalentKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppComponentEquivalentFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmppComponentEquivalentKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required">
+      <xs:annotation>
+        <xs:documentation>Number determined by the provider for distinguishing an AMPPC Equivalent Specification from
+          another. In case of many AMPPC Equivalent Specifications under an AMPPC, the order gives the priority of use
+          of the equivalent specification from the most important (lowest value) to the least important (highest value).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="AmppComponentEquivalentFields">
+    <xs:sequence>
+      <xs:element name="Content" type="core:QuantityType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddAmppComponentEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="AmppComponentEquivalentType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeAmppComponentEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="AmppComponentEquivalentKeyType">
+        <xs:sequence>
+          <xs:group ref="AmppComponentEquivalentFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--DMPP-->
+  <xs:complexType name="DmppType">
+    <xs:complexContent>
+      <xs:extension base="DmppKeyType">
+        <xs:sequence>
+          <xs:group ref="DmppFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DmppKeyType">
+    <xs:attribute name="deliveryEnvironment" type="core:DeliveryEnvironmentType" use="required">
+      <xs:annotation>
+        <xs:documentation>Type of environment in which a medicinal product is delivered.
+          Possible values :
+          - ‘P’ for Public,
+          - ‘A’ for Ambulatory,
+          - ‘H’ for Hospital,
+          - ‘R’ For Residential care
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="code" type="core:DmppCodeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Code number used to uniquely identify a package or a group of packages being delivered in a
+          given environment and reimbursed according to the same rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="codeType" type="core:DmppCodeTypeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Type of the mentioned code, among the following:
+          - ‘CNK’: Code National – Nationale Kode . This code is attributed by the APB (“Association Pharmaceutique
+          Belge”) to identify unequivocally one medicinal product package, or by the NIHDI for identifying tarification
+          units, which meet to the same reimbursement criteria.
+          - ‘PSEUDO’: Pseudo-code used for the flat-pricing of drugs in certain environments such as radiopharmaca in
+          hospitals.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="DmppFields">
+    <xs:sequence>
+      <xs:element name="Price" type="core:Decimal10d4Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Price in Euro of the AMPP in this environment.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Cheap" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This product is considered by NIHDI as cheap.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Cheapest" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This product is considered by NIHDI as the cheapest on the market.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="DmppReimbursementFields">
+    <xs:sequence>
+      <xs:element name="Reimbursable" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>By default, a DMPP is not reimbursed, even if an existing reimbursement context references
+            the same CNK.
+            The NIHDI must set this flag explicitly to True if the DMPP is Reimbursable.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddDmppType">
+    <xs:complexContent>
+      <xs:extension base="DmppType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddDmppToAmppType">
+    <xs:complexContent>
+      <xs:extension base="AddDmppType">
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddDmppNihdiType">
+    <xs:complexContent>
+      <xs:extension base="AddDmppType">
+        <xs:sequence>
+          <xs:group ref="DmppReimbursementFields"/>
+        </xs:sequence>
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddDmppMinEcoType">
+    <xs:complexContent>
+      <xs:extension base="DmppKeyType">
+        <xs:sequence>
+          <xs:element name="Price" type="core:Decimal10d4Type"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addMetadata"/>
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeDmppType">
+    <xs:complexContent>
+      <xs:extension base="DmppKeyType">
+        <xs:sequence>
+          <xs:group ref="DmppFields"/>
+        </xs:sequence>
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeDmppNihdiType">
+    <xs:complexContent>
+      <xs:extension base="DmppKeyType">
+        <xs:sequence>
+          <xs:group ref="DmppFields"/>
+          <xs:group ref="DmppReimbursementFields"/>
+        </xs:sequence>
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveDmppType">
+    <xs:complexContent>
+      <xs:extension base="DmppKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="UpdateDmppReimbursementStatusType">
+    <xs:complexContent>
+      <xs:extension base="DmppKeyType">
+        <xs:sequence>
+          <xs:group ref="DmppReimbursementFields"/>
+        </xs:sequence>
+        <xs:attribute name="ctiExtended" type="core:CtiExtendedType" use="required"/>
+        <xs:attributeGroup ref="core:actionPeriod"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Commercialization-->
+  <xs:complexType name="CommercializationType"/>
+  <xs:complexType name="AddCommercializationType">
+    <xs:complexContent>
+      <xs:extension base="CommercializationType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeCommercializationType">
+    <xs:complexContent>
+      <xs:extension base="CommercializationType">
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveCommercializationType">
+    <xs:attributeGroup ref="core:removeMetadata"/>
+  </xs:complexType>
+  <!--Supply Problem-->
+  <xs:complexType name="SupplyProblemType">
+    <xs:sequence>
+      <xs:group ref="SupplyProblemFields"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="SupplyProblemFields">
+    <xs:sequence>
+      <xs:element name="ExpectedEndOn" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Expected end date of the supply problem.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReportedBy" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name of the reporter of the supply problem: company ,doctor, patient, pharmacist, other.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReportedOn" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date of the notification of the supply problem.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactName" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact name for the supply problem.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactMail" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact’s mail address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactCompany" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact’s company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Phone" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact’s phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Reason" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>If there is a supply problem, here’s why.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AdditionalInformation" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Additional information on the supply problem.
+            This field is translated in French, Dutch, German and English.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddSupplyProblemType">
+    <xs:complexContent>
+      <xs:extension base="SupplyProblemType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeSupplyProblemType">
+    <xs:sequence>
+      <xs:sequence minOccurs="0">
+        <xs:group ref="SupplyProblemFields"/>
+      </xs:sequence>
+    </xs:sequence>
+    <xs:attributeGroup ref="core:changeMetadata"/>
+  </xs:complexType>
+  <xs:complexType name="RemoveSupplyProblemType">
+    <xs:attributeGroup ref="core:removeMetadata"/>
+  </xs:complexType>
+  <!--Derogation Import-->
+  <xs:complexType name="DerogationImportType">
+    <xs:complexContent>
+      <xs:extension base="DerogationImportKeyType">
+        <xs:sequence>
+          <xs:group ref="DerogationImportFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DerogationImportKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required"/>
+  </xs:complexType>
+  <xs:group name="DerogationImportFields">
+    <xs:sequence>
+      <xs:element name="Note" type="core:TextType">
+        <xs:annotation>
+          <xs:documentation>Available information (identification or description) of the imported drug.
+            When it is specified, French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddDerogationImportType">
+    <xs:complexContent>
+      <xs:extension base="DerogationImportType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeDerogationImportType">
+    <xs:complexContent>
+      <xs:extension base="DerogationImportKeyType">
+        <xs:sequence>
+          <xs:group ref="DerogationImportFields"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveDerogationImportType">
+    <xs:complexContent>
+      <xs:extension base="DerogationImportKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Real Actual Ingredient-->
+  <xs:complexType name="RealActualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="RealActualIngredientKeyType">
+        <xs:sequence>
+          <xs:group ref="RealActualIngredientFields"/>
+          <xs:group ref="RealActualIngredientReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RealActualIngredientKeyType">
+    <xs:attribute name="rank" type="core:PositiveShortType" use="required"/>
+  </xs:complexType>
+  <xs:group name="RealActualIngredientFields">
+    <xs:sequence>
+      <xs:element name="Type" type="core:IngredientTypeType">
+        <xs:annotation>
+          <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+            Substance).
+            Possible values :
+            - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+            - EXCIPIENT: not active substance.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="KnownEffect" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This ingredient (always excipient) has known effect(s). Default is null, meaning this
+            excipient is considered as an excipient without a known effect.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice minOccurs="0">
+        <xs:element name="Strength" type="core:QuantityType">
+          <xs:annotation>
+            <xs:documentation>Strength of the ingredient when it is an Active Substance.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="StrengthDescription" type="core:String50Type">
+          <xs:annotation>
+            <xs:documentation>Alternative description of the strength that not fits in the fields Strength Quantity /
+              Strength Unit. This field is empty when these fields can be filled in.
+              In the case where the ingredient really contained in the medicinal product has an unknown strength, the
+              following value is mentioned: “Quantum satis”.
+
+              Examples:
+              - ‘50 U DL50’ for ingredient ‘Clostridium Botulinum Toxin, Type A’
+              - ‘MT’ for ingredient ‘Calendula Officinalis’
+              - ‘D1’ for ingredient ‘Aconitum Napellus’
+              - ‘Quantum satis’ for ingredient ‘Clopidogrel Hydrogen Sulphate’
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="AdditionalInformation" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Additional (textual) information about the active ingredient.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="RealActualIngredientReferences">
+    <xs:sequence>
+      <xs:element name="SubstanceCode" type="core:String10Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddRealActualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="RealActualIngredientType">
+        <xs:sequence>
+          <xs:element name="RealActualIngredientEquivalent" type="AddRealActualIngredientEquivalentType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeRealActualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="RealActualIngredientKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="RealActualIngredientFields"/>
+            <xs:group ref="RealActualIngredientReferences"/>
+          </xs:sequence>
+          <xs:element name="RealActualIngredientEquivalent" type="ChangeRealActualIngredientEquivalentType"
+                      minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Real Actual Ingredient Equivalent-->
+  <xs:complexType name="RealActualIngredientEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="RealActualIngredientEquivalentKeyType">
+        <xs:sequence>
+          <xs:group ref="RealActualIngredientEquivalentFields"/>
+          <xs:group ref="RealActualIngredientEquivalentReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RealActualIngredientEquivalentKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required"/>
+  </xs:complexType>
+  <xs:group name="RealActualIngredientEquivalentFields">
+    <xs:sequence>
+      <xs:element name="Type" type="core:IngredientTypeType">
+        <xs:annotation>
+          <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+            Substance).
+            Possible values :
+            - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+            - EXCIPIENT: not active substance.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="KnownEffect" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This ingredient (always excipient) has known effect(s). Default is null, meaning this
+            excipient is considered as an excipient without a known effect.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice minOccurs="0">
+        <xs:element name="Strength" type="core:QuantityType">
+          <xs:annotation>
+            <xs:documentation>Strength of the ingredient when it is an Active Substance.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="StrengthDescription" type="core:String50Type">
+          <xs:annotation>
+            <xs:documentation>Alternative description of the strength that not fits in the fields Strength Quantity /
+              Strength Unit. This field is empty when these fields can be filled in.
+              In the case where the ingredient really contained in the medicinal product has an unknown strength, the
+              following value is mentioned: “Quantum satis”.
+
+              Examples:
+              - ‘50 U DL50’ for ingredient ‘Clostridium Botulinum Toxin, Type A’
+              - ‘MT’ for ingredient ‘Calendula Officinalis’
+              - ‘D1’ for ingredient ‘Aconitum Napellus’
+              - ‘Quantum satis’ for ingredient ‘Clopidogrel Hydrogen Sulphate’
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="RealActualIngredientEquivalentReferences">
+    <xs:sequence>
+      <xs:element name="SubstanceCode" type="core:String10Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddRealActualIngredientEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="RealActualIngredientEquivalentType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeRealActualIngredientEquivalentType">
+    <xs:complexContent>
+      <xs:extension base="RealActualIngredientEquivalentType">
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Actual to Virtual Link-->
+  <xs:complexType name="AmpLinkToVirtualType">
+    <xs:complexContent>
+      <xs:extension base="AmpKeyType">
+        <xs:sequence>
+          <xs:element name="Vmp" type="core:VmpKeyType"/>
+          <xs:element name="AmpComponent" type="AmpComponentLinkToVirtualType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AmpComponentLinkToVirtualType">
+    <xs:complexContent>
+      <xs:extension base="AmpComponentKeyType">
+        <xs:sequence>
+          <xs:element name="VmpComponent" type="core:VmpComponentKeyType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--[ Pattern / Enum restrictions ]-->
+  <xs:simpleType name="AmpCodeType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="SAM\d{6}\-\d{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AmpStatusType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AUTHORIZED"/>
+      <xs:enumeration value="SUSPENDED"/>
+      <xs:enumeration value="REVOKED"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ContainsAlcoholType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Y"/>
+      <xs:enumeration value="N"/>
+      <xs:enumeration value="X"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ContentTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ACTIVE_COMPONENT"/>
+      <xs:enumeration value="SOLVENT"/>
+      <xs:enumeration value="DEVICE"/>
+      <xs:enumeration value="EXCIPIENT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CrushableType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Y"/>
+      <xs:enumeration value="N"/>
+      <xs:enumeration value="X"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DividableType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="N"/>
+      <xs:enumeration value="X"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="MedicineTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ALLOPATHIC"/>
+      <xs:enumeration value="HOMEOPATHIC"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ModifiedReleaseTypeType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="99"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ParallelCircuitType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ReimbursementCodeType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="6"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ScoredType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="N"/>
+      <xs:enumeration value="X"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="SpeciallyRegulatedType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="SpecificDrugDeviceType">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="99"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="PackAmountType">
+    <xs:simpleContent>
+      <xs:extension base="core:Decimal20d4Type">
+        <xs:attribute name="unit" type="core:String20Type">
+          <xs:annotation>
+            <xs:documentation>An optional reference to a unit type for amounts in a specific unit (e.g. ml for a pack
+              containing a mixture of 150 ml total fluid)
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:compounding:common" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:compounding:common" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddCompoundingIngredientRequest" type="AddCompoundingIngredientRequestType"/>
+  <xs:element name="AddCompoundingIngredientResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveCompoundingIngredientRequest" type="RemoveCompoundingIngredientRequestType"/>
+  <xs:element name="RemoveCompoundingIngredientResponse" type="core:StandardResponseType"/>
+  <xs:element name="AddCompoundingFormulaRequest" type="AddCompoundingFormulaRequestType"/>
+  <xs:element name="AddCompoundingFormulaResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveCompoundingFormulaRequest" type="RemoveCompoundingFormulaRequestType"/>
+  <xs:element name="RemoveCompoundingFormulaResponse" type="core:StandardResponseType"/>
+  <xs:complexType name="AddCompoundingIngredientRequestType">
+    <xs:sequence>
+      <xs:element name="CompoundingIngredient" type="AddCompoundingIngredientType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveCompoundingIngredientRequestType">
+    <xs:sequence>
+      <xs:element name="CompoundingIngredient" type="RemoveCompoundingIngredientType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AddCompoundingFormulaRequestType">
+    <xs:sequence>
+      <xs:element name="CompoundingFormula" type="AddCompoundingFormulaType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveCompoundingFormulaRequestType">
+    <xs:sequence>
+      <xs:element name="CompoundingFormula" type="RemoveCompoundingFormulaType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--Compounding Ingredients-->
+  <xs:complexType name="AddCompoundingIngredientType">
+    <xs:complexContent>
+      <xs:extension base="CompoundingIngredientType">
+        <xs:attribute name="action" type="core:addActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" use="required"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveCompoundingIngredientType">
+    <xs:complexContent>
+      <xs:extension base="CompoundingIngredientKeyType">
+        <xs:attribute name="action" type="core:removeActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" use="required"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CompoundingIngredientKeyType">
+    <xs:attribute name="code" type="core:DmppCodeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Ingredients are uniquely identified by a CNK code.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="codeType" type="core:DmppCodeTypeType" default="CNK">
+      <xs:annotation>
+        <xs:documentation>Code Type for Compounding Ingredients is always CNK. Code Type is present in the KeyType for
+          uniformity with other SAM components.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="CompoundingIngredientType">
+    <xs:complexContent>
+      <xs:extension base="CompoundingIngredientKeyType">
+        <xs:sequence>
+          <xs:group ref="CompoundingIngredientFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:group name="CompoundingIngredientFields">
+    <xs:sequence>
+      <xs:element name="Synonym" type="SynonymType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <!--Compounding Formulae-->
+  <xs:complexType name="AddCompoundingFormulaType">
+    <xs:complexContent>
+      <xs:extension base="CompoundingFormulaType">
+        <xs:attribute name="action" type="core:addActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" use="required"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveCompoundingFormulaType">
+    <xs:complexContent>
+      <xs:extension base="CompoundingFormulaKeyType">
+        <xs:attribute name="action" type="core:removeActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" use="required"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CompoundingFormulaKeyType">
+    <xs:attribute name="code" type="core:DmppCodeType" use="required">
+      <xs:annotation>
+        <xs:documentation>Formulas are uniquely identified by a CNK code.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="codeType" type="core:DmppCodeTypeType" default="CNK">
+      <xs:annotation>
+        <xs:documentation>Code Type for Compounding Formulas is always CNK. Code Type is present in the KeyType for
+          uniformity with other SAM components.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="CompoundingFormulaType">
+    <xs:complexContent>
+      <xs:extension base="CompoundingFormulaKeyType">
+        <xs:sequence>
+          <xs:group ref="CompoundingFormulaFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:group name="CompoundingFormulaFields">
+    <xs:sequence>
+      <xs:element name="Synonym" type="SynonymType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <!--Common-->
+  <xs:complexType name="SynonymType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute ref="xml:lang"/>
+        <xs:attribute name="rank" type="xs:int">
+          <xs:annotation>
+            <xs:documentation>Optional rank of the synonym. Synonyms may be ordered by importance or frequency of use.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

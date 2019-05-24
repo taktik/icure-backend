@@ -51,6 +51,5 @@ web/icure-ht/package-lock\.json
 web/icure-ht/package\.json
 
 bin/
-misc/
 .classpath
 .settings

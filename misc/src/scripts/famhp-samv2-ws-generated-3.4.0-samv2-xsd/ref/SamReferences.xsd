@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:refdata="urn:be:fgov:ehealth:samws:v2:refdata"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" targetNamespace="urn:be:fgov:ehealth:samws:v2:refdata"
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <!--SAM v2 Entities-->
+  <!--FAMHP-->
+  <!--Request / Response-->
+  <xs:element name="SetFamhpReferencesRequest" type="refdata:SetFamhpReferencesRequestType"/>
+  <xs:element name="SetFamhpReferencesResponse" type="core:StandardResponseType"/>
+  <xs:element name="UnsetFamhpReferencesRequest" type="refdata:UnsetFamhpReferencesRequestType"/>
+  <xs:element name="UnsetFamhpReferencesResponse" type="core:StandardResponseType"/>
+  <!--Complex Types / Groups-->
+  <xs:complexType name="SetFamhpReferencesRequestType">
+    <xs:sequence>
+      <xs:group ref="refdata:SetFamhpMainEntities"/>
+      <xs:group ref="refdata:SetFamhpAdditionalEntities"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="SetFamhpMainEntities">
+    <xs:sequence>
+      <xs:element name="AtcClassification" type="refdata:AtcClassificationType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModus" type="refdata:DeliveryModusType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModusSpecification" type="refdata:DeliveryModusSpecificationType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="DeviceType" type="refdata:DeviceTypeType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingClosure" type="refdata:PackagingClosureType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingMaterial" type="refdata:PackagingMaterialType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingType" type="refdata:PackagingTypeType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PharmaceuticalForm" type="refdata:PharmaceuticalFormType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="Substance" type="refdata:SubstanceType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="SetFamhpAdditionalEntities">
+    <xs:sequence>
+      <xs:element name="StandardForm" type="refdata:StandardFormFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardRoute" type="refdata:StandardRouteFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardSubstance" type="refdata:StandardSubstanceFamhpType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="StandardUnit" type="refdata:StandardUnitFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="UnsetFamhpReferencesRequestType">
+    <xs:sequence>
+      <xs:group ref="refdata:UnsetFamhpMainEntities"/>
+      <xs:group ref="refdata:UnsetFamhpAdditionalEntities"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="UnsetFamhpMainEntities">
+    <xs:sequence>
+      <xs:element name="AtcClassification" type="refdata:AtcClassificationKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModus" type="refdata:DeliveryModusKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="DeliveryModusSpecification" type="refdata:DeliveryModusSpecificationKeyType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="DeviceType" type="refdata:DeviceTypeKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingClosure" type="refdata:PackagingClosureKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingMaterial" type="refdata:PackagingMaterialKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PackagingType" type="refdata:PackagingTypeKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="PharmaceuticalForm" type="refdata:PharmaceuticalFormKeyType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationKeyType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="Substance" type="refdata:SubstanceKeyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="UnsetFamhpAdditionalEntities">
+    <xs:sequence>
+      <xs:element name="StandardForm" type="refdata:StandardFormKeyFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardRoute" type="refdata:StandardRouteKeyFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardSubstance" type="refdata:StandardSubstanceKeyFamhpType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="StandardUnit" type="refdata:StandardUnitKeyFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <!--BCPI-->
+  <!--Request / Response-->
+  <xs:element name="SetBcpiReferencesRequest" type="refdata:SetBcpiReferencesRequestType"/>
+  <xs:element name="SetBcpiReferencesResponse" type="core:StandardResponseType"/>
+  <xs:element name="UnsetBcpiReferencesRequest" type="refdata:UnsetBcpiReferencesRequestType"/>
+  <xs:element name="UnsetBcpiReferencesResponse" type="core:StandardResponseType"/>
+  <!--Complex Types / Groups-->
+  <xs:complexType name="SetBcpiReferencesRequestType">
+    <xs:sequence>
+      <xs:group ref="refdata:SetBcpiMainEntities"/>
+      <xs:group ref="refdata:SetBcpiAdditionalEntities"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="SetBcpiMainEntities">
+    <xs:sequence>
+      <xs:element name="NoSwitchReason" type="refdata:NoSwitchReasonType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="VirtualForm" type="refdata:VirtualFormType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Wada" type="refdata:WadaType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="NoGenericPrescriptionReason" type="refdata:NoGenericPrescriptionReasonType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="SetBcpiAdditionalEntities">
+    <xs:sequence>
+      <xs:element name="StandardForm" type="refdata:StandardFormBcpiType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardRoute" type="refdata:StandardRouteBcpiType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardSubstance" type="refdata:StandardSubstanceBcpiType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="UnsetBcpiReferencesRequestType">
+    <xs:sequence>
+      <xs:group ref="refdata:UnsetBcpiMainEntities"/>
+      <xs:group ref="refdata:UnsetBcpiAdditionalEntities"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="UnsetBcpiMainEntities">
+    <xs:sequence>
+      <xs:element name="NoSwitchReason" type="refdata:NoSwitchReasonKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="VirtualForm" type="refdata:VirtualFormKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Wada" type="refdata:WadaKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="NoGenericPrescriptionReason" type="refdata:NoGenericPrescriptionReasonKeyType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="UnsetBcpiAdditionalEntities">
+    <xs:sequence>
+      <xs:element name="StandardForm" type="refdata:StandardFormKeyBcpiType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardRoute" type="refdata:StandardRouteKeyBcpiType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardSubstance" type="refdata:StandardSubstanceKeyBcpiType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <!--NIHDI-->
+  <!--Request / Response-->
+  <xs:element name="SetNihdiReferencesRequest" type="refdata:SetNihdiReferencesRequestType"/>
+  <xs:element name="SetNihdiReferencesResponse" type="core:StandardResponseType"/>
+  <xs:element name="UnsetNihdiReferencesRequest" type="refdata:UnsetNihdiReferencesRequestType"/>
+  <xs:element name="UnsetNihdiReferencesResponse" type="core:StandardResponseType"/>
+  <!--Complex Types / Groups-->
+  <xs:complexType name="SetNihdiReferencesRequestType">
+    <xs:sequence>
+      <xs:group ref="refdata:SetNihdiEntities"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="SetNihdiEntities">
+    <xs:sequence>
+      <xs:element name="Appendix" type="refdata:AppendixType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="FormCategory" type="refdata:FormCategoryType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Parameter" type="refdata:ParameterType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="ReimbursementCriterion" type="refdata:ReimbursementCriterionType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="UnsetNihdiReferencesRequestType">
+    <xs:sequence>
+      <xs:element name="Appendix" type="refdata:AppendixKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="FormCategory" type="refdata:FormCategoryKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Parameter" type="refdata:ParameterKeyType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="ReimbursementCriterion" type="refdata:ReimbursementCriterionKeyType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--[ Definitions ]-->
+  <!--Specific to Actual Medicine Part-->
+  <xs:complexType name="AtcClassificationType">
+    <xs:complexContent>
+      <xs:extension base="refdata:AtcClassificationKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AtcClassificationKeyType">
+    <xs:attribute name="code" type="core:String7Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="DeviceTypeType">
+    <xs:complexContent>
+      <xs:extension base="refdata:DeviceTypeKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+          <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+          <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DeviceTypeKeyType">
+    <xs:attribute name="code" type="core:String8Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="DeliveryModusType">
+    <xs:complexContent>
+      <xs:extension base="refdata:DeliveryModusKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DeliveryModusKeyType">
+    <xs:attribute name="code" type="core:String7Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="DeliveryModusSpecificationType">
+    <xs:complexContent>
+      <xs:extension base="refdata:DeliveryModusSpecificationKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DeliveryModusSpecificationKeyType">
+    <xs:attribute name="code" type="core:String7Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="PackagingClosureType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PackagingClosureKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+          <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+          <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PackagingClosureKeyType">
+    <xs:attribute name="code" type="core:String8Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="PackagingMaterialType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PackagingMaterialKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PackagingMaterialKeyType">
+    <xs:attribute name="code" type="core:String8Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="PackagingTypeType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PackagingTypeKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+          <xs:element name="EdqmCode" type="core:String20Type" minOccurs="0"/>
+          <xs:element name="EdqmDefinition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PackagingTypeKeyType">
+    <xs:attribute name="code" type="core:String8Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="PharmaceuticalFormType">
+    <xs:complexContent>
+      <xs:extension base="refdata:PharmaceuticalFormKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PharmaceuticalFormKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <!--Specific to Virtual Medicine Part-->
+  <xs:complexType name="NoSwitchReasonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:NoSwitchReasonKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NoSwitchReasonKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="VirtualFormType">
+    <xs:complexContent>
+      <xs:extension base="refdata:VirtualFormKeyType">
+        <xs:sequence>
+          <xs:element name="Abbreviation" type="core:Text255Type"/>
+          <xs:element name="Name" type="core:Text255Type"/>
+          <xs:element name="Description" type="core:TextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualFormKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="WadaType">
+    <xs:complexContent>
+      <xs:extension base="refdata:WadaKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+          <xs:element name="Description" type="core:TextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="WadaKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <!--Common to Actual and Virtual Medicine Part-->
+  <xs:complexType name="NoGenericPrescriptionReasonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:NoGenericPrescriptionReasonKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NoGenericPrescriptionReasonKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:group name="CommonAdditionalEntities">
+    <xs:sequence>
+      <xs:element name="StandardForm" type="refdata:StandardFormCommonType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardRoute" type="refdata:StandardRouteCommonType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="StandardSubstance" type="refdata:StandardSubstanceCommonType" minOccurs="0"
+                  maxOccurs="unbounded"/>
+      <xs:element name="StandardUnit" type="refdata:StandardUnitFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="StandardFormCommonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardFormKeyCommonType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardFormFields"/>
+          <xs:element name="PharmaceuticalForm" type="refdata:PharmaceuticalFormKeyType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:element name="VirtualForm" type="refdata:VirtualFormKeyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardFormBcpiType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardFormKeyBcpiType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardFormFields"/>
+          <xs:element name="VirtualForm" type="refdata:VirtualFormKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardFormFamhpType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardFormKeyFamhpType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardFormFields"/>
+          <xs:element name="PharmaceuticalForm" type="refdata:PharmaceuticalFormKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardFormKeyCommonType">
+    <xs:attribute name="standard" type="refdata:StdFrmAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardFormKeyBcpiType">
+    <xs:attribute name="standard" type="refdata:StdFrmBcpiStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardFormKeyFamhpType">
+    <xs:attribute name="standard" type="refdata:StdFrmFamhpStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:group name="StandardFormFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type" minOccurs="0"/>
+      <xs:element name="Definition" type="core:TextType" minOccurs="0"/>
+      <xs:element name="URL" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="RouteOfAdministrationType">
+    <xs:complexContent>
+      <xs:extension base="refdata:RouteOfAdministrationKeyType">
+        <xs:sequence>
+          <xs:element name="Name" type="core:Text255Type"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RouteOfAdministrationKeyType">
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteCommonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardRouteKeyCommonType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardRouteFields"/>
+          <xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteBcpiType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardRouteKeyBcpiType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardRouteFields"/>
+          <xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteFamhpType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardRouteKeyFamhpType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardRouteFields"/>
+          <xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteKeyCommonType">
+    <xs:attribute name="standard" type="refdata:StdRteAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteKeyBcpiType">
+    <xs:attribute name="standard" type="refdata:StdRteBcpiStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardRouteKeyFamhpType">
+    <xs:attribute name="standard" type="refdata:StdRteFamhpStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:group name="StandardRouteFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type" minOccurs="0"/>
+      <xs:element name="Definition" type="core:TextType" minOccurs="0"/>
+      <xs:element name="URL" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="StandardSubstanceCommonType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardSubstanceKeyCommonType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardSubstanceFields"/>
+          <xs:element name="Substance" type="refdata:SubstanceKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceBcpiType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardSubstanceKeyBcpiType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardSubstanceFields"/>
+          <xs:element name="Substance" type="refdata:SubstanceKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceFamhpType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardSubstanceKeyFamhpType">
+        <xs:sequence>
+          <xs:group ref="refdata:StandardSubstanceFields"/>
+          <xs:element name="Substance" type="refdata:SubstanceKeyType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceKeyCommonType">
+    <xs:attribute name="standard" type="refdata:StdSbstAllStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceKeyBcpiType">
+    <xs:attribute name="standard" type="refdata:StdSbstBcpiStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardSubstanceKeyFamhpType">
+    <xs:attribute name="standard" type="refdata:StdSbstFamhpStandardsType" use="required"/>
+    <xs:attribute name="code" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:group name="StandardSubstanceFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type" minOccurs="0"/>
+      <xs:element name="Definition" type="core:TextType" minOccurs="0"/>
+      <xs:element name="URL" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="SubstanceType">
+    <xs:complexContent>
+      <xs:extension base="refdata:SubstanceKeyType">
+        <xs:sequence>
+          <xs:element name="ChemicalForm" type="core:String10Type" minOccurs="0"/>
+          <xs:element name="Name" type="core:Text255Type"/>
+          <xs:element name="Note" type="core:TextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubstanceKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardUnitFamhpType">
+    <xs:complexContent>
+      <xs:extension base="refdata:StandardUnitKeyFamhpType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StandardUnitKeyFamhpType">
+    <xs:attribute name="name" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <!--Specific to Reimbursement Law part-->
+  <xs:complexType name="AppendixType">
+    <xs:complexContent>
+      <xs:extension base="refdata:AppendixKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AppendixKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="DomainType">
+    <xs:choice>
+      <xs:element name="Quantity" type="core:QuantityType"/>
+      <xs:element name="QuantityRange" type="core:RangeType"/>
+      <xs:element name="Strength" type="core:StrengthType"/>
+      <xs:element name="StrengthRange" type="core:StrengthRangeType"/>
+      <xs:element name="Code" type="core:String20Type"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="FormCategoryType">
+    <xs:complexContent>
+      <xs:extension base="refdata:FormCategoryKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="FormCategoryKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="ParameterType">
+    <xs:complexContent>
+      <xs:extension base="refdata:ParameterKeyType">
+        <xs:sequence>
+          <xs:element name="UnitType" type="refdata:UnitTypeType"/>
+          <xs:element name="Domain" type="refdata:DomainType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ParameterKeyType">
+    <xs:attribute name="name" type="core:String100Type" use="required"/>
+  </xs:complexType>
+  <!--Specific to Reimbursement part-->
+  <xs:complexType name="ReimbursementCriterionType">
+    <xs:complexContent>
+      <xs:extension base="refdata:ReimbursementCriterionKeyType">
+        <xs:sequence>
+          <xs:element name="Description" type="core:TextType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReimbursementCriterionKeyType">
+    <xs:attribute name="category" type="core:String10Type" use="required"/>
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <!--[ String / Enum restrictions ]-->
+  <xs:simpleType name="UnitTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="QUANTITY"/>
+      <xs:enumeration value="STRENGTH"/>
+      <xs:enumeration value="CODE"/>
+      <xs:enumeration value="BOOLEAN"/>
+      <xs:enumeration value="AMP_CODE"/>
+      <xs:enumeration value="CTI_EXTENDED"/>
+      <xs:enumeration value="ATC_CODE"/>
+      <xs:enumeration value="LEGAL_REFERENCE_PATH"/>
+      <xs:enumeration value="LEGAL_TEXT_PATH"/>
+      <xs:enumeration value="REIMBURSEMENT_CRITERION_KEY"/>
+      <xs:enumeration value="VMP_CODE"/>
+      <xs:enumeration value="SUBSTANCE_CODE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--[ Authorized reference standards ]-->
+  <xs:simpleType name="StdFrmAllStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DM+D"/>
+      <xs:enumeration value="EDQM"/>
+      <xs:enumeration value="SNOMED_CT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdFrmBcpiStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DM+D"/>
+      <xs:enumeration value="SNOMED_CT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdFrmFamhpStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EDQM"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdRteAllStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DM+D"/>
+      <xs:enumeration value="EDQM"/>
+      <xs:enumeration value="SNOMED_CT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdRteBcpiStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DM+D"/>
+      <xs:enumeration value="SNOMED_CT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdRteFamhpStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EDQM"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdSbstAllStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CAS"/>
+      <xs:enumeration value="DM+D"/>
+      <xs:enumeration value="EDQM"/>
+      <xs:enumeration value="SNOMED_CT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdSbstBcpiStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CAS"/>
+      <xs:enumeration value="DM+D"/>
+      <xs:enumeration value="SNOMED_CT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="StdSbstFamhpStandardsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EDQM"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

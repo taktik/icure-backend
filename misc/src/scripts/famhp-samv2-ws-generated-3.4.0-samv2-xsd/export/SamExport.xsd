@@ -1,0 +1,1010 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:export" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+					 xmlns:amp="urn:be:fgov:ehealth:samws:v2:actual:common"
+					 xmlns:company="urn:be:fgov:ehealth:samws:v2:company:submit" xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+					 xmlns:legaltext="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit"
+					 xmlns:refdata="urn:be:fgov:ehealth:samws:v2:refdata"
+					 xmlns:reimbursement="urn:be:fgov:ehealth:samws:v2:reimbursement:submit"
+					 xmlns:vmp="urn:be:fgov:ehealth:samws:v2:virtual:common"
+					 xmlns:compounding="urn:be:fgov:ehealth:samws:v2:compounding:common"
+					 xmlns:nonmedicinal="urn:be:fgov:ehealth:samws:v2:nonmedicinal:common"
+					 targetNamespace="urn:be:fgov:ehealth:samws:v2:export" elementFormDefault="qualified"
+					 attributeFormDefault="unqualified" version="3.4">
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common" schemaLocation="../amp/SubmitActualMedicine-Common.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:company:submit" schemaLocation="../company/SubmitCompany-Company.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit" schemaLocation="../legaltexts/SubmitReimbursementLaw.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:refdata" schemaLocation="../ref/SamReferences.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:reimbursement:submit" schemaLocation="../reimbursements/SubmitReimbursement.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common" schemaLocation="../vmp/SubmitVirtualMedicine-Common.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:compounding:common" schemaLocation="../compounding/SubmitCompoundMedicine-Common.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:nonmedicinal:common" schemaLocation="../nonmedicinal/SubmitNonMedicinalProducts-Common.xsd"/>
+	<xs:import namespace="urn:be:fgov:ehealth:samws:v2:consultation" schemaLocation="../consult/SamConsultation.xsd"/>
+	<xs:element name="ExportActualMedicines" type="ExportActualMedicinesType"/>
+	<xs:element name="ExportCompanies" type="ExportCompaniesType"/>
+	<xs:element name="ExportReferences" type="ExportReferencesType"/>
+	<xs:element name="ExportReimbursementLaws" type="ExportReimbursementLawsType"/>
+	<xs:element name="ExportReimbursements" type="ExportReimbursementsType"/>
+	<xs:element name="ExportVirtualMedicines" type="ExportVirtualMedicinesType"/>
+	<xs:element name="ExportCompounding" type="ExportCompoundingType"/>
+	<xs:element name="ExportNonMedicinal" type="ExportNonMedicinalType"/>
+	<xs:element name="GenericExport" type="GenericExportType">
+		<xs:annotation>
+			<xs:documentation>Empty export element for generic example in cookbook.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:annotation>
+		<xs:documentation>ComplexTypes</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="VersionedExportType">
+		<xs:attribute name="version" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Attribute on root element, indicating the XSD version this document validates to. Parsers SHOULD verify if they are compatible with this version.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="ExportActualMedicinesType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="Amp" type="AmpFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportCompaniesType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="Company" type="CompanyFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportReferencesType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:group ref="refdata:SetFamhpMainEntities"/>
+			<xs:group ref="refdata:SetBcpiMainEntities"/>
+			<xs:group ref="refdata:CommonAdditionalEntities"/>
+			<xs:group ref="refdata:SetNihdiEntities"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportReimbursementLawsType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="LegalBasis" type="LegalBasisFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportReimbursementsType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="ReimbursementContext" type="ReimbursementContextFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportVirtualMedicinesType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="Vtm" type="VtmFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="VmpGroup" type="VmpGroupFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CommentedClassification" type="CommentedClassificationFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Vmp" type="VmpFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportCompoundingType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="CompoundingIngredient" type="CompoundingIngredientFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CompoundingFormula" type="CompoundingFormulaFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportNonMedicinalType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="NonMedicinalProduct" type="NonMedicinalProductFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="GenericExportType">
+		<xs:complexContent>
+			<xs:extension base="VersionedExportType">
+		<xs:sequence>
+			<xs:element name="RootObject" type="RootObjectFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>ComplexTypes per entities</xs:documentation>
+	</xs:annotation>
+	<xs:annotation>
+		<xs:documentation>Domain ACTUAL MEDICINE</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="AmpFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:AmpKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="AmpDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="AmpComponent" type="AmpComponentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Ampp" type="AmppFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="vmpCode" type="xs:positiveInteger"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmpDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:AmpFamhpFields"/>
+					<xs:group ref="AmpFamhpReferenceFields"/>
+					<xs:group ref="amp:AmpBcpiFields" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmpComponentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:AmpComponentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="AmpComponentDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="RealActualIngredient" type="RealActualIngredientFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="vmpComponentCode" type="xs:positiveInteger"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmpComponentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="AmpComponentFamhpReferenceFields"/>
+					<xs:group ref="amp:AmpComponentBcpiFields" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmppComponentEquivalentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:AmppComponentEquivalentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="AmppComponentEquivalentDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmppComponentEquivalentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:AmppComponentEquivalentFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmppComponentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:AmppComponentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="AmppComponentDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="AmppComponentEquivalent" type="AmppComponentEquivalentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmppComponentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:AmppComponentFields"/>
+					<xs:group ref="AmppComponentReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmppFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:AmppKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="AmppDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="AmppComponent" type="AmppComponentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Commercialization" type="CommercializationFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="SupplyProblem" type="SupplyProblemFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="DerogationImport" type="DerogationImportFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Dmpp" type="DmppFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AmppDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:AmppFamhpFields"/>
+					<xs:group ref="AmppFamhpReferenceFields"/>
+					<xs:group ref="amp:AmppBcpiFields" minOccurs="0"/>
+					<xs:group ref="AmppBcpiReferenceFields" minOccurs="0"/>
+					<xs:group ref="amp:AmppNihdiFields" minOccurs="0"/>
+					<xs:group ref="amp:AmppNihdiBisFields" minOccurs="0"/>
+					<xs:group ref="amp:AmppMinEcoFields" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CommercializationFullDataType">
+		<xs:sequence>
+			<xs:element name="Data" type="CommercializationDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CommercializationDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DerogationImportFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:DerogationImportKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="DerogationImportDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DerogationImportDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:DerogationImportFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DmppFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:DmppKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="DmppDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="DmppDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:DmppFields"/>
+					<xs:group ref="amp:DmppReimbursementFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RealActualIngredientFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:RealActualIngredientKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="RealActualIngredientDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="RealActualIngredientEquivalent" type="RealActualIngredientEquivalentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RealActualIngredientDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:RealActualIngredientFields"/>
+					<xs:group ref="RealActualIngredientReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RealActualIngredientEquivalentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="amp:RealActualIngredientEquivalentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="RealActualIngredientEquivalentDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RealActualIngredientEquivalentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:RealActualIngredientEquivalentFields"/>
+					<xs:group ref="RealActualIngredientEquivalentReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SupplyProblemFullDataType">
+		<xs:sequence>
+			<xs:element name="Data" type="SupplyProblemDataType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SupplyProblemDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="amp:SupplyProblemFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Domain COMPANY</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="CompanyFullDataType">
+		<xs:complexContent>
+			<xs:extension base="company:CompanyKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="CompanyDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CompanyDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="company:CompanyFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Domain REIMBURSEMENT</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="CopaymentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="reimbursement:CopaymentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="CopaymentDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CopaymentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="reimbursement:CopaymentFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementContextFullDataType">
+		<xs:complexContent>
+			<xs:extension base="reimbursement:ReimbursementContextKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="ReimbursementContextDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Copayment" type="CopaymentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementContextDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="reimbursement:ReimbursementContextFields"/>
+					<xs:group ref="ReimbursementContextReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Domain REIMBURSEMENT LAW</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="AttachmentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:AttachmentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="AttachmentDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="AttachmentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:AttachmentFields"/>
+					<xs:group ref="AttachmentReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FormalInterpretationFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:FormalInterpretationKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="FormalInterpretationDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="ReimbursementCondition" type="ReimbursementConditionFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="ReimbursementTerm" type="ReimbursementTermFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FormalInterpretationDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:FormalInterpretationFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LegalBasisFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:LegalBasisKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="LegalBasisDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="LegalReference" type="RecursiveLegalReferenceFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LegalBasisDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:LegalBasisFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LegalReferenceFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:LegalReferenceKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="LegalReferenceDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:group ref="legaltext:LegalReferenceReferences"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LegalReferenceDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:LegalReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LegalTextFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:LegalTextKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="LegalTextDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="LegalTextDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:LegalTextFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RecursiveLegalReferenceFullDataType">
+		<xs:complexContent>
+			<xs:extension base="LegalReferenceFullDataType">
+				<xs:choice>
+					<xs:element name="LegalReference" type="RecursiveLegalReferenceFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element name="FormalInterpretation" type="FormalInterpretationFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="LegalText" type="RecursiveLegalTextFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RecursiveLegalTextFullDataType">
+		<xs:complexContent>
+			<xs:extension base="LegalTextFullDataType">
+				<xs:sequence>
+					<xs:element name="LegalText" type="RecursiveLegalTextFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementConditionFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:ReimbursementConditionKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="ReimbursementConditionDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="Attachment" type="AttachmentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementConditionDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:ReimbursementConditionFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementTermFullDataType">
+		<xs:complexContent>
+			<xs:extension base="legaltext:ReimbursementTermKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="ReimbursementTermDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReimbursementTermDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="legaltext:ReimbursementTermFields"/>
+					<xs:group ref="ReimbursementTermReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Domain VIRTUAL MEDICINE</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="CommentedClassificationFullDataType">
+		<xs:complexContent>
+			<xs:extension base="vmp:CommentedClassificationKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="CommentedClassificationDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="CommentedClassification" type="CommentedClassificationFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CommentedClassificationDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:CommentedClassificationFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RealVirtualIngredientFullDataType">
+		<xs:complexContent>
+			<xs:extension base="vmp:RealVirtualIngredientKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="RealVirtualIngredientDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RealVirtualIngredientDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:RealVirtualIngredientFields"/>
+					<xs:group ref="RealVirtualIngredientReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VirtualIngredientFullDataType">
+		<xs:complexContent>
+			<xs:extension base="vmp:VirtualIngredientKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="VirtualIngredientDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="RealVirtualIngredient" type="RealVirtualIngredientFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VirtualIngredientDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:VirtualIngredientFields"/>
+					<xs:group ref="VirtualIngredientReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VmpFullDataType">
+		<xs:complexContent>
+			<xs:extension base="core:VmpKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="VmpDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="VmpComponent" type="VmpComponentFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VmpDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:VmpFields"/>
+					<xs:group ref="VmpReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VmpComponentFullDataType">
+		<xs:complexContent>
+			<xs:extension base="core:VmpComponentKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="VmpComponentDataType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="VirtualIngredient" type="VirtualIngredientFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VmpComponentDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:VmpComponentFields"/>
+					<xs:group ref="VmpComponentReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VmpGroupFullDataType">
+		<xs:complexContent>
+			<xs:extension base="vmp:VmpGroupKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="VmpGroupDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VmpGroupDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:VmpGroupFields"/>
+					<xs:group ref="VmpGroupReferenceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VtmFullDataType">
+		<xs:complexContent>
+			<xs:extension base="vmp:VtmKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="VtmDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VtmDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="vmp:VtmFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Domain COMPOUNDING</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="CompoundingIngredientFullDataType">
+		<xs:complexContent>
+			<xs:extension base="compounding:CompoundingIngredientKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="CompoundingIngredientDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CompoundingIngredientDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="compounding:CompoundingIngredientFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CompoundingFormulaFullDataType">
+		<xs:complexContent>
+			<xs:extension base="compounding:CompoundingFormulaKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="CompoundingFormulaDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CompoundingFormulaDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="compounding:CompoundingFormulaFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Domain NON MEDICINAL PRODUCTS</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="NonMedicinalProductFullDataType">
+		<xs:complexContent>
+			<xs:extension base="nonmedicinal:NonMedicinalProductKeyType">
+				<xs:sequence>
+					<xs:element name="Data" type="NonMedicinalProductDataType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="NonMedicinalProductDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:group ref="nonmedicinal:NonMedicinalProductFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Generic domain (for example purposes)</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="RootObjectFullDataType">
+		<xs:sequence>
+			<xs:element name="Data" type="RootObjectDataType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SomeChildObject" type="RootObjectFullDataType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RootObjectDataType">
+		<xs:complexContent>
+			<xs:extension base="DataPeriodType">
+				<xs:sequence>
+					<xs:element name="DataField" type="xs:string"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!--Reference Fields Groups per Business Concept-->
+	<xs:group name="RealActualIngredientReferenceFields">
+		<xs:sequence>
+			<xs:element name="Substance" type="SubstanceWithStandardsType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="AmpFamhpReferenceFields">
+		<xs:sequence>
+			<xs:element name="Company" type="CompanyFullDataType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="AmpComponentFamhpReferenceFields">
+		<xs:sequence>
+			<xs:element name="PharmaceuticalForm" type="PharmaceuticalFormWithStandardsType" maxOccurs="unbounded"/>
+			<xs:element name="RouteOfAdministration" type="RouteOfAdministrationWithStandardsType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="AmppBcpiReferenceFields">
+		<xs:sequence>
+			<xs:element name="NoGenericPrescriptionReason" type="refdata:NoGenericPrescriptionReasonType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="AmppComponentReferenceFields">
+		<xs:sequence>
+			<xs:element name="DeviceType" type="refdata:DeviceTypeType" minOccurs="0"/>
+			<xs:element name="PackagingClosure" type="refdata:PackagingClosureType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="PackagingMaterial" type="refdata:PackagingMaterialType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="PackagingType" type="refdata:PackagingTypeType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="AmppFamhpReferenceFields">
+		<xs:sequence>
+			<xs:element name="Atc" type="refdata:AtcClassificationType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="DeliveryModus" type="refdata:DeliveryModusType"/>
+			<xs:element name="DeliveryModusSpecification" type="refdata:DeliveryModusSpecificationType" minOccurs="0"/>
+			<xs:element name="DistributorCompany" type="CompanyFullDataType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Identifier of the company responsible for distributing this package, if different from the company marketing the product.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="AttachmentReferenceFields">
+		<xs:sequence>
+			<xs:element name="Appendix" type="refdata:AppendixType"/>
+			<xs:element name="FormCategory" type="refdata:FormCategoryType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="RealActualIngredientEquivalentReferenceFields">
+		<xs:sequence>
+			<xs:element name="Substance" type="SubstanceWithStandardsType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="RealVirtualIngredientReferenceFields">
+		<xs:sequence>
+			<xs:element name="Substance" type="SubstanceWithStandardsType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="ReferenceAdditionalEntities">
+		<xs:sequence>
+			<xs:element name="StandardForm" type="ExportStandardFormAndPhFrmAndVtlFrmType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="StandardRoute" type="ExportStandardRouteAndRouteOfAdministrationType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="StandardSubstance" type="ExportStandardSubstanceAndSubstanceType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="StandardUnit" type="refdata:StandardUnitFamhpType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="ReimbursementContextReferenceFields">
+		<xs:sequence>
+			<xs:element name="ReimbursementCriterion" type="refdata:ReimbursementCriterionType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="ReimbursementTermReferenceFields">
+		<xs:sequence>
+			<xs:element name="Parameter" type="refdata:ParameterType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="VirtualIngredientReferenceFields">
+		<xs:sequence>
+			<xs:element name="Substance" type="SubstanceWithStandardsType"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="VmpComponentReferenceFields">
+		<xs:sequence>
+			<xs:element name="VirtualForm" type="VirtualFormWithStandardsType"/>
+			<xs:element name="RouteOfAdministration" type="RouteOfAdministrationWithStandardsType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="VmpGroupReferenceFields">
+		<xs:sequence>
+			<xs:element name="NoGenericPrescriptionReason" type="refdata:NoGenericPrescriptionReasonType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates the reason why this VMP Group can’t be generically prescribed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NoSwitchReason" type="refdata:NoSwitchReasonType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The generic prescription for VMP’s in this group cannot change. The code indicates the reason.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="VmpReferenceFields">
+		<xs:sequence>
+			<xs:element name="CommentedClassification" type="CommentedClassificationFullDataType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="VmpGroup" type="VmpGroupFullDataType"/>
+			<xs:element name="Vtm" type="VtmFullDataType" minOccurs="0"/>
+			<xs:element name="Wada" type="refdata:WadaType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:group>
+	<!--References with standards export types-->
+	<xs:complexType name="PharmaceuticalFormWithStandardsType">
+		<xs:complexContent>
+			<xs:extension base="refdata:PharmaceuticalFormType">
+				<xs:sequence>
+					<xs:element name="StandardForm" type="ExportStandardFormType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RouteOfAdministrationWithStandardsType">
+		<xs:complexContent>
+			<xs:extension base="refdata:RouteOfAdministrationType">
+				<xs:sequence>
+					<xs:element name="StandardRoute" type="ExportStandardRouteType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SubstanceWithStandardsType">
+		<xs:complexContent>
+			<xs:extension base="refdata:SubstanceType">
+				<xs:sequence>
+					<xs:element name="StandardSubstance" type="ExportStandardSubstanceType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="VirtualFormWithStandardsType">
+		<xs:complexContent>
+			<xs:extension base="refdata:VirtualFormType">
+				<xs:sequence>
+					<xs:element name="StandardForm" type="ExportStandardFormType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportStandardFormAndPhFrmAndVtlFrmType">
+		<xs:complexContent>
+			<xs:extension base="ExportStandardFormType">
+				<xs:sequence>
+					<xs:element name="PharmaceuticalForm" type="refdata:PharmaceuticalFormKeyType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="VirtualForm" type="refdata:VirtualFormKeyType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportStandardRouteAndRouteOfAdministrationType">
+		<xs:complexContent>
+			<xs:extension base="ExportStandardRouteType">
+				<xs:sequence>
+					<xs:element name="RouteOfAdministration" type="refdata:RouteOfAdministrationKeyType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportStandardSubstanceAndSubstanceType">
+		<xs:complexContent>
+			<xs:extension base="ExportStandardSubstanceType">
+				<xs:sequence>
+					<xs:element name="Substance" type="refdata:SubstanceKeyType" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportStandardFormType">
+		<xs:complexContent>
+			<xs:extension base="StandardFormKeyType">
+				<xs:sequence>
+					<xs:group ref="refdata:StandardFormFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportStandardRouteType">
+		<xs:complexContent>
+			<xs:extension base="StandardRouteKeyType">
+				<xs:sequence>
+					<xs:group ref="refdata:StandardRouteFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ExportStandardSubstanceType">
+		<xs:complexContent>
+			<xs:extension base="StandardSubstanceKeyType">
+				<xs:sequence>
+					<xs:group ref="refdata:StandardSubstanceFields"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="StandardFormKeyType">
+		<xs:attribute name="standard" type="refdata:StdFrmAllStandardsType" use="required"/>
+		<xs:attribute name="code" type="core:String20Type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="StandardRouteKeyType">
+		<xs:attribute name="standard" type="refdata:StdRteAllStandardsType" use="required"/>
+		<xs:attribute name="code" type="core:String20Type" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="StandardSubstanceKeyType">
+		<xs:attribute name="standard" type="refdata:StdSbstAllStandardsType" use="required"/>
+		<xs:attribute name="code" type="core:String20Type" use="required"/>
+	</xs:complexType>
+	<!--Temporality-->
+	<xs:complexType name="DataPeriodType">
+		<xs:attributeGroup ref="validityPeriod"/>
+	</xs:complexType>
+	<xs:attributeGroup name="validityPeriod">
+		<xs:attribute name="from" type="xs:date" use="required"/>
+		<xs:attribute name="to" type="xs:date" use="optional"/>
+	</xs:attributeGroup>
+</xs:schema>

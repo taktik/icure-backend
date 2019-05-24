@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:actual:package:bcpi" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:actual="urn:be:fgov:ehealth:samws:v2:actual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:actual:package:bcpi" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common" schemaLocation="SubmitActualMedicine-Common.xsd"/>
+  <xs:element name="AddDrugPackageBcpiRequest" type="AddDrugPackageBcpiRequestType"/>
+  <xs:element name="AddDrugPackageBcpiResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeDrugPackageBcpiRequest" type="ChangeDrugPackageBcpiRequestType"/>
+  <xs:element name="ChangeDrugPackageBcpiResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveDrugPackageBcpiRequest" type="RemoveDrugPackageBcpiRequestType"/>
+  <xs:element name="RemoveDrugPackageBcpiResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddDrugPackageBcpiRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:AddAmppBcpiType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeDrugPackageBcpiRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:ChangeAmppBcpiType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveDrugPackageBcpiRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:RemoveAmppType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
