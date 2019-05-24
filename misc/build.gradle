@@ -36,11 +36,13 @@ sourceSets {
         compileClasspath = configurations.compile + rootProject.sourceSets.main.output
         resources {
             srcDir 'src/main/groovy'
+            srcDir 'src/main/kotlin'
         }
     }
 }
 
 dependencies {
+    compile group: 'com.github.ajalt', name: 'clikt', version: '2.0.0'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.2'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'

@@ -9,6 +9,7 @@ import java.io.Serializable
 class Vmp(
         from: Long? = null,
         to: Long? = null,
+        var code: String? = null,
         var name: SamText? = null,
         var abbreviation: SamText? = null,
         var vmpGroupId: String? = null,

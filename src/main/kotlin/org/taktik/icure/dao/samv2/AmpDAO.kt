@@ -23,7 +23,6 @@ import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpDto
 
 interface AmpDAO : GenericDAO<Amp> {
     fun findAmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Amp>
