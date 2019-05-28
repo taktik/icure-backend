@@ -350,10 +350,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
             val service = parseGenericItem( cdItem, "Prescription", item, author, trnhcpid, language, v)
+            // in topaz, CD-ITEM/treatment is a prescription, CD-ITEM/medication is a medication (chronic)
+            // parseGenericItem add a medication tag, remove it because it's a prescription
+            service.tags.removeIf { it.type == "CD-ITEM" && it.code == "medication"}
             service.tags.addAll(
                     listOf(
-                            CodeStub("ICURE", "PRESC", "1")
-                            //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
+                            CodeStub("ICURE", "PRESC", "1"),
+                            CodeStub("CD-ITEM", "treatment", "1")
                     )
             )
             service
@@ -571,12 +574,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         this.services.add(service)
                         if(isMedication(service)) {
                             service.label = "Medication"
-                            service.tags.addAll(
-                                    listOf(
-                                            CodeStub("CD-ITEM", "medication", "1")
-                                            //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
-                                    )
-                            )
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
                             state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
                         }
@@ -863,7 +860,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.codes = extractCodes(item).toMutableSet()
             item.temporality?.cd?.value?.let {
                 this.tags.add(
-                        CodeStub("CD-TEMPORALITY", it.toString(), "1")
+                        CodeStub("CD-TEMPORALITY", it.value(), "1")
                 )
             }
             this.responsible = trnAuthorHcpId
