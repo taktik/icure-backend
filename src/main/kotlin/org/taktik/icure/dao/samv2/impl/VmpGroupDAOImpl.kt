@@ -17,7 +17,7 @@ import org.taktik.icure.entities.samv2.VmpGroup
 @Repository("vmpGroupDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.VmpGroup' && !doc.deleted) emit( null, doc._id )}")
 class VmpGroupDAOImpl @Autowired
-constructor(@Qualifier("couchdbConfig") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<VmpGroup>(VmpGroup::class.java, couchdb, idGenerator), VmpGroupDAO {
+constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<VmpGroup>(VmpGroup::class.java, couchdb, idGenerator), VmpGroupDAO {
     init {
         initStandardDesignDocument()
     }
