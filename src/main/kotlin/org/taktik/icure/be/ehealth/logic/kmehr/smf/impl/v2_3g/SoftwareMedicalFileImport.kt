@@ -920,17 +920,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 it.compoundprescription?.content?.map {
                                     // spec is unclear, some software put text in <magistraltext> some put it directly in compoundprescription
                                     // try to detect each case
-                                    if(it is TextType) {
-                                        it.value
+                                    if(it is String) {
+                                        it
                                     } else {
-                                        try {
-                                            if((it as JAXBElement<*>).value is TextType) {
-                                                ((it as JAXBElement<*>).value as TextType).value
-                                            } else {
+                                        if(it is TextType) {
+                                            it.value
+                                        } else {
+                                            try {
+                                                if((it as JAXBElement<*>).value is TextType) {
+                                                    ((it as JAXBElement<*>).value as TextType).value
+                                                } else {
+                                                    null
+                                                }
+                                            } catch(ex : Exception) {
                                                 null
                                             }
-                                        } catch(ex : Exception) {
-                                            null
                                         }
                                     }
                                 }?.filterNotNull()?.map{ (it as String).trim() }?.joinToString(" ")
