@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,7 +36,7 @@ public class Delegation implements Serializable {
     String delegatedTo; // delegatedTo id
     String key; // An arbitrary key (generated, patientId, any ID, etc.), usually prefixed with the entity ID followed by ":", encrypted using an exchange AES key.
 
-	String tag; // A cleartext tag, unique to each client ('org.taktik.icure.delegation.Tag.sensitivemedicaldata' for example)
+	List<String> tags; // Used for rights
 
 	public String getOwner() {
 		return owner;
@@ -61,12 +62,12 @@ public class Delegation implements Serializable {
 		this.key = key;
 	}
 
-	public String getTag() {
-		return tag;
+	public List<String> getTags() {
+		return tags;
 	}
 
-	public void setTag(String tag) {
-		this.tag = tag;
+	public void setTags(List<String> tags) {
+		this.tags = tags;
 	}
 
 	@Override
@@ -77,11 +78,11 @@ public class Delegation implements Serializable {
 		return Objects.equals(owner, that.owner) &&
 				Objects.equals(delegatedTo, that.delegatedTo) &&
 				Objects.equals(key, that.key) &&
-				Objects.equals(tag, that.tag);
+				Objects.equals(tags, that.tags);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(owner, delegatedTo, key, tag);
+		return Objects.hash(owner, delegatedTo, key, tags);
 	}
 }

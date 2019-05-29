@@ -27,6 +27,7 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 
 import be.fgov.ehealth.ehvalidator.core.EhValidator
+import org.springframework.beans.factory.annotation.Qualifier
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -40,10 +41,9 @@ import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.xml.sax.SAXException
 import java.io.InputStream
-import java.util.*
 
-@org.springframework.stereotype.Service
-class SumehrLogicImpl(val contactLogic: ContactLogic, val sumehrExport: SumehrExport, val sumehrImport: SumehrImport) : SumehrLogic {
+@org.springframework.stereotype.Service("sumehrLogicV1")
+class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV1") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV1") val sumehrImport: SumehrImport) : SumehrLogic {
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
@@ -95,13 +95,11 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val sumehrExport: SumehrEx
 
     }
 
-    override fun getAllServices(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-        return sumehrExport.getAllServices(hcPartyId, sfks, decryptor)
-    }
+	override fun getAllServices(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?)
+        = sumehrExport.getAllServices(hcPartyId, sfks, decryptor)
 
-	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-		return sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, decryptor)
-	}
+	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?)
+        = sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, decryptor)
 
     override fun getHealthElements(hcPartyId: String, sfks: List<String>): List<HealthElement> {
         return sumehrExport.getHealthElements(hcPartyId, sfks)

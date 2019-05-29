@@ -27,39 +27,50 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 
 import be.fgov.ehealth.ehvalidator.core.EhValidator
-import org.springframework.stereotype.Service
+import org.springframework.beans.factory.annotation.Qualifier
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201.SumehrImport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.xml.sax.SAXException
 import java.io.InputStream
-import java.util.*
 
-class SumehrLogicImpl(private val contactLogic: ContactLogic, private val sumehrExport: SumehrExport) : SumehrLogic {
+@org.springframework.stereotype.Service("sumehrLogicV2")
+class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV2") val sumehrImport: SumehrImport) : SumehrLogic {
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
         patientSecretForeignKeys.forEach { k -> sumehrServiceIds.addAll(contactLogic!!.findServicesByTag(hcPartyId, k, "CD-TRANSACTION", "sumehr", null, null)) }
 
-        if (sumehrServiceIds.size == 0) {
+        if (sumehrServiceIds.isEmpty()) {
             return SumehrStatus.absent
         }
-        val services = contactLogic!!.getServices(sumehrServiceIds).sortedWith(Comparator<org.taktik.icure.entities.embed.Service> { a, b -> if (a.modified == null) 1 else -a.modified!!.compareTo(b.modified?:0) })
-        return if (services[0].comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys)) SumehrStatus.uptodate else SumehrStatus.outdated
+
+		val servicesByIds = mutableMapOf<String, Service>()
+		val comparator = Comparator<Service> { a, b -> a.modified?.compareTo(b.modified ?: 0) ?: -1 }
+
+		contactLogic.getServices(sumehrServiceIds).sortedWith(comparator).forEach { if (it.endOfLife != null) servicesByIds.remove(it.id) else servicesByIds[it.id!!] = it }
+
+		if (servicesByIds.isEmpty()) {
+			return SumehrStatus.outdated
+		}
+
+		return if (servicesByIds.values.sortedWith(comparator).last().comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys)) SumehrStatus.uptodate else SumehrStatus.outdated
     }
 
 	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>) =
 		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys)
 
     override fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return sumehrImport.importSumehr(inputStream, author, language, mappings, dest)
     }
 
     override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
