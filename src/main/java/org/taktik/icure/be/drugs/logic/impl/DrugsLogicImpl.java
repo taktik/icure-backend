@@ -201,7 +201,11 @@ public class DrugsLogicImpl implements DrugsLogic {
             log.debug("Final language : " + lang);
             List<Mpp> packages = drugsDAO.getMedecinePackagesFromIngredients(searchString, lang, types, first, count);
             return (List<MppPreview>) CollectionUtils.collect(packages, MPP_TO_MPPPREVIEW);
-        } finally {
+        } catch (Exception e) {
+            log.debug(e);
+            return new ArrayList<>();
+        }
+        finally {
             drugsDAO.closeDataStoreSession();
         }
     }
