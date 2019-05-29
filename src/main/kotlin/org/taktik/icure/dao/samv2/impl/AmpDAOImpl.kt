@@ -14,10 +14,10 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
 
-@Repository("vmpGroupDAO")
+@Repository("ampDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.services.external.rest.v1.dto.be.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
 class AmpDAOImpl @Autowired
-constructor(@Qualifier("couchdbConfig") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
+constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
     init {
         initStandardDesignDocument()
     }
