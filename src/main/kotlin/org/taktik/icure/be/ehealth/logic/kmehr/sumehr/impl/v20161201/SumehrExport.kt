@@ -183,7 +183,7 @@ class SumehrExport : KmehrExport() {
 		addPatientHealthcareParties(p, trn, config)
 
 
-		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "euthanasiarequest", "intubationrefusal"), decryptor)
+		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "intubationrefusal", "euthanasiarequest", "vaccinationrefusal", "organdonationconsent", "datareuseforclinicalresearchconsent", "datareuseforclinicaltrialsconsent", "clinicaltrialparticipationconsent"), decryptor)
 
 		addVaccines(sender.id, sfks, trn, decryptor)
 		addMedications(sender.id, sfks, trn, decryptor)
@@ -304,7 +304,7 @@ class SumehrExport : KmehrExport() {
 		val services = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), decryptor))
 		values.forEach { value ->
 			services.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
-				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = value }) }))?.let {
+				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
 					assessment.headingsAndItemsAndTexts.add(it)
 				}
 			}
@@ -507,7 +507,7 @@ class SumehrExport : KmehrExport() {
 				getAssessment(trn).headingsAndItemsAndTexts
 			}
 
-            listOf("healthcareelement", "allergy", "adr", "familyrisk", "risk").forEach { edType ->
+            listOf("healthcareelement", "allergy", "adr", "risk").forEach { edType ->
                 if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
                     createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
                         if(!eds.codes.isEmpty()){
