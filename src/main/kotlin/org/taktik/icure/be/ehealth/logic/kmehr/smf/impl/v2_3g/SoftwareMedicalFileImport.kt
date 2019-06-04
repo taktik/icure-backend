@@ -37,6 +37,9 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.axis2.databinding.types.xsd.Integer
+import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
+import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.logic.*
 import javax.xml.bind.JAXBElement
 
@@ -967,8 +970,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     protected fun createOrProcessHcp(p: HcpartyType, v: ImportResult? = null): HealthcareParty? {
-        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value?.trim()
-        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value?.trim()
+        val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
+        val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
         val specialty: String? = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value?.trim()
 
         // test if already exist in current file
@@ -1058,7 +1061,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                          author: User,
                                          v: ImportResult,
                                          dest: Patient? = null): Patient? {
-        val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value) // searching empty niss return all patients
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =
