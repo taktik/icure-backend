@@ -38,11 +38,9 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.apache.axis2.databinding.types.xsd.Integer
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.logic.*
-import org.taktik.icure.validation.aspect.Check
 import javax.xml.bind.JAXBElement
 
 
@@ -155,8 +153,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
 
                 // make sure all He versions have the same healthElementId
-                state.versionLinksByMFID = state.versionLinks.groupBy { it.mfId } // speed up lookup
-                makeHeVersioning(state.versionLinks, state)
+                state.heVersionLinksByMFID = state.heVersionLinks.groupBy { it.mfId } // speed up lookup
+                makeHeVersioning(state.heVersionLinks, state)
+
+                // make sure all service versions have the same id (medications)
+                state.serviceVersionLinksByMFID = state.serviceVersionLinks.groupBy { it.mfId } // speed up lookup
+                makeServiceVersioning(state.serviceVersionLinks, state)
 
                 // add prescriptions from separate transactions to linked contacts
                 state.prescLinks.forEach {(servlist, conid) ->
@@ -278,6 +280,20 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     }
 
+    private fun makeServiceVersioning(services : List<ServiceVersionType>, state: InternalState) {
+        // this make all services linked by version have the same id
+        // used currently for chronic medication history
+
+        services.forEach { servlink ->
+            servlink.versionId = findServiceAncestor(servlink, null, state)
+        }
+
+        services.forEach { servlink ->
+            servlink.service.id = servlink.versionId
+        }
+
+    }
+
     private fun findHeAncestor(parentHe: HeVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
 
         var walked = walkedmap
@@ -289,7 +305,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             // last ancestor
             return parentHe.he.healthElementId
         } else {
-            state.versionLinksByMFID[parentHe.isANewVersionOfId]?.find {
+            state.heVersionLinksByMFID[parentHe.isANewVersionOfId]?.find {
                 walked[it.he.id] == null && it.mfId == parentHe.isANewVersionOfId
             }?.let {
                 // found ancestor, look for his ancestor
@@ -300,6 +316,31 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         // there is a link but no ancestor found, ignore the link
         println("WARNING: MFID ${parentHe.mfId} links to ${parentHe.isANewVersionOfId} but the target cannot be found")
         return parentHe.he.healthElementId
+
+    }
+
+    private fun findServiceAncestor(parentServ: ServiceVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
+
+        var walked = walkedmap
+        if(walked == null) {
+            walked = mutableMapOf<String, String?>()
+        }
+        walked[parentServ.service.id!!] = "done"
+        if(parentServ.isANewVersionOfId == null) {
+            // last ancestor
+            return parentServ.service.id
+        } else {
+            state.serviceVersionLinksByMFID[parentServ.isANewVersionOfId]?.find {
+                walked[it.service.id] == null && it.mfId == parentServ.isANewVersionOfId
+            }?.let {
+                // found ancestor, look for his ancestor
+                val ancestorid = findServiceAncestor(it, walked, state)
+                return ancestorid
+            }
+        }
+        // there is a link but no ancestor found, ignore the link
+        println("WARNING: MFID ${parentServ.mfId} links to ${parentServ.isANewVersionOfId} but the target cannot be found")
+        return parentServ.service.id
 
     }
 
@@ -564,7 +605,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             v.hes.add(healthElementLogic.createHealthElement(he))
                             // register new version links
                             val mfid = getItemMFID(item)
-                            state.versionLinks.add(
+                            state.heVersionLinks.add(
                                     HeVersionType(
                                             he = notNullHe,
                                             mfId = mfid!!,
@@ -605,6 +646,18 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             )
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
                             state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
+
+                            val mfid = getItemMFID(item)
+                            state.serviceVersionLinks.add(
+                                    ServiceVersionType(
+                                            service = service,
+                                            mfId = mfid!!,
+                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
+                                                extractMFIDFromUrl(it.url)
+                                            },
+                                            versionId = null
+                                    )
+                            )
                         }
                         item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
                             extractMFIDFromUrl(it.url)
@@ -1238,19 +1291,22 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private data class HeVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
     private data class DocumentLinkType(val document: Document, val service: Service, val isAChildOfId: String?)
+    private data class ServiceVersionType(val service: Service, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
 
     // internal bookkeeping
     private data class InternalState(
             var subcontactLinks : MutableList<Map<String,Any>> = mutableListOf(),// bookkeeping for linking He to Services (map of heId and linked Service/He)
-            var versionLinks : MutableList<HeVersionType> = mutableListOf(), // bookkeeping for versioning HealthElements
-            var versionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
+            var heVersionLinks : MutableList<HeVersionType> = mutableListOf(), // bookkeeping for versioning HealthElements
+            var heVersionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
             var hesByMFID : MutableMap<String,HealthElement> = mutableMapOf(),
             var contactsByMFID : MutableMap<String,Contact> = mutableMapOf(),
             var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactMFId
             var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactMFId
             var approachLinks : MutableList<Triple<PlanOfAction, String?, String?>> = mutableListOf(), // planOfAction, MFId, linked target heMFId
             var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
-            var incapacityForms : MutableList<Form> = mutableListOf() // to add them to parent consultation form
+            var incapacityForms : MutableList<Form> = mutableListOf(), // to add them to parent consultation form
+            var serviceVersionLinks : MutableList<ServiceVersionType> = mutableListOf(), // bookkeeping for versioning services (medications)
+            var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf()
     )
 }
 
