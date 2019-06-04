@@ -34,6 +34,7 @@ public class CalendarItem extends StoredICureDocument {
 
     private String calendarItemTypeId;
 
+    @Deprecated
     protected String patientId;
 
     protected Boolean important;

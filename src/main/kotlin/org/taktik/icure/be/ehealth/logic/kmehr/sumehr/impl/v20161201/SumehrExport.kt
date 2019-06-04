@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
@@ -28,16 +29,14 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
-import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.base.Code
-import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
@@ -59,6 +58,7 @@ import javax.xml.bind.Marshaller
  * Time: 22:58
  * To change this template use File | Settings | File Templates.
  */
+@org.springframework.stereotype.Service("sumehrExportV2")
 class SumehrExport : KmehrExport() {
 	override val log = LogFactory.getLog(SumehrExport::class.java)
 
@@ -67,7 +67,10 @@ class SumehrExport : KmehrExport() {
 		getAllServices(hcPartyId, sfks).forEach { signatures.add(it.modified.toString()) }
 		getHealthElements(hcPartyId, sfks).forEach { signatures.add(it.modified.toString()) }
 
-		return DigestUtils.md5Hex(signatures.sorted().joinToString(","))
+		val sorted = signatures.sorted()
+
+		val md5Hex = DigestUtils.md5Hex(sorted.joinToString(","))
+		return md5Hex
 	}
 
 	fun createSumehr(
@@ -177,6 +180,8 @@ class SumehrExport : KmehrExport() {
 
 		addGmdmanager(p, trn)
 		addContactPeople(p, trn, config)
+		addPatientHealthcareParties(p, trn, config)
+
 
 		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "euthanasiarequest", "intubationrefusal"), decryptor)
 
@@ -186,7 +191,7 @@ class SumehrExport : KmehrExport() {
 		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthissue", language, decryptor, false, "healthcareelement")
 		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthcareelement", language, decryptor)
 
-		addHealthCareElements(sender.id, sfks, trn)
+        addHealthCareElements(sender.id, sfks, trn, decryptor)
 
 		if (comment?.length ?: 0 > 0) {
 			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
@@ -380,7 +385,7 @@ class SumehrExport : KmehrExport() {
 					val items = getAssessment(trn).headingsAndItemsAndTexts
 					items.add(ItemType().apply {
 						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
-						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "contactperson" })
+						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = CDITEMvalues.CONTACTPERSON.value() })
 						cds.add(CDITEM().apply { s = CDITEMschemes.CD_CONTACT_PERSON; sv = "1.0"; value = rel })
 						contents.add(ContentType().apply { person = makePerson(p, config) })
 					})
@@ -390,6 +395,26 @@ class SumehrExport : KmehrExport() {
 			}
 		}
 	}
+
+	@NotNull
+	private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
+		healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
+			val phcp = pat.patientHealthCareParties.find {it.healthcarePartyId == hcp.id}
+			try {
+				phcp.let {
+					val items = getAssessment(trn).headingsAndItemsAndTexts
+					items.add(ItemType().apply {
+						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
+						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = CDITEMvalues.CONTACTHCPARTY.value()})
+						contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
+					})
+				}
+			} catch (e : RuntimeException) {
+				log.error("Unexpected error", e)
+			}
+		}
+	}
+
 
 	private fun addGmdmanager(pat: Patient, trn: TransactionType) {
 		try {
@@ -455,8 +480,21 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addHealthCareElements(hcPartyId: String, sfks: List<String>, trn: TransactionType) {
-		for (healthElement in getNonConfidentialItems(getHealthElements(hcPartyId, sfks))) {
+    private fun addHealthCareElements(hcPartyId: String,
+                                      sfks: List<String>,
+                                      trn: TransactionType,
+                                      decryptor: AsyncDecrypt?) {
+
+        var nonConfidentialItems = getNonConfidentialItems(getHealthElements(hcPartyId, sfks))
+
+        val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
+
+        if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
+            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
+            nonConfidentialItems = nonConfidentialItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
+        }
+
+        for (healthElement in nonConfidentialItems) {
 			addHealthCareElement(trn, healthElement)
 		}
 	}
@@ -468,9 +506,29 @@ class SumehrExport : KmehrExport() {
 			} else {
 				getAssessment(trn).headingsAndItemsAndTexts
 			}
-			createItemWithContent(eds, items.size + 1, "healthcareelement", listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+
+            listOf("healthcareelement", "allergy", "adr", "familyrisk", "risk").forEach { edType ->
+                if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
+                    createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+                        if(!eds.codes.isEmpty()){
+                            // Notice the content can not be empty (sumehr validator)
+                            it.contents.add(ContentType().apply {
+                                eds.codes?.forEach { c ->
+                                    try{
+                                        val cdt = CDCONTENTschemes.fromValue(c.type)
+                                        // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+                                        val version = if (c.type == "CD-ATC") "1.0" else c.version
+                                        this.cds.add(CDCONTENT().apply { s(cdt); sl = c.type; dn = c.type; sv = version; value = c.code })
+                                    } catch (ignored : IllegalArgumentException) {
+                                        log.error(ignored)
+                                    }
+                                }
+                            })
+                        }
 				items.add(it)
 			}
+                }
+            }
 		} catch (e: Exception) {
 			log.error("Unexpected error", e)
 		}

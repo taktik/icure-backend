@@ -25,6 +25,7 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
 
 public class SumehrExportInfoDto implements Serializable {
 	List<String> secretForeignKeys;
+	List<String> excludedIds;
 	HealthcarePartyDto recipient;
 	String comment;
 
@@ -34,6 +35,14 @@ public class SumehrExportInfoDto implements Serializable {
 
 	public void setSecretForeignKeys(List<String> secretForeignKeys) {
 		this.secretForeignKeys = secretForeignKeys;
+	}
+
+	public List<String> getExcludedIds() {
+		return excludedIds;
+	}
+
+	public void setExcludedIds(List<String> excludedIds) {
+		this.excludedIds = excludedIds;
 	}
 
 	public String getComment() {
