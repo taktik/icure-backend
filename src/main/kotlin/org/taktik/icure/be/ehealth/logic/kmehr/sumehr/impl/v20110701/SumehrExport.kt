@@ -180,6 +180,7 @@ class SumehrExport : KmehrExport() {
 
         addGmdmanager(p, trn)
 		addContactPeople(p, trn, config)
+        addPatientHealthcareParties(p, trn, config)
 
        addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "euthanasiarequest", "intubationrefusal"), decryptor)
 
@@ -381,6 +382,25 @@ class SumehrExport : KmehrExport() {
                         cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "contactperson"})
                         cds.add(CDITEM().apply { s = CDITEMschemes.CD_CONTACT_PERSON; sv = CDITEMschemes.CD_CONTACT_PERSON.version(); value = rel})
 						contents.add(ContentType().apply { person = makePerson(p, config) })
+                    })
+                }
+            } catch (e : RuntimeException) {
+                log.error("Unexpected error", e)
+            }
+        }
+    }
+
+    @NotNull
+    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
+        healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
+            val phcp = pat.patientHealthCareParties.find {it.healthcarePartyId == hcp.id}
+            try {
+                phcp.let {
+                    val items = getAssessment(trn).headingsAndItemsAndTexts
+                    items.add(ItemType().apply {
+                        ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
+                        cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = CDITEMvalues.CONTACTHCPARTY.value()})
+                        contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
                     })
                 }
             } catch (e : RuntimeException) {
