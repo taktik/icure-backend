@@ -162,23 +162,23 @@ open class KmehrExport {
                             ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
                 }
 			} }
-            if(cdItem == "medication") {
-                svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
-                    temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
-                    }
-                }
-                //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
-                //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDaytimes.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
-                        }
-                    }
-            }
+            //if(cdItem == "medication") {
+            //    svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
+            //        temporality = TemporalityType().apply {
+            //            cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+            //        }
+            //    }
+            //    //TODO: this code is not finished! Contains hard-coded test data
+            //    regimen = ItemType.Regimen()
+            //    frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
+            //    //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
+            //    svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
+            //                regimen.daynumbersAndQuantitiesAndDaytimes.add(AdministrationquantityType().apply {
+            //                        this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
+            //                        this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+            //            }
+            //        }
+            //}
 
 
             isIsrelevant = ((svc.status?: 0) and 2) == 0
