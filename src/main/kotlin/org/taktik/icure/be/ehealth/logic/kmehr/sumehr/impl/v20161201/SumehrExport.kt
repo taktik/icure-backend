@@ -507,6 +507,12 @@ class SumehrExport : KmehrExport() {
 				getAssessment(trn).headingsAndItemsAndTexts
 			}
 
+			// familyrisk not allowed in Sumehr
+			val familyrisk = eds.tags?.find {it.type == "CD-ITEM" && it.code == "familyrisk"}
+			if(familyrisk != null){
+				familyrisk.code = "healthcareelement"
+			}
+
             listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
                 if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
                     createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
