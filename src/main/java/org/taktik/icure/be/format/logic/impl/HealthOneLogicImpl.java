@@ -20,6 +20,7 @@
 package org.taktik.icure.be.format.logic.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	static SimpleDateFormat extraDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 	//\s*>\s*((?:-|\+)?[0-9]*(?:\.|,)?[0-9]*) matches __>__-01.29 and >+2,245 and >1  into $1
-	//(?:(?:\s*([^0-9\s]\S*))|(?:\s+(\S+)))?\s* matches a0eraa and __a5656 (first part) or (_898989) in other words: any garbage that is separed by a space or
+	//(?:(?:\s*([^0-9\s]\S*))|(?:\s+(\S+)))?\s* matches a0 and __a5656 (first part) or (_898989) in other words: any garbage that is separed by a space or
 	//an alphanumerical character
 	//We also allow for an open parenthesis, an open [ or both
 	static Pattern greaterThanReference = Pattern.compile("\\s*(?:[\\(\\[]+\\s*)?>\\s*((?:-|\\+)?[0-9]*(?:\\.|,)?[0-9]*)(?:(?:\\s*([^0-9\\s]\\S*))|(?:\\s+(\\S+)))?\\s*");
@@ -298,8 +299,12 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		if (lrl.severity.trim().length() > 0) {
 			if (lrl.severity.equals("+")
 					|| lrl.severity.equals("++")
+					|| lrl.severity.equals("+++")
+					|| lrl.severity.equals("++++")
 					|| lrl.severity.equals("-")
 					|| lrl.severity.equals("--")
+					|| lrl.severity.equals("---")
+					|| lrl.severity.equals("----")
 					|| lrl.severity.equals("H")
 					|| lrl.severity.equals("HH")
 					|| lrl.severity.equals("L")
@@ -377,8 +382,15 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
 	@Override
 	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
-		List<ResultInfo> l = new ArrayList<>();
 		BufferedReader br = getBufferedReader(doc, enckeys);
+		String documentId = doc.getId();
+
+		return extractResultInfos(br, language, documentId, full);
+	}
+
+	@NotNull
+	protected List<ResultInfo> extractResultInfos(BufferedReader br, String language, String documentId, boolean full) throws IOException {
+		List<ResultInfo> l = new ArrayList<>();
 		long position = 0;
 
 		String line = br.readLine();
@@ -404,7 +416,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 						}
 						ri.setProtocol(p.protocol);
 						ri.setSex(p.sex);
-						ri.setDocumentId(doc.getId());
+						ri.setDocumentId(documentId);
 					} else if (isExtraPatientLine(line)) {
 						PatientLine p = getExtraPatientLine(line);
 						if (p.dn != null) {
@@ -465,7 +477,6 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 			}
 		}
 		br.close();
-
 		return l;
 	}
 

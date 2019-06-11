@@ -37,6 +37,7 @@ public class MessageDto extends IcureDto {
 	protected Long sent;
 
 	protected Map<String,String> metas;
+	protected Map<String, MessageReadStatus> readStatus;
 	protected String transportGuid;
 	protected String remark;
 	protected String conversationGuid;
@@ -218,5 +219,13 @@ public class MessageDto extends IcureDto {
 
 	public void setAssignedResults(Map<String, String> assignedResults) {
 		this.assignedResults = assignedResults;
+	}
+
+	public Map<String, MessageReadStatus> getReadStatus() {
+		return readStatus;
+	}
+
+	public void setReadStatus(Map<String, MessageReadStatus> readStatus) {
+		this.readStatus = readStatus;
 	}
 }
