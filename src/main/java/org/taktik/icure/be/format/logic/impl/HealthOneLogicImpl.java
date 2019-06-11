@@ -330,7 +330,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		try {
 			return Double.parseDouble(numberS);
 		} catch (Exception e) {
-			System.out.println("--------- Failed to parse '" + numberS + "'");
+			//System.out.println("--------- Failed to parse '" + numberS + "'");
 			return null;
 		}
 	}
@@ -384,11 +384,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
 		BufferedReader br = getBufferedReader(doc, enckeys);
 		String documentId = doc.getId();
-
 		return extractResultInfos(br, language, documentId, full);
-	}
+ 	}
 
-	@NotNull
+ 	@NotNull
 	protected List<ResultInfo> extractResultInfos(BufferedReader br, String language, String documentId, boolean full) throws IOException {
 		List<ResultInfo> l = new ArrayList<>();
 		long position = 0;
@@ -540,8 +539,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		try {
 			if (parts.length > 4) {
 				pl.sex = parts[4].trim().equals("V") ? "F" : parts[4].trim();
-				if (parts.length > 5 && parts[5].trim().length() == 8) {
-					pl.dn = new Timestamp(shortDateFormat.parse(parts[5].trim()).getTime());
+				if (parts.length > 5){
+					readDate(parts[5].trim(),pl);
 				}
 			}
 		} catch (ParseException e) {
@@ -561,7 +560,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		}
 		try {
 			if (parts.length > 2) {
-				pl.dn = new Timestamp(shortDateFormat.parse(parts[2].trim()).getTime());
+				readDate(parts[2].trim(),pl);
 			}
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -794,6 +793,16 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		br.close();
 
 		return firstLine != null && this.isLaboLine(firstLine);
+	}
+
+
+	private void readDate(String date, PatientLine pl) throws ParseException{
+		if (date.length() == 8) {
+			pl.dn = new Timestamp(shortDateFormat.parse(date.trim()).getTime());
+		}
+		else if (date.length() == 6){
+			pl.dn = new Timestamp(shorterDateFormat.parse(date).getTime());
+		}
 	}
 
 }
