@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import org.taktik.icure.entities.base.Encryptable;
 import org.taktik.icure.services.external.rest.v1.dto.embed.*;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 @SuppressWarnings("UnusedDeclaration")
-public class PatientDto extends IcureDto {
+public class PatientDto extends IcureDto implements EncryptableDto {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
 

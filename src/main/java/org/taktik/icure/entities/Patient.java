@@ -25,6 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
+import org.taktik.icure.entities.base.Encryptable;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.*;
@@ -45,7 +46,7 @@ import java.util.TreeSet;
 @SuppressWarnings("UnusedDeclaration")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Patient extends StoredICureDocument implements Person {
+public class Patient extends StoredICureDocument implements Person, Encryptable {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
 

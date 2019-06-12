@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.entities.base.Encryptable;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -35,7 +36,7 @@ import java.util.Set;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Address implements Serializable, Comparable<Address> {
+public class Address implements Serializable, Comparable<Address>, Encryptable {
 
 	protected AddressType addressType;
 
@@ -46,6 +47,7 @@ public class Address implements Serializable, Comparable<Address> {
     protected String postalCode;
     protected String city;
     protected String country;
+	protected String encryptedSelf;
 
 	protected List<Telecom> telecoms = new LinkedList<>();
 
@@ -129,6 +131,16 @@ public class Address implements Serializable, Comparable<Address> {
 		this.telecoms = telecoms;
 	}
 
+	@Override
+	public String getEncryptedSelf() {
+		return encryptedSelf;
+	}
+
+	@Override
+	public void setEncryptedSelf(String encryptedSelf) {
+		this.encryptedSelf = encryptedSelf;
+	}
+
 	public void mergeFrom(Address other) {
 		if (this.descr == null && other.descr != null) { this.descr = other.descr; }
 		if (this.street == null && other.street != null) { this.street = other.street; }
@@ -137,6 +149,7 @@ public class Address implements Serializable, Comparable<Address> {
 		if (this.postalCode == null && other.postalCode != null) { this.postalCode = other.postalCode; }
 		if (this.city == null && other.city != null) { this.city = other.city; }
 		if (this.country == null && other.country != null) { this.country = other.country; }
+		if (this.encryptedSelf == null && other.encryptedSelf != null) { this.encryptedSelf = other.encryptedSelf; }
 
 		for (Telecom fromTelecom :other.telecoms) {
 			Optional<Telecom> destTelecom = this.getTelecoms().stream().filter(telecom -> telecom.getTelecomType() == fromTelecom.getTelecomType()).findAny();
@@ -156,6 +169,7 @@ public class Address implements Serializable, Comparable<Address> {
 		if (other.postalCode != null) { this.postalCode = other.postalCode; }
 		if (other.city != null) { this.city = other.city; }
 		if (other.country != null) { this.country = other.country; }
+		if (other.encryptedSelf != null) { this.encryptedSelf = other.encryptedSelf; }
 
 		for (Telecom fromTelecom:other.telecoms) {
 			Optional<Telecom> destTelecom = this.getTelecoms().stream().filter(telecom -> telecom.getTelecomType() == fromTelecom.getTelecomType()).findAny();
