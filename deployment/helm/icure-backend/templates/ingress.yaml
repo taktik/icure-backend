@@ -9,6 +9,7 @@ metadata:
         #ingress.appscode.com/stats-secret-name: basicauth
         ingress.appscode.com/default-timeout: '{"connect": "5s", "client": "5m", "server": "1d", "tunnel": "20m"}'
         #ingress.appscode.com/max-connections: "10000"
+        ingress.appscode.com/keep-source-ip: "true"
       {{- if .Values.ingressIP }}
         ingress.appscode.com/load-balancer-ip: {{ .Values.ingressIP }}
       {{- end }}
@@ -19,9 +20,6 @@ spec:
         -   hosts:
                 {{- range .hosts }}
                 - "{{ . }}"
-                - "backend.{{ . }}"
-                - "ht.{{ . }}"
-                - "couch.{{ . }}"
                 {{- end }}
             ref:
                 kind: Secret
@@ -35,39 +33,26 @@ spec:
                 - http-request set-header X-Forwarded-Proto https
     {{- end }}
     rules:
-        {{- $root := . -}}
-        {{- range .Values.tls }}
-        {{- range .hosts }}
-        -   host: "ht.{{ . }}"
-            http:
-                paths:
-                    -   path: /
-                        backend:
-                            serviceName: "{{ template "fullname" $ }}-frontend"
-                            servicePort: {{ $root.Values.images.frontend.servicePort }}
-        -   host: "backend.{{ . }}"
-            http:
-                paths:
-                    -   path: /
-                        backend:
-                            serviceName: "{{ template "fullname" $ }}-backend"
-                            servicePort: {{ $root.Values.images.backend.servicePort }}
-        -   host: "{{ . }}"
-            http:
-                paths:
-                    -   path: /
-                        backend:
-                            serviceName: "{{ template "fullname" $ }}-backend"
-                            servicePort: {{ $root.Values.images.backend.servicePort }}
-
-        -   host: "couch.{{ . }}"
-            http:
-                paths:
-                    -   path: /
-                        backend:
-                            serviceName: {{ $root.Values.couchdbServiceName }}
-                            servicePort: {{ $root.Values.couchdbPortNumber }}
-                            backendRules:
-                                - 'option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ $root.Values.couchdbCredentialsBase64 }}'
+        {{- range $name, $fields := .Values.images }}
+        {{- range $fields.virtualHosts }}
+        - host: {{ . }}
+          http:
+              paths:
+                  - path: /
+                    backend:
+                        serviceName: "{{ template "fullname" $ }}-{{ $name }}"
+                        servicePort: {{ $fields.servicePort }}
         {{- end }}
+        {{- end }}
+
+        {{- range .Values.couchdbVirtualHosts }}
+        - host: {{ . }}
+          http:
+              paths:
+                  - path: /
+                    backend:
+                        serviceName: "{{ $.Values.couchdbServiceName }}"
+                        servicePort: {{ $.Values.couchdbPortNumber }}
+                        backendRules:
+                            - 'option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ $.Values.couchdbCredentialsBase64 }}'
         {{- end }}
