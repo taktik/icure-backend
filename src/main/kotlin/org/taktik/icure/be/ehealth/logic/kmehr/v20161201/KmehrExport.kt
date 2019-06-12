@@ -164,15 +164,15 @@ open class KmehrExport {
                     }
                 }
                 //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
+                //regimen = ItemType.Regimen()
+                //frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
                 //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
-                        }
-                    }
+                //svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
+                //            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
+                //                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
+                //                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                //        }
+                //    }
             }
 
 
