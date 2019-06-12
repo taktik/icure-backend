@@ -25,15 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDCOUNTRYschemes.CD_COUNTRY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes.CD_HCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues.ACTIVE
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes.INSS
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes.ID_PATIENT
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
@@ -57,6 +52,7 @@ import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -95,13 +91,13 @@ open class KmehrExport {
 
     fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
         return HcpartyType().apply {
-            m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = ID_HCPARTY; sv = "1.0"; value = nihii }) }
-            m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = INSS; sv = "1.0"; value = ssin }) }
+            m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
+            m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
             cds?.let {this.cds.addAll(it)}
             this.cds.addAll(if (m.specialityCodes?.size ?: 0 > 0)
-                m.specialityCodes.map { CDHCPARTY().apply {s = CD_HCPARTY; sv = "1.0"; value = it.code } }
+                m.specialityCodes.map { CDHCPARTY().apply {s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value = it.code } }
             else
-                listOf(CDHCPARTY().apply {s = CD_HCPARTY; sv = "1.0"; value = "persphysician" }))
+                listOf(CDHCPARTY().apply {s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value = "persphysician" }))
 
             firstname = m.firstName
             familyname = m.lastName
@@ -128,7 +124,7 @@ open class KmehrExport {
             usuallanguage= p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
-            p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s= CD_COUNTRY; sv= "1.0"; value = nat}}}
+            p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s= CDCOUNTRYschemes.CD_COUNTRY; sv= "1.0"; value = nat}}}
         }
     }
 
@@ -168,16 +164,58 @@ open class KmehrExport {
                         cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; sv = "1.0"; value = CDTEMPORALITYvalues.fromValue(it.code) }
                     }
                 }
-                //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
-                //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDaytimes.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
+                    KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen)?.let {
+                        frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
+                    }
+                    duration = KmehrPrescriptionHelper.toDurationType(med.duration)
+                    med.regimen?.let { intakes ->
+                        if (intakes.isNotEmpty()) {
+                            regimen = ItemType.Regimen().apply {
+                                for (intake in intakes) {
+                                    // choice day specification
+                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDaytimes.add(BigInteger.valueOf(dayNumber.toLong())) }
+                                    intake.date?.let { d -> daynumbersAndQuantitiesAndDaytimes.add(makeXMLGregorianCalendarFromFuzzyLong(d)) }
+                                    intake.weekday?.let { day ->
+                                        daynumbersAndQuantitiesAndDaytimes.add(WeekdayType().apply {
+                                            day.weekday?.let { dayOfWeek ->
+                                                cd = CDWEEKDAY().apply { s = "CD-WEEKDAY"; sv = "1.0"; value = CDWEEKDAYvalues.fromValue(dayOfWeek.code) }
+                                            }
+                                        })
+                                    }
+                                    // choice time of day
+                                    daynumbersAndQuantitiesAndDaytimes.add(KmehrPrescriptionHelper.toDaytime(intake))
+
+                                    // mandatory quantity
+                                    intake.administratedQuantity?.let { drugQuantity ->
+                                        daynumbersAndQuantitiesAndDaytimes.add(AdministrationquantityType().apply {
+                                            decimal = drugQuantity.quantity?.let { BigDecimal(it) }
+                                            drugQuantity.administrationUnit?.let { drugUnit ->
+                                                unit = AdministrationunitType().apply {
+                                                    cd = CDADMINISTRATIONUNIT().apply {
+                                                        s = "CD-ADMINISTRATIONUNIT"
+                                                        sv = "1.2"
+                                                        value = drugUnit.code
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                }
+                            }
                         }
                     }
+                    med.renewal?.let {
+                        renewal = RenewalType().apply {
+                            it.decimal?.let { decimal = BigDecimal(it.toLong()) }
+                            duration = KmehrPrescriptionHelper.toDurationType(it.duration)
+                        }
+                    }
+                    med.drugRoute?.let { c ->
+                        route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; sv = "2.0"; value = c } }
+                    }
+
+                }
             }
 
 
@@ -234,7 +272,7 @@ open class KmehrExport {
         return addresses?.filter { it.addressType != null && it.postalCode != null && it.street != null }?.mapTo(ArrayList<AddressType>(), { a ->
             AddressType().apply {
                 cds.add(CDADDRESS().apply { s = CDADDRESSschemes.CD_ADDRESS; sv = "1.0"; value = a.addressType!!.name })
-                country = if (a.country?.length ?: 0 > 0) CountryType().apply { cd = CDCOUNTRY().apply { s = CD_COUNTRY; sv = "1.0"; value = a.country } } else CountryType().apply { cd = CDCOUNTRY().apply { s = CD_COUNTRY; sv = "1.0"; value = "be" } }
+                country = if (a.country?.length ?: 0 > 0) CountryType().apply { cd = CDCOUNTRY().apply { s = CDCOUNTRYschemes.CD_COUNTRY; sv = "1.0"; value = a.country } } else CountryType().apply { cd = CDCOUNTRY().apply { s = CDCOUNTRYschemes.CD_COUNTRY; sv = "1.0"; value = "be" } }
                 zip = a.postalCode
                 street = a.street
                 housenumber = a.houseNumber ?: ""

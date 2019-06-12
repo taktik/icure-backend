@@ -35,6 +35,14 @@ import javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED
 import javax.xml.datatype.DatatypeFactory
 
 object Utils {
+    fun makeXMLGregorianCalendarFromHHMMSSLong(date: Long): XMLGregorianCalendarImpl? {
+        return XMLGregorianCalendarImpl().apply {
+            hour = (date / 10000 % 100).toInt()
+            minute = (date / 100 % 100).toInt()
+            second = (date % 100).toInt()
+        }
+    }
+
     fun makeXMLGregorianCalendarFromFuzzyLong(date : Long?) : XMLGregorianCalendarImpl? {
         return date?.let {
             if (it%10000000000 == 0L) it/10000000000 else if (it%100000000 == 0L) it/100000000 else if (it<99991231 && it%10000 == 0L) it/10000 else if (it<99991231 && it%100 == 0L) it/100 else it /*normalize*/
