@@ -3,6 +3,7 @@ pullPolicy: "IfNotPresent"
 couchdbServiceName: "couchdb-svc-couchdb.couch"
 couchdbPortNumber: 5984
 couchdbCredentialsBase64: "" # defiend in the config
+couchdbVirtualHosts: ["couch.icure.dev"]
 
 ingressIP: "" # defined during helm install
 #tls:
@@ -22,6 +23,7 @@ images:
         cpuLimit: 2
         servicePort: 16043
         debug: true
+        virtualHosts: ["backend.icure.dev", "icure.dev"]
         env:
             ICURE_COUCHDB_USERNAME: "" # config
             ICURE_COUCHDB_PASSWORD: "" # config
@@ -39,4 +41,5 @@ images:
         cpuRequest: 50m
         cpuLimit: 500m
         servicePort: 80
+        virtualHosts: ["frontend.icure.dev", "ht.icure.dev"]
         env: {}
