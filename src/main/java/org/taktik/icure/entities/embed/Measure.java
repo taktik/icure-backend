@@ -39,7 +39,7 @@ public class Measure implements Serializable {
 	Double ref;
 
 	Integer severity;
-
+	String severityCode;
 	String unit;
 
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
@@ -93,6 +93,14 @@ public class Measure implements Serializable {
 
 	public void setSeverity(Integer severity) {
 		this.severity = severity;
+	}
+
+	public String getSeverityCode() {
+		return severityCode;
+	}
+
+	public void setSeverityCode(String severityCode) {
+		this.severityCode = severityCode;
 	}
 
 	public Set<CodeStub> getUnitCodes() {

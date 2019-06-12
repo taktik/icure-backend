@@ -20,6 +20,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
+import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
@@ -37,6 +38,9 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.axis2.databinding.types.xsd.Integer
+import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
+import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.logic.*
 import javax.xml.bind.JAXBElement
 
@@ -150,8 +154,12 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
 
                 // make sure all He versions have the same healthElementId
-                state.versionLinksByMFID = state.versionLinks.groupBy { it.mfId } // speed up lookup
-                makeHeVersioning(state.versionLinks, state)
+                state.heVersionLinksByMFID = state.heVersionLinks.groupBy { it.mfId } // speed up lookup
+                makeHeVersioning(state.heVersionLinks, state)
+
+                // make sure all service versions have the same id (medications)
+                state.serviceVersionLinksByMFID = state.serviceVersionLinks.groupBy { it.mfId } // speed up lookup
+                makeServiceVersioning(state.serviceVersionLinks, state)
 
                 // add prescriptions from separate transactions to linked contacts
                 state.prescLinks.forEach {(servlist, conid) ->
@@ -239,6 +247,27 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return allRes
     }
 
+    fun checkIfSMFPatientsExists(inputStream: InputStream,
+                  author: User,
+                  language: String,
+                  mappings: Map<String, List<ImportMapping>>,
+                  dest: Patient? = null): List<CheckSMFPatientResult> {
+
+        val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+
+        val unmarshaller = jc.createUnmarshaller()
+        val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
+
+
+        val allRes = LinkedList<CheckSMFPatientResult>()
+        val fakeResult = ImportResult()
+
+        kmehrMessage.folders.forEach { folder ->
+            allRes.add( checkIfPatientExists(folder.patient, author, fakeResult, dest))
+        }
+        return allRes
+    }
+
     private fun makeHeVersioning(hes : List<HeVersionType>, state: InternalState) {
         // this make all He linked by version have the same healthElementId
 
@@ -248,6 +277,20 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         hes.forEach { hev ->
             hev.he.healthElementId = hev.versionId
+        }
+
+    }
+
+    private fun makeServiceVersioning(services : List<ServiceVersionType>, state: InternalState) {
+        // this make all services linked by version have the same id
+        // used currently for chronic medication history
+
+        services.forEach { servlink ->
+            servlink.versionId = findServiceAncestor(servlink, null, state)
+        }
+
+        services.forEach { servlink ->
+            servlink.service.id = servlink.versionId
         }
 
     }
@@ -263,7 +306,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             // last ancestor
             return parentHe.he.healthElementId
         } else {
-            state.versionLinksByMFID[parentHe.isANewVersionOfId]?.find {
+            state.heVersionLinksByMFID[parentHe.isANewVersionOfId]?.find {
                 walked[it.he.id] == null && it.mfId == parentHe.isANewVersionOfId
             }?.let {
                 // found ancestor, look for his ancestor
@@ -274,6 +317,31 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         // there is a link but no ancestor found, ignore the link
         println("WARNING: MFID ${parentHe.mfId} links to ${parentHe.isANewVersionOfId} but the target cannot be found")
         return parentHe.he.healthElementId
+
+    }
+
+    private fun findServiceAncestor(parentServ: ServiceVersionType, walkedmap: MutableMap<String, String?>?, state: InternalState) : String? {
+
+        var walked = walkedmap
+        if(walked == null) {
+            walked = mutableMapOf<String, String?>()
+        }
+        walked[parentServ.service.id!!] = "done"
+        if(parentServ.isANewVersionOfId == null) {
+            // last ancestor
+            return parentServ.service.id
+        } else {
+            state.serviceVersionLinksByMFID[parentServ.isANewVersionOfId]?.find {
+                walked[it.service.id] == null && it.mfId == parentServ.isANewVersionOfId
+            }?.let {
+                // found ancestor, look for his ancestor
+                val ancestorid = findServiceAncestor(it, walked, state)
+                return ancestorid
+            }
+        }
+        // there is a link but no ancestor found, ignore the link
+        println("WARNING: MFID ${parentServ.mfId} links to ${parentServ.isANewVersionOfId} but the target cannot be found")
+        return parentServ.service.id
 
     }
 
@@ -350,10 +418,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
             val service = parseGenericItem( cdItem, "Prescription", item, author, trnhcpid, language, v)
+            // in topaz, CD-ITEM/treatment is a prescription, CD-ITEM/medication is a medication (chronic)
+            // parseGenericItem add a medication tag, remove it because it's a prescription
+            service.tags.removeIf { it.type == "CD-ITEM" && it.code == "medication"}
             service.tags.addAll(
                     listOf(
-                            CodeStub("ICURE", "PRESC", "1")
-                            //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
+                            CodeStub("ICURE", "PRESC", "1"),
+                            CodeStub("CD-ITEM", "treatment", "1")
                     )
             )
             service
@@ -538,7 +609,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             v.hes.add(healthElementLogic.createHealthElement(he))
                             // register new version links
                             val mfid = getItemMFID(item)
-                            state.versionLinks.add(
+                            state.heVersionLinks.add(
                                     HeVersionType(
                                             he = notNullHe,
                                             mfId = mfid!!,
@@ -571,14 +642,20 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         this.services.add(service)
                         if(isMedication(service)) {
                             service.label = "Medication"
-                            service.tags.addAll(
-                                    listOf(
-                                            CodeStub("CD-ITEM", "medication", "1")
-                                            //CodeStub("CD-TEMPORALITY", it.fChronic == 0 ? "acute" : "chronic", "1")
-                                    )
-                            )
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
                             state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
+
+                            val mfid = getItemMFID(item)
+                            state.serviceVersionLinks.add(
+                                    ServiceVersionType(
+                                            service = service,
+                                            mfId = mfid!!,
+                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
+                                                extractMFIDFromUrl(it.url)
+                                            },
+                                            versionId = null
+                                    )
+                            )
                         }
                         item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
                             extractMFIDFromUrl(it.url)
@@ -863,7 +940,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.codes = extractCodes(item).toMutableSet()
             item.temporality?.cd?.value?.let {
                 this.tags.add(
-                        CodeStub("CD-TEMPORALITY", it.toString(), "1")
+                        CodeStub("CD-TEMPORALITY", it.value(), "1")
                 )
             }
             this.responsible = trnAuthorHcpId
@@ -897,17 +974,21 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 it.compoundprescription?.content?.map {
                                     // spec is unclear, some software put text in <magistraltext> some put it directly in compoundprescription
                                     // try to detect each case
-                                    if(it is TextType) {
-                                        it.value
+                                    if(it is String) {
+                                        it
                                     } else {
-                                        try {
-                                            if((it as JAXBElement<*>).value is TextType) {
-                                                ((it as JAXBElement<*>).value as TextType).value
-                                            } else {
+                                        if(it is TextType) {
+                                            it.value
+                                        } else {
+                                            try {
+                                                if((it as JAXBElement<*>).value is TextType) {
+                                                    ((it as JAXBElement<*>).value as TextType).value
+                                                } else {
+                                                    null
+                                                }
+                                            } catch(ex : Exception) {
                                                 null
                                             }
-                                        } catch(ex : Exception) {
-                                            null
                                         }
                                     }
                                 }?.filterNotNull()?.map{ (it as String).trim() }?.joinToString(" ")
@@ -967,8 +1048,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     protected fun createOrProcessHcp(p: HcpartyType, v: ImportResult? = null): HealthcareParty? {
-        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value?.trim()
-        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value?.trim()
+        val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
+        val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
         val specialty: String? = p.cds.find { it.s == CDHCPARTYschemes.CD_HCPARTY }?.value?.trim()
 
         // test if already exist in current file
@@ -1054,11 +1135,30 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
     }
 
-    protected fun createOrProcessPatient(p: PersonType,
-                                         author: User,
-                                         v: ImportResult,
-                                         dest: Patient? = null): Patient? {
-        val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
+    protected fun checkIfPatientExists(p: PersonType,
+                                     author: User,
+                                     v: ImportResult,
+                                     dest: Patient? = null): CheckSMFPatientResult {
+        val res  = CheckSMFPatientResult()
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value)
+        v.notNull(niss, "Niss shouldn't be null for patient $p")
+        res.ssin = niss ?: ""
+        res.dateOfBirth = Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
+        res.firstName = p.firstnames.first()
+        res.lastName = p.familyname
+
+        val dbPatient : Patient? = getExistingPatient(p, author, v, dest)
+
+        res.exists = (dbPatient != null)
+        res.existingPatientId = dbPatient?.id
+        return res
+    }
+
+    protected fun getExistingPatient(p: PersonType,
+                                     author: User,
+                                     v: ImportResult,
+                                     dest: Patient? = null): Patient? {
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value) // searching empty niss return all patients
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =
@@ -1077,6 +1177,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 ?: false
                     } else null
                 }
+
+        return dbPatient
+    }
+
+    protected fun createOrProcessPatient(p: PersonType,
+                                         author: User,
+                                         v: ImportResult,
+                                         dest: Patient? = null): Patient? {
+        val dbPatient : Patient? = getExistingPatient(p, author, v, dest)
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
             this.delegations = mapOf(author.healthcarePartyId to setOf())
@@ -1184,19 +1293,22 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private data class HeVersionType(val he: HealthElement, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
     private data class DocumentLinkType(val document: Document, val service: Service, val isAChildOfId: String?)
+    private data class ServiceVersionType(val service: Service, val mfId: String, val isANewVersionOfId: String?, var versionId: String?)
 
     // internal bookkeeping
     private data class InternalState(
             var subcontactLinks : MutableList<Map<String,Any>> = mutableListOf(),// bookkeeping for linking He to Services (map of heId and linked Service/He)
-            var versionLinks : MutableList<HeVersionType> = mutableListOf(), // bookkeeping for versioning HealthElements
-            var versionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
+            var heVersionLinks : MutableList<HeVersionType> = mutableListOf(), // bookkeeping for versioning HealthElements
+            var heVersionLinksByMFID : Map<String, List<HeVersionType>> = mapOf(),
             var hesByMFID : MutableMap<String,HealthElement> = mutableMapOf(),
             var contactsByMFID : MutableMap<String,Contact> = mutableMapOf(),
             var docLinks : MutableList<Pair<Service, String?>> = mutableListOf(), // services, linked parent contactMFId
             var prescLinks : MutableList<Pair<List<Service>, String?>> = mutableListOf(), // services, linked parent contactMFId
             var approachLinks : MutableList<Triple<PlanOfAction, String?, String?>> = mutableListOf(), // planOfAction, MFId, linked target heMFId
             var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
-            var incapacityForms : MutableList<Form> = mutableListOf() // to add them to parent consultation form
+            var incapacityForms : MutableList<Form> = mutableListOf(), // to add them to parent consultation form
+            var serviceVersionLinks : MutableList<ServiceVersionType> = mutableListOf(), // bookkeeping for versioning services (medications)
+            var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf()
     )
 }
 
@@ -1225,3 +1337,4 @@ private fun AddressTypeBase.getFullAddress(): String {
     val city = "${zip ?: ""}${city?.let { " $it" } ?: ""}"
     return listOf(street, city, country?.let { it.cd?.value } ?: "").filter { it.isNotBlank() }.joinToString(";")
 }
+
