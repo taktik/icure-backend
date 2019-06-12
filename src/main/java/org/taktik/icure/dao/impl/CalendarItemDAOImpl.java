@@ -57,7 +57,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         ViewQuery viewQuery = createQuery("by_hcparty_and_startdate")
                 .startKey(from)
                 .endKey(to)
-                .includeDocs(false);
+                .includeDocs(true);
 
         List<CalendarItem> calendarItems = db.queryView(viewQuery, CalendarItem.class);
 
@@ -79,7 +79,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         ViewQuery viewQuery = createQuery("by_hcparty_and_enddate")
                 .startKey(from)
                 .endKey(to)
-                .includeDocs(false);
+                .includeDocs(true);
 
         List<CalendarItem> calendarItems = db.queryView(viewQuery, CalendarItem.class);
 
@@ -128,7 +128,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         ViewQuery viewQuery = createQuery("by_agenda_and_startdate")
             .startKey(from)
             .endKey(to)
-            .includeDocs(false);
+            .includeDocs(true);
 
         return db.queryView(viewQuery, CalendarItem.class);
     }
@@ -148,7 +148,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         ViewQuery viewQuery = createQuery("by_agenda_and_enddate")
             .startKey(from)
             .endKey(to)
-            .includeDocs(false);
+            .includeDocs(true);
 
         return db.queryView(viewQuery, CalendarItem.class);
     }

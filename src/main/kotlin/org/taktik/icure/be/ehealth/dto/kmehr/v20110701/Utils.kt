@@ -22,9 +22,17 @@ package org.taktik.icure.be.ehealth.dto.kmehr.v20110701
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.DateType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.util.Date
+import java.util.GregorianCalendar
 import javax.xml.datatype.XMLGregorianCalendar
 
 import javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED
+import javax.xml.datatype.DatatypeFactory
 
 object Utils {
     fun makeXMLGregorianCalendarFromFuzzyLong(date : Long?) : XMLGregorianCalendarImpl? {
@@ -73,11 +81,70 @@ object Utils {
         }
     }
 
+    fun makeMomentTypeDateFromFuzzyLong(date : Long?) : MomentType? {
+        return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
+            MomentType().apply {
+                when (FIELD_UNDEFINED) {
+                    it.month -> { year = it }
+                    it.day -> { yearmonth = it }
+                    it.hour -> { this.date = it }
+                    else -> { this.date = it}
+                }
+            }
+        }
+    }
+
     fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Int? {
         return cal?.let {
             it.year*10000+it.month*100+it.day
         }
     }
+
+    fun makeXGC(epochMillisTimestamp: Long?, unsetMillis : Boolean = false): XMLGregorianCalendar? {
+        return epochMillisTimestamp?.let {
+            DatatypeFactory.newInstance()
+                .newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(epochMillisTimestamp) } as GregorianCalendar)
+                .apply {
+                    timezone = FIELD_UNDEFINED
+                    if (unsetMillis) {
+                        millisecond = FIELD_UNDEFINED
+                    }
+                }
+        }
+    }
+
+    fun makeMomentType(instant: Instant, precision: ChronoUnit = ChronoUnit.SECONDS) : org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType {
+        val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+        return when (precision) {
+            ChronoUnit.YEARS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+                year = XMLGregorianCalendarImpl.createDate(dateTime.year, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
+            }
+            ChronoUnit.MONTHS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+                yearmonth = XMLGregorianCalendarImpl.createDate(dateTime.year, dateTime.monthValue, FIELD_UNDEFINED, FIELD_UNDEFINED)
+            }
+            ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.MINUTES, ChronoUnit.SECONDS, ChronoUnit.MILLIS -> {
+                org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+                    date = XMLGregorianCalendarImpl.createDate(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, FIELD_UNDEFINED)
+                    time = when(precision) {
+                        ChronoUnit.HOURS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
+                        ChronoUnit.MINUTES -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, FIELD_UNDEFINED, FIELD_UNDEFINED)
+                        ChronoUnit.SECONDS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED)
+                        ChronoUnit.MILLIS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, dateTime.second, dateTime.get(ChronoField.MILLI_OF_SECOND), FIELD_UNDEFINED)
+                        else -> null
+                    }
+
+                }
+            }
+            else -> throw IllegalArgumentException("unsupported precision $precision")
+        }
+    }
+
+
+    fun makeXmlGregorianCalendar(instant: Instant): XMLGregorianCalendar {
+        val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+        return XMLGregorianCalendarImpl.createDateTime(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED, FIELD_UNDEFINED)
+    }
+
 
     fun makeFuzzyLongFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Long? {
         return makeFuzzyIntFromXMLGregorianCalendar(cal)?.let { (it * 1000000L + (cal!!.hour ?: 0)*10000+(cal.minute ?: 0)*100+(cal.second ?: 0)) }

@@ -18,18 +18,18 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FlatRateTarificationDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
+import org.taktik.icure.services.external.rest.v1.dto.embed.HealthcarePartyStatus;
+import org.taktik.icure.services.external.rest.v1.dto.embed.TelecomType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.taktik.icure.services.external.rest.v1.dto.embed.FlatRateTarificationDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.HealthcarePartyStatus;
-import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
-import org.taktik.icure.services.external.rest.v1.dto.embed.TelecomType;
 
 public class HealthcarePartyDto extends StoredDto {
 

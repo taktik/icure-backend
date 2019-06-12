@@ -30,6 +30,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXmlGregorianCalendar
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
@@ -86,10 +87,12 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					date = makeXGC(Instant.now().toEpochMilli())!!,
 					time = makeXGC(Instant.now().toEpochMilli(), true)!!,
 					soft = Config.Software(name = "iCure", version = ICUREVERSION),
-					clinicalSummaryType = "TODO",
+					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
 					exportAsPMF = true
 			)) {
+
+		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
@@ -104,7 +107,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		})
 
 		// TODO split marshalling
-		message.folders.add(makePatientFolder(1, patient, sfks, sender, config, language, decryptor, progressor));
+		message.folders.add(makePatientFolder(1, patient, sfksUniq, sender, config, language, decryptor, progressor));
 
 		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
@@ -124,7 +127,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 		folder.transactions.add(TransactionType().apply {
 			ids.add(idKmehr(0))
-			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = config.clinicalSummaryType })
+			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = UUIDGenerator().newGUID().toString() })
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "clinicalsummary" })
 			date = config.date
 			time = config.time
