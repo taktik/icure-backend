@@ -26,7 +26,6 @@ import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 import org.taktik.icure.validation.ValidCode;
 
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

@@ -25,6 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
+import org.taktik.icure.entities.base.CryptoActor;
 import org.taktik.icure.entities.base.Encryptable;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredICureDocument;
@@ -46,7 +47,7 @@ import java.util.TreeSet;
 @SuppressWarnings("UnusedDeclaration")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Patient extends StoredICureDocument implements Person, Encryptable {
+public class Patient extends StoredICureDocument implements Person, Encryptable, CryptoActor {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
 
@@ -96,8 +97,16 @@ public class Patient extends StoredICureDocument implements Person, Encryptable 
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
 
+    //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
+    //For a pair of HcParties, this key is called the AES exchange key
+    //Each HcParty always has one AES exchange key for himself
+    // The map's keys are the delegate id.
+    // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
+    // the key encrypted using delegate's public key.
+    protected Map<String, String[]> hcPartyKeys = new HashMap<String, String[]>();
+    protected String publicKey;
 
-	public @Nullable
+    public @Nullable
 	String getMergeToPatientId() {
         return mergeToPatientId;
     }
@@ -354,6 +363,26 @@ public class Patient extends StoredICureDocument implements Person, Encryptable 
     }
 
     @Override
+    public Map<String, String[]> getHcPartyKeys() {
+        return hcPartyKeys;
+    }
+
+    @Override
+    public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
+        this.hcPartyKeys = hcPartyKeys;
+    }
+
+    @Override
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    @Override
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -440,31 +469,9 @@ public class Patient extends StoredICureDocument implements Person, Encryptable 
 			+":"+this.dateOfBirth+":"+this.dateOfDeath+":"+this.getSsin());
 	}
 
-
-
 	public Patient solveConflictWith(Patient other) {
     	super.solveConflictsWith(other);
-
 	    this.mergeFrom(other);
-
-	    this.languages = MergeUtil.mergeListsDistinct(this.languages,other.languages,String::equalsIgnoreCase,(a,b)->a);
-	    this.insurabilities = MergeUtil.mergeListsDistinct(this.insurabilities,other.insurabilities,
-		    (a,b)->(a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getInsuranceId(),b.getInsuranceId())&&Objects.equals(a.getStartDate(),b.getStartDate())),
-		    (a,b)->a.getEndDate()!=null?a:b
-	    );
-	    this.patientHealthCareParties = MergeUtil.mergeListsDistinct(this.patientHealthCareParties, other.patientHealthCareParties,
-		    (a,b)->(a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getHealthcarePartyId(),b.getHealthcarePartyId())&&Objects.equals(a.getType(),b.getType())),
-		    (PatientHealthCareParty a, PatientHealthCareParty b) -> {
-			    a.setReferralPeriods(MergeUtil.mergeSets(a.getReferralPeriods(), b.getReferralPeriods(), new TreeSet<>(),
-			        (aa,bb)->(aa==null&&bb==null)||(aa!=null&&bb!=null&&Objects.equals(aa.getStartDate(),bb.getStartDate())),
-				    (aa,bb)->{
-			    	    if (aa.getEndDate()==null) {aa.setEndDate(bb.getEndDate());}
-			    	    return aa;
-				    }
-			    ));
-			    return a;
-		    });
-	    this.patientProfessions = MergeUtil.mergeListsDistinct(this.patientProfessions,other.patientProfessions, Objects::equals, (a,b)->a);
 
 	    return this;
     }
@@ -493,8 +500,29 @@ public class Patient extends StoredICureDocument implements Person, Encryptable 
         if (this.alias == null && other.alias != null) { this.alias = other.alias; }
         if ((this.administrativeNote == null) || (this.administrativeNote.trim().equals("")) && other.administrativeNote != null) { this.administrativeNote = other.administrativeNote; }
         if (this.warning == null && other.warning != null) { this.warning = other.warning; }
+        if (this.publicKey == null && other.publicKey != null) { this.publicKey = other.publicKey; }
+        this.hcPartyKeys = MergeUtil.mergeMapsOfArraysDistinct(this.hcPartyKeys, other.hcPartyKeys, String::equals, (a, b)->a);
 
-		for (Address fromAddress:other.addresses) {
+        this.languages = MergeUtil.mergeListsDistinct(this.languages,other.languages,String::equalsIgnoreCase,(a,b)->a);
+        this.insurabilities = MergeUtil.mergeListsDistinct(this.insurabilities,other.insurabilities,
+                (a,b)->(a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getInsuranceId(),b.getInsuranceId())&&Objects.equals(a.getStartDate(),b.getStartDate())),
+                (a,b)->a.getEndDate()!=null?a:b
+        );
+        this.patientHealthCareParties = MergeUtil.mergeListsDistinct(this.patientHealthCareParties, other.patientHealthCareParties,
+                (a,b)->(a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getHealthcarePartyId(),b.getHealthcarePartyId())&&Objects.equals(a.getType(),b.getType())),
+                (PatientHealthCareParty a, PatientHealthCareParty b) -> {
+                    a.setReferralPeriods(MergeUtil.mergeSets(a.getReferralPeriods(), b.getReferralPeriods(), new TreeSet<>(),
+                            (aa,bb)->(aa==null&&bb==null)||(aa!=null&&bb!=null&&Objects.equals(aa.getStartDate(),bb.getStartDate())),
+                            (aa,bb)->{
+                                if (aa.getEndDate()==null) {aa.setEndDate(bb.getEndDate());}
+                                return aa;
+                            }
+                    ));
+                    return a;
+                });
+        this.patientProfessions = MergeUtil.mergeListsDistinct(this.patientProfessions,other.patientProfessions, Objects::equals, (a,b)->a);
+
+        for (Address fromAddress:other.addresses) {
 			Optional<Address> destAddress = this.getAddresses().stream().filter(address -> address.getAddressType() == fromAddress.getAddressType()).findAny();
 			if (destAddress.isPresent()) {
 				destAddress.orElseThrow(IllegalStateException::new).mergeFrom(fromAddress);
