@@ -71,6 +71,11 @@ class HazelcastConfiguration {
             maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
             evictionPolicy = EvictionPolicy.LRU
         })
+        addMapConfig(MapConfig("org.taktik.icure.entities.User").apply {
+            timeToLiveSeconds = 15*60
+            maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
+            evictionPolicy = EvictionPolicy.LRU
+        })
         addMapConfig(MapConfig("org.taktik.icure.entities.*").apply {
             timeToLiveSeconds = 12*3600
             maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
