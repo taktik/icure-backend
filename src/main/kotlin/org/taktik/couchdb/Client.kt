@@ -22,7 +22,6 @@ import org.ektorp.ViewResultException
 import org.ektorp.http.URI
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
 import org.taktik.jetty.getResponseBytesFlow
@@ -32,6 +31,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
+typealias CouchDbDocument = Versionable<String>
 
 class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
 
@@ -69,7 +69,7 @@ data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, ove
         get() = throw IllegalStateException("Row has no doc")
 }
 
-private data class BulkUpdateRequest<T : Versionable<String>>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
+private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
 
 data class BulkUpdateResult(val id: String, val rev: String?, val error: String?, val reason: String?)
 
@@ -90,22 +90,22 @@ inline fun <reified K, reified V> Client.queryView(query: ViewQuery): Flow<ViewR
 
 // Convenience inline methods with reified type params
 @FlowPreview
-suspend inline fun <reified T : Versionable<String>> Client.get(id: String): T? = this.get(id, T::class.java)
+suspend inline fun <reified T : CouchDbDocument> Client.get(id: String): T? = this.get(id, T::class.java)
 
 @FlowPreview
-inline fun <reified T : Versionable<String>> Client.get(ids: List<String>): Flow<T> = this.get(ids, T::class.java)
+inline fun <reified T : CouchDbDocument> Client.get(ids: List<String>): Flow<T> = this.get(ids, T::class.java)
 
 @FlowPreview
-suspend inline fun <reified T : Versionable<String>> Client.create(entity: T): T = this.create(entity, T::class.java)
+suspend inline fun <reified T : CouchDbDocument> Client.create(entity: T): T = this.create(entity, T::class.java)
 
 @FlowPreview
-suspend inline fun <reified T : Versionable<String>> Client.update(entity: T): T = this.update(entity, T::class.java)
+suspend inline fun <reified T : CouchDbDocument> Client.update(entity: T): T = this.update(entity, T::class.java)
 
 @FlowPreview
-inline fun <reified T : Versionable<String>> Client.bulkUpdate(entities: List<T>): Flow<BulkUpdateResult> = this.bulkUpdate(entities, T::class.java)
+inline fun <reified T : CouchDbDocument> Client.bulkUpdate(entities: List<T>): Flow<BulkUpdateResult> = this.bulkUpdate(entities, T::class.java)
 
 @FlowPreview
-inline fun <reified T : StoredDocument> Client.subscribeForChanges(since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>> =
+inline fun <reified T : CouchDbDocument> Client.subscribeForChanges(since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>> =
         this.subscribeForChanges(T::class.java, since, initialBackOffDelay, backOffFactor, maxDelay)
 
 
@@ -115,18 +115,18 @@ interface Client {
     suspend fun exists(): Boolean
 
     // CRUD methods
-    suspend fun <T : Versionable<String>> get(id: String, clazz: Class<T>): T?
-    fun <T : Versionable<String>> get(ids: List<String>, clazz: Class<T>): Flow<T>
-    suspend fun <T : Versionable<String>> create(entity: T, clazz: Class<T>): T
-    suspend fun <T : Versionable<String>> update(entity: T, clazz: Class<T>): T
-    fun <T : Versionable<String>> bulkUpdate(entities: List<T>, clazz: Class<T>): Flow<BulkUpdateResult>
-    suspend fun <T : Versionable<String>> delete(entity: T): String // New revision
+    suspend fun <T : CouchDbDocument> get(id: String, clazz: Class<T>): T?
+    fun <T : CouchDbDocument> get(ids: List<String>, clazz: Class<T>): Flow<T>
+    suspend fun <T : CouchDbDocument> create(entity: T, clazz: Class<T>): T
+    suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T
+    fun <T : CouchDbDocument> bulkUpdate(entities: List<T>, clazz: Class<T>): Flow<BulkUpdateResult>
+    suspend fun <T : CouchDbDocument> delete(entity: T): String // New revision
 
     // Query
     fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
 
     // Changes observing
-    fun <T : StoredDocument> subscribeForChanges(clazz: Class<T>, since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>>
+    fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>>
 }
 
 private const val NOT_FOUND_ERROR = "not_found"
@@ -160,7 +160,7 @@ class ClientImpl(private val httpClient: HttpClient,
         return result?.get("db_name") != null
     }
 
-    override suspend fun <T : Versionable<String>> get(id: String, clazz: Class<T>): T? {
+    override suspend fun <T : CouchDbDocument> get(id: String, clazz: Class<T>): T? {
         require(id.isNotBlank()) { "Id cannot be blank" }
         val uri = dbURI.append(id)
         val request = newRequest(uri)
@@ -169,7 +169,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private data class AllDocsViewValue(val rev: String)
 
-    override fun <T : Versionable<String>> get(ids: List<String>, clazz: Class<T>): Flow<T> {
+    override fun <T : CouchDbDocument> get(ids: List<String>, clazz: Class<T>): Flow<T> {
         val viewQuery = ViewQuery()
                 .allDocs()
                 .includeDocs(true)
@@ -183,7 +183,7 @@ class ClientImpl(private val httpClient: HttpClient,
     // CouchDB Response body for Create/Update/Delete
     private data class CUDResponse(val id: String, val rev: String, val ok: Boolean)
 
-    override suspend fun <T : Versionable<String>> create(entity: T, clazz: Class<T>): T {
+    override suspend fun <T : CouchDbDocument> create(entity: T, clazz: Class<T>): T {
         val uri = dbURI
         val adapter = moshi.adapter<T>(clazz)
         val serializedDoc = adapter.toJson(entity)
@@ -199,7 +199,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
-    override suspend fun <T : Versionable<String>> update(entity: T, clazz: Class<T>): T {
+    override suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T {
         val docId = entity.id
         require(!docId.isNullOrBlank()) { "Id cannot be blank" }
         val updateURI = dbURI.append(docId)
@@ -217,7 +217,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
-    override suspend fun <T : Versionable<String>> delete(entity: T): String {
+    override suspend fun <T : CouchDbDocument> delete(entity: T): String {
         val id = entity.id
         require(!id.isNullOrBlank()) { "Id cannot be blank" }
         require(!entity.rev.isNullOrBlank()) { "Revision cannot be blank" }
@@ -228,7 +228,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }.rev
     }
 
-    override fun <T : Versionable<String>> bulkUpdate(entities: List<T>, clazz: Class<T>): Flow<BulkUpdateResult> = flow {
+    override fun <T : CouchDbDocument> bulkUpdate(entities: List<T>, clazz: Class<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
             val requestType = newParameterizedType(BulkUpdateRequest::class.java, clazz)
             val requestAdapter = moshi.adapter<BulkUpdateRequest<T>>(requestType)
@@ -377,7 +377,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
-    override fun <T : StoredDocument> subscribeForChanges(clazz: Class<T>, since: String, initialBackOffDelay: Long, backOffFactor: Int, maxDelay: Long): Flow<Change<T>> = flow {
+    override fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String, initialBackOffDelay: Long, backOffFactor: Int, maxDelay: Long): Flow<Change<T>> = flow {
         var lastSeq = since
         var delayMillis = initialBackOffDelay
         var changesFlow = internalSubscribeForChanges(clazz, lastSeq)
@@ -401,7 +401,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
-    private fun <T : StoredDocument> internalSubscribeForChanges(clazz: Class<T>, since: String): Flow<Change<T>> = flow {
+    private fun <T : CouchDbDocument> internalSubscribeForChanges(clazz: Class<T>, since: String): Flow<Change<T>> = flow {
         val changesURI = dbURI.append("_changes")
                 .param("feed", "continuous")
                 .param("heartbeat", "10000")

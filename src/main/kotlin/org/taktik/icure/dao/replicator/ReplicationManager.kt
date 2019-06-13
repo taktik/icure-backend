@@ -16,9 +16,6 @@ import org.taktik.icure.dao.GroupDAO
 import org.taktik.icure.entities.Group
 import javax.annotation.PostConstruct
 
-/**
- *
- */
 class ReplicationManager(private val hazelcast: HazelcastInstance, private val sslContextFactory: SslContextFactory, private val groupDAO: GroupDAO, private val replicators: List<Replicator>, private val allDaos: List<GenericDAO<*>>) {
 
     @Value("\${icure.couchdb.username}")
@@ -73,7 +70,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
                         delay(10000)
                     }
                 } catch (e: Exception) {
-                    log.warn("Exception in ")
+                    log.warn("Exception in GroupObserver starter", e)
                 }
             }
         }
