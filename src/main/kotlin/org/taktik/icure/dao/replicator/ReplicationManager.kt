@@ -18,6 +18,7 @@ import org.taktik.icure.dao.GroupDAO
 import org.taktik.icure.entities.Group
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
+import kotlin.system.measureTimeMillis
 
 class ReplicationManager(private val hazelcast: HazelcastInstance, private val sslContextFactory: SslContextFactory, private val groupDAO: GroupDAO, private val replicators: List<Replicator>, private val allDaos: List<GenericDAO<*>>) {
 
@@ -96,9 +97,13 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
 
     private suspend fun ensureReplicationStartedForAllGroups() {
         val allGroups = withContext(IO) { groupDAO.all.sortedBy { it.id } }
-        allGroups.forEach { group ->
-            ensureGroupReplicationStarted(group)
+        log.debug("Ensuring all replications started for ${allGroups.size} groups")
+        val took = measureTimeMillis {
+            allGroups.forEach { group ->
+                ensureGroupReplicationStarted(group)
+            }
         }
+        log.debug("Done ensuring all replications started for ${allGroups.size} groups in $took ms")
     }
 
     @FlowPreview
@@ -136,10 +141,14 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     }
 
     private suspend fun ensureGroupReplicationStarted(group: Group) {
-        supervisorScope {
-            ensureStandardDesignDocumentInitialized(group)
-            ensureReplicatorsStarted(group)
+        log.debug("Ensuring all replications started for group ${group.id}")
+        val took = measureTimeMillis {
+            supervisorScope {
+                ensureStandardDesignDocumentInitialized(group)
+                ensureReplicatorsStarted(group)
+            }
         }
+        log.debug("Done starting all replications for group ${group.id} in $took ms")
     }
 
     private suspend fun ensureStandardDesignDocumentInitialized(group: Group) {
