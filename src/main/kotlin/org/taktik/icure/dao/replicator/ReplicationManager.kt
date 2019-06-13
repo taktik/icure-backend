@@ -52,25 +52,29 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
             val lock = hazelcast.getLock(javaClass.canonicalName + ".lock")
             while (true) {
                 try {
+                    log.debug("Trying to acquire GroupObserver lock")
                     if (lock.tryLock()) {
                         try {
-                            log.info("Captured lock and starting group observer")
+                            log.info("Captured GroupObserver lock and starting group observer")
                             groupObserver?.cancelAndJoin()
                             groupObserver = launch { startGroupObserver() }
                             startReplicatorsForAllGroups()
                             while (true) {
+                                // Keep the lock forever until there is an error
                                 delay(1000)
                             }
                         } finally {
-                            lock.unlock()
+                            lock.forceUnlock()
                         }
                     } else {
+                        log.debug("Failed to acquire GroupObserver lock, retrying in 10s")
                         //ensureObserverStopped()
                         // Wait a bit then try to acquire lock to launch Group Observer
                         delay(10000)
                     }
                 } catch (e: Exception) {
                     log.warn("Exception in GroupObserver starter", e)
+                    delay(10000)
                 }
             }
         }
