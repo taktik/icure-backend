@@ -4,6 +4,8 @@ import com.hazelcast.core.HazelcastInstance
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.http.URI
@@ -14,6 +16,7 @@ import org.taktik.couchdb.subscribeForChanges
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.GroupDAO
 import org.taktik.icure.entities.Group
+import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 
 class ReplicationManager(private val hazelcast: HazelcastInstance, private val sslContextFactory: SslContextFactory, private val groupDAO: GroupDAO, private val replicators: List<Replicator>, private val allDaos: List<GenericDAO<*>>) {
@@ -43,7 +46,19 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         }
     }
 
-    private var groupObserver:Job? = null
+    private class ReplicatorStatus(val job: Job)
+
+    private class GroupReplicationStatus(private val mutex: Mutex = Mutex(), var standardDocumentsInitialized: Boolean = false, val replicatorStatuses: MutableMap<Replicator, ReplicatorStatus> = HashMap()) :Mutex by mutex {
+        fun failedReplicators(): Map<Replicator, ReplicatorStatus> = replicatorStatuses.filterValues { it.job.isCompleted }
+        fun runningReplicators(): Map<Replicator, ReplicatorStatus> = replicatorStatuses.filterValues { it.job.isActive }
+    }
+
+    private var groupObserver: Job? = null
+    private val groupReplicationStatuses : MutableMap<String, GroupReplicationStatus> = ConcurrentHashMap()
+
+    private fun groupReplicationStatus(group: Group): GroupReplicationStatus = groupReplicationStatuses.computeIfAbsent(group.id) {
+        GroupReplicationStatus()
+    }
 
     @FlowPreview
     @PostConstruct
@@ -56,12 +71,11 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
                     if (lock.tryLock()) {
                         try {
                             log.info("Captured GroupObserver lock and starting group observer")
-                            groupObserver?.cancelAndJoin()
-                            groupObserver = launch { startGroupObserver() }
-                            startReplicatorsForAllGroups()
+                            ensureGroupObserverStarted()
                             while (true) {
+                                ensureReplicationStartedForAllGroups()
                                 // Keep the lock forever until there is an error
-                                delay(1000)
+                                delay(60000)
                             }
                         } finally {
                             lock.forceUnlock()
@@ -72,7 +86,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
                         // Wait a bit then try to acquire lock to launch Group Observer
                         delay(10000)
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     log.warn("Exception in GroupObserver starter", e)
                     delay(10000)
                 }
@@ -80,41 +94,90 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         }
     }
 
-    private suspend fun startReplicatorsForAllGroups() {
+    private suspend fun ensureReplicationStartedForAllGroups() {
         val allGroups = withContext(IO) { groupDAO.all.sortedBy { it.id } }
         allGroups.forEach { group ->
-            //Compose them so they do not start all at the same time
-            prepareDesignDocumentsAndStartReplications(group)
+            ensureGroupReplicationStarted(group)
         }
     }
 
     @FlowPreview
-    private suspend fun startGroupObserver() {
-        log.info("Start group observer")
-        val client = ClientImpl(httpClient, URI.of(couchDbUrl).append("$couchDbPrefix-config"), couchDbUsername, couchDbPassword)
-        val changes = client.subscribeForChanges<Group>()
-
-        changes.collect { change ->
-            val docId = change.id
-            log.info("Start observing : $docId")
-            prepareDesignDocumentsAndStartReplications(groupDAO.get(docId))
+    private fun CoroutineScope.ensureGroupObserverStarted() {
+        if (groupObserver?.isActive != true) {
+            groupObserver = launch {
+                try {
+                    subscribeForNewGroups()
+                } catch (e: Exception) {
+                    delay(10000)
+                    throw e
+                }
+            }.apply {
+                invokeOnCompletion { cause ->
+                    if (cause != null) {
+                        log.warn("Group observer exception", cause)
+                    }
+                    ensureGroupObserverStarted()
+                }
+            }
         }
     }
 
-    private suspend fun prepareDesignDocumentsAndStartReplications(group: Group) {
-        log.info("Starting replications for {}", group.id)
+    @FlowPreview
+    private suspend fun subscribeForNewGroups() {
+        log.info("Starting group observer")
+        val client = ClientImpl(httpClient, URI.of(couchDbUrl).append("$couchDbPrefix-config"), couchDbUsername, couchDbPassword)
+        val changes = client.subscribeForChanges<Group>()
+        changes.collect { change ->
+            val groupId = change.id
+            log.info("New group detected : $groupId")
+            val group = groupDAO.get(groupId)
+            ensureGroupReplicationStarted(group)
+        }
+    }
 
-        withContext(IO) { allDaos.forEach { dao -> dao.initStandardDesignDocument(group) } }
-        log.info("Standard docs initialised for {} ", group.id)
+    private suspend fun ensureGroupReplicationStarted(group: Group) {
+        supervisorScope {
+            ensureStandardDesignDocumentInitialized(group)
+            ensureReplicatorsStarted(group)
+        }
+    }
 
-        for (replicator in replicators) {
-            log.info("Starting replicator $replicator")
-            replicator.startReplication(group)
+    private suspend fun ensureStandardDesignDocumentInitialized(group: Group) {
+        val groupReplicationStatus = groupReplicationStatus(group)
+        groupReplicationStatus.withLock {
+            if (!groupReplicationStatus.standardDocumentsInitialized) {
+                log.info("Initializing Standard docs for ${group.id}")
+                withContext(IO) { allDaos.forEach { dao -> dao.initStandardDesignDocument(group) } }
+                groupReplicationStatus.standardDocumentsInitialized = true
+                log.info("Standard docs initialised for ${group.id}")
+            }
+        }
+    }
+
+    private suspend fun ensureReplicatorsStarted(group: Group) {
+        val groupReplicationStatus = groupReplicationStatus(group)
+        groupReplicationStatus.withLock {
+            val failedReplicators = groupReplicationStatus.failedReplicators()
+
+            failedReplicators.forEach { entry ->
+                log.info("Replicator ${entry.key} completed, relaunching")
+            }
+
+            // Launch completed or not-yet-launched replicators
+            val replicatorsToLaunch = replicators - groupReplicationStatus.runningReplicators().keys
+
+            val launchedReplicators: MutableMap<Replicator, ReplicatorStatus> = replicatorsToLaunch.fold(HashMap(), { acc, replicator ->
+                acc.also {
+                    log.info("Starting $replicator for group ${group.id}")
+                    val replicationJob = replicator.startReplication(group)
+                    it[replicator] = ReplicatorStatus(replicationJob)
+                }
+            })
+            groupReplicationStatus.replicatorStatuses.putAll(launchedReplicators)
         }
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(ReplicationManager::class.java)
     }
-
 }
