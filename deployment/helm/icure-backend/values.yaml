@@ -29,6 +29,7 @@ images:
             ICURE_COUCHDB_PASSWORD: "" # config
             ICURE_COUCHDB_PREFIX: "icure-__"
             ICURE_COUCHDB_ENFORCE: "TRUE"
+            ICURE_SYNC_GLOBAL_DATABASES: "TRUE"
             ICURE_MIKRONO_SUPERUSER: "icure"
             ICURE_MIKRONO_SUPERTOKEN: "" # config
             ICURE_MIKRONO_APPLICATIONTOKEN: "" # config
