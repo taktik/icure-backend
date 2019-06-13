@@ -252,6 +252,7 @@ class ClientImpl(private val httpClient: HttpClient,
                 val bulkUpdateResult = checkNotNull(resultAdapter.fromJson(EventListJsonReader(nextValue)))
                 emit(bulkUpdateResult)
             }
+            jsonEvents.cancel()
         }
     }
 
@@ -372,6 +373,7 @@ class ClientImpl(private val httpClient: HttpClient,
                     else -> throw IllegalStateException("Expected EndObject or FieldName, found $nextEvent")
                 }
             }
+            jsonEvents.cancel()
         }
     }
 

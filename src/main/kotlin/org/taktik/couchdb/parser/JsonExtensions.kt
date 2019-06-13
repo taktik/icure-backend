@@ -191,7 +191,8 @@ inline fun <reified T> Moshi.adapter(): JsonAdapter<T> = adapter(T::class.java)
 fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
     coroutineScope {
         var buffers = LinkedList<CharBuffer>()
-        for (charBuffer in this@split.produceIn(this)) {
+        val buffersChannel = this@split.produceIn(this)
+        for (charBuffer in buffersChannel) {
             var lastDelimiterPosition = charBuffer.position() - 1
             for (position in charBuffer.position() until charBuffer.limit()) {
                 if (charBuffer[position] == delimiter) {
