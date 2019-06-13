@@ -239,11 +239,9 @@ class ClientImpl(private val httpClient: HttpClient,
             val uri = dbURI.append("_bulk_docs")
             val request = newRequest(uri, requestAdapter.toJson(updateRequest))
 
-            // TODO handle cancellation
             log.debug("Executing $request")
             val jsonEvents = request.getResponseBytesFlow().toJsonEvents().produceIn(this)
-            val firstEvent = jsonEvents.receive()
-            check(firstEvent == StartArray) { "Expected result to start with StartArray" }
+            check(jsonEvents.receive() == StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
                 val nextValue = jsonEvents.nextValue()
                 if (nextValue.size == 1) {
@@ -259,10 +257,10 @@ class ClientImpl(private val httpClient: HttpClient,
 
     override fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent> = flow {
         coroutineScope {
+            // TODO Not sure why this is needed
             val design = if (query.designDocId == null) "" else "/_design"
             query.dbPath("$dbURI$design")
             val request = buildRequest(query)
-            // TODO handle cancellation
             log.debug("Executing $request")
             val jsonEvents = request.getResponseBytesFlow().toJsonEvents().produceIn(this)
 
