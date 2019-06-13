@@ -19,14 +19,17 @@
 package org.taktik.icure.entities.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.squareup.moshi.Json;
 
 import java.io.Serializable;
 
 public interface Identifiable<T> extends Serializable {
     @JsonProperty("_id")
+    @Json(name = "_id")
     T getId();
 
     @JsonProperty("_id")
+    @Json(name = "_id")
     void setId(T id);
 
 }

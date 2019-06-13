@@ -27,7 +27,6 @@ import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.taktik.icure.dao.GenericDAO
@@ -35,8 +34,8 @@ import org.taktik.icure.dao.GroupDAO
 import org.taktik.icure.dao.UserDAO
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdUserDependentCouchDbICureConnector
-import org.taktik.icure.dao.replicator.FilteredReplicator
-import org.taktik.icure.dao.replicator.NewGroupObserver
+import org.taktik.icure.dao.replicator.Replicator
+import org.taktik.icure.dao.replicator.ReplicationManager
 import org.taktik.icure.dao.replicator.UserReplicator
 import org.taktik.icure.properties.CouchDbProperties
 
@@ -61,7 +60,7 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
     @Bean fun entitiesCacheManager(hazelcastInstance: HazelcastInstance) = HazelcastCacheManager(hazelcastInstance)
 
     @Bean fun sslContextFactory() = SslContextFactory()
-    @Bean fun userReplicator(hazelcastInstance: HazelcastInstance, userDAO: UserDAO) = UserReplicator(hazelcastInstance, userDAO)
+    @Bean fun userReplicator(sslContextFactory: SslContextFactory, userDAO: UserDAO) = UserReplicator(sslContextFactory, userDAO)
     @ConditionalOnProperty("icure.sync.global.databases", havingValue = "true", matchIfMissing = true)
-    @Bean fun newGroupObserver(hazelcastInstance: HazelcastInstance, sslContextFactory: SslContextFactory, groupDAO: GroupDAO, replicators: List<FilteredReplicator>, allDaos : List<GenericDAO<*>>) = NewGroupObserver(hazelcastInstance, sslContextFactory, groupDAO, replicators, allDaos)
+    @Bean fun replicationManager(hazelcastInstance: HazelcastInstance, sslContextFactory: SslContextFactory, groupDAO: GroupDAO, replicators: List<Replicator>, allDaos : List<GenericDAO<*>>) = ReplicationManager(hazelcastInstance, sslContextFactory, groupDAO, replicators, allDaos)
 }
