@@ -15,7 +15,7 @@ images:
     backend:
         repository: "docker.taktik.be/icure-backend"
         tag: "" # helm install
-        replicaCount: 1
+        replicaCount: 3
         javaOpts: "" # config
         memoryRequest: "2300M"
         memoryLimit: "2300M"
