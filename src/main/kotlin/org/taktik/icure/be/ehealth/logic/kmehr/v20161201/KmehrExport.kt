@@ -29,6 +29,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
@@ -270,7 +271,9 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
-                    compoundprescription = CompoundprescriptionType().apply { this.content.add(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription } ) }
+                    compoundprescription = CompoundprescriptionType().apply {
+                        this.getContent().add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = it }))
+                    }
                 }
                 content.binaryValue?.let {
                     lnks.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.APPLICATION_PDF; value = content.binaryValue })
