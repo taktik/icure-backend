@@ -51,7 +51,6 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
 
     @FlowPreview
     override suspend fun startReplication(group: Group): Job {
-        // should check if a replication hasn't been started or if group has been updated
         val groupDb = GroupDBUrl(couchDbUrl)
         val dbURI = URI.of(groupDb.getInstanceUrl(group)).append(groupDb.getDbName(group))
         val client = ClientImpl(httpClient, dbURI, group.id, group.password)
@@ -60,7 +59,10 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
         log.info("Db exists for ${group.id}")
         prepareReplication(group)
         replicateExistingData(group)
-        return GlobalScope.launch { observeChanges(group, client) }
+        // FIXME We should replicateExistingData every X to ensure we didn't miss any change
+        return GlobalScope.launch {
+            observeChanges(group, client)
+        }
     }
 
     @FlowPreview

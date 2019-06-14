@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.subscribeForChanges
+import org.taktik.icure.concurrency.doPeriodicallyOnOneReplicaForever
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.GroupDAO
 import org.taktik.icure.entities.Group
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
-import kotlin.system.measureTimeMillis
 
 class ReplicationManager(private val hazelcast: HazelcastInstance, private val sslContextFactory: SslContextFactory, private val groupDAO: GroupDAO, private val replicators: List<Replicator>, private val allDaos: List<GenericDAO<*>>) {
 
@@ -31,6 +31,9 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     @Value("\${icure.couchdb.url}")
     private lateinit var couchDbUrl: String
 
+    private var globalCheckIntervalMillis: Long = 60_000
+    private var delayAfterErrorMillis: Long = 10_000
+
     private val httpClient: HttpClient by lazy {
         HttpClient(this.sslContextFactory).apply {
             try {
@@ -41,7 +44,8 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
                 log.error("Cannot start HTTP client", e)
                 try {
                     stop()
-                } catch (ignored: Exception) {}
+                } catch (ignored: Exception) {
+                }
                 throw e
             }
         }
@@ -49,13 +53,13 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
 
     private class ReplicatorStatus(val job: Job)
 
-    private class GroupReplicationStatus(private val mutex: Mutex = Mutex(), var standardDocumentsInitialized: Boolean = false, val replicatorStatuses: MutableMap<Replicator, ReplicatorStatus> = HashMap()) :Mutex by mutex {
+    private class GroupReplicationStatus(private val mutex: Mutex = Mutex(), var standardDocumentsInitialized: Boolean = false, val replicatorStatuses: MutableMap<Replicator, ReplicatorStatus> = HashMap()) : Mutex by mutex {
         fun failedReplicators(): Map<Replicator, ReplicatorStatus> = replicatorStatuses.filterValues { it.job.isCompleted }
         fun runningReplicators(): Map<Replicator, ReplicatorStatus> = replicatorStatuses.filterValues { it.job.isActive }
     }
 
     private var groupObserver: Job? = null
-    private val groupReplicationStatuses : MutableMap<String, GroupReplicationStatus> = ConcurrentHashMap()
+    private val groupReplicationStatuses: MutableMap<String, GroupReplicationStatus> = ConcurrentHashMap()
 
     private fun groupReplicationStatus(group: Group): GroupReplicationStatus = groupReplicationStatuses.computeIfAbsent(group.id) {
         GroupReplicationStatus()
@@ -66,31 +70,10 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     fun init() {
         GlobalScope.launch {
             val lock = hazelcast.getLock(javaClass.canonicalName + ".lock")
-            while (true) {
-                try {
-                    log.debug("Trying to acquire GroupObserver lock")
-                    if (lock.tryLock()) {
-                        try {
-                            log.info("Captured GroupObserver lock and starting group observer")
-                            ensureGroupObserverStarted()
-                            while (true) {
-                                ensureReplicationStartedForAllGroups()
-                                // Keep the lock forever until there is an error
-                                delay(60000)
-                            }
-                        } finally {
-                            lock.forceUnlock()
-                        }
-                    } else {
-                        log.debug("Failed to acquire GroupObserver lock, retrying in 10s")
-                        //ensureObserverStopped()
-                        // Wait a bit then try to acquire lock to launch Group Observer
-                        delay(10000)
-                    }
-                } catch (e: Throwable) {
-                    log.warn("Exception in GroupObserver starter", e)
-                    delay(10000)
-                }
+            // This should block forever
+            doPeriodicallyOnOneReplicaForever(lock, globalCheckIntervalMillis, delayAfterErrorMillis) {
+                ensureGroupObserverStarted()
+                ensureReplicationStartedForAllGroups()
             }
         }
     }
@@ -98,30 +81,22 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     private suspend fun ensureReplicationStartedForAllGroups() {
         val allGroups = withContext(IO) { groupDAO.all.sortedBy { it.id } }
         log.debug("Ensuring all replications started for ${allGroups.size} groups")
-        val took = measureTimeMillis {
-            allGroups.forEach { group ->
-                ensureGroupReplicationStarted(group)
-            }
+        allGroups.forEach { group ->
+            ensureGroupReplicationStarted(group)
         }
-        log.debug("Done ensuring all replications started for ${allGroups.size} groups in $took ms")
+        log.debug("Done ensuring all replications started for ${allGroups.size} groups")
     }
 
     @FlowPreview
     private fun CoroutineScope.ensureGroupObserverStarted() {
         if (groupObserver?.isActive != true) {
             groupObserver = launch {
-                try {
-                    subscribeForNewGroups()
-                } catch (e: Exception) {
-                    delay(10000)
-                    throw e
-                }
-            }.apply {
-                invokeOnCompletion { cause ->
-                    if (cause != null) {
-                        log.warn("Group observer exception", cause)
+                subscribeForNewGroups()
+            }.also {
+                it.invokeOnCompletion { error ->
+                    if (error != null) {
+                        log.warn("Group observer error", error)
                     }
-                    ensureGroupObserverStarted()
                 }
             }
         }
@@ -142,17 +117,16 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
 
     private suspend fun ensureGroupReplicationStarted(group: Group) {
         log.debug("Ensuring all replications started for group ${group.id}")
-        val took = measureTimeMillis {
-            supervisorScope {
-                ensureStandardDesignDocumentInitialized(group)
-                ensureReplicatorsStarted(group)
-            }
+        supervisorScope {
+            ensureStandardDesignDocumentInitialized(group)
+            ensureAllReplicatorsStarted(group)
         }
-        log.debug("Done starting all replications for group ${group.id} in $took ms")
+        log.debug("Done starting all replications for group ${group.id}")
     }
 
     private suspend fun ensureStandardDesignDocumentInitialized(group: Group) {
         val groupReplicationStatus = groupReplicationStatus(group)
+        // Mutex access to groupReplicationStatus object
         groupReplicationStatus.withLock {
             if (!groupReplicationStatus.standardDocumentsInitialized) {
                 log.info("Initializing Standard docs for ${group.id}")
@@ -163,8 +137,9 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         }
     }
 
-    private suspend fun ensureReplicatorsStarted(group: Group) {
+    private suspend fun ensureAllReplicatorsStarted(group: Group) {
         val groupReplicationStatus = groupReplicationStatus(group)
+        // Mutex access to groupReplicationStatus object
         groupReplicationStatus.withLock {
             val failedReplicators = groupReplicationStatus.failedReplicators()
 
