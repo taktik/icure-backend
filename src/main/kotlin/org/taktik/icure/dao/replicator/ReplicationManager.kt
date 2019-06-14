@@ -5,7 +5,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.http.URI
@@ -31,8 +33,11 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     @Value("\${icure.couchdb.url}")
     private lateinit var couchDbUrl: String
 
-    private var globalCheckIntervalMillis: Long = 60_000
-    private var delayAfterErrorMillis: Long = 10_000
+    private val globalCheckIntervalMillis: Long = 60_000
+    private val delayAfterErrorMillis: Long = 10_000
+    private val replicationStartConcurrency: Int = 32
+    private val replicationSemaphore = Semaphore(replicationStartConcurrency)
+
 
     private val httpClient: HttpClient by lazy {
         HttpClient(this.sslContextFactory).apply {
@@ -79,12 +84,19 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     }
 
     private suspend fun ensureReplicationStartedForAllGroups() {
-        val allGroups = withContext(IO) { groupDAO.all.sortedBy { it.id } }
-        log.debug("Ensuring all replications started for ${allGroups.size} groups")
-        allGroups.forEach { group ->
-            ensureGroupReplicationStarted(group)
+        coroutineScope {
+            val allGroups = withContext(IO) { groupDAO.all.sortedBy { it.id } }
+            log.debug("Ensuring all replications started for ${allGroups.size} groups")
+            val ensureReplicationStartedJobs = allGroups.map { group ->
+                async {
+                    replicationSemaphore.withPermit {
+                        ensureGroupReplicationStarted(group)
+                    }
+                }
+            }
+            ensureReplicationStartedJobs.joinAll()
+            log.debug("Done ensuring all replications started for ${allGroups.size} groups")
         }
-        log.debug("Done ensuring all replications started for ${allGroups.size} groups")
     }
 
     @FlowPreview

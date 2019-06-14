@@ -119,7 +119,7 @@ dependencies {
     compile('com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2')
     compile('org.jetbrains.kotlin:kotlin-stdlib-jdk8')
     compile('org.jetbrains.kotlin:kotlin-reflect')
-	compile('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1')
+	compile('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-M1')
 	compile('com.squareup.moshi:moshi:1.8.0')
 	compile('com.squareup.moshi:moshi-kotlin:1.8.0')
 
