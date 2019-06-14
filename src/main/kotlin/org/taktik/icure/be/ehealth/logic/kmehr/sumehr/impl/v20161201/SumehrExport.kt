@@ -513,28 +513,33 @@ class SumehrExport : KmehrExport() {
 				familyrisk.code = "healthcareelement"
 			}
 
-            listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
-                if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
-                    createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
-                        if(!eds.codes.isEmpty()){
-                            // Notice the content can not be empty (sumehr validator)
-                            it.contents.add(ContentType().apply {
-                                eds.codes?.forEach { c ->
-                                    try{
-                                        val cdt = CDCONTENTschemes.fromValue(c.type)
-                                        // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
-                                        val version = if (c.type == "CD-ATC") "1.0" else c.version
-                                        this.cds.add(CDCONTENT().apply { s(cdt); sl = c.type; dn = c.type; sv = version; value = c.code })
-                                    } catch (ignored : IllegalArgumentException) {
-                                        log.error(ignored)
-                                    }
-                                }
-                            })
-                        }
-				items.add(it)
+			listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
+				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
+					if(edType == "healthcareelement"){
+						//EhValidator-v3.0.0: For "healthcareelement", "Codification / Version" used in "content" elements must be one of these: "ICPC 2", "ICD 10"
+						eds.codes = eds.codes.filter { c -> c.type == "ICPC" || c.type == "ICD" }.toSet()
+					}
+					if(!eds.codes.isEmpty()){
+						createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+							it.contents.add(ContentType().apply {
+								eds.codes?.forEach { c ->
+									try{
+										val cdt = CDCONTENTschemes.fromValue(c.type)
+										// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+										val version = if (c.type == "CD-ATC") "1.0" else c.version
+										this.cds.add(CDCONTENT().apply { s(cdt); sl = c.type; dn = c.type; sv = version; value = c.code })
+									} catch (ignored : IllegalArgumentException) {
+										log.error(ignored)
+									}
+								}
+							})
+						items.add(it)
+						}
+					}else{
+						log.debug("Health element skipped because of missing codification. id=" + eds.id )
+					}
+				}
 			}
-                }
-            }
 		} catch (e: Exception) {
 			log.error("Unexpected error", e)
 		}
