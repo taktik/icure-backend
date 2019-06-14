@@ -32,10 +32,10 @@ class SoftwareMedicalFileImportTest {
     @Before
     fun setUp() {
         `when`(healthcarePartyLogic.createHealthcareParty(Matchers.any(HealthcareParty::class.java)))
-            .thenAnswer { it.getArgumentAt(0, HealthcareParty::class.java) }
+            .thenAnswer { it.getArgument(0) }
 
         `when`(patientLogic.createPatient(Matchers.any(Patient::class.java)))
-            .thenAnswer { it.getArgumentAt(0, Patient::class.java) }
+            .thenAnswer { it.getArgument(0) }
     }
 
     @Test

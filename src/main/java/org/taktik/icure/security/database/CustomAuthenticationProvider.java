@@ -70,9 +70,9 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		if (u.getApplicationTokens().containsValue(password)) { return true; }
 		if (u.isUse2fa() != null && u.isUse2fa() && !u.isSecretEmpty()) {
 			String[] splittedPassword = password.split("\\|");
-			return getPasswordEncoder().isPasswordValid(u.getPasswordHash(), splittedPassword[0], null);
+			return getPasswordEncoder().matches(splittedPassword[0], u.getPasswordHash());
 		} else {
-			return getPasswordEncoder().isPasswordValid(u.getPasswordHash(), password, null);
+			return getPasswordEncoder().matches(password, u.getPasswordHash());
 		}
 	}
 

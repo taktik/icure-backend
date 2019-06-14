@@ -19,26 +19,22 @@
 
 package org.taktik.icure.config
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.encoding.PasswordEncoder
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
-import org.springframework.security.web.firewall.HttpFirewall
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.taktik.icure.logic.GroupLogic
-import org.taktik.icure.logic.ICureSessionLogic
-import org.taktik.icure.logic.PermissionLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.logic.*
 import org.taktik.icure.security.AuthenticationFailureHandler
 import org.taktik.icure.security.AuthenticationSuccessHandler
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
@@ -47,68 +43,28 @@ import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 import org.taktik.icure.security.web.BasicAuthenticationFilter
 import org.taktik.icure.security.web.LoginUrlAuthenticationEntryPoint
 import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
-import javax.servlet.Filter
+
 
 @Configuration
 class SecurityConfig {
     @Bean
-    fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder(256)
+    fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder("SHA-256")
 
     @Bean
-    fun authenticationProcessingFilterEntryPoint() = LoginUrlAuthenticationEntryPoint("/", mapOf("/api" to "api/login.html"))
-
-    @Bean
-    fun basicAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = BasicAuthenticationFilter(authenticationManager)
-
-    @Bean
-    fun usernamePasswordAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint, sessionLogic: ICureSessionLogic) = UsernamePasswordAuthenticationFilter().apply {
-        usernameParameter = "username"
-        passwordParameter = "password"
-        setAuthenticationManager(authenticationManager)
-        setAuthenticationSuccessHandler(AuthenticationSuccessHandler().apply { setDefaultTargetUrl("/"); setAlwaysUseDefaultTargetUrl(false); setSessionLogic(sessionLogic) })
-        setAuthenticationFailureHandler(AuthenticationFailureHandler().apply { setDefaultFailureUrl("/error"); })
-        setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/login"))
-        setPostOnly(true)
-    }
-
-    @Bean
-    fun remotingExceptionTranslationFilter() = ExceptionTranslationFilter(Http401UnauthorizedEntryPoint())
-
-    @Bean
-    fun exceptionTranslationFilter(authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = ExceptionTranslationFilter(authenticationProcessingFilterEntryPoint)
-
-    @Bean
-    fun httpFirewal() = StrictHttpFirewall().apply { setAllowSemicolon(true) }
-
-    @Bean
-    fun securityConfigAdapter(
-            daoAuthenticationProvider: CustomAuthenticationProvider,
-            basicAuthenticationFilter: BasicAuthenticationFilter,
-            usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
-            exceptionTranslationFilter: ExceptionTranslationFilter,
-            remotingExceptionTranslationFilter: ExceptionTranslationFilter,
-            httpFirewall: HttpFirewall
-                             )
-        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
+    fun httpFirewall() = StrictHttpFirewall().apply { setAllowSemicolon(true) }
 
     @Bean
     fun daoAuthenticationProvider(userLogic: UserLogic, groupLogic: GroupLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, groupLogic, permissionLogic).apply {
         setPasswordEncoder(passwordEncoder)
     }
-
 }
 
 @Configuration
-class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
-                            private val basicAuthenticationFilter: Filter,
-                            private val usernamePasswordAuthenticationFilter: Filter,
-                            private val exceptionTranslationFilter: Filter,
-                            private val remotingExceptionTranslationFilter: Filter,
-                            private val httpFirewall: HttpFirewall
-    ) : WebSecurityConfigurerAdapter(false) {
+class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthenticationProvider,
+                            private val httpFirewall: StrictHttpFirewall,
+                            private val sessionLogic: ICureSessionLogic) : WebSecurityConfigurerAdapter(false) {
 
-    @Autowired
-    fun configureGlobal(auth: AuthenticationManagerBuilder?) {
+    override fun configure(auth: AuthenticationManagerBuilder?) {
         auth!!.authenticationProvider(daoAuthenticationProvider)
     }
 
@@ -121,8 +77,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
         http!!.csrf().disable().addFilterBefore(
             FilterChainProxy(
                 listOf(
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter),
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter(), remotingExceptionTranslationFilter()),
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter(), usernamePasswordAuthenticationFilter(), exceptionTranslationFilter())
                       )
                 ).apply {
                     setFirewall(httpFirewall)
@@ -149,4 +105,27 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 
                 .antMatchers("/**").hasRole("USER")
     }
+
+    @Bean
+    override fun authenticationManagerBean(): AuthenticationManager {
+        return super.authenticationManagerBean()
+    }
+
+    fun authenticationProcessingFilterEntryPoint() = LoginUrlAuthenticationEntryPoint("/", mapOf("/api" to "api/login.html"))
+
+    fun basicAuthenticationFilter() = BasicAuthenticationFilter(authenticationManager())
+
+    fun usernamePasswordAuthenticationFilter() = UsernamePasswordAuthenticationFilter().apply {
+        usernameParameter = "username"
+        passwordParameter = "password"
+        setAuthenticationManager(authenticationManager())
+        setAuthenticationSuccessHandler(AuthenticationSuccessHandler().apply { setDefaultTargetUrl("/"); setAlwaysUseDefaultTargetUrl(false); setSessionLogic(sessionLogic) })
+        setAuthenticationFailureHandler(AuthenticationFailureHandler().apply { setDefaultFailureUrl("/error"); })
+        setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/login"))
+        setPostOnly(true)
+    }
+
+    fun remotingExceptionTranslationFilter() = ExceptionTranslationFilter(Http401UnauthorizedEntryPoint())
+
+    fun exceptionTranslationFilter() = ExceptionTranslationFilter(authenticationProcessingFilterEntryPoint())
 }
