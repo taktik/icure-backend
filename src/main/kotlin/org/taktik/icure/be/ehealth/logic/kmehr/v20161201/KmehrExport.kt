@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
@@ -51,10 +52,12 @@ import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.*
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
@@ -158,23 +161,65 @@ open class KmehrExport {
                 }
 			} }
             if(cdItem == "medication") {
-                svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
+                svc.tags.find { it.type == "CD-TEMPORALITY" }?.let {
                     temporality = TemporalityType().apply {
                         cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code) }
                     }
                 }
-                //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
-                //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
+                    KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen)?.let {
+                        frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
+                    }
+                    duration = KmehrPrescriptionHelper.toDurationType(med.duration)
+                    med.regimen?.let { intakes ->
+                        if (intakes.isNotEmpty()) {
+                            regimen = ItemType.Regimen().apply {
+                                for (intake in intakes) {
+                                    // choice day specification
+                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) }
+                                    intake.date?.let { d -> daynumbersAndQuantitiesAndDates.add(makeXMLGregorianCalendarFromFuzzyLong(d)) }
+                                    intake.weekday?.let { day ->
+                                        daynumbersAndQuantitiesAndDates.add(ItemType.Regimen.Weekday().apply {
+                                            day.weekday?.let { dayOfWeek ->
+                                                cd = CDWEEKDAY().apply { s = "CD-WEEKDAY"; sv = "1.0"; value = CDWEEKDAYvalues.fromValue(dayOfWeek.code) }
+                                            }
+                                            day.weekNumber?.let { n -> weeknumber = BigInteger.valueOf(n.toLong()) }
+                                        })
+                                    }
+                                    // choice time of day
+                                    daynumbersAndQuantitiesAndDates.add(KmehrPrescriptionHelper.toDaytime(intake))
+
+                                    // mandatory quantity
+                                    intake.administratedQuantity?.let { drugQuantity ->
+                                        daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
+                                            decimal = drugQuantity.quantity?.let { BigDecimal(it) }
+                                            drugQuantity.administrationUnit?.let { drugUnit ->
+                                                unit = AdministrationunitType().apply {
+                                                    cd = CDADMINISTRATIONUNIT().apply {
+                                                        s = "CD-ADMINISTRATIONUNIT"
+                                                        sv = "1.2"
+                                                        value = drugUnit.code
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                }
+                            }
                         }
                     }
-            }
+                    med.renewal?.let {
+                        renewal = RenewalType().apply {
+                            it.decimal?.let { decimal = BigDecimal(it.toLong()) }
+                            duration = KmehrPrescriptionHelper.toDurationType(it.duration)
+                        }
+                    }
+                    med.drugRoute?.let { c ->
+                        route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; sv = "2.0"; value = c } }
+                    }
 
+                }
+            }
 
             isIsrelevant = ((svc.status?: 0) and 2) == 0
             beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
@@ -600,7 +645,10 @@ open class KmehrExport {
 	companion object {
 		const val SMF_VERSION = "2.3"
 	}
+
     data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String) {
         data class Software(val name : String, val version : String)
     }
+
+
 }

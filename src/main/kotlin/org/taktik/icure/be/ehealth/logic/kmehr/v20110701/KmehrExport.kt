@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.*
@@ -43,6 +44,7 @@ import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -145,16 +147,58 @@ open class KmehrExport {
                         cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code) }
                     }
                 }
-                //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
-                //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDaytimes.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
+                    KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen)?.let {
+                        frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
+                    }
+                    duration = KmehrPrescriptionHelper.toDurationType(med.duration)
+                    med.regimen?.let { intakes ->
+                        if (intakes.isNotEmpty()) {
+                            regimen = ItemType.Regimen().apply {
+                                for (intake in intakes) {
+                                    // choice day specification
+                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDaytimes.add(BigInteger.valueOf(dayNumber.toLong())) }
+                                    intake.date?.let { d -> daynumbersAndQuantitiesAndDaytimes.add(makeXMLGregorianCalendarFromFuzzyLong(d)) }
+                                    intake.weekday?.let { day ->
+                                        daynumbersAndQuantitiesAndDaytimes.add(WeekdayType().apply {
+                                            day.weekday?.let { dayOfWeek ->
+                                                cd = CDWEEKDAY().apply { s = "CD-WEEKDAY"; sv = "1.0"; value = CDWEEKDAYvalues.fromValue(dayOfWeek.code) }
+                                            }
+                                        })
+                                    }
+                                    // choice time of day
+                                    daynumbersAndQuantitiesAndDaytimes.add(KmehrPrescriptionHelper.toDaytime(intake))
+
+                                    // mandatory quantity
+                                    intake.administratedQuantity?.let { drugQuantity ->
+                                        daynumbersAndQuantitiesAndDaytimes.add(AdministrationquantityType().apply {
+                                            decimal = drugQuantity.quantity?.let { BigDecimal(it) }
+                                            drugQuantity.administrationUnit?.let { drugUnit ->
+                                                unit = AdministrationunitType().apply {
+                                                    cd = CDADMINISTRATIONUNIT().apply {
+                                                        s = "CD-ADMINISTRATIONUNIT"
+                                                        sv = "1.2"
+                                                        value = drugUnit.code
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                }
+                            }
                         }
                     }
+                    med.renewal?.let {
+                        renewal = RenewalType().apply {
+                            it.decimal?.let { decimal = BigDecimal(it.toLong()) }
+                            duration = KmehrPrescriptionHelper.toDurationType(it.duration)
+                        }
+                    }
+                    med.drugRoute?.let { c ->
+                        route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; sv = "2.0"; value = c } }
+                    }
+
+                }
             }
 
 
