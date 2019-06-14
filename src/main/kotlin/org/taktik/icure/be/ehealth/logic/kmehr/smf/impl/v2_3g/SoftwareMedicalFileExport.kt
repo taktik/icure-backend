@@ -489,7 +489,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return ItemType().apply {
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = index.toString() })
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = ICUREVERSION; value = form.id })
-			cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = "incapacity" })
+			cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
 
 			this.contents.add(content)
 			lifecycle = LifecycleType().apply {
@@ -563,7 +563,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					ids.add(idKmehr(startIndex + i))
 					ids.add(localIdKmehrElement(startIndex + i, config))
 					cds.add(cdItem("contactperson"))
-					cds.add(CDITEM().apply { s = CDITEMschemes.CD_CONTACT_PERSON; sv = "1.2"; value = partnership.otherToMeRelationshipDescription })
+					cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = partnership.otherToMeRelationshipDescription })
 					contents.add(ContentType().apply { person = makePerson(partner, config) })
 				}
 			}
@@ -610,7 +610,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 	private fun cdItem(v: String): CDITEM {
-		return CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = v }
+		return CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = v }
 	}
 
 	private fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {

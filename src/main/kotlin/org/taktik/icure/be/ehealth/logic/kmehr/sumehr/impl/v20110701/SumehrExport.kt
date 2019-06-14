@@ -379,8 +379,8 @@ class SumehrExport : KmehrExport() {
 					val items = getAssessment(trn).headingsAndItemsAndTexts
 					items.add(ItemType ().apply {
                         ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
-                        cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "contactperson"})
-                        cds.add(CDITEM().apply { s = CDITEMschemes.CD_CONTACT_PERSON; sv = CDITEMschemes.CD_CONTACT_PERSON.version(); value = rel})
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "contactperson"})
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = rel})
 						contents.add(ContentType().apply { person = makePerson(p, config) })
                     })
                 }
@@ -399,7 +399,7 @@ class SumehrExport : KmehrExport() {
                     val items = getAssessment(trn).headingsAndItemsAndTexts
                     items.add(ItemType().apply {
                         ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
-                        cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = CDITEMvalues.CONTACTHCPARTY.value()})
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTHCPARTY.value()})
                         contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
                     })
                 }
@@ -417,7 +417,7 @@ class SumehrExport : KmehrExport() {
                     val items = getAssessment(trn).headingsAndItemsAndTexts
 					items.add(ItemType ().apply {
                         ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
-                        cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "gmdmanager"})
+                        cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "gmdmanager"})
                         contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
                     })
                 }

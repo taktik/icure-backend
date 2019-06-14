@@ -166,7 +166,7 @@ open class KmehrExport {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
-            cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = cdItem } )
+            cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.6"
@@ -206,7 +206,7 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = he.healthElementId })
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = "icure-id"; sv = ICUREVERSION; value = he.id })
-            cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = cdItem } )
+            cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.6"
@@ -355,14 +355,14 @@ open class KmehrExport {
                     val cdt = CDCONTENTschemes.fromValue(c.type)
                     if ((restrictedTypes == null || restrictedTypes.contains(c.type)) && (excludedTypes == null || !excludedTypes.contains(c.type))) {
                         if (uniqueTypes == null || !uniqueTypes.contains(c.type) || this.cds.find { cc -> cdt == cc.s } == null) {
-                            this.cds.add(CDCONTENT().apply { s(cdt); sv = "1.0"; value = c.code })
+                            this.cds.add(CDCONTENT().apply { s(cdt);  value = c.code })
                         } else if ((restrictedTypes == null || restrictedTypes.contains("LOCAL")) && (excludedTypes == null || !excludedTypes.contains("LOCAL"))) {
-                            this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type; sv = "1.0"; value = c.code })
+                            this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type;  value = c.code })
                         }
                     }
                 } catch (ignored : IllegalArgumentException) {
                     if ((restrictedTypes == null || restrictedTypes.contains("LOCAL")) && (excludedTypes == null || !excludedTypes.contains("LOCAL"))) {
-                        this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type; sv = "1.0"; value = c.code })
+                        this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type;  value = c.code })
                     }
                 }
             }
@@ -374,7 +374,7 @@ open class KmehrExport {
                     if (prevIcc == null) {
                         item.cds.add(CDITEM().apply { s(idt); sv = "1.6"; value = c.code })
                     } else if (prevIcc.value != c.code) {
-                        item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = c.type; dn = c.type; sv = "1.0"; value = c.code })
+                        item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = c.type; dn = c.type;  value = c.code })
                     }
                 } catch (ignored: IllegalArgumentException) {
                     //noinspection GroovyUnusedCatchParameter
@@ -383,14 +383,14 @@ open class KmehrExport {
                         if ((restrictedTypes == null || restrictedTypes.contains(c.type)) && (excludedTypes == null || !excludedTypes.contains(c.type))) {
                             val prevCc = this.cds.find { cc -> cdt == cc.s }
                             if (uniqueTypes == null || !uniqueTypes.contains(c.type) || prevCc == null) {
-                                this.cds.add(CDCONTENT().apply { s(cdt); sv = "1.0"; value = c.code })
+                                this.cds.add(CDCONTENT().apply { s(cdt);  value = c.code })
                             } else if (prevCc.value != c.code && ((restrictedTypes == null || restrictedTypes.contains("LOCAL")) && (excludedTypes == null || !excludedTypes.contains("LOCAL")))) {
-                                this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type; sv = "1.0"; value = c.code })
+                                this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type;  value = c.code })
                             }
                         }
                     } catch (ignoredAsWell: IllegalArgumentException) {
                         if ((restrictedTypes == null || restrictedTypes.contains("LOCAL")) && (excludedTypes == null || !excludedTypes.contains("LOCAL"))) {
-                            this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type; sv = "1.0"; value = c.code })
+                            this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = c.type; dn = c.type;  value = c.code })
                         }
                     }
                 }
@@ -413,7 +413,7 @@ open class KmehrExport {
                 } else if (svc.content.values.find { it.booleanValue != null } != null) {
                     lbl += "{b}"
                 }
-                item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "iCure-Label"; dn = "iCure service label";sv = "1.0"; value = lbl })
+                item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "iCure-Label"; dn = "iCure service label"; value = lbl })
             }
 
             if (this.cds.size > 0) {
