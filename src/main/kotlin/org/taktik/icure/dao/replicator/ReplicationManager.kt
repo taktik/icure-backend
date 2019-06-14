@@ -74,7 +74,9 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     @PostConstruct
     fun init() {
         GlobalScope.launch {
-            val lock = hazelcast.getLock(javaClass.canonicalName + ".lock")
+            val lockName = javaClass.canonicalName + ".lock"
+            log.debug("Using distributed lock $lockName")
+            val lock = hazelcast.getLock(lockName)
             // This should block forever
             doPeriodicallyOnOneReplicaForever(lock, globalCheckIntervalMillis, delayAfterErrorMillis) {
                 ensureGroupObserverStarted()
@@ -129,7 +131,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
 
     private suspend fun ensureGroupReplicationStarted(group: Group) {
         log.debug("Ensuring all replications started for group ${group.id}")
-        supervisorScope {
+        coroutineScope {
             ensureStandardDesignDocumentInitialized(group)
             ensureAllReplicatorsStarted(group)
         }
