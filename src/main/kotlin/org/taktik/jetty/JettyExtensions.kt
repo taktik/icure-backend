@@ -1,6 +1,7 @@
 package org.taktik.jetty
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -31,15 +32,25 @@ fun Request.basicAuth(username: String?, password: String?): Request = if (!user
     this
 }
 
+/**
+    Execute this Jetty [Request] and get the response as a [Flow] of [ByteBuffer].
+ */
 @ExperimentalCoroutinesApi
-fun Request.getResponseBytesFlow(buffer: Int = 100): Flow<ByteBuffer> = callbackFlow<ByteBuffer> {
-    onResponseContent { _, byteBuffer ->
-        // We must clone the buffer because Jetty will recycle [byteBuffer] as soon as this callback is completed
+fun Request.getResponseBytesFlow(buffer: Int = Channel.BUFFERED): Flow<ByteBuffer> = callbackFlow<ByteBuffer> {
+    onResponseContentAsync { _, byteBuffer, callBack ->
         val clone = ByteBuffer.allocate(byteBuffer.remaining()).apply {
             put(byteBuffer)
             flip()
         }
-        tryOffer(clone)
+        launch {
+            send(clone)
+        }.invokeOnCompletion { error ->
+            if (error != null) {
+                callBack.failed(error)
+            } else {
+                callBack.succeeded()
+            }
+        }
     }.send { result ->
         if (result.isSucceeded) {
             close()
@@ -50,35 +61,51 @@ fun Request.getResponseBytesFlow(buffer: Int = 100): Flow<ByteBuffer> = callback
     awaitClose()
 }.buffer(buffer)
 
+/**
+    Execute this Jetty [Request] and get the response as a [Flow] of [CharBuffer].
+    The bytes are decoded using [charset] or UTF-8 by default
+ */
 @ExperimentalCoroutinesApi
-fun Request.getResponseTextFlow(charset: Charset = StandardCharsets.UTF_8, buffer: Int = 100): Flow<CharBuffer> = callbackFlow<CharBuffer> {
+fun Request.getResponseTextFlow(charset: Charset = StandardCharsets.UTF_8, buffer: Int = Channel.BUFFERED): Flow<CharBuffer> = callbackFlow<CharBuffer> {
     val emptyBuffer = ByteBuffer.allocate(0)
     val decoder = charset.newDecoder()
     var remainingBytes: ByteBuffer? = null
-    onResponseContent { response, byteBuffer ->
+    onResponseContentAsync { response, byteBuffer, callBack ->
         remainingBytes = null
-        var buf = CharBuffer.allocate((byteBuffer.remaining() * decoder.averageCharsPerByte()).roundToInt())
-        var coderResult = decoder.decode(byteBuffer, buf, false)
-        while (coderResult.isOverflow) {
-            buf.flip()
-            tryOffer(buf)
-            buf = CharBuffer.allocate((byteBuffer.remaining() * decoder.averageCharsPerByte()).roundToInt())
-            coderResult = decoder.decode(byteBuffer, buf, false)
-        }
-        when (coderResult) {
-            CoderResult.UNDERFLOW -> {
+        launch {
+            var buf = CharBuffer.allocate((byteBuffer.remaining() * decoder.averageCharsPerByte()).roundToInt())
+            var coderResult = decoder.decode(byteBuffer, buf, false)
+            while (coderResult.isOverflow) {
                 buf.flip()
-                tryOffer(buf)
-                if (byteBuffer.hasRemaining()) {
-                    remainingBytes = byteBuffer
+                send(buf)
+                buf = CharBuffer.allocate((byteBuffer.remaining() * decoder.averageCharsPerByte()).roundToInt())
+                coderResult = decoder.decode(byteBuffer, buf, false)
+            }
+            when (coderResult) {
+                CoderResult.UNDERFLOW -> {
+                    buf.flip()
+                    send(buf)
+                    if (byteBuffer.hasRemaining()) {
+                        remainingBytes = ByteBuffer.allocate(byteBuffer.remaining()).apply {
+                            put(byteBuffer)
+                            flip()
+                        }
+                    }
+                }
+                else -> {
+                    val error = IllegalStateException("Error decoding response : $coderResult")
+                    response.abort(error)
                 }
             }
-            else -> {
-                val error = IllegalStateException("Error decoding response : $coderResult")
-                response.abort(error)
+        }.invokeOnCompletion { error ->
+            if (error != null) {
+                callBack.failed(error)
+            } else {
+                callBack.succeeded()
             }
         }
     }.onResponseSuccess {
+        // Decode what's remaining
         val remaining = remainingBytes ?: emptyBuffer
         var buf = CharBuffer.allocate(if (remaining.hasRemaining()) {
             (remaining.remaining() * decoder.averageCharsPerByte()).roundToInt()
