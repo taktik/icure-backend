@@ -17,10 +17,9 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import org.springframework.stereotype.Service
-import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201.MedicationSchemeExport
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult

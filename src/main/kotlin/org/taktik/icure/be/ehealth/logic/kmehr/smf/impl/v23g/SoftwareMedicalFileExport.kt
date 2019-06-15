@@ -17,18 +17,19 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
 import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
+import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeMomentType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXGC
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXMLGregorianCalendarFromFuzzyLong
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXmlGregorianCalendar
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXMLGregorianCalendarFromFuzzyLong
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXmlGregorianCalendar
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.*
@@ -42,14 +43,17 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.logic.FormLogic
+import org.taktik.icure.logic.FormTemplateLogic
+import org.taktik.icure.logic.InsuranceLogic
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
@@ -70,6 +74,10 @@ import javax.xml.datatype.DatatypeConstants
  */
 @org.springframework.stereotype.Service
 class SoftwareMedicalFileExport : KmehrExport() {
+
+	@Autowired var formLogic: FormLogic? = null
+	@Autowired var formTemplateLogic: FormTemplateLogic? = null
+	@Autowired var insuranceLogic: InsuranceLogic? = null
 
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
@@ -311,48 +319,52 @@ class SoftwareMedicalFileExport : KmehrExport() {
 								}
 								contents += codesToKmehr(svc.codes)
 								if (contents.isNotEmpty()) {
-									val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID").apply {
+									val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
 										this.ids.add(IDKMEHR().apply {
 											this.s = IDKMEHRschemes.LOCAL
 											this.sv = "1.0"
 											this.sl = "org.taktik.icure.label"
 											this.value = svc.label
 										})
-									}
-									if (cdItem == "parameter") {
-										svc.tags.find { it.type == "CD-PARAMETER" }?.let {
-											item.cds.add(
+										if (cdItem == "parameter") {
+											svc.tags.find { it.type == "CD-PARAMETER" }?.let {
+												this.cds.add(
 													CDITEM().apply {
 														s = CDITEMschemes.CD_PARAMETER
 														sv = "1.0"
 														value = it.code
 													}
-											)
-										}
-										item.cds.add(
+												)
+											}
+											this.cds.add(
 												CDITEM().apply {
 													s = CDITEMschemes.LOCAL
 													sl = "LOCAL-PARAMETER"
 													sv = "1.0"
-													dn = if(svc.comment == "" || svc.comment == null) { svc.label } else { svc.comment }
+													dn = if (svc.comment == "" || svc.comment == null) {
+														svc.label
+													} else {
+														svc.comment
+													}
 													value = svc.label
 												}
-										)
-									}
-									if(cdItem == "medication") {
-										svc.content.values.find{ it.medicationValue?.instructionForPatient != null}?.let {
-											item.posology = ItemType.Posology().apply {
-												text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+											)
+										}
+										if(cdItem == "medication") {
+											svc.content.values.find{ it.medicationValue?.instructionForPatient != null}?.let {
+												this.posology = ItemType.Posology().apply {
+													text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+												}
 											}
 										}
-									}
-									svc.comment?.let {
-										(it != "") && it.let{
-											item.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+										svc.comment?.let {
+											(it != "") && it.let{
+												this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+											}
 										}
+										itemByServiceId[svc.id!!] = this
+										headingsAndItemsAndTexts.add(this)
 									}
-									itemByServiceId[svc.id!!] = item
-									headingsAndItemsAndTexts.add(item)
 								}
 							}
 						}
@@ -575,7 +587,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			ids.add(idKmehr(itemIndex))
 			ids.add(localIdKmehrElement(itemIndex, config))
 			cds.add(cdItem("gmdmanager"))
-			contents.add(ContentType().apply { hcparty = createPartyWithAddresses(hcp, emptyList()) })
+			contents.add(ContentType().apply { hcparty = createParty(hcp) })
 			beginmoment = makeMomentType(period.startDate, precision = ChronoUnit.DAYS)
 			recorddatetime = makeXmlGregorianCalendar(period.startDate) // should be the modification date, but it's not present
 		}.let { if (it.contents.first().hcparty.ids.filter { it.s == IDHCPARTYschemes.ID_HCPARTY }.size == 1) it else null }
@@ -671,18 +683,20 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					}
 			)
 			val itemtype = eds.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "healthcareelement"
-			val item = createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")
-			if(isHeANewVersionOf(eds)) {
-				item.lnks.add(
-						LnkType().apply {
-							type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(eds.healthElementId)
-						}
-				)
+			createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")?.let {
+				if(isHeANewVersionOf(eds)) {
+					it.lnks.add(
+							LnkType().apply {
+								type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(eds.healthElementId)
+							}
+					)
+				}
+				if(!(config.exportAsPMF && isHeANewVersionOf(eds))) { // no versioning in PMF
+					trn.headingsAndItemsAndTexts.add(it)
+				}
+				mutItemIndex++
+
 			}
-            if(!(config.exportAsPMF && isHeANewVersionOf(eds))) { // no versioning in PMF
-				trn.headingsAndItemsAndTexts.add(item)
-			}
-			mutItemIndex++
 		} catch (e: Exception) {
 			log.error("Unexpected error", e)
 		}
@@ -914,7 +928,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, comment: String?, decryptor: AsyncDecrypt?, config: Config): FolderType {
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "sumehr" })
-			author = AuthorType().apply { hcparties.add(createPartyWithAddresses(sender, emptyList())) }
+			author = AuthorType().apply { hcparties.add(createParty(sender)) }
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
 			ids.add(IDKMEHR().apply {
 				s = IDKMEHRschemes.LOCAL
@@ -965,7 +979,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				if (null == m.closingDate) {
 					m.closingDate = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)
 				}
-				val item = createItemWithContent(m, itemIndex, "medication", m.content.entries.map {
+				createItemWithContent(m, itemIndex, "medication", m.content.entries.map {
 					if ((it.value.booleanValue ?: false || it.value.instantValue != null || it.value.numberValue != null) && it.value.stringValue?.length ?: 0 == 0) {
 						it.value.stringValue = m.label
 					}
@@ -977,15 +991,16 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					it.value.instantValue = null
 
 					makeContent(it.key, it.value)
-				}.filterNotNull(), "MF-ID")
-				if (item.contents?.size ?: 0 == 0) {
-					return mutItemIndex
+				}.filterNotNull(), "MF-ID")?.let {
+					if (it.contents?.size ?: 0 == 0) {
+						return mutItemIndex
+					}
+					val medicationEntry = m.content.entries.find { null != it.value.medicationValue }
+					if (medicationEntry != null) {
+						fillMedicationItem(m, it, medicationEntry.key)
+					}
+					mutItemIndex++
 				}
-				val medicationEntry = m.content.entries.find { null != it.value.medicationValue }
-				if (medicationEntry != null) {
-					fillMedicationItem(m, item, medicationEntry.key)
-				}
-				mutItemIndex++
 			}
 		} catch (e: RuntimeException) {
 			log.error("Unexpected error", e)

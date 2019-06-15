@@ -33,16 +33,21 @@ import javax.xml.bind.annotation.XmlType;
 public enum CDTIMEUNITschemes {
 
     @XmlEnumValue("CD-TIMEUNIT")
-    CD_TIMEUNIT("CD-TIMEUNIT"),
-    LOCAL("LOCAL");
-    private final String value;
-
-    CDTIMEUNITschemes(String v) {
+    CD_TIMEUNIT("CD-TIMEUNIT", "2.1"),
+    LOCAL("LOCAL", "1.0");
+    private final String value; //
+    private final String version;
+    CDTIMEUNITschemes(String v, String vs) {
         value = v;
+        version = vs;
     }
 
     public String value() {
         return value;
+    } //
+
+    public String version() {
+        return version;
     }
 
     public static CDTIMEUNITschemes fromValue(String v) {

@@ -37,7 +37,7 @@ class CompoundprescriptionTypeTest {
                         this.getHeadingsAndItemsAndTexts().add(ItemType().apply {
                             this.getContents().add(ContentType().apply {
                                 compoundprescription = CompoundprescriptionType().apply {
-                                    this.getContent().add(TextType().apply { value = "Hello" } /*ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { value = "Hello" })*/)
+                                    this.getContent().add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { value = "Hello" }))
                                 }
                             })
                         })
