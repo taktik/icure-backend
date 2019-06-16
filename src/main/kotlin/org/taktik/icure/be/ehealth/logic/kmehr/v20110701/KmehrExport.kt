@@ -260,8 +260,8 @@ open class KmehrExport {
         return addresses?.filter { it.addressType != null }?.flatMapTo(ArrayList<TelecomType>(), { a ->
             a.telecoms?.filter {it.telecomNumber?.length?:0>0}?.map {
                 TelecomType().apply {
-                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_ADDRESS; sv = "1.0"; value = a.addressType!!.name })
-                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_TELECOM; sv = "1.0"; value = it.telecomType!!.name })
+                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_ADDRESS; sv = "1.0"; value = a.addressType?.name ?: "home"}) //not sure about fallback value
+                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_TELECOM; sv = "1.0"; value = it.telecomType?.name ?: "phone" }) //not sure about fallback value
                     telecomnumber = it.telecomNumber
                 }
             } ?: emptyList()

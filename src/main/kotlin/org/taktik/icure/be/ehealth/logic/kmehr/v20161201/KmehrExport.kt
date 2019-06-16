@@ -92,17 +92,24 @@ open class KmehrExport {
 
     fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
         return HcpartyType().apply {
-            m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
-            m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
+            if(m.nihii?: "" != "") {
+                m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
+            }
+            if(m.ssin?: "" != "") {
+                m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin })}
+            }
             cds?.let {this.cds.addAll(it)}
 			this.cds.addAll(
-				if (m.specialityCodes?.size ?: 0 > 0)
-					m.specialityCodes.map { CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value = it.code } }
-				else
+				if (m.specialityCodes?.size ?: 0 > 0) {
+                    m.specialityCodes.map { CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value = it.code } }
+                } else if (m.speciality?: "" != ""){
+                    listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value = m.speciality })
+                } else
 					listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value = "persphysician" }))
 
             firstname = m.firstName
             familyname = m.lastName
+            name = m.name
             addresses.addAll(makeAddresses(m.addresses))
             telecoms.addAll(makeTelecoms(m.addresses))
         }
@@ -126,7 +133,9 @@ open class KmehrExport {
             usuallanguage= p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
-            p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s= CDCOUNTRYschemes.CD_COUNTRY; sv= "1.0"; value = nat}}}
+            if(p.nationality?: "" != "") {
+                p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s = CDCOUNTRYschemes.CD_COUNTRY; sv = "1.0"; value = nat } } }
+            }
         }
     }
 
@@ -262,8 +271,8 @@ open class KmehrExport {
         return addresses?.filter { it.addressType != null }?.flatMapTo(ArrayList<TelecomType>(), { a ->
             a.telecoms?.filter {it.telecomNumber?.length?:0>0}?.map {
                 TelecomType().apply {
-                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_ADDRESS; sv = "1.0"; value = a.addressType!!.name })
-                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_TELECOM; sv = "1.0"; value = it.telecomType!!.name })
+                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_ADDRESS; sv = "1.0"; value = a.addressType?.name ?: "home"}) //not sure about fallback value
+                    cds.add(CDTELECOM().apply { s = CDTELECOMschemes.CD_TELECOM; sv = "1.0"; value = it.telecomType?.name ?: "phone"}) //not sure about fallback value
                     telecomnumber = it.telecomNumber
                 }
             } ?: emptyList()
