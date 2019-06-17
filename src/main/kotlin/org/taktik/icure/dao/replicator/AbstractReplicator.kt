@@ -66,11 +66,13 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
         }
     }
 
+    @ExperimentalCoroutinesApi
     @FlowPreview
     private suspend fun observeChanges(group: Group, dbClient: Client) {
         val changes = dbClient.subscribeForChanges(entityType)
         // Replicate
         changes.collect { change ->
+            log.debug("Detected new change : ${change.id}")
             val entityIds = listOf(change.doc.id as String)
             replicate(group, entityIds)
         }
