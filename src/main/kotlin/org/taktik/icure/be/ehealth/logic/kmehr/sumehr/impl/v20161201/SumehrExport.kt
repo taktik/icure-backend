@@ -513,7 +513,16 @@ class SumehrExport : KmehrExport() {
 				familyrisk.code = "healthcareelement"
 			}
 
-			listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
+			// healthcareelement not allowed anymore in sumehr V2. Use "problem" instead.
+			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v11
+			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v20
+			val healthcareelement = eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthcareelement"}
+			if(healthcareelement != null){
+				healthcareelement.code = "problem"
+				healthcareelement.version = "1.11"
+			}
+
+			listOf("problem", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
 				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
 					if(edType == "healthcareelement"){
 						// Recommended codifications: IBUI, ICPC-2, ICD-10.
