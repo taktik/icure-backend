@@ -63,26 +63,26 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2
 			return SumehrStatus.outdated
 		}
 
-		return if (servicesByIds.values.sortedWith(comparator).last().comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys)) SumehrStatus.uptodate else SumehrStatus.outdated
+		return if (servicesByIds.values.sortedWith(comparator).last().comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys, listOf())) SumehrStatus.uptodate else SumehrStatus.outdated
     }
 
-	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>) =
-		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys)
+	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>) =
+		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys, excludedIds)
 
     override fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
         return sumehrImport.importSumehr(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
+    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 
-	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, decryptor)
+	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?) = sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 
 	@Throws(IOException::class)
-    override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) {
+    override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
         val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
 
         val sos = BufferedOutputStream(FileOutputStream(temp))
-        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, decryptor)
+        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
         sos.close()
 
         try {
@@ -96,13 +96,13 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2
 
     }
 
-	override fun getAllServices(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServices(hcPartyId, sfks, decryptor)
+	override fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?)
+        = sumehrExport.getAllServices(hcPartyId, sfks, excludedIds, decryptor)
 
-	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, decryptor)
+	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?)
+        = sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, excludedIds, decryptor)
 
-	override fun getHealthElements(hcPartyId: String, sfks: List<String>): List<HealthElement> {
-        return sumehrExport.getHealthElements(hcPartyId, sfks)
+	override fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
+        return sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds)
     }
 }
