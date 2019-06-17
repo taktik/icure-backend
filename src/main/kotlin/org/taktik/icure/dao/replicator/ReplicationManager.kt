@@ -74,7 +74,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     @PostConstruct
     fun init() {
         GlobalScope.launch {
-            val lockName = javaClass.canonicalName + ".lock"
+            val lockName = "${ReplicationManager::class.java.canonicalName}.lock"
             log.debug("Using distributed lock $lockName")
             val lock = hazelcast.getLock(lockName)
             // This should block forever
@@ -116,7 +116,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         }
     }
 
-    @FlowPreview
+    @ExperimentalCoroutinesApi
     private suspend fun subscribeForNewGroups() {
         log.info("Starting group observer")
         val client = ClientImpl(httpClient, URI.of(couchDbUrl).append("$couchDbPrefix-config"), couchDbUsername, couchDbPassword)
