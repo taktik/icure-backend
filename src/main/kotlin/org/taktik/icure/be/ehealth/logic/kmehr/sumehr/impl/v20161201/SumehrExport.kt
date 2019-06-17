@@ -525,10 +525,10 @@ class SumehrExport : KmehrExport() {
 				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
 					if(edType == "problem"){
 						// Recommended codifications: IBUI, ICPC-2, ICD-10.
-						eds.codes = eds.codes.filter { c -> c.type == "ICPC" || c.type == "ICD" || c.type == "CD-CLINICAL" || c.type == "BE-THESAURUS" }.toSet()
+						eds.codes?.removeIf { c -> c.type != "ICPC" && c.type != "ICD" && c.type != "CD-CLINICAL" && c.type != "BE-THESAURUS" }
 					}
-					if(!eds.codes.isEmpty()){
-						createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+					if(eds.codes.isNotEmpty()){
+						createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
 							it.contents.add(ContentType().apply {
 								eds.codes?.forEach { c ->
 									try{
@@ -543,7 +543,7 @@ class SumehrExport : KmehrExport() {
 									}
 								}
 							})
-						items.add(it)
+							items.add(it)
 						}
 					}else{
 						log.debug("Health element skipped because of missing codification. id=" + eds.id )
