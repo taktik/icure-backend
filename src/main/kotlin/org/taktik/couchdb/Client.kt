@@ -142,7 +142,7 @@ class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
                  private val password: String,
-                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()) : Client {
+                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).build()) : Client {
 
     private val log = LoggerFactory.getLogger(javaClass.name)
     // Create a copy and set to prototype to avoid unwanted mutation

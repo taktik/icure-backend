@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 @FlowPreview
+@ExperimentalCoroutinesApi
 class CouchDbClientTests {
 
     private val databaseHost = System.getProperty("icure.test.couchdb.server.url")

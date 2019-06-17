@@ -203,7 +203,7 @@ fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
                     lastDelimiterPosition = position
                     if (buffers.isNotEmpty()) {
                         emit(buffers)
-                        buffers = LinkedList<CharBuffer>()
+                        buffers = LinkedList()
                     }
                 }
             }
