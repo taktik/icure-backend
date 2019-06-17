@@ -167,8 +167,12 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
             val launchedReplicators: MutableMap<Replicator, ReplicatorStatus> = replicatorsToLaunch.fold(HashMap(), { acc, replicator ->
                 acc.also {
                     log.info("Starting $replicator for group ${group.id}")
-                    val replicationJob = replicator.startReplication(group)
-                    it[replicator] = ReplicatorStatus(replicationJob)
+                    try {
+                        val replicationJob = replicator.startReplication(group)
+                        it[replicator] = ReplicatorStatus(replicationJob)
+                    } catch (e: Exception) {
+                        log.error("Error while starting replicator $replicator for group ${group.id}", e)
+                    }
                 }
             })
             groupReplicationStatus.replicatorStatuses.putAll(launchedReplicators)

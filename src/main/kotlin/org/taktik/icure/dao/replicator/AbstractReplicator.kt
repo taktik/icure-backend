@@ -50,6 +50,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
     protected abstract suspend fun replicate(group: Group, entityIds: List<String>): List<String>
 
     @FlowPreview
+    @ExperimentalCoroutinesApi
     override suspend fun startReplication(group: Group): Job {
         val groupDb = GroupDBUrl(couchDbUrl)
         val dbURI = URI.of(groupDb.getInstanceUrl(group)).append(groupDb.getDbName(group))
