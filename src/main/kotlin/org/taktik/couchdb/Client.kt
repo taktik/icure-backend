@@ -5,10 +5,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types.newParameterizedType
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import okio.Buffer
 import org.eclipse.jetty.client.HttpClient
@@ -75,41 +72,41 @@ data class BulkUpdateResult(val id: String, val rev: String?, val error: String?
 
 
 // Convenience inline methods with reified type params
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified K, reified V, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, V, T>> {
     require(query.isIncludeDocs) { "Query must have includeDocs=true" }
     return queryView(query, K::class.java, V::class.java, T::class.java).filterIsInstance()
 }
 
 // Convenience inline methods with reified type params
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified K, reified V> Client.queryView(query: ViewQuery): Flow<ViewRowNoDoc<K, V>> {
     require(!query.isIncludeDocs) { "Query must have includeDocs=false" }
     return queryView(query, K::class.java, V::class.java, Nothing::class.java).filterIsInstance()
 }
 
 // Convenience inline methods with reified type params
-@FlowPreview
+@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.get(id: String): T? = this.get(id, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.get(ids: List<String>): Flow<T> = this.get(ids, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.create(entity: T): T = this.create(entity, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.update(entity: T): T = this.update(entity, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.bulkUpdate(entities: List<T>): Flow<BulkUpdateResult> = this.bulkUpdate(entities, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.subscribeForChanges(since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>> =
         this.subscribeForChanges(T::class.java, since, initialBackOffDelay, backOffFactor, maxDelay)
 
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 interface Client {
     // Check if db exists
     suspend fun exists(): Boolean
@@ -140,7 +137,7 @@ private const val TOTAL_ROWS_FIELD_NAME = "total_rows"
 private const val OFFSET_FIELD_NAME = "offset"
 private const val UPDATE_SEQUENCE_NAME = "update_seq"
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
@@ -169,6 +166,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private data class AllDocsViewValue(val rev: String)
 
+    @FlowPreview
     override fun <T : CouchDbDocument> get(ids: List<String>, clazz: Class<T>): Flow<T> {
         val viewQuery = ViewQuery()
                 .allDocs()
@@ -228,6 +226,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }.rev
     }
 
+    @FlowPreview
     override fun <T : CouchDbDocument> bulkUpdate(entities: List<T>, clazz: Class<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
             val requestType = newParameterizedType(BulkUpdateRequest::class.java, clazz)
@@ -256,6 +255,8 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent> = flow {
         coroutineScope {
             // TODO Not sure why this is needed
@@ -377,6 +378,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
     override fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String, initialBackOffDelay: Long, backOffFactor: Int, maxDelay: Long): Flow<Change<T>> = flow {
         var lastSeq = since
         var delayMillis = initialBackOffDelay
@@ -401,6 +403,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
     private fun <T : CouchDbDocument> internalSubscribeForChanges(clazz: Class<T>, since: String): Flow<Change<T>> = flow {
         val changesURI = dbURI.append("_changes")
                 .param("feed", "continuous")
