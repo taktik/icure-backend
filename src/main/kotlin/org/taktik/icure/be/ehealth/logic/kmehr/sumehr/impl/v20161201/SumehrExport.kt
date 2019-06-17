@@ -508,23 +508,22 @@ class SumehrExport : KmehrExport() {
 			}
 
 			// familyrisk not allowed in Sumehr
-			val familyrisk = eds.tags?.find {it.type == "CD-ITEM" && it.code == "familyrisk"}
-			if(familyrisk != null){
-				familyrisk.code = "healthcareelement"
+			eds.tags?.find {it.type == "CD-ITEM" && it.code == "familyrisk"}?.apply {
+				code = "healthcareelement"
 			}
 
 			// healthcareelement not allowed anymore in sumehr V2. Use "problem" instead.
 			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v11
 			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v20
-			val healthcareelement = eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthcareelement"}
-			if(healthcareelement != null){
-				healthcareelement.code = "problem"
-				healthcareelement.version = "1.11"
+			eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthcareelement"}?.apply {
+				code = "problem"
+				version = "1.11"
 			}
+
 
 			listOf("problem", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
 				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
-					if(edType == "healthcareelement"){
+					if(edType == "problem"){
 						// Recommended codifications: IBUI, ICPC-2, ICD-10.
 						eds.codes = eds.codes.filter { c -> c.type == "ICPC" || c.type == "ICD" || c.type == "CD-CLINICAL" || c.type == "BE-THESAURUS" }.toSet()
 					}
