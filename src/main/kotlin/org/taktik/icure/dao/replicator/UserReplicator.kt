@@ -23,7 +23,6 @@ class UserReplicator(sslContextFactory: SslContextFactory, private val userDAO: 
     }
 
     override suspend fun replicate(group: Group, entityIds: List<String>): List<String> {
-        log.debug("Replicating $entityIds")
         return entityIds.mapNotNull { userId ->
             withContext(IO) {
                 val from = userDAO.getUserOnUserDb(userId, group.id, group.dbInstanceUrl(), true)

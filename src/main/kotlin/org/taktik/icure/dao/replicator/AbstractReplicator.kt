@@ -72,8 +72,8 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
         val changes = dbClient.subscribeForChanges(entityType)
         // Replicate
         changes.collect { change ->
-            log.debug("Detected new change : ${change.id}")
-            val entityIds = listOf(change.doc.id as String)
+            log.debug("Detected new object : ${change.id} in group ${group.id}")
+            val entityIds = listOf(change.doc.id)
             replicate(group, entityIds)
         }
     }
@@ -82,7 +82,9 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
         val startTime = System.currentTimeMillis()
         try {
             val allIds = this.getAllIds(group.id, group.dbInstanceUrl())
+            log.debug("Replicating ${allIds.size} existing objects in group ${group.id}")
             replicate(group, allIds)
+            log.debug("Done replicating ${allIds.size} existing objects in group ${group.id}")
         } catch (e: Exception) {
             log.error("Exception during initial replication : ${e.localizedMessage} for group ${group.id} (${group.name})", e)
             return false
@@ -90,7 +92,7 @@ abstract class AbstractReplicator<T : StoredDocument>(private val sslContextFact
 
         val endTime = System.currentTimeMillis()
         val duration = endTime - startTime
-        log.info("Initial replication completed for {} in {} ms", group.id, duration)
+        log.info("Initial replication completed for group ${group.id} in $duration ms")
         return true
     }
 }
