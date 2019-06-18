@@ -396,24 +396,26 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	@NotNull
-	private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
-		healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
-			val phcp = pat.patientHealthCareParties.find {it.healthcarePartyId == hcp.id}
-			try {
-				phcp.let {
-					val items = getAssessment(trn).headingsAndItemsAndTexts
-					items.add(ItemType().apply {
-						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
-						cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTHCPARTY.value()})
-						contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
-					})
-				}
-			} catch (e : RuntimeException) {
-				log.error("Unexpected error", e)
-			}
-		}
-	}
+    @NotNull
+    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
+        healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
+            if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
+                val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
+                try {
+                    phcp.let {
+                        val items = getAssessment(trn).headingsAndItemsAndTexts
+                        items.add(ItemType().apply {
+                            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTHCPARTY.value() })
+                            contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
+                        })
+                    }
+                } catch (e: RuntimeException) {
+                    log.error("Unexpected error", e)
+                }
+            }
+        }
+    }
 
 
 	private fun addGmdmanager(pat: Patient, trn: TransactionType) {
