@@ -270,8 +270,6 @@ class CouchDbClientTests {
         assertEquals(revisions, fetched.map { it.rev })
     }
 
-
-
 //    @Test
 //    fun testClientQueryView() = runBlocking {
 //        val viewQuery = ViewQuery().designDocId("Group").viewName("all").includeDocs(true)
