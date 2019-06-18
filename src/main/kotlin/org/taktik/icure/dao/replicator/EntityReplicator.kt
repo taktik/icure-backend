@@ -84,11 +84,13 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
         prepareReplication(client, group)
         doReplicate(client, group)
         return GlobalScope.launch {
-            launch { observeChanges(client, group) }
-            launch {
-                while (true) {
-                    delay(replicateEveryMillis)
-                    doReplicate(client, group)
+            coroutineScope {
+                launch { observeChanges(client, group) }
+                launch {
+                    while (true) {
+                        delay(replicateEveryMillis)
+                        doReplicate(client, group)
+                    }
                 }
             }
         }
