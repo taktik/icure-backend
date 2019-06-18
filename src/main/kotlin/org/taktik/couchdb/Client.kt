@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
-import org.taktik.jetty.getResponseBytesFlow
+import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
@@ -63,7 +63,7 @@ abstract class ViewRow<out K, out V, out T> : ViewQueryResultEvent() {
 data class ViewRowWithDoc<K, V, T>(override val id: String, override val key: K?, override val value: V?, override val doc: T) : ViewRow<K, V, T>()
 data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, override val value: V?) : ViewRow<K, V, Nothing>() {
     override val doc: Nothing?
-        get() = throw IllegalStateException("Row has no doc")
+        get() = error("Row has no doc")
 }
 
 private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
@@ -239,7 +239,7 @@ class ClientImpl(private val httpClient: HttpClient,
             val request = newRequest(uri, requestAdapter.toJson(updateRequest))
 
             log.debug("Executing $request")
-            val jsonEvents = request.getResponseBytesFlow().toJsonEvents().produceIn(this)
+            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
             check(jsonEvents.receive() == StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
                 val nextValue = jsonEvents.nextValue()
@@ -259,17 +259,18 @@ class ClientImpl(private val httpClient: HttpClient,
     @ExperimentalCoroutinesApi
     override fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent> = flow {
         coroutineScope {
-            // TODO Not sure why this is needed
-            val design = if (query.designDocId == null) "" else "/_design"
-            query.dbPath("$dbURI$design")
+            query.dbPath(dbURI.toString())
             val request = buildRequest(query)
             log.debug("Executing $request")
-            val jsonEvents = request.getResponseBytesFlow().toJsonEvents().produceIn(this)
+            /** Execute the request and get the response as a Flow of [JsonEvent] **/
+            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
 
+            // Get adapters to deserialize key, value and doc
             val keyAdapter = moshi.adapter(keyType)
             val valueAdapter = moshi.adapter(valueType)
             val docAdapter = if (query.isIncludeDocs) moshi.adapter(docType) else null
 
+            // Response should be a Json object
             check(jsonEvents.receive() == StartObject) { "Expected data to start with an Object" }
             resultLoop@ while (true) { // Loop through result object fields
                 when (val nextEvent = jsonEvents.receive()) {
@@ -277,6 +278,7 @@ class ClientImpl(private val httpClient: HttpClient,
                     is FieldName -> {
                         when (nextEvent.name) {
                             ROWS_FIELD_NAME -> { // We found the "rows" field
+                                // Rows field should be an array
                                 check(jsonEvents.receive() == StartArray) { "Expected rows field to be an array" }
                                 // At this point we are in the rows array, and StartArray event has been consumed
                                 // We iterate over the rows until we encounter the EndArray event
@@ -285,7 +287,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                         StartObject -> {
                                         } // Start of a new row
                                         EndArray -> break@rowsLoop  // End of rows array
-                                        else -> throw IllegalStateException("Expected Start of new row or end of row array")
+                                        else -> error("Expected Start of new row or end of row array")
                                     }
                                     // At this point we are in a row object, and StartObject event has been consumed.
                                     // We iterate over the field names and construct the ViewRowWithDoc or ViewRowNoDoc Object,
@@ -302,7 +304,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     // Parse doc id
                                                     ID_FIELD_NAME -> {
                                                         id = (jsonEvents.receive() as? StringValue)?.value
-                                                                ?: throw IllegalStateException("id field should be a string")
+                                                                ?: error("id field should be a string")
                                                     }
                                                     // Parse key
                                                     KEY_FIELD_NAME -> {
@@ -327,6 +329,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                         }
 
                                                     }
+                                                    // Error field
                                                     ERROR_FIELD_NAME -> {
                                                         val error = jsonEvents.nextSingleValueAs<StringValue>()
                                                         val errorMessage = error.value
@@ -339,7 +342,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     else -> jsonEvents.skipValue()
                                                 }
                                             }
-                                            else -> throw IllegalStateException("Expected EndObject or FieldName")
+                                            else -> error("Expected EndObject or FieldName")
                                         }
                                     }
                                     check(id != null) { "Doc Id shouldn't be null" }
@@ -366,12 +369,12 @@ class ClientImpl(private val httpClient: HttpClient,
                                 emit(UpdateSequence(offsetValue.toLong()))
                             }
                             ERROR_FIELD_NAME -> {
-                                throw IllegalStateException("Error executing request : ${jsonEvents.nextSingleValueAs<StringValue>().value}")
+                                error("Error executing request : ${jsonEvents.nextSingleValueAs<StringValue>().value}")
                             }
                             else -> jsonEvents.skipValue()
                         }
                     }
-                    else -> throw IllegalStateException("Expected EndObject or FieldName, found $nextEvent")
+                    else -> error("Expected EndObject or FieldName, found $nextEvent")
                 }
             }
             jsonEvents.cancel()
@@ -433,7 +436,7 @@ class ClientImpl(private val httpClient: HttpClient,
                 if (clazz.isAssignableFrom(changeClass)) {
                     val adapter = moshi.adapter(changeClass)
                     @Suppress("UNCHECKED_CAST")
-                    // Parse as actuel Change object with the correct class
+                    // Parse as actual Change object with the correct class
                     emit(Change(change.seq, change.id, change.changes, adapter.fromJsonValue(change.doc) as T, change.deleted))
                 }
             }

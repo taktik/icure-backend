@@ -66,7 +66,6 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
 
     protected abstract suspend fun replicate(client:Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev>
 
-
     private fun client(group: Group):Client {
         val groupDb = GroupDBUrl(couchDbUrl)
         val dbURI = URI.of(groupDb.getInstanceUrl(group)).append(groupDb.getDbName(group))

@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import org.eclipse.jetty.client.api.Request
 import org.eclipse.jetty.http.HttpHeader
+import org.taktik.couchdb.parser.JsonEvent
+import org.taktik.couchdb.parser.toJsonEvents
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
@@ -60,6 +62,12 @@ fun Request.getResponseBytesFlow(buffer: Int = Channel.BUFFERED): Flow<ByteBuffe
     }
     awaitClose()
 }.buffer(buffer)
+
+/**
+    Convenience method. Execute this Jetty [Request] request and get the response a [Flow] of [JsonEvent].
+ */
+@ExperimentalCoroutinesApi
+fun Request.getResponseJsonEvents(buffer: Int = Channel.BUFFERED): Flow<JsonEvent> = this.getResponseBytesFlow(buffer).toJsonEvents()
 
 /**
     Execute this Jetty [Request] and get the response as a [Flow] of [CharBuffer].
@@ -125,7 +133,7 @@ fun Request.getResponseTextFlow(charset: Charset = StandardCharsets.UTF_8, buffe
                 tryOffer(buf)
             }
             else -> {
-                throw IllegalStateException("Error decoding response : $coderResult")
+                error("Error decoding response : $coderResult")
             }
         }
         // Perform final flushing
