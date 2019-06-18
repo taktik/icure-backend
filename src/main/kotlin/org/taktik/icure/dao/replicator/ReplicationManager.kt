@@ -78,10 +78,25 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
             log.debug("Using distributed lock $lockName")
             val lock = hazelcast.getLock(lockName)
             // This should block forever
-            doPeriodicallyOnOneReplicaForever(lock, globalCheckIntervalMillis, delayAfterErrorMillis) {
+            doPeriodicallyOnOneReplicaForever(lock, globalCheckIntervalMillis, delayAfterErrorMillis, {
                 ensureGroupObserverStarted()
                 ensureReplicationStartedForAllGroups()
-            }
+            }, {
+                // On lock lost
+                // Cancel all active jobs
+                val cause = CancellationException("Replication lock lost")
+                groupObserver?.cancel(cause)
+                groupReplicationStatuses.values
+                        .flatMap { groupReplicationStatus ->
+                            groupReplicationStatus.replicatorStatuses.values.map { it.job }
+                        }
+                        .onEach {
+                            it.cancel(cause)
+                        }
+                        .plus(groupObserver)
+                        .filterNotNull()
+                        .joinAll()
+            })
         }
     }
 

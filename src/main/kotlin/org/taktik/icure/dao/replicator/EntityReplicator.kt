@@ -31,8 +31,8 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     @Value("\${icure.couchdb.url}")
     protected lateinit var couchDbUrl: String
 
-    private data class SyncKey(val groupId:String, val id:String)
-    protected data class IdAndRev(val id:String, val rev:String)
+    private data class SyncKey(val groupId: String, val id: String)
+    protected data class IdAndRev(val id: String, val rev: String)
 
     private val syncStatus: ConcurrentMap<SyncKey, String> = ConcurrentHashMap()
 
@@ -55,7 +55,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
 
     protected abstract val entityType: Class<T>
 
-    protected fun getAllIdsAndRevs(client:Client): Flow<IdAndRev> {
+    private fun getAllIdsAndRevs(client:Client): Flow<IdAndRev> {
         val viewQuery = ViewQuery().designDocId(NameConventions.designDocName(entityType)).viewName("all").includeDocs(false)
         return client.queryView<String,String>(viewQuery).map {
             IdAndRev(it.id, checkNotNull(it.value))

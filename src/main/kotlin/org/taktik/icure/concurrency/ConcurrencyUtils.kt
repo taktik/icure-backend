@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
     If there is any exception thrown by [block], it is caught and logged, but the
     loop continues.
  */
-suspend fun doPeriodicallyOnOneReplicaForever(lock: ILock, intervalMillis: Long, delayAfterErrorMillis: Long, block: suspend () -> Unit) {
+suspend fun doPeriodicallyOnOneReplicaForever(lock: ILock, intervalMillis: Long, delayAfterErrorMillis: Long, block: suspend () -> Unit, onLockLost: suspend () -> Unit = {}) {
     val log = LoggerFactory.getLogger(lock.name)
     while (true) {
         try {
@@ -34,6 +34,7 @@ suspend fun doPeriodicallyOnOneReplicaForever(lock: ILock, intervalMillis: Long,
                 delay(delayAfterErrorMillis)
             }
         } catch (e: Throwable) {
+            onLockLost()
             log.warn("Uncaught exception", e)
             delay(delayAfterErrorMillis)
         }
