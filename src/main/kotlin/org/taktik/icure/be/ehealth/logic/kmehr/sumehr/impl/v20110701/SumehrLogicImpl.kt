@@ -45,7 +45,7 @@ import java.io.InputStream
 @org.springframework.stereotype.Service("sumehrLogicV1")
 class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV1") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV1") val sumehrImport: SumehrImport) : SumehrLogic {
 
-    override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus {
+    override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
         patientSecretForeignKeys.forEach { k -> sumehrServiceIds.addAll(contactLogic!!.findServicesByTag(hcPartyId, k, "CD-TRANSACTION", "sumehr", null, null)) }
 
@@ -62,7 +62,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV1
 			return SumehrStatus.outdated
 		}
 
-		return if (servicesByIds.values.sortedWith(comparator).last().comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys, listOf())) SumehrStatus.uptodate else SumehrStatus.outdated
+		return if (servicesByIds.values.sortedWith(comparator).last().comment == getSumehrMd5(hcPartyId, patient, patientSecretForeignKeys, excludedIds)) SumehrStatus.uptodate else SumehrStatus.outdated
     }
 
 	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>) =

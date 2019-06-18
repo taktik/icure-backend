@@ -93,15 +93,15 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
 	@ApiOperation(value = "Check sumehr signature", response = ContentDto::class, httpMethod = "GET", notes = "")
 	@GET
 	@Path("/sumehr/{patientId}/md5")
-    fun getSumehrMd5(@PathParam("patientId") patientId: String, @QueryParam("hcPartyId") hcPartyId: String, @QueryParam("secretFKeys") secretFKeys: String): Response {
-        return ResponseUtils.ok(ContentDto.fromStringValue(sumehrLogicV1.getSumehrMd5(hcPartyId, patientLogic.getPatient(patientId), Arrays.asList(*secretFKeys.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()), listOf())))
+    fun getSumehrMd5(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
+        return ResponseUtils.ok(ContentDto.fromStringValue(sumehrLogicV1.getSumehrMd5(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds)))
     }
 
     @ApiOperation(value = "Get sumehr validity", response = String::class, httpMethod = "GET", notes = "")
     @GET
     @Path("/sumehr/{patientId}/valid")
-    fun isSumehrValid(@PathParam("patientId") patientId: String, @QueryParam("hcPartyId") hcPartyId: String, @QueryParam("secretFKeys") secretFKeys: String): Response {
-        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV1.isSumehrValid(hcPartyId, patientLogic.getPatient(patientId), Arrays.asList(*secretFKeys.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())).name)))
+    fun isSumehrValid(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
+        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV1.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds).name)))
     }
 
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
@@ -135,15 +135,15 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
     @ApiOperation(value = "Check sumehr signature", response = ContentDto::class, httpMethod = "GET", notes = "")
     @GET
     @Path("/sumehrv2/{patientId}/md5")
-    fun getSumehrV2Md5(@PathParam("patientId") patientId: String, @QueryParam("hcPartyId") hcPartyId: String, @QueryParam("secretFKeys") secretFKeys: String): Response {
-        return ResponseUtils.ok(ContentDto.fromStringValue(sumehrLogicV2.getSumehrMd5(hcPartyId, patientLogic.getPatient(patientId), Arrays.asList(*secretFKeys.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()), listOf())))
+    fun getSumehrV2Md5(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
+        return ResponseUtils.ok(ContentDto.fromStringValue(sumehrLogicV2.getSumehrMd5(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds)))
     }
 
     @ApiOperation(value = "Get sumehr validity", response = String::class, httpMethod = "GET", notes = "")
     @GET
     @Path("/sumehrv2/{patientId}/valid")
-    fun isSumehrV2Valid(@PathParam("patientId") patientId: String, @QueryParam("hcPartyId") hcPartyId: String, @QueryParam("secretFKeys") secretFKeys: String): Response {
-        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV2.isSumehrValid(hcPartyId, patientLogic.getPatient(patientId), Arrays.asList(*secretFKeys.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())).name)))
+    fun isSumehrV2Valid(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
+        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV2.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds).name)))
     }
 
     @ApiOperation(value = "Get SMF (Software Medical File) export")
