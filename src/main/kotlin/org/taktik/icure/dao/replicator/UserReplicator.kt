@@ -5,6 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.slf4j.LoggerFactory
@@ -27,7 +28,7 @@ class UserReplicator(sslContextFactory: SslContextFactory, private val userDAO: 
     }
 
     override suspend fun replicate(client: Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev> {
-        return entityIds.map { idAndRev ->
+        return entityIds.onEach { idAndRev ->
             withContext(IO) {
                 val userId = idAndRev.id
                 val from = checkNotNull(client.get<User>(userId))
@@ -59,7 +60,6 @@ class UserReplicator(sslContextFactory: SslContextFactory, private val userDAO: 
 
                     userDAO.saveOnFallback(to)
                 }
-                idAndRev
             }
         }
     }

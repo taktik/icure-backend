@@ -115,10 +115,10 @@ class CouchDbClientTests {
         val limit = 5
         val query = ViewQuery()
                 .designDocId(NameConventions.designDocName(Tarification::class.java))
-                .viewName("by_language_type_label")
+                .viewName("all")
                 .limit(limit)
                 .includeDocs(true)
-        val flow = client.queryViewIncludeDocs<List<*>, Int, Tarification>(query)
+        val flow = client.queryViewIncludeDocs<String, String, Tarification>(query)
         val tarifications = flow.toList()
         assertEquals(limit, tarifications.size)
     }
@@ -128,10 +128,10 @@ class CouchDbClientTests {
         val limit = 5
         val query = ViewQuery()
                 .designDocId(NameConventions.designDocName(Tarification::class.java))
-                .viewName("by_language_type_label")
+                .viewName("all")
                 .limit(limit)
                 .includeDocs(false)
-        val flow = client.queryView<List<*>, Int>(query)
+        val flow = client.queryView<String, String>(query)
         val tarifications = flow.toList()
         assertEquals(limit, tarifications.size)
     }
@@ -141,10 +141,10 @@ class CouchDbClientTests {
         val limit = 5
         val query = ViewQuery()
                 .designDocId(NameConventions.designDocName(Tarification::class.java))
-                .viewName("by_language_type_label")
+                .viewName("all")
                 .limit(limit)
                 .includeDocs(false)
-        val flow = client.queryView(query, List::class.java, Int::class.java, Nothing::class.java)
+        val flow = client.queryView(query, String::class.java, String::class.java, Nothing::class.java)
 
         val events = flow.toList()
         assertEquals(1, events.filterIsInstance<TotalCount>().size)

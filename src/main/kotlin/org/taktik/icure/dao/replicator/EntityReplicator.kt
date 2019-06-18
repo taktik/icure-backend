@@ -90,13 +90,17 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     }
 
     @FlowPreview
-    private suspend fun observeChanges(client:Client, group: Group) {
+    private suspend fun observeChanges(client: Client, group: Group) {
         val changes = client.subscribeForChanges(entityType)
         // Replicate
         changes.collect { change ->
             log.debug("Detected new object : ${change.id} in group ${group.id}")
             val entityIds = listOf(IdAndRev(change.doc.id, change.doc.rev))
             replicate(client, group, entityIds.asFlow())
+                    .onEach {
+                        syncStatus[SyncKey(group.id, it.id)] = it.rev
+                    }
+                    .collect { }
         }
     }
 
