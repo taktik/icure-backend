@@ -62,6 +62,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     private fun getAllIdsAndRevs(client:Client): Flow<IdAndRev> {
         val viewQuery = ViewQuery().designDocId(NameConventions.designDocName(entityType)).viewName("all").includeDocs(false)
         return client.queryView<String,String>(viewQuery).map {
+            // The value of the "all" view should be the document rev
             IdAndRev(it.id, checkNotNull(it.value))
         }
     }
@@ -112,6 +113,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
         val startTime = System.currentTimeMillis()
         try {
             val allIds = this.getAllIdsAndRevs(client)
+            // Only sync outdated docs
             val idsToSync = allIds.filter {
                 val (id, rev) = it
                 syncStatus[SyncKey(group.id, id)] != rev
