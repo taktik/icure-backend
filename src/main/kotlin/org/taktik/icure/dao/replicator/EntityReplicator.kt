@@ -22,6 +22,9 @@ import java.util.concurrent.ConcurrentMap
 abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactory: SslContextFactory) : Replicator {
     private val log = LoggerFactory.getLogger(EntityReplicator::class.java)
 
+    @Value("\${icure.couchdb.replicator.intervalMillis}")
+    protected var replicateEveryMillis: Long = 300_000
+
     @Value("\${icure.couchdb.username}")
     protected var couchDbUsername: String? = null
     @Value("\${icure.couchdb.password}")
@@ -82,8 +85,8 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
             launch { observeChanges(client, group) }
             launch {
                 while (true) {
+                    delay(replicateEveryMillis)
                     doReplicate(client, group)
-                    delay(60000)
                 }
             }
         }
