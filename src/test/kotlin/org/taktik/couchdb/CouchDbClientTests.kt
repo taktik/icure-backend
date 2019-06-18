@@ -6,6 +6,7 @@ import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.ViewQuery
 import org.ektorp.http.URI
+import org.ektorp.impl.NameConventions
 import org.junit.Assert.*
 import org.junit.Test
 import org.taktik.couchdb.parser.*
@@ -104,60 +105,51 @@ class CouchDbClientTests {
     fun testRequestGetJsonEvent() = runBlocking {
         val bytes = httpClient.newRequest("https://jsonplaceholder.typicode.com/posts").getResponseBytesFlow()
         val jsonEvents = bytes.toJsonEvents().toList()
-        assertTrue("Should start with StartArray", jsonEvents.first() == StartArray)
-        assertTrue("jsonEvents[1] == StartObject", jsonEvents[1] == StartObject)
-        assertTrue("Should end with EndArray", jsonEvents.last() == EndArray)
+        assertEquals("Should start with StartArray", StartArray, jsonEvents.first())
+        assertEquals("jsonEvents[1] == StartObject", StartObject, jsonEvents[1])
+        assertEquals("Should end with EndArray", EndArray, jsonEvents.last())
     }
 
     @Test
     fun testClientQueryViewIncludeDocs() = runBlocking {
         val limit = 5
         val query = ViewQuery()
-                .designDocId("Tarification")
+                .designDocId(NameConventions.designDocName(Tarification::class.java))
                 .viewName("by_language_type_label")
                 .limit(limit)
                 .includeDocs(true)
         val flow = client.queryViewIncludeDocs<List<*>, Int, Tarification>(query)
         val tarifications = flow.toList()
-        assertTrue(tarifications.size == limit)
+        assertEquals(limit, tarifications.size)
     }
 
     @Test
     fun testClientQueryViewNoDocs() = runBlocking {
         val limit = 5
         val query = ViewQuery()
-                .designDocId("Tarification")
+                .designDocId(NameConventions.designDocName(Tarification::class.java))
                 .viewName("by_language_type_label")
                 .limit(limit)
                 .includeDocs(false)
         val flow = client.queryView<List<*>, Int>(query)
         val tarifications = flow.toList()
-        assertTrue(tarifications.size == limit)
+        assertEquals(limit, tarifications.size)
     }
 
     @Test
     fun testRawClientQuery() = runBlocking {
         val limit = 5
         val query = ViewQuery()
-                .designDocId("Tarification")
+                .designDocId(NameConventions.designDocName(Tarification::class.java))
                 .viewName("by_language_type_label")
                 .limit(limit)
                 .includeDocs(false)
         val flow = client.queryView(query, List::class.java, Int::class.java, Nothing::class.java)
 
         val events = flow.toList()
-        assertTrue(events.filterIsInstance<TotalCount>().size == 1)
-        assertTrue(events.filterIsInstance<Offset>().size == 1)
-        assertTrue(events.filterIsInstance<ViewRow<*, *, *>>().size == limit)
-    }
-
-    @Test
-    fun testClientGetExisting() = runBlocking {
-        val tarifId = "INAMI-RIZIV|664554|1.0"
-        val tarification = client.get<Tarification>(tarifId)
-        checkNotNull(tarification)
-        assertTrue(tarification.id == tarifId)
-        assertTrue(tarification.code == "664554")
+        assertEquals(1, events.filterIsInstance<TotalCount>().size)
+        assertEquals(1, events.filterIsInstance<Offset>().size)
+        assertEquals(limit, events.filterIsInstance<ViewRow<*, *, *>>().size)
     }
 
     @Test
@@ -168,14 +160,14 @@ class CouchDbClientTests {
     }
 
     @Test
-    fun testClientCreate() = runBlocking {
+    fun testClientCreateAndGet() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
         val toCreate = Tarification("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
         assertNotNull(created.rev)
-        val fetched = checkNotNull(client.get<Tarification>(created.id))
+        val fetched = checkNotNull(client.get<Tarification>(created.id)) {"Tarification was just created, it should exist"}
         assertEquals(fetched.id, created.id)
         assertEquals(fetched.code, created.code)
         assertEquals(fetched.rev, created.rev)
@@ -243,7 +235,7 @@ class CouchDbClientTests {
     fun testClientBulkGet() = runBlocking {
         val limit = 100
         val query = ViewQuery()
-                .designDocId("Tarification")
+                .designDocId(NameConventions.designDocName(Tarification::class.java))
                 .viewName("by_language_type_label")
                 .limit(limit)
                 .includeDocs(true)
