@@ -14,6 +14,7 @@ import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.queryView
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.base.StoredDocument
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
@@ -23,7 +24,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     private val log = LoggerFactory.getLogger(EntityReplicator::class.java)
 
     @Value("\${icure.couchdb.replicator.intervalMillis}")
-    protected var replicateEveryMillis: Long = 300_000
+    protected var replicateEveryMillis: Long = Duration.ofHours(1).toMillis()
 
     @Value("\${icure.couchdb.username}")
     protected var couchDbUsername: String? = null
