@@ -115,7 +115,11 @@ open class KmehrExport {
 		return hcp
 	}
 
-	private fun isNihiiValid(nihii: String) = nihii.length == 11 && ((97 - nihii.substring(0, 6).toLong()) % 97 == nihii.substring(6, 8).toLong())
+	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
+            (
+                    ((97 - nihii.substring(0, 6).toLong()) % 97 == nihii.substring(6, 8).toLong()) ||
+                    ((89 - nihii.substring(0, 6).toLong()) % 89 == nihii.substring(6, 8).toLong())
+            )
 
 	fun makePatient(p : Patient, config: Config): PersonType {
 		val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }

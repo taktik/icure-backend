@@ -29,6 +29,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
@@ -85,13 +86,6 @@ open class KmehrExport {
 
     fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
-    }
-
-    fun createPartyWithAddresses(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf()) : HcpartyType {
-        return createParty(m, cds).apply {
-            addresses.addAll(makeAddresses(m.addresses))
-            telecoms.addAll(makeTelecoms(m.addresses))
-        }
     }
 
     fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
@@ -153,6 +147,7 @@ open class KmehrExport {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
             cds.add(CDITEM().apply {s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = cdItem } )
+			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s = CDITEMschemes.CD_LAB; sv = "1.1"; value = it.code } ) }
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"; sv = "1.0"
@@ -170,15 +165,15 @@ open class KmehrExport {
                     }
                 }
                 //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
+                //regimen = ItemType.Regimen()
+                //frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
                 //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
-                        }
-                    }
+                //svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
+                //            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
+                //                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
+                //                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                //        }
+                //    }
             }
 
 
@@ -189,7 +184,7 @@ open class KmehrExport {
         }
     }
 
-	private fun filterEmptyContent(contents: List<ContentType>) = contents.filterNotNull().filter {
+	private fun filterEmptyContent(contents: List<ContentType>) = contents.filter {
 		it.isBoolean != null || it.cds?.size ?: 0 > 0 || it.bacteriology != null || it.compoundprescription != null ||
 			it.location != null || it.lnks?.size ?: 0 > 0 || it.bacteriology != null || it.ecg != null || it.holter != null ||
 			it.medication != null || it.compoundprescription != null || it.substanceproduct != null || it.medicinalproduct != null ||
@@ -276,7 +271,9 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
-                    compoundprescription = CompoundprescriptionType().apply { this.content.add(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription } ) }
+                    compoundprescription = CompoundprescriptionType().apply {
+                        this.getContent().add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = it }))
+                    }
                 }
                 content.binaryValue?.let {
                     lnks.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.APPLICATION_PDF; value = content.binaryValue })
@@ -420,9 +417,7 @@ open class KmehrExport {
                 }
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
-                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.11"; value="application" })); this.name = "iCure ${ICUREVERSION}" })
-//                    hcparties.add(createParty(listOf(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = "iCure"; sv = ICUREVERSION }),
-//                            listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "iCure ${ICUREVERSION}"))
+                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.11"; value="application" })); this.name = "${config.soft.name} ${config.soft.version}" })
                 }
             }
         }
