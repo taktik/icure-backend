@@ -615,7 +615,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         }
     }
 
-    private ProtocolLine getProtocolLine(String line) {
+    protected ProtocolLine getProtocolLine(String line) {
         try {
             String[] parts = splitLine(line);
             ProtocolLine pl = new ProtocolLine();

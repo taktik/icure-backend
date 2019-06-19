@@ -57,7 +57,33 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
     }
 
+    @Test
+    fun getProtocolLine(){
+        // Empty line
+        val line1 = "L5"
+        val res1 = HealthOneLogicImpl.getProtocolLine(line1)
+        Assert.assertEquals(res1.protocol,null)
+        Assert.assertEquals(res1.code,null)
+        Assert.assertEquals(res1.text,null)
 
+        val line2 = "L5\\\\\\\\\\"
+        val res2 = HealthOneLogicImpl.getProtocolLine(line2)
+        Assert.assertEquals(res2.protocol,"")
+        Assert.assertEquals(res2.code,"")
+        Assert.assertEquals(res2.text,"")
+
+        // Complete line with text in eight position
+        val line3 = "L5\\protocol\\SANG\\\\\\\\\\Text written by the doctor"
+        val res3 = HealthOneLogicImpl.getProtocolLine(line3)
+        Assert.assertEquals(res3.protocol,"protocol")
+        Assert.assertEquals(res3.code,"SANG")
+        Assert.assertEquals(res3.text, "Text written by the doctor")
+
+        // Complete line with text in fourth position
+        val line4 = "L5\\protocol\\SANG\\Text written by the doctor\\"
+        val res4 = HealthOneLogicImpl.getProtocolLine(line4)
+        Assert.assertEquals(res4.text,"Text written by the doctor")
+    }
 
     @Test
     fun getResultsInfosLine(){
