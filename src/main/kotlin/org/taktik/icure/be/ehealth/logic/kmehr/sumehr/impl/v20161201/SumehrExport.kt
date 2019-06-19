@@ -255,7 +255,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
-		return healthElementLogic?.findByHCPartySecretPatientKeys(hcPartyId, sfks)?.filter {
+		return healthElementLogic?.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks)?.filter {
 			!(it.descr.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) || ((it.status ?: 0) and 2 != 0 && it.closingDate != null))
 		}?.filter { s -> !excludedIds.contains(s.id) } ?: emptyList()
 	}

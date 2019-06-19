@@ -38,10 +38,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+
+import static java.util.stream.Collectors.groupingBy;
 
 
 /**
@@ -109,6 +114,16 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	@Override
 	public List<HealthElement> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
 		return healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys);
+	}
+
+	@Override
+	public List<HealthElement> findLatestByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
+		return healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
+				.stream().collect(groupingBy(HealthElement::getHealthElementId))
+				.values().stream().map(value ->
+						value.stream().collect(Collectors.maxBy(Comparator.comparing(HealthElement::getCreated))).get()
+				)
+				.collect(Collectors.toList());
 	}
 
 	@Override
