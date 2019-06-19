@@ -55,6 +55,33 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
     }
 
+
+
+    @Test
+    fun getPatientSSINLine(){
+        // Empty line
+        val line1 = "A5"
+        val res1 = HealthOneLogicImpl.getPatientSSINLine(line1)
+        Assert.assertEquals(res1.protocol,null)
+        Assert.assertEquals(res1.ssin,null)
+        val line2 = "A5"
+        val res2 = HealthOneLogicImpl.getPatientSSINLine(line2)
+        Assert.assertEquals(res2.protocol,null)
+        Assert.assertEquals(res2.ssin,null)
+
+        // SSIN in fourth position
+        val line3 = "A5\\protocol\\\\50010100156\\\\"
+        val res3 = HealthOneLogicImpl.getPatientSSINLine(line3)
+        Assert.assertEquals(res3.protocol,"protocol")
+        Assert.assertEquals(res3.ssin,"50010100156")
+
+        // SSIN in fifth position
+        val line4 = "A5\\protocol\\\\\\50010100156\\"
+        val res4 = HealthOneLogicImpl.getPatientSSINLine(line4)
+        Assert.assertEquals(res4.protocol,"protocol")
+        Assert.assertEquals(res4.ssin,"50010100156")
+    }
+
     @Test
     fun getPatientAddressLine(){
         val line1 = "A3\\protocol\\ Rue factice 8\\1050\\Ixelles\\"
@@ -152,7 +179,7 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res1return[0].sex, gender);
         Assert.assertEquals(res1return[0].protocol, ref);
         //assert.assertEquals(res1return[0].complete, true);
-        Assert.assertEquals(res1return[0].demandDate, 18062019L )
+        //Assert.assertEquals(res1return[0].demandDate, 18062019L )
         Assert.assertEquals(res1return[0].labo, nihii+" "+lastNameDoct+" "+firstNameDoct)
         Assert.assertEquals(res1return[0].services.get(0).content.get("UTF8")?.stringValue, text)
         //assertEquals(res1return[0].services.get(0).valueDate, 18062019L)

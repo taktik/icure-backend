@@ -666,7 +666,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         }
     }
 
-    private PatientSSINLine getPatientSSINLine(String line) {
+    protected PatientSSINLine getPatientSSINLine(String line) {
         try {
             String[] parts = splitLine(line);
             PatientSSINLine psl = new PatientSSINLine();
