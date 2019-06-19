@@ -33,7 +33,7 @@ import java.io.OutputStream
 
 interface SumehrLogic {
     fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>): SumehrStatus
-    fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?)
+    fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?, asJson: Boolean = false)
 	fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?)
     fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?)
     fun getAllServices(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service>

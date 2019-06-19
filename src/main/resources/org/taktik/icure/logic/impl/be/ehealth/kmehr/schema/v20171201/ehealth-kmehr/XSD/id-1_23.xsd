@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Copyright (c) eHealth -->
+<xsd:schema
+  xmlns:DT="http://www.ehealth.fgov.be/standards/kmehr/dt/v1"
+  xmlns="http://www.ehealth.fgov.be/standards/kmehr/id/v1"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.ehealth.fgov.be/standards/kmehr/id/v1"
+  elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.23">
+ <xs:annotation xmlns:xs='http://www.w3.org/2001/XMLSchema' >
+ <xs:appinfo>
+ Implementation-Title: XSD 22. KMEHR
+ Specification-Version: 1.23
+ Implementation-Version: 1.23.0
+ Build-Time: 20171219-1340 
+ </xs:appinfo>
+ </xs:annotation>
+	<xsd:simpleType name="ID-KMEHRschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ID-KMEHR"/>
+            <xsd:enumeration value="ID-IBAN"/>
+            <xsd:enumeration value="ID-SERIALNO"/>
+			<xsd:enumeration value="LOCAL"/>
+            <xsd:enumeration value="ID-CBE"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="ID-KMEHR">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="ID-KMEHRschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="ID-HCPARTYschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ID-HCPARTY"/>
+			<xsd:enumeration value="INSS"/>
+			<xsd:enumeration value="LOCAL"/>
+			<xsd:enumeration value="ID-ENCRYPTION-APPLICATION"/>
+			<xsd:enumeration value="ID-ENCRYPTION-ACTOR"/>
+            <xsd:enumeration value="ID-INSURANCE"/>
+            <xsd:enumeration value="ID-CBE"/>
+            <xsd:enumeration value="ID-EHP"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="ID-HCPARTY">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="ID-HCPARTYschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="ID-PATIENTschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ID-PATIENT"/>
+			<xsd:enumeration value="INSS"/>
+			<xsd:enumeration value="EID-CARDNO"/>
+			<xsd:enumeration value="SIS-CARDNO"/>
+            <xsd:enumeration value="ISI-CARDNO"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="ID-PATIENT">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="ID-PATIENTschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="INSS">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="ID-PATIENTschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="ID-INSURANCEschemes">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ID-INSURANCE"/>
+			<xsd:enumeration value="LOCAL"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="ID-INSURANCE">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="S" type="ID-INSURANCEschemes" use="required"/>
+				<xsd:attribute name="SV" type="xsd:string" use="required"/>
+				<xsd:attribute name="SL" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+    <xsd:simpleType name="ID-PROFESSIONschemes">
+      <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="ID-MEDEX"/>
+        <xsd:enumeration value="ID-CBE"/>
+      </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:complexType name="ID-PROFESSION">
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string">
+          <xsd:attribute name="S" type="ID-PROFESSIONschemes" use="required"/>
+          <xsd:attribute name="SV" type="xsd:string" use="required"/>
+          <xsd:attribute name="SL" type="xsd:string" use="optional"/>
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+</xsd:schema>

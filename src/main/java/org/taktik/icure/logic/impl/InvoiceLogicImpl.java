@@ -305,7 +305,12 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				.collect(Collectors.toList());
 	}
 
-	@Autowired
+    @Override
+    public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+        return invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+    }
+
+    @Autowired
 	public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
 		this.invoiceDAO = invoiceDAO;
 	}
