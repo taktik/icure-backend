@@ -534,10 +534,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             if (parts.length > 4) {
                 pl.sex = parts[4].trim().equals("V") ? "F" : parts[4].trim();
                 if (parts.length > 5) {
-                    pl.dn = readDate(parts[5].trim());
+                    pl.dn = new Timestamp(readDate(parts[5].trim()));
                 }
             }
-        } catch (ParseException e) {
+        } catch (ParseException | NumberFormatException e) {
             e.printStackTrace();
         }
         return pl;
@@ -554,9 +554,9 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         }
         try {
             if (parts.length > 2) {
-                pl.dn = readDate(parts[2].trim());
+                pl.dn = new Timestamp(readDate(parts[2].trim()));
             }
-        } catch (ParseException e) {
+        } catch (ParseException | NumberFormatException e) {
             e.printStackTrace();
         }
         return pl;
@@ -638,7 +638,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         }
     }
 
-    private ResultsInfosLine getResultsInfosLine(String line) {
+    protected ResultsInfosLine getResultsInfosLine(String line) {
         try {
             String[] parts = splitLine(line);
             ResultsInfosLine ril = new ResultsInfosLine();
@@ -648,11 +648,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             ril.complete = parts.length <= 5 || parts[5].toLowerCase().contains("c");
             if (parts.length > 3) {
                 try {
-                    if (parts[3].length() > 6) {
-                        ril.demandDate = Instant.ofEpochMilli(shortDateFormat.parse(parts[3]).getTime());
-                    } else {
-                        ril.demandDate = Instant.ofEpochMilli(shorterDateFormat.parse(parts[3]).getTime());
-                    }
+                    ril.demandDate = Instant.ofEpochMilli(readDate(parts[3]));
                 } catch (ParseException | NumberFormatException e) {
                     log.error("Date {} could not be parsed", parts[3]);
                     ril.demandDate = Instant.now();
@@ -792,15 +788,15 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return firstLine != null && this.isLaboLine(firstLine);
     }
 
-    protected Timestamp readDate(String date) throws ParseException {
+    protected Long readDate(String date) throws ParseException, NumberFormatException {
         if (date.length() == 8) {
-            return new Timestamp(shortDateFormat.parse(date.trim()).getTime());
+            return shortDateFormat.parse(date.trim()).getTime();
         } else if (date.length() == 6) {
-            return new Timestamp(shorterDateFormat.parse(date).getTime());
+            return shorterDateFormat.parse(date).getTime();
         } else if (date.length() == 10) {
-            return new Timestamp(extraDateFormat.parse(date).getTime());
+            return extraDateFormat.parse(date).getTime();
         }
-        return null;
+        throw new NumberFormatException("Unreadable date: \"" + date + "\"" );
     }
 
 }
