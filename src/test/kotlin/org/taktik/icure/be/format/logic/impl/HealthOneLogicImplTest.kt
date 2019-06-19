@@ -17,6 +17,7 @@ import org.taktik.icure.logic.PatientLogic
 
 import java.io.*
 import java.nio.charset.Charset
+import java.time.Instant
 import java.time.LocalDateTime
 
 import kotlin.io.outputStream
@@ -59,13 +60,41 @@ class HealthOneLogicImplTest {
 
 
     @Test
+    fun getResultsInfosLine(){
+        // Empty line
+        val line1 = "A4"
+        val res1 = HealthOneLogicImpl.getResultsInfosLine(line1)
+        Assert.assertEquals(res1.protocol,null)
+        Assert.assertEquals(res1.complete,true)
+        Assert.assertEquals(res1.demandDate,null)
+
+        val line2 = "A4\\\\\\\\\\"
+        val res2 = HealthOneLogicImpl.getResultsInfosLine(line2)
+        Assert.assertEquals(res2.protocol,"")
+        Assert.assertEquals(res2.complete,false)
+        Assert.assertNotEquals(res2.demandDate,null)
+
+        // Complete line with C
+        val line3 = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val res3 = HealthOneLogicImpl.getResultsInfosLine(line3)
+        Assert.assertEquals(res3.protocol,"protocol")
+        Assert.assertEquals(res3.complete,true)
+        Assert.assertEquals(res3.demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")))
+
+        // Complete line with P
+        val line4 = "A4\\protocol\\Docteur Bidon\\19032019\\\\P\\"
+        val res4 = HealthOneLogicImpl.getResultsInfosLine(line4)
+        Assert.assertEquals(res4.complete,false)
+    }
+
+    @Test
     fun getPatientSSINLine(){
         // Empty line
         val line1 = "A5"
         val res1 = HealthOneLogicImpl.getPatientSSINLine(line1)
         Assert.assertEquals(res1.protocol,null)
         Assert.assertEquals(res1.ssin,null)
-        val line2 = "A5"
+        val line2 = "A5\\\\\\\\\\"
         val res2 = HealthOneLogicImpl.getPatientSSINLine(line2)
         Assert.assertEquals(res2.protocol,null)
         Assert.assertEquals(res2.ssin,null)
