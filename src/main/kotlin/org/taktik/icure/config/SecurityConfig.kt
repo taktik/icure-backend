@@ -74,7 +74,10 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
 
     override fun configure(http: HttpSecurity?) {
         //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation
-        http!!.csrf().disable().addFilterBefore(
+        http!!
+                .csrf().disable()
+                .cors().and() // adds the Spring-provided CorsFilter to the application context which in turn bypasses the authorization checks for OPTIONS requests.
+                .addFilterBefore(
             FilterChainProxy(
                 listOf(
                     DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter(), remotingExceptionTranslationFilter()),
@@ -86,7 +89,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
                 .authorizeRequests()
                 .antMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .antMatchers("/rest/*/auth/login").permitAll()
-                .antMatchers("/rest/*/swagger.json").permitAll()
+                .antMatchers("/*/api-docs").permitAll()
                 .antMatchers("/rest/*/icure/v").permitAll()
                 .antMatchers("/rest/*/icure/p").permitAll()
                 .antMatchers("/rest/*/icure/check").permitAll()
@@ -113,7 +116,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
 
     fun authenticationProcessingFilterEntryPoint() = LoginUrlAuthenticationEntryPoint("/", mapOf("/api" to "api/login.html"))
 
-    fun basicAuthenticationFilter() = BasicAuthenticationFilter(authenticationManager())
+    @Bean
+    fun basicAuthenticationFilter() = BasicAuthenticationFilter(authenticationManagerBean())
 
     fun usernamePasswordAuthenticationFilter() = UsernamePasswordAuthenticationFilter().apply {
         usernameParameter = "username"
