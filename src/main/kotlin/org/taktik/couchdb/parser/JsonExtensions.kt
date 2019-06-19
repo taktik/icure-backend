@@ -1,18 +1,14 @@
 package org.taktik.couchdb.parser
 
 import com.squareup.moshi.*
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import de.undercouch.actson.JsonParser
-import de.undercouch.actson.JsonEvent as ActsonJSonEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.map
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
-import java.lang.UnsupportedOperationException
 import java.math.BigDecimal
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -20,6 +16,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.ArrayList
+import de.undercouch.actson.JsonEvent as ActsonJSonEvent
 
 sealed class JsonEvent {
     override fun toString(): String {
@@ -188,10 +185,12 @@ fun Iterable<CharBuffer>.toJsonEvents(): List<JsonEvent> {
 inline fun <reified T> Moshi.adapter(): JsonAdapter<T> = adapter(T::class.java)
 
 @FlowPreview
+@ExperimentalCoroutinesApi
 fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
     coroutineScope {
         var buffers = LinkedList<CharBuffer>()
-        for (charBuffer in this@split.produceIn(this)) {
+        val buffersChannel = this@split.produceIn(this)
+        for (charBuffer in buffersChannel) {
             var lastDelimiterPosition = charBuffer.position() - 1
             for (position in charBuffer.position() until charBuffer.limit()) {
                 if (charBuffer[position] == delimiter) {
@@ -204,7 +203,7 @@ fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
                     lastDelimiterPosition = position
                     if (buffers.isNotEmpty()) {
                         emit(buffers)
-                        buffers = LinkedList<CharBuffer>()
+                        buffers = LinkedList()
                     }
                 }
             }
@@ -220,7 +219,7 @@ fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
     }
 }
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 fun Flow<ByteBuffer>.toJsonEvents(): Flow<JsonEvent> {
 
     val parser = JsonParser()
@@ -417,5 +416,8 @@ object EventAdapter : JsonAdapter<List<JsonEvent>>() {
     }
 }
 
-@FlowPreview
-fun <T> Flow<List<JsonEvent>>.parse(adapter: JsonAdapter<T>): Flow<T> = map { adapter.fromJson(EventListJsonReader(it))!! }
+@ExperimentalCoroutinesApi
+fun <T> Flow<List<JsonEvent>>.parse(adapter: JsonAdapter<T>): Flow<T> = map {
+    @Suppress("BlockingMethodInNonBlockingContext")
+    adapter.fromJson(EventListJsonReader(it))!!
+}

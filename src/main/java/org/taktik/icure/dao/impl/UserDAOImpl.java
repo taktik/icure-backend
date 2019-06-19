@@ -41,8 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository("userDAO")
-@Filter(name = "db_replication_filter", function = "function(doc) { return (doc.java_type == 'org.taktik.icure.entities.User' || doc.java_type == 'org.taktik.icure.entities.HealthcareParty') }")
-@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc )}")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc._rev )}")
 public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Autowired
