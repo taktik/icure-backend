@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.GsonBuilder
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -36,6 +37,7 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.logic.impl.GsonSerializerFactory
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
@@ -83,7 +85,7 @@ class SumehrExport : KmehrExport() {
 		language: String,
 		comment: String?,
 		decryptor: AsyncDecrypt?,
-		asJson: Boolean = false,
+		preview: Boolean = false,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -103,9 +105,10 @@ class SumehrExport : KmehrExport() {
 		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, decryptor)
 		message.folders.add(folder)
 
-		if(asJson){
-			val jmap = jacksonObjectMapper()
-			jmap.writerWithDefaultPrettyPrinter().writeValue(os, message)
+		if(preview){
+			val mapper = jacksonObjectMapper()
+			mapper.writerWithDefaultPrettyPrinter().writeValue(os, message)
+
 		} else {
 
 			val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()

@@ -53,6 +53,7 @@ import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
+import kotlin.collections.ArrayList
 
 open class KmehrExport {
     @Autowired var patientLogic: PatientLogic? = null
@@ -272,6 +273,16 @@ open class KmehrExport {
         } ?: emptyList()
     }
 
+    fun makeDummyTelecom(): List<TelecomType>{
+        var lst = ArrayList<TelecomType>()
+        lst.add(TelecomType().apply {
+            cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_ADDRESS); value = "home"})
+            cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = "phone"})
+            telecomnumber = "00.00.00"
+        })
+        return lst
+    }
+
     fun makeAddresses(addresses: Collection<Address>?): List<AddressType> {
         return addresses?.filter { it.addressType != null && it.postalCode != null && it.street != null }?.mapTo(ArrayList<AddressType>()) { a ->
             AddressType().apply {
@@ -285,6 +296,18 @@ open class KmehrExport {
 
             }
         } ?: emptyList()
+    }
+
+    fun makeDummyAddress(): List<AddressType>{
+        var lst = ArrayList<AddressType>()
+        lst.add(AddressType().apply {
+            cds.add(CDADDRESS().apply { s(CDADDRESSschemes.CD_ADDRESS); value = "work" })
+            country = CountryType().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_FED_COUNTRY); value = "be" } }
+            zip = "0000"
+            street = "unknown"
+            city = "unknown"
+        })
+        return lst
     }
 
     fun  makeXGC(date: Long?): XMLGregorianCalendar? {

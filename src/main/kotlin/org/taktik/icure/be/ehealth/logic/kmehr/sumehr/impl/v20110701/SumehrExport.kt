@@ -83,7 +83,7 @@ class SumehrExport : KmehrExport() {
             language : String,
             comment : String?,
 		    decryptor: AsyncDecrypt?,
-            asJson: Boolean = false,
+            preview: Boolean = false,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -103,7 +103,7 @@ class SumehrExport : KmehrExport() {
 		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, decryptor)
         message.folders.add(folder)
 
-        if(asJson){
+        if(preview){
             val jmap = jacksonObjectMapper()
             jmap.writerWithDefaultPrettyPrinter().writeValue(os, message)
         } else {

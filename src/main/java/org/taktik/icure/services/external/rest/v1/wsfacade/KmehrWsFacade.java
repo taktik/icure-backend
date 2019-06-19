@@ -84,28 +84,13 @@ public class KmehrWsFacade {
 
 	@Path("/generateSumehrV2")
 	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
-	public void generateSumehrV2(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
+	public void generateSumehrV2(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, @WebSocketParam("preview") Boolean preview, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
+		if(preview == null) preview=false;
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation, false);
-			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
-			bos.close();
-		} catch (Exception e) {
-			operation.errorResponse(e);
-		}
-	}
-
-	@Path("/generateSumehrV2JSON")
-	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
-	public void generateSumehrV2JSON(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, @WebSocketParam("asJson") Boolean asJson, KmehrFileOperation operation) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
-		if(asJson == null) asJson=false;
-		try {
-			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
-					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation, asJson);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation, preview);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
