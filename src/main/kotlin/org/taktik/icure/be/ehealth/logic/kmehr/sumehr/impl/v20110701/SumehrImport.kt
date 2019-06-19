@@ -1,6 +1,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
@@ -13,6 +14,8 @@ import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
+import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
@@ -35,7 +38,7 @@ import java.io.Serializable
 import java.util.LinkedList
 import javax.xml.bind.JAXBContext
 
-@org.springframework.stereotype.Service
+@org.springframework.stereotype.Service("sumehrImportV1")
 class SumehrImport(val patientLogic: PatientLogic,
                                 val healthcarePartyLogic: HealthcarePartyLogic,
                                 val healthElementLogic: HealthElementLogic,
@@ -306,8 +309,8 @@ class SumehrImport(val patientLogic: PatientLogic,
     }
 
     protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
-        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
-        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
+        val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
+        val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
 
         return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
             ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
@@ -360,7 +363,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                                          author: User,
                                          v: ImportResult,
                                          dest: Patient? = null): Patient? {
-        val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value)
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by aduchate on 21/01/13, 15:37
@@ -130,5 +131,9 @@ public class Insurability implements Serializable {
 	@JsonIgnore
 	public void setInsuranceDescription(String insuranceDescription) {
 		this.insuranceDescription = insuranceDescription;
+	}
+
+	public void mergeFrom(Insurability other) {
+    	//TODO: implement
 	}
 }

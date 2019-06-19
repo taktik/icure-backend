@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- 
+  Kmehr-Bis Message elements
+  
+  XSchema
+ -->
+
+ 
+<!-- Copyright (c) eHealth -->
+<xsd:schema 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1" 
+targetNamespace="http://www.ehealth.fgov.be/standards/kmehr/schema/v1"  
+elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+ <xs:annotation xmlns:xs='http://www.w3.org/2001/XMLSchema' >
+ <xs:appinfo>
+ Implementation-Title: XSD 22. KMEHR
+ Specification-Version: 1.28
+ Implementation-Version: 1.28.0
+ Build-Time: 20190321-1539 
+ </xs:appinfo>
+ </xs:annotation>
+  <xsd:include schemaLocation="kmehr-1_28.xsd"/>
+  <xsd:element name="kmehrmessage" type="kmehrmessageType"/>
+</xsd:schema>

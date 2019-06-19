@@ -35,19 +35,36 @@ import javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED
 import javax.xml.datatype.DatatypeFactory
 
 object Utils {
-    fun makeXMLGregorianCalendarFromFuzzyLong(date : Long?) : XMLGregorianCalendarImpl? {
+    fun makeXMLGregorianCalendarFromHHMMSSLong(date: Long): XMLGregorianCalendarImpl? {
+        return XMLGregorianCalendarImpl().apply {
+            hour = (date / 10000 % 100).toInt()
+            minute = (date / 100 % 100).toInt()
+            second = (date % 100).toInt()
+        }
+    }
+
+    fun makeXMLGregorianCalendarFromFuzzyLong(date: Long?): XMLGregorianCalendarImpl? {
         return date?.let {
-            if (it%10000000000 == 0L) it/10000000000 else if (it%100000000 == 0L) it/100000000 else if (it<99991231 && it%10000 == 0L) it/10000 else if (it<99991231 && it%100 == 0L) it/100 else it /*normalize*/
+            if (it % 10000000000 == 0L) it / 10000000000 else if (it % 100000000 == 0L) it / 100000000 else if (it < 99991231 && it % 10000 == 0L) it / 10000 else if (it < 99991231 && it % 100 == 0L) it / 100 else it /*normalize*/
         }?.let { d ->
             XMLGregorianCalendarImpl().apply {
                 millisecond = FIELD_UNDEFINED
                 timezone = FIELD_UNDEFINED
+
+                hour = FIELD_UNDEFINED
+                minute = FIELD_UNDEFINED
+                second = FIELD_UNDEFINED
+
                 when (d) {
-                    in 0..9999 -> {  year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
-					}
-                    in 0..999912 -> { year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
-					}
-                    in 0..99991231 -> { year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt() }
+                    in 0..9999 -> {
+                        year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
+                    }
+                    in 0..999912 -> {
+                        year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
+                    }
+                    in 0..99991231 -> {
+                        year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
+                    }
                     else -> {
                         year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
                         hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
@@ -57,77 +74,101 @@ object Utils {
         }
     }
 
-    fun makeDateTypeFromFuzzyLong(date : Long?) : DateType? {
+    fun makeDateTypeFromFuzzyLong(date: Long?): DateType? {
         return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
             DateType().apply {
                 when (FIELD_UNDEFINED) {
-                    it.month -> { year = it }
-                    it.day -> { yearmonth = it }
-                    it.hour -> { this.date = it }
-                    else -> { this.date = it; this.time = it }
-                }
-            }
-        }
-    }
-
-    fun makeMomentTypeFromFuzzyLong(date : Long?) : MomentType? {
-        return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
-            MomentType().apply {
-                when (FIELD_UNDEFINED) {
-                    it.month -> { year = it }
-                    it.day -> { yearmonth = it }
-                    it.hour -> { this.date = it }
-                    else -> { this.date = it; this.time = it }
-                }
-            }
-        }
-    }
-
-    fun makeMomentTypeDateFromFuzzyLong(date : Long?) : MomentType? {
-        return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
-            MomentType().apply {
-                when (FIELD_UNDEFINED) {
-                    it.month -> { year = it }
-                    it.day -> { yearmonth = it }
-                    it.hour -> { this.date = it }
-                    else -> { this.date = it}
-                }
-            }
-        }
-    }
-
-    fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Int? {
-        return cal?.let {
-            it.year*10000+it.month*100+it.day
-        }
-    }
-
-    fun makeXGC(epochMillisTimestamp: Long?, unsetMillis : Boolean = false): XMLGregorianCalendar? {
-        return epochMillisTimestamp?.let {
-            DatatypeFactory.newInstance()
-                .newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(epochMillisTimestamp) } as GregorianCalendar)
-                .apply {
-                    timezone = FIELD_UNDEFINED
-                    if (unsetMillis) {
-                        millisecond = FIELD_UNDEFINED
+                    it.month -> {
+                        year = it
+                    }
+                    it.day -> {
+                        yearmonth = it
+                    }
+                    it.hour -> {
+                        this.date = it
+                    }
+                    else -> {
+                        this.date = it; this.time = it
                     }
                 }
+            }
         }
     }
 
-    fun makeMomentType(instant: Instant, precision: ChronoUnit = ChronoUnit.SECONDS) : org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType {
+    fun makeMomentTypeFromFuzzyLong(date: Long?): MomentType? {
+        return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
+            MomentType().apply {
+                when (FIELD_UNDEFINED) {
+                    it.month -> {
+                        year = it
+                    }
+                    it.day -> {
+                        yearmonth = it
+                    }
+                    it.hour -> {
+                        this.date = it
+                    }
+                    else -> {
+                        this.date = it; this.time = it
+                    }
+                }
+            }
+        }
+    }
+
+    fun makeMomentTypeDateFromFuzzyLong(date: Long?): MomentType? {
+        return makeXMLGregorianCalendarFromFuzzyLong(date)?.let {
+            MomentType().apply {
+                when (FIELD_UNDEFINED) {
+                    it.month -> {
+                        year = it
+                    }
+                    it.day -> {
+                        yearmonth = it
+                    }
+                    it.hour -> {
+                        this.date = it
+                    }
+                    else -> {
+                        this.date = it
+                    }
+                }
+            }
+        }
+    }
+
+    fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?): Int? {
+        return cal?.let {
+            it.year * 10000 + it.month * 100 + it.day
+        }
+    }
+
+    fun makeXGC(epochMillisTimestamp: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
+        return epochMillisTimestamp?.let {
+            DatatypeFactory.newInstance()
+                    .newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(epochMillisTimestamp) } as GregorianCalendar)
+                    .apply {
+                        timezone = FIELD_UNDEFINED
+                        if (unsetMillis) {
+                            millisecond = FIELD_UNDEFINED
+                        }
+                    }
+        }
+    }
+
+    fun makeMomentType(instant: Instant, precision: ChronoUnit = ChronoUnit.SECONDS): org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType {
         val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
         return when (precision) {
-            ChronoUnit.YEARS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+            ChronoUnit.YEARS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
                 year = XMLGregorianCalendarImpl.createDate(dateTime.year, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
             }
-            ChronoUnit.MONTHS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+            ChronoUnit.MONTHS -> org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
                 yearmonth = XMLGregorianCalendarImpl.createDate(dateTime.year, dateTime.monthValue, FIELD_UNDEFINED, FIELD_UNDEFINED)
             }
             ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.MINUTES, ChronoUnit.SECONDS, ChronoUnit.MILLIS -> {
-                org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
+                org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
                     date = XMLGregorianCalendarImpl.createDate(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, FIELD_UNDEFINED)
-                    time = when(precision) {
+                    time = when (precision) {
                         ChronoUnit.HOURS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
                         ChronoUnit.MINUTES -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, FIELD_UNDEFINED, FIELD_UNDEFINED)
                         ChronoUnit.SECONDS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED)
@@ -148,12 +189,18 @@ object Utils {
     }
 
 
-    fun makeFuzzyLongFromXMLGregorianCalendar(cal: XMLGregorianCalendar?) : Long? {
-        return makeFuzzyIntFromXMLGregorianCalendar(cal)?.let { (it * 1000000L + (cal!!.hour ?: 0)*10000+(cal.minute ?: 0)*100+(cal.second ?: 0)) }
+    fun makeFuzzyLongFromXMLGregorianCalendar(cal: XMLGregorianCalendar?): Long? {
+        return makeFuzzyIntFromXMLGregorianCalendar(cal)?.let {
+            (it * 1000000L + (cal!!.hour ?: 0) * 10000 + (cal.minute ?: 0) * 100 + (cal.second ?: 0))
+        }
     }
 
-    fun makeFuzzyLongFromDateAndTime(date: XMLGregorianCalendar, time: XMLGregorianCalendar?) : Long? {
-        return makeFuzzyIntFromXMLGregorianCalendar(date)?.let { d -> time?.let { d * 1000000L + (it.hour ?: 0)*10000+(it.minute ?: 0)*100+(it.second ?: 0) } ?: d.toLong() }
+    fun makeFuzzyLongFromDateAndTime(date: XMLGregorianCalendar?, time: XMLGregorianCalendar?): Long? {
+        return makeFuzzyIntFromXMLGregorianCalendar(date)?.let { d ->
+            time?.let {
+                d * 1000000L + (it.hour ?: 0) * 10000 + (it.minute ?: 0) * 100 + (it.second ?: 0)
+            } ?: d.toLong()
+        }
     }
 
 }
