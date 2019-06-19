@@ -1,6 +1,7 @@
 package org.taktik.icure.be.format.logic.impl;
 
 
+import net.sf.saxon.functions.True
 import org.junit.*
 import org.mockito.Matchers
 import org.mockito.Mockito.*
@@ -240,22 +241,26 @@ class HealthOneLogicImplTest {
         val date1 = "01021950"
         val res1 = HealthOneLogicImpl.readDate(date1);
         val a = res1.toString();
-        Assert.assertTrue((res1.toString()).equals("1950-02-01 00:00:00.0"))
+        Assert.assertTrue((res1.toString()).equals("-628477200000"))
 
         // Format ddmmyyyy
         val date2 = "010250"
         val res2 = HealthOneLogicImpl.readDate(date2);
-        Assert.assertTrue((res2.toString()).equals("1950-02-01 00:00:00.0"))
+        Assert.assertTrue((res2.toString()).equals("-628477200000"))
 
         // Format ddmmyyyy
         val date3 = "01/02/1950"
         val res3 = HealthOneLogicImpl.readDate(date3);
-        Assert.assertTrue((res3.toString()).equals("1950-02-01 00:00:00.0"))
+        Assert.assertTrue((res3.toString()).equals("-628477200000"))
 
         // Unaccepted format
         val date4 = "000"
-        val res4 = HealthOneLogicImpl.readDate(date4);
-        Assert.assertEquals(res4,null)
+        try {
+            val res4 = HealthOneLogicImpl.readDate(date4);
+        }
+        catch (e: NumberFormatException) {
+            Assert.assertTrue(e.message!!.contains("Unreadable date: \"" + date4 + "\"") )
+        }
 
     }
 }
