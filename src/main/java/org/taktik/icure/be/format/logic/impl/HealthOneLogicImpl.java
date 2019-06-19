@@ -524,49 +524,49 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return ll;
 	}
 
-	private PatientLine getPatientLine(String line) {
-		String[] parts = splitLine(line);
-		PatientLine pl = new PatientLine();
-		if (parts.length > 1) {
-			pl.protocol = parts[1];
-		}
-		if (parts.length > 3) {
-			pl.firstName = parts[3].trim();
-		}
-		if (parts.length > 2) {
-			pl.lastName = parts[2].trim();
-		}
-		try {
-			if (parts.length > 4) {
-				pl.sex = parts[4].trim().equals("V") ? "F" : parts[4].trim();
-				if (parts.length > 5){
-					readDate(parts[5].trim(),pl);
-				}
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return pl;
-	}
+    private PatientLine getPatientLine(String line) {
+        String[] parts = splitLine(line);
+        PatientLine pl = new PatientLine();
+        if (parts.length > 1) {
+            pl.protocol = parts[1];
+        }
+        if (parts.length > 3) {
+            pl.firstName = parts[3].trim();
+        }
+        if (parts.length > 2) {
+            pl.lastName = parts[2].trim();
+        }
+        try {
+            if (parts.length > 4) {
+                pl.sex = parts[4].trim().equals("V") ? "F" : parts[4].trim();
+                if (parts.length > 5) {
+                    pl.dn = readDate(parts[5].trim());
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return pl;
+    }
 
-	private PatientLine getExtraPatientLine(String line) {
-		String[] parts = splitLine(line);
-		PatientLine pl = new PatientLine();
-		if (parts.length > 1) {
-			pl.protocol = parts[1];
-		}
-		if (parts.length > 3) {
-			pl.sex = parts[3].trim().equals("V") ? "F" : parts[3].trim();
-		}
-		try {
-			if (parts.length > 2) {
-				readDate(parts[2].trim(),pl);
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return pl;
-	}
+    private PatientLine getExtraPatientLine(String line) {
+        String[] parts = splitLine(line);
+        PatientLine pl = new PatientLine();
+        if (parts.length > 1) {
+            pl.protocol = parts[1];
+        }
+        if (parts.length > 3) {
+            pl.sex = parts[3].trim().equals("V") ? "F" : parts[3].trim();
+        }
+        try {
+            if (parts.length > 2) {
+                pl.dn = readDate(parts[2].trim());
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return pl;
+    }
 
 	private LaboResultLine getLaboResultLine(String line, LaboLine ll) {
 		try {
@@ -795,14 +795,15 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return firstLine != null && this.isLaboLine(firstLine);
 	}
 
-
-	private void readDate(String date, PatientLine pl) throws ParseException{
-		if (date.length() == 8) {
-			pl.dn = new Timestamp(shortDateFormat.parse(date.trim()).getTime());
-		}
-		else if (date.length() == 6){
-			pl.dn = new Timestamp(shorterDateFormat.parse(date).getTime());
-		}
-	}
+    protected Timestamp readDate(String date) throws ParseException {
+        if (date.length() == 8) {
+            return new Timestamp(shortDateFormat.parse(date.trim()).getTime());
+        } else if (date.length() == 6) {
+            return new Timestamp(shorterDateFormat.parse(date).getTime());
+        } else if (date.length() == 10) {
+            return new Timestamp(extraDateFormat.parse(date).getTime());
+        }
+        return null;
+    }
 
 }
