@@ -756,7 +756,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		pw.print("A1\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\\r\n");
 		pw.print("A2\\" + ref + "\\" + namePat + "\\" + firstPat + "\\" + sexPat + "\\" + birthPat + "\\\r\n");
 		pw.print("A3\\" + ref + "\\" + addrPat1 + "\\" + addrPat2 + "\\" + addrPat3 + "\\\r\n");
-		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\" + isFull + "\\\r\n");
+		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\\\" + isFull + "\\\r\n");
 		pw.print("A5\\" + ref + "\\\\" + ssinPat + "\\\\\\\\\r\n");
 
 		for (String line : text.replaceAll("\u2028", "\n").split("\n")) {

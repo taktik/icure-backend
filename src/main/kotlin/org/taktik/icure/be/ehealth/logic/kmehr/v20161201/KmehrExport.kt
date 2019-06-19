@@ -29,6 +29,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
@@ -164,15 +165,15 @@ open class KmehrExport {
                     }
                 }
                 //TODO: this code is not finished! Contains hard-coded test data
-                regimen = ItemType.Regimen()
-                frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
+                //regimen = ItemType.Regimen()
+                //frequency = FrequencyType().apply { periodicity = PeriodicityType().apply  { this.cd = CDPERIODICITY().apply { this.value = "D" } }}
                 //svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
-                svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
-                            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
-                                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
-                                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
-                        }
-                    }
+                //svc.content.values.find { it.medicationValue != null }?.let { it.medicationValue!!.regimen.map{
+                //            regimen.daynumbersAndQuantitiesAndDates.add(AdministrationquantityType().apply {
+                //                    this.decimal = BigDecimal(1); this.unit = AdministrationunitType().apply {
+                //                    this.cd = CDADMINISTRATIONUNIT().apply { this.value = "00005" }  }  })
+                //        }
+                //    }
             }
 
 
@@ -270,7 +271,9 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
-                    compoundprescription = CompoundprescriptionType().apply { this.content.add(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription } ) }
+                    compoundprescription = CompoundprescriptionType().apply {
+                        this.getContent().add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = it }))
+                    }
                 }
                 content.binaryValue?.let {
                     lnks.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.APPLICATION_PDF; value = content.binaryValue })
