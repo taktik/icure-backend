@@ -507,7 +507,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return line.startsWith("L5") || line.startsWith("L2");
     }
 
-    private LaboLine getLaboLine(String line) {
+    protected LaboLine getLaboLine(String line) {
         String[] parts = splitLine(line);
         LaboLine ll = new LaboLine();
         if (parts.length > 1) {
@@ -545,7 +545,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return pl;
     }
 
-    private PatientLine getExtraPatientLine(String line) {
+    protected PatientLine getExtraPatientLine(String line) {
         String[] parts = splitLine(line);
         PatientLine pl = new PatientLine();
         if (parts.length > 1) {

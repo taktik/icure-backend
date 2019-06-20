@@ -17,6 +17,7 @@ import org.taktik.icure.logic.PatientLogic
 
 import java.io.*
 import java.nio.charset.Charset
+import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -58,7 +59,36 @@ class HealthOneLogicImplTest {
     }
 
     @Test
-    fun getLaboResultLine(){  ////en cours
+    fun getExtraPatientLine() {
+        // Empty line
+        val line1 = "S4.*"
+        val res1 = HealthOneLogicImpl.getExtraPatientLine(line1)
+        Assert.assertEquals(res1.protocol,null)
+        Assert.assertEquals(res1.sex,null)
+        Assert.assertEquals(res1.dn,null)
+
+        val line2 = "S4.*\\\\\\\\\\"
+        val res2 = HealthOneLogicImpl.getExtraPatientLine(line2)
+        Assert.assertEquals(res2.protocol,"")
+        Assert.assertEquals(res2.sex,"")
+        Assert.assertEquals(res2.dn,null)
+
+        // Complete Line with "V"
+        val line3 = "S4.*\\protocol\\01011950\\V\\"
+        val res3 = HealthOneLogicImpl.getExtraPatientLine(line3)
+        Assert.assertEquals(res3.protocol,"protocol")
+        Assert.assertEquals(res3.sex,"F")
+        Assert.assertEquals(res3.dn,Timestamp(HealthOneLogicImpl.readDate("01011950")))
+
+        // Complete Line with "A" and unaccepted date
+        val line4 = "S4.*\\protocol\\010\\A\\"
+        val res4 = HealthOneLogicImpl.getExtraPatientLine(line4)
+        Assert.assertEquals(res4.sex,"A")
+        Assert.assertEquals(res4.dn,null)
+    }
+
+    @Test
+    fun getLaboResultLine(){
         // Empty line
         val line1 = "L1"
         val laboline = "A1\\protocol\\Labo\\"
@@ -172,7 +202,7 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res1.ssin,null)
         val line2 = "A5\\\\\\\\\\"
         val res2 = HealthOneLogicImpl.getPatientSSINLine(line2)
-        Assert.assertEquals(res2.protocol,null)
+        Assert.assertEquals(res2.protocol,"")
         Assert.assertEquals(res2.ssin,null)
 
         // SSIN in fourth position
