@@ -81,7 +81,7 @@ class MedicationSchemeExport : KmehrExport() {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
-				cds.add(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.6"; value = "application" })
+				cds.add(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })
 				name = "VITALINK" //TODO: should change based on selected hub
 			})
 		})
@@ -173,10 +173,10 @@ class MedicationSchemeExport : KmehrExport() {
                     listOf(
                         ItemType().apply {
                             ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
                             contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "adaptationflag" })
-                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_MS_ADAPTATION; sv = CDCONTENTschemes.CD_MS_ADAPTATION.version(); value = when {
+                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "adaptationflag" })
+                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_MS_ADAPTATION); value = when {
                                     m.timestampOnSafe == null -> "medication"
                                     m.timestampOnSafe == svc.modified -> "nochange"
                                     else -> "posology" //TODO: handle medication and/or posology changes ! allowed values: nochange, medication, posology, treatmentsuspension (medication cannot be changed in Topaz)
@@ -192,9 +192,9 @@ class MedicationSchemeExport : KmehrExport() {
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {
                             ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
                             contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "medicationuse" })
+                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "medicationuse" })
                             })
                             contents.add(ContentType().apply {
                                 texts.add(TextType().apply { l = language; value = m.medicationUse })
@@ -206,9 +206,9 @@ class MedicationSchemeExport : KmehrExport() {
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {
                             ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
                             contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "begincondition" })
+                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "begincondition" })
                             })
                             contents.add(ContentType().apply {
                                 texts.add(TextType().apply { l = language; value = m.beginCondition })
@@ -220,9 +220,9 @@ class MedicationSchemeExport : KmehrExport() {
                     headingsAndItemsAndTexts.add(
                         ItemType().apply {
                             ids.add(idKmehr(itemsIdx++))
-                            cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
                             contents.add(ContentType().apply {
-                                cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "endcondition" })
+                                cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "endcondition" })
                             })
                             contents.add(ContentType().apply {
                                 texts.add(TextType().apply { l = language; value = m.endCondition })
@@ -234,10 +234,10 @@ class MedicationSchemeExport : KmehrExport() {
                     headingsAndItemsAndTexts.add(
                             ItemType().apply {
                                 ids.add(idKmehr(itemsIdx++))
-                                cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.11"; value = "healthcareelement" })
+                                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "healthcareelement" })
                                 contents.add(ContentType().apply {
-                                    cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_ITEM_MS; sv = CDCONTENTschemes.CD_ITEM_MS.version(); value = "origin" })
-                                    cds.add(CDCONTENT().apply { s = CDCONTENTschemes.CD_MS_ADAPTATION; sv = CDCONTENTschemes.CD_MS_ADAPTATION.version(); value = m.origin })
+                                    cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_ITEM_MS); value = "origin" })
+                                    cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_MS_ADAPTATION); value = m.origin })
                                 })
                             })
                 }

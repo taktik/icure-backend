@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -83,13 +84,15 @@ class SumehrExport : KmehrExport() {
 		comment: String?,
 		excludedIds: List<String>,
 		decryptor: AsyncDecrypt?,
+		asJson: Boolean = false,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
 		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
 		                        clinicalSummaryType = "",
 		                        defaultLanguage = "en"
-		                       )) {
+		                       )
+		) {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
@@ -101,13 +104,19 @@ class SumehrExport : KmehrExport() {
 		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, excludedIds, decryptor)
 		message.folders.add(folder)
 
-		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+		if(asJson){
+			val jmap = jacksonObjectMapper()
+			jmap.writerWithDefaultPrettyPrinter().writeValue(os, message)
+		} else {
 
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+			val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
-		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+			// output pretty printed
+			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+
+			jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+		}
 	}
 
 	private val labelsMap = mapOf(
@@ -387,8 +396,8 @@ class SumehrExport : KmehrExport() {
 					val items = getAssessment(trn).headingsAndItemsAndTexts
 					items.add(ItemType().apply {
 						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
-						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = CDITEMvalues.CONTACTPERSON.value() })
-						cds.add(CDITEM().apply { s = CDITEMschemes.CD_CONTACT_PERSON; sv = "1.0"; value = rel })
+						cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTPERSON.value() })
+						cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = rel })
 						contents.add(ContentType().apply { person = makePerson(p, config) })
 					})
 				}
@@ -398,24 +407,26 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	@NotNull
-	private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
-		healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
-			val phcp = pat.patientHealthCareParties.find {it.healthcarePartyId == hcp.id}
-			try {
-				phcp.let {
-					val items = getAssessment(trn).headingsAndItemsAndTexts
-					items.add(ItemType().apply {
-						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size+1).toString()})
-						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = CDITEMvalues.CONTACTHCPARTY.value()})
-						contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
-					})
-				}
-			} catch (e : RuntimeException) {
-				log.error("Unexpected error", e)
-			}
-		}
-	}
+    @NotNull
+    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
+        healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
+            if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
+                val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
+                try {
+                    phcp.let {
+                        val items = getAssessment(trn).headingsAndItemsAndTexts
+                        items.add(ItemType().apply {
+                            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
+                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTHCPARTY.value() })
+                            contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
+                        })
+                    }
+                } catch (e: RuntimeException) {
+                    log.error("Unexpected error", e)
+                }
+            }
+        }
+    }
 
 
 	private fun addGmdmanager(pat: Patient, trn: TransactionType) {
@@ -426,7 +437,7 @@ class SumehrExport : KmehrExport() {
 					val items = getAssessment(trn).headingsAndItemsAndTexts
 					items.add(ItemType().apply {
 						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
-						cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.0"; value = "gmdmanager" })
+						cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "gmdmanager" })
 						contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
 					})
 				}
