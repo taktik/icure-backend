@@ -20,7 +20,15 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
-import org.taktik.icure.services.external.rest.v1.dto.embed.*;
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.DeactivationReasonDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
+import org.taktik.icure.services.external.rest.v1.dto.embed.InsurabilityDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.MedicalHouseContractDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PersonalStatusDto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,11 +36,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 @SuppressWarnings("UnusedDeclaration")
-public class PatientDto extends IcureDto {
+public class PatientDto extends IcureDto implements EncryptableDto {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
 
@@ -71,6 +77,8 @@ public class PatientDto extends IcureDto {
 
     //No guarantee of unicity
     protected String externalId;
+    protected Map<String, String[]> hcPartyKeys = new HashMap<String, String[]>();
+    protected String publicKey;
 
     protected List<AddressDto> addresses = new ArrayList<>();
 	protected List<InsurabilityDto> insurabilities = new ArrayList<>();
@@ -384,7 +392,23 @@ public class PatientDto extends IcureDto {
         this.medicalHouseContracts = medicalHouseContracts;
     }
 
-	@Override
+    public Map<String, String[]> getHcPartyKeys() {
+        return hcPartyKeys;
+    }
+
+    public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
+        this.hcPartyKeys = hcPartyKeys;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

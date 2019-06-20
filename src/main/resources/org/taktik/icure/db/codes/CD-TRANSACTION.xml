@@ -7,10 +7,12 @@
   <VALUE>
     <CODE>admission</CODE>
     <DESCRIPTION L='en'>Admission notification</DESCRIPTION>
+    <DESCRIPTION L='fr'>Notification d'admission</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>alert</CODE>
     <DESCRIPTION L='en'>Alert</DESCRIPTION>
+    <DESCRIPTION L='fr'>Alerte</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>bvt-sample</CODE>
@@ -19,18 +21,22 @@
   <VALUE>
     <CODE>clinicalpath</CODE>
     <DESCRIPTION L='en'>Clinical path (Hub-Metahub)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Chemin clinique (Hub-Metahub)</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>clinicalsummary</CODE>
     <DESCRIPTION L='en'>Clinical summary (part of GP software migration file)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sumehr</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>contactreport</CODE>
     <DESCRIPTION L='en'>Contact report</DESCRIPTION>
+    <DESCRIPTION L='fr'>Rapport de contact</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>death</CODE>
     <DESCRIPTION L='en'>Death notification</DESCRIPTION>
+    <DESCRIPTION L='fr'>Notification de décès</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>discharge</CODE>
@@ -39,6 +45,7 @@
   <VALUE>
     <CODE>dischargereport</CODE>
     <DESCRIPTION L='en'>Discharge letter</DESCRIPTION>
+    <DESCRIPTION L='en'>Lettre de décharge</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>ebirth-baby-medicalform</CODE>

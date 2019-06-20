@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf
 
 import org.taktik.icure.dto.mapping.ImportMapping
+import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -39,4 +40,11 @@ interface SoftwareMedicalFileLogic {
                       language: String,
                       dest: Patient? = null,
                       mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
+
+    fun checkIfSMFPatientsExists(inputStream: InputStream,
+                                          author: User,
+                                          language: String,
+                                          dest: Patient?,
+                                          mappings: Map<String, List<ImportMapping>>
+    ) : List<CheckSMFPatientResult>
 }

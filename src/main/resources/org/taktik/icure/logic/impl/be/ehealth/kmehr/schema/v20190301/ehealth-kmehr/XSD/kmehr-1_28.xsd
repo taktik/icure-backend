@@ -1,0 +1,1372 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Kmehr-Bis Message: types XSchema -->
+<!-- Copyright (c) eHealth -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:DT="http://www.ehealth.fgov.be/standards/kmehr/dt/v1" xmlns:CD="http://www.ehealth.fgov.be/standards/kmehr/cd/v1" xmlns:ID="http://www.ehealth.fgov.be/standards/kmehr/id/v1"
+  xmlns:sig="http://www.w3.org/2000/09/xmldsig#" xmlns:enc="http://www.w3.org/2001/04/xmlenc#" xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1" targetNamespace="http://www.ehealth.fgov.be/standards/kmehr/schema/v1"
+  elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.28">
+ <xs:annotation xmlns:xs='http://www.w3.org/2001/XMLSchema' >
+ <xs:appinfo>
+ Implementation-Title: XSD 22. KMEHR
+ Specification-Version: 1.28
+ Implementation-Version: 1.28.0
+ Build-Time: 20190321-1539 
+ </xs:appinfo>
+ </xs:annotation>
+  <xsd:import namespace="http://www.ehealth.fgov.be/standards/kmehr/cd/v1" schemaLocation="cd-1_28.xsd" />
+  <xsd:import namespace="http://www.ehealth.fgov.be/standards/kmehr/id/v1" schemaLocation="id-1_28.xsd" />
+  <xsd:import namespace="http://www.ehealth.fgov.be/standards/kmehr/dt/v1" schemaLocation="dt-1_28.xsd" />
+  <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="../../external/XSD/xmldsig-core-schema.xsd" />
+  <xsd:import namespace="http://www.w3.org/2001/04/xmlenc#" schemaLocation="../../external/XSD/xenc-schema.xsd" />
+  <xsd:complexType name="acknowledgmentType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the type of acknowledgment that is desired by the sender</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-ACKNOWLEDGMENT" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="addressType">
+    <xsd:complexContent>
+      <xsd:restriction base="addressTypeBase">
+        <xsd:sequence>
+          <xsd:element name="id" type="ID:ID-KMEHR" minOccurs="0" maxOccurs="unbounded" />
+          <xsd:element name="cd" type="CD:CD-ADDRESS" maxOccurs="unbounded">
+            <xsd:annotation>
+              <xsd:documentation>to specify the type of address (home, work,...)</xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          
+            
+              <xsd:element name="country" type="countryType" minOccurs="0" />
+              <xsd:element name="zip" type="xsd:string" minOccurs="0" />
+              <xsd:element name="nis" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>
+                    Num�ro d'identification statistique
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element name="city" type="xsd:string" minOccurs="0" />
+              <xsd:element name="district" type="xsd:string" minOccurs="0" >
+                <xsd:annotation>
+                  <xsd:documentation>
+                    District identification for the cities of Antwerpen-Anvers and Doornik-Tournai.
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element name="street" type="xsd:string" minOccurs="0" />
+              <xsd:element name="housenumber" type="xsd:string" minOccurs="0" />
+              <xsd:element name="postboxnumber" type="xsd:string" minOccurs="0" />
+              <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
+          
+         
+          
+        </xsd:sequence>
+      </xsd:restriction>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="addressTypeBase">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-KMEHR" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cd" type="CD:CD-ADDRESS" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>to specify the type of address (home, work,...)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+       
+     
+          <xsd:element name="country" type="countryType" minOccurs="0" />
+          <xsd:element name="zip" type="xsd:string" minOccurs="0" />
+          <xsd:element name="nis" type="xsd:string" minOccurs="0">
+            <xsd:annotation>
+              <xsd:documentation>
+                Num�ro d'identification statistique
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="city" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="district" type="xsd:string" minOccurs="0" >
+            <xsd:annotation>
+              <xsd:documentation>
+                District identification for the cities of Antwerpen-Anvers and Doornik-Tournai.
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="street" type="xsd:string" minOccurs="0" />
+          <xsd:element name="housenumber" type="xsd:string" minOccurs="0" />
+          <xsd:element name="postboxnumber" type="xsd:string" minOccurs="0" />
+          <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
+       
+          
+     
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="administrationquantityType">
+    <xsd:sequence>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="unit" type="administrationunitType" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="administrationunitType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the administration unit</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-ADMINISTRATIONUNIT" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="authorType">
+    <xsd:annotation>
+      <xsd:documentation>the author assumes the medical responsibility of the content of the transaction. It can be specified by a combination of hcparty elements (organisation, medical specialty, person), but it must necessarily contain one hcparty
+        identifying one person. The author is not the transcriptionist that has typed the report. The author is not necessarily the performer of the act that is reported by the transaction. In that case, the author of the transaction can be overwritten at
+        the level of the item
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="hcparty" type="hcpartyType" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Base64EncryptedValueType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:base64Binary">
+        <xsd:attribute name="encoding" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="Base64EncryptedDataType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-ENCRYPTION-METHOD" />
+      <xsd:element name="Base64EncryptedValue" type="Base64EncryptedValueType" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="certaintyType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-CERTAINTY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="compoundType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-KMEHR" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:choice>
+        <xsd:element name="medicinalproduct" type="medicinalProductType">
+          <xsd:annotation>
+            <xsd:documentation>
+              identification of the prepacked medicinal
+              products prescribed
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="substance" type="substanceType" />
+      </xsd:choice>
+      <xsd:element name="quantityprefix" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>to be used as a prefix for quantitiy (eg: ad 100
+            ml)
+          </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cd" type="CD:CD-QUANTITYPREFIX" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="quantity" type="quantityType" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="compoundprescriptionType" mixed="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        a magistral preparation can be prescribed as a (coded)
+        reference to a preparation in a reference book (formularyreference), or as a
+        (coded) list of individual compounds (compoundlist), or as free text
+        (magistraltext)
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence minOccurs="0">
+      <xsd:choice>
+        <xsd:element name="compound" type="compoundType" maxOccurs="unbounded">
+          <xsd:annotation>
+            <xsd:documentation>
+              a list of compounds to be used in a
+              magistral preparation
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="formularyreference" type="formularyreferenceType">
+          <xsd:annotation>
+            <xsd:documentation>
+              a reference to an official formulary for
+              magistral preparations (eg TMF, NF6)
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="magistraltext" type="DT:textType">
+          <xsd:annotation>
+            <xsd:documentation>magistral preparation as free text
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="galenicform" type="galenicformType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            Used to specify the galenic form. Can be a value
+            from the reference table GALENIC_FORMS or free
+            text
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="quantity" type="quantityType" minOccurs="0" />
+    </xsd:sequence>
+    <xsd:attribute name="L" type="xsd:language" use="optional" />
+  </xsd:complexType>
+  <xsd:complexType name="confidentialityType">
+    <xsd:annotation>
+      <xsd:documentation>to restrict the list of healthcare parties allowed to access to the content of the parent element</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="hcparty" type="hcpartyType" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>to identify a healthcare professional, organisation or medical specialty.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="contentlocalitemattributeType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-KMEHR" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cd" type="CD:CD-CONTENT" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:choice>
+        <xsd:element name="decimal" type="xsd:decimal" />
+        <xsd:element name="boolean" type="xsd:boolean" />
+        <xsd:element name="text" type="DT:textType" />
+        <xsd:sequence>
+          <xsd:element name="date" type="xsd:date" minOccurs="0" />
+          <xsd:element name="time" type="xsd:time" minOccurs="0" />
+        </xsd:sequence>
+        <xsd:element name="hcparty" type="hcpartyType" />
+        <xsd:element name="person" type="personType" />
+        <xsd:element name="lnk" maxOccurs="unbounded" />
+      </xsd:choice>
+      <xsd:element name="unit" type="unitType" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="contentType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the value of the item</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="id" type="ID:ID-KMEHR" maxOccurs="unbounded" />
+        <xsd:element name="cd" type="CD:CD-CONTENT" maxOccurs="unbounded" />
+        <xsd:element name="decimal" type="xsd:decimal" />
+        <xsd:element name="unsignedInt" type="xsd:unsignedInt" />
+        <xsd:element name="boolean" type="xsd:boolean" />
+        <xsd:element name="text" type="DT:textType" maxOccurs="unbounded" />
+        <xsd:choice>
+          <xsd:choice>
+            <xsd:element name="year" type="xsd:gYear" />
+            <xsd:element name="yearmonth" type="xsd:gYearMonth" />
+          </xsd:choice>
+          <xsd:sequence>
+            <xsd:element name="date" type="xsd:date" minOccurs="0" />
+            <xsd:element name="time" type="xsd:time" minOccurs="0" />
+          </xsd:sequence>
+        </xsd:choice>
+        <xsd:element name="hcparty" type="hcpartyType" />
+        <xsd:element name="person" type="personType" />
+        <xsd:element name="insurance" type="insuranceType" />
+        <xsd:element name="incapacity" type="incapacityType" />
+        <xsd:element name="error" type="errorType" />
+        <xsd:choice>
+          <xsd:sequence>
+            <xsd:choice>
+              <xsd:element name="medicinalproduct" type="medicinalProductType">
+                <xsd:annotation>
+                  <xsd:documentation>identification of the prepacked medicinal products prescribed</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element name="substanceproduct">
+                <xsd:annotation>
+                  <xsd:documentation>description of the INN or substance based cluster prescribed </xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="intendedcd" type="CD:CD-INNCLUSTER">
+                      <xsd:annotation>
+                        <xsd:documentation>code of the INN cluster: should be in Belgium a selection out of a table, once available</xsd:documentation>
+                      </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="deliveredcd" type="CD:CD-DRUG-CNK" minOccurs="0">
+                      <xsd:annotation>
+                        <xsd:documentation>in Belgium the effective delivered CNK code out of the drug database</xsd:documentation>
+                      </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="intendedname" type="xsd:string">
+                      <xsd:annotation>
+                        <xsd:documentation>descriptive name of the INN based cluster: INN name + strength + generic pharmaceutical form or physical form + route of administration</xsd:documentation>
+                      </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="deliveredname" type="xsd:string" minOccurs="0" />
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="compoundprescription" type="compoundprescriptionType" />
+            </xsd:choice>
+          </xsd:sequence>
+          <xsd:element name="medication" type="medicationType" />
+        </xsd:choice>
+        <xsd:element name="holter" type="holterType" />
+        <xsd:element name="ecg" type="DT:textType" />
+        <xsd:element name="bacteriology" type="DT:textType" />
+        <xsd:element name="lnk" type="CD:lnkType" maxOccurs="unbounded" />
+        <xsd:element name="location" type="locationBirthPlaceType" />
+      </xsd:choice>
+      <xsd:element name="unit" type="unitType" minOccurs="0" />
+      <xsd:element name="minref" type="minrefType" minOccurs="0" />
+      <xsd:element name="maxref" type="maxrefType" minOccurs="0" />
+      <xsd:element name="refscope" type="refscopeType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="costType">
+    <xsd:sequence>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="unit" type="unitType" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="countryType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-COUNTRY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="dateType">
+    <xsd:complexContent>
+      <xsd:restriction base="momentType">
+        <xsd:choice>
+          <xsd:choice>
+            <xsd:element name="year" type="xsd:gYear" />
+            <xsd:element name="yearmonth" type="xsd:gYearMonth" />
+          </xsd:choice>
+          <xsd:sequence>
+            <xsd:element name="date" type="xsd:date" />
+            <xsd:element name="time" type="xsd:time" minOccurs="0" />
+          </xsd:sequence>
+        </xsd:choice>
+      </xsd:restriction>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="dayperiodType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-DAYPERIOD" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="durationType">
+    <xsd:sequence>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="unit" type="timeunitType" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="errorType">
+    <xsd:annotation>
+      <xsd:documentation>to specify possible errors</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-KMEHR" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cd" type="CD:CD-ERROR" maxOccurs="unbounded" />
+      <xsd:element name="description" type="DT:textType" />
+      <xsd:element name="url" type="xsd:string" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="errorMyCarenetType">
+    <xsd:annotation>
+      <xsd:documentation>to specify possible errors</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-ERROR-MYCARENET" maxOccurs="unbounded" />
+      <xsd:element name="description" type="DT:textType" />
+      <xsd:element name="url" type="xsd:string" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="formularyreferenceType">
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="cd" type="CD:CD-FORMULARY" maxOccurs="unbounded">
+          <xsd:annotation>
+            <xsd:documentation>
+              Identifies the preparation using FORMULARY and/or FORMULARYREFERENCE.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="formularyname" type="xsd:string" />
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="galenicformType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-GALENICFORM" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            refers to a value of the reference table galenic
+            forms
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="galenicformtext" type="DT:textType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>galenic form as free text</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="FCMAXType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="TIME" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="FCMINType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="TIME" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="folderType">
+    <xsd:annotation>
+      <xsd:documentation>contains the clinical information related to one patient</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="confidentiality" type="confidentialityType" minOccurs="0" />
+      <xsd:element name="id" type="ID:ID-KMEHR" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>this must be a sequential number within the parent element. In addition, it can specify alternative local identifier(s).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="patient" type="personType" />
+      <xsd:element name="transaction" type="transactionType" maxOccurs="unbounded" />
+      <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="lnk" type="CD:lnkType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>to link the folder with another element of the Belgian Healthcare Telematics System</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="frequencyType">
+    <xsd:annotation>
+      <xsd:documentation>frequency of applying the periodic posology, only in case of a constant scheme during a period of time</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:sequence>
+        <xsd:element name="nominator">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="quantity" type="timequantityType" />
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="denominator">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="quantity" type="timequantityType" />
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:sequence>
+        <xsd:annotation>
+          <xsd:documentation>Deprecated, this sequence has been retained for backward compatibility only</xsd:documentation>
+        </xsd:annotation>
+        <xsd:element name="decimal" type="xsd:decimal" />
+        <xsd:element name="unit" type="unitType" />
+      </xsd:sequence>
+      <xsd:element name="text" type="DT:textType" />
+      <xsd:element name="periodicity" type="periodicityType">
+        <xsd:annotation>
+          <xsd:documentation>to specify the frequency using a coded periodicity</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="hcpartyType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-HCPARTY" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>ideally this should refer to a INAMI/RIZIV number. It can refer to alternative local identifiers. </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cd" type="CD:CD-HCPARTY" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>must at least refer to a value of CD-HCPARTY.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice minOccurs="0">
+        <xsd:element name="name" type="xsd:string" />
+        <xsd:sequence>
+          <xsd:element name="firstname" type="xsd:string" />
+          <xsd:element name="familyname" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:choice>
+      <xsd:element name="address" type="addressType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="telecom" type="telecomType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="headerType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the routing of the message</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="confidentiality" type="confidentialityType" minOccurs="0" />
+      <xsd:element name="standard" type="standardType" />
+      <xsd:element name="id" type="ID:ID-KMEHR" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>this must be a unique number within the Belgian Telematics Healthcare system . It should result of the concatenation of the first sender hcparty id of the current message, a dot and a unique identifier within the sending
+            system. In addition, it can also specify alternative local numbers.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="date" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation>creation date of the message</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="time" type="xsd:time">
+        <xsd:annotation>
+          <xsd:documentation>creation time of the message</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="sender" type="senderType" />
+      <xsd:element name="recipient" type="recipientType" maxOccurs="unbounded" />
+      <xsd:element name="urgency" type="urgencyType" minOccurs="0" />
+      <xsd:element name="acknowledgment" type="acknowledgmentType" minOccurs="0" />
+      <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="lnk" type="CD:lnkType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>to link the header with another element of the Belgian Healthcare Telematics System</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="expirationdate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>expiration date of the message (used a.o. in prescription messages), can be used to remove a prescription form a prescription server</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="externalsource" minOccurs="0">
+       <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="source" minOccurs="1" maxOccurs="unbounded">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="cd" type="CD:CD-EXTERNALSOURCE" minOccurs="1" maxOccurs="unbounded"/>
+                <xsd:element name="datetime" type="xsd:dateTime" minOccurs="0"/>
+                <xsd:element name="version" type="xsd:string" minOccurs="0"/>
+                <xsd:element name="proof" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+       </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="headingType">
+    <xsd:annotation>
+      <xsd:documentation>a heading is used to organise the content of a transaction among chapters or paragraphs.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="confidentiality" type="confidentialityType" minOccurs="0" />
+      <xsd:element name="id" type="ID:ID-KMEHR" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>this must be a sequential number within the parent transaction or parent heading. In addition, it can be alternative local identifier(s).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cd" type="CD:CD-HEADING" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>the heading must contain at least one code from the CDHEADING scheme. Local codes can be associated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice maxOccurs="unbounded">
+        <xsd:element name="heading" type="headingType" />
+        <xsd:element name="item" type="itemType" />
+        <xsd:element name="text" type="DT:textType" />
+        <xsd:element name="lnk" type="CD:lnkType">
+          <xsd:annotation>
+            <xsd:documentation>to link the heading with another element of the Belgian Healthcare Telematics System</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="holterType">
+    <xsd:sequence>
+      <xsd:element name="FCAVG" type="xsd:string" minOccurs="0" />
+      <xsd:element name="FCMAX" type="FCMAXType" minOccurs="0" />
+      <xsd:element name="FCMIN" type="FCMINType" minOccurs="0" />
+      <xsd:element name="FCAVGD" type="xsd:string" minOccurs="0" />
+      <xsd:element name="FCAVGN" type="xsd:string" minOccurs="0" />
+      <xsd:element name="RRMAX" type="RRMAXType" minOccurs="0" />
+      <xsd:element name="RRMIN" type="RRMINType" minOccurs="0" />
+      <xsd:element name="QRSTOT" type="xsd:string" minOccurs="0" />
+      <xsd:element name="BRADY" type="xsd:string" minOccurs="0" />
+      <xsd:element name="PAUSE" type="xsd:string" minOccurs="0" />
+      <xsd:element name="LONG" type="xsd:string" minOccurs="0" />
+      <xsd:element name="ESV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="DBLV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="SALVV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="BGV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="TGV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="TACHY" type="xsd:string" minOccurs="0" />
+      <xsd:element name="ESSV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="DBLSV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="SALVSV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="BGSV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="TGSV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="TACHYSV" type="xsd:string" minOccurs="0" />
+      <xsd:element name="RRINST" type="xsd:string" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="incapacityreasonType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the reason of an incapacity</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-INCAPACITYREASON" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="incapacityType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-INCAPACITY" maxOccurs="unbounded" />
+      <xsd:element name="incapacityreason" type="incapacityreasonType" minOccurs="0" />
+      <xsd:element name="percentage" type="xsd:decimal" minOccurs="0" />
+      <xsd:element name="outofhomeallowed" type="xsd:boolean" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="insuranceType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-INSURANCE" />
+      <xsd:element name="membership" type="xsd:string" />
+      <xsd:element name="siscard" type="xsd:string" minOccurs="0" />
+      <xsd:element name="begindate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="enddate" type="xsd:date" minOccurs="0" />
+      <xsd:element name="cg1" type="xsd:string" minOccurs="0" />
+      <xsd:element name="cg2" type="xsd:string" minOccurs="0" />
+      <xsd:element name="socialfranchiseperiod1" type="xsd:string" minOccurs="0" />
+      <xsd:element name="socialfranchiseperiod2" type="xsd:string" minOccurs="0" />
+      <xsd:element name="personalpart" minOccurs="0" maxOccurs="unbounded">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="id" type="ID:ID-KMEHR" />
+            <xsd:element name="cd" type="CD:CD-CARENET-PERSONAL-PART" />
+            <xsd:element name="date" type="xsd:date" minOccurs="0" />
+            <xsd:element name="time" type="xsd:time" minOccurs="0" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="thirdpayercontract" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cd" type="CD:CD-CARENET-THIRDPAYER-CONTRACT" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="begindatepayment" type="xsd:date" minOccurs="0" />
+      <xsd:element name="approvalnumber" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>Nr goedkeuring betalingsverbintenis van de VI</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="itemType">
+    <xsd:annotation>
+      <xsd:documentation>the item is used to describe atomic medical information.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="confidentiality" type="confidentialityType" minOccurs="0" />
+      <xsd:element name="id" type="ID:ID-KMEHR" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>this must be a sequential number within the transaction. In addition, it can specify alternative local identifier(s).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cd" type="CD:CD-ITEM" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>the item must contain at least one code from the CD-ITEM scheme. Local codes can be associated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="content" type="contentType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>this is used to specify the content of the item.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>to comment the content</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="author" type="authorType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>this can be used to specify the medical responsible of the content of the item when it differs from the transaction 's author.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="beginmoment" type="momentType" minOccurs="0" />
+      <xsd:element name="endmoment" type="momentType" minOccurs="0" />
+      <xsd:element name="iscomplete" type="xsd:boolean" minOccurs="0" />
+      <xsd:element name="isvalidated" type="xsd:boolean" minOccurs="0" />
+      <xsd:element name="lifecycle" type="lifecycleType" minOccurs="0" />
+      <xsd:element name="isrelevant" type="xsd:boolean" minOccurs="0" />
+      <xsd:element name="severity" type="severityType" minOccurs="0" />
+      <xsd:element name="certainty" type="certaintyType" minOccurs="0" />
+      <xsd:element name="temporality" type="temporalityType" minOccurs="0" />
+      <xsd:element name="urgency" type="urgencyType" minOccurs="0" />
+      <xsd:element name="quantity" type="quantityType" minOccurs="0" />
+      <xsd:element name="strength" type="strengthType" minOccurs="0" />
+      <xsd:element name="frequency" type="frequencyType" minOccurs="0" />
+      <xsd:element name="site" type="siteType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cost" type="costType" minOccurs="0" />
+      <xsd:element name="dayperiod" type="dayperiodType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="duration" type="durationType" minOccurs="0" />
+      <!-- POSOLOGY -->
+      <xsd:element name="posology" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>quantity of product and frequence of administration per unit of period of time (day, week, hour, month etc...)</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:choice>
+            <xsd:sequence>
+              <xsd:annotation>
+                <xsd:documentation>Structured expression of the ordered posology</xsd:documentation>
+              </xsd:annotation>
+              <xsd:element name="low" type="xsd:decimal" minOccurs="0">
+                <xsd:annotation>
+                  <xsd:documentation>Number of pharmaceutical product units per administration/intake e.g. 2, unit of pharmaceutical product, e.g. ml, puff,drop. can be empty which means "one piece" of the pharmaceutical product as present in the package.
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element name="high" type="xsd:decimal" />
+              <xsd:element name="unit" type="administrationunitType" />
+              <xsd:element name="takes">
+                <xsd:annotation>
+                  <xsd:documentation>Number of takes in the given reference period, mostly daily. Only possible when the qty of product is the same for each of the takes, e.g. 2 for twice. Default: one</xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="low" type="xsd:decimal" minOccurs="0" />
+                    <xsd:element name="high" type="xsd:decimal" />
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:element name="text" type="DT:textType" />
+          </xsd:choice>
+        </xsd:complexType>
+      </xsd:element>
+      <!-- -->
+      <!-- REGIMEN -->
+      <xsd:element name="regimen" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>ordered day regimen of administration applicable either on a precised day or on basis of the frequency </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:sequence maxOccurs="unbounded">
+            <xsd:choice minOccurs="0">
+              <xsd:element name="daynumber" type="xsd:positiveInteger">
+                <xsd:annotation>
+                  <xsd:documentation>to be used to precise the day of the week of applicability in case of dosage regimen changing over time</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element name="date" type="DT:date">
+                <xsd:annotation>
+                  <xsd:documentation>to be used to precise the date of applicability</xsd:documentation>
+                </xsd:annotation>
+              </xsd:element>
+
+              <xsd:element name="weekday">
+                <xsd:annotation>
+                  <xsd:documentation>to be used to precise the day of the week of applicability</xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexType>
+                  <xsd:complexContent>
+                    <xsd:extension base="weekdayType">
+                      <xsd:sequence>
+                        <xsd:element name="weeknumber" type="xsd:positiveInteger" minOccurs="0" />
+                      </xsd:sequence>
+                    </xsd:extension>
+                  </xsd:complexContent>
+
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:choice>
+            <xsd:element name="daytime" minOccurs="0">
+              <xsd:annotation>
+                <xsd:documentation>proposed time of administration</xsd:documentation>
+              </xsd:annotation>
+              <xsd:complexType>
+                <xsd:choice>
+                  <xsd:element name="time" type="DT:time">
+                    <xsd:annotation>
+                      <xsd:documentation>proposed hour-min of administration</xsd:documentation>
+                    </xsd:annotation>
+                  </xsd:element>
+                  <xsd:element name="dayperiod" type="dayperiodType">
+                    <xsd:annotation>
+                      <xsd:documentation>e.g. before noon</xsd:documentation>
+                    </xsd:annotation>
+                  </xsd:element>
+                </xsd:choice>
+              </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="quantity" type="administrationquantityType">
+              <xsd:annotation>
+                <xsd:documentation>number of pharmaceutical product units per intake / per administration (piece, puff, ml,...)</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!-- -->
+      <xsd:element name="deliverydate" type="DT:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>proposed date of delivery of that product in case of a prescription, delivery date in case of delivery of that product. Simple date type content based on a new basic datatype "date", similary, another new basic datatype "time"
+            has been created
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="renewal" type="renewalType" minOccurs="0" />
+      <xsd:element name="route" type="routeType" minOccurs="0" />
+      <!-- <xsd:element name="noswitch" type="xsd:boolean" minOccurs="0"> <xsd:annotation> <xsd:documentation>The pharmacist would be free to choose the medicinal product package the first time a prescription is issued for this drug in INN, but that the pharmacist 
+        is supposed to stick to this choice for further deliveries.</xsd:documentation> </xsd:annotation> </xsd:element> -->
+      <xsd:element name="batch" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>serial number of the product package</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="instructionforoverdosing" type="DT:textType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>to justify voluntary 'overdosing'</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="instructionforpatient" type="DT:textType" minOccurs="0" />
+      <xsd:element name="instructionforreimbursement" type="DT:textType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation> to indicate the type of reimbursement based on medical justification for treatment </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="issubstitutionallowed" type="xsd:boolean" minOccurs="0" />
+      <xsd:element name="feedback" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+              </xsd:annotation>
+              <xsd:element name="reportrequested" type="xsd:boolean" />
+              <xsd:element name="text" type="DT:textType" minOccurs="0" />
+            </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!-- DT ATTRIBUTS LOCAUX 21/01/2008 -->
+      <xsd:element name="local" type="localitemattributeType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="recorddatetime" type="xsd:dateTime" minOccurs="0" />
+      <xsd:element name="lnk" type="CD:lnkType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="kmehrmessageType">
+    <xsd:annotation>
+      <xsd:documentation>to transfer medical information about one or several patients (using one folder per patient).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="confidentiality" type="confidentialityType" minOccurs="0" />
+      <xsd:element name="header" type="headerType" />
+      <xsd:choice>
+        <xsd:sequence>
+          <xsd:element name="folder" type="folderType" maxOccurs="unbounded" />
+          <xsd:element name="Signature" type="sig:SignatureType" nillable="true" minOccurs="0" />
+        </xsd:sequence>
+        <xsd:element name="EncryptedData" type="enc:EncryptedType" />
+        <xsd:element name="Base64EncryptedData" type="Base64EncryptedDataType" />
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="lifecycleType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-LIFECYCLE" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="localitemattributeType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-KMEHR" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cd" type="CD:LOCAL" nillable="true" />
+      <xsd:element name="content" type="contentlocalitemattributeType" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="locationBirthPlaceType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-EBIRTH-PLACE" minOccurs="0" />
+      <xsd:element name="text" type="DT:textType" minOccurs="0" />
+      <xsd:element name="address" type="addressType" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="maxrefType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the maximal range of the content</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="text" type="DT:textType" />
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="medicationType">
+    <xsd:annotation>
+      <xsd:documentation>Deprecated at 01/01/2009, this complex type has been retained for backward compatibility only</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="cd" type="CD:CD-MEDICATION">
+          <xsd:annotation>
+            <xsd:documentation>to specify a CNK</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="inn" type="DT:textType">
+          <xsd:annotation>
+            <xsd:documentation>to specify an international non-proprietary name</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="magistral" type="DT:textType">
+          <xsd:annotation>
+            <xsd:documentation>to describe a magistral prescription as free text, possibly complemented by a list of CNK</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="tradename" type="xsd:string" minOccurs="0" />
+      <xsd:element name="presentation" type="presentationType" minOccurs="0" />
+      <xsd:element name="strength" type="strengthType" minOccurs="0" />
+      <xsd:element name="route" type="routeType" minOccurs="0" />
+      <xsd:element name="batch" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>serial number of the product package</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:sequence minOccurs="0">
+        <xsd:element name="numberofpackage" type="xsd:decimal" />
+        <xsd:element name="package" type="packageType" minOccurs="0" />
+        <xsd:element name="quantityperpackage" type="xsd:decimal" minOccurs="0" />
+      </xsd:sequence>
+      <xsd:element name="instructionforoverdosing" type="DT:textType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>to justify voluntary 'overdosing'</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="instructionforpatient" type="DT:textType" minOccurs="0" />
+      <xsd:element name="instructionforreimbursement" type="DT:textType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation> to indicate the type of reimbursement based on medical justification for treatment </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="issubstitutionallowed" type="xsd:boolean" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>to specify if the substitution by the pharmacist is allowed</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="memberinsuranceType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-INSURANCE" />
+      <xsd:element name="membership" type="xsd:string" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="minrefType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the minimal range of the content</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="text" type="DT:textType" />
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="momentType">
+    <xsd:choice>
+      <xsd:choice>
+        <xsd:element name="year" type="xsd:gYear" />
+        <xsd:element name="yearmonth" type="xsd:gYearMonth" />
+      </xsd:choice>
+      <xsd:sequence>
+        <xsd:element name="date" type="xsd:date" />
+        <xsd:element name="time" type="xsd:time" minOccurs="0" />
+      </xsd:sequence>
+      <xsd:element name="text" type="DT:textType" />
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="packageType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-UNIT" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="periodicityType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the periodicity</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-PERIODICITY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="personTypeLight">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-PATIENT" maxOccurs="unbounded" />
+      <xsd:element name="firstname" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="familyname" type="xsd:string" minOccurs="0" />
+      <xsd:element name="address" type="addressType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="telecom" type="telecomType" minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="personType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-PATIENT" maxOccurs="unbounded" />
+      <xsd:element name="firstname" type="xsd:string" maxOccurs="unbounded" />
+      <xsd:element name="familyname" type="xsd:string" />
+      <xsd:element name="birthdate" type="dateType" minOccurs="0" />
+      <xsd:element name="birthlocation" type="addressTypeBase" minOccurs="0" />
+      <xsd:element name="deathdate" type="dateType" minOccurs="0" />
+      <xsd:element name="deathlocation" type="addressTypeBase" minOccurs="0" />
+      <xsd:element name="sex" type="sexType" />
+      <xsd:element name="nationality" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cd" type="CD:CD-COUNTRY" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="address" type="addressType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="telecom" type="telecomType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="usuallanguage" type="xsd:language" minOccurs="0" />
+      <xsd:element name="profession" type="professionType" minOccurs="0" />
+      <xsd:element name="insurancystatus" type="insuranceType" minOccurs="0" />
+      <xsd:element name="insurancymembership" type="memberinsuranceType" minOccurs="0" />
+      <xsd:element name="recorddatetime" type="xsd:dateTime" minOccurs="0" />
+      <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="civilstate" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cd" type="CD:CD-CIVILSTATE" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="presentationType">
+    <xsd:annotation>
+      <xsd:documentation>galenic form</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-DRUG-PRESENTATION" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="professionType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-PROFESSION" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cd" type="CD:CD-EMPLOYMENTSITUATION" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="text" type="DT:textType" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="quantityType">
+    <xsd:sequence>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="unit" type="unitType" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="recipientType">
+    <xsd:annotation>
+      <xsd:documentation>The recipient can be specified by a free combination of hcparty elements (organisation(s), medical specialty(ies), person(s)). If no individual person can be identified as recipient, you should specify a medical specialty or, at
+        least the identification of the organisation that receives the message for further distribution (a regional server for example).
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="hcparty" type="hcpartyType" maxOccurs="unbounded" />
+      <xsd:element minOccurs="0" name="dummyFriend" type="xsd:string" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="refscopeType">
+    <xsd:annotation>
+      <xsd:documentation>to specify if the minref and maxref references are adjusted to the patient's age, sex, ..., </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-REFSCOPE" />
+      <xsd:element name="refvalue" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>to specify reference values for a given context</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="minref" type="minrefType" minOccurs="0" />
+            <xsd:element name="maxref" type="maxrefType" minOccurs="0" />
+            <xsd:element name="context" type="DT:textType" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="renewalType">
+    <xsd:annotation>
+      <xsd:documentation />
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:sequence>
+        <xsd:element name="decimal" type="xsd:decimal">
+          <xsd:annotation>
+            <xsd:documentation>number of possible renewals of that product. Default 0.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="duration" type="durationType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>eearliest renewal between first delivery and each renewal.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:element name="text" type="DT:textType" />
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="routeType">
+    <xsd:annotation>
+      <xsd:documentation>administration route</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-DRUG-ROUTE" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="RRMAXType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="TIME" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="RRMINType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="TIME" type="xsd:string" use="optional" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="senderType">
+    <xsd:annotation>
+      <xsd:documentation>the sender can be specified by a free combination of hcparty elements (organisation(s), medical specialty(ies), person(s)).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="hcparty" type="hcpartyType" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="severityType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-SEVERITY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="sexType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-SEX" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="siteType">
+    <xsd:choice>
+      <xsd:element name="cd" type="CD:CD-SITE" />
+      <xsd:element name="text" type="DT:textType" />
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:complexType name="standardType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the version of the kmehr specification to which this message complies</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-STANDARD" />
+      <xsd:element name="specialisation" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cd" type="CD:CD-MESSAGE" />
+            <xsd:element name="version" type="xsd:string" />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="strengthType">
+    <xsd:sequence>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="unit" type="unitType" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="substanceType">
+    <xsd:sequence>
+      <xsd:choice>
+        <xsd:element name="cd" type="CD:CD-SUBSTANCE">
+          <xsd:annotation>
+            <xsd:documentation>Identifies the substance using a INNCLUSTER, ATC or EAN code.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="substancename" type="xsd:string" />
+      </xsd:choice>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="telecomType">
+    <xsd:sequence>
+      <xsd:element name="id" type="ID:ID-KMEHR" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element name="cd" type="CD:CD-TELECOM" maxOccurs="2">
+        <xsd:annotation>
+          <xsd:documentation>the first cd specifies the type of address (home, work,...) and the second cd specifies the type of telecom device (phone, gsm, fax, ...)</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="telecomnumber" type="xsd:string" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="temporalityType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-TEMPORALITY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="textWithLayoutType" mixed="true">
+    <xsd:sequence>
+      <xsd:any minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+    </xsd:sequence>
+    <xsd:attribute name="L" type="xsd:string" />
+  </xsd:complexType>
+  <xsd:complexType name="timequantityType">
+    <xsd:sequence>
+      <xsd:element name="decimal" type="xsd:decimal" />
+      <xsd:element name="unit" type="timeunitType" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="timeunitType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the time unit</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-TIMEUNIT" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="transactionType">
+    <xsd:annotation>
+      <xsd:documentation>a transaction is a set of medical information validated by one healthcare professional at one given moment.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="confidentiality" type="confidentialityType" minOccurs="0" />
+      <xsd:element name="id" type="ID:ID-KMEHR" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>this must be a sequential number within the folder. In addition, it can specify alternative local identifier(s).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="cd" type="CD:CD-TRANSACTION" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>the transaction must contain at least one code from the CD-TRANSACTION scheme. Local codes can be associated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="date" type="xsd:date">
+        <xsd:annotation>
+          <xsd:documentation>usually this is the date of reporting. Please refer to detailed specification for particular cases.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="time" type="xsd:time">
+        <xsd:annotation>
+          <xsd:documentation>usually this is the time of reporting. Please refer to detailed specification for particular cases.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="author" type="authorType">
+        <xsd:annotation>
+          <xsd:documentation>the author endorses the medical responsibility of the content of the transaction. It must identify at least one physical person. In addition, it can also identify its medical specialty and/or organisation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="redactor" type="authorType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>the redactor identifies the context of transcription or generation of the content of the transaction. It can identifiy a physicial person like a secretary, nurse, ... and possibly its department and/or organisation. It can
+            also represent a robot for automatic content generation, an application for example.
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="iscomplete" type="xsd:boolean">
+        <xsd:annotation>
+          <xsd:documentation>to specify if the transaction is partial or complete.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="isvalidated" type="xsd:boolean">
+        <xsd:annotation>
+          <xsd:documentation>to specify if the content of the transaction has been medically validated.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="expirationdate" type="xsd:date" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>expiration date of the prescription/transaction, can be used to remove a prescription from a prescription server</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:choice maxOccurs="unbounded">
+        <xsd:element name="heading" type="headingType" />
+        <xsd:element name="item" type="itemType" />
+        <xsd:element name="text" type="DT:textType" />
+        <xsd:element name="text-with-layout" type="textWithLayoutType" nillable="true" minOccurs="0" maxOccurs="unbounded" />
+        <xsd:element name="lnk" type="CD:lnkType">
+          <xsd:annotation>
+            <xsd:documentation>to link the transaction with another element of the Belgian Healthcare Telematics System</xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+      <xsd:element name="recorddatetime" type="xsd:dateTime" minOccurs="0" />
+      <xsd:element name="version" type="xsd:string" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="unitType">
+    <xsd:annotation>
+      <xsd:documentation>to specify the unit</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-UNIT" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="urgencyType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-URGENCY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="weekdayType">
+    <xsd:sequence>
+      <xsd:element name="cd" type="CD:CD-WEEKDAY" />
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="medicinalProductType">
+    <xsd:annotation>
+      <xsd:documentation>
+        a medicinal product can be identified
+        unambiguously by a CNK code identifying
+        a package. The descriptive
+        identification is only mandatory in case
+        of absence of a package ID.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="intendedcd" type="CD:CD-DRUG-CNK" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            in Belgium a selected CNK code
+            out of the drug database
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="deliveredcd" type="CD:CD-DRUG-CNK" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>
+            in Belgium the effective
+            delivered CNK code out of the
+            drug database
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="intendedname" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            descriptive name in the package
+            database, in Belgium the name
+            use in the pharmacy database
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="deliveredname" type="xsd:string" minOccurs="0" />
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
