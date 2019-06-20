@@ -503,7 +503,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return line.startsWith("L1") || line.matches(headerPattern + "R1.*");
     }
 
-    private boolean isProtocolLine(String line) {
+    protected boolean isProtocolLine(String line) {
         return line.startsWith("L5") || line.startsWith("L2");
     }
 

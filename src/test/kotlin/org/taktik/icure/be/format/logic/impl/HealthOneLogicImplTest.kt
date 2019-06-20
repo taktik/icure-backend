@@ -59,6 +59,29 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun isProtocolLine() {
+        // Empty line
+        val line1 = ""
+        val res1 = HealthOneLogicImpl.isProtocolLine(line1)
+        Assert.assertFalse(res1)
+
+        // L5 line
+        val line2 = "L5\\text"
+        val res2 = HealthOneLogicImpl.isProtocolLine(line2)
+        Assert.assertTrue(res2)
+
+        // L2 line
+        val line3 = "L2\\text"
+        val res3 = HealthOneLogicImpl.isProtocolLine(line3)
+        Assert.assertTrue(res3)
+
+        // Other beginning line
+        val line4 = "25\\text"
+        val res4 = HealthOneLogicImpl.isProtocolLine(line4)
+        Assert.assertFalse(res4)
+    }
+
+    @Test
     fun getLaboLine() {
         // Empty line
         val line1 = "A1"
