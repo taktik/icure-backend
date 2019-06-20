@@ -58,6 +58,55 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
     }
 
+    @Test
+    fun getInfos() {
+        // First parameter
+        val doc1 = Document();
+        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339.lab")
+        val bytes1 = mappings1.readBytes();
+        doc1.setAttachment(bytes1);
+
+        // Second parameter
+        val full = true
+
+        // Third parameter
+        val language = "UTF8"
+
+        // Fourth parameter
+        val enckeys = null
+
+        // Execution
+        val res1 = HealthOneLogicImpl.getInfos(doc1, full, language, enckeys)
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339.lab")
+        val bufferedreader2 = mappings2.bufferedReader(Charset.forName("cp1252"));
+        val res2 = HealthOneLogicImpl.extractResultInfos(bufferedreader2,language,null,full)
+
+        Assert.assertTrue(res1.size == res2.size)
+        for((index,ResultInfo) in res1.withIndex()){
+            Assert.assertTrue(ResultInfo.ssin == res2[index].ssin)
+            Assert.assertTrue(ResultInfo.lastName == res2[index].lastName)
+            Assert.assertTrue(ResultInfo.firstName == res2[index].firstName)
+            Assert.assertTrue(ResultInfo.dateOfBirth == res2[index].dateOfBirth)
+            Assert.assertTrue(ResultInfo.sex == res2[index].sex)
+            Assert.assertTrue(ResultInfo.documentId == res2[index].documentId)
+            Assert.assertTrue(ResultInfo.protocol == res2[index].protocol)
+            Assert.assertTrue(ResultInfo.complete == res2[index].complete)
+            Assert.assertTrue(ResultInfo.demandDate == res2[index].demandDate)
+            Assert.assertTrue(ResultInfo.labo == res2[index].labo)
+            Assert.assertTrue(ResultInfo.engine == res2[index].engine)
+            for((codeIndex,code) in ResultInfo.codes.withIndex()){
+                Assert.assertEquals(code,res2[index].codes[codeIndex])
+            }
+            for((serviceIndex,service) in ResultInfo.services.withIndex()){
+                val a = service.index
+                val b = res2[index].services[serviceIndex].index
+                Assert.assertEquals(service.index,res2[index].services[serviceIndex].index)
+            }
+
+
+        }
+
+    }
 
     @Test
     fun extractResultInfos() {
