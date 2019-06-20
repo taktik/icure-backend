@@ -499,7 +499,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return line.startsWith("A1") || line.matches(headerPattern + "S1.*");
     }
 
-    private boolean isLaboResultLine(String line) {
+    protected boolean isLaboResultLine(String line) {
         return line.startsWith("L1") || line.matches(headerPattern + "R1.*");
     }
 
