@@ -59,6 +59,41 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun getPatientLine() {
+        // Empty line
+        val line1 = "A2"
+        val res1 = HealthOneLogicImpl.getPatientLine(line1)
+        Assert.assertEquals(res1.protocol,null)
+        Assert.assertEquals(res1.firstName,null)
+        Assert.assertEquals(res1.lastName,null)
+        Assert.assertEquals(res1.sex,null)
+        Assert.assertEquals(res1.dn,null)
+
+        val line2 = "A2\\\\\\\\\\\\"
+        val res2 = HealthOneLogicImpl.getPatientLine(line2)
+        Assert.assertEquals(res2.protocol,"")
+        Assert.assertEquals(res2.firstName,"")
+        Assert.assertEquals(res2.lastName,"")
+        Assert.assertEquals(res2.sex,"")
+        Assert.assertEquals(res2.dn,null)
+
+        // Complete Line with "V"
+        val line3 = "A2\\protocol\\NOM\\PRENOM\\V\\01011950\\"
+        val res3 = HealthOneLogicImpl.getPatientLine(line3)
+        Assert.assertEquals(res3.protocol,"protocol")
+        Assert.assertEquals(res3.firstName,"PRENOM")
+        Assert.assertEquals(res3.lastName,"NOM")
+        Assert.assertEquals(res3.sex,"F")
+        Assert.assertEquals(res3.dn,Timestamp(HealthOneLogicImpl.readDate("01011950")))
+
+        // Complete Line with "A" and unaccepted date
+        val line4 = "A2\\protocol\\NOM\\PRENOM\\A\\010\\"
+        val res4 = HealthOneLogicImpl.getPatientLine(line4)
+        Assert.assertEquals(res4.sex,"A")
+        Assert.assertEquals(res4.dn,null)
+    }
+
+    @Test
     fun getExtraPatientLine() {
         // Empty line
         val line1 = "S4.*"

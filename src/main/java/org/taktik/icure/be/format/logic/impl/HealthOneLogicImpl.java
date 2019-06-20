@@ -520,7 +520,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return ll;
     }
 
-    private PatientLine getPatientLine(String line) {
+    protected PatientLine getPatientLine(String line) {
         String[] parts = splitLine(line);
         PatientLine pl = new PatientLine();
         if (parts.length > 1) {
