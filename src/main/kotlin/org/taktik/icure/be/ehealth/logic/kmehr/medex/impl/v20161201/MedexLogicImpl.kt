@@ -70,7 +70,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
 
                         this.headingsAndItemsAndTexts.add(ItemType().apply {
                             this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-                            this.cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = "incapacity"})
+                            this.cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity"})
 
                             this.beginmoment = Utils.makeMomentTypeFromFuzzyLong(beginDate);
                             this.endmoment = Utils.makeMomentTypeFromFuzzyLong(endDate);
@@ -92,7 +92,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
 
                         this.headingsAndItemsAndTexts.add(ItemType().apply {
                             this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 2.toString() })
-                            this.cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = "diagnosis"})
+                            this.cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis"})
 
                             this.contents.add(ContentType().apply {
                                 diagnosisICD?.let {

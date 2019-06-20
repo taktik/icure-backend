@@ -28,6 +28,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.dto.mapping.ImportMapping
+import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.embed.Service
@@ -175,6 +176,19 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
 		return ResponseUtils.ok(softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
 		                                                               patientId?.let { patientLogic.getPatient(patientId) },
 		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
+	}
+
+	@ApiOperation(value = "Check whether patients in SMF already exists in DB", response = CheckSMFPatientResult::class, responseContainer = "Array")
+	@POST
+	@Path("/smf/{documentId}/checkIfSMFPatientsExists")
+	fun checkIfSMFPatientsExists(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+		val user = sessionLogic.currentSessionContext.user
+		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
+		val document = documentLogic.get(documentId)
+
+		return ResponseUtils.ok(softwareMedicalFileLogic.checkIfSMFPatientsExists(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
+				patientId?.let { patientLogic.getPatient(patientId) },
+				mappings ?: HashMap()).map {mapper.map(it, CheckSMFPatientResult::class.java)})
 	}
 
 	@ApiOperation(value = "Import SMF into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
