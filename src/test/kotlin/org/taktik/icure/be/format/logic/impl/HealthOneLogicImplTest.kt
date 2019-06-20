@@ -59,6 +59,29 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun getLaboLine() {
+        // Empty line
+        val line1 = "A1"
+        val res1 = HealthOneLogicImpl.getLaboLine(line1)
+        Assert.assertEquals(res1.resultReference,null)
+        Assert.assertEquals(res1.labo,null)
+        Assert.assertEquals(res1.fullLine,line1)
+
+        val line2 = "A1\\\\\\\\\\\\"
+        val res2 = HealthOneLogicImpl.getLaboLine(line2)
+        Assert.assertEquals(res2.resultReference,"")
+        Assert.assertEquals(res2.labo,"")
+        Assert.assertEquals(res2.fullLine,line2)
+
+        // Complete Line with "V"
+        val line3 = "A1\\protocol\\LaboName"
+        val res3 = HealthOneLogicImpl.getLaboLine(line3)
+        Assert.assertEquals(res3.resultReference,"protocol")
+        Assert.assertEquals(res3.labo,"LaboName")
+        Assert.assertEquals(res3.fullLine,line3)
+    }
+
+    @Test
     fun getPatientLine() {
         // Empty line
         val line1 = "A2"
