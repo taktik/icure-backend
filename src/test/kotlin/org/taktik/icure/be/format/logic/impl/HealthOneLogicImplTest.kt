@@ -58,6 +58,31 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
     }
 
+
+
+    @Test
+    fun isResultsInfosLine() {
+        // Empty line
+        val line1 = ""
+        val res1 = HealthOneLogicImpl.isResultsInfosLine(line1)
+        Assert.assertFalse(res1)
+
+        // A4 line
+        val line2 = "A4\\text"
+        val res2 = HealthOneLogicImpl.isResultsInfosLine(line2)
+        Assert.assertTrue(res2)
+
+        // S5.* line
+        val line3 = "12 S5.*\\text"
+        val res3 = HealthOneLogicImpl.isResultsInfosLine(line3)
+        Assert.assertTrue(res3)
+
+        // Other beginning line
+        val line4 = "25\\text"
+        val res4 = HealthOneLogicImpl.isResultsInfosLine(line4)
+        Assert.assertFalse(res4)
+    }
+
     @Test
     fun isPatientSSINLine() {
         // Empty line
