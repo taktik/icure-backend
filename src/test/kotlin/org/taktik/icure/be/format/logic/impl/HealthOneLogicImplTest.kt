@@ -58,6 +58,193 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
     }
 
+
+    @Test
+    fun extractResultInfos() {
+        // First parameter
+        /// File 1
+        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339.lab")
+        val bufferedreader1 = mappings1.bufferedReader(Charset.forName("cp1252"));
+        /// File 2
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/1100116471515_a1_LOL0327b54.LAB.txt")
+        val bufferedreader2 = mappings2.bufferedReader(Charset.forName("cp850"));
+        /// File 3 (report -L5)
+        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506")
+        val bufferedreader3 = mappings3.bufferedReader(Charset.forName("cp850"));
+        // File 4 (only one line protocol)
+        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/1100116471515_a1_LOL0327b54_2.LAB")
+        val bufferedreader4 = mappings4.bufferedReader(Charset.forName("cp850"));
+        // File 5
+        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-84_2.LAB")
+        val bufferedreader5 = mappings5.bufferedReader(Charset.forName("cp850"));
+        // File 6 - MS 642 (Partial result and missplaced NISS)
+        val mappings6 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
+        val bufferedreader6 = mappings6.bufferedReader(Charset.forName("cp1252"));
+        // File 7 - MS 635 (2 services)
+        val mappings7 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/H1-190507162031-0001_MS-635.DAT")
+        val bufferedreader7 = mappings7.bufferedReader(Charset.forName("cp850"));
+        // File 8 - MS 339 (exception generated)
+        val mappings8 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_3.txt")
+        val bufferedreader8 = mappings8.bufferedReader(Charset.forName("cp850"));
+
+        // Second parameter
+        val language = "UTF-8"
+
+        // Third parameter
+        val docID = "docID"
+
+        // Fourth parameter
+        val full = true
+
+        // Executions
+        val res1 = HealthOneLogicImpl.extractResultInfos(bufferedreader1,language,docID,full)
+        val res2 = HealthOneLogicImpl.extractResultInfos(bufferedreader2,language,docID,full)
+        val res3 = HealthOneLogicImpl.extractResultInfos(bufferedreader3,language,docID,full)
+        val res4 = HealthOneLogicImpl.extractResultInfos(bufferedreader4,language,docID,full)
+        val res5 = HealthOneLogicImpl.extractResultInfos(bufferedreader5,language,docID,full)
+        val res6 = HealthOneLogicImpl.extractResultInfos(bufferedreader6,language,docID,full)
+        val res7 = HealthOneLogicImpl.extractResultInfos(bufferedreader7,language,docID,full)
+        val res8 = HealthOneLogicImpl.extractResultInfos(bufferedreader8,language,docID,full)
+
+        // General Test
+        /// File 1
+        Assert.assertEquals(res1[0].documentId, docID);
+        Assert.assertEquals(res1[0].protocol, "1903-19339");
+        /// File 2
+        Assert.assertEquals(res2[0].documentId, docID);
+        Assert.assertEquals(res2[0].protocol, "9S231326");
+        /// File 3
+        Assert.assertEquals(res3[0].documentId, docID);
+        Assert.assertEquals(res3[0].protocol, "18652739");
+
+        // Test A1
+        Assert.assertEquals(res1[0].labo, "CHR HAUTE SENNE"); //File 1 line 1
+        Assert.assertEquals(res2[0].labo, "Labo Luc Olivier - Villers"); //File 2 line 1 - Format Labo Luc Olivier - Villers\Add1\Add2\Add3\ Ok Only the first parse is take to put the labo name
+
+        // Test A2
+        /// File 1 line 2
+        Assert.assertEquals(res1[0].lastName, "NOM");
+        Assert.assertEquals(res1[0].firstName, "PRENOM");
+        Assert.assertEquals(res1[0].sex, "F");
+        Assert.assertEquals(res1[0].dateOfBirth, 19500101L); // Case of 01011950 writing
+        /// File 2 line 2 - Format NOM\PRENOM\F\010150\
+        Assert.assertEquals(res2[0].lastName, "NOM");
+        Assert.assertEquals(res2[0].firstName, "PRENOM");
+        Assert.assertEquals(res2[0].sex, "F");
+        /* Before code is modify
+        Assert.assertEquals(res2[0].dateOfBirth, null); // Case of 010150 writing isn't detected// Date must have 8 digit and the format is ordered by shortDateFormat which is the ddMMyyyy format
+       */
+        Assert.assertEquals(res2[0].dateOfBirth, 19500101L); // Case of 010150 writing
+        /// File 3 line 2 - Format NOM\PRENOM\Add1\F\01011950\Add1\Add2\ imply lastName and firstName OK but sex becomes "Add0" and dateOfBirth is null caused by "F" not convenient format for date
+        Assert.assertEquals(res3[0].lastName, "NOM");
+        Assert.assertEquals(res3[0].firstName, "PRENOM");
+        Assert.assertEquals(res3[0].sex, "Add1");
+        Assert.assertEquals(res3[0].dateOfBirth, null);
+        /// File 5
+        Assert.assertEquals(res5[0].dateOfBirth, 19500101L); // Case of 01/01/1950 writing
+
+        // Test A3 (line 3) None of that informations is in the class ResultInfo
+
+        // Test A4 Doctor's name isn't use in the class ResultInfo
+        /// File 1 line 4 - Format Docteur Bidon\19032019\\C\
+        Assert.assertEquals(res1[0].demandDate, 1552950000000);
+        Assert.assertEquals(res1[0].complete, true);
+        /// File 2 line 4  - Format Docteur Bidon\27032018\Add1\C\
+        Assert.assertEquals(res2[0].demandDate, 1522101600000);
+        Assert.assertEquals(res2[0].complete, true);
+        /// File 6 line 4  - Format Docteur Bidon\26112018\1821\P\
+        Assert.assertEquals(res6[0].demandDate, 1557266400000);
+        Assert.assertEquals(res6[0].complete, false);
+
+        // Test A5
+        Assert.assertEquals(res1[0].ssin, null); // File 1 line 5
+        Assert.assertEquals(res2[0].ssin, null); // File 2 line 5 - For SSIN it's always the fourth part caught
+        Assert.assertEquals(res6[0].ssin, "50010100156"); // File 6 line 5 - For SSIN it's always the fourth part caught
+
+        // Test lines L1 (services)
+        /// File 1
+        Assert.assertEquals(res1[0].services.size, 32);
+        Assert.assertEquals(res1[0].codes[0].type, "CD-TRANSACTION");
+        Assert.assertEquals(res1[0].codes[0].code, "labresult");
+        Assert.assertEquals(res1[0].codes[0].version, "1");
+        /// File 2
+        Assert.assertEquals(res2[0].services.size, 4);
+        // Test simple L1
+        /// File 1 line 21 //L1\1903-19339\UREE\Urée\10-50\mg/dL\*\41\
+        Assert.assertEquals(res1[0].services[13].label, "Urée");
+        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.min, 10.0);
+        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.max, 50.0);
+        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.unit, "mg/dL");
+        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.value, 41.0);
+        /// File 6 line ?? //L1\1903-19339\Activité estérasiqu\Urée\<25\U/µL\*\500\
+        Assert.assertEquals(res6[0].services[6].label, "Activité estérasique");
+        Assert.assertEquals(res6[0].services[6].content.get("UTF-8")?.measureValue?.max, 25.0);
+        Assert.assertEquals(res6[0].services[6].content.get("UTF-8")?.measureValue?.unit, "U/µL");
+        Assert.assertEquals(res6[0].services[6].content.get("UTF-8")?.measureValue?.value, 500.0);
+        // Test L1 complex
+        /// File 1 line 6-7
+        ///L1\1903-19339\EX_H\Index d'hémolyse\0-15\mg/dL\\1\
+        ///L1\1903-19339\EX_H\Index d'hémolyse\0-15\mg/dL\\\
+        Assert.assertEquals(res1[0].services[1].label, "Index d'hémolyse")
+        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.min, 0.0);
+        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.max, 15.0);
+        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.unit, "mg/dL");
+        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.value, 1.0);
+        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.comment, "");
+        /// File 2 line 7-11
+        ///L1\9S231326\INR\INR\2-3\\*\1,8\
+        ///L1\9S231326\INR\\< 1,5     : Pas d'anticoagulation effective\\*\\
+        ///L1\9S231326\INR\\2,0 - 3,0 : Indications g‚n‚rales\\*\\
+        ///L1\9S231326\INR\\2,5 - 3,5 : Indications particuliŠres\\*\\
+        ///L1\9S231326\INR\\> 5,0     : Surdosage AVK\\*\\
+        Assert.assertEquals(res2[0].services[1].label, "INR")
+        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.min, 2.0);
+        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.max, 3.0);
+        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.value, 1.8);
+        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.comment, "< 1,5     : Pas d'anticoagulation effective\n2,0 - 3,0 : Indications générales\n2,5 - 3,5 : Indications particulières\n> 5,0     : Surdosage AVK");
+        /// File 2 line 7-11
+        ///L1\9S231326\QUICK\Temps de Quick\70-100\%\*\36\
+        ///L1\9S231326\QUICK\\13 - 30 : sous AVK\\*\\
+        Assert.assertEquals(res2[0].services[2].label, "Temps de Quick")
+        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.min, 70.0);
+        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.max, 100.0);
+        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.value, 36.0);
+        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.unit, "%");
+        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.comment, "13 - 30 : sous AVK");
+        /// File 4
+        Assert.assertEquals(res4[0].services.size, 1);
+        Assert.assertEquals(res4[0].services[0].label, "Temps de Quick")
+        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.min, 70.0);
+        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.max, 100.0);
+        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.value, 36.0);
+        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.unit, "%");
+        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.comment, "13 - 30 : sous AVK");
+        /// File 7
+        Assert.assertEquals(res7.size, 2);
+        // Test lines L5 (services)
+        /// File 3
+        Assert.assertEquals(res3[0].services.size, 1);
+        Assert.assertEquals(res3[0].codes[0].type, "CD-TRANSACTION");
+        Assert.assertEquals(res3[0].codes[0].code, "report");
+        Assert.assertEquals(res3[0].codes[0].version, "1");
+        Assert.assertEquals(res3[0].services[0].content.get("UTF-8")?.stringValue, "Clinique Saint Jean -\nBruxelles,\nle 09/04/2019\n" +
+                "Réf.á: 7207797\nCher Confrère, chère Cons£ur,\nNous avons vu en consultation le 09/04/2019  Monsieur NOM PRENOM né le\n" +
+                "01/01/1950.\nAnamnèseá:");
+
+        // Test lines S1 (ExtraPatientLine)
+        Assert.assertEquals(res3[0].services.size, 1);
+/*
+        try {
+            val res8 = HealthOneLogicImpl.getInfos(doc8, full, language, enckeys)  // File 8
+            //println("Erreur non vue")
+            //calculator.squareRoot(-10);
+            //fail(&quot;Should throw exception when calculating square root of a negative number&quot;);
+        } catch (e: ParseException) {
+            //println("erreur vue")
+            //Assert(e.getMessage().contains());
+        }*/
+    }
+
     @Test
     fun isPatientLine() {
         // Empty line
@@ -631,5 +818,3 @@ class HealthOneLogicImplTest {
 
     }
 }
-
-
