@@ -247,7 +247,16 @@ class SumehrExport : KmehrExport() {
 		val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 		if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
-			val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
+
+			val decryptedServices  =  mutableListOf<Service>()
+
+			val chunkedToBeDecryptedServices = toBeDecryptedServices?.chunked(50)
+
+			chunkedToBeDecryptedServices?.forEach { itt ->
+				val decryptedServicesChunk = decryptor.decrypt(itt?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
+				decryptedServices.addAll(decryptedServicesChunk)
+			 }
+
 			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 		}
 
