@@ -59,6 +59,24 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun isExtraPatientLine() {
+        // Empty line
+        val line1 = ""
+        val res1 = HealthOneLogicImpl.isExtraPatientLine(line1)
+        Assert.assertFalse(res1)
+
+        // S4.* line
+        val line2 = "12 S4.*\\text"
+        val res2 = HealthOneLogicImpl.isExtraPatientLine(line2)
+        Assert.assertTrue(res2)
+
+        // Other beginning line
+        val line3 = "25\\text"
+        val res3 = HealthOneLogicImpl.isExtraPatientLine(line3)
+        Assert.assertFalse(res3)
+    }
+
+    @Test
     fun isPatientAddressLine() {
         // Empty line
         val line1 = ""
