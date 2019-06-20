@@ -58,7 +58,28 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
     }
 
+    @Test
+    fun isPatientAddressLine() {
+        // Empty line
+        val line1 = ""
+        val res1 = HealthOneLogicImpl.isPatientAddressLine(line1)
+        Assert.assertFalse(res1)
 
+        // A3 line
+        val line2 = "A3\\text"
+        val res2 = HealthOneLogicImpl.isPatientAddressLine(line2)
+        Assert.assertTrue(res2)
+
+        // S3.* line
+        val line3 = "12 S3.*\\text"
+        val res3 = HealthOneLogicImpl.isPatientAddressLine(line3)
+        Assert.assertTrue(res3)
+
+        // Other beginning line
+        val line4 = "25\\text"
+        val res4 = HealthOneLogicImpl.isPatientAddressLine(line4)
+        Assert.assertFalse(res4)
+    }
 
     @Test
     fun isResultsInfosLine() {
