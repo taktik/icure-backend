@@ -58,6 +58,56 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun getLaboResultLine(){  ////en cours
+        // Empty line
+        val line1 = "L1"
+        val laboline = "A1\\protocol\\Labo\\"
+        val ll = HealthOneLogicImpl.getLaboLine(laboline)
+        val res1 = HealthOneLogicImpl.getLaboResultLine(line1, ll)
+        Assert.assertEquals(res1,null)
+
+        val line2 = "L1\\\\\\\\\\\\\\\\"
+        val res2 = HealthOneLogicImpl.getLaboResultLine(line2,ll)
+        Assert.assertEquals(res2.protocol,"")
+        Assert.assertEquals(res2.analysisCode,"")
+        Assert.assertEquals(res2.analysisType,"Note")
+        Assert.assertEquals(res2.referenceValues,"")
+        Assert.assertEquals(res2.unit,"")
+        Assert.assertEquals(res2.severity,"")
+        Assert.assertEquals(res2.value,"")
+
+        // Complete line with R1.*
+        val line4 = "R1.*\\protocol\\BLOOD\\Red corpuscule\\2\\4\\g\\6"
+        val res4 = HealthOneLogicImpl.getLaboResultLine(line4,ll)
+        Assert.assertEquals(res4.protocol,"protocol")
+        Assert.assertEquals(res4.analysisCode,"BLOOD")
+        Assert.assertEquals(res4.analysisType,"Red corpuscule")
+        Assert.assertEquals(res4.referenceValues,"2 - 4")
+        Assert.assertEquals(res4.unit,"g")
+        Assert.assertEquals(res4.severity,"")
+        Assert.assertEquals(res4.value,"6")
+
+        // Complete line with L1
+        val line3 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\6"
+        val res3 = HealthOneLogicImpl.getLaboResultLine(line3,ll)
+        Assert.assertEquals(res3.protocol,"protocol")
+        Assert.assertEquals(res3.analysisCode,"BLOOD")
+        Assert.assertEquals(res3.analysisType,"Red corpuscule")
+        Assert.assertEquals(res3.referenceValues,"2-4")
+        Assert.assertEquals(res3.unit,"g")
+        Assert.assertEquals(res3.severity,"+")
+        Assert.assertEquals(res3.value,"6")
+
+        ll.labosList.add(res3)
+        val line5 = "L1\\protocol\\BLOOD\\\\Text written by the lab"
+        val res5 = HealthOneLogicImpl.getLaboResultLine(line5,ll)
+        Assert.assertEquals(res5.protocol,"protocol")
+        Assert.assertEquals(res5.analysisCode,"BLOOD")
+        Assert.assertEquals(res5.analysisType,"Red corpuscule")
+        Assert.assertEquals(res5.value,"Text written by the lab")
+    }
+
+    @Test
     fun getProtocolLine(){
         // Empty line
         val line1 = "L5"

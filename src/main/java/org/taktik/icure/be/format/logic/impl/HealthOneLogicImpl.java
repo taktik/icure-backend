@@ -562,7 +562,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return pl;
     }
 
-    private LaboResultLine getLaboResultLine(String line, LaboLine ll) {
+    protected LaboResultLine getLaboResultLine(String line, LaboLine ll) {
         try {
             String[] parts = splitLine(line);
             LaboResultLine lrl = new LaboResultLine();
@@ -586,7 +586,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                 }
                 lrl.severity = "";
             } else {
-                if ((lrl.analysisType == null || lrl.analysisType.length() == 0) && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
+                if (( lrl.analysisType == null || lrl.analysisType.length() == 0 ) && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
                     lrl.analysisType = ll.labosList.get(ll.labosList.size() - 1).analysisType;
                     lrl.value = parts[4];
                 } else {
