@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -81,14 +82,16 @@ class SumehrExport : KmehrExport() {
             recipient : HealthcareParty?,
             language : String,
             comment : String?,
-		decryptor: AsyncDecrypt?,
+		    decryptor: AsyncDecrypt?,
+            asJson: Boolean = false,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
 		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
 		                        clinicalSummaryType = "",
 		                        defaultLanguage = "en"
-		                       )) {
+		                       )
+    ) {
 		val message = initializeMessage(sender, config)
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let {createParty(it, emptyList())} ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0"}), "gp-software-migration"))
@@ -100,13 +103,19 @@ class SumehrExport : KmehrExport() {
 		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, decryptor)
         message.folders.add(folder)
 
-        val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+        if(asJson){
+            val jmap = jacksonObjectMapper()
+            jmap.writerWithDefaultPrettyPrinter().writeValue(os, message)
+        } else {
 
-        // output pretty printed
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+            val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
-        jaxbMarshaller.marshal(message, OutputStreamWriter(os,"UTF-8"))
+            // output pretty printed
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+            jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+
+            jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+        }
     }
 
 	private val labelsMap = mapOf(
@@ -498,7 +507,7 @@ class SumehrExport : KmehrExport() {
 				getAssessment(trn).headingsAndItemsAndTexts
 			}
 
-            listOf("healthcareelement", "allergy", "adr", "familyrisk", "risk", "socialrisk").forEach { edType ->
+            listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
                 if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
                     createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
                         if(!eds.codes.isEmpty()){

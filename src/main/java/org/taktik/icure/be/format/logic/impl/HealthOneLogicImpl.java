@@ -282,151 +282,153 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return s;
     }
 
-    private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
+	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
 		Service s = new Service();
-        Measure m = new Measure();
+		Measure m = new Measure();
 
-        m.setValue(d);
-        if (comment != null) {
-            m.setComment(comment);
-        }
-        m.setUnit(lrl.unit);
-        Reference r = tryToGetReferenceValues(lrl.referenceValues);
-        if (r != null) {
-            m.setMin(r.minValue);
-            m.setMax(r.maxValue);
-            //Handle the case where the labo has put the unit into the reference values
-            if ((r.unit != null) && ((lrl.unit == null) || (lrl.unit.trim().length() == 0))) {
-                m.setUnit(r.unit);
-            }
-        }
+		m.setValue(d);
+		if (comment != null) {
+			m.setComment(comment);
+		}
+		m.setUnit(lrl.unit);
+		Reference r = tryToGetReferenceValues(lrl.referenceValues);
+		if (r != null) {
+			m.setMin(r.minValue);
+			m.setMax(r.maxValue);
+			//Handle the case where the labo has put the unit into the reference values
+			if ((r.unit != null) && ((lrl.unit == null) || (lrl.unit.trim().length() == 0))) {
+				m.setUnit(r.unit);
+			}
+		}
 
-        if (lrl.severity.trim().length() > 0) {
-                m.setSeverity(1);
+		if (lrl.severity.trim().length() > 0) {
+			m.setSeverity(1);
 			m.setSeverityCode(lrl.severity.trim());
 			s.getCodes().add(new CodeStub("CD-SEVERITY","abnormal","1"));
-        }
+		}
 
-        s.setId(uuidGen.newGUID().toString());
-        s.getContent().put(language, new Content(m));
-        s.setLabel(lrl.analysisType);
-        s.setIndex((long) position);
-        s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
+		s.setId(uuidGen.newGUID().toString());
+		s.getContent().put(language, new Content(m));
+		s.setLabel(lrl.analysisType);
+		s.setIndex((long) position);
+		s.setValueDate(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS));
 
-        return s;
-    }
+		return s;
+	}
 
-    private Double tryToGetValueAsNumber(String value) {
-        String numberS = value.replaceAll(",", ".");
-        try {
-            return Double.parseDouble(numberS);
-        } catch (Exception e) {
+	private Double tryToGetValueAsNumber(String value) {
+		String numberS = value.replaceAll(",", ".");
+		try {
+			return Double.parseDouble(numberS);
+		} catch (Exception e) {
             //System.out.println("--------- Failed to parse '" + numberS + "'");
-            return null;
-        }
-    }
+			return null;
+		}
+	}
 
-    private Reference tryToGetReferenceValues(String refValues) {
-        try {
-            Matcher m = betweenReference.matcher(refValues);
-            if (m.matches()) {
-                Reference r = new Reference();
-                r.minValue = new Double(m.group(1).replaceAll(",", "."));
-                r.maxValue = new Double(m.group(2).replaceAll(",", "."));
-                if (m.group(3) != null) {
-                    r.unit = m.group(3);
-                }
-                if (m.group(4) != null) {
-                    r.unit = m.group(4);
-                }
-                return r;
-            }
-            m = lessThanReference.matcher(refValues);
-            if (m.matches()) {
-                Reference r = new Reference();
-                r.maxValue = new Double(m.group(1).replaceAll(",", "."));
-                if (m.group(2) != null) {
-                    r.unit = m.group(3);
-                }
-                if (m.group(3) != null) {
-                    r.unit = m.group(4);
-                }
-                return r;
-            }
-            m = greaterThanReference.matcher(refValues);
-            if (m.matches()) {
-                Reference r = new Reference();
-                r.minValue = new Double(m.group(1).replaceAll(",", "."));
-                if (m.group(2) != null) {
-                    r.unit = m.group(3);
-                }
-                if (m.group(3) != null) {
-                    r.unit = m.group(4);
-                }
-                return r;
-            }
-        } catch (Exception e) {
-            return null;
-        }
-        return null;
-    }
+	private Reference tryToGetReferenceValues(String refValues) {
+		try {
+			Matcher m = betweenReference.matcher(refValues);
+			if (m.matches()) {
+				Reference r = new Reference();
+				r.minValue = new Double(m.group(1).replaceAll(",", "."));
+				r.maxValue = new Double(m.group(2).replaceAll(",", "."));
+				if (m.group(3) != null) {
+					r.unit = m.group(3);
+				}
+				if (m.group(4) != null) {
+					r.unit = m.group(4);
+				}
+				return r;
+			}
+			m = lessThanReference.matcher(refValues);
+			if (m.matches()) {
+				Reference r = new Reference();
+				r.maxValue = new Double(m.group(1).replaceAll(",", "."));
+				if (m.group(2) != null) {
+					r.unit = m.group(3);
+				}
+				if (m.group(3) != null) {
+					r.unit = m.group(4);
+				}
+				return r;
+			}
+			m = greaterThanReference.matcher(refValues);
+			if (m.matches()) {
+				Reference r = new Reference();
+				r.minValue = new Double(m.group(1).replaceAll(",", "."));
+				if (m.group(2) != null) {
+					r.unit = m.group(3);
+				}
+				if (m.group(3) != null) {
+					r.unit = m.group(4);
+				}
+				return r;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
+	}
 
-    @Override
-    public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
-        BufferedReader br = getBufferedReader(doc, enckeys);
-        String documentId = doc.getId();
-        return extractResultInfos(br, language, documentId, full);
-    }
+	@Override
+	public List<ResultInfo> getInfos(Document doc, boolean full, String language, List<String> enckeys) throws IOException {
+		BufferedReader br = getBufferedReader(doc, enckeys);
+		String documentId = doc.getId();
 
-    @NotNull
-    protected List<ResultInfo> extractResultInfos(BufferedReader br, String language, String documentId, boolean full) throws IOException {
-        List<ResultInfo> l = new ArrayList<>();
-        long position = 0;
+		return extractResultInfos(br, language, documentId, full);
+	}
 
-        String line = br.readLine();
-        while (line != null && position < 10_000_000L /* ultimate safeguard */) {
-            position++;
-            if (isLaboLine(line)) {
-                LaboLine ll = getLaboLine(line);
+	@NotNull
+	protected List<ResultInfo> extractResultInfos(BufferedReader br, String language, String documentId, boolean full) throws IOException {
+		List<ResultInfo> l = new ArrayList<>();
+		long position = 0;
 
-                ResultInfo ri = new ResultInfo();
+		String line = br.readLine();
+		while (line != null && position < 10_000_000L /* ultimate safeguard */) {
+			position++;
+			if (isLaboLine(line)) {
+				LaboLine ll = getLaboLine(line);
 
-                ri.setLabo(ll.getLabo());
+				ResultInfo ri = new ResultInfo();
 
-                line = br.readLine();
-                while (line != null && position < 10_000_000L /* ultimate safeguard */) {
-                    position++;
-                    if (isPatientLine(line)) {
-                        PatientLine p = getPatientLine(line);
-                        ri.setLastName(p.lastName);
-                        ri.setFirstName(p.firstName);
-                        if (p.dn != null) {
-                            ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.dn.getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS));
-                        }
-                        ri.setProtocol(p.protocol);
-                        ri.setSex(p.sex);
-                        ri.setDocumentId(documentId);
-                    } else if (isExtraPatientLine(line)) {
-                        PatientLine p = getExtraPatientLine(line);
-                        if (p.dn != null) {
-                            ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.dn.getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS));
-                        }
-                        if (p.sex != null) {
-                            ri.setSex(p.sex);
-                        }
-                    } else if (isResultsInfosLine(line)) {
-                        ResultsInfosLine r = getResultsInfosLine(line);
-                        ll.ril = r;
-                        if (r != null) {
-                            ri.setComplete(r.complete);
-                            ri.setDemandDate(r.demandDate.toEpochMilli());
-                        }
-                    } else if (isPatientSSINLine(line)) {
-                        PatientSSINLine p = getPatientSSINLine(line);
-                        if (p != null) {
-                            ri.setSsin(p.ssin);
-                        }
-                    } else if (isProtocolLine(line)) {
+				ri.setLabo(ll.getLabo());
+
+				line = br.readLine();
+				while (line != null && position < 10_000_000L /* ultimate safeguard */) {
+					position++;
+					if (isPatientLine(line)) {
+						PatientLine p = getPatientLine(line);
+
+						ri.setLastName(p.lastName);
+						ri.setFirstName(p.firstName);
+						if (p.dn != null) {
+							ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.dn.getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS));
+						}
+						ri.setProtocol(p.protocol);
+						ri.setSex(p.sex);
+						ri.setDocumentId(documentId);
+					} else if (isExtraPatientLine(line)) {
+						PatientLine p = getExtraPatientLine(line);
+						if (p.dn != null) {
+							ri.setDateOfBirth(FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.dn.getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS));
+						}
+						if (p.sex != null) {
+							ri.setSex(p.sex);
+						}
+					} else if (isResultsInfosLine(line)) {
+						ResultsInfosLine r = getResultsInfosLine(line);
+						ll.ril = r;
+						if (r != null) {
+							ri.setComplete(r.complete);
+							ri.setDemandDate(r.demandDate.toEpochMilli());
+						}
+					} else if (isPatientSSINLine(line)) {
+						PatientSSINLine p = getPatientSSINLine(line);
+						if (p != null) {
+							ri.setSsin(p.ssin);
+						}
+					} else if (isProtocolLine(line)) {
                         if (ri.getCodes().size() == 0) {
                             ri.getCodes().add(new Code("CD-TRANSACTION", "report", "1"));
                         }
@@ -753,7 +755,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         pw.print("A1\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\\r\n");
         pw.print("A2\\" + ref + "\\" + namePat + "\\" + firstPat + "\\" + sexPat + "\\" + birthPat + "\\\r\n");
         pw.print("A3\\" + ref + "\\" + addrPat1 + "\\" + addrPat2 + "\\" + addrPat3 + "\\\r\n");
-        pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\" + isFull + "\\\r\n");
+		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\\\" + isFull + "\\\r\n");
         pw.print("A5\\" + ref + "\\\\" + ssinPat + "\\\\\\\\\r\n");
 
         for (String line : text.replaceAll("\u2028", "\n").split("\n")) {
@@ -778,15 +780,15 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         }
     }
 
-    @Override
-    public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
-        BufferedReader br = getBufferedReader(doc, enckeys);
+	@Override
+	public boolean canHandle(Document doc, List<String> enckeys) throws IOException {
+		BufferedReader br = getBufferedReader(doc, enckeys);
 
-        String firstLine = br.readLine();
-        br.close();
+		String firstLine = br.readLine();
+		br.close();
 
-        return firstLine != null && this.isLaboLine(firstLine);
-    }
+		return firstLine != null && this.isLaboLine(firstLine);
+	}
 
     protected Long readDate(String date) throws ParseException, NumberFormatException {
         if (date.length() == 8) {
