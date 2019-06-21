@@ -59,6 +59,50 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun tryToGetReferenceValues() {
+        // betweenReference
+        val refValues1 = "1-2"
+        val res1 = HealthOneLogicImpl.tryToGetReferenceValues(refValues1)
+        Assert.assertTrue(res1.minValue==1.0)
+        Assert.assertTrue(res1.maxValue==2.0)
+
+        // same with group 3
+        val refValues2 = "1-2     mg"
+        val res2 = HealthOneLogicImpl.tryToGetReferenceValues(refValues2)
+        Assert.assertTrue(res2.minValue==1.0)
+        Assert.assertTrue(res2.maxValue==2.0)
+        Assert.assertEquals(res2.unit,"mg")
+
+        // lessThanReference
+        val refValues3 = "<2"
+        val res3 = HealthOneLogicImpl.tryToGetReferenceValues(refValues3)
+        Assert.assertTrue(res3.maxValue==2.0)
+
+        // lessThanReference with group 3
+        val refValues4 = "<2   L"
+        val res4 = HealthOneLogicImpl.tryToGetReferenceValues(refValues4)
+        Assert.assertTrue(res4.maxValue==2.0)
+        Assert.assertEquals(res4.unit,null) // Must be modificated when the code will be correct
+
+        // greaterThanReference
+        val refValues5 = ">2"
+        val res5 = HealthOneLogicImpl.tryToGetReferenceValues(refValues5)
+        Assert.assertTrue(res5.minValue==2.0)
+
+        // greaterThanReference with group 3
+        val refValues6 = ">2   e10mg"
+        val res6 = HealthOneLogicImpl.tryToGetReferenceValues(refValues6)
+        Assert.assertTrue(res6.minValue==2.0)
+        Assert.assertEquals(res6.unit,null) // Must be modificated when the code will be correct
+
+        // refValues not matches
+        val refValues7 = "([-,-:-, a"
+        val res7 = HealthOneLogicImpl.tryToGetReferenceValues(refValues7)
+        Assert.assertEquals(res7,null)
+
+    }
+
+    @Test
     fun getInfos() {
         // First parameter
         val doc1 = Document();
@@ -102,8 +146,6 @@ class HealthOneLogicImplTest {
                 val b = res2[index].services[serviceIndex].index
                 Assert.assertEquals(service.index,res2[index].services[serviceIndex].index)
             }
-
-
         }
 
     }

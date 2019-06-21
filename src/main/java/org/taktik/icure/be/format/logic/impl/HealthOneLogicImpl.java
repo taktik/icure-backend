@@ -326,7 +326,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		}
 	}
 
-	private Reference tryToGetReferenceValues(String refValues) {
+	protected Reference tryToGetReferenceValues(String refValues) {
 		try {
 			Matcher m = betweenReference.matcher(refValues);
 			if (m.matches()) {
