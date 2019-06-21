@@ -316,7 +316,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return s;
 	}
 
-	private Double tryToGetValueAsNumber(String value) {
+	protected Double tryToGetValueAsNumber(String value) {
 		String numberS = value.replaceAll(",", ".");
 		try {
 			return Double.parseDouble(numberS);

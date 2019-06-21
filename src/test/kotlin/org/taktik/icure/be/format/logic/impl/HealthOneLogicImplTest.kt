@@ -59,6 +59,49 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun tryToGetValueAsNumber() {
+        // Integer
+        val values1 = "1"
+        val res1 = HealthOneLogicImpl.tryToGetValueAsNumber(values1)
+        Assert.assertTrue(res1==1.0)
+
+        // Zero
+        val values2 = "0"
+        val res2 = HealthOneLogicImpl.tryToGetValueAsNumber(values2)
+        Assert.assertTrue(res2==0.0)
+
+        // Negative integer
+        val values3 = "-1"
+        val res3 = HealthOneLogicImpl.tryToGetValueAsNumber(values3)
+        Assert.assertTrue(res3==-1.0)
+
+        // Double with comma
+        val values4 = "1,0"
+        val res4 = HealthOneLogicImpl.tryToGetValueAsNumber(values4)
+        Assert.assertTrue(res4==1.0)
+
+        // Double with point
+        val values5 = "1.0"
+        val res5 = HealthOneLogicImpl.tryToGetValueAsNumber(values5)
+        Assert.assertTrue(res5==1.0)
+
+        // Negative double with point
+        val values6 = "-1.0"
+        val res6 = HealthOneLogicImpl.tryToGetValueAsNumber(values6)
+        Assert.assertTrue(res6==-1.0)
+
+        // Negative double with point
+        val values7 = "-1.0000000000000000000000"
+        val res7 = HealthOneLogicImpl.tryToGetValueAsNumber(values7)
+        Assert.assertTrue(res7==-1.0)
+
+        // Not a double
+        val values8 = "a"
+        val res8 = HealthOneLogicImpl.tryToGetValueAsNumber(values8)
+        Assert.assertEquals(res8,null)
+    }
+
+    @Test
     fun tryToGetReferenceValues() {
         // betweenReference
         val refValues1 = "1-2"
