@@ -54,25 +54,25 @@ public final class LoginFacade implements OpenApiFacade{
 	private ICureSessionLogic sessionLogic;
 	private HealthcarePartyLogic healthcarePartyLogic;
 
-    @Path("/login")
-    @POST
-	@ApiOperation(
-			value = "login",
-			response = AuthenticationResponse.class,
-			httpMethod = "POST",
-			notes = "Login using username and password"
-	)
-    public Response login(LoginCredentials loginInfo) throws LoginException {
-	    AuthenticationResponse response = new AuthenticationResponse();
-	    SessionLogic.SessionContext sessionContext = sessionLogic.login(loginInfo.getUsername(), loginInfo.getPassword());
-	    response.setSuccessful((sessionContext != null && sessionContext.isAuthenticated()));
-	    if (response.isSuccessful()) {
-		    response.setHealthcarePartyId(sessionLogic.getCurrentHealthcarePartyId());
-		    response.setUsername(loginInfo.getUsername());
-	    }
-
-		return Response.ok().entity(mapper.map(response, AuthenticationResponse.class)).build();
-    }
+//    @Path("/login")
+//    @POST
+//	@ApiOperation(
+//			value = "login",
+//			response = AuthenticationResponse.class,
+//			httpMethod = "POST",
+//			notes = "Login using username and password"
+//	)
+//    public Response login(LoginCredentials loginInfo) throws LoginException {
+//	    AuthenticationResponse response = new AuthenticationResponse();
+//	    SessionLogic.SessionContext sessionContext = sessionLogic.login(loginInfo.getUsername(), loginInfo.getPassword());
+//	    response.setSuccessful((sessionContext != null && sessionContext.isAuthenticated()));
+//	    if (response.isSuccessful()) {
+//		    response.setHealthcarePartyId(sessionLogic.getCurrentHealthcarePartyId());
+//		    response.setUsername(loginInfo.getUsername());
+//	    }
+//
+//		return Response.ok().entity(mapper.map(response, AuthenticationResponse.class)).build();
+//    }
 
     @Path("/logout")
     @GET

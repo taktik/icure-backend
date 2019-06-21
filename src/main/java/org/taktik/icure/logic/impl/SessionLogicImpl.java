@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ServerWebExchange;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.constants.TypedValuesType;
 import org.taktik.icure.entities.Property;
@@ -43,6 +44,7 @@ import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.security.PermissionSetIdentifier;
 import org.taktik.icure.security.UserDetails;
 import org.taktik.icure.security.database.DatabaseUserDetails;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -116,7 +118,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 	/* Generic */
 
-	private String determineLocale(User user, HttpServletRequest httpRequest, String authLocale) {
+	private String determineLocale(User user) {
 
 		// Retrieve the preferred locale of the user if any
 		Set<Property> properties = user.getProperties();
@@ -169,7 +171,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	}
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest httpRequest, Authentication authentication) {
+	public Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication) {
 		// Get UserDetails
 		UserDetails userDetails = extractUserDetails(authentication);
 		if (userDetails != null) {
@@ -182,41 +184,42 @@ public class SessionLogicImpl implements ICureSessionLogic {
 				String authLocale = userDetails.getLocale();
 
 				// Determine locale and save it
-				String locale = determineLocale(user, httpRequest, authLocale);
-				httpRequest.getSession().setAttribute(SESSION_LOCALE_ATTRIBUTE, locale);
+				String locale = determineLocale(user);
+				return exchange.getSession().map(session -> session.getAttributes().put(SESSION_LOCALE_ATTRIBUTE, locale)).then();
 			}
 		}
+		return Mono.empty();
 	}
 
-	@Override
-	public SessionContext login(String username, String password) {
-		try {
-			// Try to authenticate using given username and password
-			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-			Authentication authentication = authenticationManager.authenticate(token);
-
-			// Clear any previous session context
-			setCurrentSessionContext(null);
-
-			// Set current authentication
-			setCurrentAuthentication(authentication);
-
-			// Check if authentication succeeded
-			if (authentication != null && authentication.isAuthenticated()) {
-				HttpServletRequest httpRequest = null;
-				RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-				if (requestAttributes instanceof ServletRequestAttributes) {
-					ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
-					httpRequest = servletRequestAttributes.getRequest();
-				}
-				onAuthenticationSuccess(httpRequest, authentication);
-			}
-			return getSessionContext(authentication);
-		} catch (AuthenticationException e) {
-			// Ignore
-		}
-		return null;
-	}
+//	@Override
+//	public SessionContext login(String username, String password) {
+//		try {
+//			// Try to authenticate using given username and password
+//			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+//			Authentication authentication = authenticationManager.authenticate(token);
+//
+//			// Clear any previous session context
+//			setCurrentSessionContext(null);
+//
+//			// Set current authentication
+//			setCurrentAuthentication(authentication);
+//
+//			// Check if authentication succeeded
+//			if (authentication != null && authentication.isAuthenticated()) {
+//				HttpServletRequest httpRequest = null;
+//				RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+//				if (requestAttributes instanceof ServletRequestAttributes) {
+//					ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+//					httpRequest = servletRequestAttributes.getRequest();
+//				}
+//				onAuthenticationSuccess(httpRequest, authentication);
+//			}
+//			return getSessionContext(authentication);
+//		} catch (AuthenticationException e) {
+//			// Ignore
+//		}
+//		return null;
+//	}
 
 	@Override
 	public void logout() {

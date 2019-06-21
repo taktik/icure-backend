@@ -34,9 +34,9 @@ import java.io.IOException;
 public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 	protected ICureSessionLogic sessionLogic;
 
-	@Override
+	@Override // TODO SH can remove this ?
 	public void onAuthenticationSuccess(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Authentication authentication) throws ServletException, IOException {
-		sessionLogic.onAuthenticationSuccess(httpRequest, authentication);
+		//sessionLogic.onAuthenticationSuccess(httpRequest, authentication);
 		super.onAuthenticationSuccess(httpRequest, httpResponse, authentication);
 	}
 

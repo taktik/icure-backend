@@ -23,12 +23,12 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
 import ma.glasnost.orika.metadata.TypeBuilder
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.logic.AccessLogLogic
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogPaginatedList
@@ -52,7 +52,6 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
     @DeleteMapping("/{accessLogIds}")
-    @Throws(DeletionException::class)
     fun deleteAccessLog(@PathVariable accessLogIds: String) {
         accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog deletion failed")
@@ -83,9 +82,9 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")
     @GetMapping("/byUser")
-    fun findByUserAfterDate(@ApiParam(value = "A User ID") @RequestParam userId: String,
-                            @ApiParam(value = "The type of access (COMPUTER or USER)", required = false) @RequestParam(required = false) accessType: String?,
-                            @ApiParam(value = "The start search epoch") @RequestParam startDate: Long,
+    fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
+                            @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+                            @ApiParam(value = "The start search epoch", required = true) @RequestParam startDate: Long,
                             @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,

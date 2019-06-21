@@ -38,6 +38,10 @@ import org.taktik.icure.services.external.rest.v1.dto.UserDto
 import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
 
+/* Useful notes:
+ * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
+ * is not required by default and overrides it, so we have to make sure they always match! */
+
 @RestController
 @RequestMapping("/user", produces = ["application/json"])
 @Api(tags = ["user"]) // otherwise would default to "user-controller"

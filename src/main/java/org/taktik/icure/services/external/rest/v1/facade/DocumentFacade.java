@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -259,7 +258,7 @@ public class DocumentFacade implements OpenApiFacade{
 	@PUT
 	@Path("/{documentId}/attachment/multipart")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response setAttachmentMulti(@PathParam("documentId") String documentId, @QueryParam("enckeys") String enckeys, @FormDataParam("attachment") byte[] payload) {
+	public Response setAttachmentMulti(@PathParam("documentId") String documentId, @QueryParam("enckeys") String enckeys, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
 		return setAttachment(documentId, enckeys, payload);
 	}
 

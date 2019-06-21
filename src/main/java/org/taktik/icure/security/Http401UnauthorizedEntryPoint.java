@@ -18,17 +18,16 @@
 
 package org.taktik.icure.security;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
-public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
+public class Http401UnauthorizedEntryPoint implements ServerAuthenticationEntryPoint {
 	@Override
-	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
+		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+		return Mono.empty();
 	}
 }

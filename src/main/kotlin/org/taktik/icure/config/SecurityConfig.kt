@@ -21,28 +21,25 @@ package org.taktik.icure.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.authentication.ReactiveAuthenticationManagerAdapter
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder
+import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.DefaultSecurityFilterChain
-import org.springframework.security.web.FilterChainProxy
-import org.springframework.security.web.access.ExceptionTranslationFilter
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.firewall.StrictHttpFirewall
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.taktik.icure.logic.*
-import org.taktik.icure.security.AuthenticationFailureHandler
-import org.taktik.icure.security.AuthenticationSuccessHandler
+import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter
+import org.springframework.security.web.server.authorization.ExceptionTranslationWebFilter
+import org.taktik.icure.logic.GroupLogic
+import org.taktik.icure.logic.ICureSessionLogic
+import org.taktik.icure.logic.PermissionLogic
+import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
 import org.taktik.icure.security.database.CustomAuthenticationProvider
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
-import org.taktik.icure.security.web.BasicAuthenticationFilter
-import org.taktik.icure.security.web.LoginUrlAuthenticationEntryPoint
-import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
 
 
 @Configuration
@@ -62,74 +59,76 @@ class SecurityConfig {
 @Configuration
 class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthenticationProvider,
                             private val httpFirewall: StrictHttpFirewall,
-                            private val sessionLogic: ICureSessionLogic) : WebSecurityConfigurerAdapter(false) {
+                            private val sessionLogic: ICureSessionLogic) {
 
-    override fun configure(auth: AuthenticationManagerBuilder?) {
-        auth!!.authenticationProvider(daoAuthenticationProvider)
-    }
-
-    override fun configure(web: WebSecurity) {
-        web.httpFirewall(httpFirewall)
-    }
-
-    override fun configure(http: HttpSecurity?) {
-        //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation
-        http!!
+    @Bean
+    fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation TODO SH needed ?
+        return http
                 .csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable()
+                .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
                 .cors().and() // adds the Spring-provided CorsFilter to the application context which in turn bypasses the authorization checks for OPTIONS requests.
-                .addFilterBefore(
-            FilterChainProxy(
-                listOf(
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter(), remotingExceptionTranslationFilter()),
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter(), usernamePasswordAuthenticationFilter(), exceptionTranslationFilter())
-                      )
-                ).apply {
-                    setFirewall(httpFirewall)
-                }, FilterSecurityInterceptor::class.java)
-                .authorizeRequests()
-                .antMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
-                .antMatchers("/rest/*/auth/login").permitAll()
-                .antMatchers("/*/api-docs").permitAll()
-                .antMatchers("/rest/*/icure/v").permitAll()
-                .antMatchers("/rest/*/icure/p").permitAll()
-                .antMatchers("/rest/*/icure/check").permitAll()
-                .antMatchers("/rest/*/icure/c").permitAll()
-                .antMatchers("/rest/*/icure/ok").permitAll()
-                .antMatchers("/rest/*/icure/pok").permitAll()
-                .antMatchers("/rest/**").hasRole("USER")
-
-                .antMatchers("/api/login.html").permitAll()
-                .antMatchers("/api/css/**").permitAll()
-                .antMatchers("/api/**").hasRole("USER")
-
-                .antMatchers("/").permitAll()
-
-                .antMatchers("/ping.json").permitAll()
-
-                .antMatchers("/**").hasRole("USER")
+//                .addFilterAt(
+//                WebFilterChainProxy(
+//                        listOf(
+//                                MatcherSecurityWebFilterChain(AntPathRequestMatcher("/rest/**"), listOf(basicAuthenticationFilter(), remotingExceptionTranslationFilter())),
+//                                MatcherSecurityWebFilterChain(AntPathRequestMatcher("/**"), listOf(basicAuthenticationFilter(), usernamePasswordAuthenticationFilter(), exceptionTranslationFilter()))
+//                        )
+//                ).apply {
+//                    setFirewall(httpFirewall)
+//                }, SecurityWebFiltersOrder.LAST) //TODO SH order of FilterSecurityInterceptor::class.java
+                // TODO SH should swap to an actually reactive version of CustomAuthenticationProvider
+                .authenticationManager(authenticationManager())
+                .authorizeExchange()
+                .anyExchange().permitAll()
+                // TODO SH hasAnyRole coming in Spring 5.2: https://github.com/spring-projects/spring-security/pull/6310
+//                .pathMatchers("/rest/*/replication/group/**").hasRole("USER")
+//                .pathMatchers("/rest/*/replication/group/**").hasRole("BOOTSTRAP")
+//                .pathMatchers("/rest/*/auth/login").permitAll()
+//                .pathMatchers("/*/api-docs").permitAll()
+//                .pathMatchers("/rest/*/icure/v").permitAll()
+//                .pathMatchers("/rest/*/icure/p").permitAll()
+//                .pathMatchers("/rest/*/icure/check").permitAll()
+//                .pathMatchers("/rest/*/icure/c").permitAll()
+//                .pathMatchers("/rest/*/icure/ok").permitAll()
+//                .pathMatchers("/rest/*/icure/pok").permitAll()
+//                .pathMatchers("/rest/**").hasRole("USER")
+//
+//                .pathMatchers("/api/login.html").permitAll()
+//                .pathMatchers("/api/css/**").permitAll()
+//                .pathMatchers("/api/**").hasRole("USER")
+//
+//                .pathMatchers("/").permitAll()
+//
+//                .pathMatchers("/ping.json").permitAll()
+//
+//                .pathMatchers("/**").hasRole("USER")
+                .and().build()
     }
+
+//    override fun configure(web: WebSecurity) {
+//        web.httpFirewall(httpFirewall)
+//    }
 
     @Bean
-    override fun authenticationManagerBean(): AuthenticationManager {
-        return super.authenticationManagerBean()
+    fun authenticationManager(): ReactiveAuthenticationManager {
+        return ReactiveAuthenticationManagerAdapter(ProviderManager(listOf(daoAuthenticationProvider)))
     }
 
-    fun authenticationProcessingFilterEntryPoint() = LoginUrlAuthenticationEntryPoint("/", mapOf("/api" to "api/login.html"))
+
+    // TODO SH not sure setStatus is the same as sendError...
+    fun remotingExceptionTranslationFilter() = ExceptionTranslationWebFilter().apply { setAuthenticationEntryPoint(Http401UnauthorizedEntryPoint()) }
 
     @Bean
-    fun basicAuthenticationFilter() = BasicAuthenticationFilter(authenticationManagerBean())
-
-    fun usernamePasswordAuthenticationFilter() = UsernamePasswordAuthenticationFilter().apply {
-        usernameParameter = "username"
-        passwordParameter = "password"
-        setAuthenticationManager(authenticationManager())
-        setAuthenticationSuccessHandler(AuthenticationSuccessHandler().apply { setDefaultTargetUrl("/"); setAlwaysUseDefaultTargetUrl(false); setSessionLogic(sessionLogic) })
-        setAuthenticationFailureHandler(AuthenticationFailureHandler().apply { setDefaultFailureUrl("/error"); })
-        setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/login"))
-        setPostOnly(true)
+    fun basicAuthenticationWebFilter(): AuthenticationWebFilter {
+        val basicFilter = AuthenticationWebFilter(authenticationManager())
+        basicFilter.setAuthenticationSuccessHandler { webFilterExchange, authentication ->
+            val result = sessionLogic.onAuthenticationSuccess(webFilterExchange.exchange, authentication)
+            result.flatMap { webFilterExchange.chain.filter(webFilterExchange.exchange) }
+        }
+        return basicFilter
     }
 
-    fun remotingExceptionTranslationFilter() = ExceptionTranslationFilter(Http401UnauthorizedEntryPoint())
-
-    fun exceptionTranslationFilter() = ExceptionTranslationFilter(authenticationProcessingFilterEntryPoint())
 }

@@ -20,35 +20,23 @@
 
 package org.taktik.icure.config
 
-import com.hazelcast.config.Config
-import com.hazelcast.config.DiscoveryStrategyConfig
-import com.hazelcast.config.EvictionPolicy
-import com.hazelcast.config.MapAttributeConfig
-import com.hazelcast.config.MapConfig
-import com.hazelcast.config.MaxSizeConfig
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession
-import org.springframework.session.hazelcast.HazelcastSessionRepository
-import com.hazelcast.config.MapIndexConfig
+import com.hazelcast.config.*
 import com.hazelcast.core.Hazelcast
 import com.hazelcast.core.HazelcastInstance
 import com.hazelcast.kubernetes.KubernetesProperties
 import com.hazelcast.spi.properties.GroupProperty
-import com.hazelcast.spring.context.SpringManagedContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.session.hazelcast.PrincipalNameExtractor
-import org.springframework.session.web.http.HttpSessionStrategy
-import org.taktik.icure.services.external.http.CustomHttpSessionStrategy
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
 @Suppress("UsePropertyAccessSyntax")
 @Configuration
-@EnableHazelcastHttpSession
+//@EnableHazelcastHttpSession
 class HazelcastConfiguration {
 
     @Value("\${hazelcast.kubernetes.service:#{null}}")
@@ -67,17 +55,17 @@ class HazelcastConfiguration {
 
     fun hazelcastConfig(): Config = Config().apply {
         addMapConfig(MapConfig("org.taktik.icure.entities.HealthcareParty").apply {
-            timeToLiveSeconds = 5*60
+            timeToLiveSeconds = 5 * 60
             maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
             evictionPolicy = EvictionPolicy.LRU
         })
         addMapConfig(MapConfig("org.taktik.icure.entities.User").apply {
-            timeToLiveSeconds = 15*60
+            timeToLiveSeconds = 15 * 60
             maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
             evictionPolicy = EvictionPolicy.LRU
         })
         addMapConfig(MapConfig("org.taktik.icure.entities.*").apply {
-            timeToLiveSeconds = 12*3600
+            timeToLiveSeconds = 12 * 3600
             maxSizeConfig = MaxSizeConfig(256, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE)
             evictionPolicy = EvictionPolicy.LRU
         })
@@ -106,7 +94,7 @@ class HazelcastConfiguration {
     @ConditionalOnClass(name = ["com.hazelcast.spring.context.SpringManagedContext"])
     @ConditionalOnProperty("taktik.boot.hazelcast.springAware.enabled", havingValue = "true", matchIfMissing = true)
     class HazelcastSpringAutoConfiguration {
-        @Bean
+        /*@Bean
         fun springManagedContext() = SpringManagedContext()
 
         @Bean
@@ -114,9 +102,9 @@ class HazelcastConfiguration {
             override fun configure(config: Config) {
                 config.managedContext = springManagedContext()
             }
-        }
+        }*/
 
-        @Bean
+        /*@Bean
         fun springSessionConfigurer() = object : HazelcastInstanceConfigurer {
             override fun configure(config: Config) {
                 config.getMapConfig("spring:session:sessions")
@@ -126,17 +114,17 @@ class HazelcastConfiguration {
                     .addMapIndexConfig(MapIndexConfig(
                         HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false))
             }
-        }
+        }*/
 
-        @Bean
+        /*@Bean
         fun httpSessionStrategy(): HttpSessionStrategy {
             return CustomHttpSessionStrategy()
-        }
+        }*/
 
         @Bean
         fun replicatorJobsConfigurer() = object : HazelcastInstanceConfigurer {
             override fun configure(config: Config) {
-                config.getMapConfig("icure:jobs:replicators").setTimeToLiveSeconds(12*3600).setMaxSizeConfig(MaxSizeConfig(100000, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
+                config.getMapConfig("icure:jobs:replicators").setTimeToLiveSeconds(12 * 3600).setMaxSizeConfig(MaxSizeConfig(100000, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
             }
         }
     }

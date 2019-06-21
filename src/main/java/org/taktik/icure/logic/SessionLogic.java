@@ -19,9 +19,11 @@
 package org.taktik.icure.logic;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.socket.WebSocketSession;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.security.UserDetails;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,9 +34,9 @@ import java.util.concurrent.Callable;
 public interface SessionLogic {
 
 	/* Generic */
-	void onAuthenticationSuccess(HttpServletRequest httpRequest, Authentication authentication);
+	Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication);
 
-	SessionContext login(String username, String password);
+	//SessionContext login(String username, String password);
 
 	void logout();
 

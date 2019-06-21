@@ -1,4 +1,4 @@
-package org.taktik.icure.services.external.http
+/*package org.taktik.icure.services.external.http
 
 import org.springframework.session.Session
 import org.springframework.session.web.http.CookieHttpSessionStrategy
@@ -44,3 +44,4 @@ class CustomHttpSessionStrategy : HttpSessionStrategy {
 
 }
 
+*/

@@ -146,8 +146,7 @@ public class AccessLogFacade implements OpenApiFacade{
     @Path("/byUser")
     public Response findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @QueryParam("userId") String userId,
                                         @ApiParam(value = "The type of access (COMPUTER or USER)", required = false) @QueryParam("accessType") String accessType,
-                                        @ApiParam(value = "The start search epoch", required = false) @QueryParam("startDate") Long startDate, @ApiParam(value = "The start key for pagination", required = false) @QueryParam("startKey") String startKey,
-                                        @ApiParam(value = "A patient document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
+                                        @ApiParam(value = "The start search epoch", required = false) @QueryParam("startDate") Long startDate, @ApiParam(value = "The start key for pagination", required = false) @QueryParam("startKey") String startKey, @ApiParam(value = "A patient document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
                                         @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit,
 										@ApiParam(value = "Descending order", required = false) @QueryParam("descending") Boolean descending) {
 

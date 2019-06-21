@@ -10,7 +10,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean
 
 
 @Configuration
-class CrossOriginConfiguration {
+class CrossOriginConfiguration { // TODO SH migrate this to WebFlux see https://www.baeldung.com/spring-webflux-cors
     @Bean
     fun corsFilter(): CorsFilter {
         val source = UrlBasedCorsConfigurationSource()

@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
-import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -450,7 +449,7 @@ public class FormFacade implements OpenApiFacade {
 	@PUT
 	@Path("/template/{formTemplateId}/attachment/multipart")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, @FormDataParam("attachment") byte[] payload) {
+	public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
 
 		if (payload == null || formTemplateId == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
