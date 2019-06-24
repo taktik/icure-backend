@@ -62,6 +62,49 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun importLaboResult() {
+        // First parameter
+        val language = "language"
+        // Second parameter
+        val laboLine = "A1\\protocol\\Labo\\"
+        val ll = HealthOneLogicImpl.getLaboLine(laboLine)
+        val laboResultLine1 = "L1\\protocol\\BLOOD\\Red corpuscule\\\\\\\\"
+        val lrl1 = HealthOneLogicImpl.getLaboResultLine(laboResultLine1,ll)
+        val d = 6.0
+        val laboResultLine2 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\"+d
+        val lrl2 = HealthOneLogicImpl.getLaboResultLine(laboResultLine2,ll)
+        val labResults1 = listOf(lrl2)
+        val labResults2 = listOf(lrl1,lrl2)
+        val labResults3 = listOf(lrl2,lrl1,lrl1)
+        val labResults4 = listOf(lrl2,lrl1,lrl2)
+        // Third parameter
+        val position = 1L
+        // Fourth parameter
+        val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val ril = HealthOneLogicImpl.getResultsInfosLine(resultsInfosLine)
+
+        // Execution
+        val res1 = HealthOneLogicImpl.importLaboResult(language,labResults1,position,ril)
+        val res2 = HealthOneLogicImpl.importLaboResult(language,labResults2,position,ril)
+        val res3 = HealthOneLogicImpl.importLaboResult(language,labResults3,position,ril)
+        val res4 = HealthOneLogicImpl.importLaboResult(language,labResults4,position,ril)
+
+        // Tests
+        /// If there is only one LaboResultLine
+        Assert.assertEquals(res1.size,1)
+        /// If there is more than 1 and the return of the first lrl'value by tryToGetValueAsNumber is null
+        Assert.assertNotNull(res2.lastOrNull()?.id)
+        Assert.assertEquals(res2.lastOrNull()?.content?.get(language)?.stringValue,"\n"+d)
+        Assert.assertEquals(res2.lastOrNull()?.label,lrl1.analysisType)
+        Assert.assertEquals(res2.lastOrNull()?.index,position)
+        Assert.assertEquals(res2.lastOrNull()?.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+        /// If there is more than 1 and the return of the first lrl'value by tryToGetValueAsNumber isn't null
+        Assert.assertEquals(res3.lastOrNull()?.content?.get(language)?.measureValue?.comment, "")
+        /// If there is more than 1 and the return of the first lrl'value by tryToGetValueAsNumber isn't null +
+        Assert.assertEquals(res4.lastOrNull()?.content?.get(language)?.measureValue?.comment, "\n"+d)
+    }
+
+    @Test
     fun addLaboResult() {
         // First parameter
         val laboLine = "A1\\protocol\\Labo\\"
@@ -88,9 +131,9 @@ class HealthOneLogicImplTest {
 
         // Tests
         ///
-        Assert.assertNotNull(res1.lastOrNull()?.content?.get("language")?.stringValue)
+        Assert.assertNotNull(res1.lastOrNull()?.content?.get(language)?.stringValue)
         ///
-        Assert.assertNull(res2.lastOrNull()?.content?.get("language")?.stringValue)
+        Assert.assertNull(res2.lastOrNull()?.content?.get(language)?.stringValue)
     }
 
     @Test
@@ -118,14 +161,14 @@ class HealthOneLogicImplTest {
         ///
         Assert.assertEquals(res1.codes.size,0)
         Assert.assertNotNull(res1.id)
-        Assert.assertEquals(res1.content.get("language")?.stringValue," ")
+        Assert.assertEquals(res1.content.get(language)?.stringValue," ")
         Assert.assertEquals(res1.label,lrl1.analysisType)
         Assert.assertEquals(res1.index,position)
         Assert.assertEquals(res1.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
         ///
         Assert.assertEquals(res2.codes.size,1)
         Assert.assertNotNull(res2.id)
-        Assert.assertEquals(res2.content.get("language")?.stringValue,"6 g (2-4 ) (+ )")
+        Assert.assertEquals(res2.content.get(language)?.stringValue,"6 g (2-4 ) (+ )")
         Assert.assertEquals(res2.label,lrl1.analysisType)
         Assert.assertEquals(res2.index,position)
         Assert.assertEquals(res2.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
@@ -167,13 +210,13 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res1.label,lrl2.analysisType)
         Assert.assertEquals(res1.index,position)
         Assert.assertEquals(res1.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.value,d)
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.comment,null)
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.unit,lrl2.unit)
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.min,null)
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.max,null)
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.severity,null)
-        Assert.assertEquals(res1.content.get("language")?.measureValue?.severityCode,null)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.value,d)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.comment,null)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.unit,lrl2.unit)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.min,null)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.max,null)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.severity,null)
+        Assert.assertEquals(res1.content.get(language)?.measureValue?.severityCode,null)
         Assert.assertEquals(res1.codes.size,0)
 
         /// All the ifs at the first level are accepted but not the one at second level
@@ -181,13 +224,13 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res2.label,lrl2.analysisType)
         Assert.assertEquals(res2.index,position)
         Assert.assertEquals(res2.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.value,d)
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.comment,comment2)
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.unit,lrl2.unit)
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.min,2.0)
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.max,4.0)
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.severity,1)
-        Assert.assertEquals(res2.content.get("language")?.measureValue?.severityCode,"+")
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.value,d)
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.comment,comment2)
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.unit,lrl2.unit)
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.min,2.0)
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.max,4.0)
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.severity,1)
+        Assert.assertEquals(res2.content.get(language)?.measureValue?.severityCode,"+")
         Assert.assertEquals(res2.codes.size,1)
 
         ///
@@ -195,13 +238,13 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res3.label,lrl2.analysisType)
         Assert.assertEquals(res3.index,position)
         Assert.assertEquals(res3.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.value,d)
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.comment,comment2)
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.unit,"g")
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.min,2.0)
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.max,4.0)
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.severity,null)
-        Assert.assertEquals(res3.content.get("language")?.measureValue?.severityCode,null)
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.value,d)
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.comment,comment2)
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.unit,"g")
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.min,2.0)
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.max,4.0)
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.severity,null)
+        Assert.assertEquals(res3.content.get(language)?.measureValue?.severityCode,null)
         Assert.assertEquals(res3.codes.size,0)
 
     }
