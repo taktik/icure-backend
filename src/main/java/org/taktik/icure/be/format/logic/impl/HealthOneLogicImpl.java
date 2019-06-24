@@ -188,7 +188,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         }
     }
 
-    private Service importProtocol(String language, List protoList, long position, ResultsInfosLine ril) {
+    protected Service importProtocol(String language, List protoList, long position, ResultsInfosLine ril) {
         String text = ((ProtocolLine) protoList.get(0)).text;
         for (int i = 1; i < protoList.size(); i++) {
             text += "\n" + ((ProtocolLine) protoList.get(i)).text;

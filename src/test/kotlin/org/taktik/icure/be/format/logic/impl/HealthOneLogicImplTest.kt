@@ -62,6 +62,34 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun importProtocol() {
+        // First parameter
+        val language = "language"
+        // Second parameter
+        val protoLine1 = "L2\\protocol\\BLOOD\\Dear colleague,"
+        val protoLine2 = "L2\\protocol\\BLOOD\\I'm doing a test"
+        val proto1 = HealthOneLogicImpl.getProtocolLine(protoLine1)
+        val proto2 = HealthOneLogicImpl.getProtocolLine(protoLine2)
+        val protoList = listOf(proto1,proto2)
+        // Third parameter
+        val position = 1L
+        // Fourth parameter
+        val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val ril = HealthOneLogicImpl.getResultsInfosLine(resultsInfosLine)
+
+        // Execution
+        val res1 = HealthOneLogicImpl.importProtocol(language,protoList,position,ril)
+
+        // Tests
+        Assert.assertNotNull(res1.id)
+        Assert.assertEquals(res1.content?.get(language)?.stringValue,"Dear colleague,\nI'm doing a test")
+        Assert.assertEquals(res1.label,"Protocol")
+        Assert.assertEquals(res1.index,position)
+        Assert.assertEquals(res1.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+
+    }
+
+    @Test
     fun importLaboResult() {
         // First parameter
         val language = "language"
