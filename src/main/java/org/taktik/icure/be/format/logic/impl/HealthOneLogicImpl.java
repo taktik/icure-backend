@@ -261,7 +261,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return result;
     }
 
-    private Service importPlainStringLaboResult(String language, LaboResultLine lrl, long position, ResultsInfosLine ril) {
+    protected Service importPlainStringLaboResult(String language, LaboResultLine lrl, long position, ResultsInfosLine ril) {
 		Service s = new Service();
 
         String value = lrl.value + " " + lrl.unit;

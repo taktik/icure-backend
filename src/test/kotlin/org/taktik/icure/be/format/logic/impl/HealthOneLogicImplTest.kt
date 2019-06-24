@@ -62,6 +62,45 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun importPlainStringLaboResult() {
+        // First parameter
+        val language = "language"
+        // Second parameter
+        val laboLine = "A1\\protocol\\Labo\\"
+        val ll = HealthOneLogicImpl.getLaboLine(laboLine)
+        val laboResultLine1 = "L1\\protocol\\BLOOD\\Red corpuscule\\\\\\\\"
+        val lrl1 = HealthOneLogicImpl.getLaboResultLine(laboResultLine1,ll)
+        val laboResultLine2 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\6"
+        val lrl2 = HealthOneLogicImpl.getLaboResultLine(laboResultLine2,ll)
+        // Third parameter
+        val position = 1L
+        // Fourth parameter
+        val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val ril = HealthOneLogicImpl.getResultsInfosLine(resultsInfosLine)
+
+        // Execution
+        val res1 = HealthOneLogicImpl.importPlainStringLaboResult(language,lrl1,position,ril)
+        val res2 = HealthOneLogicImpl.importPlainStringLaboResult(language,lrl2,position,ril)
+
+        // Tests
+        ///
+        Assert.assertEquals(res1.codes.size,0)
+        Assert.assertNotNull(res1.id)
+        Assert.assertEquals(res1.content.get("language")?.stringValue," ")
+        Assert.assertEquals(res1.label,lrl1.analysisType)
+        Assert.assertEquals(res1.index,position)
+        Assert.assertEquals(res1.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+        ///
+        Assert.assertEquals(res2.codes.size,1)
+        Assert.assertNotNull(res2.id)
+        Assert.assertEquals(res2.content.get("language")?.stringValue,"6 g (2-4 ) (+ )")
+        Assert.assertEquals(res2.label,lrl1.analysisType)
+        Assert.assertEquals(res2.index,position)
+        Assert.assertEquals(res2.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+
+    }
+
+    @Test
     fun importNumericLaboResult() {
         // First parameter
         val language = "language"
@@ -105,7 +144,7 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res1.content.get("language")?.measureValue?.severityCode,null)
         Assert.assertEquals(res1.codes.size,0)
 
-        /// All if at first level are accepted but not the one at second level
+        /// All the ifs at the first level are accepted but not the one at second level
         Assert.assertNotNull(res2.id)
         Assert.assertEquals(res2.label,lrl2.analysisType)
         Assert.assertEquals(res2.index,position)
