@@ -249,7 +249,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return result;
     }
 
-    private List<Service> addLaboResult(LaboResultLine lrl, String language, long position, ResultsInfosLine ril, String comment) {
+    protected List<Service> addLaboResult(LaboResultLine lrl, String language, long position, ResultsInfosLine ril, String comment) {
         List<Service> result = new ArrayList<>();
         Double d = tryToGetValueAsNumber(lrl.value);
         if (d != null) {

@@ -62,6 +62,38 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun addLaboResult() {
+        // First parameter
+        val laboLine = "A1\\protocol\\Labo\\"
+        val ll = HealthOneLogicImpl.getLaboLine(laboLine)
+        val laboResultLine1 = "L1\\protocol\\BLOOD\\Red corpuscule\\\\\\\\"
+        val lrl1 = HealthOneLogicImpl.getLaboResultLine(laboResultLine1,ll)
+        val d = 6.0
+        val laboResultLine2 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\"+d
+        val lrl2 = HealthOneLogicImpl.getLaboResultLine(laboResultLine2,ll)
+
+        // Second parameter
+        val language = "language"
+        // Third parameter
+        val position = 1L
+        // Fourth parameter
+        val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val ril = HealthOneLogicImpl.getResultsInfosLine(resultsInfosLine)
+        // Fifth parameter
+        val comment = "comment"
+
+        // Execution
+        val res1 = HealthOneLogicImpl.addLaboResult(lrl1,language,position,ril,comment)
+        val res2 = HealthOneLogicImpl.addLaboResult(lrl2,language,position,ril,comment)
+
+        // Tests
+        ///
+        Assert.assertNotNull(res1.lastOrNull()?.content?.get("language")?.stringValue)
+        ///
+        Assert.assertNull(res2.lastOrNull()?.content?.get("language")?.stringValue)
+    }
+
+    @Test
     fun importPlainStringLaboResult() {
         // First parameter
         val language = "language"
