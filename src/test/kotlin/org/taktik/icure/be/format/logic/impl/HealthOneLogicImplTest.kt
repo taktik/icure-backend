@@ -14,12 +14,15 @@ import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.PatientLogic
+import org.taktik.icure.utils.FuzzyValues
 
 import java.io.*
 import java.nio.charset.Charset
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 import kotlin.io.outputStream
 
@@ -56,6 +59,80 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic == documentLogic, false)
         HealthOneLogicImpl.setDocumentLogic(documentLogic);
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
+    }
+
+    @Test
+    fun importNumericLaboResult() {
+        // First parameter
+        val language = "language"
+        // Second parameter
+        val d = 1.0
+        // Third parameter
+        val laboLine = "A1\\protocol\\Labo\\"
+        val ll = HealthOneLogicImpl.getLaboLine(laboLine)
+        val laboResultLine1 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\6"
+        val lrl1 = HealthOneLogicImpl.getLaboResultLine(laboResultLine1,ll)
+        val laboResultLine2 = "L1\\protocol\\BLOOD\\Red corpuscule\\\\g\\\\6"
+        val lrl2 = HealthOneLogicImpl.getLaboResultLine(laboResultLine2,ll)
+        val laboResultLine3 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4 g\\\\\\\\\\"
+        val lrl3 = HealthOneLogicImpl.getLaboResultLine(laboResultLine3,ll)
+        // Fourth parameter
+        val position = 1L
+        // Fifth parameter
+        val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val ril = HealthOneLogicImpl.getResultsInfosLine (resultsInfosLine)
+        // Sixth parameter
+        val comment1 = null
+        val comment2 = "comment"
+
+        // Execution
+        val res1 = HealthOneLogicImpl.importNumericLaboResult(language,d,lrl2,position,ril,comment1)
+        val res2 = HealthOneLogicImpl.importNumericLaboResult(language,d,lrl1,position,ril,comment2)
+        val res3 = HealthOneLogicImpl.importNumericLaboResult(language,d,lrl3,position,ril,comment2)
+
+        // Tests
+        /// The process goes in none if block
+        Assert.assertNotNull(res1.id)
+        Assert.assertEquals(res1.label,lrl2.analysisType)
+        Assert.assertEquals(res1.index,position)
+        Assert.assertEquals(res1.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.value,d)
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.comment,null)
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.unit,lrl2.unit)
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.min,null)
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.max,null)
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.severity,null)
+        Assert.assertEquals(res1.content.get("language")?.measureValue?.severityCode,null)
+        Assert.assertEquals(res1.codes.size,0)
+
+        /// All if at first level are accepted but not the one at second level
+        Assert.assertNotNull(res2.id)
+        Assert.assertEquals(res2.label,lrl2.analysisType)
+        Assert.assertEquals(res2.index,position)
+        Assert.assertEquals(res2.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.value,d)
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.comment,comment2)
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.unit,lrl2.unit)
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.min,2.0)
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.max,4.0)
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.severity,1)
+        Assert.assertEquals(res2.content.get("language")?.measureValue?.severityCode,"+")
+        Assert.assertEquals(res2.codes.size,1)
+
+        ///
+        Assert.assertNotNull(res3.id)
+        Assert.assertEquals(res3.label,lrl2.analysisType)
+        Assert.assertEquals(res3.index,position)
+        Assert.assertEquals(res3.valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.value,d)
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.comment,comment2)
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.unit,"g")
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.min,2.0)
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.max,4.0)
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.severity,null)
+        Assert.assertEquals(res3.content.get("language")?.measureValue?.severityCode,null)
+        Assert.assertEquals(res3.codes.size,0)
+
     }
 
     @Test

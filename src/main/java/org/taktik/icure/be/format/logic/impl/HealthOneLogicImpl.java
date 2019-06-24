@@ -282,7 +282,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return s;
     }
 
-	private Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
+	protected Service importNumericLaboResult(String language, Double d, LaboResultLine lrl, long position, ResultsInfosLine ril, String comment) {
 		Service s = new Service();
 		Measure m = new Measure();
 
