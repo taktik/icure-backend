@@ -85,7 +85,6 @@ class SumehrExport : KmehrExport() {
 		language: String,
 		comment: String?,
 		decryptor: AsyncDecrypt?,
-		preview: Boolean = false,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -105,20 +104,11 @@ class SumehrExport : KmehrExport() {
 		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, decryptor)
 		message.folders.add(folder)
 
-		if(preview){
-			val mapper = jacksonObjectMapper()
-			mapper.writerWithDefaultPrettyPrinter().writeValue(os, message)
-
-		} else {
-
-			val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-
-			// output pretty printed
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-			jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
-
-			jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
-		}
+		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+		// output pretty printed
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
 	}
 
 	private val labelsMap = mapOf(

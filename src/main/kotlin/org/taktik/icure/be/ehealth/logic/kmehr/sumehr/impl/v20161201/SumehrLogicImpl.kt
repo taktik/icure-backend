@@ -73,7 +73,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2
         return sumehrImport.importSumehr(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?, preview: Boolean) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor, preview)
+    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
 	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, decryptor: AsyncDecrypt?) = sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
