@@ -185,7 +185,7 @@ class SumehrExport : KmehrExport() {
 		addPatientHealthcareParties(p, trn, config)
 
 
-		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "euthanasiarequest", "intubationrefusal"), decryptor)
+		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "intubationrefusal", "euthanasiarequest", "vaccinationrefusal", "organdonationconsent", "datareuseforclinicalresearchconsent", "datareuseforclinicaltrialsconsent", "clinicaltrialparticipationconsent"), decryptor)
 
 		addVaccines(sender.id, sfks, trn, decryptor)
 		addMedications(sender.id, sfks, trn, decryptor)
@@ -306,7 +306,7 @@ class SumehrExport : KmehrExport() {
 		val services = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), decryptor))
 		values.forEach { value ->
 			services.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
-				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = value }) }))?.let {
+				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
 					assessment.headingsAndItemsAndTexts.add(it)
 				}
 			}
@@ -511,28 +511,49 @@ class SumehrExport : KmehrExport() {
 				getAssessment(trn).headingsAndItemsAndTexts
 			}
 
-            listOf("healthcareelement", "allergy", "adr", "familyrisk", "risk").forEach { edType ->
-                if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
-                    createItemWithContent(eds, items.size+1,edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
-                        if(!eds.codes.isEmpty()){
-                            // Notice the content can not be empty (sumehr validator)
-                            it.contents.add(ContentType().apply {
-                                eds.codes?.forEach { c ->
-                                    try{
-                                        val cdt = CDCONTENTschemes.fromValue(c.type)
-                                        // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
-                                        val version = if (c.type == "CD-ATC") "1.0" else c.version
-                                        this.cds.add(CDCONTENT().apply { s(cdt); sl = c.type; dn = c.type; sv = version; value = c.code })
-                                    } catch (ignored : IllegalArgumentException) {
-                                        log.error(ignored)
-                                    }
-                                }
-                            })
-                        }
-				items.add(it)
+			// familyrisk not allowed in Sumehr
+			eds.tags?.find {it.type == "CD-ITEM" && it.code == "familyrisk"}?.apply {
+				code = "healthcareelement"
 			}
-                }
-            }
+
+			// healthcareelement not allowed anymore in sumehr V2. Use "problem" instead.
+			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v11
+			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v20
+			eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthcareelement"}?.apply {
+				code = "problem"
+				version = "1.11"
+			}
+
+
+			listOf("problem", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
+				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
+					if(edType == "problem"){
+						// Recommended codifications: IBUI, ICPC-2, ICD-10.
+						eds.codes?.removeIf { c -> c.type != "ICPC" && c.type != "ICD" && c.type != "CD-CLINICAL" && c.type != "BE-THESAURUS" }
+					}
+					if(eds.codes.isNotEmpty()){
+						createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+							it.contents.add(ContentType().apply {
+								eds.codes?.forEach { c ->
+									try{
+										// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+										val version = if (c.type == "CD-ATC") "1.0" else c.version
+										// BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
+										val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
+										val cdt = CDCONTENTschemes.fromValue(type)
+										this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+									} catch (ignored : IllegalArgumentException) {
+										log.error(ignored)
+									}
+								}
+							})
+							items.add(it)
+						}
+					}else{
+						log.debug("Health element skipped because of missing codification. id=" + eds.id )
+					}
+				}
+			}
 		} catch (e: Exception) {
 			log.error("Unexpected error", e)
 		}
