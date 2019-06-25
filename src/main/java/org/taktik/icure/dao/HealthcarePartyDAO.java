@@ -52,4 +52,6 @@ public interface HealthcarePartyDAO extends GenericDAO<HealthcareParty>{
 	List<HealthcareParty> findByName(String name);
 
 	PaginatedList<HealthcareParty> findBySsinOrNihii(String searchValue, PaginationOffset<String> paginationOffset, Boolean desc);
+
+	List<HealthcareParty> findByParentId(String parentId);
 }

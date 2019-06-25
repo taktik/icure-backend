@@ -406,8 +406,13 @@ open class KmehrExport {
                     }}
                 }
             }
-            cnt?.medicationValue?.posologyText?.let {
+            cnt?.medicationValue?.posology?.let {
                 item.posology = ItemType.Posology().apply { text = TextType().apply { l = lang; value = it } }
+            }
+            if(item.posology == null) {
+                cnt?.medicationValue?.posologyText?.let {
+                    item.posology = ItemType.Posology().apply { text = TextType().apply { l = lang; value = it } }
+                }
             }
             cnt?.medicationValue?.instructionForPatient?.let {
                 item.instructionforpatient = TextType().apply { l = lang; value = it }
