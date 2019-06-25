@@ -62,6 +62,117 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun parseReportsAndLabs() {
+        // First parameter
+        val language = "UTF-8";
+
+        // Second parameter
+        val protocolIds1 = listOf("***");
+        val protocolIds2 = listOf("*");
+
+        // Third parameter
+        /// File 1
+        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/FichierVide.txt");
+        val content1 = HealthOneLogicImpl.decodeRawData(mappings1.readBytes());
+        val r1 = StringReader(content1);
+        /// File 2
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_2_WithoutA1.LAB");
+        val content2 = HealthOneLogicImpl.decodeRawData(mappings2.readBytes());
+        val r2 = StringReader(content2);
+        /// File 3
+        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_4.LAB");
+        val content3 = HealthOneLogicImpl.decodeRawData(mappings3.readBytes());
+        val r3 = StringReader(content3);
+        /// File 4
+        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_5.LAB");
+        val content4 = HealthOneLogicImpl.decodeRawData(mappings4.readBytes());
+        val r4 = StringReader(content4);
+        /// File 5
+        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_6-A1LineOnly.LAB");
+        val content5 = HealthOneLogicImpl.decodeRawData(mappings5.readBytes());
+        val r5 = StringReader(content5)
+        /// File 6
+        val mappings6 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_7_BadL1Line.txt");
+        val content6 = HealthOneLogicImpl.decodeRawData(mappings6.readBytes());
+        val r6 = StringReader(content6);
+        /// File 7
+        val mappings7 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_8.txt");
+        val content7 = HealthOneLogicImpl.decodeRawData(mappings7.readBytes());
+        val r7 = StringReader(content7);
+        /// File 8
+        val mappings8 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_9.txt");
+        val content8 = HealthOneLogicImpl.decodeRawData(mappings8.readBytes());
+        val r8 = StringReader(content8);
+        /// File 9
+        val mappings9 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506");
+        val content9 = HealthOneLogicImpl.decodeRawData(mappings9.readBytes());
+        val r9 = StringReader(content9);
+        /// File 10
+        val mappings10 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506_2");
+        val content10 = HealthOneLogicImpl.decodeRawData(mappings10.readBytes());
+        val r10 = StringReader(content10);
+
+        // Execution
+        val res1 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r1); // File 1
+        val res2 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r2); // File 2
+        val res3 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r3); // File 3
+        val res4 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r4); // File 4
+        val res5 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds2, r5); // File 5
+        val res6 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r6); // File 6
+        val res7 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r7); // File 7
+        val res8 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r8); // File 8
+        val res9 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r9); // File 9
+        val res10 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r10); // File 10
+
+        //Tests
+        /// Empty file
+        Assert.assertEquals(res1.size,0)
+
+        /// File where the first line isn't LaboLine
+        Assert.assertEquals(res2.size,0)
+
+        /// File where A2 and A3 Lines is before A1
+        Assert.assertEquals(res3.size,1)
+        Assert.assertNull(res3[0].pal)
+        Assert.assertNotNull(res3[0].ril)
+
+        /// File contains two A1 Lines
+        Assert.assertEquals(res4.size,2)
+        Assert.assertNull(res4[0].pal)
+        Assert.assertNull(res4[0].ril)
+
+        /// File contains one A1 Line and parseReportsAndLabs is called with protocolIds2
+        Assert.assertEquals(res5.size,0)
+
+        /// File contains one A1,A2,A3,A4 Line and one invalid L1Line
+        Assert.assertEquals(res6.size,1)
+        Assert.assertEquals(res6[0].services.size,0)
+        Assert.assertNotNull(res6[0].pal)
+        Assert.assertNotNull(res6[0].ril)
+
+
+        /// File contains one A1,A2,A3,A4 Line and one L1Line
+        Assert.assertEquals(res7.size,1)
+        Assert.assertEquals(res7[0].services.size,1)
+
+        /// File contains one A1,A2,A3,A4 Line and two L1Line with different analysisCode
+        Assert.assertEquals(res8.size,1)
+        Assert.assertEquals(res8[0].services.size,2)
+
+        /// File contains one A1,A2,A3,A4 Line and one invalid L5Line !!!!!!! HOW?
+        /*Assert.assertEquals(res6.size,1)
+        Assert.assertEquals(res6[0].services.size,0)*/
+
+        /// File contains one A1,A2,A3,A4 Line and less than 20 L5Line
+        Assert.assertEquals(res9.size,1)
+        Assert.assertEquals(res9[0].services.size,1)
+
+        /// File contains one A1,A2,A3,A4 Line and more than 20 L5Line
+        Assert.assertEquals(res10.size,1)
+        Assert.assertEquals(res10[0].services.size,2)
+    }
+
+    @Test
     fun createServices() {
         // First parameter
         val laboLine = "A1\\protocol\\Labo\\"
