@@ -62,6 +62,51 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun createServices() {
+        // First parameter
+        val laboLine = "A1\\protocol\\Labo\\"
+        val ll1 = HealthOneLogicImpl.getLaboLine(laboLine)
+        val ll2 = HealthOneLogicImpl.getLaboLine(laboLine)
+        val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
+        val ril = HealthOneLogicImpl.getResultsInfosLine(resultsInfosLine)
+        ll1.setRil(ril)
+        ll2.setRil(ril)
+        val laboResultLine1 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\6.0"
+        val lrl1 = HealthOneLogicImpl.getLaboResultLine(laboResultLine1,ll1)
+        val laboResultLine2 = "L1\\protocol\\UREA\\Urea\\1-2\\mL\\+\\0.5"
+        val lrl2 = HealthOneLogicImpl.getLaboResultLine(laboResultLine2,ll1)
+        val protoLine1 = "L2\\protocol\\BLOOD\\Dear colleague,"
+        val proto1 = HealthOneLogicImpl.getProtocolLine(protoLine1)
+        // Second parameter
+        val language = "language"
+        // Third parameter
+        val position = 1L
+
+        // Test with empty labolist and empty protoList
+        ll1.setLabosList(listOf(lrl1,lrl2))
+        HealthOneLogicImpl.createServices(ll1,language,position)
+        Assert.assertEquals(ll1.services.size,0)
+/*
+        // Test with labolist and empty protoList
+        ll1.setLabosList(listOf(lrl1))
+        HealthOneLogicImpl.createServices(ll1,language,position)
+        Assert.assertEquals(ll1.services.size,1)
+*/
+        // Test with empty labolist and protoList
+        ll2.setProtoList(listOf(proto1))
+        HealthOneLogicImpl.createServices(ll2,language,position)
+        Assert.assertEquals(ll2.services.size,1)
+
+        // Test with labolist and  protoList
+        ll1.services.clear()
+        ll1.setLabosList(listOf(lrl1))
+        ll1.setProtoList(listOf(proto1))
+        HealthOneLogicImpl.createServices(ll1,language,position)
+        Assert.assertEquals(ll2.services.size,2)
+
+    }
+
+    @Test
     fun importProtocol() {
         // First parameter
         val language = "language"

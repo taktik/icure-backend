@@ -177,7 +177,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return result;
     }
 
-    private void createServices(LaboLine ll, String language, long position) {
+    protected void createServices(LaboLine ll, String language, long position) {
         if (ll.labosList.size() > 0) {
             ll.services.addAll(importLaboResult(language, ll.labosList, position, ll.ril));
             ll.labosList.clear();
