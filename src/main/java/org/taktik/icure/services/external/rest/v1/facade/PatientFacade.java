@@ -334,7 +334,7 @@ public class PatientFacade implements OpenApiFacade{
 			value = "Get Paginated List of Patients sorted by Access logs descending")
 	@GET
 	@Path("/byExternalId/{externalId}")
-	public org.taktik.icure.services.external.rest.v1.dto.PatientDto findByAccessLogUserAfterDate(@PathParam("externalId") @ApiParam(value = "A external ID", required = true) String externalId) {
+	public org.taktik.icure.services.external.rest.v1.dto.PatientDto findByExternalId(@PathParam("externalId") @ApiParam(value = "A external ID", required = true) String externalId) {
 		return mapper.map(patientLogic.getByExternalId(externalId), PatientDto.class);
 	}
 
@@ -575,7 +575,7 @@ public class PatientFacade implements OpenApiFacade{
 	)
 	@GET
 	@Path("/deleted/by_name")
-	public Response listDeletedPatients(
+	public Response listDeletedPatientsByName(
 			@ApiParam(value = "First name prefix") @QueryParam("firstName") String firstName,
 			@ApiParam(value = "Last name prefix") @QueryParam("lastName") String lastName) {
 		Response response;
