@@ -373,8 +373,8 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	}
 
 	@Override
-	public boolean checkPassword(String userId, String password) {
-		User user = getUser(userId);
+	public boolean checkPassword(String password) {
+		User user = this.sessionLogic.getCurrentSessionContext().getUser();
 		if (user != null) {
 			return passwordEncoder.isPasswordValid(user.getPasswordHash(), password, null);
 		}

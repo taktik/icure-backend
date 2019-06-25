@@ -80,7 +80,7 @@ public interface UserLogic extends EntityPersister<User, String>, PrincipalLogic
 
 	boolean isUserActive(String userId);
 
-	boolean checkPassword(String userId, String password);
+	boolean checkPassword(String password);
 
 	boolean verifyPasswordToken(String userId, String token);
 
