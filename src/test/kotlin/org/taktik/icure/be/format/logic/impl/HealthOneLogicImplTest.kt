@@ -83,26 +83,25 @@ class HealthOneLogicImplTest {
         val position = 1L
 
         // Test with empty labolist and empty protoList
-        ll1.setLabosList(listOf(lrl1,lrl2))
         HealthOneLogicImpl.createServices(ll1,language,position)
         Assert.assertEquals(ll1.services.size,0)
-/*
+
         // Test with labolist and empty protoList
-        ll1.setLabosList(listOf(lrl1))
+        ll1.labosList.add(lrl1)
         HealthOneLogicImpl.createServices(ll1,language,position)
         Assert.assertEquals(ll1.services.size,1)
-*/
+
         // Test with empty labolist and protoList
-        ll2.setProtoList(listOf(proto1))
+        ll2.protoList.add(proto1)
         HealthOneLogicImpl.createServices(ll2,language,position)
         Assert.assertEquals(ll2.services.size,1)
 
         // Test with labolist and  protoList
         ll1.services.clear()
-        ll1.setLabosList(listOf(lrl1))
-        ll1.setProtoList(listOf(proto1))
+        ll1.labosList.add(lrl1)
+        ll1.protoList.add(proto1)
         HealthOneLogicImpl.createServices(ll1,language,position)
-        Assert.assertEquals(ll2.services.size,2)
+        Assert.assertEquals(ll1.services.size,2)
 
     }
 
