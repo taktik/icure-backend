@@ -19,6 +19,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.be.kmehr;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
@@ -38,7 +39,10 @@ public class SumehrExportInfoDto implements Serializable {
 	}
 
 	public List<String> getExcludedIds() {
-		return excludedIds;
+		if(excludedIds != null)
+			return excludedIds;
+		else
+			return new ArrayList<String>();
 	}
 
 	public void setExcludedIds(List<String> excludedIds) {
