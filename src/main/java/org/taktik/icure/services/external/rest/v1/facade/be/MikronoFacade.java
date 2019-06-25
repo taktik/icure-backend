@@ -229,7 +229,7 @@ public class MikronoFacade implements OpenApiFacade {
 	)
 	@Path("/appointments/byDate/{date}")
 	@GET
-	public Response appointments(@PathParam("date") Long calendarDate) {
+	public Response appointmentsByDate(@PathParam("date") Long calendarDate) {
 		User loggedUser = sessionLogic.getCurrentSessionContext().getUser();
 
 		String loggedMikronoUser = loggedUser.getProperties().stream().filter(p->p.getType().getIdentifier().equals("org.taktik.icure.be.plugins.mikrono.user")).findFirst().map(p->p.getTypedValue().getStringValue()).orElse(null);
@@ -249,7 +249,7 @@ public class MikronoFacade implements OpenApiFacade {
 	)
 	@Path("/appointments/byPatient/{patientId}")
 	@GET
-	public Response appointments(@PathParam("patientId") String patientId, @QueryParam("from") Long from, @QueryParam("from") Long to) {
+	public Response appointmentsByPatient(@PathParam("patientId") String patientId, @QueryParam("from") Long from, @QueryParam("from") Long to) {
 		User loggedUser = sessionLogic.getCurrentSessionContext().getUser();
 
 		String loggedMikronoUser = loggedUser.getProperties().stream().filter(p->p.getType().getIdentifier().equals("org.taktik.icure.be.plugins.mikrono.user")).findFirst().map(p->p.getTypedValue().getStringValue()).orElse(null);
