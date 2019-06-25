@@ -53,9 +53,9 @@ import org.taktik.icure.logic.ReplicationLogic
 import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(exclude = [FreeMarkerAutoConfiguration::class])
+@PropertySource("classpath:icure-default.properties")
 @EnableWebFlux
 @EnableWebFluxSecurity
-@PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
     private val log = LoggerFactory.getLogger(this.javaClass)
 

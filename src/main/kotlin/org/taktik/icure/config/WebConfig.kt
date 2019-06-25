@@ -20,14 +20,21 @@
 package org.taktik.icure.config
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.reactive.config.CorsRegistry
+import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
 
 @Configuration
-class StaticResourcesConfiguration : WebFluxConfigurer {
+@EnableWebFlux
+class WebConfig : WebFluxConfigurer {
 	private final val CLASSPATH_RESOURCE_LOCATIONS = arrayOf("classpath:/META-INF/resources/", "classpath:/resources/", "classpath:/static/", "classpath:/public/")
 	override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
 		registry.addResourceHandler("/**")
 				.addResourceLocations(*CLASSPATH_RESOURCE_LOCATIONS)
+	}
+
+	override fun addCorsMappings(registry: CorsRegistry) {
+		registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*")
 	}
 }

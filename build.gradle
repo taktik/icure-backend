@@ -228,13 +228,9 @@ dependencies {
 	compile group: 'com.hazelcast', name: 'hazelcast'
 	compile group: 'com.hazelcast', name: 'hazelcast-spring'
     compile group: 'com.hazelcast', name: 'hazelcast-kubernetes', version: '1.3'
-	//compile group: 'org.springframework.session', name: 'spring-session', version: '1.3.5.RELEASE'
-	// TODO SH
+
 	compile group: 'org.springframework.session', name: 'spring-session-core', version: '2.1.7.RELEASE'
-	//compile group: 'org.springframework.session', name: 'spring-session-hazelcast', version: '2.1.7.RELEASE'
-
-
-
+	
 	// Runtime
 	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'
 

@@ -42,8 +42,8 @@ import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
  * is not required by default and overrides it, so we have to make sure they always match! */
 
-@RestController
-@RequestMapping("/user", produces = ["application/json"])
+@RestController()
+@RequestMapping("/rest/v1/user", produces = ["application/json"])
 @Api(tags = ["user"]) // otherwise would default to "user-controller"
 class UserController(private val mapper: MapperFacade,
                      private val userLogic: UserLogic,
@@ -80,6 +80,7 @@ class UserController(private val mapper: MapperFacade,
             @ApiParam(value = "An user email") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: String?): UserPaginatedList {
+        logger.info("listUsers in controller")
 
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit?.toInt())
         val allUsers = userLogic.listUsers(paginationOffset)

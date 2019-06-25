@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-public class WebSocket extends WebSocketAdapter {
+public class WebSocket extends WebSocketAdapter { // TODO SH does this still work ?
 	private SessionContext sessionContext;
 	private String prefix;
 	private Gson gsonMapper;

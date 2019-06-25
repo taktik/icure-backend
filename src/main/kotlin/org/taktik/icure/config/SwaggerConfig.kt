@@ -12,26 +12,23 @@ import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
 
+
 @Configuration
 @EnableSwagger2WebFlux
 class SwaggerConfig {
     @Bean
-    fun api(): Docket {
-        /*val securityReference = SecurityReference.builder()
+    fun api(): Docket { // TODO SH customize Swagger if needed and then compare jsons with previous version to make sure API is backward-compatible
+        val securityReference = SecurityReference.builder()
                 .reference("basicAuth")
                 .scopes(arrayOf<AuthorizationScope>())
                 .build()
 
         val securityContexts = listOf(SecurityContext.builder().securityReferences(listOf(securityReference)).build())
 
-        val auth = listOf(BasicAuth("basicAuth"))*/
+        val auth = listOf(BasicAuth("basicAuth"))
         return Docket(DocumentationType.SWAGGER_2)
-                //.securitySchemes(auth)
-                //.securityContexts(securityContexts)
-                /*.pathProvider(object: AbstractPathProvider() {
-                    override fun applicationPath() = "/rest/v1" // TODO SH map controllers to /rest/v1 and then uncomment this
-                    override fun getDocumentationPath() = "/" // see https://github.com/springfox/springfox/issues/1443 and https://github.com/springfox/springfox/issues/2817 https://stackoverflow.com/questions/38212691/how-to-change-base-url-only-for-rest-controllers/38228080 server.servlet.context-path = /baseApiName
-                })*/
+                .securitySchemes(auth)
+                .securityContexts(securityContexts)
                 .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build()
     }
 }

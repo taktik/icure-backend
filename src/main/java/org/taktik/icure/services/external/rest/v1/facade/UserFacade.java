@@ -135,6 +135,8 @@ public class UserFacade implements OpenApiFacade{
 			@ApiParam(value = "An user document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
 			@ApiParam(value = "Number of rows", required = false) @QueryParam("limit") String limit ) {
 
+		logger.info("listUsers in facade");
+
 		PaginationOffset paginationOffset = new PaginationOffset(startKey, startDocumentId, null, limit == null ? null : Integer.valueOf(limit));
 
 		PaginatedList<User> allUsers = userLogic.listUsers(paginationOffset);
