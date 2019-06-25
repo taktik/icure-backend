@@ -20,6 +20,7 @@ package org.taktik.icure.utils;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -138,6 +139,7 @@ public class FuzzyValues {
 	public static long getCurrentFuzzyDate() {
 		return getCurrentFuzzyDateTime(ChronoUnit.DAYS);
 	}
+
 	public static long getCurrentFuzzyDateTime() {
 		return getCurrentFuzzyDateTime(ChronoUnit.SECONDS);
 	}
@@ -150,13 +152,13 @@ public class FuzzyValues {
 		}*/
 
 		int minutes = dateTime.getMinute();
-		if (minutes == 0 && precision==ChronoUnit.MINUTES) {
+		if (minutes == 0 && precision == ChronoUnit.MINUTES) {
 			minutes = 60;
 			dateTime = dateTime.minusHours(1);
 		}
 
 		int hours = dateTime.getHour();
-		if (hours == 0 && precision==ChronoUnit.HOURS) {
+		if (hours == 0 && precision == ChronoUnit.HOURS) {
 			hours = 24;
 			dateTime = dateTime.minusDays(1);
 		}
@@ -193,7 +195,15 @@ public class FuzzyValues {
 	 * It does <b>NOT</b> check if the SSIN is valid!
 	 */
 	public static boolean isSsin(String text) {
-		return NumberUtils.isDigits(text) && text.length() == 11;
+		if (!NumberUtils.isDigits(text) || text.length() != 11) {
+			return false;
+		}
+		BigInteger checkDigits = new BigInteger(text.substring(9));
+		BigInteger big97 = new BigInteger("97");
+		BigInteger modBefore2000 = new BigInteger(text.substring(0, 9)).mod(big97);
+		BigInteger modAfter2000 = new BigInteger("2" + text.substring(0, 9)).mod(big97);
+
+		return big97.subtract(modBefore2000).equals(checkDigits) || big97.subtract(modAfter2000).equals(checkDigits);
 	}
 
 	/**
@@ -283,6 +293,6 @@ public class FuzzyValues {
 	}
 
 	public static int compare(long left, long right) {
-		return Long.valueOf(left<29991231?left*1000000:left).compareTo(right<29991231?right*1000000:right);
+		return Long.valueOf(left < 29991231 ? left * 1000000 : left).compareTo(right < 29991231 ? right * 1000000 : right);
 	}
 }
