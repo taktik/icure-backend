@@ -335,32 +335,51 @@ class HealthOneLogicImplTest {
         Assert.assertTrue(res2.maxValue==2.0)
         Assert.assertEquals(res2.unit,"mg")
 
-        // lessThanReference
-        val refValues3 = "<2"
+        // same with group 4
+        val refValues3 = "1-2    8mg"
         val res3 = HealthOneLogicImpl.tryToGetReferenceValues(refValues3)
+        Assert.assertTrue(res3.minValue==1.0)
         Assert.assertTrue(res3.maxValue==2.0)
+        Assert.assertEquals(res3.unit,"8mg" )
 
-        // lessThanReference with group 3
-        val refValues4 = "<2   L"
+        // lessThanReference
+        val refValues4 = "<2"
         val res4 = HealthOneLogicImpl.tryToGetReferenceValues(refValues4)
         Assert.assertTrue(res4.maxValue==2.0)
-        Assert.assertEquals(res4.unit,null) // Must be modificated when the code will be correct
 
-        // greaterThanReference
-        val refValues5 = ">2"
+        // lessThanReference with group 3
+        val refValues5 = "<2   L"
         val res5 = HealthOneLogicImpl.tryToGetReferenceValues(refValues5)
-        Assert.assertTrue(res5.minValue==2.0)
+        Assert.assertTrue(res5.maxValue==2.0)
+        Assert.assertEquals(res5.unit,null) // Must be modificated when the code will be correct
 
-        // greaterThanReference with group 3
-        val refValues6 = ">2   e10mg"
+        // lessThanReference with group 4
+        val refValues6 = "<2   8L"
         val res6 = HealthOneLogicImpl.tryToGetReferenceValues(refValues6)
-        Assert.assertTrue(res6.minValue==2.0)
+        Assert.assertTrue(res6.maxValue==2.0)
         Assert.assertEquals(res6.unit,null) // Must be modificated when the code will be correct
 
-        // refValues not matches
-        val refValues7 = "([-,-:-, a"
+        // greaterThanReference
+        val refValues7 = ">2"
         val res7 = HealthOneLogicImpl.tryToGetReferenceValues(refValues7)
-        Assert.assertEquals(res7,null)
+        Assert.assertTrue(res7.minValue==2.0)
+
+        // greaterThanReference with group 3
+        val refValues8 = ">2   e10mg"
+        val res8 = HealthOneLogicImpl.tryToGetReferenceValues(refValues8)
+        Assert.assertTrue(res8.minValue==2.0)
+        Assert.assertEquals(res8.unit,null) // Must be modificated when the code will be correct
+
+        // greaterThanReference with group 4
+        val refValues9 = ">2   10mg"
+        val res9 = HealthOneLogicImpl.tryToGetReferenceValues(refValues9)
+        Assert.assertTrue(res9.minValue==2.0)
+        Assert.assertEquals(res9.unit,null) // Must be modificated when the code will be correct
+
+        // refValues not matches
+        val refValues10 = "([-,-:-, a"
+        val res10 = HealthOneLogicImpl.tryToGetReferenceValues(refValues10)
+        Assert.assertEquals(res10,null)
 
     }
 
