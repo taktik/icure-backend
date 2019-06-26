@@ -1123,6 +1123,11 @@ class HealthOneLogicImplTest {
         val line4 = "L5\\protocol\\SANG\\Text written by the doctor\\"
         val res4 = HealthOneLogicImpl.getProtocolLine(line4)
         Assert.assertEquals(res4.text,"Text written by the doctor")
+
+        // Null line
+        val line5 = null
+        val res5 = HealthOneLogicImpl.getProtocolLine(line5)
+        Assert.assertNull(res5)
     }
 
     @Test
