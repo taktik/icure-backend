@@ -1181,6 +1181,11 @@ fun getPatientSSINLine(){
     val res4 = HealthOneLogicImpl.getPatientSSINLine(line4)
     Assert.assertEquals(res4.protocol,"protocol")
     Assert.assertEquals(res4.ssin,"50010100156")
+
+    // Null line
+    val line5 = null
+    val res5 = HealthOneLogicImpl.getPatientSSINLine(line5)
+    Assert.assertNull(res5)
 }
 
 @Test
