@@ -18,6 +18,7 @@ import org.taktik.icure.utils.FuzzyValues
 
 import java.io.*
 import java.nio.charset.Charset
+import java.nio.charset.UnsupportedCharsetException
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
@@ -59,6 +60,57 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(HealthOneLogicImpl.documentLogic == documentLogic, false)
         HealthOneLogicImpl.setDocumentLogic(documentLogic);
         Assert.assertEquals(HealthOneLogicImpl.documentLogic, documentLogic)
+    }
+
+    @Test
+    fun doImport() {
+        // First parameter
+        val language = "UTF-8";
+
+        // Second parameter
+        /// File 1
+        val doc1 = Document();
+        /// File 2
+        val doc2 = Document();
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/FichierVide.txt");
+        val bytes2 = mappings2.readBytes();
+        doc2.setAttachment(bytes2);
+
+        // Third parameter
+        val hcpId = "hcpId";
+
+        // Fourth parameter
+        val protocolIds1 = listOf("***");
+
+        // Fifth parameter
+        val formIds = listOf("111");
+
+        // Sixth parameter
+        val planOfActionId = "planOfActionId";
+
+        // Seventh parameter
+        val ctc = Contact();
+
+        // Eighth parameter
+        val enckeys = null;
+
+        /// Doc hasn't a content
+        /* try {
+            val res1 = HealthOneLogicImpl.doImport(language, doc1, hcpId, protocolIds1, formIds, planOfActionId, ctc, enckeys);
+            Assert.fail()
+        } catch (e: UnsupportedCharsetException) {
+        }*/
+        // Modify Contact is impossible (in this case because ContactLogic isn't initialized
+        HealthOneLogicImpl.setContactLogic(contactLogic);
+        /*try {
+            val res2 = HealthOneLogicImpl.doImport(language, doc2, hcpId, protocolIds1, formIds, planOfActionId, ctc, enckeys);
+            Assert.fail()
+        } catch (e: IllegalStateException) {
+        }
+        */
+        // Expected result
+        val res3 = HealthOneLogicImpl.doImport(language, doc2, hcpId, protocolIds1, formIds, planOfActionId, ctc, enckeys);
+        Assert.assertNotNull(res3)
     }
 
     @Test
