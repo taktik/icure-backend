@@ -642,29 +642,51 @@ class HealthOneLogicImplTest {
     fun extractResultInfos() {
         // First parameter
         /// File 1
-        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339.lab")
+        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/FichierVide.txt")
         val bufferedreader1 = mappings1.bufferedReader(Charset.forName("cp1252"));
         /// File 2
-        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/1100116471515_a1_LOL0327b54.LAB.txt")
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_2_WithoutA1.LAB")
         val bufferedreader2 = mappings2.bufferedReader(Charset.forName("cp850"));
-        /// File 3 (report -L5)
-        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506")
+        /// File 3
+        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_6-A1LineOnly.LAB")
         val bufferedreader3 = mappings3.bufferedReader(Charset.forName("cp850"));
-        // File 4 (only one line protocol)
-        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/1100116471515_a1_LOL0327b54_2.LAB")
+        // File 4
+        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_4.LAB")
         val bufferedreader4 = mappings4.bufferedReader(Charset.forName("cp850"));
         // File 5
-        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-84_2.LAB")
+        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_10_A1+A2WithoutDateOfBirth.LAB")
         val bufferedreader5 = mappings5.bufferedReader(Charset.forName("cp850"));
-        // File 6 - MS 642 (Partial result and missplaced NISS)
-        val mappings6 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
-        val bufferedreader6 = mappings6.bufferedReader(Charset.forName("cp1252"));
-        // File 7 - MS 635 (2 services)
-        val mappings7 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/H1-190507162031-0001_MS-635.DAT")
+        // File 6
+        val mappings6 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_11_A1+A2WithDateOfBirth.LAB")
+        val bufferedreader6 = mappings6.bufferedReader(Charset.forName("cp850"));
+        // File 7
+        val mappings7 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_12_A1+A2+S4.LAB")
         val bufferedreader7 = mappings7.bufferedReader(Charset.forName("cp850"));
-        // File 8 - MS 339 (exception generated)
-        val mappings8 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_3.txt")
+        // File 8
+        val mappings8 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_13_A1+A2+S4.LAB")
         val bufferedreader8 = mappings8.bufferedReader(Charset.forName("cp850"));
+        // File 9
+        val mappings9 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_14.LAB")
+        val bufferedreader9 = mappings9.bufferedReader(Charset.forName("cp850"));
+        // File 10
+        val mappings10 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_15.LAB")
+        val bufferedreader10 = mappings10.bufferedReader(Charset.forName("cp850"));
+        // File 11
+        val mappings11 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_16.LAB")
+        val bufferedreader11 = mappings11.bufferedReader(Charset.forName("cp850"));
+        // File 12
+        val mappings12 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_9.txt")
+        val bufferedreader12 = mappings12.bufferedReader(Charset.forName("cp850"));
+        // File 13
+        val mappings13 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_5.LAB")
+        val bufferedreader13 = mappings13.bufferedReader(Charset.forName("cp850"));
+        // File 14
+        val mappings14 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506")
+        val bufferedreader14 = mappings14.bufferedReader(Charset.forName("cp850"));
+        // File 15
+        val mappings15 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506_2")
+        val bufferedreader15 = mappings15.bufferedReader(Charset.forName("cp850"));
+
 
         // Second parameter
         val language = "UTF-8"
@@ -684,145 +706,79 @@ class HealthOneLogicImplTest {
         val res6 = HealthOneLogicImpl.extractResultInfos(bufferedreader6,language,docID,full)
         val res7 = HealthOneLogicImpl.extractResultInfos(bufferedreader7,language,docID,full)
         val res8 = HealthOneLogicImpl.extractResultInfos(bufferedreader8,language,docID,full)
+        val res9 = HealthOneLogicImpl.extractResultInfos(bufferedreader9,language,docID,full)
+        val res10 = HealthOneLogicImpl.extractResultInfos(bufferedreader10,language,docID,full)
+        val res11 = HealthOneLogicImpl.extractResultInfos(bufferedreader11,language,docID,full)
+        val res12 = HealthOneLogicImpl.extractResultInfos(bufferedreader12,language,docID,full)
+        val res13 = HealthOneLogicImpl.extractResultInfos(bufferedreader13,language,docID,full)
+        val res14 = HealthOneLogicImpl.extractResultInfos(bufferedreader14,language,docID,full)
+        val res15 = HealthOneLogicImpl.extractResultInfos(bufferedreader15,language,docID,full)
 
-        // General Test
-        /// File 1
-        Assert.assertEquals(res1[0].documentId, docID);
-        Assert.assertEquals(res1[0].protocol, "1903-19339");
-        /// File 2
-        Assert.assertEquals(res2[0].documentId, docID);
-        Assert.assertEquals(res2[0].protocol, "9S231326");
-        /// File 3
-        Assert.assertEquals(res3[0].documentId, docID);
-        Assert.assertEquals(res3[0].protocol, "18652739");
-
-        // Test A1
-        Assert.assertEquals(res1[0].labo, "CHR HAUTE SENNE"); //File 1 line 1
-        Assert.assertEquals(res2[0].labo, "Labo Luc Olivier - Villers"); //File 2 line 1 - Format Labo Luc Olivier - Villers\Add1\Add2\Add3\ Ok Only the first parse is take to put the labo name
-
-        // Test A2
-        /// File 1 line 2
-        Assert.assertEquals(res1[0].lastName, "NOM");
-        Assert.assertEquals(res1[0].firstName, "PRENOM");
-        Assert.assertEquals(res1[0].sex, "F");
-        Assert.assertEquals(res1[0].dateOfBirth, 19500101L); // Case of 01011950 writing
-        /// File 2 line 2 - Format NOM\PRENOM\F\010150\
-        Assert.assertEquals(res2[0].lastName, "NOM");
-        Assert.assertEquals(res2[0].firstName, "PRENOM");
-        Assert.assertEquals(res2[0].sex, "F");
-        /* Before code is modify
-        Assert.assertEquals(res2[0].dateOfBirth, null); // Case of 010150 writing isn't detected// Date must have 8 digit and the format is ordered by shortDateFormat which is the ddMMyyyy format
-       */
-        Assert.assertEquals(res2[0].dateOfBirth, 19500101L); // Case of 010150 writing
-        /// File 3 line 2 - Format NOM\PRENOM\Add1\F\01011950\Add1\Add2\ imply lastName and firstName OK but sex becomes "Add0" and dateOfBirth is null caused by "F" not convenient format for date
-        Assert.assertEquals(res3[0].lastName, "NOM");
-        Assert.assertEquals(res3[0].firstName, "PRENOM");
-        Assert.assertEquals(res3[0].sex, "Add1");
-        Assert.assertEquals(res3[0].dateOfBirth, null);
-        /// File 5
-        Assert.assertEquals(res5[0].dateOfBirth, 19500101L); // Case of 01/01/1950 writing
-
-        // Test A3 (line 3) None of that informations is in the class ResultInfo
-
-        // Test A4 Doctor's name isn't use in the class ResultInfo
-        /// File 1 line 4 - Format Docteur Bidon\19032019\\C\
-        Assert.assertEquals(res1[0].demandDate, 1552950000000);
-        Assert.assertEquals(res1[0].complete, true);
-        /// File 2 line 4  - Format Docteur Bidon\27032018\Add1\C\
-        Assert.assertEquals(res2[0].demandDate, 1522101600000);
-        Assert.assertEquals(res2[0].complete, true);
-        /// File 6 line 4  - Format Docteur Bidon\26112018\1821\P\
-        Assert.assertEquals(res6[0].demandDate, 1557266400000);
-        Assert.assertEquals(res6[0].complete, false);
-
-        // Test A5
-        Assert.assertEquals(res1[0].ssin, null); // File 1 line 5
-        Assert.assertEquals(res2[0].ssin, null); // File 2 line 5 - For SSIN it's always the fourth part caught
-        Assert.assertEquals(res6[0].ssin, "50010100156"); // File 6 line 5 - For SSIN it's always the fourth part caught
-
-        // Test lines L1 (services)
-        /// File 1
-        Assert.assertEquals(res1[0].services.size, 32);
-        Assert.assertEquals(res1[0].codes[0].type, "CD-TRANSACTION");
-        Assert.assertEquals(res1[0].codes[0].code, "labresult");
-        Assert.assertEquals(res1[0].codes[0].version, "1");
-        /// File 2
-        Assert.assertEquals(res2[0].services.size, 4);
-        // Test simple L1
-        /// File 1 line 21 //L1\1903-19339\UREE\Urée\10-50\mg/dL\*\41\
-        Assert.assertEquals(res1[0].services[13].label, "Urée");
-        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.min, 10.0);
-        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.max, 50.0);
-        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.unit, "mg/dL");
-        Assert.assertEquals(res1[0].services[13].content.get("UTF-8")?.measureValue?.value, 41.0);
-        /// File 6 line ?? //L1\1903-19339\Activité estérasiqu\Urée\<25\U/µL\*\500\
-        Assert.assertEquals(res6[0].services[6].label, "Activité estérasique");
-        Assert.assertEquals(res6[0].services[6].content.get("UTF-8")?.measureValue?.max, 25.0);
-        Assert.assertEquals(res6[0].services[6].content.get("UTF-8")?.measureValue?.unit, "U/µL");
-        Assert.assertEquals(res6[0].services[6].content.get("UTF-8")?.measureValue?.value, 500.0);
-        // Test L1 complex
-        /// File 1 line 6-7
-        ///L1\1903-19339\EX_H\Index d'hémolyse\0-15\mg/dL\\1\
-        ///L1\1903-19339\EX_H\Index d'hémolyse\0-15\mg/dL\\\
-        Assert.assertEquals(res1[0].services[1].label, "Index d'hémolyse")
-        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.min, 0.0);
-        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.max, 15.0);
-        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.unit, "mg/dL");
-        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.value, 1.0);
-        Assert.assertEquals(res1[0].services[1].content.get("UTF-8")?.measureValue?.comment, "");
-        /// File 2 line 7-11
-        ///L1\9S231326\INR\INR\2-3\\*\1,8\
-        ///L1\9S231326\INR\\< 1,5     : Pas d'anticoagulation effective\\*\\
-        ///L1\9S231326\INR\\2,0 - 3,0 : Indications g‚n‚rales\\*\\
-        ///L1\9S231326\INR\\2,5 - 3,5 : Indications particuliŠres\\*\\
-        ///L1\9S231326\INR\\> 5,0     : Surdosage AVK\\*\\
-        Assert.assertEquals(res2[0].services[1].label, "INR")
-        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.min, 2.0);
-        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.max, 3.0);
-        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.value, 1.8);
-        Assert.assertEquals(res2[0].services[1].content.get("UTF-8")?.measureValue?.comment, "< 1,5     : Pas d'anticoagulation effective\n2,0 - 3,0 : Indications générales\n2,5 - 3,5 : Indications particulières\n> 5,0     : Surdosage AVK");
-        /// File 2 line 7-11
-        ///L1\9S231326\QUICK\Temps de Quick\70-100\%\*\36\
-        ///L1\9S231326\QUICK\\13 - 30 : sous AVK\\*\\
-        Assert.assertEquals(res2[0].services[2].label, "Temps de Quick")
-        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.min, 70.0);
-        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.max, 100.0);
-        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.value, 36.0);
-        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.unit, "%");
-        Assert.assertEquals(res2[0].services[2].content.get("UTF-8")?.measureValue?.comment, "13 - 30 : sous AVK");
-        /// File 4
-        Assert.assertEquals(res4[0].services.size, 1);
-        Assert.assertEquals(res4[0].services[0].label, "Temps de Quick")
-        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.min, 70.0);
-        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.max, 100.0);
-        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.value, 36.0);
-        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.unit, "%");
-        Assert.assertEquals(res4[0].services[0].content.get("UTF-8")?.measureValue?.comment, "13 - 30 : sous AVK");
-        /// File 7
-        Assert.assertEquals(res7.size, 2);
-        // Test lines L5 (services)
-        /// File 3
-        Assert.assertEquals(res3[0].services.size, 1);
-        Assert.assertEquals(res3[0].codes[0].type, "CD-TRANSACTION");
-        Assert.assertEquals(res3[0].codes[0].code, "report");
-        Assert.assertEquals(res3[0].codes[0].version, "1");
-        Assert.assertEquals(res3[0].services[0].content.get("UTF-8")?.stringValue, "Clinique Saint Jean -\nBruxelles,\nle 09/04/2019\n" +
-                "Réf.á: 7207797\nCher Confrère, chère Cons£ur,\nNous avons vu en consultation le 09/04/2019  Monsieur NOM PRENOM né le\n" +
-                "01/01/1950.\nAnamnèseá:");
-
-        // Test lines S1 (ExtraPatientLine)
-        Assert.assertEquals(res3[0].services.size, 1);
-/*
-        try {
-            val res8 = HealthOneLogicImpl.getInfos(doc8, full, language, enckeys)  // File 8
-            //println("Erreur non vue")
-            //calculator.squareRoot(-10);
-            //fail(&quot;Should throw exception when calculating square root of a negative number&quot;);
-        } catch (e: ParseException) {
-            //println("erreur vue")
-            //Assert(e.getMessage().contains());
-        }*/
+        // Tests
+        /// Empty File
+        Assert.assertEquals(res1.size, 0);
+        /// File without A1 (LaboLine) Line
+        Assert.assertEquals(res2.size, 0);
+        /// File with only A1 Line
+        Assert.assertEquals(res3.size, 1);
+        Assert.assertEquals(res3[0].services.size, 0);
+        Assert.assertNull(res3[0].complete);
+        Assert.assertNull(res3[0].demandDate);
+        /// File with two A1 Line
+        Assert.assertEquals(res13.size, 2);
+        /// File A2 then A3 then A1 then A4 Line
+        Assert.assertEquals(res4.size, 1);
+        Assert.assertTrue(res4[0].complete);
+        Assert.assertEquals(res4[0].demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")).toEpochMilli())
+        Assert.assertEquals(res4[0].services.size,0);
+        /// File with A1 and A2 (without date of birth) lines
+        Assert.assertEquals(res5[0].lastName,"NOM")
+        Assert.assertEquals(res5[0].firstName,"PRENOM")
+        Assert.assertNull(res5[0].dateOfBirth)
+        Assert.assertEquals(res5[0].protocol,"1903-19339")
+        Assert.assertEquals(res5[0].sex,"F")
+        Assert.assertEquals(res5[0].documentId,docID)
+        /// File with A1 and A2 (with date of birth) lines
+        Assert.assertEquals(res6[0].lastName,"NOM")
+        Assert.assertEquals(res6[0].firstName,"PRENOM")
+        Assert.assertEquals(res6[0].dateOfBirth,FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(Timestamp(HealthOneLogicImpl.readDate("01011950")).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res6[0].protocol,"1903-19339")
+        Assert.assertEquals(res6[0].sex,"F")
+        Assert.assertEquals(res6[0].documentId,docID)
+        /// File with A1, A2 and enpty S4.* lines
+        Assert.assertEquals(res7[0].dateOfBirth,FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(Timestamp(HealthOneLogicImpl.readDate("01011950")).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res7[0].sex,"F")
+        /// File with A1, A2 and S4.*(with date of birth and sex) lines
+        Assert.assertEquals(res8[0].dateOfBirth,FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(Timestamp(HealthOneLogicImpl.readDate("02021950")).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res8[0].sex,"M")
+        /// File with A1,A2,S4.* and A4 lines
+        /// with null r
+        /// File with A1,A2,S4.* and A4 lines
+        Assert.assertTrue(res9[0].complete);
+        Assert.assertEquals(res9[0].demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")).toEpochMilli())
+        Assert.assertEquals(res9[0].services.size,0);
+        /// File with A1,A2,S4.*,A4 and L1 lines
+        Assert.assertTrue(res10[0].complete);
+        Assert.assertEquals(res10[0].demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")).toEpochMilli())
+        Assert.assertEquals(res10[0].services[0].valueDate,FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")), ZoneId.systemDefault()), ChronoUnit.DAYS));
+        Assert.assertEquals(res10[0].codes.size, 1)
+        Assert.assertEquals(res10[0].codes[0].type, "CD-TRANSACTION")
+        Assert.assertEquals(res10[0].codes[0].code, "labresult")
+        Assert.assertEquals(res10[0].codes[0].version, "1")
+        /// File with A1,A2,S4.*,A4 and A5 lines
+        /// with null r
+        /// File with A1,A2,S4.*,A4 and A5 lines
+        Assert.assertEquals(res11[0].ssin,"50010100156")
+        /// File with A1,A2,A3,A4 and two L1 lines
+        Assert.assertEquals(res12[0].services.size,2);
+        /// File contains one A1,A2,A3,A4 Line and less than 20 L5Line
+        Assert.assertEquals(res14.size,1)
+        Assert.assertEquals(res14[0].services.size,1)
+        /// File contains one A1,A2,A3,A4 Line and more than 20 L5Line
+        Assert.assertEquals(res15.size,1)
+        Assert.assertEquals(res15[0].services.size,2)
     }
+
 
     @Test
     fun isPatientLine() {
