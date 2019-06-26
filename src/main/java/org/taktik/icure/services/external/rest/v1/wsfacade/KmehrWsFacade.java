@@ -61,7 +61,7 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV1.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation, false);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -89,7 +89,7 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation, false);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -105,7 +105,7 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation, asJson);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
