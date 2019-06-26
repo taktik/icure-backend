@@ -49,6 +49,13 @@ class HealthOneLogicImplTest {
     }
 
     @Test
+    fun setContactLogic() {
+        Assert.assertEquals(HealthOneLogicImpl.contactLogic == contactLogic, false)
+        HealthOneLogicImpl.setContactLogic(contactLogic);
+        Assert.assertEquals(HealthOneLogicImpl.contactLogic, contactLogic)
+    }
+
+    @Test
     fun setPatientLogic() {
         Assert.assertEquals(HealthOneLogicImpl.patientLogic == patientLogic, false)
         HealthOneLogicImpl.setPatientLogic(patientLogic);
