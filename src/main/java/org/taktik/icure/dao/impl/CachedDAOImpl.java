@@ -70,10 +70,10 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
             if (value != null) {
                 T o = (T) value.get();
                 if (o != null) {
-                    log.debug("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
+                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
                     result.add(o);
                 } else {
-                    log.debug("Cache HIT  = {}, Null value", fullId);
+                    log.trace("Cache HIT  = {}, Null value", fullId);
                 }
             } else {
                 log.debug("Cache MISS = {}", fullId);
@@ -112,9 +112,9 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         } else {
             T o = (T) value.get();
             if (o != null) {
-                log.debug("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
+                log.trace("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
             } else {
-                log.debug("Cache HIT  = {}, Null value", fullId);
+                log.trace("Cache HIT  = {}, Null value", fullId);
             }
             return o;
         }
@@ -133,9 +133,9 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         } else {
             T o = (T) value.get();
             if (o != null) {
-                log.debug("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
+                log.trace("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
             } else {
-                log.debug("Cache HIT  = {}, Null value", fullId);
+                log.trace("Cache HIT  = {}, Null value", fullId);
             }
             return o;
         }
@@ -150,9 +150,9 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         } else {
             T o = (T) value.get();
             if (o != null) {
-                log.debug("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
+                log.trace("Cache HIT  = {}, {} - {}", fullId, o.getId(), o.getRev());
             } else {
-                log.debug("Cache HIT  = {}, Null value", fullId);
+                log.trace("Cache HIT  = {}, Null value", fullId);
             }
             return o;
         }
