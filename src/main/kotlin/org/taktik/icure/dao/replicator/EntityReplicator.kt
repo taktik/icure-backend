@@ -60,7 +60,11 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     protected abstract val entityType: Class<T>
 
     private fun getAllIdsAndRevs(client:Client): Flow<IdAndRev> {
-        val viewQuery = ViewQuery().designDocId(NameConventions.designDocName(entityType)).viewName("all").includeDocs(false)
+        val viewQuery = ViewQuery()
+                .designDocId("_System")
+                .viewName("revs")
+                .key(entityType.canonicalName)
+                .includeDocs(false)
         return client.queryView<String,String>(viewQuery).map {
             // The value of the "all" view should be the document rev
             IdAndRev(it.id, checkNotNull(it.value))
