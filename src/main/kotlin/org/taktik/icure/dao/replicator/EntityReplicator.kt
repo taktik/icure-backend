@@ -61,7 +61,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
 
     private fun getAllIdsAndRevs(client:Client): Flow<IdAndRev> {
         val viewQuery = ViewQuery()
-                .designDocId("_System")
+                .designDocId("_design/_System")
                 .viewName("revs")
                 .key(entityType.canonicalName)
                 .includeDocs(false)
