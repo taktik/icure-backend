@@ -39,6 +39,7 @@ import java.util.TreeMap;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StoredDocument implements Versionable<String> {
+	private static final long serialVersionUID = 1L;
 
 	@JsonProperty("_attachments")
 	@Json(name = "_attachments")
