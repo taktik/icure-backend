@@ -430,7 +430,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	public Patient modifyPatient(@Check @NotNull Patient patient) throws MissingRequirementsException {
 		log.debug("Modifying patient with id:"+patient.getId());
 		// checking requirements
-		if (patient.getFirstName() == null || patient.getLastName() == null) {
+		if ((patient.getFirstName() == null || patient.getLastName() == null) && patient.getEncryptedSelf() == null) {
 			throw new MissingRequirementsException("modifyPatient: Name, Last name  are required.");
 		}
 

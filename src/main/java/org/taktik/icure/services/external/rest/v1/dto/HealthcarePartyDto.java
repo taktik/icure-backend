@@ -54,7 +54,10 @@ public class HealthcarePartyDto extends StoredDto {
     protected String publicKey;
     protected String nihii;
     protected String ssin;
-	protected String cbe;
+
+    protected byte[] picture;
+
+    protected String cbe;
 	protected Integer convention; //0,1,2,9
     protected String userId;
     protected String parentId;
@@ -180,6 +183,14 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setProxyBic(String proxyBic) {
         this.proxyBic = proxyBic;
+    }
+
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
     }
 
     public String getCbe() {
