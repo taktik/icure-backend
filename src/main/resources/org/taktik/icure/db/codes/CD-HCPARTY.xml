@@ -429,6 +429,24 @@
     <DESCRIPTION L='nl'>visceral digestive abdominal surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
+    <CODE>depttransplantsurgery</CODE>
+    <DESCRIPTION L="en">Transplant surgery</DESCRIPTION>
+    <DESCRIPTION L="fr">Chirurgie de transplantation</DESCRIPTION>
+    <DESCRIPTION L="nl">Transplant surgery</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>deptpercutaneous</CODE>
+    <DESCRIPTION L="en">Percutaneous intervention</DESCRIPTION>
+    <DESCRIPTION L="fr">Intervention percutanée</DESCRIPTION>
+    <DESCRIPTION L="nl">Percutaneous intervention</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>deptchildbirth</CODE>
+    <DESCRIPTION L="en">childbirth</DESCRIPTION>
+    <DESCRIPTION L="fr">Maternité/Accouchement</DESCRIPTION>
+    <DESCRIPTION L="nl">childbirth</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>orghospital</CODE>
     <DESCRIPTION L='en'>hospital</DESCRIPTION>
     <DESCRIPTION L='fr'>Hopital</DESCRIPTION>
@@ -657,22 +675,129 @@
     <DESCRIPTION L='nl'>orthotist</DESCRIPTION>
   </VALUE>
   <VALUE>
-    <CODE>depttransplantsurgery</CODE>
-    <DESCRIPTION L="en">Transplant surgery</DESCRIPTION>
-    <DESCRIPTION L="fr">Chirurgie de transplantation</DESCRIPTION>
-    <DESCRIPTION L="nl">Transplant surgery</DESCRIPTION>
+    <CODE>persanesthetist</CODE>
+    <DESCRIPTION L='fr'>Anesthésiste</DESCRIPTION>
+    <DESCRIPTION L='nl'></DESCRIPTION>
+    <DESCRIPTION L='en'>anesthetist</DESCRIPTION>
   </VALUE>
   <VALUE>
-    <CODE>deptpercutaneous</CODE>
-    <DESCRIPTION L="en">Percutaneous intervention</DESCRIPTION>
-    <DESCRIPTION L="fr">Intervention percutanée</DESCRIPTION>
-    <DESCRIPTION L="nl">Percutaneous intervention</DESCRIPTION>
+    <CODE>persstomatologist</CODE>
+    <DESCRIPTION L='fr'>Stomatologue</DESCRIPTION>
+    <DESCRIPTION L='nl'></DESCRIPTION>
+    <DESCRIPTION L='en'>stomatologist</DESCRIPTION>
   </VALUE>
   <VALUE>
-    <CODE>deptchildbirth</CODE>
-    <DESCRIPTION L="en">childbirth</DESCRIPTION>
-    <DESCRIPTION L="fr">Maternité/Accouchement</DESCRIPTION>
-    <DESCRIPTION L="nl">childbirth</DESCRIPTION>
+    <CODE>perslung</CODE>
+    <DESCRIPTION L='fr'>Pneumologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>lung</DESCRIPTION>
+    <DESCRIPTION L='en'>lung</DESCRIPTION>
   </VALUE>
-
+  <VALUE>
+    <CODE>persneuropsychiatrist</CODE>
+    <DESCRIPTION L='fr'>Neuropsychiatre</DESCRIPTION>
+    <DESCRIPTION L='nl'>neuropsychiatrist</DESCRIPTION>
+    <DESCRIPTION L='en'>neuropsychiatrist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persneurologist</CODE>
+    <DESCRIPTION L='fr'>Neurologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>neurologist</DESCRIPTION>
+    <DESCRIPTION L='en'>neurologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persneurosurgeon</CODE>
+    <DESCRIPTION L='fr'>Neurochirurgien</DESCRIPTION>
+    <DESCRIPTION L='nl'>neurosurgeon</DESCRIPTION>
+    <DESCRIPTION L='en'>neurosurgeon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persgeriatrician</CODE>
+    <DESCRIPTION L='fr'>Gériatre</DESCRIPTION>
+    <DESCRIPTION L='nl'>geriatrician</DESCRIPTION>
+    <DESCRIPTION L='en'>geriatrician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persobstetrician</CODE>
+    <DESCRIPTION L='fr'>Obstétricien</DESCRIPTION>
+    <DESCRIPTION L='nl'>obstetrician</DESCRIPTION>
+    <DESCRIPTION L='en'>obstetrician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persophthalmologist</CODE>
+    <DESCRIPTION L='fr'>Ophtalmologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>ophthalmologist</DESCRIPTION>
+    <DESCRIPTION L='en'>ophthalmologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persotorhinolaryngologist</CODE>
+    <DESCRIPTION L='fr'>Oto Rhino Laryngologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>persotorhinolaryngologist</DESCRIPTION>
+    <DESCRIPTION L='en'>persotorhinolaryngologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persurologist</CODE>
+    <DESCRIPTION L='fr'>Urologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>urologist</DESCRIPTION>
+    <DESCRIPTION L='en'>urologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persdermatologist</CODE>
+    <DESCRIPTION L='fr'>Dermatologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>dermatologist</DESCRIPTION>
+    <DESCRIPTION L='en'>dermatologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persorthopaedist</CODE>
+    <DESCRIPTION L='fr'>Orthopédiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthopaedist</DESCRIPTION>
+    <DESCRIPTION L='en'>orthopaedist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspediatrician</CODE>
+    <DESCRIPTION L='fr'>Pédiatre</DESCRIPTION>
+    <DESCRIPTION L='nl'>pediatrician</DESCRIPTION>
+    <DESCRIPTION L='en'>pediatrician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persradiologist</CODE>
+    <DESCRIPTION L='fr'>Radiologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>persradiologist</DESCRIPTION>
+    <DESCRIPTION L='en'>persradiologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persgastroenterologist</CODE>
+    <DESCRIPTION L='fr'>Gastro entérologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>gastroenterologist</DESCRIPTION>
+    <DESCRIPTION L='en'>gastroenterologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>personcologist</CODE>
+    <DESCRIPTION L='fr'>Oncologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>oncologist</DESCRIPTION>
+    <DESCRIPTION L='en'>oncologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persrheumatologist</CODE>
+    <DESCRIPTION L='fr'>Rhumatologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>rheumatologist</DESCRIPTION>
+    <DESCRIPTION L='en'>rheumatologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persanesthetist</CODE>
+    <DESCRIPTION L='fr'>Anesthésiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>Anesthetist</DESCRIPTION>
+    <DESCRIPTION L='en'>Anesthetist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persgynecologist</CODE>
+    <DESCRIPTION L='fr'>Gynécologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>gynecologist</DESCRIPTION>
+    <DESCRIPTION L='en'>gynecologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persnephrologist</CODE>
+    <DESCRIPTION L='fr'>Néphrologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>nephrologist</DESCRIPTION>
+    <DESCRIPTION L='en'>nephrologist</DESCRIPTION>
+  </VALUE>
 </kmehr-cd>
