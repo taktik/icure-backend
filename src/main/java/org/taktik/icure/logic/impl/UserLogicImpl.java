@@ -46,6 +46,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.exceptions.UserRegistrationException;
 import org.taktik.icure.logic.HealthcarePartyLogic;
 import org.taktik.icure.logic.PropertyLogic;
+import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.logic.listeners.UserLogicListener;
 
@@ -81,6 +82,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	private Set<UserLogicListener> listeners = new HashSet<>();
 
 	private UUIDGenerator uuidGenerator;
+	private SessionLogic sessionLogic;
 
 	public UserLogicImpl() {
 	}
@@ -824,6 +826,11 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	@Autowired
 	public void setHealthcarePartyLogic(HealthcarePartyLogic healthcarePartyLogic) {
 		this.healthcarePartyLogic = healthcarePartyLogic;
+	}
+
+	@Autowired
+	public void setSessionLogic(SessionLogic sessionLogic) {
+		this.sessionLogic = sessionLogic;
 	}
 
 	@Autowired
