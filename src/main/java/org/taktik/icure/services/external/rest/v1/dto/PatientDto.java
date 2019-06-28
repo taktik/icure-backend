@@ -69,6 +69,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
+    protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
     @ApiModelProperty(dataType = "string")
     protected byte[] picture;
@@ -475,5 +476,13 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setDeactivationReason(DeactivationReasonDto deactivationReason) {
         this.deactivationReason = deactivationReason;
+    }
+
+    public Set<String> getEncryptedAdministrativesDocuments() {
+        return encryptedAdministrativesDocuments;
+    }
+
+    public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
+        this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
     }
 }

@@ -33,6 +33,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.CodeFlag;
 public class CodeDto extends StoredDto {
 	// id = type|code|version  => this must be unique
 
+	protected String parent; //ID of the parent
 	protected Set<String> regions; //ex: be,fr
 	protected String type; //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
 	protected String version; //ex: 10
@@ -182,6 +183,10 @@ public class CodeDto extends StoredDto {
 	public void setData(String data) {
 		this.data = data;
 	}
+
+	public String getParent() { return parent; }
+
+	public void setParent(String parent) { this.parent = parent; }
 
 	@Override
 	public boolean equals(Object o) {
