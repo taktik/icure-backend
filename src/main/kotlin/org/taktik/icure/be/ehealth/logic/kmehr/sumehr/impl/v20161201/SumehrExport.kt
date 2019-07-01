@@ -552,6 +552,9 @@ class SumehrExport : KmehrExport() {
 					}
 					if(eds.codes.isNotEmpty()){
 						createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+							if(eds.note != null) {
+								it.texts.add(TextType().apply { value = eds.note; l = "fr" })
+							}
 							it.contents.add(ContentType().apply {
 								eds.codes?.forEach { c ->
 									try{
