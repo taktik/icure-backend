@@ -555,6 +555,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	}
 
 	@Override
+	public Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId) {
+		return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId);
+	}
+
+	@Override
 	public PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, Long startKey, String startDocumentId, Integer limit) {
 		return patientDAO.listOfPatientsModifiedAfter(date, new PaginationOffset<>(startKey, startDocumentId, 0, limit == null ? 1000 : limit ));
 	}
