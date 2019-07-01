@@ -249,6 +249,30 @@ public class PatientFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "Get the HcParty encrypted AES keys indexed by owner",
+			httpMethod = "GET",
+			notes = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)"
+	)
+	@GET
+	@Path("/{healthcarePartyId}/keys")
+	public Map<String,String> getHcPartyKeysForDelegate(@PathParam("healthcarePartyId") String healthcarePartyId) {
+		if (healthcarePartyId == null) {
+			throw new IllegalArgumentException("A required query parameter was not specified for this request.");
+			//return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		Map<String, String> hcPartyKeysForDelegate = patientLogic.getHcPartyKeysForDelegate(healthcarePartyId);
+
+		boolean succeed = (hcPartyKeysForDelegate != null);
+		if (succeed) {
+			return hcPartyKeysForDelegate;//Response.ok().entity(hcPartyKeysForDelegate).build();
+		} else {
+			throw new IllegalStateException("A problem regarding fetching keys. Read the app logs.");
+			//return Response.status(500).type("text/plain").entity("A problem regarding fetching keys. Read the app logs.").build();
+		}
+	}
+
+	@ApiOperation(
 			value = "Get count of patients for a specific HcParty or for the current HcParty ",
 			response = ContentDto.class,
 			httpMethod = "GET",
