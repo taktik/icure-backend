@@ -75,6 +75,8 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     protected List<Address> addresses = new LinkedList<>();
     protected List<String> languages =  new LinkedList<>();
 
+    protected byte[] picture;
+
     protected List<HealthcarePartyStatus> statuses;
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
@@ -236,6 +238,14 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
 
     public void setNihii(String nihii) {
         this.nihii = nihii;
+    }
+
+    public @Nullable byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
     }
 
     public Map<TelecomType, String> getSendFormats() {
