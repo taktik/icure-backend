@@ -31,7 +31,7 @@ import org.taktik.icure.entities.CalendarItemType;
 import java.util.List;
 
 @Repository("calendarItemTypeDAO")
-@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType' && !doc.deleted) emit( null, doc._id )}")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType' && !doc.deleted) emit( null, null )}")
 public class CalendarItemTypeDAOImpl extends GenericDAOImpl<CalendarItemType> implements CalendarItemTypeDAO {
 
     @Autowired
@@ -41,7 +41,7 @@ public class CalendarItemTypeDAOImpl extends GenericDAOImpl<CalendarItemType> im
     }
 
     @Override
-    @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , doc._id )}")
+    @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
     public List<CalendarItemType> getAllEntitiesIncludeDelete() {
 
         ViewQuery viewQuery = createQuery("all_and_deleted").includeDocs(true);
