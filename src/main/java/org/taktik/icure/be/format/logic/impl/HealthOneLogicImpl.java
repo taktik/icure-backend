@@ -71,7 +71,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 	static SimpleDateFormat extraDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 	//\s*>\s*((?:-|\+)?[0-9]*(?:\.|,)?[0-9]*) matches __>__-01.29 and >+2,245 and >1  into $1
-	//(?:(?:\s*([^0-9\s]\S*))|(?:\s+(\S+)))?\s* matches a0 and __a5656 (first part) or (_898989) in other words: any garbage that is separed by a space or
+	//(?:(?:\s*([^0-9\s]\S*))|(?:\s+(\S+)))?\s* matches a0eraa and __a5656 (first part) or (_898989) in other words: any garbage that is separed by a space or
 	//an alphanumerical character
 	//We also allow for an open parenthesis, an open [ or both
 	static Pattern greaterThanReference = Pattern.compile("\\s*(?:[\\(\\[]+\\s*)?>\\s*((?:-|\\+)?[0-9]*(?:\\.|,)?[0-9]*)(?:(?:\\s*([^0-9\\s]\\S*))|(?:\\s+(\\S+)))?\\s*");
@@ -756,7 +756,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		pw.print("A1\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\\r\n");
 		pw.print("A2\\" + ref + "\\" + namePat + "\\" + firstPat + "\\" + sexPat + "\\" + birthPat + "\\\r\n");
 		pw.print("A3\\" + ref + "\\" + addrPat1 + "\\" + addrPat2 + "\\" + addrPat3 + "\\\r\n");
-		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\" + isFull + "\\\r\n");
+		pw.print("A4\\" + ref + "\\" + inamiMed + " " + nameMed + " " + firstMed + "\\" + dateAnal + "\\\\" + isFull + "\\\r\n");
 		pw.print("A5\\" + ref + "\\\\" + ssinPat + "\\\\\\\\\r\n");
 
 		for (String line : text.replaceAll("\u2028", "\n").split("\n")) {

@@ -23,26 +23,29 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.CodeStub;
+import org.taktik.icure.entities.base.CryptoActor;
 import org.taktik.icure.entities.base.Person;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Address;
 import org.taktik.icure.entities.embed.FinancialInstitutionInformation;
+import org.taktik.icure.entities.embed.FlatRateTarification;
 import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.entities.embed.HealthcarePartyStatus;
 import org.taktik.icure.entities.embed.TelecomType;
+import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.ValidCode;
-import org.taktik.icure.entities.embed.FlatRateTarification;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HealthcareParty extends StoredDocument implements Person {
+public class HealthcareParty extends StoredDocument implements Person, CryptoActor {
 	protected String name;
 	protected String lastName;
     protected String firstName;
@@ -71,6 +74,8 @@ public class HealthcareParty extends StoredDocument implements Person {
 
     protected List<Address> addresses = new LinkedList<>();
     protected List<String> languages =  new LinkedList<>();
+
+    protected byte[] picture;
 
     protected List<HealthcarePartyStatus> statuses;
 
@@ -235,6 +240,14 @@ public class HealthcareParty extends StoredDocument implements Person {
         this.nihii = nihii;
     }
 
+    public @Nullable byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
+
     public Map<TelecomType, String> getSendFormats() {
         return sendFormats;
     }
@@ -259,19 +272,23 @@ public class HealthcareParty extends StoredDocument implements Person {
         this.languages = languages;
     }
 
+    @Override
     public Map<String, String[]> getHcPartyKeys() {
         return hcPartyKeys;
     }
 
+    @Override
     public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
         this.hcPartyKeys = hcPartyKeys;
     }
 
-	public @Nullable String getPublicKey() {
+    @Override
+    public @Nullable String getPublicKey() {
 		return publicKey;
 	}
 
-	public void setPublicKey(String publicKey) {
+    @Override
+    public void setPublicKey(String publicKey) {
 		this.publicKey = publicKey;
 	}
 
@@ -390,4 +407,69 @@ public class HealthcareParty extends StoredDocument implements Person {
     public List<FlatRateTarification> getFlatRateTarifications() { return flatRateTarifications; }
 
     public void setFlatRateTarifications(List<FlatRateTarification> flatRateTarifications) { this.flatRateTarifications = flatRateTarifications; }
+
+
+    public HealthcareParty solveConflictWith(HealthcareParty other) {
+        super.solveConflictsWith(other);
+
+        this.mergeFrom(other);
+
+        return this;
+    }
+
+    public void mergeFrom(HealthcareParty other) {
+        if (this.firstName == null && other.firstName != null) { this.firstName = other.firstName; }
+        if (this.lastName == null && other.lastName != null) { this.lastName = other.lastName; }
+        if (this.ssin == null && other.ssin != null) { this.ssin = other.ssin; }
+        if (this.civility == null && other.civility != null) { this.civility = other.civility; }
+        if (this.gender == null && other.gender != null && other.gender != Gender.unknown) { this.gender = other.gender; }
+        if (this.publicKey == null && other.publicKey != null) { this.publicKey = other.publicKey; }
+        this.hcPartyKeys = MergeUtil.mergeMapsOfArraysDistinct(this.hcPartyKeys, other.hcPartyKeys, String::equals, (a, b)->a);
+        this.languages = MergeUtil.mergeListsDistinct(this.languages,other.languages,String::equalsIgnoreCase,(a, b)->a);
+
+        for (Address fromAddress:other.addresses) {
+            Optional<Address> destAddress = this.getAddresses().stream().filter(address -> address.getAddressType() == fromAddress.getAddressType()).findAny();
+            if (destAddress.isPresent()) {
+                destAddress.orElseThrow(IllegalStateException::new).mergeFrom(fromAddress);
+            } else {
+                this.getAddresses().add(fromAddress);
+            }
+        }
+
+        for (String fromLanguage:other.languages) {
+            Optional<String> destLanguage = this.getLanguages().stream().filter(language -> language == fromLanguage).findAny();
+            if (!destLanguage.isPresent()) {
+                this.getLanguages().add(fromLanguage);
+            }
+        }
+
+        for (FinancialInstitutionInformation fromFinancialInstitutionInformation:other.financialInstitutionInformation) {
+            Optional<FinancialInstitutionInformation> destFinancialInstitutionInformation = this.getFinancialInstitutionInformation().stream().filter(financialInstitutionInformation -> financialInstitutionInformation.getBankAccount() == fromFinancialInstitutionInformation.getBankAccount()).findAny();
+            if (!destFinancialInstitutionInformation.isPresent()) {
+                this.getFinancialInstitutionInformation().add(fromFinancialInstitutionInformation);
+            }
+        }
+    }
+
+    public void forceMergeFrom(HealthcareParty other) {
+        if (other.firstName != null) { this.firstName = other.firstName; }
+        if (other.lastName != null) { this.lastName = other.lastName; }
+        if (other.ssin != null) { this.ssin = other.ssin; }
+        if (other.civility != null) { this.civility = other.civility; }
+        if (other.gender != null && other.gender != Gender.unknown) { this.gender = other.gender; }
+
+        this.forceMergeAddresses(other.getAddresses());
+    }
+
+    public void forceMergeAddresses(List<Address> otherAddresses) {
+        for (Address fromAddress : otherAddresses) {
+            Optional<Address> destAddress = this.getAddresses().stream().filter(address -> address.getAddressType() == fromAddress.getAddressType()).findAny();
+            if (destAddress.isPresent()) {
+                destAddress.orElseThrow(IllegalStateException::new).forceMergeFrom(fromAddress);
+            } else {
+                this.getAddresses().add(fromAddress);
+            }
+        }
+    }
+
 }

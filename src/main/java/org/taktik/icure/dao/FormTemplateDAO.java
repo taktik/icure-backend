@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao;
 
+import org.ektorp.support.View;
 import org.taktik.icure.entities.FormTemplate;
 
 import java.util.List;
@@ -25,5 +26,9 @@ import java.util.List;
 public interface FormTemplateDAO  extends GenericDAO<FormTemplate> {
 	FormTemplate createFormTemplate(FormTemplate entity);
 	List<FormTemplate> findByUserGuid(String userId, String guid, boolean loadLayout);
+
+	@View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
+	List<FormTemplate> findByGuid(String guid, boolean loadLayout);
+
 	List<FormTemplate> findBySpecialtyGuid(String specialityCode, String guid, boolean loadLayout);
 }

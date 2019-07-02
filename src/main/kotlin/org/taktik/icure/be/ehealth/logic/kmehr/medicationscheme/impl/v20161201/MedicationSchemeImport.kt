@@ -44,6 +44,8 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
+import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import javax.xml.bind.JAXBElement
 
 
@@ -560,8 +562,8 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
     }
 
     protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
-        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
-        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
+        val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
+        val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
 
         return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
                 ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
@@ -614,7 +616,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                          author: User,
                                          v: ImportResult,
                                          dest: Patient? = null): Patient? {
-        val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value)
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =
