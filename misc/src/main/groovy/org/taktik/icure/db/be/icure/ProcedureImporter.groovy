@@ -10,6 +10,7 @@ import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.taktik.icure.db.Importer
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeFlag
 
 import java.security.Security
 
@@ -21,7 +22,7 @@ class ProcedureImporter extends Importer{
         HttpClient httpClient = new StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url("http://127.0.0.1:5984")/*.username("template").password("804e5824-8d79-4074-89be-def87278b51f")*/.build()
         CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
         // if the second parameter is true, the database will be created if it doesn't exists
-        couchdbBase = dbInstance.createConnector('icure-base', false);
+        couchdbBase = dbInstance.createConnector('icure-base-master', false);
 
         Security.addProvider(new BouncyCastleProvider())
     }
@@ -71,6 +72,7 @@ class ProcedureImporter extends Importer{
                 def code = new Code(Sets.newHashSet('be', 'fr'), type, it.CISP.text(), version, label)
 
                 def links = [];
+                def flags = [];
 
                 for (String k in ['IBUI','IBUI_Not_Exact']) {
                     if (it[k].text().length()) links << "BE-THESAURUS|${it[k].text()}|3.1.0".toString()
@@ -88,12 +90,18 @@ class ProcedureImporter extends Importer{
                     if (it[k].text().length()) links << "INAMI-RIZIV|${it[k].text().replaceAll(/ ?\|.+/,'')}|1".toString()
                 }
 
-                for (String k in ['Physician','Physiotherapist','Nurse','Social_Worker','Psychologist','Administrative','Dietician','Logopedist','Dentist','Occupational_Therapist','Midwife','Caregiver']) {
-                    if (it[k].text().length()) links << "CD-HCPARTY|pers${k.toLowerCase().replaceAll(/\_/,'').replaceAll(/ ?\|.+/,'')}|1".toString()
+                for (String k in ['deptgeneralpractice','deptkinesitherapy','deptnurse','deptsocialworker','deptpsychology','deptadministrative','deptdietetic','deptspeechtherapy ','deptdentistry','deptoccupationaltherapy','deptgynecology','depthealthcare']) {
+                    if (it[k].text().length()){
+                        flags << CodeFlag.valueOf(k)
+                    }
                 }
 
                 if (links.size()) {
                     code.links = links
+                }
+
+                if(flags.size()){
+                    code.flags = flags
                 }
 
                 code.searchTerms = [:];
