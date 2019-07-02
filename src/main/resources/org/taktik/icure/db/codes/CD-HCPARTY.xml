@@ -723,10 +723,10 @@
     <DESCRIPTION L='en'>obstetrician</DESCRIPTION>
   </VALUE>
   <VALUE>
-    <CODE>persophthalmologist</CODE>
+    <CODE>persophtalmologist</CODE>
     <DESCRIPTION L='fr'>Ophtalmologue</DESCRIPTION>
-    <DESCRIPTION L='nl'>ophthalmologist</DESCRIPTION>
-    <DESCRIPTION L='en'>ophthalmologist</DESCRIPTION>
+    <DESCRIPTION L='nl'>ophtalmologist</DESCRIPTION>
+    <DESCRIPTION L='en'>ophtalmologist</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persotorhinolaryngologist</CODE>
@@ -747,10 +747,10 @@
     <DESCRIPTION L='en'>dermatologist</DESCRIPTION>
   </VALUE>
   <VALUE>
-    <CODE>persorthopaedist</CODE>
+    <CODE>persorthopedist</CODE>
     <DESCRIPTION L='fr'>Orthopédiste</DESCRIPTION>
-    <DESCRIPTION L='nl'>orthopaedist</DESCRIPTION>
-    <DESCRIPTION L='en'>orthopaedist</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthopedist</DESCRIPTION>
+    <DESCRIPTION L='en'>orthopedist</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>perspediatrician</CODE>
@@ -775,6 +775,12 @@
     <DESCRIPTION L='fr'>Oncologue</DESCRIPTION>
     <DESCRIPTION L='nl'>oncologist</DESCRIPTION>
     <DESCRIPTION L='en'>oncologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perscardiologist</CODE>
+    <DESCRIPTION L='fr'>Cardiologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>cardiologist</DESCRIPTION>
+    <DESCRIPTION L='en'>cardiologist</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>persrheumatologist</CODE>
