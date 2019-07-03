@@ -21,6 +21,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import java.time.OffsetDateTime.now
 
 class SumehrExportTest {
     //The method tested needs a SumehrExport Class to run
@@ -126,6 +128,45 @@ class SumehrExportTest {
         assertEquals(0, service2.tags.size)
         assertNotNull(service2.content)
         assertNotNull(service2.content.values.firstOrNull()?.booleanValue)
+    }
+
+    @Test
+    fun addHealthCareElement() {
+        // Arrange
+        /// First parameter
+        val trn1 = ObjectFactory().createTransactionType()
+        val trn2 = ObjectFactory().createTransactionType()
+        val trn3 = ObjectFactory().createTransactionType()
+
+        /// Second parameter
+        val eds1 = HealthElement() //closingDate == null
+        val eds2 = HealthElement() //closingDate !=null
+        val eds3 = HealthElement()
+        eds2.closingDate = now().toEpochSecond()
+        val tag1 = CodeStub("CD-ITEM", "familyrisk", "1")
+        val tag2 = CodeStub("CD-ITEM", "allergy", "1")
+        eds1.tags.add(tag1)
+        eds2.tags.add(tag2)
+        eds3.tags.add(tag2)
+        val code1 = CodeStub("CD-AUTONOMY", "CD-ITEM", "1")
+        val code2 = CodeStub("ICPC", "CD-VACCINE", "1")
+        eds1.codes.add(code1)
+        eds1.codes.add(code2)
+        eds2.codes.add(code1)
+        eds2.codes.add(code2)
+
+
+        /// Execution
+        sumehrExport.addHealthCareElement(trn1,eds1)
+        sumehrExport.addHealthCareElement(trn2,eds2)
+        sumehrExport.addHealthCareElement(trn3,eds3)
+
+        /// Tests
+        Assert.assertEquals(eds1.tags.firstOrNull()?.code,"problem")
+        Assert.assertEquals(eds1.tags.firstOrNull()?.version,"1.11")
+        Assert.assertEquals(eds1.codes.size,1)
+
+
     }
 
     @Test
