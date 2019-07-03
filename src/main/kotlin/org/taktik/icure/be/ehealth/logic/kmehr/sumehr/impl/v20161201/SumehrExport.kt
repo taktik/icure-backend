@@ -229,7 +229,7 @@ class SumehrExport : KmehrExport() {
 		return getAllServices(hcPartyId, sfks, excludedIds, decryptor)
 	}
 
-	private fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	internal fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		val f = Filters.UnionFilter(
 			sfks.map { k ->
 				Filters.UnionFilter(cdItems.map { cd ->
