@@ -21,9 +21,11 @@ package org.taktik.icure.logic;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.AccessLog;
+import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.exceptions.DeletionException;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface AccessLogLogic extends EntityPersister<AccessLog, String> {
@@ -39,4 +41,6 @@ public interface AccessLogLogic extends EntityPersister<AccessLog, String> {
     AccessLog modifyAccessLog(AccessLog accessLog);
 
     List<String> deleteAccessLogs(List<String> ids) throws DeletionException;
+
+    List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
 }

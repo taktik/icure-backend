@@ -29,8 +29,12 @@ import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.AccessLog;
+import org.taktik.icure.entities.HealthElement;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository("accessLogDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.AccessLog' && !doc.deleted) emit( null, doc._id )}")
@@ -60,5 +64,22 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
             ComplexKey endKey = ComplexKey.of(userId, accessType, Long.MAX_VALUE);
             return pagedQueryView("all_by_user_date", descending?endKey:startKey, descending?startKey:endKey, pagination, descending);
         }
+    }
+
+    @Override
+    @View(name = "by_hcparty_patient", map = "classpath:js/accesslog/By_hcparty_patient_map.js")
+    public List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
+        ComplexKey[] keys = secretPatientKeys.stream().map(fk -> ComplexKey.of(hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretPatientKeys.size()]);
+
+        List<AccessLog> result = new ArrayList<>();
+        queryView("by_hcparty_patient", keys).forEach((e)->{if (result.isEmpty() || !e.getId().equals(result.get(result.size()-1).getId())) {result.add(e); }});
+
+        return result;
+    }
+
+
+    @Override
+    public List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
+        return null;
     }
 }
