@@ -167,36 +167,94 @@ class SumehrExportTest {
         val trn1 = ObjectFactory().createTransactionType()
         val trn2 = ObjectFactory().createTransactionType()
         val trn3 = ObjectFactory().createTransactionType()
+        val trn4 = ObjectFactory().createTransactionType()
+        val trn5 = ObjectFactory().createTransactionType()
+        val trn6 = ObjectFactory().createTransactionType()
 
         /// Second parameter
         val eds1 = HealthElement() //closingDate == null
         val eds2 = HealthElement() //closingDate !=null
         val eds3 = HealthElement()
+        val eds4 = HealthElement()
+        val eds5 = HealthElement()
+        val eds6 = HealthElement()
         eds2.closingDate = now().toEpochSecond()
         val tag1 = CodeStub("CD-ITEM", "familyrisk", "1")
         val tag2 = CodeStub("CD-ITEM", "allergy", "1")
         eds1.tags.add(tag1)
         eds2.tags.add(tag2)
-        eds3.tags.add(tag2)
+        eds3.tags.add(tag1)
+        eds4.tags.add(tag2)
+        eds5.tags.add(tag2)
+        eds6.tags.add(tag2)
         val code1 = CodeStub("CD-AUTONOMY", "CD-ITEM", "1")
         val code2 = CodeStub("ICPC", "CD-VACCINE", "1")
+        val code3 = CodeStub("CD-ATC", "CD-MEDICATION", "2")
+        val code4 = CodeStub("BE-THESAURUS", "CD-MEDICATION", "3.1")
+        val code5 = CodeStub("NOTATYPE", "CD-MEDICATION", "3.1")
         eds1.codes.add(code1)
         eds1.codes.add(code2)
         eds2.codes.add(code1)
-        eds2.codes.add(code2)
+        eds3.codes.add(code1)
+        eds4.codes.add(code3)
+        eds5.codes.add(code4)
+        eds6.codes.add(code5)
 
 
         /// Execution
         sumehrExport.addHealthCareElement(trn1,eds1)
         sumehrExport.addHealthCareElement(trn2,eds2)
         sumehrExport.addHealthCareElement(trn3,eds3)
+        sumehrExport.addHealthCareElement(trn4,eds4)
+        sumehrExport.addHealthCareElement(trn5,eds5)
+        sumehrExport.addHealthCareElement(trn6,eds6)
 
         /// Tests
+        val a1 : HeadingType = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
+        val b1 : ItemType = a1.headingsAndItemsAndTexts.get(0) as ItemType
+        val c1 = b1.contents[0].cds[0]
         Assert.assertEquals(eds1.tags.firstOrNull()?.code,"problem")
         Assert.assertEquals(eds1.tags.firstOrNull()?.version,"1.11")
-        Assert.assertEquals(eds1.codes.size,1)
+        Assert.assertEquals(eds1.codes.size,1) // code1 (with "CD-AUTONOMY") is removed
+        Assert.assertEquals(c1.value,"CD-VACCINE")
+        Assert.assertEquals(c1.s.value(),"ICPC")
+        Assert.assertEquals(c1.sv,"1")
+        Assert.assertEquals(c1.sl,"ICPC")
+        Assert.assertEquals(c1.dn,"ICPC")
 
+        val a2 : HeadingType = trn2.headingsAndItemsAndTexts.get(0) as HeadingType
+        Assert.assertEquals(eds2.tags.firstOrNull()?.code,"allergy")
+        Assert.assertEquals(eds2.tags.firstOrNull()?.version,"1")
+        Assert.assertEquals(eds2.codes.size,1)
+        Assert.assertEquals(a2.headingsAndItemsAndTexts.size,0)
 
+        val a3 : HeadingType = trn3.headingsAndItemsAndTexts.get(0) as HeadingType
+        Assert.assertEquals(eds3.tags.firstOrNull()?.code,"problem")
+        Assert.assertEquals(eds3.tags.firstOrNull()?.version,"1.11")
+        Assert.assertEquals(eds3.codes.size,0)
+        Assert.assertEquals(a3.headingsAndItemsAndTexts.size,0)
+
+        val a4 : HeadingType = trn4.headingsAndItemsAndTexts.get(0) as HeadingType
+        val b4 : ItemType = a4.headingsAndItemsAndTexts.get(0) as ItemType
+        val c4 = b4.contents[0].cds[0]
+        Assert.assertEquals(c4.value,"CD-MEDICATION")
+        Assert.assertEquals(c4.s.value(),"CD-ATC")
+        Assert.assertEquals(c4.sv,"1.0")
+        Assert.assertEquals(c4.sl,"CD-ATC")
+        Assert.assertEquals(c4.dn,"CD-ATC")
+
+        val a5 : HeadingType = trn5.headingsAndItemsAndTexts.get(0) as HeadingType
+        val b5 : ItemType = a5.headingsAndItemsAndTexts.get(0) as ItemType
+        val c5 = b5.contents[0].cds[0]
+        Assert.assertEquals(c5.value,"CD-MEDICATION")
+        Assert.assertEquals(c5.s.value(),"CD-CLINICAL")
+        Assert.assertEquals(c5.sv,"3.1")
+        Assert.assertEquals(c5.sl,"CD-CLINICAL")
+        Assert.assertEquals(c5.dn,"CD-CLINICAL")
+
+        val a6 : HeadingType = trn6.headingsAndItemsAndTexts.get(0) as HeadingType
+        val b6 : ItemType = a6.headingsAndItemsAndTexts.get(0) as ItemType
+        Assert.assertEquals(b6.contents[0].cds.size,0)
     }
 
     @Test
