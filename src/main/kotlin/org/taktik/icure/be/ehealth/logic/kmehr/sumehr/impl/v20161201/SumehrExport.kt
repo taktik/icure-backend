@@ -278,7 +278,7 @@ class SumehrExport : KmehrExport() {
 		}?.filter { s -> !excludedIds.contains(s.id) } ?: emptyList()
 	}
 
-	private fun getMedications(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	internal fun getMedications(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		val nowFuzzy = FuzzyValues.getCurrentFuzzyDate()
 		val medications = getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf("medication"), excludedIds, decryptor).filter { it.closingDate?.let { it >= nowFuzzy } ?: true }
 		val cnks = HashSet(medications.filter { m -> m.codes.find { it.type == "CD-DRUG-CNK" } != null }.mapNotNull { m -> m.codes.find { it.type == "CD-DRUG-CNK" }?.code })
