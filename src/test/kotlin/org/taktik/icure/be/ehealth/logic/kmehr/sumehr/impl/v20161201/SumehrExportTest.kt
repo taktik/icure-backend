@@ -18,6 +18,9 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
+import org.taktik.icure.utils.FuzzyValues
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
@@ -25,6 +28,11 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import java.time.OffsetDateTime.now
 
 class SumehrExportTest {
+    private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
+    private val yesterday = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusDays(1), ChronoUnit.SECONDS)
+    private val oneWeekAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(1), ChronoUnit.SECONDS)
+    private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMonths(1), ChronoUnit.SECONDS)
+
     //The method tested needs a SumehrExport Class to run
     private val sumehrExport = SumehrExport()
 
@@ -42,15 +50,20 @@ class SumehrExportTest {
     private val validContentDto = mapOf(Pair("valid", ContentDto().apply { booleanValue = true }))
     private val emptyContent = mapOf(Pair("empty", Content()))
 
-    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent }
-    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = emptyContent; this.encryptedContent = "validContent" }
-    private val serviceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTagsDto; this.content = validContentDto }
-    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = validContent }
-    private val lifeEndedService = Service().apply { this.id = "3"; this.endOfLife = Long.MAX_VALUE; this.status = 1; this.tags = validTags; this.content = validContent }
-    private val wrongStatusService = Service().apply { this.id = "4"; this.endOfLife = null; this.status = 3; this.tags = validTags; this.content = validContent }
-    private val inactiveService = Service().apply { this.id = "5"; this.endOfLife = null;this.status = 2;this.tags = inactiveTags;this.content = validContent }
-    private val emptyService = Service().apply { this.id = "6"; this.endOfLife = null;this.status = 1;this.tags = validTags;this.content = emptyContent }
-    private val services = listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService)
+    private val drugs = setOf(CodeStub().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+    private val drugsDto = setOf(CodeDto().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+
+    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = emptyContent; this.encryptedContent = "validContent"; this.codes = drugs; this.openingDate = oneWeekAgo }
+    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTagsDto; this.content = validContentDto; this.codes = drugsDto; this.openingDate = oneWeekAgo }
+    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = validContent; this.codes = drugs; this.openingDate = oneWeekAgo }
+    private val lifeEndedService = Service().apply { this.id = "3"; this.endOfLife = Long.MAX_VALUE; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
+    private val wrongStatusService = Service().apply { this.id = "4"; this.endOfLife = null; this.status = 3; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
+    private val inactiveService = Service().apply { this.id = "5"; this.endOfLife = null; this.status = 2; this.tags = inactiveTags; this.content = validContent; this.openingDate = oneWeekAgo }
+    private val emptyService = Service().apply { this.id = "6"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = emptyContent; this.openingDate = oneWeekAgo }
+    private val oldService = Service().apply { this.id = "7"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneMonthAgo }
+    private val closedService = Service().apply { this.id = "8"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = yesterday }
+    private val services = listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService)
 
     @Before
     fun setUp() {
@@ -66,13 +79,13 @@ class SumehrExportTest {
                         override fun isDone(): Boolean = true
                         override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
                         override fun isCancelled(): Boolean = false
-                        override fun get(): List<ServiceDto> = listOf(serviceDto)
-                        override fun get(timeout: Long, unit: TimeUnit): List<ServiceDto> = listOf(serviceDto)
+                        override fun get(): List<ServiceDto> = listOf(decryptedServiceDto)
+                        override fun get(timeout: Long, unit: TimeUnit): List<ServiceDto> = listOf(decryptedServiceDto)
                     }
                 }
 
         Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
-                .thenAnswer { serviceDto }
+                .thenAnswer { decryptedServiceDto }
 
         Mockito.`when`(mapper.map<ServiceDto, Service>(any(), eq(Service::class.java)))
                 .thenAnswer { decryptedService }
@@ -82,7 +95,7 @@ class SumehrExportTest {
     fun getMd5() {
         //Arrange
         val hcPartyId = "1"
-        val sfks = listOf("", "")
+        val sfks = listOf("")
         val excludedIds = emptyList<String>()
 
         //Execution
@@ -97,7 +110,7 @@ class SumehrExportTest {
     fun getNonPassiveIrrelevantServices() {
         //Arrange
         val hcPartyId = "1"
-        val sfks = listOf("", "")
+        val sfks = listOf("")
         val cdItems = listOf("medication")
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
@@ -109,25 +122,42 @@ class SumehrExportTest {
         //Tests
         ///All services
         assertNotNull(services)
-        assertEquals(2, services.size)
+        assertEquals(4, services.size)
         assertNotNull(services?.firstOrNull())
         assertNotNull(services?.lastOrNull())
 
         ///Normal service
-        val service1 = services.first()
+        val service1 = services.elementAt(0)
         assertNull(service1.endOfLife)
-        assertEquals(1, service1.status)
-        assertEquals("active", service1.tags?.firstOrNull { it.type == "CD-LIFECYCLE" }?.code ?: "active")
+        assertEquals(1, service1.status)    // status is irrelevant
+        assertTrue(service1.tags.none { it.type == "CD-LIFECYCLE" && it.code == "inactive" })  // service is active
         assertNotNull(service1.content)
-        assertNotNull(service1.content.values.firstOrNull()?.booleanValue)
+        assertNotNull(service1.content.values.firstOrNull()?.booleanValue)  // service content has value
 
         ///Decrypted service
-        val service2 = services.last()
+        val service2 = services.elementAt(1)
         assertNull(service2.endOfLife)
-        assertEquals(2, service2.status)
-        assertEquals(0, service2.tags.size)
+        assertEquals(2, service2.status)    // status is inactive
         assertNotNull(service2.content)
-        assertNotNull(service2.content.values.firstOrNull()?.booleanValue)
+        assertNotNull(service2.content.values.firstOrNull()?.booleanValue)  // service content has value
+    }
+
+    @Test
+    fun getMedications() {
+        //Arrange
+        val hcPartyId = "1"
+        val sfks = listOf("")
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+
+        //Execute
+        val medications = sumehrExport.getMedications(hcPartyId, sfks, excludedIds, decryptor)
+
+        //Tests
+        assertNotNull(medications)
+        assertEquals(1, medications.count { m -> m.id.equals("2") })    // no drug duplicate
+        assertTrue(medications.all { m -> m.closingDate == null || m.closingDate!!.let { today <= it }})
     }
 
     @Test
