@@ -502,7 +502,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-    private fun addHealthCareElements(hcPartyId: String,
+	internal fun addHealthCareElements(hcPartyId: String,
                                       sfks: List<String>,
                                       trn: TransactionType,
 									  excludedIds: List<String>,
