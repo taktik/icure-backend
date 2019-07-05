@@ -31,6 +31,8 @@ import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
@@ -41,6 +43,8 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.ImportResultDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import org.taktik.icure.utils.ResponseUtils
@@ -129,7 +133,8 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
 
         result.services = sumehrLogicV2.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, null).stream().map { s -> mapper!!.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
         result.healthElements = sumehrLogicV2.getHealthElements(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds).stream().map { h -> mapper!!.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
-
+		result.patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper!!.map<PatientHealthCareParty, PatientHealthCarePartyDto>(h, PatientHealthCarePartyDto::class.java)}.collect(Collectors.toList<PatientHealthCarePartyDto>())
+		result.partnerships = sumehrLogicV2.getContactPeople(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper!!.map<Partnership, PartnershipDto>(h, PartnershipDto::class.java)}.collect(Collectors.toList<PartnershipDto>())
         return ResponseUtils.ok(result)
     }
 

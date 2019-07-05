@@ -35,6 +35,8 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
@@ -251,6 +253,14 @@ class SumehrExport : KmehrExport() {
         return healthElementLogic?.findByHCPartySecretPatientKeys(hcPartyId, sfks)?.filter {
             !(it.descr.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) || ((it.status?:0) and 2 != 0 && it.closingDate != null))
         } ?: emptyList()
+    }
+
+    fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
+        return patientLogic?.getPatient(patientId)?.partnerships?.filter{p -> !excludedIds.contains(p.partnerId)} ?: emptyList()
+    }
+
+    fun getPatientHealthCareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
+        return patientLogic?.getPatient(patientId)?.patientHealthCareParties?.filter{p -> !excludedIds.contains(p.healthcarePartyId)} ?: emptyList()
     }
 
     private fun getMedications(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {

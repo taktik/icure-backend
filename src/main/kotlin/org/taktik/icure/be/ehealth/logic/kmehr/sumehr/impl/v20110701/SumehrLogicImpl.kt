@@ -36,6 +36,8 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
@@ -105,4 +107,11 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV1
         return sumehrExport.getHealthElements(hcPartyId, sfks)
     }
 
+    override fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
+        return sumehrExport.getContactPeople(hcPartyId, sfks, excludedIds, patientId)
+    }
+
+    override fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
+        return sumehrExport.getPatientHealthCareParties(hcPartyId, sfks, excludedIds, patientId)
+    }
 }
