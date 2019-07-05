@@ -60,6 +60,8 @@ public class Code extends StoredDocument implements CodeIdentification {
 
 	protected String data;
 
+    protected String parent; //ID of the parent
+
 	public static Code dataCode(String typeAndCodeAndVersion, String data) {
 		Code c = new Code(typeAndCodeAndVersion);
 		c.data = data;
@@ -213,7 +215,11 @@ public class Code extends StoredDocument implements CodeIdentification {
 		this.data = data;
 	}
 
-	@Override
+    public String getParent() { return parent; }
+
+    public void setParent(String parent) { this.parent = parent; }
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof Code)) return false;
