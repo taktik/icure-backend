@@ -16,3 +16,6 @@ git submodule init
 git submodule update
 ./gradlew bootRun
 ```
+
+
+Be sure you have an instance of **CouchDB** already running and you have created a user as specified in the Fauxton part of the table in: https://medispring.atlassian.net/wiki/spaces/EN/pages/167084070/Setting+up+dev+environment, otherwise booting gradle will throw an error.

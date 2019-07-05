@@ -250,7 +250,8 @@ springBoot {
 }
 
 bootRun {
+   jvmArgs = ["-Dorg.ektorp.support.AutoUpdateViewOnChange=false", "-Dicure.authentication.local=true"]
    if ( project.hasProperty('jvmArgs') ) {
-       jvmArgs = (project.jvmArgs.split("\\s+") as List)
+        jvmArgs = (project.jvmArgs.split("\\s+") as List)
    }
 }
