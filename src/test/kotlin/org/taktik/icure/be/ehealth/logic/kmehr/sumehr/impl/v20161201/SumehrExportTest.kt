@@ -29,13 +29,12 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.format.logic.impl.HealthOneLogicImpl
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.ReferralPeriod
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.logic.impl.HealthElementLogicImpl
 import org.taktik.icure.logic.impl.HealthcarePartyLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import java.io.Serializable
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.OffsetDateTime.now
 
 class SumehrExportTest {
@@ -154,8 +153,8 @@ class SumehrExportTest {
                 encryptedSelf = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).encryptedSelf;
                 status = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).status;
                 closingDate = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).closingDate;
-                it.getArgumentAt(0, HealthElementDto::class.java).tags.forEach { c -> tags.add(CodeStub(c.type, c.code,c.version)); }
-                it.getArgumentAt(0, HealthElementDto::class.java).codes.forEach { c -> codes.add(CodeStub(c.type, c.code,c.version)); }
+                it.getArgumentAt(0, HealthElementDto::class.java).tags.forEach { c -> tags.add(CodeStub(c.type, c.code, c.version)); }
+                it.getArgumentAt(0, HealthElementDto::class.java).codes.forEach { c -> codes.add(CodeStub(c.type, c.code, c.version)); }
             }
         }
 
@@ -214,6 +213,92 @@ class SumehrExportTest {
         assertEquals(2, service2.status)    // status is inactive
         assertNotNull(service2.content)
         assertNotNull(service2.content.values.firstOrNull()?.booleanValue)  // service content has value
+    }
+
+    @Test
+    fun getNonConfidentialItems() {
+        //Arrange
+        val article = Article().apply {
+            this.id = "1"
+            this.tags = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Confidentiality"; this.code = "notsecret" }
+            )
+            this.codes = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Visibility"; this.code = "visibleinsummary" }
+            )
+        }
+
+        val message = Message().apply {
+            this.id = "2"
+            this.tags = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Confidentiality"; this.code = "secret" }
+            )
+            this.codes = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Visibility"; this.code = "visibleinsummary" }
+            )
+        }
+
+        val receipt = Receipt().apply {
+            this.id = "3"
+            this.tags = setOf(
+                    CodeStub().apply { this.type = "org.jdumur.tests.Confidentiality"; this.code = "secret" }
+            )
+            this.codes = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Visibility"; this.code = "maskedfromsummary" }
+            )
+        }
+
+        val patient = Patient().apply {
+            this.id = "4"
+            this.tags = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Confidentiality"; this.code = "secret" }
+            )
+            this.codes = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Visibility"; this.code = "maskedfromsummary" }
+            )
+        }
+
+        val contact = Contact().apply {
+            this.id = "5"
+            this.tags = setOf(
+                    CodeStub().apply { this.type = "org.jdumur.tests.Confidentiality"; this.code = "secret" }
+            )
+            this.codes = setOf(
+                    CodeStub().apply { this.type = "org.jdumur.tests.Visibility"; this.code = "maskedfromsummary" }
+            )
+        }
+
+        val document = Document().apply {
+            this.id = "6"
+            this.tags = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Confidentiality"; this.code = "notsecret" },
+                    CodeStub().apply { this.type = "org.jdumur.tests.Confidentiality"; this.code = "secret" }
+            )
+            this.codes = setOf(
+                    CodeStub().apply { this.type = "org.taktik.icure.entities.embed.Visibility"; this.code = "visibleinsummary" },
+                    CodeStub().apply { this.type = "org.jdumur.tests.Visibility"; this.code = "maskedfromsummary" }
+            )
+        }
+
+        val invoice = Invoice().apply {
+            this.id = "7"
+            this.tags = emptySet<CodeStub>()
+            this.codes = emptySet<CodeStub>()
+        }
+
+        //Execute
+        val items = sumehrExport.getNonConfidentialItems(listOf(article, message, receipt, patient, contact, document, invoice))
+
+        //Tests
+        assertNotNull(items)
+        assertEquals(4, items.size)
+        assertTrue(items.contains(article))     //
+        assertFalse(items.contains(message))    // secret
+        assertFalse(items.contains(receipt))    //        masked
+        assertFalse(items.contains(patient))    // secret masked
+        assertTrue(items.contains(contact))     //
+        assertTrue(items.contains(document))    //
+        assertTrue(items.contains(invoice))     //
     }
 
     @Test
@@ -372,7 +457,6 @@ class SumehrExportTest {
         eds5.codes.add(code4)
         eds6.codes.add(code5)
 
-
         // Execution
         sumehrExport.addHealthCareElement(trn1, eds1)
         sumehrExport.addHealthCareElement(trn2, eds2)
@@ -481,3 +565,4 @@ class SumehrExportTest {
         Assert.assertTrue(test2)
     }
 }
+
