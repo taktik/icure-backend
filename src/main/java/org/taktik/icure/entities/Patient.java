@@ -50,6 +50,7 @@ import java.util.TreeSet;
 public class Patient extends StoredICureDocument implements Person, Encryptable, CryptoActor {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
+    protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
     protected String firstName;
     protected String lastName;  //Is usually either maidenName or spouseName
@@ -640,5 +641,13 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
     public void setDeactivationReason(DeactivationReason deactivationReason) {
         this.deactivationReason = deactivationReason;
+    }
+
+    public Set<String> getEncryptedAdministrativesDocuments() {
+        return encryptedAdministrativesDocuments;
+    }
+
+    public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
+        this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
     }
 }
