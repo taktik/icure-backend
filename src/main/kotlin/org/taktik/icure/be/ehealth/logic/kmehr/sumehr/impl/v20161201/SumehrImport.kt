@@ -120,7 +120,9 @@ class SumehrImport(val patientLogic: PatientLogic,
                 }
 
             trn.findItems().forEach { item ->
-                val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
+                var cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
+                // SumehrV2 use "problem" instead of "healthcareelement". Convert it into "healthcareelement"
+                cdItem = if (cdItem == "problem") "healthcareelement" else cdItem
                 val mapping =
                     mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
                 val label =
@@ -139,18 +141,19 @@ class SumehrImport(val patientLogic: PatientLogic,
                             ?: mappings["note"]?.lastOrNull()?.label?.get(language)
                             ?: "Note"
 
-                when (cdItem) {
-                    "healthcareelement" -> {
-                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
-                        v.hes.add(healthElementLogic.createHealthElement(he))
-                    }
-                //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
-                //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
-                //"incapacity" -> parseIncapacity(cdItem, label, item, author, language, v)
-                    else -> {
-                        val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
-                        this.services.add(service)
-                        this.subContacts.add(SubContact().apply { services.add( ServiceLink(service.id))})
+                if(listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").contains(cdItem)){
+                    val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
+                    v.hes.add(healthElementLogic.createHealthElement(he))
+                }else{
+                    when (cdItem) {
+                        //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
+                        //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
+                        //"incapacity" -> parseIncapacity(cdItem, label, item, author, language, v)
+                        else -> {
+                            val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, language, v)
+                            this.services.add(service)
+                            this.subContacts.add(SubContact().apply { services.add( ServiceLink(service.id))})
+                        }
                     }
                 }
             }
