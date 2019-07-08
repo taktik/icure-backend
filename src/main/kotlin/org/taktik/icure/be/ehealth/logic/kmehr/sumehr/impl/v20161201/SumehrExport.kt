@@ -438,7 +438,7 @@ class SumehrExport : KmehrExport() {
     }
 
 
-	private fun addGmdmanager(pat: Patient, trn: TransactionType) {
+	internal fun addGmdmanager(pat: Patient, trn: TransactionType) {
 		try {
 			val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate } ?: false }
 			if (gmdRelationship != null) {

@@ -26,9 +26,16 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.format.logic.impl.HealthOneLogicImpl
+import org.taktik.icure.entities.embed.PatientHealthCareParty
+import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.logic.impl.HealthElementLogicImpl
+import org.taktik.icure.logic.impl.HealthcarePartyLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import java.io.Serializable
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.OffsetDateTime.now
 
 class SumehrExportTest {
@@ -45,6 +52,7 @@ class SumehrExportTest {
     private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
     private val mapper = Mockito.mock(MapperFacade::class.java)
     private val healthElementLogic = Mockito.mock(HealthElementLogicImpl::class.java)
+    private val healthcarePartyLogic = Mockito.mock(HealthcarePartyLogicImpl::class.java)
 
     private val validTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "active" }, CodeStub().apply { type = "CD-TESTINGITEM"; code = "inactive" })
     private val inactiveTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "inactive" })
@@ -151,6 +159,10 @@ class SumehrExportTest {
             }
         }
 
+        Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any())).thenAnswer {
+            HealthcareParty()
+        }
+
     }
 
     @Test
@@ -223,6 +235,63 @@ class SumehrExportTest {
     }
 
     @Test
+    fun addGmdmanager() {
+        // Arrange
+        sumehrExport.healthElementLogic = this.healthElementLogic
+        sumehrExport.healthcarePartyLogic = this.healthcarePartyLogic
+
+        /// First parameter
+        val format = SimpleDateFormat("dd/MM/yyyy")
+        val date1 = format.parse("02/01/2000").toInstant()
+        val date2 = format.parse("02/01/2001").toInstant()
+        val date3 = format.parse("02/01/3000").toInstant()
+        val date4 = null
+        val period1 = ReferralPeriod(date1,date2)
+        val period2 = ReferralPeriod(date1,date3)
+        val period3 = ReferralPeriod(date1,date4)
+        val pHCP1 = PatientHealthCareParty().apply { referralPeriods.add(period1) }
+        val pHCP2 = PatientHealthCareParty().apply { referralPeriods.add(period2) }
+        val pHCP3 = PatientHealthCareParty().apply { referralPeriods.add(period3) }
+        val pat1 = Patient().apply {
+            patientHealthCareParties.add(pHCP1);
+            patientHealthCareParties.add(pHCP2);
+            patientHealthCareParties.add(pHCP3);
+        }
+        val pat2 = Patient().apply {
+            patientHealthCareParties.add(pHCP1);
+            patientHealthCareParties.add(pHCP2);
+        }
+
+        /// Second parameter
+        val trn1 = ObjectFactory().createTransactionType();
+        val trn2 = ObjectFactory().createTransactionType();
+       /* val head1 = HeadingType()
+        val head2 = HeadingType()
+        trn1.headingsAndItemsAndTexts.add(head1)
+        trn2.headingsAndItemsAndTexts.add(head2)*/
+
+        // Execution
+        sumehrExport.addGmdmanager(pat1, trn1)
+        sumehrExport.addGmdmanager(pat2, trn2)
+
+        // Tests
+        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size,1)
+        val a1 = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
+        Assert.assertEquals(a1.headingsAndItemsAndTexts.size,1)
+        val b1  = a1.headingsAndItemsAndTexts.get(0) as ItemType
+        Assert.assertEquals(b1.ids.size,1)
+        Assert.assertEquals(b1.ids[0].value,"1")
+        Assert.assertEquals(b1.ids[0].s.value(),"ID-KMEHR")
+        Assert.assertEquals(b1.ids[0].sv,"1.0")
+        Assert.assertEquals(b1.cds.size,1)
+        Assert.assertEquals(b1.cds[0].s.value(),"CD-ITEM")
+        Assert.assertEquals(b1.cds[0].value,"gmdmanager")
+        Assert.assertEquals(b1.contents.size,1)
+        Assert.assertNotNull(b1.contents[0].hcparty)
+        Assert.assertEquals(trn2.headingsAndItemsAndTexts.size,0)
+    }
+
+    @Test
     fun addHealthCareElements() {
         // Arrange
         sumehrExport.healthElementLogic = this.healthElementLogic
@@ -245,11 +314,11 @@ class SumehrExportTest {
         val decryptor1 = null
         val decryptor2 = decryptor
 
-        /// Execution
+        // Execution
         sumehrExport.addHealthCareElements(hcPartyId, sfks, trn1, excludedIds, decryptor1)
         sumehrExport.addHealthCareElements(hcPartyId, sfks, trn2, excludedIds, decryptor2)
 
-        /// Tests
+        // Tests
         val a1: HeadingType = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
         Assert.assertNotNull(trn1.headingsAndItemsAndTexts)
         Assert.assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
@@ -304,7 +373,7 @@ class SumehrExportTest {
         eds6.codes.add(code5)
 
 
-        /// Execution
+        // Execution
         sumehrExport.addHealthCareElement(trn1, eds1)
         sumehrExport.addHealthCareElement(trn2, eds2)
         sumehrExport.addHealthCareElement(trn3, eds3)
@@ -312,7 +381,7 @@ class SumehrExportTest {
         sumehrExport.addHealthCareElement(trn5, eds5)
         sumehrExport.addHealthCareElement(trn6, eds6)
 
-        /// Tests
+        // Tests
         val a1: HeadingType = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
         val b1: ItemType = a1.headingsAndItemsAndTexts.get(0) as ItemType
         val c1 = b1.contents[0].cds[0]
