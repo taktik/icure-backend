@@ -76,7 +76,7 @@ class SumehrExportTest {
     private val emptyService = Service().apply { this.id = "6"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = emptyContent; this.openingDate = oneWeekAgo }
     private val oldService = Service().apply { this.id = "7"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneMonthAgo }
     private val closedService = Service().apply { this.id = "8"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = yesterday }
-    private val services = mutableListOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService)
+    private val services = mutableListOf<Service>()
 
     private val emptyHealthElement = HealthElement()
     private val validHealthElementWithEmptyEncryptedSelf = HealthElement().apply {
@@ -188,6 +188,8 @@ class SumehrExportTest {
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         //Execution
         val services = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
@@ -309,6 +311,8 @@ class SumehrExportTest {
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         //Execute
         val medications = sumehrExport.getMedications(hcPartyId, sfks, excludedIds, decryptor)
@@ -385,6 +389,8 @@ class SumehrExportTest {
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, oldService))
 
         // Execute
         sumehrExport.addMedications(hcPartyId, sfks, transaction, excludedIds, decryptor)
