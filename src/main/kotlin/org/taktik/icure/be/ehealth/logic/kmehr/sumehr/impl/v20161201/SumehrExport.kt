@@ -30,6 +30,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
+import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -241,8 +242,8 @@ class SumehrExport : KmehrExport() {
 
 		var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
 			s.endOfLife == null && //Not end of lifed
-					!(((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
-							&& (((s.status ?: 0) and 2) != 0)) //And irrelevant
+					!((ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
+							&& ServiceStatus.isIrrelevant(s.status)) //And irrelevant
 					&& (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
 		}?.filter { s -> !excludedIds.contains(s.id) }
 
@@ -274,7 +275,7 @@ class SumehrExport : KmehrExport() {
 
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
 		return healthElementLogic?.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks)?.filter {
-			!(it.descr.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) || ((it.status ?: 0) and 2 != 0 && it.closingDate != null))
+			!(it.descr.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) || (ServiceStatus.isIrrelevant(it.status) && it.closingDate != null))
 		}?.filter { s -> !excludedIds.contains(s.id) } ?: emptyList()
 	}
 
@@ -338,7 +339,7 @@ class SumehrExport : KmehrExport() {
 				log.debug("_writeItems : no services found with cd-item " + cdItem)
 			} else {
 				svcs.forEach { svc ->
-					val items = if (!((svc.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } || ((svc.status ?: 0) and 1) != 0) && !forcePassive)) {
+					val items = if (!((svc.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } || ServiceStatus.isInactive(svc.status)) && !forcePassive)) {
 						getAssessment(trn).headingsAndItemsAndTexts
 					} else {
 						getHistory(trn).headingsAndItemsAndTexts
@@ -385,13 +386,13 @@ class SumehrExport : KmehrExport() {
 	}
 
 	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String): ItemType? {
-		if (((svc.status ?: 0) and 4) != 0 || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
+		if (ServiceStatus.isAbsent(svc.status) || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
 		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
-		if (((he.status ?: 0) and 4) != 0 || he.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
+		if (ServiceStatus.isAbsent(he.status) || he.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
 		return super.createItemWithContent(he, idx, cdItem, contents)
 	}
@@ -456,7 +457,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addMedications(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addMedications(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		try {
 			val medications = getNonConfidentialItems(getMedications(hcPartyId, sfks, excludedIds, decryptor))
 			medications.forEach { m ->

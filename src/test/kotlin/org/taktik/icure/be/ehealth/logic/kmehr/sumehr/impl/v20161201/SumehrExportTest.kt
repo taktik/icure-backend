@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.Medication
+import org.taktik.icure.entities.embed.Medicinalproduct
 import org.taktik.icure.logic.impl.HealthElementLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import java.io.Serializable
@@ -52,19 +54,25 @@ class SumehrExportTest {
     private val validTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "active" }, CodeStub().apply { type = "CD-TESTINGITEM"; code = "inactive" })
     private val inactiveTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "inactive" })
     private val emptyTags = emptySet<CodeStub>()
+    private val secretTags = setOf(CodeStub().apply { type = "org.taktik.icure.entities.embed.Confidentiality"; code = "secret" })
     private val emptyTagsDto = emptySet<CodeDto>()
+    private val secretTagsDto = setOf(CodeDto().apply { type = "org.taktik.icure.entities.embed.Confidentiality"; code = "secret" })
 
-    private val validContent = mapOf(Pair("valid", Content().apply { booleanValue = true }))
+    private val medication = Medication().apply { medicinalProduct = Medicinalproduct().apply { intendedname = "medicationName" } }
+
+    private val validContent = mapOf(Pair("valid", Content().apply { booleanValue = true }), Pair("medication", Content().apply { medicationValue = medication }))
     private val validContentDto = mapOf(Pair("valid", ContentDto().apply { booleanValue = true }))
     private val emptyContent = mapOf(Pair("empty", Content()))
 
-    private val drugs = setOf(CodeStub().apply { type = "CD-DRUG-CNK"; code = "3434784" })
-    private val drugsDto = setOf(CodeDto().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+    private val drugsCode = setOf(CodeStub().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+    private val drugsCodeDto = setOf(CodeDto().apply { type = "CD-DRUG-CNK"; code = "3434784" })
 
-    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = today }
-    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = emptyContent; this.encryptedContent = "validContent"; this.codes = drugs; this.openingDate = oneWeekAgo }
-    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTagsDto; this.content = validContentDto; this.codes = drugsDto; this.openingDate = oneWeekAgo }
-    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = validContent; this.codes = drugs; this.openingDate = oneWeekAgo }
+    private val medicationLabel = "medication"
+
+    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.label = medicationLabel; this.content = emptyContent; this.encryptedContent = "validContent"; this.codes = drugsCode; this.openingDate = oneWeekAgo }
+    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTagsDto; this.label = medicationLabel; this.content = validContentDto; this.codes = drugsCodeDto; this.openingDate = oneWeekAgo }
+    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.label = medicationLabel; this.content = validContent; this.codes = drugsCode; this.openingDate = oneWeekAgo }
     private val lifeEndedService = Service().apply { this.id = "3"; this.endOfLife = Long.MAX_VALUE; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val wrongStatusService = Service().apply { this.id = "4"; this.endOfLife = null; this.status = 3; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val inactiveService = Service().apply { this.id = "5"; this.endOfLife = null; this.status = 2; this.tags = inactiveTags; this.content = validContent; this.openingDate = oneWeekAgo }
@@ -309,6 +317,38 @@ class SumehrExportTest {
         assertNotNull(medications)
         assertEquals(1, medications.count { m -> m.id.equals("2") })    // no drug duplicate
         assertTrue(medications.all { m -> m.closingDate == null || m.closingDate!!.let { today <= it } })
+    }
+
+    @Test
+    fun addMedications() {
+        // Arrange
+        val hcPartyId = "1"
+        val sfks = listOf("")
+        val transaction = TransactionType()
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+
+        // Execute
+        sumehrExport.addMedications(hcPartyId, sfks, transaction, excludedIds, decryptor)
+
+        // Tests
+        assertNotNull(transaction)
+        assertNotNull(transaction.headingsAndItemsAndTexts)
+        assertEquals(1, transaction.headingsAndItemsAndTexts.size)
+        val element = transaction.headingsAndItemsAndTexts[0]
+        assertNotNull(element)
+        assertTrue(element is HeadingType)
+        val heading = element as HeadingType
+        assertEquals(3, heading.headingsAndItemsAndTexts.size)
+        for (e in heading.headingsAndItemsAndTexts) {
+            assertNotNull(e)
+            assertTrue(e is ItemType)
+            val item = e as ItemType
+            assertNotNull(item.contents)
+            assertEquals(3, item.contents.size)
+            assertFalse(item.contents.any { it == null })
+        }
     }
 
     @Test
