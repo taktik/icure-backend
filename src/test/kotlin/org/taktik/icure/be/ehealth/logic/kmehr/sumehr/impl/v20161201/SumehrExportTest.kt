@@ -1,6 +1,5 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import ma.glasnost.orika.MapperFacade
 import org.junit.Assert
 import org.junit.Assert.*
@@ -14,8 +13,6 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.makeXGC
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
@@ -33,17 +30,10 @@ import org.taktik.icure.utils.FuzzyValues
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.Instant
 import java.time.OffsetDateTime.now
 import java.time.temporal.ChronoUnit
-import java.util.*
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
-
-import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
-import kotlin.collections.ArrayList
-
 
 class SumehrExportTest {
     private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
@@ -124,14 +114,6 @@ class SumehrExportTest {
     private val listOfHealthElement = listOf(validHealthElementWithEmptyEncryptedSelf, validHealthElement)
 
     private val healthcareParties = mutableListOf(HealthcareParty())
-
-    val config = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
-            date = makeXGC(Instant.now().toEpochMilli())!!,
-            time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-            soft = KmehrExport.Config.Software(name = "iCure", version = "ICUREVERSION"),
-            clinicalSummaryType = "",
-            defaultLanguage = "en"
-    )
 
     @Before
     fun setUp() {
