@@ -491,7 +491,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		try {
 			getNonConfidentialItems(getVaccines(hcPartyId, sfks, excludedIds, decryptor)).forEach {
 				val items = getAssessment(trn).headingsAndItemsAndTexts
