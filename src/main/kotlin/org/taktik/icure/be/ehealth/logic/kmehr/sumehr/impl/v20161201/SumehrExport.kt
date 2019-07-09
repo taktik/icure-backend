@@ -417,7 +417,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	@NotNull
-	private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
+	internal fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
 		healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
 			if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
 				val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
