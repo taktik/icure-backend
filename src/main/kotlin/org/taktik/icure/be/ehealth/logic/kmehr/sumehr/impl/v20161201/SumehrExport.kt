@@ -295,7 +295,7 @@ class SumehrExport : KmehrExport() {
 		return getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf("vaccine"), excludedIds, decryptor).filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }
 	}
 
-	private fun getAssessment(trn: TransactionType): HeadingType {
+	internal fun getAssessment(trn: TransactionType): HeadingType {
 		var assessment = trn.headingsAndItemsAndTexts.find { h -> (h is HeadingType) && h.cds.any { cd -> cd.value == "assessment" } }
 		if (assessment == null) {
 			assessment = HeadingType().apply {

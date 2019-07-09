@@ -10,6 +10,10 @@ import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
 import org.taktik.icure.entities.*
@@ -32,7 +36,6 @@ import java.time.OffsetDateTime.now
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
-
 
 class SumehrExportTest {
     private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
@@ -346,6 +349,21 @@ class SumehrExportTest {
         assertNotNull(medications)
         assertEquals(1, medications.count { m -> m.id.equals("2") })    // no drug duplicate
         assertTrue(medications.all { m -> m.closingDate == null || m.closingDate!!.let { today <= it } })
+    }
+
+    @Test
+    fun getAssessment() {
+        // Arrange
+        val transaction = TransactionType()
+
+        // Execute
+        val assessment1 = sumehrExport.getAssessment(transaction)
+        val assessment2 = sumehrExport.getAssessment(transaction)
+
+        // Tests
+        assertNotNull(assessment1)
+        assertNotNull(assessment2)
+        assertEquals(assessment1, assessment2)
     }
 
     @Test
