@@ -2,44 +2,44 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import ma.glasnost.orika.MapperFacade
-import org.bouncycastle.asn1.x500.style.RFC4519Style.c
 import org.junit.Assert
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Matchers.*
+import org.mockito.Matchers.any
+import org.mockito.Matchers.eq
 import org.mockito.Mockito
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.constants.Services
 import org.taktik.icure.entities.*
-import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.embed.Content
-import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.ReferralPeriod
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.logic.impl.ContactLogicImpl
 import org.taktik.icure.logic.impl.HealthElementLogicImpl
 import org.taktik.icure.logic.impl.HealthcarePartyLogicImpl
-import org.taktik.icure.logic.impl.filter.Filters
+import org.taktik.icure.logic.impl.PatientLogicImpl
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
-import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.utils.FuzzyValues
-import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.OffsetDateTime.now
 import java.time.LocalDateTime
+import java.time.Instant
+import java.time.OffsetDateTime.now
 import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 import kotlin.collections.ArrayList
@@ -54,36 +54,56 @@ class SumehrExportTest {
     //The method tested needs a SumehrExport Class to run
     private val sumehrExport = SumehrExport()
 
-    private val patient = Mockito.mock(Patient::class.java)
-    private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
     private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
     private val mapper = Mockito.mock(MapperFacade::class.java)
+    private val config = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+            date = makeXGC(Instant.now().toEpochMilli())!!,
+            time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+            soft = KmehrExport.Config.Software(name = "iCure", version = sumehrExport.ICUREVERSION),
+            clinicalSummaryType = "",
+            defaultLanguage = "en"
+    )
+
+    private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
     private val healthElementLogic = Mockito.mock(HealthElementLogicImpl::class.java)
     private val healthcarePartyLogic = Mockito.mock(HealthcarePartyLogicImpl::class.java)
+    private val patientLogic = Mockito.mock(PatientLogicImpl::class.java)
 
     private val validTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "active" }, CodeStub().apply { type = "CD-TESTINGITEM"; code = "inactive" })
     private val inactiveTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "inactive" })
     private val emptyTags = emptySet<CodeStub>()
+    private val secretTags = setOf(CodeStub().apply { type = "org.taktik.icure.entities.embed.Confidentiality"; code = "secret" })
     private val emptyTagsDto = emptySet<CodeDto>()
+    private val secretTagsDto = setOf(CodeDto().apply { type = "org.taktik.icure.entities.embed.Confidentiality"; code = "secret" })
 
-    private val validContent = mapOf(Pair("valid", Content().apply { booleanValue = true }))
+    private val medication = Medication().apply { medicinalProduct = Medicinalproduct().apply { intendedname = "medicationName" } }
+
+    private val validContent = mapOf(Pair("valid", Content().apply { booleanValue = true }), Pair("medication", Content().apply { medicationValue = medication }))
     private val validContentDto = mapOf(Pair("valid", ContentDto().apply { booleanValue = true }))
     private val emptyContent = mapOf(Pair("empty", Content()))
 
-    private val drugs = setOf(CodeStub().apply { type = "CD-DRUG-CNK"; code = "3434784" })
-    private val drugsDto = setOf(CodeDto().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+    private val drugsCode = setOf(CodeStub().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+    private val drugsCodeDto = setOf(CodeDto().apply { type = "CD-DRUG-CNK"; code = "3434784" })
 
-    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = today }
-    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = emptyContent; this.encryptedContent = "validContent"; this.codes = drugs; this.openingDate = oneWeekAgo }
-    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTagsDto; this.content = validContentDto; this.codes = drugsDto; this.openingDate = oneWeekAgo }
-    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = emptyTags; this.content = validContent; this.codes = drugs; this.openingDate = oneWeekAgo }
+    private val medicationLabel = "medication"
+
+    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.label = medicationLabel; this.content = emptyContent; this.encryptedContent = "validContent"; this.codes = drugsCode; this.openingDate = oneWeekAgo }
+    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTagsDto; this.label = medicationLabel; this.content = validContentDto; this.codes = drugsCodeDto; this.openingDate = oneWeekAgo }
+    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.label = medicationLabel; this.content = validContent; this.codes = drugsCode; this.openingDate = oneWeekAgo }
     private val lifeEndedService = Service().apply { this.id = "3"; this.endOfLife = Long.MAX_VALUE; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val wrongStatusService = Service().apply { this.id = "4"; this.endOfLife = null; this.status = 3; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val inactiveService = Service().apply { this.id = "5"; this.endOfLife = null; this.status = 2; this.tags = inactiveTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val emptyService = Service().apply { this.id = "6"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = emptyContent; this.openingDate = oneWeekAgo }
     private val oldService = Service().apply { this.id = "7"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneMonthAgo }
     private val closedService = Service().apply { this.id = "8"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = yesterday }
-    private val services = mutableListOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService)
+    private val services = mutableListOf<Service>()
+
+    private val patient = Patient().apply { this.id = "1"; this.partnerships = listOf(Partnership().apply { partnerId = "2"; otherToMeRelationshipDescription = "father" }) }
+    private val patientContact = Patient().apply { this.id = "2"; this.partnerships = emptyList<Partnership>() }
+    private val contactPatient = Patient().apply { this.id = "3"; this.partnerships = listOf(Partnership().apply { partnerId = "1"; otherToMeRelationshipDescription = "brother" }) }
+    private val unknownPatient = Patient().apply { this.id = "4"; this.partnerships = emptyList<Partnership>() }
+    private val patients = mutableListOf<Patient>()
 
     private val emptyHealthElement = HealthElement()
     private val validHealthElementWithEmptyEncryptedSelf = HealthElement().apply {
@@ -115,33 +135,30 @@ class SumehrExportTest {
 
     @Before
     fun setUp() {
-        Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java)))
-                .thenAnswer { it.getArgumentAt(0, Contact::class.java) }
+        Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java))).thenAnswer { it.getArgumentAt(0, Contact::class.java) }
 
-        Mockito.`when`(contactLogic.getServices(any()))
-                .thenAnswer { services }
+        Mockito.`when`(contactLogic.getServices(any())).thenAnswer { services }
 
-        Mockito.`when`(decryptor.decrypt<ServiceDto>(any(), any()))
-                .thenAnswer {
-                    object : Future<List<ServiceDto>> {
-                        override fun isDone(): Boolean = true
-                        override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
-                        override fun isCancelled(): Boolean = false
-                        override fun get(): List<ServiceDto> = listOf(decryptedServiceDto)
-                        override fun get(timeout: Long, unit: TimeUnit): List<ServiceDto> = listOf(decryptedServiceDto)
-                    }
-                }
+        Mockito.`when`(decryptor.decrypt<ServiceDto>(any(), any())).thenAnswer {
+            object : Future<List<ServiceDto>> {
+                override fun isDone(): Boolean = true
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
+                override fun isCancelled(): Boolean = false
+                override fun get(): List<ServiceDto> = listOf(decryptedServiceDto)
+                override fun get(timeout: Long, unit: TimeUnit): List<ServiceDto> = listOf(decryptedServiceDto)
+            }
+        }
 
         Mockito.`when`(decryptor.decrypt<HealthElementDto>(any(), any()))
                 .thenAnswer {
-                    object : Future<List<HealthElementDto>> {
-                        override fun isDone(): Boolean = true
-                        override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
-                        override fun isCancelled(): Boolean = false
-                        override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-                        override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-                    }
-                }
+            object : Future<List<HealthElementDto>> {
+                override fun isDone(): Boolean = true
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
+                override fun isCancelled(): Boolean = false
+                override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+                override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+            }
+        }
 
         Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any()))
                 .thenAnswer { listOfHealthElement }
@@ -181,6 +198,17 @@ class SumehrExportTest {
                 it.getArgumentAt(0, HealthElementDto::class.java).codes.forEach { c -> codes.add(CodeStub(c.type, c.code, c.version)); }
             }
         }
+
+        Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any())).thenAnswer {
+            HealthcareParty()
+        }
+
+        Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
+            val arg = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<String>
+            patients.filter { patient ->
+                arg.contains(patient.id)
+            }
+        }
     }
 
     @Test
@@ -207,6 +235,8 @@ class SumehrExportTest {
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         //Execution
         val services = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
@@ -328,6 +358,8 @@ class SumehrExportTest {
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         //Execute
         val medications = sumehrExport.getMedications(hcPartyId, sfks, excludedIds, decryptor)
@@ -336,6 +368,43 @@ class SumehrExportTest {
         assertNotNull(medications)
         assertEquals(1, medications.count { m -> m.id.equals("2") })    // no drug duplicate
         assertTrue(medications.all { m -> m.closingDate == null || m.closingDate!!.let { today <= it } })
+    }
+
+    @Test
+    fun addContactPeople() {
+        // Arrange
+        val transaction = TransactionType()
+        sumehrExport.patientLogic = this.patientLogic
+        patients.clear()
+        patients.addAll(listOf(patient, patientContact, contactPatient, unknownPatient))
+
+        // Execute
+        sumehrExport.addContactPeople(patient, transaction, config)
+
+        // Tests
+        assertNotNull(transaction)
+        assertNotNull(transaction.headingsAndItemsAndTexts)
+        assertEquals(1, transaction.headingsAndItemsAndTexts.size)
+        assertNotNull(transaction.headingsAndItemsAndTexts[0])
+        assertTrue(transaction.headingsAndItemsAndTexts[0] is HeadingType)
+        val heading = transaction.headingsAndItemsAndTexts[0] as HeadingType
+        assertEquals(1, heading.headingsAndItemsAndTexts.size)
+        assertNotNull(heading.headingsAndItemsAndTexts[0])
+        assertTrue(heading.headingsAndItemsAndTexts[0] is ItemType)
+        val item = heading.headingsAndItemsAndTexts[0] as ItemType
+        assertNotNull(item.cds)
+        assertEquals(2, item.cds.size)
+        assertEquals("contactperson", item.cds[0].value)
+        assertEquals("father", item.cds[1].value)
+        assertNotNull(item.contents)
+        assertEquals(1, item.contents.size)
+        val content = item.contents[0]
+        assertNotNull(content.person)
+        assertNotNull(content.person.ids)
+        assertEquals(1, content.person.ids.size)
+        val id = content.person.ids[0]
+        assertNotNull(id)
+        assertEquals("2", id.value)
     }
 
     @Test
@@ -404,9 +473,9 @@ class SumehrExportTest {
         val date2 = format.parse("02/01/2001").toInstant()
         val date3 = format.parse("02/01/3000").toInstant()
         val date4 = null
-        val period1 = ReferralPeriod(date1,date2)
-        val period2 = ReferralPeriod(date1,date3)
-        val period3 = ReferralPeriod(date1,date4)
+        val period1 = ReferralPeriod(date1, date2)
+        val period2 = ReferralPeriod(date1, date3)
+        val period3 = ReferralPeriod(date1, date4)
         val pHCP1 = PatientHealthCareParty().apply { referralPeriods.add(period1) }
         val pHCP2 = PatientHealthCareParty().apply { referralPeriods.add(period2) }
         val pHCP3 = PatientHealthCareParty().apply { referralPeriods.add(period3) }
@@ -423,30 +492,64 @@ class SumehrExportTest {
         /// Second parameter
         val trn1 = ObjectFactory().createTransactionType();
         val trn2 = ObjectFactory().createTransactionType();
-       /* val head1 = HeadingType()
-        val head2 = HeadingType()
-        trn1.headingsAndItemsAndTexts.add(head1)
-        trn2.headingsAndItemsAndTexts.add(head2)*/
+        /* val head1 = HeadingType()
+         val head2 = HeadingType()
+         trn1.headingsAndItemsAndTexts.add(head1)
+         trn2.headingsAndItemsAndTexts.add(head2)*/
 
         // Execution
         sumehrExport.addGmdmanager(pat1, trn1)
         sumehrExport.addGmdmanager(pat2, trn2)
 
         // Tests
-        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size,1)
+        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
         val a1 = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
-        Assert.assertEquals(a1.headingsAndItemsAndTexts.size,1)
-        val b1  = a1.headingsAndItemsAndTexts.get(0) as ItemType
-        Assert.assertEquals(b1.ids.size,1)
-        Assert.assertEquals(b1.ids[0].value,"1")
-        Assert.assertEquals(b1.ids[0].s.value(),"ID-KMEHR")
-        Assert.assertEquals(b1.ids[0].sv,"1.0")
-        Assert.assertEquals(b1.cds.size,1)
-        Assert.assertEquals(b1.cds[0].s.value(),"CD-ITEM")
-        Assert.assertEquals(b1.cds[0].value,"gmdmanager")
-        Assert.assertEquals(b1.contents.size,1)
+        Assert.assertEquals(a1.headingsAndItemsAndTexts.size, 1)
+        val b1 = a1.headingsAndItemsAndTexts.get(0) as ItemType
+        Assert.assertEquals(b1.ids.size, 1)
+        Assert.assertEquals(b1.ids[0].value, "1")
+        Assert.assertEquals(b1.ids[0].s.value(), "ID-KMEHR")
+        Assert.assertEquals(b1.ids[0].sv, "1.0")
+        Assert.assertEquals(b1.cds.size, 1)
+        Assert.assertEquals(b1.cds[0].s.value(), "CD-ITEM")
+        Assert.assertEquals(b1.cds[0].value, "gmdmanager")
+        Assert.assertEquals(b1.contents.size, 1)
         Assert.assertNotNull(b1.contents[0].hcparty)
-        Assert.assertEquals(trn2.headingsAndItemsAndTexts.size,0)
+        Assert.assertEquals(trn2.headingsAndItemsAndTexts.size, 0)
+    }
+
+    @Test
+    fun addMedications() {
+        // Arrange
+        val hcPartyId = "1"
+        val sfks = listOf("")
+        val transaction = TransactionType()
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, oldService))
+
+        // Execute
+        sumehrExport.addMedications(hcPartyId, sfks, transaction, excludedIds, decryptor)
+
+        // Tests
+        assertNotNull(transaction)
+        assertNotNull(transaction.headingsAndItemsAndTexts)
+        assertEquals(1, transaction.headingsAndItemsAndTexts.size)
+        val element = transaction.headingsAndItemsAndTexts[0]
+        assertNotNull(element)
+        assertTrue(element is HeadingType)
+        val heading = element as HeadingType
+        assertEquals(3, heading.headingsAndItemsAndTexts.size)
+        for (e in heading.headingsAndItemsAndTexts) {
+            assertNotNull(e)
+            assertTrue(e is ItemType)
+            val item = e as ItemType
+            assertNotNull(item.contents)
+            assertEquals(3, item.contents.size)
+            assertFalse(item.contents.any { it == null })
+        }
     }
 
     @Test
@@ -481,9 +584,9 @@ class SumehrExportTest {
         //sumehrExport.addVaccines(hcPartyId, sfks, trn2, excludedIds, decryptor2)
 
         // Tests
-        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size,1)
+        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
         val a1 = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
-        Assert.assertEquals(a1.headingsAndItemsAndTexts.size,2)
+        Assert.assertEquals(a1.headingsAndItemsAndTexts.size, 2)
     }
 
     @Test
@@ -675,4 +778,3 @@ class SumehrExportTest {
         Assert.assertTrue(test2)
     }
 }
-
