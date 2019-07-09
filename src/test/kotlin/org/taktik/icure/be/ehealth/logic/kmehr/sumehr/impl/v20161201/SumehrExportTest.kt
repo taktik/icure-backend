@@ -1,5 +1,6 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import ma.glasnost.orika.MapperFacade
 import org.junit.Assert
 import org.junit.Assert.*
@@ -13,6 +14,8 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.makeXGC
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
@@ -30,10 +33,17 @@ import org.taktik.icure.utils.FuzzyValues
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.Instant
 import java.time.OffsetDateTime.now
 import java.time.temporal.ChronoUnit
+import java.util.*
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+
+import javax.xml.datatype.DatatypeFactory
+import javax.xml.datatype.XMLGregorianCalendar
+import kotlin.collections.ArrayList
+
 
 class SumehrExportTest {
     private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
@@ -113,6 +123,16 @@ class SumehrExportTest {
     }
     private val listOfHealthElement = listOf(validHealthElementWithEmptyEncryptedSelf, validHealthElement)
 
+    private val healthcareParties = mutableListOf(HealthcareParty())
+
+    val config = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+            date = makeXGC(Instant.now().toEpochMilli())!!,
+            time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+            soft = KmehrExport.Config.Software(name = "iCure", version = "ICUREVERSION"),
+            clinicalSummaryType = "",
+            defaultLanguage = "en"
+    )
+
     @Before
     fun setUp() {
         Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java))).thenAnswer { it.getArgumentAt(0, Contact::class.java) }
@@ -129,13 +149,8 @@ class SumehrExportTest {
             }
         }
 
-        Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java))).thenAnswer { decryptedServiceDto }
-
-        Mockito.`when`(mapper.map<ServiceDto, Service>(any(), eq(Service::class.java))).thenAnswer { decryptedService }
-
-        Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any())).thenAnswer { listOfHealthElement }
-
-        Mockito.`when`(decryptor.decrypt<HealthElementDto>(any(), any())).thenAnswer {
+        Mockito.`when`(decryptor.decrypt<HealthElementDto>(any(), any()))
+                .thenAnswer {
             object : Future<List<HealthElementDto>> {
                 override fun isDone(): Boolean = true
                 override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
@@ -144,6 +159,21 @@ class SumehrExportTest {
                 override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
             }
         }
+
+        Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any()))
+                .thenAnswer { listOfHealthElement }
+
+        Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any()))
+                .thenAnswer { HealthcareParty() }
+
+        Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any()))
+                .thenAnswer { healthcareParties }
+
+        Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
+                .thenAnswer { decryptedServiceDto }
+
+        Mockito.`when`(mapper.map<ServiceDto, Service>(any(), eq(Service::class.java)))
+                .thenAnswer { decryptedService }
 
         Mockito.`when`(mapper.map<HealthElement, HealthElementDto>(any(), eq(HealthElementDto::class.java))).thenAnswer {
             HealthElementDto().apply {
@@ -390,6 +420,60 @@ class SumehrExportTest {
         val id = content.person.ids[0]
         assertNotNull(id)
         assertEquals("2", id.value)
+    }
+
+    @Test
+    fun addPatientHealthcareParties() {
+        // Arrange
+        sumehrExport.healthcarePartyLogic = this.healthcarePartyLogic
+        val healthcareParty1 =HealthcareParty().apply{
+            specialityCodes = listOf(CodeStub("Type","Notpers","1.0"),CodeStub("Type","pers","1.0"));
+        }
+        val healthcareParty2 =HealthcareParty().apply{
+            id = "LostID"
+            specialityCodes = listOf(CodeStub("Type","pers","1.0"));
+        }
+        val healthcareParty3 =HealthcareParty().apply{
+            id = "healthcareParty2Id"
+            specialityCodes = listOf(CodeStub("Type","pers","1.0"));
+        }
+        this.healthcareParties.clear()
+        this.healthcareParties.addAll(listOf(healthcareParty1,healthcareParty2,healthcareParty3))
+
+        /// First parameter
+        val pat1 = Patient().apply{
+            patientHealthCareParties.add(PatientHealthCareParty().apply {
+                healthcarePartyId = null;
+            })
+            patientHealthCareParties.add(PatientHealthCareParty().apply {
+                healthcarePartyId = "healthcareParty2Id";
+            })
+        }
+        val pat1PatientHealthCarePartiesSize = pat1.patientHealthCareParties.size
+
+        /// Second parameter
+        val trn1 = ObjectFactory().createTransactionType();
+
+        /// Third parameter
+        val config = this.config
+
+        // Execution
+        sumehrExport.addPatientHealthcareParties(pat1, trn1, config)
+
+        // Tests
+        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size,1)
+        val a1 = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
+        Assert.assertEquals(a1.headingsAndItemsAndTexts.size,2)
+        val b1  = a1.headingsAndItemsAndTexts.get(1) as ItemType
+        Assert.assertEquals(b1.ids.size,1)
+        Assert.assertEquals(b1.ids[0].value,"2")
+        Assert.assertEquals(b1.ids[0].s.value(),"ID-KMEHR")
+        Assert.assertEquals(b1.ids[0].sv,"1.0")
+        Assert.assertEquals(b1.cds.size,1)
+        Assert.assertEquals(b1.cds[0].s.value(),"CD-ITEM")
+        Assert.assertEquals(b1.cds[0].value,"contacthcparty")
+        Assert.assertEquals(b1.contents.size,1)
+        Assert.assertNotNull(b1.contents[0].hcparty)
     }
 
     @Test
