@@ -341,6 +341,21 @@ class SumehrExportTest {
     }
 
     @Test
+    fun getAssessment() {
+        // Arrange
+        val transaction = TransactionType()
+
+        // Execute
+        val assessment1 = sumehrExport.getAssessment(transaction)
+        val assessment2 = sumehrExport.getAssessment(transaction)
+
+        // Tests
+        assertNotNull(assessment1)
+        assertNotNull(assessment2)
+        assertEquals(assessment1, assessment2)
+    }
+
+    @Test
     fun addContactPeople() {
         // Arrange
         val transaction = TransactionType()
