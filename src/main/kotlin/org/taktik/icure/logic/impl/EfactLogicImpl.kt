@@ -192,8 +192,8 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         codeNomenclature: Long,
         reimbursedAmount: Long,
         patientFee: Long,
-        doctorSupplement: Long,
-        contract: String,
+        doctorSupplement: Long?,
+        contract: String?,
         date: Long?,
         eidReading: Int?,
         eidValue: String?,
@@ -202,9 +202,9 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         timeOfDay: Int,
         personalInterventionCoveredByThirdPartyCode: Int?,
         prestationRelative: Long?,
-        dmgReference: String,
-        prescriberIdentificationNumber: String,
-        units: Int,
+        dmgReference: String?,
+        prescriberIdentificationNumber: String?,
+        units: Int?,
         prescriberCode: Int?,
         percentNorm: Int?): InvoiceItem {
 
@@ -216,14 +216,14 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
             this.relatedCode = prestationRelative
             this.gnotionNihii = dmgReference
             this.doctorIdentificationNumber = hcp.nihii
-            this.doctorSupplement = doctorSupplement
+            this.doctorSupplement = doctorSupplement ?: 0
             this.invoiceRef = ref
             this.patientFee = patientFee
             this.personalInterventionCoveredByThirdPartyCode = personalInterventionCoveredByThirdPartyCode
             this.prescriberNihii = prescriberIdentificationNumber
             this.reimbursedAmount = reimbursedAmount
             this.override3rdPayerCode = thirdPayerExceptionCode
-            this.units = units
+            this.units = units ?: 0
 
             prescriberCode?.let { this.prescriberNorm = InvoicingPrescriberCode.withCode(it) }
             percentNorm?.let { this.percentNorm = InvoicingPercentNorm.withCode(it) }
