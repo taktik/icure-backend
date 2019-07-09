@@ -398,7 +398,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	@NotNull
-	private fun addContactPeople(pat: Patient, trn: TransactionType, config: Config) {
+	internal fun addContactPeople(pat: Patient, trn: TransactionType, config: Config) {
 		patientLogic?.getPatients(pat.partnerships.mapNotNull { it?.partnerId })?.forEach { p ->
 			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
 			try {

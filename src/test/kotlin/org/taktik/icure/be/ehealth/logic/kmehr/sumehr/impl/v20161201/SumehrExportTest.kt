@@ -8,6 +8,7 @@ import org.junit.Test
 import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
 import org.mockito.Mockito
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
@@ -19,6 +20,7 @@ import org.taktik.icure.entities.embed.*
 import org.taktik.icure.logic.impl.ContactLogicImpl
 import org.taktik.icure.logic.impl.HealthElementLogicImpl
 import org.taktik.icure.logic.impl.HealthcarePartyLogicImpl
+import org.taktik.icure.logic.impl.PatientLogicImpl
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
@@ -26,6 +28,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.FuzzyValues
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime.now
 import java.time.temporal.ChronoUnit
@@ -41,12 +44,20 @@ class SumehrExportTest {
     //The method tested needs a SumehrExport Class to run
     private val sumehrExport = SumehrExport()
 
-    private val patient = Mockito.mock(Patient::class.java)
-    private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
     private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
     private val mapper = Mockito.mock(MapperFacade::class.java)
+    private val config = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+            date = makeXGC(Instant.now().toEpochMilli())!!,
+            time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+            soft = KmehrExport.Config.Software(name = "iCure", version = sumehrExport.ICUREVERSION),
+            clinicalSummaryType = "",
+            defaultLanguage = "en"
+    )
+
+    private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
     private val healthElementLogic = Mockito.mock(HealthElementLogicImpl::class.java)
     private val healthcarePartyLogic = Mockito.mock(HealthcarePartyLogicImpl::class.java)
+    private val patientLogic = Mockito.mock(PatientLogicImpl::class.java)
 
     private val validTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "active" }, CodeStub().apply { type = "CD-TESTINGITEM"; code = "inactive" })
     private val inactiveTags = setOf(CodeStub().apply { type = "CD-LIFECYCLE"; code = "inactive" })
@@ -78,6 +89,12 @@ class SumehrExportTest {
     private val closedService = Service().apply { this.id = "8"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = yesterday }
     private val services = mutableListOf<Service>()
 
+    private val patient = Patient().apply { this.id = "1"; this.partnerships = listOf(Partnership().apply { partnerId = "2"; otherToMeRelationshipDescription = "father" }) }
+    private val patientContact = Patient().apply { this.id = "2"; this.partnerships = emptyList<Partnership>() }
+    private val contactPatient = Patient().apply { this.id = "3"; this.partnerships = listOf(Partnership().apply { partnerId = "1"; otherToMeRelationshipDescription = "brother" }) }
+    private val unknownPatient = Patient().apply { this.id = "4"; this.partnerships = emptyList<Partnership>() }
+    private val patients = mutableListOf<Patient>()
+
     private val emptyHealthElement = HealthElement()
     private val validHealthElementWithEmptyEncryptedSelf = HealthElement().apply {
         this.tags.add(CodeStub("CD-ITEM", "familyrisk", "1.3"));
@@ -98,42 +115,35 @@ class SumehrExportTest {
 
     @Before
     fun setUp() {
-        Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java)))
-                .thenAnswer { it.getArgumentAt(0, Contact::class.java) }
+        Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java))).thenAnswer { it.getArgumentAt(0, Contact::class.java) }
 
-        Mockito.`when`(contactLogic.getServices(any()))
-                .thenAnswer { services }
+        Mockito.`when`(contactLogic.getServices(any())).thenAnswer { services }
 
-        Mockito.`when`(decryptor.decrypt<ServiceDto>(any(), any()))
-                .thenAnswer {
-                    object : Future<List<ServiceDto>> {
-                        override fun isDone(): Boolean = true
-                        override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
-                        override fun isCancelled(): Boolean = false
-                        override fun get(): List<ServiceDto> = listOf(decryptedServiceDto)
-                        override fun get(timeout: Long, unit: TimeUnit): List<ServiceDto> = listOf(decryptedServiceDto)
-                    }
-                }
+        Mockito.`when`(decryptor.decrypt<ServiceDto>(any(), any())).thenAnswer {
+            object : Future<List<ServiceDto>> {
+                override fun isDone(): Boolean = true
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
+                override fun isCancelled(): Boolean = false
+                override fun get(): List<ServiceDto> = listOf(decryptedServiceDto)
+                override fun get(timeout: Long, unit: TimeUnit): List<ServiceDto> = listOf(decryptedServiceDto)
+            }
+        }
 
-        Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
-                .thenAnswer { decryptedServiceDto }
+        Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java))).thenAnswer { decryptedServiceDto }
 
-        Mockito.`when`(mapper.map<ServiceDto, Service>(any(), eq(Service::class.java)))
-                .thenAnswer { decryptedService }
+        Mockito.`when`(mapper.map<ServiceDto, Service>(any(), eq(Service::class.java))).thenAnswer { decryptedService }
 
-        Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any()))
-                .thenAnswer { listOfHealthElement }
+        Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any())).thenAnswer { listOfHealthElement }
 
-        Mockito.`when`(decryptor.decrypt<HealthElementDto>(any(), any()))
-                .thenAnswer {
-                    object : Future<List<HealthElementDto>> {
-                        override fun isDone(): Boolean = true
-                        override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
-                        override fun isCancelled(): Boolean = false
-                        override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-                        override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-                    }
-                }
+        Mockito.`when`(decryptor.decrypt<HealthElementDto>(any(), any())).thenAnswer {
+            object : Future<List<HealthElementDto>> {
+                override fun isDone(): Boolean = true
+                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
+                override fun isCancelled(): Boolean = false
+                override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+                override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+            }
+        }
 
         Mockito.`when`(mapper.map<HealthElement, HealthElementDto>(any(), eq(HealthElementDto::class.java))).thenAnswer {
             HealthElementDto().apply {
@@ -161,6 +171,13 @@ class SumehrExportTest {
 
         Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any())).thenAnswer {
             HealthcareParty()
+        }
+
+        Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
+            val arg = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<String>
+            patients.filter { patient ->
+                arg.contains(patient.id)
+            }
         }
     }
 
@@ -321,6 +338,43 @@ class SumehrExportTest {
         assertNotNull(medications)
         assertEquals(1, medications.count { m -> m.id.equals("2") })    // no drug duplicate
         assertTrue(medications.all { m -> m.closingDate == null || m.closingDate!!.let { today <= it } })
+    }
+
+    @Test
+    fun addContactPeople() {
+        // Arrange
+        val transaction = TransactionType()
+        sumehrExport.patientLogic = this.patientLogic
+        patients.clear()
+        patients.addAll(listOf(patient, patientContact, contactPatient, unknownPatient))
+
+        // Execute
+        sumehrExport.addContactPeople(patient, transaction, config)
+
+        // Tests
+        assertNotNull(transaction)
+        assertNotNull(transaction.headingsAndItemsAndTexts)
+        assertEquals(1, transaction.headingsAndItemsAndTexts.size)
+        assertNotNull(transaction.headingsAndItemsAndTexts[0])
+        assertTrue(transaction.headingsAndItemsAndTexts[0] is HeadingType)
+        val heading = transaction.headingsAndItemsAndTexts[0] as HeadingType
+        assertEquals(1, heading.headingsAndItemsAndTexts.size)
+        assertNotNull(heading.headingsAndItemsAndTexts[0])
+        assertTrue(heading.headingsAndItemsAndTexts[0] is ItemType)
+        val item = heading.headingsAndItemsAndTexts[0] as ItemType
+        assertNotNull(item.cds)
+        assertEquals(2, item.cds.size)
+        assertEquals("contactperson", item.cds[0].value)
+        assertEquals("father", item.cds[1].value)
+        assertNotNull(item.contents)
+        assertEquals(1, item.contents.size)
+        val content = item.contents[0]
+        assertNotNull(content.person)
+        assertNotNull(content.person.ids)
+        assertEquals(1, content.person.ids.size)
+        val id = content.person.ids[0]
+        assertNotNull(id)
+        assertEquals("2", id.value)
     }
 
     @Test
