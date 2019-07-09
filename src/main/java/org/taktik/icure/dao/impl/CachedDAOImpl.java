@@ -202,7 +202,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         String fullId = (groupId == null ? "FALLBACK" : (((CouchDbICureConnector) this.db).getCouchDbICureConnector(groupId, dbInstanceUrl, true).getUuid())) + ":" + id;
         Cache.ValueWrapper value = cache.get(fullId);
         if (value != null) {
-            log.debug("Cache HIT  = {}, WRAPPER", fullId);
+            log.trace("Cache HIT  = {}, WRAPPER", fullId);
         } else {
             log.debug("Cache MISS = {}, WRAPPER", fullId);
         }
@@ -215,7 +215,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         Cache.ValueWrapper value = cache.get(fullId);
 
         if (value != null) {
-            log.debug("Cache HIT  = {}, WRAPPER", fullId);
+            log.trace("Cache HIT  = {}, WRAPPER", fullId);
         } else {
             log.debug("Cache MISS = {}, WRAPPER", fullId);
         }
@@ -235,7 +235,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
             log.debug("Cache SAVE = {}", fullId);
             return allEntities;
         } else {
-            log.debug("Cache HIT  = {}", fullId);
+            log.trace("Cache HIT  = {}", fullId);
 
             return (List<T>) valueWrapper.get();
         }
@@ -249,8 +249,8 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
         } catch (UpdateConflictException e) {
             String fullId = getFullId(keyManager.getKey(entity));
 
-            log.debug("Cache EVICT= {}", fullId);
-            log.debug("Cache EVICT= {}", fullId1);
+            log.info("Cache EVICT= {}", fullId);
+            log.info("Cache EVICT= {}", fullId1);
 
             cache.evict(fullId);
             cache.evict(fullId1);
