@@ -439,7 +439,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 
-	private fun addGmdmanager(pat: Patient, trn: TransactionType) {
+	internal fun addGmdmanager(pat: Patient, trn: TransactionType) {
 		try {
 			val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate } ?: false }
 			if (gmdRelationship != null) {
@@ -492,7 +492,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		try {
 			getNonConfidentialItems(getVaccines(hcPartyId, sfks, excludedIds, decryptor)).forEach {
 				val items = getAssessment(trn).headingsAndItemsAndTexts

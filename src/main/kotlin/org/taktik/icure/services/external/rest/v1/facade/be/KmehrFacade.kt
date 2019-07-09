@@ -98,7 +98,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
         return ResponseUtils.ok(ContentDto.fromStringValue(sumehrLogicV1.getSumehrMd5(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds)))
     }
 
-    @ApiOperation(value = "Get sumehr validity", response = String::class, httpMethod = "POST", notes = "")
+    @ApiOperation(value = "Get sumehr validity", response = SumehrValidityDto::class, httpMethod = "POST", notes = "")
     @POST
     @Path("/sumehr/{patientId}/valid")
     fun isSumehrValid(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
@@ -140,7 +140,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
         return ResponseUtils.ok(ContentDto.fromStringValue(sumehrLogicV2.getSumehrMd5(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds)))
     }
 
-    @ApiOperation(value = "Get sumehr validity", response = String::class, httpMethod = "POST", notes = "")
+    @ApiOperation(value = "Get sumehr validity", response = SumehrValidityDto::class, httpMethod = "POST", notes = "")
     @POST
     @Path("/sumehrv2/{patientId}/valid")
     fun isSumehrV2Valid(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
