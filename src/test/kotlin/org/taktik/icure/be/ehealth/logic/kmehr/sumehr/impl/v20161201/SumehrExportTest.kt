@@ -9,11 +9,9 @@ import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
+import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
@@ -46,10 +44,10 @@ class SumehrExportTest {
 
     private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
     private val mapper = Mockito.mock(MapperFacade::class.java)
-    private val config = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+    private val config = Config(_kmehrId = System.currentTimeMillis().toString(),
             date = makeXGC(Instant.now().toEpochMilli())!!,
             time = makeXGC(Instant.now().toEpochMilli(), true)!!,
-            soft = KmehrExport.Config.Software(name = "iCure", version = sumehrExport.ICUREVERSION),
+            soft = Config.Software(name = "iCure", version = sumehrExport.ICUREVERSION),
             clinicalSummaryType = "",
             defaultLanguage = "en"
     )
@@ -115,6 +113,7 @@ class SumehrExportTest {
 
     private val healthcareParties = mutableListOf(HealthcareParty())
 
+
     @Before
     fun setUp() {
         Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java))).thenAnswer { it.getArgumentAt(0, Contact::class.java) }
@@ -179,10 +178,6 @@ class SumehrExportTest {
                 it.getArgumentAt(0, HealthElementDto::class.java).tags.forEach { c -> tags.add(CodeStub(c.type, c.code, c.version)); }
                 it.getArgumentAt(0, HealthElementDto::class.java).codes.forEach { c -> codes.add(CodeStub(c.type, c.code, c.version)); }
             }
-        }
-
-        Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any())).thenAnswer {
-            HealthcareParty()
         }
 
         Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
@@ -408,6 +403,52 @@ class SumehrExportTest {
         assertNotNull(item.texts[0])
         assertNotNull(item.texts[0].value)
         assertEquals("comment", item.texts[0].value)
+    }
+
+    @Test
+    fun <Service, Int, String, List> createItemWithContent() {
+        // Arrange
+        /// First parameter
+        val svc1 = Service()
+        val svc2 = Service()
+        svc2.status = 4
+        val svc3 = Service()
+        svc3.status = 0
+        svc3.tags.add(CodeStub("CD-LIFECYCLE", "notpresent", "1,2"))
+        /// OR First parameter
+        val he1 = HealthElement()
+        val he2 = HealthElement()
+        he2.status = 4
+        val he3 = Service()
+        he3.status = 0
+        he3.tags.add(CodeStub("CD-LIFECYCLE", "notpresent", "1,2"))
+
+        /// Second parameter
+        val idx = 0
+
+        /// Third parameter
+        val cdItem = "cdItem"
+
+        /// Fourth parameter
+        val contents = listOf(ContentType())
+        // Execute
+        /// createItemWithContent with Service parameter
+        val res1S = sumehrExport.createItemWithContent(svc1, idx, cdItem, contents)
+        val res2S = sumehrExport.createItemWithContent(svc2, idx, cdItem, contents)
+        val res3S = sumehrExport.createItemWithContent(svc3, idx, cdItem, contents)
+        /// createItemWithContent with HealthElement parameter
+        val res1H = sumehrExport.createItemWithContent(he1, idx, cdItem, contents)
+        val res2H = sumehrExport.createItemWithContent(he2, idx, cdItem, contents)
+        val res3H = sumehrExport.createItemWithContent(he3, idx, cdItem, contents)
+
+        // Tests
+        Assert.assertNotNull(res1S)
+        Assert.assertNull(res2S)
+        Assert.assertNull(res3S)
+        Assert.assertNotNull(res1H)
+        Assert.assertNull(res2H)
+        Assert.assertNull(res3H)
+
     }
 
     @Test
