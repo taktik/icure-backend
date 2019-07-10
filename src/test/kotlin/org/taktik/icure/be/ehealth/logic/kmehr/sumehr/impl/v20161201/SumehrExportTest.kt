@@ -14,6 +14,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
 import org.taktik.icure.entities.*
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.logic.impl.ContactLogicImpl
@@ -387,6 +388,36 @@ class SumehrExportTest {
     }
 
     @Test
+    fun getVaccines() {
+        // Arrange
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        this.services.clear()
+        val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
+        val validService2 = validService
+        validService2.codes.add(CodeStub("CD-VACCINEINDICATION","Code","version"))
+        this.services.addAll(listOf(validService, oldService, closedService,vaccineService,validService2))
+
+        /// First parameter
+        val hcPartyId = "1"
+
+        /// Second parameter
+        val sfks = listOf("")
+
+        /// Third parameter
+        val excludedIds = emptyList<String>()
+
+        // Execution
+        val cdItems = listOf("vaccine")
+        val services1 = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
+        val services2 = sumehrExport.getVaccines(hcPartyId,sfks,excludedIds,decryptor)
+
+        // Tests
+        val filteredService1 = services1.filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 }}
+        Assert.assertEquals(filteredService1,services2)
+    }
+
+    @Test
     fun getAssessment() {
         // Arrange
         val transaction = TransactionType()
@@ -483,7 +514,7 @@ class SumehrExportTest {
 
         // Execute
         try {
-            sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, emptyTransaction, cdItem, language, excludedIds, decryptor, forcePassive, forceCdItem)
+            sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, emptyTransaction, cdItem, language, excludedIds, decryptor)
         } catch (_: Exception) {
             fail()
         }
@@ -509,7 +540,79 @@ class SumehrExportTest {
     }
 
     @Test
-    fun <Service, Int, String, List> createItemWithContent() {
+    fun createVaccineItem() {
+        // Arrange
+        /// First parameter
+        val content1 = Content().apply {
+            booleanValue = true;
+            binaryValue = "binaryValue".toByteArray();
+            documentId = "documentId";
+            measureValue = Measure().apply {
+                value = 1.0;
+                min = 1.1;
+                max = 1.2;
+                ref = 1.3;
+                severity = 1;
+                severityCode = "severityCode";
+                unit = "unit";
+                unitCodes = setOf(CodeStub("type", "code", "version"))
+                comment = "comment";
+            };
+            numberValue = 1.4;
+            instantValue = Instant.ofEpochMilli(0L);
+            stringValue = "stringValue";
+            medicationValue = Medication().apply {
+                compoundPrescription = "compoundPrescription";
+                substanceProduct = Substanceproduct().apply {
+                    intendedname = "intendedname"
+                }
+                medicinalProduct = Medicinalproduct().apply {
+                    intendedname = "intendedname"
+                }
+            }
+        }
+        val content2 = Content().apply {
+            medicationValue = Medication().apply {
+                compoundPrescription = "compoundPrescription";
+                substanceProduct = Substanceproduct().apply {
+                    intendedname = "intendedname"
+                }
+                medicinalProduct = Medicinalproduct().apply {
+                    intendedname = "intendedname"
+                }
+            }
+        }
+        val svc1 = Service()
+        svc1.content.set("1", content1)
+        svc1.tags.add(CodeStub("Type","Code","Version"))
+        svc1.codes.add(CodeStub("Type","Code","Version"))
+        val svc2 = Service()
+        svc2.content.set("1", content1)
+        svc2.content.set("2", content2)
+
+        /// Second parameter
+        val itemIndex = 0
+
+        // Execute
+        val res1 = sumehrExport.createVaccineItem(svc1, itemIndex)
+        val res2 = sumehrExport.createVaccineItem(svc2, itemIndex)
+
+        // Tests
+        Assert.assertNotNull(res1)
+        Assert.assertEquals(res1?.contents?.size,1)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.isBoolean)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.date)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.time)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.decimal)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.lnks?.size,0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.cds?.size,0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.texts?.size,0)
+        Assert.assertNotNull(res2)
+        Assert.assertEquals(res2?.contents?.size,2)
+    }
+
+    @Test
+    fun createItemWithContent() {
         // Arrange
         /// First parameter
         val svc1 = Service()
@@ -534,6 +637,7 @@ class SumehrExportTest {
 
         /// Fourth parameter
         val contents = listOf(ContentType())
+
         // Execute
         /// createItemWithContent with Service parameter
         val res1S = sumehrExport.createItemWithContent(svc1, idx, cdItem, contents)
@@ -551,7 +655,6 @@ class SumehrExportTest {
         Assert.assertNotNull(res1H)
         Assert.assertNull(res2H)
         Assert.assertNull(res3H)
-
     }
 
     @Test
