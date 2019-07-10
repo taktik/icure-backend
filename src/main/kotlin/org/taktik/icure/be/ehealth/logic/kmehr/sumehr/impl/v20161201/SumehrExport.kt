@@ -366,7 +366,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
+	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
 		val item = createItemWithContent(svc, itemIndex, "vaccine", svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null

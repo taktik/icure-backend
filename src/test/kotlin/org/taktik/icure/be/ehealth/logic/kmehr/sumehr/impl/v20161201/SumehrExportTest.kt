@@ -17,6 +17,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
 import org.taktik.icure.entities.*
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.logic.impl.ContactLogicImpl
@@ -136,14 +137,14 @@ class SumehrExportTest {
 
         Mockito.`when`(decryptor.decrypt<HealthElementDto>(any(), any()))
                 .thenAnswer {
-            object : Future<List<HealthElementDto>> {
-                override fun isDone(): Boolean = true
-                override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
-                override fun isCancelled(): Boolean = false
-                override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-                override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-            }
-        }
+                    object : Future<List<HealthElementDto>> {
+                        override fun isDone(): Boolean = true
+                        override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
+                        override fun isCancelled(): Boolean = false
+                        override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+                        override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+                    }
+                }
 
         Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any()))
                 .thenAnswer { listOfHealthElement }
@@ -367,40 +368,113 @@ class SumehrExportTest {
     }
 
     @Test
-    fun <Service,Int,String,List> createItemWithContent() {
+    fun createVaccineItem() {
+        // Arrange
+        /// First parameter
+        val content1 = Content().apply {
+            booleanValue = true;
+            binaryValue = "binaryValue".toByteArray();
+            documentId = "documentId";
+            measureValue = Measure().apply {
+                value = 1.0;
+                min = 1.1;
+                max = 1.2;
+                ref = 1.3;
+                severity = 1;
+                severityCode = "severityCode";
+                unit = "unit";
+                unitCodes = setOf(CodeStub("type", "code", "version"))
+                comment = "comment";
+            };
+            numberValue = 1.4;
+            instantValue = Instant.ofEpochMilli(0L);
+            stringValue = "stringValue";
+            medicationValue = Medication().apply {
+                compoundPrescription = "compoundPrescription";
+                substanceProduct = Substanceproduct().apply {
+                    intendedname = "intendedname"
+                }
+                medicinalProduct = Medicinalproduct().apply {
+                    intendedname = "intendedname"
+                }
+            }
+        }
+        val content2 = Content().apply {
+            medicationValue = Medication().apply {
+                compoundPrescription = "compoundPrescription";
+                substanceProduct = Substanceproduct().apply {
+                    intendedname = "intendedname"
+                }
+                medicinalProduct = Medicinalproduct().apply {
+                    intendedname = "intendedname"
+                }
+            }
+        }
+        val svc1 = Service()
+        svc1.content.set("1", content1)
+        svc1.tags.add(CodeStub("Type","Code","Version"))
+        svc1.codes.add(CodeStub("Type","Code","Version"))
+        val svc2 = Service()
+        svc2.content.set("1", content1)
+        svc2.content.set("2", content2)
+
+        /// Second parameter
+        val itemIndex = 0
+
+        // Execute
+        val res1 = sumehrExport.createVaccineItem(svc1, itemIndex)
+        val res2 = sumehrExport.createVaccineItem(svc2, itemIndex)
+
+        // Tests
+        Assert.assertNotNull(res1)
+        Assert.assertEquals(res1?.contents?.size,1)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.isBoolean)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.date)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.time)
+        Assert.assertNull(res1?.contents?.firstOrNull()?.decimal)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.lnks?.size,0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.cds?.size,0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.texts?.size,0)
+        Assert.assertNotNull(res2)
+        Assert.assertEquals(res2?.contents?.size,2)
+    }
+
+    @Test
+    fun createItemWithContent() {
         // Arrange
         /// First parameter
         val svc1 = Service()
         val svc2 = Service()
-        svc2.status=4
+        svc2.status = 4
         val svc3 = Service()
-        svc3.status=0
-        svc3.tags.add(CodeStub("CD-LIFECYCLE","notpresent","1,2"))
+        svc3.status = 0
+        svc3.tags.add(CodeStub("CD-LIFECYCLE", "notpresent", "1,2"))
         /// OR First parameter
         val he1 = HealthElement()
         val he2 = HealthElement()
-        he2.status=4
+        he2.status = 4
         val he3 = Service()
-        he3.status=0
-        he3.tags.add(CodeStub("CD-LIFECYCLE","notpresent","1,2"))
+        he3.status = 0
+        he3.tags.add(CodeStub("CD-LIFECYCLE", "notpresent", "1,2"))
 
         /// Second parameter
         val idx = 0
 
         /// Third parameter
-        val cdItem ="cdItem"
+        val cdItem = "cdItem"
 
         /// Fourth parameter
         val contents = listOf(ContentType())
+
         // Execute
         /// createItemWithContent with Service parameter
-        val res1S = sumehrExport.createItemWithContent(svc1,idx, cdItem, contents)
-        val res2S = sumehrExport.createItemWithContent(svc2,idx, cdItem, contents)
-        val res3S = sumehrExport.createItemWithContent(svc3,idx, cdItem, contents)
+        val res1S = sumehrExport.createItemWithContent(svc1, idx, cdItem, contents)
+        val res2S = sumehrExport.createItemWithContent(svc2, idx, cdItem, contents)
+        val res3S = sumehrExport.createItemWithContent(svc3, idx, cdItem, contents)
         /// createItemWithContent with HealthElement parameter
-        val res1H = sumehrExport.createItemWithContent(he1,idx, cdItem, contents)
-        val res2H = sumehrExport.createItemWithContent(he2,idx, cdItem, contents)
-        val res3H = sumehrExport.createItemWithContent(he3,idx, cdItem, contents)
+        val res1H = sumehrExport.createItemWithContent(he1, idx, cdItem, contents)
+        val res2H = sumehrExport.createItemWithContent(he2, idx, cdItem, contents)
+        val res3H = sumehrExport.createItemWithContent(he3, idx, cdItem, contents)
 
         // Tests
         Assert.assertNotNull(res1S)
@@ -409,7 +483,6 @@ class SumehrExportTest {
         Assert.assertNotNull(res1H)
         Assert.assertNull(res2H)
         Assert.assertNull(res3H)
-
     }
 
     @Test
@@ -453,22 +526,22 @@ class SumehrExportTest {
     fun addPatientHealthcareParties() {
         // Arrange
         sumehrExport.healthcarePartyLogic = this.healthcarePartyLogic
-        val healthcareParty1 =HealthcareParty().apply{
-            specialityCodes = listOf(CodeStub("Type","Notpers","1.0"),CodeStub("Type","pers","1.0"));
+        val healthcareParty1 = HealthcareParty().apply {
+            specialityCodes = listOf(CodeStub("Type", "Notpers", "1.0"), CodeStub("Type", "pers", "1.0"));
         }
-        val healthcareParty2 =HealthcareParty().apply{
+        val healthcareParty2 = HealthcareParty().apply {
             id = "LostID"
-            specialityCodes = listOf(CodeStub("Type","pers","1.0"));
+            specialityCodes = listOf(CodeStub("Type", "pers", "1.0"));
         }
-        val healthcareParty3 =HealthcareParty().apply{
+        val healthcareParty3 = HealthcareParty().apply {
             id = "healthcareParty2Id"
-            specialityCodes = listOf(CodeStub("Type","pers","1.0"));
+            specialityCodes = listOf(CodeStub("Type", "pers", "1.0"));
         }
         this.healthcareParties.clear()
-        this.healthcareParties.addAll(listOf(healthcareParty1,healthcareParty2,healthcareParty3))
+        this.healthcareParties.addAll(listOf(healthcareParty1, healthcareParty2, healthcareParty3))
 
         /// First parameter
-        val pat1 = Patient().apply{
+        val pat1 = Patient().apply {
             patientHealthCareParties.add(PatientHealthCareParty().apply {
                 healthcarePartyId = null;
             })
@@ -488,18 +561,18 @@ class SumehrExportTest {
         sumehrExport.addPatientHealthcareParties(pat1, trn1, config)
 
         // Tests
-        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size,1)
+        Assert.assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
         val a1 = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
-        Assert.assertEquals(a1.headingsAndItemsAndTexts.size,2)
-        val b1  = a1.headingsAndItemsAndTexts.get(1) as ItemType
-        Assert.assertEquals(b1.ids.size,1)
-        Assert.assertEquals(b1.ids[0].value,"2")
-        Assert.assertEquals(b1.ids[0].s.value(),"ID-KMEHR")
-        Assert.assertEquals(b1.ids[0].sv,"1.0")
-        Assert.assertEquals(b1.cds.size,1)
-        Assert.assertEquals(b1.cds[0].s.value(),"CD-ITEM")
-        Assert.assertEquals(b1.cds[0].value,"contacthcparty")
-        Assert.assertEquals(b1.contents.size,1)
+        Assert.assertEquals(a1.headingsAndItemsAndTexts.size, 2)
+        val b1 = a1.headingsAndItemsAndTexts.get(1) as ItemType
+        Assert.assertEquals(b1.ids.size, 1)
+        Assert.assertEquals(b1.ids[0].value, "2")
+        Assert.assertEquals(b1.ids[0].s.value(), "ID-KMEHR")
+        Assert.assertEquals(b1.ids[0].sv, "1.0")
+        Assert.assertEquals(b1.cds.size, 1)
+        Assert.assertEquals(b1.cds[0].s.value(), "CD-ITEM")
+        Assert.assertEquals(b1.cds[0].value, "contacthcparty")
+        Assert.assertEquals(b1.contents.size, 1)
         Assert.assertNotNull(b1.contents[0].hcparty)
     }
 
