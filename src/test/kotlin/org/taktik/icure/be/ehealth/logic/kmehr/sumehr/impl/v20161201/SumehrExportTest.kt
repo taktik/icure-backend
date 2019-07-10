@@ -363,6 +363,21 @@ class SumehrExportTest {
     }
 
     @Test
+    fun getHistory() {
+        // Arrange
+        val transaction = TransactionType()
+
+        // Execute
+        val history1 = sumehrExport.getHistory(transaction)
+        val history2 = sumehrExport.getHistory(transaction)
+
+        // Tests
+        assertNotNull(history1)
+        assertNotNull(history2)
+        assertEquals(history1, history2)
+    }
+
+    @Test
     fun addNonPassiveIrrelevantServiceUsingContent() {
         // Arrange
         val hcPartyId = "1"
