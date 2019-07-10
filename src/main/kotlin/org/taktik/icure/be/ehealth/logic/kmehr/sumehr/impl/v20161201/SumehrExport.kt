@@ -307,7 +307,7 @@ class SumehrExport : KmehrExport() {
 		return assessment as HeadingType
 	}
 
-	private fun getHistory(trn: TransactionType): HeadingType {
+	internal fun getHistory(trn: TransactionType): HeadingType {
 		var history = trn.headingsAndItemsAndTexts.find { h -> (h is HeadingType) && h.cds.any { cd -> cd.value == "history" } }
 		if (history == null) {
 			history = HeadingType().apply {
@@ -319,7 +319,7 @@ class SumehrExport : KmehrExport() {
 		return history as HeadingType
 	}
 
-	private fun addNonPassiveIrrelevantServicesAsCD(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addNonPassiveIrrelevantServicesAsCD(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		val assessment = getAssessment(trn)
 
 		val services = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor))
@@ -332,7 +332,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addNonPassiveIrrelevantServiceUsingContent(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null) {
+	internal fun addNonPassiveIrrelevantServiceUsingContent(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null) {
 		try {
 			val svcs = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor))
 			if (svcs.isEmpty()) {
