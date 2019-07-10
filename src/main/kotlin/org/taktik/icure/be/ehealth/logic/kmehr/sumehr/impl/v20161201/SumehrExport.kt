@@ -319,7 +319,7 @@ class SumehrExport : KmehrExport() {
 		return history as HeadingType
 	}
 
-	private fun addNonPassiveIrrelevantServicesAsCD(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addNonPassiveIrrelevantServicesAsCD(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		val assessment = getAssessment(trn)
 
 		val services = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor))

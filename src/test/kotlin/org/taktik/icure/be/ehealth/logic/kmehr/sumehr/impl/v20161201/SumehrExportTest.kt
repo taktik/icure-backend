@@ -9,6 +9,7 @@ import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
@@ -375,6 +376,55 @@ class SumehrExportTest {
         assertNotNull(history1)
         assertNotNull(history2)
         assertEquals(history1, history2)
+    }
+
+    @Test
+    fun addNonPassiveIrrelevantServicesAsCD() {
+        // Arrange
+        val hcPartyId = "1"
+        val sfks = listOf("")
+        val transaction = TransactionType()
+        val cdItem = "patientwill"
+        val type = CDCONTENTschemes.CD_PATIENTWILL
+        val values = listOf("euthanasiarequest", "organdonationconsent", "datareuseforclinicalresearchconsent")
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+
+        services.clear()
+        services.add(Service().apply {
+            id = "1"; status = 0; tags = validTags; content = validContent; openingDate = oneWeekAgo; closingDate = today
+            codes = setOf(CodeStub().apply { this.type = type.value(); this.code = "euthanasiarequest" })
+        })
+        services.add(Service().apply {
+            id = "2"; status = 0; tags = validTags; content = validContent; openingDate = oneWeekAgo; closingDate = today
+            codes = emptySet<CodeStub>()
+        })
+        services.add(Service().apply {
+            id = "3"; status = 0; tags = validTags; content = validContent; openingDate = oneWeekAgo; closingDate = today
+            codes = setOf(
+                    CodeStub().apply { this.type = type.value(); this.code = "some code" },
+                    CodeStub().apply { this.type = "some type"; this.code = "organdonationconsent" }
+            )
+        })
+
+        // Execute
+        sumehrExport.addNonPassiveIrrelevantServicesAsCD(hcPartyId, sfks, transaction, cdItem, type, values, excludedIds, decryptor)
+
+        // Tests
+        assertNotNull(transaction)
+        val assessment = sumehrExport.getAssessment(transaction)
+        assertNotNull(assessment)
+        assertEquals(1, assessment.headingsAndItemsAndTexts.size)
+
+        val euthanasia = assessment.headingsAndItemsAndTexts[0] as ItemType
+        assertNotNull(euthanasia)
+        assertNotNull(euthanasia.contents)
+        assertEquals(1, euthanasia.contents.size)
+        assertNotNull(euthanasia.contents[0])
+        assertNotNull(euthanasia.contents[0].cds)
+        assertEquals(1, euthanasia.contents[0].cds.size)
+        assertNotNull(euthanasia.contents[0].cds[0])
+        assertEquals("euthanasiarequest", euthanasia.contents[0].cds[0].value)
     }
 
     @Test
