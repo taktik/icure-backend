@@ -476,7 +476,7 @@ class SumehrExportTest {
 
         // Execute
         try {
-            sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, emptyTransaction, cdItem, language, excludedIds, decryptor, forcePassive, forceCdItem)
+            sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, emptyTransaction, cdItem, language, excludedIds, decryptor)
         } catch (_: Exception) {
             fail()
         }
