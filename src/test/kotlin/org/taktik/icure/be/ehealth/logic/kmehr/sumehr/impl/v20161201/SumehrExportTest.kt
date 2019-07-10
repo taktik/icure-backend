@@ -350,6 +350,36 @@ class SumehrExportTest {
     }
 
     @Test
+    fun getVaccines() {
+        // Arrange
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        this.services.clear()
+        val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
+        val validService2 = validService
+        validService2.codes.add(CodeStub("CD-VACCINEINDICATION","Code","version"))
+        this.services.addAll(listOf(validService, oldService, closedService,vaccineService,validService2))
+
+        /// First parameter
+        val hcPartyId = "1"
+
+        /// Second parameter
+        val sfks = listOf("")
+
+        /// Third parameter
+        val excludedIds = emptyList<String>()
+
+        // Execution
+        val cdItems = listOf("vaccine")
+        val services1 = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
+        val services2 = sumehrExport.getVaccines(hcPartyId,sfks,excludedIds,decryptor)
+
+        // Tests
+        val filteredService1 = services1.filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 }}
+        Assert.assertEquals(filteredService1,services2)
+    }
+
+    @Test
     fun getAssessment() {
         // Arrange
         val transaction = TransactionType()
