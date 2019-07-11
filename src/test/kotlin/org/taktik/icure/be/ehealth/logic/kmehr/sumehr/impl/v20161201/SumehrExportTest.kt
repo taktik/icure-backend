@@ -1,6 +1,8 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.codec.binary.Hex
+import org.apache.commons.codec.digest.DigestUtils
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -27,6 +29,8 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.FuzzyValues
+import java.io.File
+import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -210,9 +214,23 @@ class SumehrExportTest {
     @Test
     fun getMd5() {
         //Arrange
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        sumehrExport.healthElementLogic = this.healthElementLogic
+        this.resetServices()
+        this.services.add(listOf(validService))
+        this.listOfHealthElement.clear()
+        val hEle = validHealthElement
+        hEle.modified = 1L
+        this.listOfHealthElement.addAll(listOf(hEle))
+        /// First parameter
         val hcPartyId = "1"
+
+        /// Second parameter
         val sfks = listOf("")
-        val excludedIds = emptyList<String>()
+
+        /// Third parameter
+        val excludedIds = listOf("")
 
         //Execution
         val md5 = sumehrExport.getMd5(hcPartyId, patient, sfks, excludedIds)
@@ -220,6 +238,136 @@ class SumehrExportTest {
         //Tests
         assertNotNull(md5)
         assertFalse(md5.isBlank())
+        assertEquals(md5, DigestUtils.md5Hex(hEle.modified.toString()+","+"116eec6358284f12a6a05ff491cf65a6"+","+"null"+","+"null"+","+"null"))
+    }
+
+    @Test
+    fun createSumehr() {
+        // Arrange
+        /// First parameter
+        val path1 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr1.xml"
+        val file1 = File(path1)
+        val os1 = file1.outputStream();
+        val path2 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr2.xml"
+        val file2 = File(path2)
+        val os2 = file2.outputStream();
+
+        /// Second parameter
+        val pat = Patient().apply {
+            id = "idPatient";
+            addresses = listOf(Address().apply {
+                street = "streetPatient"
+                houseNumber = "1D"
+                postalCode = "1050"
+                city = "Ixelles"
+            })
+        }
+
+        /// Third parameter
+        val sfks = listOf("sfks");
+
+        /// Fourth parameter
+        val sender = HealthcareParty().apply {
+            nihii = "nihiiSender";
+            id = "idSender";
+            ssin = "ssinSender";
+            specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
+            firstName = "firstNameSender";
+            lastName = "lastNameSender";
+            name = "nameSender";
+            addresses = listOf(Address().apply {
+                street = "streetSender"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+            })
+        }
+
+        /// Fifth parameter
+        val recipient = HealthcareParty();
+
+        /// Sixth parameter
+        val language = "language";
+
+        /// Seventh parameter
+        val comment = "comment";
+
+        /// Eighth parameter
+        val excludedIds = listOf("excludedId")
+
+        // Execution
+        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+        sumehrExport.createSumehr(os2, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor, true)
+
+        // Tests
+        assertNotNull(file1)
+        assertNotNull(file2)
+        val mappings1 = file1.inputStream()
+        val bufferedReader1 = mappings1.bufferedReader(Charset.forName("cp1252"))
+        val file1Line1 = bufferedReader1.readLine();
+        assertTrue(file1Line1.startsWith("<?xml"))
+        val mappings2 = file2.inputStream()
+        val bufferedReader2 = mappings2.bufferedReader(Charset.forName("cp1252"))
+        val file1Line2 = bufferedReader2.readLine();
+        assertTrue(file1Line2.startsWith("{"))
+
+    }
+
+    @Test
+    fun createSumehrPlusPlus() {
+        // Arrange
+        /// First parameter
+        val file = File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml")
+        val os = file.outputStream();
+
+        /// Second parameter
+        val pat = Patient().apply {
+            id = "idPatient";
+            addresses = listOf(Address().apply {
+                street = "streetPatient"
+                houseNumber = "1D"
+                postalCode = "1050"
+                city = "Ixelles"
+            })
+        }
+
+        /// Third parameter
+        val sfks = listOf("sfks");
+
+        /// Fourth parameter
+        val sender = HealthcareParty().apply {
+            nihii = "nihiiSender";
+            id = "idSender";
+            ssin = "ssinSender";
+            specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
+            firstName = "firstNameSender";
+            lastName = "lastNameSender";
+            name = "nameSender";
+            addresses = listOf(Address().apply {
+                street = "streetSender"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+            })
+        }
+
+        /// Fifth parameter
+        val recipient = HealthcareParty();
+
+        /// Sixth parameter
+        val language = "language";
+
+        /// Seventh parameter
+        val comment = "comment";
+
+        /// Eighth parameter
+        val excludedIds = listOf("excludedId")
+
+        // Execution
+        sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+
+        // Tests
+        assertNotNull(File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml"))
     }
 
     @Test
