@@ -9,6 +9,7 @@ import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
@@ -71,26 +72,28 @@ class SumehrExportTest {
     private val validContentDto = mapOf(Pair("valid", ContentDto().apply { booleanValue = true }))
     private val emptyContent = mapOf(Pair("empty", Content()))
 
-    private val drugsCode = setOf(CodeStub().apply { type = "CD-DRUG-CNK"; code = "3434784" })
-    private val drugsCodeDto = setOf(CodeDto().apply { type = "CD-DRUG-CNK"; code = "3434784" })
+    private val patientwillCodes = setOf(CodeStub("CD-PATIENTWILL", "organdonationconsent", "15.7"))
+    private val drugsCodes = setOf(CodeStub("CD-DRUG-CNK", "3434784", "15.7"))
+    private val drugsCodesDto = setOf(CodeDto("CD-DRUG-CNK", "3434784", "15.7"))
+    private val vaccineCodes = setOf(CodeStub("CD-VACCINEINDICATION", "maskedfromsummary", "15.7"))
 
     private val medicationLabel = "medication"
     private val treatmentLabel = "treatment"
     private val vaccineLabel = "vaccine"
 
-    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
-    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.label = medicationLabel; this.content = emptyContent; this.encryptedContent = "validContent"; this.codes = drugsCode; this.openingDate = oneWeekAgo }
-    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTagsDto; this.label = medicationLabel; this.content = validContentDto; this.codes = drugsCodeDto; this.openingDate = oneWeekAgo }
-    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.label = medicationLabel; this.content = validContent; this.codes = drugsCode; this.openingDate = oneWeekAgo }
-    private val lifeEndedService = Service().apply { this.id = "3"; this.endOfLife = Long.MAX_VALUE; this.status = 1; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
+    private val validService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val encryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.codes = drugsCodes; this.label = medicationLabel; this.content = emptyContent; this.encryptedContent = "validContent"; this.openingDate = oneWeekAgo }
+    private val decryptedServiceDto = ServiceDto().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTagsDto; this.codes = drugsCodesDto; this.label = medicationLabel; this.content = validContentDto; this.openingDate = oneWeekAgo }
+    private val decryptedService = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = secretTags; this.codes = drugsCodes; this.label = medicationLabel; this.content = validContent; this.openingDate = oneWeekAgo }
+    private val lifeEndedService = Service().apply { this.id = "3"; this.endOfLife = Long.MAX_VALUE; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.content = validContent; this.openingDate = oneWeekAgo }
     private val wrongStatusService = Service().apply { this.id = "4"; this.endOfLife = null; this.status = 3; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val inactiveService = Service().apply { this.id = "5"; this.endOfLife = null; this.status = 2; this.tags = inactiveTags; this.content = validContent; this.openingDate = oneWeekAgo }
     private val emptyService = Service().apply { this.id = "6"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.content = emptyContent; this.openingDate = oneWeekAgo }
-    private val oldService = Service().apply { this.id = "7"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.content = validContent; this.openingDate = oneMonthAgo }
+    private val oldService = Service().apply { this.id = "7"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = vaccineCodes; this.content = validContent; this.openingDate = oneMonthAgo }
     private val closedService = Service().apply { this.id = "8"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.content = validContent; this.openingDate = oneWeekAgo; this.closingDate = yesterday }
     private val medicationService = Service().apply { this.id = "medication"; this.endOfLife = null; this.status = 0; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val treatmentService = Service().apply { this.id = "treatment"; this.endOfLife = null; this.status = 0; this.tags = validTags; this.label = treatmentLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
-    private val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = vaccineLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.label = vaccineLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val services = mutableListOf<List<Service>>()
 
     private val patient = Patient().apply { this.id = "0dce1288"; this.partnerships = listOf(Partnership().apply { partnerId = "2ed64d50"; otherToMeRelationshipDescription = "father" }) }
@@ -220,6 +223,68 @@ class SumehrExportTest {
     }
 
     @Test
+    fun fillPatientFolder() {
+        // Arrange
+        val folder = FolderType()
+        val sfks = listOf("")
+        val sender = HealthcareParty().apply { id = "48cf7938" }
+        val extraLabs = mapOf(Pair(Pair("", ""), listOf("")))
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        this.resetServices()
+        this.services.add(listOf(Service().apply { id = "adr"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "allergy"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "socialrisk"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "risk"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "patientwill"; endOfLife = null; status = 0; tags = validTags; codes = patientwillCodes; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "vaccine"; endOfLife = null; status = 0; tags = validTags; codes = vaccineCodes; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "medication"; endOfLife = null; status = 0; tags = validTags; codes = drugsCodes; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "treatment"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "healthissue"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+        this.services.add(listOf(Service().apply { id = "healthcareelement"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
+
+        // Execute
+        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, extraLabs, "fr", config, "comment", excludedIds, decryptor)
+
+        // Tests
+        assertNotNull(folder)
+        assertNotNull(folder.transactions)
+        assertEquals(1, folder.transactions.size)
+        val transaction = folder.transactions[0]
+        assertNotNull(transaction)
+        assertNotNull(transaction.headingsAndItemsAndTexts)
+        assertEquals(2, transaction.headingsAndItemsAndTexts.size)
+        transaction.headingsAndItemsAndTexts.forEach { assertNotNull(it) }
+
+        assertTrue(transaction.headingsAndItemsAndTexts[0] is HeadingType)
+        val heading = transaction.headingsAndItemsAndTexts[0] as HeadingType
+        assertNotNull(heading.headingsAndItemsAndTexts)
+        assertEquals(10, heading.headingsAndItemsAndTexts.size)
+        val items = heading.headingsAndItemsAndTexts.map {
+            assertNotNull(it)
+            assertTrue(it is ItemType)
+            it as ItemType
+        }
+
+        val getId = fun(item: ItemType) = item.ids[1].value
+        assertEquals("adr", getId(items[0]))
+        assertEquals("allergy", getId(items[1]))
+        assertEquals("socialrisk", getId(items[2]))
+        assertEquals("risk", getId(items[3]))
+        assertEquals("patientwill", getId(items[4]))
+        assertEquals("vaccine", getId(items[5]))
+        assertEquals("medication", getId(items[6]))
+        assertEquals("treatment", getId(items[7]))
+        assertEquals("healthissue", getId(items[8]))
+        assertEquals("healthcareelement", getId(items[9]))
+
+        assertTrue(transaction.headingsAndItemsAndTexts[1] is TextType)
+        val comment = transaction.headingsAndItemsAndTexts[1] as TextType
+        assertEquals("comment", comment.value)
+    }
+
+    @Test
     fun getAllServices() {
         // Arrange
         val hcPartyId = "1"
@@ -229,7 +294,8 @@ class SumehrExportTest {
         sumehrExport.mapper = this.mapper
         this.resetServices()
         this.services.add(listOf(validService, encryptedService, inactiveService))
-        this.services.add(listOf(medicationService, treatmentService, closedService))
+        this.services.add(listOf(medicationService, closedService))
+        this.services.add(listOf(treatmentService, closedService))
         this.services.add(listOf(vaccineService, inactiveService))
 
         // Execute
@@ -408,7 +474,7 @@ class SumehrExportTest {
             this.descr = "NotINBOX"
         }
 
-        this.listOfHealthElement.addAll(listOf(validHealthElement,filteredHealthElement1,filteredHealthElement2,filteredHealthElement3))
+        this.listOfHealthElement.addAll(listOf(validHealthElement, filteredHealthElement1, filteredHealthElement2, filteredHealthElement3))
 
         /// First parameter
         val hcPartyId = "1"
@@ -427,7 +493,7 @@ class SumehrExportTest {
         assertNotNull(res1)
         assertFalse(ServiceStatus.isIrrelevant(filteredHealthElement1.status))
         assertTrue(ServiceStatus.isIrrelevant(filteredHealthElement2.status))
-        assertEquals(res1.size,size-3)
+        assertEquals(res1.size, size - 3)
     }
 
     @Test
@@ -455,11 +521,8 @@ class SumehrExportTest {
         // Arrange
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
-        this.services.clear()
-        val validService2 = validService
-        validService2.codes.add(CodeStub("CD-VACCINEINDICATION", "Code", "version"))
         this.resetServices()
-        this.services.add(listOf(validService, oldService, closedService, vaccineService, validService2))
+        this.services.add(listOf(validService, oldService, closedService, vaccineService))
 
         /// First parameter
         val hcPartyId = "1"
@@ -912,11 +975,6 @@ class SumehrExportTest {
         sumehrExport.mapper = this.mapper
         this.resetServices()
         this.services.add(listOf(validService, lifeEndedService, oldService))
-        services.forEach { l ->
-            l.forEach { s ->
-                s.codes.add(CodeStub("CD-VACCINEINDICATION", "maskedfromsummary", "15.7"))
-            }
-        }
 
         /// First parameter
         val hcPartyId = ""
