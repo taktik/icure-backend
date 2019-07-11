@@ -547,32 +547,24 @@ class SumehrExport : KmehrExport() {
 
 			listOf("problem", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
 				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
-					if(edType == "problem"){
-						// Recommended codifications: IBUI, ICPC-2, ICD-10.
-						eds.codes?.removeIf { c -> c.type != "ICPC" && c.type != "ICD" && c.type != "CD-CLINICAL" && c.type != "BE-THESAURUS" }
-					}
-					if(eds.codes.isNotEmpty()){
-						createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
-							eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
-							it.contents.add(ContentType().apply {
-								eds.codes?.forEach { c ->
-									try{
-										// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
-										val version = if (c.type == "CD-ATC") "1.0" else c.version
-										// BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
-										val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
-										val cdt = CDCONTENTschemes.fromValue(type)
-										this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
-									} catch (ignored : IllegalArgumentException) {
-										log.error(ignored)
-									}
-								}
-							})
-							items.add(it)
-						}
-					}else{
-						log.debug("Health element skipped because of missing codification. id=" + eds.id )
-					}
+                    createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+                        eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
+                        it.contents.add(ContentType().apply {
+                            eds.codes?.forEach { c ->
+                                try{
+                                    // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+                                    val version = if (c.type == "CD-ATC") "1.0" else c.version
+                                    // BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
+                                    val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
+                                    val cdt = CDCONTENTschemes.fromValue(type)
+                                    this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+                                } catch (ignored : IllegalArgumentException) {
+                                    log.error(ignored)
+                                }
+                            }
+                        })
+                        items.add(it)
+                    }
 				}
 			}
 		} catch (e: Exception) {
