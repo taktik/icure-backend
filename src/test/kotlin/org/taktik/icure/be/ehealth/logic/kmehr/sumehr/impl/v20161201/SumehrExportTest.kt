@@ -7,7 +7,6 @@ import org.junit.Test
 import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
 import org.mockito.Mockito
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
@@ -28,7 +27,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.FuzzyValues
 import java.io.File
-import java.io.StringReader
 import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -237,7 +235,7 @@ class SumehrExportTest {
         /// Second parameter
         val pat = Patient().apply {
             id = "idPatient";
-            addresses = listOf(Address().apply{
+            addresses = listOf(Address().apply {
                 street = "streetPatient"
                 houseNumber = "1D"
                 postalCode = "1050"
@@ -253,11 +251,11 @@ class SumehrExportTest {
             nihii = "nihiiSender";
             id = "idSender";
             ssin = "ssinSender";
-            specialityCodes = mutableListOf(CodeStub("type","code","version"))
+            specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
             firstName = "firstNameSender";
             lastName = "lastNameSender";
             name = "nameSender";
-            addresses = listOf(Address().apply{
+            addresses = listOf(Address().apply {
                 street = "streetSender"
                 houseNumber = "3A"
                 postalCode = "1000"
@@ -279,19 +277,19 @@ class SumehrExportTest {
 
         // Execution
         sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
-        sumehrExport.createSumehr(os2, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor,true)
+        sumehrExport.createSumehr(os2, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor, true)
 
         // Tests
-        Assert.assertNotNull(file1)
-        Assert.assertNotNull(file2)
+        assertNotNull(file1)
+        assertNotNull(file2)
         val mappings1 = file1.inputStream()
         val bufferedReader1 = mappings1.bufferedReader(Charset.forName("cp1252"))
         val file1Line1 = bufferedReader1.readLine();
-        Assert.assertTrue(file1Line1.startsWith("<?xml"))
+        assertTrue(file1Line1.startsWith("<?xml"))
         val mappings2 = file2.inputStream()
         val bufferedReader2 = mappings2.bufferedReader(Charset.forName("cp1252"))
         val file1Line2 = bufferedReader2.readLine();
-        Assert.assertTrue(file1Line2.startsWith("{"))
+        assertTrue(file1Line2.startsWith("{"))
 
     }
 
@@ -305,7 +303,7 @@ class SumehrExportTest {
         /// Second parameter
         val pat = Patient().apply {
             id = "idPatient";
-            addresses = listOf(Address().apply{
+            addresses = listOf(Address().apply {
                 street = "streetPatient"
                 houseNumber = "1D"
                 postalCode = "1050"
@@ -321,11 +319,11 @@ class SumehrExportTest {
             nihii = "nihiiSender";
             id = "idSender";
             ssin = "ssinSender";
-            specialityCodes = mutableListOf(CodeStub("type","code","version"))
+            specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
             firstName = "firstNameSender";
             lastName = "lastNameSender";
             name = "nameSender";
-            addresses = listOf(Address().apply{
+            addresses = listOf(Address().apply {
                 street = "streetSender"
                 houseNumber = "3A"
                 postalCode = "1000"
@@ -349,7 +347,7 @@ class SumehrExportTest {
         sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 
         // Tests
-        Assert.assertNotNull(File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml"))
+        assertNotNull(File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml"))
     }
 
     @Test
@@ -541,7 +539,7 @@ class SumehrExportTest {
             this.descr = "NotINBOX"
         }
 
-        this.listOfHealthElement.addAll(listOf(validHealthElement,filteredHealthElement1,filteredHealthElement2,filteredHealthElement3))
+        this.listOfHealthElement.addAll(listOf(validHealthElement, filteredHealthElement1, filteredHealthElement2, filteredHealthElement3))
 
         /// First parameter
         val hcPartyId = "1"
@@ -560,7 +558,7 @@ class SumehrExportTest {
         assertNotNull(res1)
         assertFalse(ServiceStatus.isIrrelevant(filteredHealthElement1.status))
         assertTrue(ServiceStatus.isIrrelevant(filteredHealthElement2.status))
-        assertEquals(res1.size,size-3)
+        assertEquals(res1.size, size - 3)
     }
 
     @Test
