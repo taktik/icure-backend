@@ -312,7 +312,7 @@ class SumehrExport : KmehrExport() {
 		if (history == null) {
 			history = HeadingType().apply {
 				ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
-				cds.add(CDHEADING().apply { s = CDHEADINGschemes.CD_HEADING; sv = "1.0"; value = "assessment" })
+				cds.add(CDHEADING().apply { s = CDHEADINGschemes.CD_HEADING; sv = "1.0"; value = "history" })
 			}
 			trn.headingsAndItemsAndTexts.add(history)
 		}
