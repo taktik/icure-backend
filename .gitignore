@@ -48,3 +48,6 @@ test.json
 bin/
 .classpath
 .settings
+
+# Test generated files
+src/test/resources/**/out*

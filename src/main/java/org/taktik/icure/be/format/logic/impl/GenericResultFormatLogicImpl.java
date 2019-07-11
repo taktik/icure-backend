@@ -105,6 +105,7 @@ public abstract class GenericResultFormatLogicImpl {
 		} catch (CharacterCodingException e) {
 			String frenchCp850OrCp1252 = org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252(rawData);
 			String charset = "cp850".equals(frenchCp850OrCp1252) ? "cp850" : "cp1252";
+
 			text = new String(rawData, charset);
 		}
 
