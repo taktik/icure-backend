@@ -13,8 +13,8 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
+import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.logic.impl.ContactLogicImpl
@@ -111,7 +111,7 @@ class SumehrExportTest {
         this.closingDate = null
         this.descr = "Notnull"
     }
-    private val listOfHealthElement = listOf(validHealthElementWithEmptyEncryptedSelf, validHealthElement)
+    private val listOfHealthElement = mutableListOf(validHealthElementWithEmptyEncryptedSelf, validHealthElement)
 
     private val healthcareParties = mutableListOf(HealthcareParty())
 
@@ -330,6 +330,51 @@ class SumehrExportTest {
     }
 
     @Test
+    fun getHealthElements() {
+        // Arrange
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.healthElementLogic = this.healthElementLogic
+        this.listOfHealthElement.clear()
+        val filteredHealthElement1 = HealthElement().apply {
+            this.healthElementId = "Id1"
+            this.descr = "INBOX"
+            this.status = 1
+        }
+        val filteredHealthElement2 = HealthElement().apply {
+            this.healthElementId = "Id2"
+            this.status = 3
+            this.closingDate = 1L
+            this.descr = "NotINBOX"
+        }
+        val filteredHealthElement3 = HealthElement().apply {
+            this.id = "excluded"
+            this.status = 1
+            this.descr = "NotINBOX"
+        }
+
+        this.listOfHealthElement.addAll(listOf(validHealthElement,filteredHealthElement1,filteredHealthElement2,filteredHealthElement3))
+
+        /// First parameter
+        val hcPartyId = "1"
+
+        /// Second parameter
+        val sfks = listOf("")
+
+        /// Third parameter
+        val excludedIds = listOf("excluded")
+
+        // Execute
+        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds)
+
+        // Tests
+        val size = healthElementLogic.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks).size
+        Assert.assertNotNull(res1)
+        Assert.assertFalse(ServiceStatus.isIrrelevant(filteredHealthElement1.status))
+        Assert.assertTrue(ServiceStatus.isIrrelevant(filteredHealthElement2.status))
+        Assert.assertEquals(res1.size,size-3)
+    }
+
+    @Test
     fun getMedications() {
         //Arrange
         val hcPartyId = "1"
@@ -357,8 +402,8 @@ class SumehrExportTest {
         this.services.clear()
         val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
         val validService2 = validService
-        validService2.codes.add(CodeStub("CD-VACCINEINDICATION","Code","version"))
-        this.services.addAll(listOf(validService, oldService, closedService,vaccineService,validService2))
+        validService2.codes.add(CodeStub("CD-VACCINEINDICATION", "Code", "version"))
+        this.services.addAll(listOf(validService, oldService, closedService, vaccineService, validService2))
 
         /// First parameter
         val hcPartyId = "1"
@@ -372,11 +417,11 @@ class SumehrExportTest {
         // Execution
         val cdItems = listOf("vaccine")
         val services1 = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
-        val services2 = sumehrExport.getVaccines(hcPartyId,sfks,excludedIds,decryptor)
+        val services2 = sumehrExport.getVaccines(hcPartyId, sfks, excludedIds, decryptor)
 
         // Tests
-        val filteredService1 = services1.filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 }}
-        Assert.assertEquals(filteredService1,services2)
+        val filteredService1 = services1.filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }
+        Assert.assertEquals(filteredService1, services2)
     }
 
     @Test
@@ -546,8 +591,8 @@ class SumehrExportTest {
         }
         val svc1 = Service()
         svc1.content.set("1", content1)
-        svc1.tags.add(CodeStub("Type","Code","Version"))
-        svc1.codes.add(CodeStub("Type","Code","Version"))
+        svc1.tags.add(CodeStub("Type", "Code", "Version"))
+        svc1.codes.add(CodeStub("Type", "Code", "Version"))
         val svc2 = Service()
         svc2.content.set("1", content1)
         svc2.content.set("2", content2)
@@ -561,16 +606,16 @@ class SumehrExportTest {
 
         // Tests
         Assert.assertNotNull(res1)
-        Assert.assertEquals(res1?.contents?.size,1)
+        Assert.assertEquals(res1?.contents?.size, 1)
         Assert.assertNull(res1?.contents?.firstOrNull()?.isBoolean)
         Assert.assertNull(res1?.contents?.firstOrNull()?.date)
         Assert.assertNull(res1?.contents?.firstOrNull()?.time)
         Assert.assertNull(res1?.contents?.firstOrNull()?.decimal)
-        Assert.assertEquals(res1?.contents?.firstOrNull()?.lnks?.size,0)
-        Assert.assertEquals(res1?.contents?.firstOrNull()?.cds?.size,0)
-        Assert.assertEquals(res1?.contents?.firstOrNull()?.texts?.size,0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.lnks?.size, 0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.cds?.size, 0)
+        Assert.assertEquals(res1?.contents?.firstOrNull()?.texts?.size, 0)
         Assert.assertNotNull(res2)
-        Assert.assertEquals(res2?.contents?.size,2)
+        Assert.assertEquals(res2?.contents?.size, 2)
     }
 
     @Test
