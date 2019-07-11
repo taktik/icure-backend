@@ -1271,13 +1271,14 @@ class HealthOneLogicImplTest {
         val text = "This a comment written to create L5 line \n And this is to create a second L5 line";
 
         // Seventh parameter
-        val file = File("src/test/resources/org/taktik/icure/be/format/logic/impl/sortie.lab")
+        val path = "src/test/resources/org/taktik/icure/be/format/logic/impl/outDoExport.lab"
+        val file = File(path)
         val out = file.outputStream();
 
         // Execution
         /// File 1
         val res1 = HealthOneLogicImpl.doExport(sender, recipient, patient, date, ref, text, out);
-        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/sortie.lab");
+        val mappings1 = file.inputStream();
         val br = mappings1.bufferedReader(Charset.forName("cp1252"))
         val res1return = HealthOneLogicImpl.extractResultInfos(br, "UTF8", "docId", true);
 
