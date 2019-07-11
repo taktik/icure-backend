@@ -1,0 +1,213 @@
+{
+  "confidentiality" : null,
+  "header" : {
+    "confidentiality" : null,
+    "standard" : {
+      "cd" : {
+        "value" : "20161201",
+        "s" : "CD-STANDARD",
+        "sv" : "1.20",
+        "dn" : null,
+        "l" : "en"
+      },
+      "specialisation" : {
+        "cd" : {
+          "value" : "GPSOFTWAREMIGRATION",
+          "s" : "CD-MESSAGE",
+          "sv" : "1.1",
+          "dn" : null,
+          "l" : "en"
+        },
+        "version" : "2.3"
+      }
+    },
+    "ids" : [ {
+      "value" : "nihiiSender.1562840150739",
+      "s" : "ID_KMEHR",
+      "sv" : "1.0",
+      "sl" : null
+    } ],
+    "date" : 1562840150739,
+    "time" : 1562840150739,
+    "sender" : {
+      "hcparties" : [ {
+        "ids" : [ {
+          "value" : "nihiiSender",
+          "s" : "ID_HCPARTY",
+          "sv" : "1.0",
+          "sl" : null
+        }, {
+          "value" : "ssinSender",
+          "s" : "INSS",
+          "sv" : "1.0",
+          "sl" : null
+        } ],
+        "cds" : [ {
+          "value" : "code",
+          "s" : "CD_HCPARTY",
+          "sv" : "1.11",
+          "dn" : null,
+          "l" : "en",
+          "sl" : null
+        } ],
+        "firstname" : "firstNameSender",
+        "familyname" : "lastNameSender",
+        "name" : "nameSender",
+        "addresses" : [ ],
+        "telecoms" : [ ]
+      }, {
+        "ids" : [ {
+          "value" : "iCure-4.0.0",
+          "s" : "LOCAL",
+          "sv" : "4.0.0",
+          "sl" : "iCure"
+        } ],
+        "cds" : [ {
+          "value" : "application",
+          "s" : "CD_HCPARTY",
+          "sv" : "1.11",
+          "dn" : null,
+          "l" : "en",
+          "sl" : null
+        } ],
+        "firstname" : null,
+        "familyname" : null,
+        "name" : "iCure",
+        "addresses" : [ ],
+        "telecoms" : [ ]
+      } ]
+    },
+    "recipients" : [ {
+      "hcparties" : [ {
+        "ids" : [ ],
+        "cds" : [ {
+          "value" : "persphysician",
+          "s" : "CD_HCPARTY",
+          "sv" : "1.11",
+          "dn" : null,
+          "l" : "en",
+          "sl" : null
+        } ],
+        "firstname" : null,
+        "familyname" : null,
+        "name" : null,
+        "addresses" : [ ],
+        "telecoms" : [ ]
+      } ],
+      "dummyFriend" : null
+    } ],
+    "urgency" : null,
+    "acknowledgment" : null,
+    "texts" : [ ],
+    "lnks" : [ ]
+  },
+  "base64EncryptedData" : null,
+  "encryptedData" : null,
+  "folders" : [ {
+    "confidentiality" : null,
+    "ids" : [ {
+      "value" : "1",
+      "s" : "ID_KMEHR",
+      "sv" : "1.0",
+      "sl" : null
+    } ],
+    "patient" : {
+      "ids" : [ {
+        "value" : "idPatient",
+        "s" : "LOCAL",
+        "sv" : "4.0.0",
+        "sl" : "iCure-Person-Id"
+      } ],
+      "firstnames" : [ null ],
+      "familyname" : null,
+      "birthdate" : null,
+      "birthlocation" : null,
+      "deathdate" : null,
+      "deathlocation" : null,
+      "sex" : {
+        "cd" : {
+          "value" : "UNKNOWN",
+          "s" : "CD-SEX",
+          "sv" : "1.0",
+          "dn" : null,
+          "l" : "en"
+        }
+      },
+      "nationality" : null,
+      "addresses" : [ ],
+      "telecoms" : [ ],
+      "usuallanguage" : null,
+      "profession" : null,
+      "insurancystatus" : null,
+      "insurancymembership" : null,
+      "recorddatetime" : null,
+      "texts" : [ ],
+      "civilstate" : null
+    },
+    "transactions" : [ {
+      "confidentiality" : null,
+      "ids" : [ {
+        "value" : "1",
+        "s" : "ID_KMEHR",
+        "sv" : "1.0",
+        "sl" : null
+      }, {
+        "value" : "idPatien.1562840150739",
+        "s" : "LOCAL",
+        "sv" : "4.0.0",
+        "sl" : "iCure-Item"
+      } ],
+      "cds" : [ {
+        "value" : "sumehr",
+        "s" : "CD_TRANSACTION",
+        "sv" : "1.0",
+        "sl" : null,
+        "dn" : null,
+        "l" : "en"
+      } ],
+      "date" : 1562840150739,
+      "time" : 1562840150739,
+      "author" : {
+        "hcparties" : [ {
+          "ids" : [ {
+            "value" : "nihiiSender",
+            "s" : "ID_HCPARTY",
+            "sv" : "1.0",
+            "sl" : null
+          }, {
+            "value" : "ssinSender",
+            "s" : "INSS",
+            "sv" : "1.0",
+            "sl" : null
+          } ],
+          "cds" : [ {
+            "value" : "code",
+            "s" : "CD_HCPARTY",
+            "sv" : "1.11",
+            "dn" : null,
+            "l" : "en",
+            "sl" : null
+          } ],
+          "firstname" : "firstNameSender",
+          "familyname" : "lastNameSender",
+          "name" : "nameSender",
+          "addresses" : [ ],
+          "telecoms" : [ ]
+        } ]
+      },
+      "redactor" : null,
+      "iscomplete" : true,
+      "isvalidated" : true,
+      "expirationdate" : null,
+      "headingsAndItemsAndTexts" : [ {
+        "value" : "comment",
+        "l" : "fr"
+      } ],
+      "recorddatetime" : null,
+      "version" : null
+    } ],
+    "texts" : [ ],
+    "lnks" : [ ]
+  } ],
+  "signature" : null
+}
