@@ -1,7 +1,6 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import ma.glasnost.orika.MapperFacade
-import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.junit.Assert.*
 import org.junit.Before
@@ -238,7 +237,7 @@ class SumehrExportTest {
         //Tests
         assertNotNull(md5)
         assertFalse(md5.isBlank())
-        assertEquals(md5, DigestUtils.md5Hex(hEle.modified.toString()+","+"116eec6358284f12a6a05ff491cf65a6"+","+"null"+","+"null"+","+"null"))
+        assertEquals(md5, DigestUtils.md5Hex(hEle.modified.toString() + "," + "116eec6358284f12a6a05ff491cf65a6" + "," + "null" + "," + "null" + "," + "null" + "," + "null"))
     }
 
     @Test
@@ -310,7 +309,6 @@ class SumehrExportTest {
         val bufferedReader2 = mappings2.bufferedReader(Charset.forName("cp1252"))
         val file1Line2 = bufferedReader2.readLine();
         assertTrue(file1Line2.startsWith("{"))
-
     }
 
     @Test
