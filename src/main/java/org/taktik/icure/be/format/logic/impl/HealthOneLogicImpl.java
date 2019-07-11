@@ -346,10 +346,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				Reference r = new Reference();
 				r.maxValue = new Double(m.group(1).replaceAll(",", "."));
 				if (m.group(2) != null) {
-					r.unit = m.group(3);
+					r.unit = m.group(2);
 				}
 				if (m.group(3) != null) {
-					r.unit = m.group(4);
+					r.unit = m.group(3);
 				}
 				return r;
 			}
@@ -358,10 +358,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				Reference r = new Reference();
 				r.minValue = new Double(m.group(1).replaceAll(",", "."));
 				if (m.group(2) != null) {
-					r.unit = m.group(3);
+					r.unit = m.group(2);
 				}
 				if (m.group(3) != null) {
-					r.unit = m.group(4);
+					r.unit = m.group(3);
 				}
 				return r;
 			}
