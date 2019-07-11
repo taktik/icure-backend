@@ -1,6 +1,8 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.codec.binary.Hex
+import org.apache.commons.codec.digest.DigestUtils
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -209,9 +211,23 @@ class SumehrExportTest {
     @Test
     fun getMd5() {
         //Arrange
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        sumehrExport.healthElementLogic = this.healthElementLogic
+        this.resetServices()
+        this.services.add(listOf(validService))
+        this.listOfHealthElement.clear()
+        val hEle = validHealthElement
+        hEle.modified = 1L
+        this.listOfHealthElement.addAll(listOf(hEle))
+        /// First parameter
         val hcPartyId = "1"
+
+        /// Second parameter
         val sfks = listOf("")
-        val excludedIds = emptyList<String>()
+
+        /// Third parameter
+        val excludedIds = listOf("")
 
         //Execution
         val md5 = sumehrExport.getMd5(hcPartyId, patient, sfks, excludedIds)
@@ -219,6 +235,7 @@ class SumehrExportTest {
         //Tests
         assertNotNull(md5)
         assertFalse(md5.isBlank())
+        assertEquals(md5, DigestUtils.md5Hex(hEle.modified.toString()+","+"116eec6358284f12a6a05ff491cf65a6"+","+"null"+","+"null"+","+"null"))
     }
 
     @Test
