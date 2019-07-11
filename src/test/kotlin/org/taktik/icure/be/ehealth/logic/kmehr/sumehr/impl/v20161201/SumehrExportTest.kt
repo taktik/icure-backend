@@ -12,6 +12,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
+import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
@@ -114,7 +115,7 @@ class SumehrExportTest {
         this.closingDate = null
         this.descr = "Notnull"
     }
-    private val listOfHealthElement = listOf(validHealthElementWithEmptyEncryptedSelf, validHealthElement)
+    private val listOfHealthElement = mutableListOf(validHealthElementWithEmptyEncryptedSelf, validHealthElement)
 
     private val healthcareParties = mutableListOf(HealthcareParty())
 
@@ -382,6 +383,51 @@ class SumehrExportTest {
         assertTrue(items.contains(contact))     //
         assertTrue(items.contains(document))    //
         assertTrue(items.contains(invoice))     //
+    }
+
+    @Test
+    fun getHealthElements() {
+        // Arrange
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.healthElementLogic = this.healthElementLogic
+        this.listOfHealthElement.clear()
+        val filteredHealthElement1 = HealthElement().apply {
+            this.healthElementId = "Id1"
+            this.descr = "INBOX"
+            this.status = 1
+        }
+        val filteredHealthElement2 = HealthElement().apply {
+            this.healthElementId = "Id2"
+            this.status = 3
+            this.closingDate = 1L
+            this.descr = "NotINBOX"
+        }
+        val filteredHealthElement3 = HealthElement().apply {
+            this.id = "excluded"
+            this.status = 1
+            this.descr = "NotINBOX"
+        }
+
+        this.listOfHealthElement.addAll(listOf(validHealthElement,filteredHealthElement1,filteredHealthElement2,filteredHealthElement3))
+
+        /// First parameter
+        val hcPartyId = "1"
+
+        /// Second parameter
+        val sfks = listOf("")
+
+        /// Third parameter
+        val excludedIds = listOf("excluded")
+
+        // Execute
+        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds)
+
+        // Tests
+        val size = healthElementLogic.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks).size
+        assertNotNull(res1)
+        assertFalse(ServiceStatus.isIrrelevant(filteredHealthElement1.status))
+        assertTrue(ServiceStatus.isIrrelevant(filteredHealthElement2.status))
+        assertEquals(res1.size,size-3)
     }
 
     @Test
