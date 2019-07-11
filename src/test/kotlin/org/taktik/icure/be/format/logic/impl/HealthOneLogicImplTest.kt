@@ -564,13 +564,13 @@ class HealthOneLogicImplTest {
         val refValues5 = "<2   L"
         val res5 = HealthOneLogicImpl.tryToGetReferenceValues(refValues5)
         Assert.assertTrue(res5.maxValue == 2.0)
-        Assert.assertEquals(res5.unit, null) // TODO Must be modified when the code will be correct
+        Assert.assertEquals(res5.unit, "L")
 
         // lessThanReference with group 4
         val refValues6 = "<2   8L"
         val res6 = HealthOneLogicImpl.tryToGetReferenceValues(refValues6)
         Assert.assertTrue(res6.maxValue == 2.0)
-        Assert.assertEquals(res6.unit, null) // TODO Must be modifiied when the code will be correct
+        Assert.assertEquals(res6.unit, "8L")
 
         // greaterThanReference
         val refValues7 = ">2"
@@ -581,13 +581,13 @@ class HealthOneLogicImplTest {
         val refValues8 = ">2   e10mg"
         val res8 = HealthOneLogicImpl.tryToGetReferenceValues(refValues8)
         Assert.assertTrue(res8.minValue == 2.0)
-        Assert.assertEquals(res8.unit, null) // TODO Must be modified when the code will be correct
+        Assert.assertEquals(res8.unit, "e10mg")
 
         // greaterThanReference with group 4
         val refValues9 = ">2   10mg"
         val res9 = HealthOneLogicImpl.tryToGetReferenceValues(refValues9)
         Assert.assertTrue(res9.minValue == 2.0)
-        Assert.assertEquals(res9.unit, null) //TODO Must be modified when the code will be correct
+        Assert.assertEquals(res9.unit, "10mg")
 
         // refValues not matches
         val refValues10 = "([-,-:-, a"
