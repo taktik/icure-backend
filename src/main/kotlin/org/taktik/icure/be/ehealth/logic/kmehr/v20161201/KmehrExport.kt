@@ -255,6 +255,12 @@ open class KmehrExport {
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
 			} }
+
+            certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" }?.let {
+                CertaintyType().apply {
+                    cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
+                }
+            }
             isIsrelevant = ((he.status?: 0) and 2) == 0
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
