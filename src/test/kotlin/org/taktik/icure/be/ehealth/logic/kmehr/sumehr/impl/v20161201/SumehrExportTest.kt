@@ -8,6 +8,7 @@ import org.junit.Test
 import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
 import org.mockito.Mockito
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
@@ -27,6 +28,7 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.FuzzyValues
+import java.io.File
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -203,6 +205,73 @@ class SumehrExportTest {
         //Tests
         assertNotNull(md5)
         assertFalse(md5.isBlank())
+    }
+
+    @Test
+    fun createSumehrPlusPlus() {
+        // Arrange
+        /// First parameter
+        val file = File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml")
+        val os = file.outputStream();
+
+        /// Second parameter
+        val pat = Patient().apply {
+            id = "idPatient";
+            addresses = listOf(Address().apply{
+                street = "streetPatient"
+                houseNumber = "1D"
+                postalCode = "1050"
+                city = "Ixelles"
+            })
+        }
+
+        /// Third parameter
+        val sfks = listOf("sfks");
+
+        /// Fourth parameter
+        val sender = HealthcareParty().apply {
+            nihii = "nihiiSender";
+            id = "idSender";
+            ssin = "ssinSender";
+            specialityCodes = mutableListOf(CodeStub("type","code","version"))
+            firstName = "firstNameSender";
+            lastName = "lastNameSender";
+            name = "nameSender";
+            addresses = listOf(Address().apply{
+                street = "streetSender"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+            })
+        }
+
+        /// Fifth parameter
+        val recipient = HealthcareParty();
+
+        /// Sixth parameter
+        val language = "language";
+
+        /// Seventh parameter
+        val comment = "comment";
+
+        /// Eighth parameter
+        val excludedIds = listOf("excludedId")
+
+        /// Tenth parameter
+        val config = Config(
+                _kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "ICUREVERSION"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        )
+
+        // Execution
+        sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor,config)
+
+        // Tests
+        Assert.assertNotNull(File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml"))
     }
 
     @Test
