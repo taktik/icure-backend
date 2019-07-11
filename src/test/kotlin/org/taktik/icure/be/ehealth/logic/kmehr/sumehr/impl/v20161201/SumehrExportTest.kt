@@ -206,6 +206,44 @@ class SumehrExportTest {
     }
 
     @Test
+    fun getAllServices() {
+        // Arrange
+        val hcPartyId = "1"
+        val sfks = listOf("")
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
+
+        // Execute
+        val services = sumehrExport.getAllServices(hcPartyId, sfks, excludedIds, decryptor).groupBy { it.id }
+
+        // Tests
+        assertNotNull(services)
+        assertEquals(4, services.size)
+    }
+
+    @Test
+    fun getAllServicesPlusPlus() {
+        // Arrange
+        val hcPartyId = "1"
+        val sfks = listOf("")
+        val excludedIds = emptyList<String>()
+        sumehrExport.contactLogic = this.contactLogic
+        sumehrExport.mapper = this.mapper
+        this.services.clear()
+        this.services.addAll(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
+
+        // Execute
+        val services = sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, excludedIds, decryptor).groupBy { it.id }
+
+        // Tests
+        assertNotNull(services)
+        assertEquals(4, services.size)
+    }
+
+    @Test
     fun getNonPassiveIrrelevantServices() {
         //Arrange
         val hcPartyId = "1"
