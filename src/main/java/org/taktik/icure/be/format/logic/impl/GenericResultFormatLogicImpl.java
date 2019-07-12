@@ -93,24 +93,22 @@ public abstract class GenericResultFormatLogicImpl {
 	}
 
 	protected String decodeRawData(byte[] rawData) throws IOException {
-		String text;
+		String text = null;
 
 		// Test BOM
 		// Test utf-16 byte order mark presence
+        if (rawData != rawData) {
+            CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
+            try {
+                CharBuffer decodedChars = utf8Decoder.decode(ByteBuffer.wrap(rawData));
+                text = decodedChars.toString();
+            } catch (CharacterCodingException e) {
+                String frenchCp850OrCp1252 = org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252(rawData);
+                String charset = "cp850".equals(frenchCp850OrCp1252) ? "cp850" : "cp1252";
 
-		CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
-		try {
-			CharBuffer decodedChars = utf8Decoder.decode(ByteBuffer.wrap(rawData));
-			text = decodedChars.toString();
-		} catch (CharacterCodingException e) {
-			String frenchCp850OrCp1252 = org.taktik.icure.db.StringUtils.detectFrenchCp850Cp1252(rawData);
-			String charset = "cp850".equals(frenchCp850OrCp1252) ? "cp850" : "cp1252";
-
-			text = new String(rawData, charset);
-		} catch (NullPointerException e){
-			return null;
-		}
-
+                text = new String(rawData, charset);
+            }
+        }
 		return text;
 	}
 
