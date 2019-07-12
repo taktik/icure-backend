@@ -107,6 +107,8 @@ public abstract class GenericResultFormatLogicImpl {
 			String charset = "cp850".equals(frenchCp850OrCp1252) ? "cp850" : "cp1252";
 
 			text = new String(rawData, charset);
+		} catch (NullPointerException e){
+			return null;
 		}
 
 		return text;
