@@ -18,12 +18,14 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-public class AccessLogDto extends StoredDto {
+public class AccessLogDto extends IcureDto {
 
 	protected String accessType;
 	protected Long date;
+	@Deprecated
 	protected String patientId;
 	protected String user;
+	protected String detail;
 
 	public String getAccessType() {
 		return accessType;
@@ -41,6 +43,7 @@ public class AccessLogDto extends StoredDto {
 		this.date = date;
 	}
 
+	@Deprecated
 	public String getPatientId() {
 		return patientId;
 	}
@@ -55,5 +58,13 @@ public class AccessLogDto extends StoredDto {
 
 	public void setUser(String user) {
 		this.user = user;
+	}
+
+	public String getDetail() {
+		return detail;
+	}
+
+	public void setDetail(String detail) {
+		this.detail = detail;
 	}
 }

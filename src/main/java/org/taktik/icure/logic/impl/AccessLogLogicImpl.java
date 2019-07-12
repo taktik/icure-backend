@@ -29,6 +29,7 @@ import org.taktik.icure.logic.AccessLogLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -55,6 +56,11 @@ public class AccessLogLogicImpl extends GenericLogicImpl<AccessLog, AccessLogDAO
         } catch (Exception e) {
             throw new DeletionException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
+        return accessLogDAO.findByHCPartySecretPatientKeys(hcPartyId, secretForeignKeys);
     }
 
     @Override
