@@ -222,9 +222,6 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                 result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, comment);
             } else {
                 String label = lrl.analysisType;
-                if ( (lrl.analysisType == null) || (lrl.analysisType.trim().length() == 0) ) {
-                    label = "untitled";
-                }
 
                 String value = lrl.value;
                 for (int i = 1; i < labResults.size(); i++) {
@@ -606,8 +603,8 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             if (lrl.value == null || lrl.value.equals("")) {
                 lrl.value = parts[7].trim();
             }
-            if (lrl.analysisType.equals("")) {
-                lrl.analysisType = "Note";
+            if ((lrl.analysisType == null) || (lrl.analysisType.equals(""))) {
+                lrl.analysisType = "untitled";
             }
             return lrl;
         } catch (Exception e) {
