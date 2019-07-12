@@ -117,12 +117,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
             List<LaboLine> lls = parseReportsAndLabs(language, protocolIds, r);
             fillContactWithLines(ctc, lls, planOfActionId, hcpId, protocolIds, formIds);
-
-            try {
-                return contactLogic.modifyContact(ctc);
-            } catch (MissingRequirementsException e) {
-                throw new IllegalStateException(e);
-            }
+            return contactLogic.modifyContact(ctc);
         } else {
             throw new UnsupportedCharsetException("Charset could not be detected");
         }
