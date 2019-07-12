@@ -1060,7 +1060,7 @@ class HealthOneLogicImplTest {
         val res2 = HealthOneLogicImpl.getLaboResultLine(line2, ll)
         Assert.assertEquals(res2.protocol, "")
         Assert.assertEquals(res2.analysisCode, "")
-        Assert.assertEquals(res2.analysisType, "Note")
+        Assert.assertEquals(res2.analysisType, "untitled")
         Assert.assertEquals(res2.referenceValues, "")
         Assert.assertEquals(res2.unit, "")
         Assert.assertEquals(res2.severity, "")
