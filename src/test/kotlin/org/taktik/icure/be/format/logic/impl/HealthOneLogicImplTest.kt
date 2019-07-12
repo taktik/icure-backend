@@ -564,13 +564,13 @@ class HealthOneLogicImplTest {
         val refValues5 = "<2   L"
         val res5 = HealthOneLogicImpl.tryToGetReferenceValues(refValues5)
         Assert.assertTrue(res5.maxValue == 2.0)
-        Assert.assertEquals(res5.unit, null) // TODO Must be modified when the code will be correct
+        Assert.assertEquals(res5.unit, "L")
 
         // lessThanReference with group 4
         val refValues6 = "<2   8L"
         val res6 = HealthOneLogicImpl.tryToGetReferenceValues(refValues6)
         Assert.assertTrue(res6.maxValue == 2.0)
-        Assert.assertEquals(res6.unit, null) // TODO Must be modifiied when the code will be correct
+        Assert.assertEquals(res6.unit, "8L")
 
         // greaterThanReference
         val refValues7 = ">2"
@@ -581,13 +581,13 @@ class HealthOneLogicImplTest {
         val refValues8 = ">2   e10mg"
         val res8 = HealthOneLogicImpl.tryToGetReferenceValues(refValues8)
         Assert.assertTrue(res8.minValue == 2.0)
-        Assert.assertEquals(res8.unit, null) // TODO Must be modified when the code will be correct
+        Assert.assertEquals(res8.unit, "e10mg")
 
         // greaterThanReference with group 4
         val refValues9 = ">2   10mg"
         val res9 = HealthOneLogicImpl.tryToGetReferenceValues(refValues9)
         Assert.assertTrue(res9.minValue == 2.0)
-        Assert.assertEquals(res9.unit, null) //TODO Must be modified when the code will be correct
+        Assert.assertEquals(res9.unit, "10mg")
 
         // refValues not matches
         val refValues10 = "([-,-:-, a"
@@ -1271,13 +1271,14 @@ class HealthOneLogicImplTest {
         val text = "This a comment written to create L5 line \n And this is to create a second L5 line";
 
         // Seventh parameter
-        val file = File("src/test/resources/org/taktik/icure/be/format/logic/impl/sortie.lab")
+        val path = "src/test/resources/org/taktik/icure/be/format/logic/impl/outDoExport.lab"
+        val file = File(path)
         val out = file.outputStream();
 
         // Execution
         /// File 1
         val res1 = HealthOneLogicImpl.doExport(sender, recipient, patient, date, ref, text, out);
-        val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/sortie.lab");
+        val mappings1 = file.inputStream();
         val br = mappings1.bufferedReader(Charset.forName("cp1252"))
         val res1return = HealthOneLogicImpl.extractResultInfos(br, "UTF8", "docId", true);
 

@@ -30,12 +30,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.AccessLog;
-import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.AccessLogLogic;
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto;
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogPaginatedList;
-import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -171,7 +169,7 @@ public class AccessLogFacade implements OpenApiFacade{
 
 	@ApiOperation(
 			value = "List access logs found By Healthcare Party and secret foreign keyelementIds.",
-			response = HealthElementDto.class,
+			response = AccessLogDto.class,
 			responseContainer = "Array",
 			httpMethod = "GET",
 			notes = "Keys must be separatedby coma"
