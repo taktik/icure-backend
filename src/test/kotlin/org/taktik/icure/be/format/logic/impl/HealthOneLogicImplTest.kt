@@ -17,6 +17,7 @@ import org.taktik.icure.utils.FuzzyValues
 
 import java.io.*
 import java.nio.charset.Charset
+import java.nio.charset.UnsupportedCharsetException
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
@@ -101,11 +102,11 @@ class HealthOneLogicImplTest {
         val enckeys = null;
 
         /// Doc hasn't a content
-        /* try {
+        try {
             val res1 = HealthOneLogicImpl.doImport(language, doc1, hcpId, protocolIds1, formIds, planOfActionId, ctc, enckeys);
             Assert.fail()
         } catch (e: UnsupportedCharsetException) {
-        }*/
+        }
         // Modify Contact is impossible (in this case because ContactLogic isn't initialized
         HealthOneLogicImpl.setContactLogic(contactLogic);
         /*try {
