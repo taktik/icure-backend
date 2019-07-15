@@ -117,12 +117,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 
             List<LaboLine> lls = parseReportsAndLabs(language, protocolIds, r);
             fillContactWithLines(ctc, lls, planOfActionId, hcpId, protocolIds, formIds);
-
-            try {
-                return contactLogic.modifyContact(ctc);
-            } catch (MissingRequirementsException e) {
-                throw new IllegalStateException(e);
-            }
+            return contactLogic.modifyContact(ctc);
         } else {
             throw new UnsupportedCharsetException("Charset could not be detected");
         }
@@ -222,9 +217,6 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                 result = addLaboResult((LaboResultLine) labResults.get(0), language, position, ril, comment);
             } else {
                 String label = lrl.analysisType;
-                if ( (lrl.analysisType == null) || (lrl.analysisType.trim().length() == 0) ) {
-                    label = "untitled";
-                }
 
                 String value = lrl.value;
                 for (int i = 1; i < labResults.size(); i++) {
@@ -346,10 +338,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				Reference r = new Reference();
 				r.maxValue = new Double(m.group(1).replaceAll(",", "."));
 				if (m.group(2) != null) {
-					r.unit = m.group(3);
+					r.unit = m.group(2);
 				}
 				if (m.group(3) != null) {
-					r.unit = m.group(4);
+					r.unit = m.group(3);
 				}
 				return r;
 			}
@@ -358,10 +350,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 				Reference r = new Reference();
 				r.minValue = new Double(m.group(1).replaceAll(",", "."));
 				if (m.group(2) != null) {
-					r.unit = m.group(3);
+					r.unit = m.group(2);
 				}
 				if (m.group(3) != null) {
-					r.unit = m.group(4);
+					r.unit = m.group(3);
 				}
 				return r;
 			}
@@ -568,6 +560,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         try {
             String[] parts = splitLine(line);
             LaboResultLine lrl = new LaboResultLine();
+            lrl.protocol = lrl.analysisCode = lrl.analysisType = lrl.referenceValues = lrl.unit = lrl.severity = lrl.value = "";
 
             if (parts.length > 1) {
                 lrl.protocol = parts[1];
@@ -588,7 +581,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                 }
                 lrl.severity = "";
             } else {
-                if (( lrl.analysisType == null || lrl.analysisType.length() == 0 ) && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
+                if (lrl.analysisType.length() == 0 && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
                     lrl.analysisType = ll.labosList.get(ll.labosList.size() - 1).analysisType;
                     lrl.value = parts[4];
                 } else {
@@ -603,11 +596,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                     }
                 }
             }
-            if (lrl.value == null || lrl.value.equals("")) {
+            if (lrl.value.equals("") && parts.length > 7) {
                 lrl.value = parts[7].trim();
             }
-            if (lrl.analysisType.equals("")) {
-                lrl.analysisType = "Note";
+            if ((lrl.analysisType == null) || (lrl.analysisType.equals(""))) {
+                lrl.analysisType = "untitled";
             }
             return lrl;
         } catch (Exception e) {

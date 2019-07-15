@@ -1,12 +1,16 @@
 package org.taktik.icure.be.format.logic.impl;
 
 
-import org.junit.*
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Matchers
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
-import org.taktik.icure.entities.*
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Gender
@@ -14,17 +18,15 @@ import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.utils.FuzzyValues
-
-import java.io.*
+import java.io.File
+import java.io.StringReader
 import java.nio.charset.Charset
+import java.nio.charset.UnsupportedCharsetException
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-
-import kotlin.io.outputStream
-
 
 
 class HealthOneLogicImplTest {
@@ -101,11 +103,11 @@ class HealthOneLogicImplTest {
         val enckeys = null;
 
         /// Doc hasn't a content
-        /* try {
+        try {
             val res1 = HealthOneLogicImpl.doImport(language, doc1, hcpId, protocolIds1, formIds, planOfActionId, ctc, enckeys);
             Assert.fail()
         } catch (e: UnsupportedCharsetException) {
-        }*/
+        }
         // Modify Contact is impossible (in this case because ContactLogic isn't initialized
         HealthOneLogicImpl.setContactLogic(contactLogic);
         /*try {
@@ -1051,16 +1053,23 @@ class HealthOneLogicImplTest {
     fun getLaboResultLine() {
         // Empty line
         val line1 = "L1"
-        val laboline = "A1\\protocol\\Labo\\"
-        val ll = HealthOneLogicImpl.getLaboLine(laboline)
+        val laboLine = "A1\\protocol\\Labo\\"
+        val ll = HealthOneLogicImpl.getLaboLine(laboLine)
         val res1 = HealthOneLogicImpl.getLaboResultLine(line1, ll)
-        Assert.assertEquals(res1, null)
+        Assert.assertNotNull(res1)
+        Assert.assertEquals(res1.protocol, "")
+        Assert.assertEquals(res1.analysisCode, "")
+        Assert.assertEquals(res1.analysisType, "Note")
+        Assert.assertEquals(res1.referenceValues, "")
+        Assert.assertEquals(res1.unit, "")
+        Assert.assertEquals(res1.severity, "")
+        Assert.assertEquals(res1.value, "")
 
-        val line2 = "L1\\\\\\\\\\\\\\\\"
+        val line2 = "L1\\\\\\\\\\\\\\"
         val res2 = HealthOneLogicImpl.getLaboResultLine(line2, ll)
         Assert.assertEquals(res2.protocol, "")
         Assert.assertEquals(res2.analysisCode, "")
-        Assert.assertEquals(res2.analysisType, "Note")
+        Assert.assertEquals(res2.analysisType, "untitled")
         Assert.assertEquals(res2.referenceValues, "")
         Assert.assertEquals(res2.unit, "")
         Assert.assertEquals(res2.severity, "")
