@@ -560,6 +560,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         try {
             String[] parts = splitLine(line);
             LaboResultLine lrl = new LaboResultLine();
+            lrl.protocol = lrl.analysisCode = lrl.analysisType = lrl.referenceValues = lrl.unit = lrl.severity = lrl.value = "";
 
             if (parts.length > 1) {
                 lrl.protocol = parts[1];
@@ -580,7 +581,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                 }
                 lrl.severity = "";
             } else {
-                if (( lrl.analysisType == null || lrl.analysisType.length() == 0 ) && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
+                if (lrl.analysisType.length() == 0 && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
                     lrl.analysisType = ll.labosList.get(ll.labosList.size() - 1).analysisType;
                     lrl.value = parts[4];
                 } else {
@@ -595,7 +596,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                     }
                 }
             }
-            if (lrl.value == null || lrl.value.equals("")) {
+            if (lrl.value.equals("") && parts.length > 7) {
                 lrl.value = parts[7].trim();
             }
             if ((lrl.analysisType == null) || (lrl.analysisType.equals(""))) {
