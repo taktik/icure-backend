@@ -694,7 +694,9 @@ class HealthOneLogicImplTest {
         // File 15
         val mappings15 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506_2")
         val bufferedreader15 = mappings15.bufferedReader(Charset.forName("cp850"));
-
+        // File 16
+        val mappings16 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
+        val bufferedreader16 = mappings16.bufferedReader(Charset.forName("cp1252"));
 
         // Second parameter
         val language = "UTF-8"
@@ -721,6 +723,7 @@ class HealthOneLogicImplTest {
         val res13 = HealthOneLogicImpl.extractResultInfos(bufferedreader13, language, docID, full)
         val res14 = HealthOneLogicImpl.extractResultInfos(bufferedreader14, language, docID, full)
         val res15 = HealthOneLogicImpl.extractResultInfos(bufferedreader15, language, docID, full)
+        val res16 = HealthOneLogicImpl.extractResultInfos(bufferedreader16, language, docID, full)
 
         // Tests
         /// Empty File
@@ -785,6 +788,9 @@ class HealthOneLogicImplTest {
         /// File contains one A1,A2,A3,A4 Line and more than 20 L5Line
         Assert.assertEquals(res15.size, 1)
         Assert.assertEquals(res15[0].services.size, 2)
+        /// File contains 2 line L1 with the same code but 2 differents types
+        Assert.assertEquals(res16.size, 1)
+        Assert.assertEquals(res16[0].services.size, 2)
     }
 
 
