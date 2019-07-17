@@ -50,7 +50,7 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 
 	Set<String> deleteContacts(Set<String> ids);
 
-	Contact modifyContact(Contact contact) throws MissingRequirementsException;
+	Contact modifyContact(Contact contact);
 
 
 	Service pimpServiceWithContactInformation(Service s, Contact c);

@@ -30,6 +30,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
@@ -157,7 +158,7 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (((svc.status ?: 0) and 2) != 0 || (svc.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate())) {
+                value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
                 } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
@@ -225,7 +226,7 @@ open class KmehrExport {
                 }
             }
 
-            isIsrelevant = ((svc.status?: 0) and 2) == 0
+            isIsrelevant = ServiceStatus.isRelevant(svc.status)
             beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
             endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
             recorddatetime = makeXGC(svc.modified)
@@ -250,7 +251,7 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (((he.status ?: 0) and 2) != 0 || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
+                value = if (ServiceStatus.isIrrelevant(he.status) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
 					CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
@@ -261,7 +262,7 @@ open class KmehrExport {
                     cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
                 }
             }
-            isIsrelevant = ((he.status?: 0) and 2) == 0
+            isIsrelevant = ServiceStatus.isRelevant(he.status)
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
             recorddatetime = makeXGC(he.modified)
