@@ -66,6 +66,8 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     protected Map<AppendixType, String> appendices;
 
+    protected boolean disabled;
+
 	public static Code dataCode(String typeAndCodeAndVersion, String data) {
 		Code c = new Code(typeAndCodeAndVersion);
 		c.data = data;
@@ -230,6 +232,10 @@ public class Code extends StoredDocument implements CodeIdentification {
     public Map<AppendixType, String> getAppendices() { return appendices; }
 
     public void setAppendices(Map<AppendixType, String> appendices) { this.appendices = appendices; }
+
+    public boolean isDisabled() { return disabled; }
+
+    public void setDisabled(boolean disabled) { this.disabled = disabled; }
 
     @Override
 	public boolean equals(Object o) {
