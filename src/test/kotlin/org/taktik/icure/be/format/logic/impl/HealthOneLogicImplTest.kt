@@ -1399,12 +1399,12 @@ class HealthOneLogicImplTest {
         // Valid date after 01/01/1800
         val date1 = "01021950"
         val res1 = HealthOneLogicImpl.parseDemandDate(date1);
-        Assert.assertNotEquals(Instant.now(), res1)
+        Assert.assertEquals(Instant.ofEpochMilli(HealthOneLogicImpl.parseDate(date1)), res1)
 
         // Date before 01/01/1800
         val date2 = "01021750"
         val res2 = HealthOneLogicImpl.parseDemandDate(date2);
-        Assert.assertEquals(Instant.now(), res2)
+        Assert.assertNotEquals(Instant.ofEpochMilli(HealthOneLogicImpl.parseDate(date2)), res2)
 
     }
 }
