@@ -1,0 +1,39 @@
+A2\1903-19339\NOM\PRENOM\F\01011950\
+A3\1903-19339\Rue factice 1\7850\ENGHIEN\
+A4\1903-19339\Docteur Bidon\19032019\\C\
+A5\1903-19339\325\50010100156\\\431\461
+L1\1903-19339\TAINFO\INFORMATIONS\\\\\
+L1\1903-19339\EX_H\Index d'hémolyse\0-15\mg/dL\\1\
+L1\1903-19339\EX_H\Index d'hémolyse\0-15\mg/dL\\\
+L1\1903-19339\EX_I\Index d'ictérie\<5\mg/dL\\1\
+L1\1903-19339\EX_I\Index d'ictérie\<5\mg/dL\\\
+L1\1903-19339\EX_L\Index de lipémie\<150\mg/dL\\12\
+L1\1903-19339\EX_L\Index de lipémie\<150\mg/dL\\\
+L1\1903-19339\TABIOC\BIOCHIMIE\\\\\
+L1\1903-19339\TAIons\Ions\\\\\
+L1\1903-19339\00NA\Sodium\135-145\mmol/L\\142\
+L1\1903-19339\000K\Potassium\3.5-5.3\mmol/L\\4.0\
+L1\1903-19339\00CL\Chlore\97-109\mmol/L\*\102\
+L1\1903-19339\00RA\Réserve alcaline\22-29\mmol/L\\27.3\
+L1\1903-19339\0CAN\Calcium mmol/L\2.03-2.60\mmol/L\*\2.31\
+L1\1903-19339\00PN\Phosphore mmol/L\0.81-1.45\mmol/L\\0.99\
+L1\1903-19339\TAProt\Protides\\\\\
+L1\1903-19339\UREE\Urée\10-50\mg/dL\*\41\
+L1\1903-19339\CREA\Créatinine\0.50-0.90\mg/dL\*\1.02\
+L1\1903-19339\DRDH\MDRD abbreviated/1.73m²\>60\mL/min\*\56\
+L1\1903-19339\0PTN\Protéines totales g/L\66-87\g/L\*\78\
+L1\1903-19339\CRPN\CRP ultrasensible\0.0-5.0\mg/L\\1.5\
+L1\1903-19339\TAMéta\Métabolisme glucidique\\\\\
+L1\1903-19339\GRIS\Glycémie à jeun\65-105\mg/dL\*\99\
+L1\1903-19339\INSN\Insuline\18.1-173.6\pmol/L\\104.4\
+L1\1903-19339\BA1C\HbA1c\4.0-6.0\%\\5.7\
+L1\1903-19339\CMOL\HbA1c IFCC\<42\mmol/mol\\39\
+L1\1903-19339\TAHORM\HORMONOLOGIE\\\\\
+L1\1903-19339\TAFonc\Fonction thyroïdienne\\\\\
+L1\1903-19339\0TSH\T.S.H.\0.270-4.200\mU/L\*\0.039\
+L1\1903-19339\T4LN\T4 libre\12.00-22.00\pmol/L\\16.56\
+L1\1903-19339\T3LN\T3 libre\3.54-6.62\pmol/L\*\4.82\
+L1\1903-19339\ATPO\Ac.anti-peroxydase\<34.0\UI/mL\\9.4\
+L1\1903-19339\TAMéta\Métabolisme osseux\\\\\
+L1\1903-19339\VITD\25 OH Vitamine D\30.0-80.0\ng/mL\\47.9\
+END
