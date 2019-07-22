@@ -236,7 +236,7 @@ open class KmehrExport {
     open fun getOmissionOfMedicalDataWill(idx: Int): ItemType {
         return ItemType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "patientwill" } )
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.PATIENTWILL.value() } )
             contents.add(ContentType().apply { cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_PATIENTWILL); value = CDPATIENTWILLvalues.OMISSIONOFMEDICALDATA.value() }) })
             lifecycle = LifecycleType().apply { cd = CDLIFECYCLE().apply { s = "CD-LIFECYCLE"; value = CDLIFECYCLEvalues.ACTIVE } }
             isIsrelevant = true
