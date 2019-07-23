@@ -123,7 +123,7 @@ private fun generateMinimalist() {
 
     /// Fourth parameter
     val sender1 = HealthcareParty().apply {
-        nihii = "nihiiSender"
+        nihii = "18000032004"
         id = "idSender"
         ssin = "50010100156"
         specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
@@ -148,7 +148,7 @@ private fun generateMinimalist() {
 
     /// Fifth parameter
     val recipient1 = HealthcareParty().apply {
-        nihii = "nihiiRecipient"
+        nihii = "18000032004"
         id = "idRecipient"
         ssin = "50010100156"
         specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
