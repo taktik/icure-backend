@@ -126,7 +126,6 @@ private fun generateMinimalist() {
         nihii = "18000032004"
         id = "idSender"
         ssin = "50010100156"
-        specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
         firstName = "firstNameSender"
         lastName = "lastNameSender"
         addresses = listOf(Address().apply {
@@ -151,7 +150,6 @@ private fun generateMinimalist() {
         nihii = "18000032004"
         id = "idRecipient"
         ssin = "50010100156"
-        specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
         name = "PMGRecipient"
         addresses = listOf(Address().apply {
             addressType = AddressType.home
@@ -171,10 +169,7 @@ private fun generateMinimalist() {
     val comment = "It's the comment done in main"
 
     /// Eighth parameter
-    val excludedIds = listOf("")
-
-    /// Ninth parameter
-    val decryptor = Mockito.mock(AsyncDecrypt::class.java)
+    val excludedIds = emptyList<String>()
 
     /// tags
     val tagADR = CodeStub("type", "adr", "1")
