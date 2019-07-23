@@ -16,9 +16,14 @@ import org.taktik.icure.logic.impl.ContactLogicImpl
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.*
+import org.taktik.icure.utils.FuzzyValues
 import java.io.File
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+
+private const val DIR_PATH = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/"
 
 private val sumehrExport = SumehrExport()
 
@@ -38,7 +43,15 @@ private const val treatment = "treatment"
 private const val healthissue = "healthissue"
 private const val healthcareelement = "healthcareelement"
 
+private val vaccineCodes = setOf(CodeStub("CD-VACCINEINDICATION", "", "1.0"))
+
 private const val language = "fr"
+
+private val tomorrow = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusDays(1), ChronoUnit.SECONDS)
+private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
+private val yesterday = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusDays(1), ChronoUnit.SECONDS)
+private val oneWeekAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(1), ChronoUnit.SECONDS)
+private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMonths(1), ChronoUnit.SECONDS)
 
 fun main() {
     initializeSumehrExport()
@@ -86,16 +99,14 @@ private fun clearServices() {
 private fun generateMinimalist() {
     clearServices()
 
-    /// First parameter : OS
-    val path1 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outMinimalSumehr.xml"
-    val file1 = File(path1)
-    val os1 = file1.outputStream()
+    /// First parameter : os
+    val os = File(DIR_PATH + "outMinimalSumehr.xml").outputStream()
 
     /// Second parameter : pat
-    val pat1 = Patient().apply {
-        id = "PatientId"
-        firstName = "PRENOM"
-        lastName = "NOM"
+    val patient = Patient().apply {
+        id = "idPatient"
+        firstName = "firstNamePatient"
+        lastName = "lastNamePatient"
         ssin = "50010100156"
         civility = "Mr"
         gender = Gender.fromCode("M")
@@ -122,7 +133,7 @@ private fun generateMinimalist() {
     val sfks = listOf("sfks")
 
     /// Fourth parameter
-    val sender1 = HealthcareParty().apply {
+    val sender = HealthcareParty().apply {
         nihii = "18000032004"
         id = "idSender"
         ssin = "50010100156"
@@ -141,12 +152,12 @@ private fun generateMinimalist() {
             })
         })
         gender = Gender.fromCode("M")
-        speciality = "perphysician"
+        speciality = "persphysician"
         specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
     }
 
     /// Fifth parameter
-    val recipient1 = HealthcareParty().apply {
+    val recipient = HealthcareParty().apply {
         nihii = "18000032004"
         id = "idRecipient"
         ssin = "50010100156"
@@ -159,11 +170,8 @@ private fun generateMinimalist() {
             city = "Bruxelles"
         })
         gender = Gender.fromCode("M")
-        speciality = "perphysician"
+        speciality = "persphysician"
     }
-
-    /// Sixth parameter
-    val language = "language"
 
     /// Seventh parameter
     val comment = "It's the comment done in main"
@@ -171,44 +179,45 @@ private fun generateMinimalist() {
     /// Eighth parameter
     val excludedIds = emptyList<String>()
 
-    /// tags
-    val tagADR = CodeStub("type", "adr", "1")
-    val tagAllergy = CodeStub("type", "allergy", "1")
-    val tagSocialrisk = CodeStub("type", "socialrisk", "1")
-    val tagRisk = CodeStub("type", "risk", "1")
-    val tags = mutableSetOf(tagADR, tagAllergy, tagRisk, tagSocialrisk)
-
     /// Contents
-    val medication = Medication().apply { medicinalProduct = Medicinalproduct().apply { intendedname = "medicationName" } }
-    val medicationContent = mapOf(Pair("language", Content().apply { booleanValue = true }), Pair("medication", Content().apply { medicationValue = medication }))
+    val medicationContent = mapOf(Pair(language, Content().apply {
+        medicationValue = Medication().apply {
+            medicinalProduct = Medicinalproduct().apply {
+                intendedname = "medicationName"
+            }
+        }
+    }))
 
     /// Services
     val validServiceADRAssessment = Service().apply {
-        this.id = "1"; this.endOfLife = null
+        this.id = "1"
+        this.endOfLife = null
         this.status = 0 // must be active => Assessment
-        this.tags = mutableSetOf(tagADR)
-        //this.codes = vaccineCodes;
-        //this.label = medicationLabel;
+        this.tags = mutableSetOf(CodeStub("type", adr, "1.0"))
+        this.codes = vaccineCodes;
+        this.label = medication;
         this.content = medicationContent
         this.comment = "It's a comment"
-        //this.openingDate = oneWeekAgo;
-        //this.closingDate = today;
+        this.openingDate = oneWeekAgo;
+        this.closingDate = today;
     }
     val validServiceADRHistory = Service().apply {
         this.id = "1"; this.endOfLife = null
         this.status = 1 // must be inactive => History
-        this.tags = mutableSetOf(tagADR, CodeStub("CD-LIFECYCLE", "inactive", "1"))
-        //this.codes = vaccineCodes;
-        //this.label = medicationLabel;
+        this.tags = mutableSetOf(
+                CodeStub("type", adr, "1.0"),
+                CodeStub("CD-LIFECYCLE", "inactive", "1"))
+        this.codes = vaccineCodes;
+        this.label = medication;
         this.content = medicationContent
         this.comment = "comment"
-        //this.openingDate = oneWeekAgo;
-        //this.closingDate = today;
+        this.openingDate = oneWeekAgo;
+        this.closingDate = today;
     }
-
+    //services[adr] = listOf(validServiceADRAssessment, validServiceADRHistory)
 
     // Execution
-    sumehrExport.createSumehr(os1, pat1, sfks, sender1, recipient1, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
 private fun Service.map(): ServiceDto {
