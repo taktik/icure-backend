@@ -23,7 +23,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
-private const val DIR_PATH = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/"
+private const val DIR_PATH = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/out"
 
 private val sumehrExport = SumehrExport()
 
@@ -155,32 +155,16 @@ private fun generateMinimalist() {
     clearServices()
 
     /// First parameter : os
-    val os = File(DIR_PATH + "outMinimalSumehr.xml").outputStream()
+    val os = File(DIR_PATH + "MinimalSumehr.xml").outputStream()
 
     /// Second parameter : pat
     val patient = Patient().apply {
-        id = "idPatient"
-        firstName = "firstNamePatient"
-        lastName = "lastNamePatient"
+        id = "316804da-9234-43d6-b18c-df0cccd46744"
+        firstName = "Sargent"
+        lastName = "Berie"
         ssin = "50010100156"
-        civility = "Mr"
         gender = Gender.fromCode("M")
         dateOfBirth = 19500101
-        placeOfBirth = "Bruxelles"
-        profession = "Cobaye"
-        nationality = "Belge"
-        addresses = listOf(Address().apply {
-            addressType = AddressType.home
-            street = "streetPatient"
-            houseNumber = "1D"
-            postalCode = "1050"
-            city = "Ixelles"
-            telecoms = listOf(Telecom().apply {
-                telecomType = TelecomType.phone
-                telecomNumber = "0423456789"
-                telecomDescription = "personal phone"
-            })
-        })
         languages = listOf("French")
     }
 
@@ -189,47 +173,31 @@ private fun generateMinimalist() {
 
     /// Fourth parameter
     val sender = HealthcareParty().apply {
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
         nihii = "18000032004"
-        id = "idSender"
         ssin = "50010100156"
-        firstName = "firstNameSender"
-        lastName = "lastNameSender"
+        firstName = "Orville"
+        lastName = "Flamand"
         addresses = listOf(Address().apply {
             addressType = AddressType.home
-            street = "streetSender"
-            houseNumber = "3A"
-            postalCode = "1000"
-            city = "Bruxelles"
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
             telecoms = listOf(Telecom().apply {
-                telecomType = TelecomType.phone
-                telecomNumber = "0423456789"
-                telecomDescription = "personal phone"
+                telecomNumber = "0474301934"
             })
         })
-        gender = Gender.fromCode("M")
         speciality = "persphysician"
-        specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
     }
 
     /// Fifth parameter
     val recipient = HealthcareParty().apply {
-        nihii = "18000032004"
-        id = "idRecipient"
-        ssin = "50010100156"
-        name = "PMGRecipient"
-        addresses = listOf(Address().apply {
-            addressType = AddressType.home
-            street = "streetRecipient"
-            houseNumber = "3A"
-            postalCode = "1000"
-            city = "Bruxelles"
-        })
-        gender = Gender.fromCode("M")
         speciality = "persphysician"
     }
 
     /// Seventh parameter
-    val comment = "It's the comment done in main"
+    val comment = "All data is falsified"
 
     /// Eighth parameter
     val excludedIds = emptyList<String>()
@@ -242,7 +210,7 @@ private fun generateSumehr1() {
     clearServices()
 
     /// First parameter : os
-    val os = File(DIR_PATH + "outSumehr1.xml").outputStream()
+    val os = File(DIR_PATH + "Sumehr1.xml").outputStream()
 
     /// Second parameter : pat
     val patient = Patient().apply {
