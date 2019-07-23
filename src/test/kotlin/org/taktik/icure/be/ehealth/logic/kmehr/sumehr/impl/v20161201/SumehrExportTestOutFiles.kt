@@ -50,8 +50,7 @@ private val yesterday = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusDays(1
 private val oneWeekAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(1), ChronoUnit.SECONDS)
 private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMonths(1), ChronoUnit.SECONDS)
 
-/// Contents
-private class MyContents{
+private class MyContents {
     companion object {
         val medicationContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
@@ -63,43 +62,50 @@ private class MyContents{
     }
 }
 
+private class MyCodes {
+    companion object {
+        val vaccineCode = CodeStub("CD-VACCINEINDICATION", "", "1.0")
+    }
+}
 
-/// Services
+private class MyTags {
+    companion object {
+        val adrTag = CodeStub("type", adr, "1.0")
+        val inactiveTag = CodeStub("CD-LIFECYCLE", "inactive", "1")
+    }
+}
+
+private val services = mutableMapOf<String, List<Service>>()
+
 private class MyServices {
     companion object {
         val validServiceADRAssessment = Service().apply {
             this.id = "1"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
-            this.tags = mutableSetOf(CodeStub("type", adr, "1.0"))
-            this.codes = vaccineCodes;
-            this.label = medication;
+            this.tags = mutableSetOf(MyTags.adrTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
             this.content = MyContents.medicationContent
             this.comment = "It's a comment"
-            this.openingDate = oneWeekAgo;
-            this.closingDate = today;
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
         }
+
         val validServiceADRHistory = Service().apply {
-            this.id = "1"; this.endOfLife = null
+            this.id = "1"
+            this.endOfLife = null
             this.status = 1 // must be inactive => History
-            this.tags = mutableSetOf(
-                    CodeStub("type", adr, "1.0"),
-                    CodeStub("CD-LIFECYCLE", "inactive", "1"))
-            this.codes = vaccineCodes;
-            this.label = medication;
+            this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
             this.content = MyContents.medicationContent
             this.comment = "comment"
-            this.openingDate = oneWeekAgo;
-            this.closingDate = today;
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
         }
     }
 }
-private val services = mutableMapOf<String, List<Service>>()
-
-private val vaccineCodes = setOf(CodeStub("CD-VACCINEINDICATION", "", "1.0"))
-
-
-
 
 fun main() {
     initializeSumehrExport()
@@ -228,9 +234,6 @@ private fun generateMinimalist() {
     /// Eighth parameter
     val excludedIds = emptyList<String>()
 
-
-    services[adr] = listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory)
-
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
@@ -239,7 +242,7 @@ private fun generateSumehr1() {
     clearServices()
 
     /// First parameter : os
-    val os = File(DIR_PATH + "generateSumehr1.xml").outputStream()
+    val os = File(DIR_PATH + "outSumehr1.xml").outputStream()
 
     /// Second parameter : pat
     val patient = Patient().apply {
@@ -317,7 +320,6 @@ private fun generateSumehr1() {
 
     /// Eighth parameter
     val excludedIds = emptyList<String>()
-
 
     services[adr] = listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory)
 
