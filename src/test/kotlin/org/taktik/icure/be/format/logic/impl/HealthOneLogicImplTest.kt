@@ -697,6 +697,9 @@ class HealthOneLogicImplTest {
         // File 16
         val mappings16 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
         val bufferedreader16 = mappings16.bufferedReader(Charset.forName("cp1252"));
+        // File 17
+        val mappings17 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/MS-131_bacetrio_non_corrigé.LAB")
+        val bufferedreader17 = mappings17.bufferedReader(Charset.forName("cp1252"));
 
         // Second parameter
         val language = "UTF-8"
@@ -724,6 +727,7 @@ class HealthOneLogicImplTest {
         val res14 = HealthOneLogicImpl.extractResultInfos(bufferedreader14, language, docID, full)
         val res15 = HealthOneLogicImpl.extractResultInfos(bufferedreader15, language, docID, full)
         val res16 = HealthOneLogicImpl.extractResultInfos(bufferedreader16, language, docID, full)
+        val res17 = HealthOneLogicImpl.extractResultInfos(bufferedreader17, language, docID, full)
 
         // Tests
         /// Empty File
@@ -791,6 +795,9 @@ class HealthOneLogicImplTest {
         /// File contains 2 line L1 with the same code but 2 differents types
         Assert.assertEquals(res16.size, 1)
         Assert.assertEquals(res16[0].services.size, 2)
+        /// File contains a Microbiogramme
+        Assert.assertEquals(res17.size, 1)
+        Assert.assertEquals(res17[0].services.size, 43)
     }
 
 
