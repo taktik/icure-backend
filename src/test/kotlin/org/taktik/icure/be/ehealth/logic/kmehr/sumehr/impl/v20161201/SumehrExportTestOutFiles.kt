@@ -31,7 +31,8 @@ private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
 private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
 private val mapper = Mockito.mock(MapperFacade::class.java)
 
-private val services = mutableMapOf<String, List<Service>>()
+private const val language = "fr"
+
 private const val adr = "adr"
 private const val allergy = "allergy"
 private const val socialrisk = "socialrisk"
@@ -43,21 +44,69 @@ private const val treatment = "treatment"
 private const val healthissue = "healthissue"
 private const val healthcareelement = "healthcareelement"
 
-private val vaccineCodes = setOf(CodeStub("CD-VACCINEINDICATION", "", "1.0"))
-
-private const val language = "fr"
-
 private val tomorrow = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusDays(1), ChronoUnit.SECONDS)
 private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
 private val yesterday = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusDays(1), ChronoUnit.SECONDS)
 private val oneWeekAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(1), ChronoUnit.SECONDS)
 private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMonths(1), ChronoUnit.SECONDS)
 
+/// Contents
+private class MyContents{
+    companion object {
+        val medicationContent = mapOf(Pair(language, Content().apply {
+            medicationValue = Medication().apply {
+                medicinalProduct = Medicinalproduct().apply {
+                    intendedname = "medicationName"
+                }
+            }
+        }))
+    }
+}
+
+
+/// Services
+private class MyServices {
+    companion object {
+        val validServiceADRAssessment = Service().apply {
+            this.id = "1"
+            this.endOfLife = null
+            this.status = 0 // must be active => Assessment
+            this.tags = mutableSetOf(CodeStub("type", adr, "1.0"))
+            this.codes = vaccineCodes;
+            this.label = medication;
+            this.content = MyContents.medicationContent
+            this.comment = "It's a comment"
+            this.openingDate = oneWeekAgo;
+            this.closingDate = today;
+        }
+        val validServiceADRHistory = Service().apply {
+            this.id = "1"; this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(
+                    CodeStub("type", adr, "1.0"),
+                    CodeStub("CD-LIFECYCLE", "inactive", "1"))
+            this.codes = vaccineCodes;
+            this.label = medication;
+            this.content = MyContents.medicationContent
+            this.comment = "comment"
+            this.openingDate = oneWeekAgo;
+            this.closingDate = today;
+        }
+    }
+}
+private val services = mutableMapOf<String, List<Service>>()
+
+private val vaccineCodes = setOf(CodeStub("CD-VACCINEINDICATION", "", "1.0"))
+
+
+
+
 fun main() {
     initializeSumehrExport()
     initializeMocks()
 
     generateMinimalist()
+    generateSumehr1()
 }
 
 private fun initializeSumehrExport() {
@@ -179,42 +228,98 @@ private fun generateMinimalist() {
     /// Eighth parameter
     val excludedIds = emptyList<String>()
 
-    /// Contents
-    val medicationContent = mapOf(Pair(language, Content().apply {
-        medicationValue = Medication().apply {
-            medicinalProduct = Medicinalproduct().apply {
-                intendedname = "medicationName"
-            }
-        }
-    }))
 
-    /// Services
-    val validServiceADRAssessment = Service().apply {
-        this.id = "1"
-        this.endOfLife = null
-        this.status = 0 // must be active => Assessment
-        this.tags = mutableSetOf(CodeStub("type", adr, "1.0"))
-        this.codes = vaccineCodes;
-        this.label = medication;
-        this.content = medicationContent
-        this.comment = "It's a comment"
-        this.openingDate = oneWeekAgo;
-        this.closingDate = today;
+    services[adr] = listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory)
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
+private fun generateSumehr1() {
+    clearServices()
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "generateSumehr1.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = Patient().apply {
+        id = "idPatient"
+        firstName = "firstNamePatient"
+        lastName = "lastNamePatient"
+        ssin = "50010100156"
+        civility = "Mr"
+        gender = Gender.fromCode("M")
+        dateOfBirth = 19500101
+        placeOfBirth = "Bruxelles"
+        profession = "Cobaye"
+        nationality = "Belge"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "streetPatient"
+            houseNumber = "1D"
+            postalCode = "1050"
+            city = "Ixelles"
+            telecoms = listOf(Telecom().apply {
+                telecomType = TelecomType.phone
+                telecomNumber = "0423456789"
+                telecomDescription = "personal phone"
+            })
+        })
+        languages = listOf("French")
     }
-    val validServiceADRHistory = Service().apply {
-        this.id = "1"; this.endOfLife = null
-        this.status = 1 // must be inactive => History
-        this.tags = mutableSetOf(
-                CodeStub("type", adr, "1.0"),
-                CodeStub("CD-LIFECYCLE", "inactive", "1"))
-        this.codes = vaccineCodes;
-        this.label = medication;
-        this.content = medicationContent
-        this.comment = "comment"
-        this.openingDate = oneWeekAgo;
-        this.closingDate = today;
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        nihii = "18000032004"
+        id = "idSender"
+        ssin = "50010100156"
+        firstName = "firstNameSender"
+        lastName = "lastNameSender"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "streetSender"
+            houseNumber = "3A"
+            postalCode = "1000"
+            city = "Bruxelles"
+            telecoms = listOf(Telecom().apply {
+                telecomType = TelecomType.phone
+                telecomNumber = "0423456789"
+                telecomDescription = "personal phone"
+            })
+        })
+        gender = Gender.fromCode("M")
+        speciality = "persphysician"
+        specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
     }
-    //services[adr] = listOf(validServiceADRAssessment, validServiceADRHistory)
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        nihii = "18000032004"
+        id = "idRecipient"
+        ssin = "50010100156"
+        name = "PMGRecipient"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "streetRecipient"
+            houseNumber = "3A"
+            postalCode = "1000"
+            city = "Bruxelles"
+        })
+        gender = Gender.fromCode("M")
+        speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "It's the comment done in main"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
+
+
+    services[adr] = listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory)
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
