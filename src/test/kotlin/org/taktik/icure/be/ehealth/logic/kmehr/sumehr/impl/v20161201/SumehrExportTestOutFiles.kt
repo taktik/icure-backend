@@ -12,6 +12,7 @@ import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.ContractChangeType
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.HealthcarePartyStatus
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.entities.embed.SuspensionReason
 import org.taktik.icure.entities.embed.TelecomType
@@ -120,6 +121,7 @@ fun main() {
 
     generateMinimalist()
     generateFullPatientSumehr()
+    generateFullSenderSumehr()
     generateSumehr1()
 }
 
@@ -436,7 +438,7 @@ private fun generateFullPatientSumehr() {
             this.type = PatientHealthCarePartyType.doctor
         })
         this.profession = "Cobaye"
-        this.patientProfessions = listOf(CodeStub("CD-PROFESSION", "Cobaye", "1.0"))
+        this.patientProfessions = listOf(CodeStub("CD-PROFESSION", "Cobaye professionnel", "1.0"))
         this.personalStatus = PersonalStatus.married
         this.placeOfBirth = "Furnes"
         this.spouseName = "Fayette Cadieux"
@@ -465,6 +467,92 @@ private fun generateFullPatientSumehr() {
             })
         })
         speciality = "persphysician"
+    }
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "All data is fake"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
+private fun generateFullSenderSumehr() {
+    clearServices()
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "FullSenderSumehr.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = Patient().apply {
+        id = "316804da-9234-43d6-b18c-df0cccd46744"
+        firstName = "Sargent"
+        lastName = "Berie"
+        ssin = "50010100156"
+        gender = Gender.fromCode("M")
+        dateOfBirth = 19500101
+        languages = listOf("French")
+    }
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
+            telecoms = listOf(Telecom().apply {
+                telecomNumber = "0474301934"
+            })
+        })
+        bankAccount = "491665804694"
+        bic = "BPOTBEB1"
+        billingType = "virement"
+        cbe = "cbeSender"
+        companyName = "CHU Pepinster"
+        contactPerson = "Olympia Poisson"
+        contactPersonHcpId = "78918e6c-f1f4-4940-bd1b-bc517ee8304b"
+        convention = 1
+        financialInstitutionInformation = listOf(FinancialInstitutionInformation().apply {
+            this.bankAccount = "453967676001"
+            this.bic = "BPOTBEB1"
+            this.key = "756"
+            this.name = "MME OLYMPIA POISSON"
+            this.preferredFiiForPartners = setOf("Foreign Institutional Investor")
+            this.proxyBankAccount = "1000676769354"
+            this.proxyBic = "BPOTBEB"
+        })
+        firstName = "Orville"
+        flatRateTarifications
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
+        invoiceHeader = "CHU Pepinster, Unité d'Accueil"
+        lastName = "Flamand"
+        nihii = "18000032004"
+        nihiiSpecCode = "004"
+        notes = "This sender is fake"
+        options = mapOf(Pair("optionsParam", "optionsValue"))
+        parentId = "da3b518f-77b4-4ed4-a439-341497d35f77"
+        proxyBankAccount = "496408566194"
+        proxyBic = "BPOTBEB"
+        sendFormats = mapOf(Pair(TelecomType.email, "orville.flamand@rhyta.com"))
+        speciality = "persphysician"
+        specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1.0"))
+        ssin = "50010100156"
+        statuses = listOf(HealthcarePartyStatus.accreditated)
+        supervisorId = "9314b58f-b278-4aa5-bb0b-0030f1d2f05b"
+        type = "Fake sender"
+        userId = "43114031"
     }
 
     /// Fifth parameter
