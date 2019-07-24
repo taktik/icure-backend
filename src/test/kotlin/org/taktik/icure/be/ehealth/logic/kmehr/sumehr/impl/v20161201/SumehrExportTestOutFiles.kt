@@ -10,14 +10,19 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.embed.AddressType
+import org.taktik.icure.entities.embed.ContractChangeType
 import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.ReferralPeriod
+import org.taktik.icure.entities.embed.SuspensionReason
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.logic.impl.CodeLogicImpl
 import org.taktik.icure.logic.impl.ContactLogicImpl
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.*
 import org.taktik.icure.utils.FuzzyValues
 import java.io.File
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.Future
@@ -28,6 +33,7 @@ private const val DIR_PATH = "src/test/resources/org/taktik/icure/be/ehealth/log
 private val sumehrExport = SumehrExport()
 
 private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
+private val codeLogic = Mockito.mock(CodeLogicImpl::class.java)
 private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
 private val mapper = Mockito.mock(MapperFacade::class.java)
 
@@ -44,6 +50,7 @@ private const val treatment = "treatment"
 private const val healthissue = "healthissue"
 private const val healthcareelement = "healthcareelement"
 
+private val dateFormat = SimpleDateFormat("yyyyMMdd")
 private val tomorrow = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusDays(1), ChronoUnit.SECONDS)
 private val today = FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
 private val yesterday = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusDays(1), ChronoUnit.SECONDS)
@@ -112,11 +119,13 @@ fun main() {
     initializeMocks()
 
     generateMinimalist()
+    generateFullPatientSumehr()
     generateSumehr1()
 }
 
 private fun initializeSumehrExport() {
     sumehrExport.contactLogic = contactLogic
+    sumehrExport.codeLogic = codeLogic
     sumehrExport.mapper = mapper
 }
 
@@ -125,6 +134,18 @@ private val keys = listOf(adr, allergy, socialrisk, risk, patientwill, vaccine, 
 private fun initializeMocks() {
     Mockito.`when`(contactLogic.getServices(any())).thenAnswer {
         services.getOrDefault(keys[index++ % keys.size], emptyList())
+    }
+
+    Mockito.`when`(codeLogic.isValid(any() ?: Code(), any())).thenAnswer {
+        val code = it.getArgumentAt(0, Code::class.java) as Code
+        when (code.type) {
+            "CD-FED-COUNTRY" -> when (code.code) {
+                "be", "belgium", "belgique" -> true
+                "fr", "france" -> true
+                else -> false
+            }
+            else -> false
+        }
     }
 
     Mockito.`when`(decryptor.decrypt<ServiceDto>(any(), any())).thenAnswer {
@@ -197,7 +218,7 @@ private fun generateMinimalist() {
     }
 
     /// Seventh parameter
-    val comment = "All data is falsified"
+    val comment = "All data is fake"
 
     /// Eighth parameter
     val excludedIds = emptyList<String>()
@@ -290,6 +311,172 @@ private fun generateSumehr1() {
     val excludedIds = emptyList<String>()
 
     services[adr] = listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory)
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
+private fun generateFullPatientSumehr() {
+    clearServices()
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "FullPatientSumehr.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = Patient().apply {
+        active = true
+        administrativeNote = "This patient is fake"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            city = "De Moeren"
+            country = "Belgium"
+            descr = "This address is fake"
+            houseNumber = "15"
+            postalCode = "8630"
+            postboxNumber = "15"
+            street = "Industriestraat"
+            telecoms = listOf(Telecom().apply {
+                telecomDescription = "This phone number is fake"
+                telecomNumber = "0490175135"
+                telecomType = TelecomType.mobile
+            })
+        })
+        this.alias = "Sarberie"
+        this.author = "Dr Flamand"
+        this.civility = "Mr"
+        this.created = 20190101
+        this.dateOfBirth = 19500101
+        this.education = "Master en Cobayologie supérieure"
+        this.externalId = "316804da-9234-43d6-b18c-df0cccd46744"
+        this.financialInstitutionInformation = listOf(FinancialInstitutionInformation().apply {
+            this.bankAccount = "553488836019"
+            this.bic = "BPOTBEB1"
+            this.key = "478"
+            this.name = "MR SARGENT BERIE"
+            this.preferredFiiForPartners = setOf("Foreign Institutional Investor")
+            this.proxyBankAccount = "910638884355"
+            this.proxyBic = "BPOTBEB"
+        })
+        this.firstName = "Sargent"
+        this.gender = Gender.fromCode("M")
+        this.id = "316804da-9234-43d6-b18c-df0cccd46744"
+        this.insurabilities = listOf(Insurability().apply {
+            this.ambulatory = true
+            this.dental = true
+            this.endDate = 20491231
+            this.hospitalisation = true
+            this.identificationNumber = "39672875"
+            this.insuranceDescription = "All inclusive"
+            this.insuranceId = "57827693"
+            this.parameters = mapOf(Pair("Param", "Value"))
+            this.startDate = 20000101
+            this.titularyId = "35976872"
+        })
+        this.maidenName = "Beries"
+        this.medicalHouseContracts = listOf(MedicalHouseContract().apply {
+            this.changeType = ContractChangeType.suspension
+            this.changedBy = "Damiane Drouin, Adviser"
+            this.contractId = "92571275"
+            this.endOfContract = 20290101
+            this.endOfCoverage = 20283112
+            this.endOfSuspension = tomorrow
+            this.hcpId = "971c149d-62a4-4f0c-8aa9-9fbeca47465b"
+            this.isForcedSuspension = true
+            this.isGp = false
+            this.isKine = true
+            this.isNoGp = true
+            this.isNoKine = false
+            this.isNoNurse = false
+            this.isNurse = true
+            this.mmNihii = "18000131004"
+            this.parentContractId = "57217592"
+            this.startOfContract = 20183112
+            this.startOfCoverage = 20190101
+            this.startOfSuspension = yesterday
+            this.suspensionReason = SuspensionReason.outsideOfCountry
+            this.suspensionSource = "Drouin D., Adviser"
+            this.unsubscriptionReasonId = 0
+            this.validFrom = 20150101
+            this.validTo = 20243112
+        })
+        this.languages = listOf("fr")
+        this.lastName = "Berie"
+        this.nationality = "be"
+        this.parameters = mapOf(Pair("Param", listOf("Value1", "Value2")))
+        this.partnerName = "Fayette Cadieux"
+        this.partnerships = listOf(Partnership().apply {
+            otherToMeRelationshipDescription = "Sœur"
+            meToOtherRelationshipDescription = "Frère"
+            partnershipDescription = "Jumeaux"
+            partnerId = "793df193-6efb-4e63-b5b3-7bd5570f077a"
+            status = PartnershipStatus.active
+            type = PartnershipType.sister
+        })
+        this.patientHealthCareParties = listOf(PatientHealthCareParty().apply {
+            this.healthcarePartyId = "3116d667-f3ba-4a9c-ab0a-313c9c3beeff"
+            this.isReferral = true
+            this.referralPeriods = sortedSetOf(
+                    ReferralPeriod().apply {
+                        this.comment = "First referral period"
+                        this.endDate = dateFormat.parse("20141231").toInstant()
+                        this.startDate = dateFormat.parse("20100101").toInstant()
+                    },
+                    ReferralPeriod().apply {
+                        this.comment = "Second referral period"
+                        this.endDate = dateFormat.parse("20191231").toInstant()
+                        this.startDate = dateFormat.parse("20150101").toInstant()
+                    },
+                    ReferralPeriod().apply {
+                        this.comment = "Third referral period"
+                        this.endDate = dateFormat.parse("20241231").toInstant()
+                        this.startDate = dateFormat.parse("20200101").toInstant()
+                    }
+            )
+            this.sendFormats = mapOf(Pair(TelecomType.phone, "0484598271"))
+            this.type = PatientHealthCarePartyType.doctor
+        })
+        this.profession = "Cobaye"
+        this.patientProfessions = listOf(CodeStub("CD-PROFESSION", "Cobaye", "1.0"))
+        this.personalStatus = PersonalStatus.married
+        this.placeOfBirth = "Furnes"
+        this.spouseName = "Fayette Cadieux"
+        this.warning = "This patient is fake"
+        this.ssin = "50010100156"
+    }
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
+        nihii = "18000032004"
+        ssin = "50010100156"
+        firstName = "Orville"
+        lastName = "Flamand"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
+            telecoms = listOf(Telecom().apply {
+                telecomNumber = "0474301934"
+            })
+        })
+        speciality = "persphysician"
+    }
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "All data is fake"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
