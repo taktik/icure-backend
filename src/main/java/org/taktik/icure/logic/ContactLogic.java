@@ -50,7 +50,7 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 
 	Set<String> deleteContacts(Set<String> ids);
 
-	Contact modifyContact(Contact contact) throws MissingRequirementsException;
+	Contact modifyContact(Contact contact);
 
 
 	Service pimpServiceWithContactInformation(Service s, Contact c);
@@ -70,6 +70,9 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 	PaginatedList<Contact> filterContacts(PaginationOffset paginationOffset, FilterChain<Contact> filter);
 
 	PaginatedList<Service> filterServices(PaginationOffset paginationOffset, FilterChain<Service> filter);
+
+	PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long startOpeningDate, Long endOpeningDate, PaginationOffset offset);
+
 
 	void solveConflicts();
 }

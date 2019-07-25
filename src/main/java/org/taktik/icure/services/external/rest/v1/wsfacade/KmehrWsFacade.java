@@ -47,7 +47,8 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeE
 public class KmehrWsFacade {
 	private MapperFacade mapper;
 	private SessionLogic sessionLogic;
-	private SumehrLogic sumehrLogic;
+	private SumehrLogic sumehrLogicV1;
+	private SumehrLogic sumehrLogicV2;
 	private SoftwareMedicalFileLogic softwareMedicalFileLogic;
 	private MedicationSchemeLogic medicationSchemeLogic;
 	private HealthcarePartyLogic healthcarePartyLogic;
@@ -58,22 +59,9 @@ public class KmehrWsFacade {
 	public void generateSumehr(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogic.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
+			sumehrLogicV1.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation);
-			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
-			bos.close();
-		} catch (Exception e) {
-			operation.errorResponse(e);
-		}
-	}
-
-	@Path("/generateSumehrpp")
-	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
-	public void generateSumehrPlusPlus(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
-		try {
-			sumehrLogic.createSumehrPlusPlus(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation, false);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -86,7 +74,51 @@ public class KmehrWsFacade {
 	public void validateSumehr(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogic.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), operation);
+			sumehrLogicV1.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation);
+			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
+			bos.close();
+		} catch (Exception e) {
+			operation.errorResponse(e);
+		}
+	}
+
+	@Path("/generateSumehrV2")
+	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
+	public void generateSumehrV2(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
+		try {
+			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
+					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation, false);
+			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
+			bos.close();
+		} catch (Exception e) {
+			operation.errorResponse(e);
+		}
+	}
+
+	@Path("/generateSumehrV2JSON")
+	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
+	public void generateSumehrV2JSON(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, @WebSocketParam("asJson") Boolean asJson, KmehrFileOperation operation) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
+		if(asJson == null) asJson=false;
+		try {
+			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
+					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation, asJson);
+			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
+			bos.close();
+		} catch (Exception e) {
+			operation.errorResponse(e);
+		}
+	}
+
+	@Path("/validateSumehrV2")
+	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
+	public void validateSumehrV2(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
+		try {
+			sumehrLogicV2.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), operation);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -134,8 +166,13 @@ public class KmehrWsFacade {
 	}
 
 	@Autowired
-	public void setSumehrLogic(SumehrLogic sumehrLogic) {
-		this.sumehrLogic = sumehrLogic;
+	public void setSumehrLogicV1(SumehrLogic sumehrLogicV1) {
+		this.sumehrLogicV1 = sumehrLogicV1;
+	}
+
+	@Autowired
+	public void setSumehrLogicV2(SumehrLogic sumehrLogicV2) {
+		this.sumehrLogicV2 = sumehrLogicV2;
 	}
 
 	@Autowired

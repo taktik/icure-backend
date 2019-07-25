@@ -430,7 +430,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	public Patient modifyPatient(@Check @NotNull Patient patient) throws MissingRequirementsException {
 		log.debug("Modifying patient with id:"+patient.getId());
 		// checking requirements
-		if (patient.getFirstName() == null || patient.getLastName() == null) {
+		if ((patient.getFirstName() == null || patient.getLastName() == null) && patient.getEncryptedSelf() == null) {
 			throw new MissingRequirementsException("modifyPatient: Name, Last name  are required.");
 		}
 
@@ -521,13 +521,14 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			from.setDeletionDate(Instant.now().toEpochMilli());
 
 			patient.mergeFrom(from);
-			patient.getMergedIds().addAll(fromPatients.stream().map(p->p.getId()).collect(Collectors.toList()));
 			try {
 				modifyPatient(from);
 			} catch (MissingRequirementsException e) {
 				throw new IllegalStateException(e);
 			}
 		}
+
+		patient.getMergedIds().addAll(fromPatients.stream().map(p->p.getId()).collect(Collectors.toList()));
 
 		try {
 			return modifyPatient(patient);
@@ -551,6 +552,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			});
 			patientDAO.save(p);
 		});
+	}
+
+	@Override
+	public Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId) {
+		return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId);
 	}
 
 	@Override

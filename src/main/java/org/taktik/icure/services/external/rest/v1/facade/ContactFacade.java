@@ -369,12 +369,7 @@ public class ContactFacade implements OpenApiFacade {
                 if (c.getClosingDate()==null) {
                     result.add(c);
                     c.setClosingDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS));
-                    try {
-                        contactLogic.modifyContact(c);
-                    } catch (MissingRequirementsException e) {
-                        log.warn(e.getMessage(), e);
-                        return Response.status(400).type("text/plain").entity(e.getMessage()).build();
-                    }
+                    contactLogic.modifyContact(c);
                 }
             }
 
@@ -424,21 +419,16 @@ public class ContactFacade implements OpenApiFacade {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        try {
-			handleServiceIndexes(contactDto);
+        handleServiceIndexes(contactDto);
 
-            contactLogic.modifyContact(mapper.map(contactDto, Contact.class));
-            Contact modifiedContact = contactLogic.getContact(contactDto.getId());
+        contactLogic.modifyContact(mapper.map(contactDto, Contact.class));
+        Contact modifiedContact = contactLogic.getContact(contactDto.getId());
 
-            boolean succeed = (modifiedContact != null);
-            if (succeed) {
-                return Response.ok().entity(mapper.map(modifiedContact, ContactDto.class)).build();
-            } else {
-                return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
-            }
-        } catch (MissingRequirementsException e) {
-            log.warn(e.getMessage(), e);
-            return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+        boolean succeed = (modifiedContact != null);
+        if (succeed) {
+            return Response.ok().entity(mapper.map(modifiedContact, ContactDto.class)).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
         }
     }
 
@@ -608,6 +598,51 @@ public class ContactFacade implements OpenApiFacade {
             response = ResponseUtils.ok(paginatedServiceDtoList);
         } else {
             response = ResponseUtils.internalServerError("Listing and Filtering services failed.");
+        }
+
+        return response;
+    }
+
+    @ApiOperation(
+        value = "List contacts bu opening date parties with(out) pagination",
+        response = org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList.class,
+        httpMethod = "GET",
+        notes = "Returns a list of contacts."
+    )
+    @GET
+    @Path("/byOpeningDate")
+    public Response listContactsByOpeningDate(
+            @ApiParam(value = "The contact openingDate", required = true) @QueryParam("startKey") Long startKey,
+            @ApiParam(value = "The contact max openingDate", required = true) @QueryParam("endKey") Long endKey,
+            @ApiParam(value = "hcpartyid", required = true) @QueryParam("hcpartyid") String hcpartyid,
+            @ApiParam(value = "A contact party document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit) {
+
+        Response response;
+
+        PaginationOffset<Long> paginationOffset = new PaginationOffset<>(startKey, startDocumentId, null, limit);
+
+        PaginatedList<Contact> contacts;
+        contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset);
+
+        if (contacts != null) {
+            if (contacts.getRows() == null) {
+                contacts.setRows(new ArrayList<>());
+            }
+
+            org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList paginatedContactDtoList =
+                    new org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList();
+            mapper.map(
+                    contacts,
+                    paginatedContactDtoList,
+                    new TypeBuilder<PaginatedList<Contact>>() {
+                    }.build(),
+                    new TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.ContactPaginatedList>() {
+                    }.build()
+            );
+            response = ResponseUtils.ok(paginatedContactDtoList);
+        } else {
+            response = ResponseUtils.internalServerError("Listing contacts failed.");
         }
 
         return response;

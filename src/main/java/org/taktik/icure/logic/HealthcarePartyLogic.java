@@ -33,6 +33,7 @@ public interface HealthcarePartyLogic extends EntityPersister<HealthcareParty, S
 
 	HealthcareParty getHealthcareParty(String id);
 
+
 	List<HealthcareParty> findHealthcareParties(String searchString, int offset, int limit);
 
     Map<String,String> getHcPartyKeysForDelegate(String healthcarePartyId);
@@ -60,6 +61,8 @@ public interface HealthcarePartyLogic extends EntityPersister<HealthcareParty, S
 	PaginatedList<HealthcareParty> findHealthcareParties(String type, String spec, String firstCode, String lastCode);
 
 	List<HealthcareParty> getHealthcareParties(List<String> ids);
+
+	List<HealthcareParty> getHealthcarePartiesByParentId(String parentId);
 
 	PaginatedList<HealthcareParty> findHealthcarePartiesBySsinOrNihii(String searchValue, PaginationOffset<String> paginationOffset, Boolean desc);
 

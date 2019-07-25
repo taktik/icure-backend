@@ -252,12 +252,7 @@ public class MedidocLogicImpl extends GenericResultFormatLogicImpl implements Me
 			}
 		}
 		fillContactWithLines(ctc, lls, planOfActionId, hcpId, protocolIds, formIds);
-
-		try {
-			return contactLogic.modifyContact(ctc);
-		} catch (MissingRequirementsException e) {
-			throw new IllegalStateException(e);
-		}
+		return contactLogic.modifyContact(ctc);
 	}
 
 	private int fillService(Service s, String language, List<String> lines, int i, Date demandDate) {

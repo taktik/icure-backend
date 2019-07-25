@@ -31,7 +31,7 @@ public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
         ViewQuery viewQuery = createQuery("by_user")
             .startKey(userId)
             .endKey(userId)
-            .includeDocs(false);
+            .includeDocs(true);
 
         return db.queryView(viewQuery, Agenda.class);
     }
@@ -42,7 +42,7 @@ public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
         ViewQuery viewQuery = createQuery("readable_by_user")
             .startKey(userId)
             .endKey(userId)
-            .includeDocs(false);
+            .includeDocs(true);
 
         return db.queryView(viewQuery, Agenda.class);
     }

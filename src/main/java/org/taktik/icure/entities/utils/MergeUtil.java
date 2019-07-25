@@ -20,6 +20,7 @@ package org.taktik.icure.entities.utils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -162,6 +163,23 @@ public class MergeUtil {
 		return result;
 	}
 
+	public static <K> K[] mergeArraysDistinct(K[] a, K[] b, BiFunction<? super K, ? super K, Boolean> comparator, BiFunction<? super K, ? super K, ? extends K> merger) {
+		List<K> ks = mergeLists(Arrays.asList(a), Arrays.asList(b), comparator, merger);
+		List<K> result = new ArrayList<>();
+
+		OUTER: for (K k : ks) {
+			for (int j = 0; j < result.size(); j++) {
+				if (comparator.apply(k, result.get(j))) {
+					result.set(j, merger.apply(result.get(j), k));
+					continue OUTER;
+				}
+			}
+			result.add(k);
+		}
+
+		return ((K[]) result.toArray());
+	}
+
 	public static <V,S extends Set<V>> S mergeSets(S a, S b, S mergedSet, BiFunction<? super V, ? super V, Boolean> comparator, BiFunction<? super V, ? super V, ? extends V> merger) {
 		Set<V> leftOverAvs = new HashSet<>(a);
 
@@ -196,6 +214,23 @@ public class MergeUtil {
 		leftOverAKeys.forEach(k->result.put(k,a.get(k)));
 		return result;
 	}
+
+	public static  <K,V> Map<K,V[]> mergeMapsOfArraysDistinct(Map<K,V[]> a, Map<K,V[]> b, BiFunction<? super V, ? super V, Boolean> comparator, BiFunction<? super V, ? super V, ? extends V> merger) {
+		Map<K,V[]> result = new HashMap<>();
+		Set<K> leftOverAKeys = new HashSet<>(a.keySet());
+
+		b.forEach((key, bvs) -> {
+			if (a.containsKey(key)) {
+				result.put(key, mergeArraysDistinct(a.get(key), bvs, comparator, merger));
+				leftOverAKeys.remove(key);
+			} else {
+				result.put(key, bvs);
+			}
+		});
+		leftOverAKeys.forEach(k->result.put(k,a.get(k)));
+		return result;
+	}
+
 
 	public static <K, V> Map<K, Set<V>> mergeMapsOfSets(Map<K, Set<V>> a, Map<K, Set<V>> b, BiFunction<? super V, ? super V, Boolean> comparator, BiFunction<? super V, ? super V, ? extends V> merger) {
 		Map<K, Set<V>> result = new HashMap<>();

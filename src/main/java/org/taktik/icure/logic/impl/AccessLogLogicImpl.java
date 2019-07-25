@@ -29,6 +29,7 @@ import org.taktik.icure.logic.AccessLogLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -58,13 +59,18 @@ public class AccessLogLogicImpl extends GenericLogicImpl<AccessLog, AccessLogDAO
     }
 
     @Override
+    public List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
+        return accessLogDAO.findByHCPartySecretPatientKeys(hcPartyId, secretForeignKeys);
+    }
+
+    @Override
 	public AccessLog getAccessLog(String accessLogId) {
 		return accessLogDAO.get(accessLogId);
 	}
 
 	@Override
-	public PaginatedList<AccessLog> listAccessLogs(PaginationOffset paginationOffset) {
-		return accessLogDAO.list(paginationOffset);
+	public PaginatedList<AccessLog> listAccessLogs(PaginationOffset paginationOffset, boolean descending) {
+		return accessLogDAO.list(paginationOffset, descending);
 	}
 
     @Override
