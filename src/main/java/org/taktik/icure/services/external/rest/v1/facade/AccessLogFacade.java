@@ -123,7 +123,7 @@ public class AccessLogFacade implements OpenApiFacade{
 		return response;
 	}
 
-	@ApiOperation(response = AccessLogDto.class, responseContainer = "Array", value = "Lists access logs")
+	@ApiOperation(response = AccessLogPaginatedList.class, value = "Lists access logs")
 	@GET
 	public Response listAccessLogs(@QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit,  @QueryParam("descending") Boolean descending) {
 		Response response;
