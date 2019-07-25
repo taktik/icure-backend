@@ -125,13 +125,13 @@ public class AccessLogFacade implements OpenApiFacade{
 
 	@ApiOperation(response = AccessLogDto.class, responseContainer = "Array", value = "Lists access logs")
 	@GET
-	public Response listAccessLogs(@QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit) {
+	public Response listAccessLogs(@QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit,  @QueryParam("descending") Boolean descending) {
 		Response response;
 
 		PaginationOffset paginationOffset = new PaginationOffset(null, startDocumentId, null, limit != null ? Integer.valueOf(limit) : null);
 		PaginatedList<AccessLogDto> accessLogDtos = new PaginatedList<>();
 
-		org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.listAccessLogs(paginationOffset);
+		org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.listAccessLogs(paginationOffset, descending != null ? descending : false);
 		if (accessLogs != null) {
 			mapper.map(accessLogs, accessLogDtos, new TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {
 			}.build(), new TypeBuilder<PaginatedList<AccessLogDto>>() {

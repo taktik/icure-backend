@@ -69,8 +69,8 @@ public class AccessLogLogicImpl extends GenericLogicImpl<AccessLog, AccessLogDAO
 	}
 
 	@Override
-	public PaginatedList<AccessLog> listAccessLogs(PaginationOffset paginationOffset) {
-		return accessLogDAO.list(paginationOffset);
+	public PaginatedList<AccessLog> listAccessLogs(PaginationOffset paginationOffset, boolean descending) {
+		return accessLogDAO.list(paginationOffset, descending);
 	}
 
     @Override
