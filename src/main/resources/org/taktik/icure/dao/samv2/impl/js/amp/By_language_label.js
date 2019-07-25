@@ -6,6 +6,7 @@ map = function(doc) {
     };
 
     if (doc.java_type === 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) {
+        // noinspection NonAsciiCharacters
         var latin_map={"á":"a","ă":"a","ắ":"a","ặ":"a","ằ":"a","ẳ":"a","ẵ":"a","ǎ":"a","â":"a","ấ":"a","ậ":"a","ầ":"a","ẩ":"a","ẫ":"a","ä":"a","ǟ":"a","ȧ":"a",
             "ǡ":"a","ạ":"a","ȁ":"a","à":"a","ả":"a","ȃ":"a","ā":"a","ą":"a","ᶏ":"a","ẚ":"a","å":"a","ǻ":"a","ḁ":"a","ⱥ":"a","ã":"a","ꜳ":"aa","æ":"ae",
             "ǽ":"ae","ǣ":"ae","ꜵ":"ao","ꜷ":"au","ꜹ":"av","ꜻ":"av","ꜽ":"ay","ḃ":"b","ḅ":"b","ɓ":"b","ḇ":"b","ᵬ":"b","ᶀ":"b","ƀ":"b","ƃ":"b","ɵ":"o",
@@ -34,10 +35,11 @@ map = function(doc) {
             "ʐ":"z","ƶ":"z","ɀ":"z","ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st","ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j",
             "ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"};
         var wordsPerLanguage = {};
+        var stub = {officialName: {fr: doc.officialName, en: doc.officialName, nl: doc.officialName, de: doc.officialName}, name:doc.name, abbreviatedName: doc.abbreviatedName, prescriptionName: doc.prescriptionName};
         (["officialName", "name", "abbreviatedName", "prescriptionName"]).forEach(function(k) {
-            Object.keys(doc[k]||{}).forEach(function (l) {
-                if (doc[k][l]) {
-                    wordsPerLanguage[l] = (wordsPerLanguage[l]||[]).concat(normalize_substrings(doc[k][l], latin_map))
+            Object.keys(stub[k]||{}).forEach(function (l) {
+                if (stub[k][l]) {
+                    wordsPerLanguage[l] = (wordsPerLanguage[l]||[]).concat(normalize_substrings(stub[k][l], latin_map))
                 }
             })
         })

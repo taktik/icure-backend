@@ -15,7 +15,7 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
 
 @Repository("ampDAO")
-@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.services.external.rest.v1.dto.be.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
 class AmpDAOImpl @Autowired
 constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
     init {
@@ -25,7 +25,7 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
     @View(name = "by_language_label", map = "classpath:js/amp/By_language_label.js")
     override fun findAmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Amp> {
         val sanitizedLabel = label?.let { StringUtils.sanitizeString(it)}
-        val startKey = if (pagination == null) null else pagination.startKey as MutableList<Any?>
+        @Suppress("UNCHECKED_CAST") val startKey = if (pagination == null) null else pagination.startKey as MutableList<Any?>
         if (startKey != null && startKey.size > 2 && startKey[2] != null) {
             startKey[2] = StringUtils.sanitizeString(startKey[2] as String)
         }

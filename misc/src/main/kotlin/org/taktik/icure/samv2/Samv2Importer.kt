@@ -109,12 +109,21 @@ class Samv2Import : CliktCommand() {
 
     private fun importActualMedicines(export: ExportActualMedicines, couchdbConfig: CouchDbICureConnector) {
         val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
+        val currentAmps = HashSet(ampDAO.allIds)
+
         export.amps.forEach { amp ->
             amp.datas.map { d ->
-                ampDAO.create(Amp(
-                        from = d.from?.toGregorianCalendar()?.timeInMillis,
-                        to = d.to?.toGregorianCalendar()?.timeInMillis,
-                        code = amp.code.toString(),
+
+                val code = amp.code.toString()
+                val from = d.from?.toGregorianCalendar()?.timeInMillis
+                val to = d.to?.toGregorianCalendar()?.timeInMillis
+
+                val id = "AMP:$code:$from:$to".md5()
+
+                if (!currentAmps.contains(id)) ampDAO.create(Amp(
+                        from = from,
+                        to = to,
+                        code = code,
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         abbreviatedName = d.abbreviatedName?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         officialName = d.officialName,
@@ -142,16 +151,18 @@ class Samv2Import : CliktCommand() {
                                         parallelCircuit = amppd.parallelCircuit,
                                         parallelDistributor = amppd.parallelDistributor,
                                         packMultiplier = amppd.packMultiplier,
-                                        packAmount = Quantity(amppd.packAmount.value?.intValueExact(), amppd.packAmount?.unit),
+                                        packAmount = amppd.packAmount?.let { Quantity(amppd.packAmount.value?.toInt(), amppd.packAmount?.unit) },
                                         packDisplayValue = amppd.packDisplayValue,
                                         status = amppd.status?.value()?.let { AmpStatus.valueOf(it) },
                                         atcs = amppd.atcs?.map { it.description } ?: listOf(),
                                         deliveryModus = amppd.deliveryModus?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         deliveryModusSpecification = amppd.deliveryModusSpecification?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
-                                        distributorCompany = amppd.distributorCompany.datas.sortedBy { d -> d.from.toGregorianCalendar().timeInMillis }.lastOrNull()?.let {
-                                            Company(it.from?.toGregorianCalendar()?.timeInMillis, it.to?.toGregorianCalendar()?.timeInMillis, it.authorisationNr,
-                                                    it.vatNr?.countryCode?.let { cc -> it.vatNr.value?.let {v -> mapOf(Pair(cc,v))}}, it.europeanNr, it.denomination, it.legalForm, it.building,
-                                                    it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
+                                        distributorCompany = amppd.distributorCompany ?.let {
+                                            amppd.distributorCompany.datas.sortedBy { d -> d.from.toGregorianCalendar().timeInMillis }.lastOrNull()?.let {
+                                                Company(it.from?.toGregorianCalendar()?.timeInMillis, it.to?.toGregorianCalendar()?.timeInMillis, it.authorisationNr,
+                                                        it.vatNr?.countryCode?.let { cc -> it.vatNr.value?.let { v -> mapOf(Pair(cc, v)) } }, it.europeanNr, it.denomination, it.legalForm, it.building,
+                                                        it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
+                                            }
                                         },
                                         isSingleUse = amppd.isSingleUse,
                                         speciallyRegulated = amppd.speciallyRegulated,
@@ -192,7 +203,7 @@ class Samv2Import : CliktCommand() {
                             }
                         } ?: listOf()
                 ).apply {
-                    id = "AMP:$code:$from:$to".md5()
+                    this.id = id
                 })
             }
         }
