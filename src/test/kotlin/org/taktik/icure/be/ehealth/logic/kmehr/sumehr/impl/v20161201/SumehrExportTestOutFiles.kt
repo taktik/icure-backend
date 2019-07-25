@@ -122,6 +122,7 @@ fun main() {
     generateMinimalist()
     generateFullPatientSumehr()
     generateFullSenderSumehr()
+    generateFullRecipientSumehr()
     generateSumehr1()
 }
 
@@ -434,7 +435,7 @@ private fun generateFullPatientSumehr() {
                         this.startDate = dateFormat.parse("20200101").toInstant()
                     }
             )
-            this.sendFormats = mapOf(Pair(TelecomType.phone, "0484598271"))
+            this.sendFormats = mapOf(Pair(TelecomType.mobile, "0484598271"))
             this.type = PatientHealthCarePartyType.doctor
         })
         this.profession = "Cobaye"
@@ -513,7 +514,9 @@ private fun generateFullSenderSumehr() {
             postalCode = "4860"
             city = "Cornesse"
             telecoms = listOf(Telecom().apply {
+                telecomDescription = "This phone number is fake"
                 telecomNumber = "0474301934"
+                telecomType = TelecomType.mobile
             })
         })
         bankAccount = "491665804694"
@@ -541,7 +544,7 @@ private fun generateFullSenderSumehr() {
         nihii = "18000032004"
         nihiiSpecCode = "004"
         notes = "This sender is fake"
-        options = mapOf(Pair("optionsParam", "optionsValue"))
+        options = mapOf(Pair("optionsKey", "optionsValue"))
         parentId = "da3b518f-77b4-4ed4-a439-341497d35f77"
         proxyBankAccount = "496408566194"
         proxyBic = "BPOTBEB"
@@ -558,6 +561,131 @@ private fun generateFullSenderSumehr() {
     /// Fifth parameter
     val recipient = HealthcareParty().apply {
         speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "All data is fake"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
+private fun generateFullRecipientSumehr() {
+    clearServices()
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "FullRecipientSumehr.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = Patient().apply {
+        id = "316804da-9234-43d6-b18c-df0cccd46744"
+        firstName = "Sargent"
+        lastName = "Berie"
+        ssin = "50010100156"
+        gender = Gender.fromCode("M")
+        dateOfBirth = 19500101
+        languages = listOf("French")
+    }
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
+        nihii = "18000032004"
+        ssin = "50010100156"
+        firstName = "Orville"
+        lastName = "Flamand"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
+            telecoms = listOf(Telecom().apply {
+                telecomNumber = "0474301934"
+            })
+        })
+        speciality = "persphysician"
+    }
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        addresses = listOf(Address().apply {
+            addressType = AddressType.work
+            street = "Rue de Fromelenne"
+            houseNumber = "337"
+            postalCode = "9050"
+            city = "Gentbrugge"
+            telecoms = listOf(Telecom().apply {
+                telecomDescription = "This phone number is fake"
+                telecomNumber = "0471114951"
+                telecomType = TelecomType.mobile
+            })
+        })
+        bankAccount = "553065896726"
+        bic = "BPOTBEB1"
+        billingType = "virement"
+        cbe = "cbeRecipient"
+        civility = ""
+        companyName = "CM Deserres"
+        contactPerson = "Christelle Deserres"
+        convention = 1
+        contactPersonHcpId = "1cc58445-d3a6-4f02-bcd4-7f0a3fd84c4d"
+        financialInstitutionInformation = listOf(FinancialInstitutionInformation().apply {
+            this.bankAccount = "471616447946"
+            this.bic = "BPOTBEB1"
+            this.key = "824"
+            this.name = "MME CHRISTELLE DESERRES"
+            this.preferredFiiForPartners = setOf("Foreign Institutional Investor")
+            this.proxyBankAccount = "649744616174"
+            this.proxyBic = "BPOTBEB"
+        })
+        flatRateTarifications = listOf(FlatRateTarification().apply {
+            code = "RAoS"
+            flatRateType = FlatRateType.physician
+            label = mapOf(Pair("en", "RAoS"), Pair("fr", "SRdA"))
+            valorisations = setOf(Valorisation().apply {
+                startOfValidity = 20000101
+                endOfValidity = 20293112
+                predicate = "FrtValorisationPredicate"
+                totalAmount = 30.00
+                reimbursement = 25.00
+                patientIntervention = 3.90
+                doctorSupplement = 1.10
+                vat = 4.50
+                label = mapOf(Pair("en", "Rheumatic Aortic Stenosis"), Pair("fr", "Sténose rhumatoïde de l'Aorte"))
+            })
+        })
+        gender = Gender.unknown
+        id = "fa018b68-458d-426a-a032-30a6df5c9e51"
+        invoiceHeader = "CM Deserres, avec et sans RDV"
+        languages = listOf("fr")
+        name = "CM Deserres"
+        nihii = "18000230004"
+        nihiiSpecCode = "004"
+        notes = "This recipient is fake"
+        options = mapOf(Pair("optionsKey", "optionsValue"))
+        parentId = "d68048cb-2a39-41bc-9627-e78b7b04f704"
+        proxyBankAccount = "627698560355"
+        proxyBic = "BPOTBEB"
+        rev = "revRecipient"
+        revHistory = mapOf(Pair("revHistoryKey", "revHistoryValue"))
+        revisionsInfo = arrayOf(RevisionInfo().apply {
+            rev = "revInfoRecipient"
+            status = "revInfoStatus"
+        })
+        sendFormats = mapOf(Pair(TelecomType.email, "cm-deserres@dayrep.com"))
+        speciality = "persphysician"
+        specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1.0"))
+        ssin = "50010100156"
+        statuses = listOf(HealthcarePartyStatus.accreditated)
+        type = "typeRecipient"
+        userId = "b78ed49a-7dec-484e-8ae4-481948eb8725"
     }
 
     /// Seventh parameter
