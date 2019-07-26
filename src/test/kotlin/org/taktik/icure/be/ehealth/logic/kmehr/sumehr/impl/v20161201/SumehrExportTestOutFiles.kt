@@ -6,6 +6,7 @@ import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
@@ -18,6 +19,8 @@ import org.taktik.icure.entities.embed.HealthcarePartyStatus
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.entities.embed.SuspensionReason
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.logic.HealthcarePartyLogic
+import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.impl.CodeLogicImpl
 import org.taktik.icure.logic.impl.ContactLogicImpl
 import org.taktik.icure.logic.impl.filter.Filters
@@ -28,6 +31,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.*
 import org.taktik.icure.utils.FuzzyValues
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.Future
@@ -42,7 +46,9 @@ private val autowireCapableBeanFactory = Mockito.mock(AutowireCapableBeanFactory
 private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
 private val codeLogic = Mockito.mock(CodeLogicImpl::class.java)
 private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
+private val healthcarePartyLogic = Mockito.mock(HealthcarePartyLogic::class.java)
 private val mapper = Mockito.mock(MapperFacade::class.java)
+private val patientLogic = Mockito.mock(PatientLogic::class.java)
 
 private const val language = "fr"
 
@@ -67,11 +73,7 @@ private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMont
 private class MyContents {
     companion object {
         val medicationContent = mapOf(Pair(language, Content().apply {
-            medicationValue = Medication().apply {
-                medicinalProduct = Medicinalproduct().apply {
-                    intendedname = "medicationName"
-                }
-            }
+            stringValue = "medicationContentStringValue"
         }))
     }
 }
@@ -79,41 +81,195 @@ private class MyContents {
 private class MyCodes {
     companion object {
         val vaccineCode = CodeStub("CD-VACCINEINDICATION", "", "1.0")
+        val patientwillCode = CodeStub("CD-ITEM", "patientwill", "1.3")
+        val ntbrCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "ntbr", "4.1")
+        val bloodtransfusionrefusalCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "bloodtransfusionrefusal", "4.2")
+        val intubationrefusalCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "intubationrefusal", "4.3")
+        val euthanasiarequestCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "euthanasiarequest", "4.4")
+        val vaccinationrefusalCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "vaccinationrefusal", "4.5")
+        val organdonationconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "organdonationconsent", "4.6")
+        val datareuseforclinicalresearchconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicalresearchconsent", "4.6")
+        val datareuseforclinicaltrialsconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicaltrialsconsent", "4.6")
+        val clinicaltrialparticipationconsent = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "clinicaltrialparticipationconsent", "4.6")
     }
 }
 
 private class MyTags {
     companion object {
-        val adrTag = CodeStub("CD-ITEM", adr, "1.0")
-        val inactiveTag = CodeStub("CD-LIFECYCLE", "inactive", "1")
+        val adrTag = CodeStub("CD-ITEM", adr, "1.0")  //Fixe : code
+        val inactiveTag = CodeStub("CD-LIFECYCLE", "inactive", "1.0") //Fixe : type et code
+        val allergyTag = CodeStub("CD-ITEM", allergy, "1.0") //Fixe : code
+        val socialriskTag = CodeStub("CD-ITEM", socialrisk, "1.0") //Fixe : code
+        val riskTag = CodeStub("CD-ITEM", risk, "1.0") //Fixe : code
+        val patientwillTag = CodeStub("CD-ITEM", patientwill, "1.2")
     }
 }
 
 private val services = mutableListOf<Service>()
 private class MyServices {
     companion object {
+        private var newId = 1
+
         val validServiceADRAssessment = Service().apply {
-            this.id = "1"
+            this.id = newId.toString(); newId += 1
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.adrTag)
             this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
             this.content = MyContents.medicationContent
-            this.comment = "It's a comment"
+            this.comment = "It's the comment of validServiceADRAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceADRHistory = Service().apply {
-            this.id = "1"
+            this.id = newId.toString(); newId += 1
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
             this.content = MyContents.medicationContent
-            this.comment = "comment"
+            this.comment = "It's the comment of validServiceADRHistory"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceAllergyAssessment = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 // must be active => Assessment
+            this.tags = mutableSetOf(MyTags.allergyTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of validServiceAllergyAssessment"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceAllergyHistory = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.allergyTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of validServiceAllergyHistory"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceSocialriskAssessment = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 // must be active => Assessment
+            this.tags = mutableSetOf(MyTags.socialriskTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of validServiceSocialriskAssessment"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceSocialriskHistory = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.socialriskTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of validServiceSocialriskHistory"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceRiskAssessment = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 // must be active => Assessment
+            this.tags = mutableSetOf(MyTags.riskTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of validServiceRiskAssessment"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceRiskHistory = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.riskTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.label = medication
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of validServiceRiskHistory"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val patientwillNtbr = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 //must be active and relevant
+            this.tags = mutableSetOf(MyTags.patientwillTag)
+            this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.ntbrCode)
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of patientwillNtbr"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val patientwillBloodtransfusionrefusal = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 //must be active and relevant
+            this.tags = mutableSetOf(MyTags.patientwillTag)
+            this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.bloodtransfusionrefusalCode)
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of patientwillBloodtransfusionrefusal"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val patientwillIntubationrefusal = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 //must be active and relevant
+            this.tags = mutableSetOf(MyTags.patientwillTag)
+            this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.intubationrefusalCode)
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of patientwillIntubationrefusal"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val patientwillEuthanasiarequest = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 //must be active and relevant
+            this.tags = mutableSetOf(MyTags.patientwillTag)
+            this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.euthanasiarequestCode)
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of patientwillEuthanasiarequest"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val patientwillVaccinationrefusal = Service().apply {
+            this.id = newId.toString(); newId += 1
+            this.endOfLife = null
+            this.status = 0 //must be active and relevant
+            this.tags = mutableSetOf(MyTags.patientwillTag)
+            this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.vaccinationrefusalCode)
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of patientwillVaccinationrefusal"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
@@ -132,15 +288,421 @@ private class MyFilters {
     }
 }
 
+private val hcparties = mutableMapOf<String, HealthcareParty>()
+private class MyHealthcareParties {
+    companion object {
+        val doctorGMD = HealthcareParty().apply {
+            lastName = "doctorGMDlastname"
+            firstName = "doctorGMDfirstname"
+            speciality = "persphysician"
+            userId = "1"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
+        }
+
+        val referralGMD = HealthcareParty().apply {
+            lastName = "referralGMDlastname"
+            firstName = "referralGMDfirstname"
+            speciality = "persphysician"
+            userId = "2"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
+        }
+
+        val medicalhouseGMD = HealthcareParty().apply {
+            name = "medicalhouseGMDname"
+            speciality = "orgpractice"
+            userId = "3"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "orgpractice", "1"))
+        }
+
+        val retirementhomeGMD = HealthcareParty().apply {
+            name = "retirementhomeGMDname"
+            speciality = "orgpublichealth"
+            userId = "4"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "orgpublichealth", "1"))
+        }
+        val hospitalGMD = HealthcareParty().apply {
+            name = "hospitalGMDname"
+            speciality = "orghospital"
+            userId = "5"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "orghospital", "1"))
+        }
+
+        val otherGMD = HealthcareParty().apply {
+            speciality = "persphysician"
+            userId = "6"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
+        }
+
+        val referringphysicianGMD = HealthcareParty().apply {
+            speciality = "persphysician"
+            userId = "7"
+            nihii = "18000032004"
+            ssin = "50010100156"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "street"
+                houseNumber = "3A"
+                postalCode = "1000"
+                city = "Bruxelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            specialityCodes = listOf(CodeStub("CD-HCPARTY", "persphysician", "1"))
+        }
+    }
+}
+
+private val patients = mutableMapOf<String, Patient>()
+private class MyPatients {
+    companion object {
+        val minimalistPatient = Patient().apply {
+            id = "316804da-9234-43d6-b18c-df0cccd46744"
+            firstName = "Sargent"
+            lastName = "Berie"
+            ssin = "50010100156"
+            gender = Gender.fromCode("M")
+            dateOfBirth = 19500101
+            languages = listOf("French")
+        }
+
+        val fullItemsPatient = Patient().apply {
+            id = "idPatient"
+            firstName = "firstNamePatient"
+            lastName = "lastNamePatient"
+            ssin = "50010100156"
+            civility = "Mr"
+            gender = Gender.fromCode("M")
+            dateOfBirth = 19500101
+            placeOfBirth = "Bruxelles"
+            profession = "Cobaye"
+            nationality = "Belge"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "streetPatient"
+                houseNumber = "1D"
+                postalCode = "1050"
+                city = "Ixelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+            languages = listOf("French")
+            patientHealthCareParties = listOf(
+                    PatientHealthCareParty().apply {
+                        type = PatientHealthCarePartyType.doctor
+                        this.isReferral = true
+                        healthcarePartyId = "1"
+                        referralPeriods.add(ReferralPeriod(Instant.ofEpochMilli(oneMonthAgo), Instant.ofEpochMilli(oneMonthAgo.plus(1L))))
+                    },
+                    PatientHealthCareParty().apply {
+                        type = PatientHealthCarePartyType.referral
+                        healthcarePartyId = "2"
+                    },
+                    PatientHealthCareParty().apply {
+                        type = PatientHealthCarePartyType.medicalhouse
+                        this.isReferral = true
+                        healthcarePartyId = "3"
+                        referralPeriods.add(ReferralPeriod(Instant.ofEpochMilli(oneMonthAgo.plus(1L)), Instant.ofEpochMilli(oneMonthAgo.plus(2L))))
+                    },
+                    PatientHealthCareParty().apply {
+                        type = PatientHealthCarePartyType.retirementhome
+                        this.isReferral = true
+                        healthcarePartyId = "4"
+                        referralPeriods.add(ReferralPeriod().apply {
+                            this.startDate = Instant.ofEpochMilli(oneWeekAgo)
+                        })
+                    })
+            partnerships = listOf(
+                    Partnership().apply {
+                        partnershipDescription = "Mother"
+                        type = PartnershipType.mother
+                        status = PartnershipStatus.active
+                        partnerId = "Mother"
+                    },
+                    Partnership().apply {
+                        partnershipDescription = "Spouse"
+                        type = PartnershipType.spouse
+                        status = PartnershipStatus.active
+                        partnerId = "Spouse"
+                    }
+            )
+        }
+
+        val fullPatient = Patient().apply {
+            active = true
+            administrativeNote = "This patient is fake"
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                city = "De Moeren"
+                country = "Belgium"
+                descr = "This address is fake"
+                houseNumber = "15"
+                postalCode = "8630"
+                postboxNumber = "15"
+                street = "Industriestraat"
+                telecoms = listOf(Telecom().apply {
+                    telecomDescription = "This phone number is fake"
+                    telecomNumber = "0490175135"
+                    telecomType = TelecomType.mobile
+                })
+            })
+            this.alias = "Sarberie"
+            this.author = "Dr Flamand"
+            this.civility = "Mr"
+            this.created = 20190101
+            this.dateOfBirth = 19500101
+            this.education = "Master en Cobayologie supérieure"
+            this.externalId = "316804da-9234-43d6-b18c-df0cccd46744"
+            this.financialInstitutionInformation = listOf(FinancialInstitutionInformation().apply {
+                this.bankAccount = "553488836019"
+                this.bic = "BPOTBEB1"
+                this.key = "478"
+                this.name = "MR SARGENT BERIE"
+                this.preferredFiiForPartners = setOf("Foreign Institutional Investor")
+                this.proxyBankAccount = "910638884355"
+                this.proxyBic = "BPOTBEB"
+            })
+            this.firstName = "Sargent"
+            this.gender = Gender.fromCode("M")
+            this.id = "316804da-9234-43d6-b18c-df0cccd46744"
+            this.insurabilities = listOf(Insurability().apply {
+                this.ambulatory = true
+                this.dental = true
+                this.endDate = 20491231
+                this.hospitalisation = true
+                this.identificationNumber = "39672875"
+                this.insuranceDescription = "All inclusive"
+                this.insuranceId = "57827693"
+                this.parameters = mapOf(Pair("Param", "Value"))
+                this.startDate = 20000101
+                this.titularyId = "35976872"
+            })
+            this.maidenName = "Beries"
+            this.medicalHouseContracts = listOf(MedicalHouseContract().apply {
+                this.changeType = ContractChangeType.suspension
+                this.changedBy = "Damiane Drouin, Adviser"
+                this.contractId = "92571275"
+                this.endOfContract = 20290101
+                this.endOfCoverage = 20283112
+                this.endOfSuspension = tomorrow
+                this.hcpId = "971c149d-62a4-4f0c-8aa9-9fbeca47465b"
+                this.isForcedSuspension = true
+                this.isGp = false
+                this.isKine = true
+                this.isNoGp = true
+                this.isNoKine = false
+                this.isNoNurse = false
+                this.isNurse = true
+                this.mmNihii = "18000131004"
+                this.parentContractId = "57217592"
+                this.startOfContract = 20183112
+                this.startOfCoverage = 20190101
+                this.startOfSuspension = yesterday
+                this.suspensionReason = SuspensionReason.outsideOfCountry
+                this.suspensionSource = "Drouin D., Adviser"
+                this.unsubscriptionReasonId = 0
+                this.validFrom = 20150101
+                this.validTo = 20243112
+            })
+            this.languages = listOf("fr")
+            this.lastName = "Berie"
+            this.nationality = "be"
+            this.parameters = mapOf(Pair("Param", listOf("Value1", "Value2")))
+            this.partnerName = "Fayette Cadieux"
+            this.partnerships = listOf(Partnership().apply {
+                otherToMeRelationshipDescription = "Sœur"
+                meToOtherRelationshipDescription = "Frère"
+                partnershipDescription = "Jumeaux"
+                partnerId = "793df193-6efb-4e63-b5b3-7bd5570f077a"
+                status = PartnershipStatus.active
+                type = PartnershipType.sister
+            })
+            this.patientHealthCareParties = listOf(PatientHealthCareParty().apply {
+                this.healthcarePartyId = "3116d667-f3ba-4a9c-ab0a-313c9c3beeff"
+                this.isReferral = true
+                this.referralPeriods = sortedSetOf(
+                        ReferralPeriod().apply {
+                            this.comment = "First referral period"
+                            this.endDate = dateFormat.parse("20141231").toInstant()
+                            this.startDate = dateFormat.parse("20100101").toInstant()
+                        },
+                        ReferralPeriod().apply {
+                            this.comment = "Second referral period"
+                            this.endDate = dateFormat.parse("20191231").toInstant()
+                            this.startDate = dateFormat.parse("20150101").toInstant()
+                        },
+                        ReferralPeriod().apply {
+                            this.comment = "Third referral period"
+                            this.endDate = dateFormat.parse("20241231").toInstant()
+                            this.startDate = dateFormat.parse("20200101").toInstant()
+                        }
+                )
+                this.sendFormats = mapOf(Pair(TelecomType.phone, "0484598271"))
+                this.type = PatientHealthCarePartyType.doctor
+            })
+            this.profession = "Cobaye"
+            this.patientProfessions = listOf(CodeStub("CD-PROFESSION", "Cobaye professionnel", "1.0"))
+            this.personalStatus = PersonalStatus.married
+            this.placeOfBirth = "Furnes"
+            this.spouseName = "Fayette Cadieux"
+            this.warning = "This patient is fake"
+            this.ssin = "50010100156"
+        }
+
+        val motherPatient = Patient().apply {
+            id = "motherPatientID"
+            firstName = "motherPatientFirstName"
+            lastName = "motherPatientLastName"
+            ssin = "50010100156"
+            gender = Gender.fromCode("F")
+            dateOfBirth = 19500101
+            languages = listOf("French")
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "streetMotherPatient"
+                houseNumber = "1D"
+                postalCode = "1050"
+                city = "Ixelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+        }
+
+        val spousePatient = Patient().apply {
+            id = "spousePatientID"
+            firstName = "spousePatientFirstName"
+            lastName = "spousePatientLastName"
+            ssin = "50010100156"
+            gender = Gender.fromCode("F")
+            dateOfBirth = 19500101
+            languages = listOf("French")
+            addresses = listOf(Address().apply {
+                addressType = AddressType.home
+                street = "streetSpousePatient"
+                houseNumber = "1D"
+                postalCode = "1050"
+                city = "Ixelles"
+                telecoms = listOf(Telecom().apply {
+                    telecomType = TelecomType.phone
+                    telecomNumber = "0423456789"
+                    telecomDescription = "personal phone"
+                })
+            })
+        }
+
+        val sisterPatient = Patient().apply {
+            id = "spousePatientID"
+            firstName = "spousePatientFirstName"
+            lastName = "spousePatientLastName"
+            ssin = "50010100156"
+            gender = Gender.fromCode("F")
+            dateOfBirth = 19500101
+            languages = listOf("French")
+        }
+    }
+}
+
 fun main() {
     initializeSumehrExport()
     initializeMocks()
 
-    generateMinimalist()
-    generateFullPatientSumehr()
-    generateFullSenderSumehr()
-    generateFullRecipientSumehr()
-    generateSumehr1()
+//    generateMinimalist()
+//    generateFullPatientSumehr()
+//    generateFullSenderSumehr()
+//    generateFullRecipientSumehr()
+    generateEveryItemsSumehr()
 }
 
 private fun initializeSumehrExport() {
@@ -149,6 +711,8 @@ private fun initializeSumehrExport() {
     }
     sumehrExport.contactLogic = contactLogic
     sumehrExport.codeLogic = codeLogic
+    sumehrExport.healthcarePartyLogic = healthcarePartyLogic
+    sumehrExport.patientLogic = patientLogic
     sumehrExport.mapper = mapper
 }
 
@@ -175,7 +739,7 @@ private fun initializeMocks() {
         services.filter { service ->
             service.tags.any { tag ->
                 tag.type?.equals(tagType) ?: true &&
-                tag.code?.equals(tagCode) ?: true
+                        tag.code?.equals(tagCode) ?: true
             }
         }.map { service ->
             service.id
@@ -191,6 +755,30 @@ private fun initializeMocks() {
                 else -> false
             }
             else -> false
+        }
+    }
+
+    Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any())).thenAnswer {
+        (it.getArgumentAt(0, List::class.java) as List<String>).mapNotNull {
+            if (hcparties.containsKey(it)) {
+                hcparties[it];
+            } else {
+                null
+            }
+        }
+    }
+
+    Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any())).thenAnswer {
+        hcparties[it.getArgumentAt(0, String::class.java) as String]
+    }
+
+    Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
+        (it.getArgumentAt(0, List::class.java) as List<String>).mapNotNull {
+            if (patients.containsKey(it)) {
+                patients[it];
+            } else {
+                null
+            }
         }
     }
 
@@ -238,7 +826,8 @@ private fun generateMinimalist() {
         id = "8e716232-04ce-4262-8f71-3c51521fd740"
         nihii = "18000032004"
         ssin = "50010100156"
-        name = "CHU Cornesse"
+        firstName = "Orville"
+        lastName = "Flamand"
         addresses = listOf(Address().apply {
             addressType = AddressType.home
             street = "Rue de Berloz"
@@ -249,7 +838,7 @@ private fun generateMinimalist() {
                 telecomNumber = "0474301934"
             })
         })
-        speciality = "orghospital"
+        speciality = "persphysician"
     }
 
     /// Fifth parameter
@@ -267,38 +856,14 @@ private fun generateMinimalist() {
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
-private fun generateSumehr1() {
+private fun generateEveryItemsSumehr() {
     services.clear()
 
     /// First parameter : os
-    val os = File(DIR_PATH + "Sumehr1.xml").outputStream()
+    val os = File(DIR_PATH + "EveryItemsSumehr.xml").outputStream()
 
     /// Second parameter : pat
-    val patient = Patient().apply {
-        id = "idPatient"
-        firstName = "firstNamePatient"
-        lastName = "lastNamePatient"
-        ssin = "50010100156"
-        civility = "Mr"
-        gender = Gender.fromCode("M")
-        dateOfBirth = 19500101
-        placeOfBirth = "Bruxelles"
-        profession = "Cobaye"
-        nationality = "Belge"
-        addresses = listOf(Address().apply {
-            addressType = AddressType.home
-            street = "streetPatient"
-            houseNumber = "1D"
-            postalCode = "1050"
-            city = "Ixelles"
-            telecoms = listOf(Telecom().apply {
-                telecomType = TelecomType.phone
-                telecomNumber = "0423456789"
-                telecomDescription = "personal phone"
-            })
-        })
-        languages = listOf("French")
-    }
+    val patient = MyPatients.fullItemsPatient
 
     /// Third parameter : sfks
     val sfks = listOf("sfks")
@@ -351,6 +916,17 @@ private fun generateSumehr1() {
     val excludedIds = emptyList<String>()
 
     services.addAll(listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory))
+    services.addAll(listOf(MyServices.validServiceAllergyAssessment, MyServices.validServiceAllergyHistory))
+    services.addAll(listOf(MyServices.validServiceSocialriskAssessment, MyServices.validServiceSocialriskHistory))
+    services.addAll(listOf(MyServices.validServiceRiskAssessment, MyServices.validServiceRiskHistory))
+    services.addAll(listOf(MyServices.patientwillNtbr, MyServices.patientwillBloodtransfusionrefusal, MyServices.patientwillIntubationrefusal, MyServices.patientwillEuthanasiarequest, MyServices.patientwillVaccinationrefusal))
+    hcparties["1"] = MyHealthcareParties.doctorGMD
+    hcparties["2"] = MyHealthcareParties.referralGMD
+    hcparties["3"] = MyHealthcareParties.medicalhouseGMD
+    hcparties["4"] = MyHealthcareParties.retirementhomeGMD
+    patients["Mother"] = MyPatients.motherPatient
+    patients["Spouse"] = MyPatients.spousePatient
+    patients["Sister"] = MyPatients.sisterPatient
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
