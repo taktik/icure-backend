@@ -4,6 +4,8 @@ import ma.glasnost.orika.MapperFacade
 import org.mockito.Matchers.any
 import org.mockito.Matchers.eq
 import org.mockito.Mockito
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory
+import org.springframework.context.ApplicationContext
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
@@ -18,6 +20,8 @@ import org.taktik.icure.entities.embed.SuspensionReason
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.logic.impl.CodeLogicImpl
 import org.taktik.icure.logic.impl.ContactLogicImpl
+import org.taktik.icure.logic.impl.filter.Filters
+import org.taktik.icure.logic.impl.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.*
@@ -33,6 +37,8 @@ private const val DIR_PATH = "src/test/resources/org/taktik/icure/be/ehealth/log
 
 private val sumehrExport = SumehrExport()
 
+private val applicationContext = Mockito.mock(ApplicationContext::class.java)
+private val autowireCapableBeanFactory = Mockito.mock(AutowireCapableBeanFactory::class.java)
 private val contactLogic = Mockito.mock(ContactLogicImpl::class.java)
 private val codeLogic = Mockito.mock(CodeLogicImpl::class.java)
 private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
@@ -78,13 +84,12 @@ private class MyCodes {
 
 private class MyTags {
     companion object {
-        val adrTag = CodeStub("type", adr, "1.0")
+        val adrTag = CodeStub("CD-ITEM", adr, "1.0")
         val inactiveTag = CodeStub("CD-LIFECYCLE", "inactive", "1")
     }
 }
 
-private val services = mutableMapOf<String, List<Service>>()
-
+private val services = mutableListOf<Service>()
 private class MyServices {
     companion object {
         val validServiceADRAssessment = Service().apply {
@@ -115,6 +120,18 @@ private class MyServices {
     }
 }
 
+private var filtersIndex = 0
+private val filters = listOf(MyFilters.unionFilter, MyFilters.serviceFilter)
+private class MyFilters {
+    companion object {
+        val unionFilter = Filters.UnionFilter<String, Service>()
+
+        val serviceFilter = ServiceByHcPartyTagCodeDateFilter().apply {
+            setContactLogic(contactLogic)
+        }
+    }
+}
+
 fun main() {
     initializeSumehrExport()
     initializeMocks()
@@ -127,16 +144,42 @@ fun main() {
 }
 
 private fun initializeSumehrExport() {
+    sumehrExport.filters = Filters().apply {
+        setApplicationContext(applicationContext)
+    }
     sumehrExport.contactLogic = contactLogic
     sumehrExport.codeLogic = codeLogic
     sumehrExport.mapper = mapper
 }
 
-private var index = 0
-private val keys = listOf(adr, allergy, socialrisk, risk, patientwill, vaccine, medication, treatment, healthissue, healthcareelement)
 private fun initializeMocks() {
+    Mockito.`when`(applicationContext.autowireCapableBeanFactory).thenAnswer {
+        autowireCapableBeanFactory
+    }
+
+    Mockito.`when`(autowireCapableBeanFactory.createBean(any(), any() ?: 0, any() ?: false)).thenAnswer {
+        filters[filtersIndex++]
+    }
+
     Mockito.`when`(contactLogic.getServices(any())).thenAnswer {
-        services.getOrDefault(keys[index++ % keys.size], emptyList())
+        val ids = it.getArgumentAt(0, HashSet::class.java) as HashSet<String>
+        services.filter { service ->
+            ids.contains(service.id)
+        }
+    }
+
+    Mockito.`when`(contactLogic.findServicesByTag(any(), any(), any(), any(), any(), any())).thenAnswer {
+        val tagType = it.getArgumentAt(2, String::class.java)
+        val tagCode = it.getArgumentAt(3, String::class.java)
+
+        services.filter { service ->
+            service.tags.any { tag ->
+                tag.type?.equals(tagType) ?: true &&
+                tag.code?.equals(tagCode) ?: true
+            }
+        }.map { service ->
+            service.id
+        }
     }
 
     Mockito.`when`(codeLogic.isValid(any() ?: Code(), any())).thenAnswer {
@@ -170,13 +213,8 @@ private fun initializeMocks() {
     }
 }
 
-private fun clearServices() {
-    index = 0
-    services.clear()
-}
-
 private fun generateMinimalist() {
-    clearServices()
+    services.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "MinimalSumehr.xml").outputStream()
@@ -200,8 +238,7 @@ private fun generateMinimalist() {
         id = "8e716232-04ce-4262-8f71-3c51521fd740"
         nihii = "18000032004"
         ssin = "50010100156"
-        firstName = "Orville"
-        lastName = "Flamand"
+        name = "CHU Cornesse"
         addresses = listOf(Address().apply {
             addressType = AddressType.home
             street = "Rue de Berloz"
@@ -212,7 +249,7 @@ private fun generateMinimalist() {
                 telecomNumber = "0474301934"
             })
         })
-        speciality = "persphysician"
+        speciality = "orghospital"
     }
 
     /// Fifth parameter
@@ -231,7 +268,7 @@ private fun generateMinimalist() {
 }
 
 private fun generateSumehr1() {
-    clearServices()
+    services.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "Sumehr1.xml").outputStream()
@@ -313,14 +350,14 @@ private fun generateSumehr1() {
     /// Eighth parameter
     val excludedIds = emptyList<String>()
 
-    services[adr] = listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory)
+    services.addAll(listOf(MyServices.validServiceADRAssessment, MyServices.validServiceADRHistory))
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
 private fun generateFullPatientSumehr() {
-    clearServices()
+    services.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullPatientSumehr.xml").outputStream()
@@ -486,7 +523,7 @@ private fun generateFullPatientSumehr() {
 }
 
 private fun generateFullSenderSumehr() {
-    clearServices()
+    services.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullSenderSumehr.xml").outputStream()
@@ -574,7 +611,7 @@ private fun generateFullSenderSumehr() {
 }
 
 private fun generateFullRecipientSumehr() {
-    clearServices()
+    services.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullRecipientSumehr.xml").outputStream()
