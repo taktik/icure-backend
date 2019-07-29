@@ -276,7 +276,6 @@ private class MyServices {
     }
 }
 
-private var filtersIndex = 0
 private val filters = listOf(MyFilters.unionFilter, MyFilters.serviceFilter)
 private class MyFilters {
     companion object {
@@ -698,10 +697,10 @@ fun main() {
     initializeSumehrExport()
     initializeMocks()
 
-//    generateMinimalist()
-//    generateFullPatientSumehr()
-//    generateFullSenderSumehr()
-//    generateFullRecipientSumehr()
+    generateMinimalist()
+    generateFullPatientSumehr()
+    generateFullSenderSumehr()
+    generateFullRecipientSumehr()
     generateEveryItemsSumehr()
 }
 
@@ -721,8 +720,9 @@ private fun initializeMocks() {
         autowireCapableBeanFactory
     }
 
+    val filtersIterator = filters.iterator()
     Mockito.`when`(autowireCapableBeanFactory.createBean(any(), any() ?: 0, any() ?: false)).thenAnswer {
-        filters[filtersIndex++]
+        filtersIterator.next()
     }
 
     Mockito.`when`(contactLogic.getServices(any())).thenAnswer {
