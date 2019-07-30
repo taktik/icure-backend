@@ -37,7 +37,6 @@ import org.taktik.icure.entities.embed.AddressType;
 import org.taktik.icure.entities.embed.Content;
 import org.taktik.icure.entities.embed.Measure;
 import org.taktik.icure.entities.embed.Service;
-import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.logic.*;
 import org.taktik.icure.utils.FuzzyValues;
 
@@ -524,15 +523,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         if (parts.length > 2) {
             pl.lastName = parts[2].trim();
         }
-        try {
-            if (parts.length > 4) {
-                pl.sex = parts[4].trim().equals("V") ? "F" : parts[4].trim();
-                if (parts.length > 5) {
-                    pl.dn = new Timestamp(readDate(parts[5].trim()));
-                }
+        if (parts.length > 4) {
+            pl.sex = parts[4].trim().equals("V") ? "F" : parts[4].trim();
+            if (parts.length > 5) {
+                pl.dn = parseBirthDate(parts[5].trim());
             }
-        } catch (ParseException | NumberFormatException e) {
-            e.printStackTrace();
         }
         return pl;
     }
@@ -546,13 +541,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         if (parts.length > 3) {
             pl.sex = parts[3].trim().equals("V") ? "F" : parts[3].trim();
         }
-        try {
-            if (parts.length > 2) {
-                pl.dn = new Timestamp(readDate(parts[2].trim()));
-            }
-        } catch (ParseException | NumberFormatException e) {
-            e.printStackTrace();
+        if (parts.length > 2) {
+            pl.dn = parseBirthDate(parts[2].trim());
         }
+
         return pl;
     }
 
@@ -642,12 +634,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             }
             ril.complete = parts.length <= 5 || parts[5].toLowerCase().contains("c");
             if (parts.length > 3) {
-                try {
-                    ril.demandDate = Instant.ofEpochMilli(readDate(parts[3]));
-                } catch (ParseException | NumberFormatException e) {
-                    log.error("Date {} could not be parsed", parts[3]);
-                    ril.demandDate = Instant.now();
-                }
+                ril.demandDate = parseDemandDate(parts[3]);
             }
             return ril;
         } catch (Exception e) {
@@ -783,7 +770,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
 		return firstLine != null && this.isLaboLine(firstLine);
 	}
 
-    protected Long readDate(String date) throws ParseException, NumberFormatException {
+    protected Long parseDate(String date) throws ParseException, NumberFormatException {
         if (date.length() == 8) {
             return shortDateFormat.parse(date.trim()).getTime();
         } else if (date.length() == 6) {
@@ -792,6 +779,30 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             return extraDateFormat.parse(date).getTime();
         }
         throw new NumberFormatException("Unreadable date: \"" + date + "\"" );
+    }
+
+    protected Timestamp parseBirthDate(String date) {
+        try {
+            Long d = parseDate(date);
+            if (d > parseDate("01011800")) {
+                return new Timestamp(d);
+            }
+        } catch (ParseException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    protected Instant parseDemandDate(String date) {
+        try {
+            Long d = parseDate(date);
+            if (d > parseDate("01011800")) {
+                return Instant.ofEpochMilli(d);
+            }
+        } catch (ParseException | NumberFormatException e) {
+            log.error("Date {} could not be parsed", date);
+        }
+        return Instant.now();
     }
 
 }
