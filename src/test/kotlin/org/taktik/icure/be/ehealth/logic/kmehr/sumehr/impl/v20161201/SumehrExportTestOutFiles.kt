@@ -72,15 +72,23 @@ private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMont
 
 private class MyContents {
     companion object {
+        val neutralContent = mapOf(Pair(language, Content().apply {
+            stringValue = "neutralContentStringValue"
+        }))
         val medicationContent = mapOf(Pair(language, Content().apply {
             stringValue = "medicationContentStringValue"
+            numberValue = 1.2
+        }))
+        val treatmentContent = mapOf(Pair(language, Content().apply {
+            stringValue = "treatmentContentStringValue"
+            numberValue = 1.2
         }))
     }
 }
 
 private class MyCodes {
     companion object {
-        val vaccineCode = CodeStub("CD-VACCINEINDICATION", "", "1.0")
+        val vaccineCode = CodeStub("CD-VACCINEINDICATION", "notEmpty", "1.0")
         val patientwillCode = CodeStub("CD-ITEM", "patientwill", "1.3")
         val ntbrCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "ntbr", "4.1")
         val bloodtransfusionrefusalCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "bloodtransfusionrefusal", "4.2")
@@ -91,6 +99,8 @@ private class MyCodes {
         val datareuseforclinicalresearchconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicalresearchconsent", "4.6")
         val datareuseforclinicaltrialsconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicaltrialsconsent", "4.6")
         val clinicaltrialparticipationconsent = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "clinicaltrialparticipationconsent", "4.6")
+        val medicationCode = CodeStub ("CD-DRUG-CNK","medication","version")
+        val treatmentCode = CodeStub ("type","treatment","version")
     }
 }
 
@@ -102,6 +112,9 @@ private class MyTags {
         val socialriskTag = CodeStub("CD-ITEM", socialrisk, "1.0") //Fixe : code
         val riskTag = CodeStub("CD-ITEM", risk, "1.0") //Fixe : code
         val patientwillTag = CodeStub("CD-ITEM", patientwill, "1.2")
+        val vaccineTag = CodeStub("CD-ITEM", vaccine,"2.1")
+        val medicationTag = CodeStub("CD-ITEM", medication,"5.8")
+        val treatmentTag = CodeStub("CD-ITEM", treatment, "9.6")
     }
 }
 
@@ -111,167 +124,193 @@ private class MyServices {
         private var newId = 1
 
         val validServiceADRAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //1
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.adrTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceADRAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceADRHistory = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //2
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceADRHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceAllergyAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //3
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.allergyTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceAllergyAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceAllergyHistory = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //4
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.allergyTag, MyTags.inactiveTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceAllergyHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceSocialriskAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //5
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.socialriskTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceSocialriskAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceSocialriskHistory = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //6
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.socialriskTag, MyTags.inactiveTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceSocialriskHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceRiskAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //7
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.riskTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceRiskAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val validServiceRiskHistory = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //8
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.riskTag, MyTags.inactiveTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode)
             this.label = medication
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of validServiceRiskHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val patientwillNtbr = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //9
             this.endOfLife = null
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.ntbrCode)
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of patientwillNtbr"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val patientwillBloodtransfusionrefusal = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //10
             this.endOfLife = null
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.bloodtransfusionrefusalCode)
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of patientwillBloodtransfusionrefusal"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val patientwillIntubationrefusal = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //11
             this.endOfLife = null
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.intubationrefusalCode)
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of patientwillIntubationrefusal"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val patientwillEuthanasiarequest = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //12
             this.endOfLife = null
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.euthanasiarequestCode)
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of patientwillEuthanasiarequest"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
 
         val patientwillVaccinationrefusal = Service().apply {
-            this.id = newId.toString(); newId += 1
+            this.id = newId.toString(); newId += 1 //13
             this.endOfLife = null
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.vaccinationrefusalCode)
-            this.content = MyContents.medicationContent
+            this.content = MyContents.neutralContent
             this.comment = "It's the comment of patientwillVaccinationrefusal"
             this.openingDate = oneWeekAgo
             this.closingDate = today
+        }
+
+        val vaccineValidService = Service().apply {
+            this.id = newId.toString(); newId += 1 //14
+            this.endOfLife = null
+            this.status = 0 //must be active
+            this.tags = mutableSetOf(MyTags.vaccineTag)
+            this.codes = mutableSetOf(MyCodes.vaccineCode)
+            this.content = MyContents.neutralContent
+            this.comment = "It's the comment of vaccineValidService"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+        val medicationValidService = Service().apply {
+            this.id = newId.toString(); newId += 1 //15
+            this.endOfLife = null
+            this.status = 0 //must be active
+            this.tags = mutableSetOf(MyTags.medicationTag)
+            this.codes = mutableSetOf(MyCodes.medicationCode)
+            this.content = MyContents.medicationContent
+            this.comment = "It's the comment of medicationValidService"
+            this.openingDate = oneWeekAgo
+            this.closingDate = tomorrow
+        }
+        val treatmentValidService = Service().apply {
+            this.id = newId.toString(); newId += 1 //16
+            this.endOfLife = null
+            this.status = 0 //must be active
+            this.tags = mutableSetOf(MyTags.treatmentTag)
+            this.codes = mutableSetOf(MyCodes.treatmentCode)
+            this.content = MyContents.treatmentContent
+            this.comment = "It's the comment of treatmentValidService"
+            this.openingDate = oneWeekAgo
+            this.closingDate = tomorrow
         }
     }
 }
@@ -698,10 +737,10 @@ fun main() {
     initializeSumehrExport()
     initializeMocks()
 
-//    generateMinimalist()
-//    generateFullPatientSumehr()
-//    generateFullSenderSumehr()
-//    generateFullRecipientSumehr()
+    generateMinimalist()
+    generateFullPatientSumehr()
+    generateFullSenderSumehr()
+    generateFullRecipientSumehr()
     generateEveryItemsSumehr()
 }
 
@@ -920,6 +959,8 @@ private fun generateEveryItemsSumehr() {
     services.addAll(listOf(MyServices.validServiceSocialriskAssessment, MyServices.validServiceSocialriskHistory))
     services.addAll(listOf(MyServices.validServiceRiskAssessment, MyServices.validServiceRiskHistory))
     services.addAll(listOf(MyServices.patientwillNtbr, MyServices.patientwillBloodtransfusionrefusal, MyServices.patientwillIntubationrefusal, MyServices.patientwillEuthanasiarequest, MyServices.patientwillVaccinationrefusal))
+    services.addAll(listOf(MyServices.vaccineValidService))
+    services.addAll(listOf(MyServices.medicationValidService,MyServices.treatmentValidService))
     hcparties["1"] = MyHealthcareParties.doctorGMD
     hcparties["2"] = MyHealthcareParties.referralGMD
     hcparties["3"] = MyHealthcareParties.medicalhouseGMD
