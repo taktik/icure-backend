@@ -41,6 +41,7 @@ import java.util.Set;
 public class PatientDto extends IcureDto implements EncryptableDto {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
+    protected Set<String> nonDuplicateIds = new HashSet<>();
 
     protected String firstName;
     protected String lastName;
@@ -111,6 +112,10 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 	public void setMergedIds(Set<String> mergedIds) {
 		this.mergedIds = mergedIds;
 	}
+	
+    public Set<String> getNonDuplicateIds() {  return nonDuplicateIds;  }
+
+    public void setNonDuplicateIds(Set<String> nonDuplicateIds) {  this.nonDuplicateIds = nonDuplicateIds; }
 
 	public String getFirstName() {
         return firstName;
