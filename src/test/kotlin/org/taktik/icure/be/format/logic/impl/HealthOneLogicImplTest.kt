@@ -171,6 +171,10 @@ class HealthOneLogicImplTest {
         val mappings10 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506_2");
         val content10 = HealthOneLogicImpl.decodeRawData(mappings10.readBytes());
         val r10 = StringReader(content10);
+        // File 11
+        val mappings11 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
+        val content11 = HealthOneLogicImpl.decodeRawData(mappings11.readBytes());
+        val r11 = StringReader(content11);
 
         // Execution
         val res1 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r1); // File 1
@@ -183,6 +187,7 @@ class HealthOneLogicImplTest {
         val res8 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r8); // File 8
         val res9 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r9); // File 9
         val res10 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r10); // File 10
+        val res11 = HealthOneLogicImpl.parseReportsAndLabs(language, protocolIds1, r11) // File 11
 
         //Tests
         /// Empty file
@@ -230,6 +235,10 @@ class HealthOneLogicImplTest {
         /// File contains one A1,A2,A3,A4 Line and more than 20 L5Line
         Assert.assertEquals(res10.size, 1)
         Assert.assertEquals(res10[0].services.size, 2)
+
+        /// File contains 2 line L1 with the same code but 2 differents types
+        Assert.assertEquals(res11.size, 1)
+        Assert.assertEquals(res11[0].services.size, 2)
     }
 
     @Test
