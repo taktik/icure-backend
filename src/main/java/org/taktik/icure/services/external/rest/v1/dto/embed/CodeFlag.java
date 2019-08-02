@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 public enum CodeFlag {
-	male_only,female_only, deptkinesitherapy, deptnurse, deptgeneralpractice, deptsocialworker, deptpsychology, deptadministrative, deptdietetic, deptspeechtherapy, deptdentistry, deptoccupationaltherapy, depthealthcare, deptgynecology, deptpediatry
+	male_only,female_only, deptkinesitherapy, deptnursing, deptgeneralpractice, deptsocialworker, deptpsychology, deptadministrative, deptdietetics, deptspeechtherapy, deptdentistry, deptoccupationaltherapy, depthealthcare, deptgynecology, deptpediatry
 }
