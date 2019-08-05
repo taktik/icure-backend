@@ -922,6 +922,7 @@ fun main() {
     generateFullSenderSumehr()
     generateFullRecipientSumehr()
     generateFullAdrItemSumehr()
+    generateFullGmdManagerItemSumehr()
     generateEveryItemsSumehr()
     generateDecryptedSumehr()
 }
@@ -1469,7 +1470,7 @@ private fun generateDecryptedSumehr() {
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
-private fun generateFullAdrItemSumehr() {
+private fun generateFullAdrItemSumehr() { // same structure as 'allergy', 'risk' and 'socialrisk'
     services.clear()
     healthElements.clear()
 
@@ -1508,7 +1509,7 @@ private fun generateFullAdrItemSumehr() {
     }
 
     /// Seventh parameter
-    val comment = "All data is fake"
+    val comment = "All the data is fake"
 
     /// Eighth parameter
     val excludedIds = emptyList<String>()
@@ -1519,6 +1520,61 @@ private fun generateFullAdrItemSumehr() {
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
+
+private fun generateFullGmdManagerItemSumehr() {
+    services.clear()
+    healthElements.clear()
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "FullGmdManagerItemSumehr.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = MyPatients.fullItemsPatient
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
+        nihii = "18000032004"
+        ssin = "50010100156"
+        firstName = "Orville"
+        lastName = "Flamand"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
+            telecoms = listOf(Telecom().apply {
+                telecomNumber = "0474301934"
+            })
+        })
+        speciality = "persphysician"
+    }
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "All the data is fake"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
+
+    hcparties["1"] = MyHealthcareParties.doctorGMD
+    hcparties["2"] = MyHealthcareParties.referralGMD
+    hcparties["3"] = MyHealthcareParties.medicalhouseGMD
+    hcparties["4"] = MyHealthcareParties.retirementhomeGMD
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
+
 
 private fun Service.map(): ServiceDto {
     return ServiceDto().apply {
