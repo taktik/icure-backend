@@ -185,8 +185,8 @@ class SumehrExport : KmehrExport() {
 		//itemIndex = addNonPassiveIrrelevantServiceUsingContent(p, trn, itemIndex, "familyrisk");
 
 		addGmdmanager(p, trn)
-		addContactPeople(p, trn, config)
-		addPatientHealthcareParties(p, trn, config)
+		addContactPeople(p, trn, config, excludedIds)
+		addPatientHealthcareParties(p, trn, config, excludedIds)
 
 
 		addNonPassiveIrrelevantServicesAsCD(sender.id, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "intubationrefusal", "euthanasiarequest", "vaccinationrefusal", "organdonationconsent", "datareuseforclinicalresearchconsent", "datareuseforclinicaltrialsconsent", "clinicaltrialparticipationconsent"), excludedIds, decryptor)
@@ -401,8 +401,8 @@ class SumehrExport : KmehrExport() {
 	}
 
 	@NotNull
-	private fun addContactPeople(pat: Patient, trn: TransactionType, config: Config) {
-		patientLogic?.getPatients(pat.partnerships.mapNotNull { it?.partnerId })?.forEach { p ->
+	private fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
+		patientLogic?.getPatients(pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId })?.forEach { p ->
 			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
 			try {
 				rel.let {
@@ -421,8 +421,8 @@ class SumehrExport : KmehrExport() {
 	}
 
     @NotNull
-    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
-        healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
+    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
+        healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties?.filter { s -> !excludedIds.contains(s.healthcarePartyId) }?.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
             if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
                 val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
                 try {
