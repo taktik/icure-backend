@@ -563,12 +563,18 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		if (group.getId()==null || !(db instanceof CouchDbICureConnector)) {
 			this.forceInitStandardDesignDocument();
 		} else {
-			(group.getServers() != null && group.getServers().size()>0 ? group.getServers() : Collections.singletonList((String)null)).forEach( db -> initDesignDocInternal(group.getId(), db, 0, true));
+			(group.getServers() != null && group.getServers().size()>0 ? group.getServers() : Collections.singletonList((String)null)).forEach( db -> {
+				initDesignDocInternal(group.getId(), db, 0, true);
+			});
 		}
 	}
 
 	private void initDesignDocInternal(String groupId, String dbInstanceUrl, int invocations, boolean forceUpdate) {
 		CouchDbConnector cdb = (db instanceof CouchDbICureConnector) ? ((CouchDbICureConnector) db).getCouchDbICureConnector(groupId, dbInstanceUrl, true) : db;
+		if (cdb instanceof CouchDbICureConnector) {
+			((CouchDbICureConnector) cdb).initSystemDesignDocument();
+		}
+
 		DesignDocument designDoc;
 		if (cdb.contains(stdDesignDocumentId)) {
 			designDoc = getDesignDocumentFactory().getFromDatabase(cdb, stdDesignDocumentId);

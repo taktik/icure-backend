@@ -159,7 +159,9 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         groupReplicationStatus.withLock {
             if (!groupReplicationStatus.standardDocumentsInitialized) {
                 log.info("Initializing Standard docs for ${group.id}")
-                withContext(IO) { allDaos.forEach { dao -> dao.initStandardDesignDocument(group) } }
+                withContext(IO) { allDaos.forEach { dao ->
+                    dao.initStandardDesignDocument(group)
+                } }
                 groupReplicationStatus.standardDocumentsInitialized = true
                 log.info("Standard docs initialised for ${group.id}")
             }
