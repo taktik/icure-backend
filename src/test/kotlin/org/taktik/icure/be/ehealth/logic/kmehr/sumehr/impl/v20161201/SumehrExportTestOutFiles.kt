@@ -156,7 +156,7 @@ private val services = mutableListOf<Service>()
 private class MyServices {
     companion object {
         val validServiceADRAssessment = Service().apply {
-            this.id = "1"
+            this.id = "validServiceADRAssessment"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.adrTag)
@@ -169,7 +169,7 @@ private class MyServices {
         }
 
         val validServiceADRHistory = Service().apply {
-            this.id = "2"
+            this.id = "validServiceADRHistory"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
@@ -181,7 +181,7 @@ private class MyServices {
         }
 
         val validServiceEncryptedADR = Service().apply {
-            this.id = "3"
+            this.id = "validServiceEncryptedADR"
             this.endOfLife = null
             this.status = 0
             this.tags = mutableSetOf(MyTags.adrTag)
@@ -194,7 +194,7 @@ private class MyServices {
         }
 
         val validServiceAllergyAssessment = Service().apply {
-            this.id = "4"
+            this.id = "validServiceAllergyAssessment"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.allergyTag)
@@ -206,7 +206,7 @@ private class MyServices {
         }
 
         val validServiceAllergyHistory = Service().apply {
-            this.id = "5"
+            this.id = "validServiceAllergyHistory"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.allergyTag, MyTags.inactiveTag)
@@ -217,8 +217,21 @@ private class MyServices {
             this.closingDate = today
         }
 
+        val validServiceEncryptedAllergy = Service().apply {
+            this.id = "validServiceEncryptedAllergy"
+            this.endOfLife = null
+            this.status = 0
+            this.tags = mutableSetOf(MyTags.allergyTag)
+            this.label = medication
+            this.content = emptyMap<String, Content>()
+            this.encryptedContent = MyContents.neutralContent.values.first().stringValue
+            this.comment = "It's the comment of validServiceEncryptedAllergy"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
         val validServiceSocialriskAssessment = Service().apply {
-            this.id = "6"
+            this.id = "validServiceSocialriskAssessment"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.socialriskTag)
@@ -230,7 +243,7 @@ private class MyServices {
         }
 
         val validServiceSocialriskHistory = Service().apply {
-            this.id = "7"
+            this.id = "validServiceSocialriskHistory"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.socialriskTag, MyTags.inactiveTag)
@@ -241,8 +254,21 @@ private class MyServices {
             this.closingDate = today
         }
 
+        val validServiceEncryptedSocialrisk = Service().apply {
+            this.id = "validServiceEncryptedSocialrisk"
+            this.endOfLife = null
+            this.status = 0
+            this.tags = mutableSetOf(MyTags.socialriskTag)
+            this.label = medication
+            this.content = emptyMap<String, Content>()
+            this.encryptedContent = MyContents.neutralContent.values.first().stringValue
+            this.comment = "It's the comment of validServiceEncryptedSocialrisk"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
         val validServiceRiskAssessment = Service().apply {
-            this.id = "8"
+            this.id = "validServiceRiskAssessment"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.riskTag)
@@ -254,7 +280,7 @@ private class MyServices {
         }
 
         val validServiceRiskHistory = Service().apply {
-            this.id = "9"
+            this.id = "validServiceRiskHistory"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.riskTag, MyTags.inactiveTag)
@@ -265,8 +291,21 @@ private class MyServices {
             this.closingDate = today
         }
 
+        val validServiceEncryptedRisk = Service().apply {
+            this.id = "validServiceEncryptedRisk"
+            this.endOfLife = null
+            this.status = 0
+            this.tags = mutableSetOf(MyTags.riskTag)
+            this.label = medication
+            this.content = emptyMap<String, Content>()
+            this.encryptedContent = MyContents.neutralContent.values.first().stringValue
+            this.comment = "It's the comment of validServiceEncryptedRisk"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
         val patientwillNtbr = Service().apply {
-            this.id = "10"
+            this.id = "patientwillNtbr"
             this.endOfLife = null
             this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
@@ -278,7 +317,7 @@ private class MyServices {
         }
 
         val patientwillBloodtransfusionrefusal = Service().apply {
-            this.id = "11"
+            this.id = "patientwillBloodtransfusionrefusal"
             this.endOfLife = null
             this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
@@ -290,7 +329,7 @@ private class MyServices {
         }
 
         val patientwillIntubationrefusal = Service().apply {
-            this.id = "12"
+            this.id = "patientwillBloodtransfusionrefusal"
             this.endOfLife = null
             this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
@@ -302,7 +341,7 @@ private class MyServices {
         }
 
         val patientwillEuthanasiarequest = Service().apply {
-            this.id = "13"
+            this.id = "patientwillBloodtransfusionrefusal"
             this.endOfLife = null
             this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
@@ -314,7 +353,7 @@ private class MyServices {
         }
 
         val patientwillVaccinationrefusal = Service().apply {
-            this.id = "14"
+            this.id = "patientwillVaccinationrefusal"
             this.endOfLife = null
             this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
@@ -326,7 +365,7 @@ private class MyServices {
         }
 
         val vaccineValidService = Service().apply {
-            this.id = "15"
+            this.id = "vaccineValidService"
             this.endOfLife = null
             this.status = 0 // must be active
             this.tags = mutableSetOf(MyTags.vaccineTag)
@@ -338,7 +377,7 @@ private class MyServices {
         }
 
         val medicationValidService = Service().apply {
-            this.id = "16"
+            this.id = "medicationValidService"
             this.endOfLife = null
             this.status = 0 // must be active
             this.tags = mutableSetOf(MyTags.medicationTag)
@@ -350,7 +389,7 @@ private class MyServices {
         }
 
         val treatmentValidService = Service().apply {
-            this.id = "17"
+            this.id = "treatmentValidService"
             this.endOfLife = null
             this.status = 0 // must be active
             this.tags = mutableSetOf(MyTags.treatmentTag)
@@ -362,7 +401,7 @@ private class MyServices {
         }
 
         val healthissueAssessmentService = Service().apply {
-            this.id = "18"
+            this.id = "healthissueAssessmentService"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.activeTag)
@@ -374,7 +413,7 @@ private class MyServices {
         }
 
         val healthissueHistoryService = Service().apply {
-            this.id = "19"
+            this.id = "healthissueHistoryService"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.inactiveTag)
@@ -386,7 +425,7 @@ private class MyServices {
         }
 
         val healthcareelementAssessmentService = Service().apply {
-            this.id = "20"
+            this.id = "healthcareelementAssessmentService"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.activeTag)
@@ -398,7 +437,7 @@ private class MyServices {
         }
 
         val healthcareelementHistoryService = Service().apply {
-            this.id = "21"
+            this.id = "healthcareelementHistoryService"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.inactiveTag)
@@ -942,7 +981,7 @@ private fun initializeMocks() {
     Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any())).thenAnswer {
         (it.getArgumentAt(0, List::class.java) as List<String>).mapNotNull {
             if (hcparties.containsKey(it)) {
-                hcparties[it];
+                hcparties[it]
             } else {
                 null
             }
@@ -960,7 +999,7 @@ private fun initializeMocks() {
     Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
         (it.getArgumentAt(0, List::class.java) as List<String>).mapNotNull {
             if (patients.containsKey(it)) {
-                patients[it];
+                patients[it]
             } else {
                 null
             }
@@ -1514,7 +1553,6 @@ private fun generateFullRecipientSumehr() {
 private fun generateDecryptedSumehr() {
     services.clear()
     healthElements.clear()
-    services.add(MyServices.validServiceEncryptedADR)
 
     /// First parameter : os
     val os = File(DIR_PATH + "DecryptedSumehr.xml").outputStream()
@@ -1564,6 +1602,8 @@ private fun generateDecryptedSumehr() {
     /// Eighth parameter
     val excludedIds = emptyList<String>()
 
+    services.addAll(listOf(MyServices.validServiceEncryptedADR, MyServices.validServiceEncryptedAllergy, MyServices.validServiceEncryptedSocialrisk, MyServices.validServiceEncryptedRisk))
+
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
@@ -1572,14 +1612,14 @@ private fun Service.map(): ServiceDto {
     return ServiceDto().apply {
         this@apply.author = this@map.author
         this@apply.closingDate = this@map.closingDate
-        this@apply.codes = this@map.codes.map { it.map() }?.toSet()
+        this@apply.codes = this@map.codes.map { it.map() }.toSet()
         this@apply.comment = this@map.comment
-        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }?.toMap()
+        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }.toMap()
         this@apply.contactId = this@map.contactId
         this@apply.created = this@map.created
         this@apply.encryptedSelf = this@map.encryptedSelf
         this@apply.encryptedContent = this@map.encryptedContent
-        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }) }?.toMap()
+        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }) }.toMap()
         this@apply.endOfLife = this@map.endOfLife
         this@apply.formId = this@map.formId
         this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
@@ -1594,8 +1634,8 @@ private fun Service.map(): ServiceDto {
         this@apply.secretForeignKeys = this@map.secretForeignKeys?.toMutableSet()
         this@apply.status = this@map.status
         this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
-        this@apply.tags = this@map.tags.map { it.map() }?.toSet()
-        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.tags = this@map.tags.map { it.map() }.toSet()
+        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }.toMap()
         this@apply.valueDate = this@map.valueDate
     }
 }
@@ -1604,14 +1644,14 @@ private fun ServiceDto.map(): Service {
     return Service().apply {
         this@apply.author = this@map.author
         this@apply.closingDate = this@map.closingDate
-        this@apply.codes = this@map.codes.map { it.mapStub() }?.toSet()
+        this@apply.codes = this@map.codes.map { it.mapStub() }.toSet()
         this@apply.comment = this@map.comment
-        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }?.toMap()
+        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }.toMap()
         this@apply.contactId = this@map.contactId
         this@apply.created = this@map.created
         this@apply.encryptedSelf = this@map.encryptedSelf
         this@apply.encryptedContent = this@map.encryptedContent
-        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }.toSet()) }?.toMap()
+        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }.toSet()) }.toMap()
         this@apply.endOfLife = this@map.endOfLife
         this@apply.formId = this@map.formId
         this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
@@ -1626,8 +1666,8 @@ private fun ServiceDto.map(): Service {
         this@apply.secretForeignKeys = this@map.secretForeignKeys?.toMutableSet()
         this@apply.status = this@map.status
         this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
-        this@apply.tags = this@map.tags.map { it.mapStub() }?.toSet()
-        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.tags = this@map.tags.map { it.mapStub() }.toSet()
+        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }.toMap()
         this@apply.valueDate = this@map.valueDate
     }
 }
@@ -1636,14 +1676,14 @@ private fun ServiceDto.copy(): ServiceDto {
     return ServiceDto().apply {
         this@apply.author = this@copy.author
         this@apply.closingDate = this@copy.closingDate
-        this@apply.codes = this@copy.codes.map { it.copy() }?.toSet()
+        this@apply.codes = this@copy.codes.map { it.copy() }.toSet()
         this@apply.comment = this@copy.comment
-        this@apply.content = this@copy.content.map { entry -> Pair(entry.key, entry.value.copy()) }?.toMap()
+        this@apply.content = this@copy.content.map { entry -> Pair(entry.key, entry.value.copy()) }.toMap()
         this@apply.contactId = this@copy.contactId
         this@apply.created = this@copy.created
         this@apply.encryptedSelf = this@copy.encryptedSelf
         this@apply.encryptedContent = this@copy.encryptedContent
-        this@apply.encryptionKeys = this@copy.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.copy() }) }?.toMap()
+        this@apply.encryptionKeys = this@copy.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.copy() }) }.toMap()
         this@apply.endOfLife = this@copy.endOfLife
         this@apply.formId = this@copy.formId
         this@apply.healthElementsIds = this@copy.healthElementsIds?.toMutableSet()
@@ -1659,7 +1699,7 @@ private fun ServiceDto.copy(): ServiceDto {
         this@apply.status = this@copy.status
         this@apply.subContactIds = this@copy.subContactIds?.toMutableSet()
         this@apply.tags = this@copy.tags
-        this@apply.textIndexes = this@copy.textIndexes.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.textIndexes = this@copy.textIndexes.map { Pair(it.key, it.value) }.toMap()
         this@apply.valueDate = this@copy.valueDate
     }
 }
@@ -1707,7 +1747,7 @@ private fun Code.map(): CodeDto {
         this@apply.level = this@map.level
         this@apply.links = this@map.links?.toList()
         this@apply.parent = this@map.parent
-        this@apply.qualifiedLinks = this@map.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }?.toMap()
+        this@apply.qualifiedLinks = this@map.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }.toMap()
     }
 }
 
@@ -1720,7 +1760,7 @@ private fun CodeDto.copy(): CodeDto {
         this@apply.level = this@copy.level
         this@apply.links = this@copy.links?.toList()
         this@apply.parent = this@copy.parent
-        this@apply.qualifiedLinks = this@copy.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }?.toMap()
+        this@apply.qualifiedLinks = this@copy.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }.toMap()
     }
 }
 
@@ -1770,7 +1810,7 @@ private fun ContentDto.map(): Content {
         this@apply.booleanValue = this@map.booleanValue
         this@apply.documentId = this@map.documentId
         this@apply.fuzzyDateValue = this@map.fuzzyDateValue
-        this@apply.instantValue = Instant.ofEpochMilli(this@map.instantValue ?: 0)
+        this@apply.instantValue = this@map.instantValue?.let { Instant.ofEpochMilli(it) }
         this@apply.measureValue = this@map.measureValue?.map()
         this@apply.medicationValue = this@map.medicationValue?.map()
         this@apply.numberValue = this@map.numberValue
@@ -1841,7 +1881,7 @@ private fun Measure.map(): MeasureDto {
         this@apply.ref = this@map.ref
         this@apply.severity = this@map.severity
         this@apply.unit = this@map.unit
-        this@apply.unitCodes = this@map.unitCodes.map { it.map() }?.toSet()
+        this@apply.unitCodes = this@map.unitCodes.map { it.map() }.toSet()
         this@apply.value = this@map.value
     }
 }
@@ -1854,7 +1894,7 @@ private fun MeasureDto.map(): Measure {
         this@apply.ref = this@map.ref
         this@apply.severity = this@map.severity
         this@apply.unit = this@map.unit
-        this@apply.unitCodes = this@map.unitCodes.map { it.mapStub() }?.toSet()
+        this@apply.unitCodes = this@map.unitCodes.map { it.mapStub() }.toSet()
         this@apply.value = this@map.value
     }
 }
@@ -1893,8 +1933,8 @@ private fun Medication.map(): MedicationDto {
         this@apply.substitutionAllowed = this@map.substitutionAllowed
         this@apply.regimen = this@map.regimen.map { it.map() }
         this@apply.posology = this@map.posology
-        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }?.toMap()
-        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }?.toMap()
+        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }.toMap()
+        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }.toMap()
         this@apply.medicationSchemeIdOnSafe = this@map.medicationSchemeIdOnSafe
         this@apply.medicationSchemeSafeVersion = this@map.medicationSchemeSafeVersion
         this@apply.medicationSchemeTimeStampOnSafe = this@map.medicationSchemeTimeStampOnSafe
@@ -1935,8 +1975,8 @@ private fun MedicationDto.map(): Medication {
         this@apply.substitutionAllowed = this@map.substitutionAllowed
         this@apply.regimen = this@map.regimen.map { it.map() }
         this@apply.posology = this@map.posology
-        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }?.toMap()
-        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }?.toMap()
+        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }.toMap()
+        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }.toMap()
         this@apply.medicationSchemeIdOnSafe = this@map.medicationSchemeIdOnSafe
         this@apply.medicationSchemeSafeVersion = this@map.medicationSchemeSafeVersion
         this@apply.medicationSchemeTimeStampOnSafe = this@map.medicationSchemeTimeStampOnSafe
