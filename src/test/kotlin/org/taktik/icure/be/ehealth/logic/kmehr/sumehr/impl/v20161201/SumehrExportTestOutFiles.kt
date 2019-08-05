@@ -75,30 +75,35 @@ private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMont
 
 private class MyContents {
     companion object {
+        val emptyContent = emptyMap<String, Content>()
+
         val neutralContent = mapOf(Pair(language, Content().apply {
             stringValue = "neutralContentStringValue"
         }))
+
         val medicationContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
                 substanceProduct = Substanceproduct().apply {
-                    intendedcds = listOf(CodeStub("CD-INNCLUSTER","1449834","medication"))
+                    intendedcds = listOf(CodeStub("CD-INNCLUSTER", "1449834", "medication"))
                     intendedname = "paracetamol"
                 }
             }
         }))
+
         val treatmentContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
                 medicinalProduct = Medicinalproduct().apply {
-                    intendedcds = listOf(CodeStub("CD-DRUG-CNK","1449834","treatment"))
+                    intendedcds = listOf(CodeStub("CD-DRUG-CNK", "1449834", "treatment"))
                     intendedname = "ibuprofen"
 
                 }
             }
         }))
+
         val vaccineContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
                 medicinalProduct = Medicinalproduct().apply {
-                    intendedcds = listOf(CodeStub("CD-DRUG-CNK","1449834","vaccine"))
+                    intendedcds = listOf(CodeStub("CD-DRUG-CNK", "1449834", "vaccine"))
                     intendedname = "gardasil"
 
                 }
@@ -120,12 +125,12 @@ private class MyCodes {
         val datareuseforclinicalresearchconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicalresearchconsent", "4.6")
         val datareuseforclinicaltrialsconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicaltrialsconsent", "4.6")
         val clinicaltrialparticipationconsent = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "clinicaltrialparticipationconsent", "4.6")
-        val medicationCode = CodeStub ("CD-DRUG-CNK","medication","version")
-        val treatmentCode = CodeStub ("CD-DRUG-CNK","treatment","version")
-        val healthissueCode = CodeStub("type",healthissue,"version")
-        val healthcareelementCode = CodeStub("type",healthcareelement,"version")
-        val atcCode = CodeStub("CD-ATC","code","version")
-        val clinicalCode = CodeStub("CD-CLINICAL","code","version")
+        val medicationCode = CodeStub("CD-DRUG-CNK", "medication", "version")
+        val treatmentCode = CodeStub("CD-DRUG-CNK", "treatment", "version")
+        val healthissueCode = CodeStub("type", healthissue, "version")
+        val healthcareelementCode = CodeStub("type", healthcareelement, "version")
+        val atcCode = CodeStub("CD-ATC", "code", "version")
+        val clinicalCode = CodeStub("CD-CLINICAL", "code", "version")
     }
 }
 
@@ -137,22 +142,21 @@ private class MyTags {
         val socialriskTag = CodeStub("CD-ITEM", socialrisk, "1.0") //Fixe : code
         val riskTag = CodeStub("CD-ITEM", risk, "1.0") //Fixe : code
         val patientwillTag = CodeStub("CD-ITEM", patientwill, "1.2")
-        val vaccineTag = CodeStub("CD-ITEM", vaccine,"2.1")
-        val medicationTag = CodeStub("CD-ITEM", medication,"5.8")
+        val vaccineTag = CodeStub("CD-ITEM", vaccine, "2.1")
+        val medicationTag = CodeStub("CD-ITEM", medication, "5.8")
         val treatmentTag = CodeStub("CD-ITEM", treatment, "9.6")
-        val healthissueTag = CodeStub("CD-ITEM",healthissue,"version")
-        val healthcareelementTag = CodeStub("CD-ITEM",healthcareelement,"version")
-        val activeTag = CodeStub("CD-LIFECYCLE","active","9.5")
+        val healthissueTag = CodeStub("CD-ITEM", healthissue, "version")
+        val healthcareelementTag = CodeStub("CD-ITEM", healthcareelement, "version")
+        val activeTag = CodeStub("CD-LIFECYCLE", "active", "9.5")
     }
 }
 
 private val services = mutableListOf<Service>()
+
 private class MyServices {
     companion object {
-        private var newId = 1
-
         val validServiceADRAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1 //1
+            this.id = "1"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.adrTag)
@@ -165,7 +169,7 @@ private class MyServices {
         }
 
         val validServiceADRHistory = Service().apply {
-            this.id = newId.toString(); newId += 1 //2
+            this.id = "2"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
@@ -176,8 +180,21 @@ private class MyServices {
             this.closingDate = today
         }
 
+        val validServiceEncryptedADR = Service().apply {
+            this.id = "3"
+            this.endOfLife = null
+            this.status = 0
+            this.tags = mutableSetOf(MyTags.adrTag)
+            this.label = medication
+            this.content = emptyMap<String, Content>()
+            this.encryptedContent = MyContents.neutralContent.values.first().stringValue
+            this.comment = "It's the comment of validServiceEncryptedADR"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
         val validServiceAllergyAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1 //3
+            this.id = "4"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.allergyTag)
@@ -189,7 +206,7 @@ private class MyServices {
         }
 
         val validServiceAllergyHistory = Service().apply {
-            this.id = newId.toString(); newId += 1 //4
+            this.id = "5"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.allergyTag, MyTags.inactiveTag)
@@ -201,7 +218,7 @@ private class MyServices {
         }
 
         val validServiceSocialriskAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1 //5
+            this.id = "6"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.socialriskTag)
@@ -213,7 +230,7 @@ private class MyServices {
         }
 
         val validServiceSocialriskHistory = Service().apply {
-            this.id = newId.toString(); newId += 1 //6
+            this.id = "7"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.socialriskTag, MyTags.inactiveTag)
@@ -225,7 +242,7 @@ private class MyServices {
         }
 
         val validServiceRiskAssessment = Service().apply {
-            this.id = newId.toString(); newId += 1 //7
+            this.id = "8"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.riskTag)
@@ -237,7 +254,7 @@ private class MyServices {
         }
 
         val validServiceRiskHistory = Service().apply {
-            this.id = newId.toString(); newId += 1 //8
+            this.id = "9"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.riskTag, MyTags.inactiveTag)
@@ -249,9 +266,9 @@ private class MyServices {
         }
 
         val patientwillNtbr = Service().apply {
-            this.id = newId.toString(); newId += 1 //9
+            this.id = "10"
             this.endOfLife = null
-            this.status = 0 //must be active and relevant
+            this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.ntbrCode)
             this.content = MyContents.neutralContent
@@ -261,9 +278,9 @@ private class MyServices {
         }
 
         val patientwillBloodtransfusionrefusal = Service().apply {
-            this.id = newId.toString(); newId += 1 //10
+            this.id = "11"
             this.endOfLife = null
-            this.status = 0 //must be active and relevant
+            this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.bloodtransfusionrefusalCode)
             this.content = MyContents.neutralContent
@@ -273,9 +290,9 @@ private class MyServices {
         }
 
         val patientwillIntubationrefusal = Service().apply {
-            this.id = newId.toString(); newId += 1 //11
+            this.id = "12"
             this.endOfLife = null
-            this.status = 0 //must be active and relevant
+            this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.intubationrefusalCode)
             this.content = MyContents.neutralContent
@@ -285,9 +302,9 @@ private class MyServices {
         }
 
         val patientwillEuthanasiarequest = Service().apply {
-            this.id = newId.toString(); newId += 1 //12
+            this.id = "13"
             this.endOfLife = null
-            this.status = 0 //must be active and relevant
+            this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.euthanasiarequestCode)
             this.content = MyContents.neutralContent
@@ -297,9 +314,9 @@ private class MyServices {
         }
 
         val patientwillVaccinationrefusal = Service().apply {
-            this.id = newId.toString(); newId += 1 //13
+            this.id = "14"
             this.endOfLife = null
-            this.status = 0 //must be active and relevant
+            this.status = 0 // must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.vaccinationrefusalCode)
             this.content = MyContents.neutralContent
@@ -309,31 +326,33 @@ private class MyServices {
         }
 
         val vaccineValidService = Service().apply {
-            this.id = newId.toString(); newId += 1 //14
+            this.id = "15"
             this.endOfLife = null
-            this.status = 0 //must be active
+            this.status = 0 // must be active
             this.tags = mutableSetOf(MyTags.vaccineTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode,MyCodes.atcCode)
+            this.codes = mutableSetOf(MyCodes.vaccineCode, MyCodes.atcCode)
             this.content = MyContents.vaccineContent
             this.comment = "It's the comment of vaccineValidService"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
+
         val medicationValidService = Service().apply {
-            this.id = newId.toString(); newId += 1 //15
+            this.id = "16"
             this.endOfLife = null
-            this.status = 0 //must be active
+            this.status = 0 // must be active
             this.tags = mutableSetOf(MyTags.medicationTag)
-            this.codes = mutableSetOf(MyCodes.medicationCode,MyCodes.atcCode)
+            this.codes = mutableSetOf(MyCodes.medicationCode, MyCodes.atcCode)
             this.content = MyContents.medicationContent
             this.comment = "It's the comment of medicationValidService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
+
         val treatmentValidService = Service().apply {
-            this.id = newId.toString(); newId += 1 //16
+            this.id = "17"
             this.endOfLife = null
-            this.status = 0 //must be active
+            this.status = 0 // must be active
             this.tags = mutableSetOf(MyTags.treatmentTag)
             this.codes = mutableSetOf(MyCodes.treatmentCode, MyCodes.atcCode)
             this.content = MyContents.treatmentContent
@@ -341,8 +360,9 @@ private class MyServices {
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
+
         val healthissueAssessmentService = Service().apply {
-            this.id = newId.toString(); newId += 1 //17
+            this.id = "18"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.activeTag)
@@ -352,8 +372,9 @@ private class MyServices {
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
+
         val healthissueHistoryService = Service().apply {
-            this.id = newId.toString(); newId += 1 //18
+            this.id = "19"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.inactiveTag)
@@ -363,8 +384,9 @@ private class MyServices {
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
+
         val healthcareelementAssessmentService = Service().apply {
-            this.id = newId.toString(); newId += 1 //19
+            this.id = "20"
             this.endOfLife = null
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.activeTag)
@@ -374,8 +396,9 @@ private class MyServices {
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
+
         val healthcareelementHistoryService = Service().apply {
-            this.id = newId.toString(); newId += 1 //20
+            this.id = "21"
             this.endOfLife = null
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.inactiveTag)
@@ -389,6 +412,7 @@ private class MyServices {
 }
 
 private val filters = listOf(MyFilters.unionFilter, MyFilters.serviceFilter)
+
 private class MyFilters {
     companion object {
         val unionFilter = Filters.UnionFilter<String, Service>()
@@ -400,6 +424,7 @@ private class MyFilters {
 }
 
 private val hcparties = mutableMapOf<String, HealthcareParty>()
+
 private class MyHealthcareParties {
     companion object {
         val doctorGMD = HealthcareParty().apply {
@@ -551,6 +576,7 @@ private class MyHealthcareParties {
 }
 
 private val patients = mutableMapOf<String, Patient>()
+
 private class MyPatients {
     companion object {
         val minimalistPatient = Patient().apply {
@@ -806,6 +832,7 @@ private class MyPatients {
 }
 
 private val healthElements = mutableListOf<HealthElement>()
+
 private class MyHealthElements {
     companion object {
         val historyHealthElementProblem = HealthElement().apply {
@@ -856,12 +883,11 @@ fun main() {
     generateFullSenderSumehr()
     generateFullRecipientSumehr()
     generateEveryItemsSumehr()
+    generateDecryptedSumehr()
 }
 
 private fun initializeSumehrExport() {
-    sumehrExport.filters = Filters().apply {
-        setApplicationContext(applicationContext)
-    }
+    sumehrExport.filters = Filters().apply { setApplicationContext(applicationContext) }
     sumehrExport.contactLogic = contactLogic
     sumehrExport.codeLogic = codeLogic
     sumehrExport.healthcarePartyLogic = healthcarePartyLogic
@@ -927,7 +953,7 @@ private fun initializeMocks() {
         hcparties[it.getArgumentAt(0, String::class.java) as String]
     }
 
-    Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(),any())).thenAnswer {
+    Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any())).thenAnswer {
         healthElements
     }
 
@@ -958,10 +984,16 @@ private fun initializeMocks() {
         val service = it.getArgumentAt(0, ArrayList::class.java) as Service
         service.map()
     }
+
+    Mockito.`when`(mapper.map<ServiceDto, Service>(any(ServiceDto::class.java), eq(Service::class.java))).thenAnswer {
+        val service = it.getArgumentAt(0, ArrayList::class.java) as ServiceDto
+        service.map()
+    }
 }
 
 private fun generateMinimalist() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "MinimalSumehr.xml").outputStream()
@@ -1017,6 +1049,7 @@ private fun generateMinimalist() {
 
 private fun generateEveryItemsSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "EveryItemsSumehr.xml").outputStream()
@@ -1080,9 +1113,9 @@ private fun generateEveryItemsSumehr() {
     services.addAll(listOf(MyServices.validServiceRiskAssessment, MyServices.validServiceRiskHistory))
     services.addAll(listOf(MyServices.patientwillNtbr, MyServices.patientwillBloodtransfusionrefusal, MyServices.patientwillIntubationrefusal, MyServices.patientwillEuthanasiarequest, MyServices.patientwillVaccinationrefusal))
     services.addAll(listOf(MyServices.vaccineValidService))
-    services.addAll(listOf(MyServices.medicationValidService,MyServices.treatmentValidService))
+    services.addAll(listOf(MyServices.medicationValidService, MyServices.treatmentValidService))
     services.addAll(listOf(MyServices.healthissueAssessmentService, MyServices.healthissueHistoryService))
-    services.addAll(listOf(MyServices.healthcareelementAssessmentService,MyServices.healthcareelementHistoryService))
+    services.addAll(listOf(MyServices.healthcareelementAssessmentService, MyServices.healthcareelementHistoryService))
     hcparties["1"] = MyHealthcareParties.doctorGMD
     hcparties["2"] = MyHealthcareParties.referralGMD
     hcparties["3"] = MyHealthcareParties.medicalhouseGMD
@@ -1098,6 +1131,7 @@ private fun generateEveryItemsSumehr() {
 
 private fun generateFullPatientSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullPatientSumehr.xml").outputStream()
@@ -1264,6 +1298,7 @@ private fun generateFullPatientSumehr() {
 
 private fun generateFullSenderSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullSenderSumehr.xml").outputStream()
@@ -1352,6 +1387,7 @@ private fun generateFullSenderSumehr() {
 
 private fun generateFullRecipientSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullRecipientSumehr.xml").outputStream()
@@ -1475,34 +1511,123 @@ private fun generateFullRecipientSumehr() {
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
+private fun generateDecryptedSumehr() {
+    services.clear()
+    healthElements.clear()
+    services.add(MyServices.validServiceEncryptedADR)
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "DecryptedSumehr.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = Patient().apply {
+        id = "316804da-9234-43d6-b18c-df0cccd46744"
+        firstName = "Sargent"
+        lastName = "Berie"
+        ssin = "50010100156"
+        gender = Gender.fromCode("M")
+        dateOfBirth = 19500101
+        languages = listOf("French")
+    }
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
+        nihii = "18000032004"
+        ssin = "50010100156"
+        firstName = "Orville"
+        lastName = "Flamand"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
+            telecoms = listOf(Telecom().apply {
+                telecomNumber = "0474301934"
+            })
+        })
+        speciality = "persphysician"
+    }
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "All data is fake"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
 private fun Service.map(): ServiceDto {
     return ServiceDto().apply {
         this@apply.author = this@map.author
         this@apply.closingDate = this@map.closingDate
-        this@apply.codes = this@map.codes.map { it.map() }.toSet()
+        this@apply.codes = this@map.codes.map { it.map() }?.toSet()
         this@apply.comment = this@map.comment
-        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }.toMap()
+        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }?.toMap()
         this@apply.contactId = this@map.contactId
         this@apply.created = this@map.created
         this@apply.encryptedSelf = this@map.encryptedSelf
         this@apply.encryptedContent = this@map.encryptedContent
-        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }) }.toMap()
+        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }) }?.toMap()
         this@apply.endOfLife = this@map.endOfLife
         this@apply.formId = this@map.formId
-        this@apply.healthElementsIds = this@map.healthElementsIds.toMutableSet()
+        this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
         this@apply.id = this@map.id
         this@apply.index = this@map.index
-        this@apply.invoicingCodes = this@map.invoicingCodes.toMutableSet()
+        this@apply.invoicingCodes = this@map.invoicingCodes?.toMutableSet()
         this@apply.label = this@map.label
         this@apply.modified = this@map.modified
         this@apply.openingDate = this@map.openingDate
-        this@apply.plansOfActionIds = this@map.plansOfActionIds.toMutableSet()
+        this@apply.plansOfActionIds = this@map.plansOfActionIds?.toMutableSet()
         this@apply.responsible = this@map.responsible
-        this@apply.secretForeignKeys = this@map.secretForeignKeys.toMutableSet()
+        this@apply.secretForeignKeys = this@map.secretForeignKeys?.toMutableSet()
         this@apply.status = this@map.status
-        this@apply.subContactIds = this@map.subContactIds.toMutableSet()
-        this@apply.tags = this@map.tags.map { it.map() }.toSet()
-        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }.toMap()
+        this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
+        this@apply.tags = this@map.tags.map { it.map() }?.toSet()
+        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.valueDate = this@map.valueDate
+    }
+}
+
+private fun ServiceDto.map(): Service {
+    return Service().apply {
+        this@apply.author = this@map.author
+        this@apply.closingDate = this@map.closingDate
+        this@apply.codes = this@map.codes.map { it.mapStub() }?.toSet()
+        this@apply.comment = this@map.comment
+        this@apply.content = this@map.content.map { entry -> Pair(entry.key, entry.value.map()) }?.toMap()
+        this@apply.contactId = this@map.contactId
+        this@apply.created = this@map.created
+        this@apply.encryptedSelf = this@map.encryptedSelf
+        this@apply.encryptedContent = this@map.encryptedContent
+        this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }.toSet()) }?.toMap()
+        this@apply.endOfLife = this@map.endOfLife
+        this@apply.formId = this@map.formId
+        this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
+        this@apply.id = this@map.id
+        this@apply.index = this@map.index
+        this@apply.invoicingCodes = this@map.invoicingCodes?.toMutableSet()
+        this@apply.label = this@map.label
+        this@apply.modified = this@map.modified
+        this@apply.openingDate = this@map.openingDate
+        this@apply.plansOfActionIds = this@map.plansOfActionIds?.toMutableSet()
+        this@apply.responsible = this@map.responsible
+        this@apply.secretForeignKeys = this@map.secretForeignKeys?.toMutableSet()
+        this@apply.status = this@map.status
+        this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
+        this@apply.tags = this@map.tags.map { it.mapStub() }?.toSet()
+        this@apply.textIndexes = this@map.textIndexes.map { Pair(it.key, it.value) }?.toMap()
         this@apply.valueDate = this@map.valueDate
     }
 }
@@ -1511,36 +1636,44 @@ private fun ServiceDto.copy(): ServiceDto {
     return ServiceDto().apply {
         this@apply.author = this@copy.author
         this@apply.closingDate = this@copy.closingDate
-        this@apply.codes = this@copy.codes.map { it.copy() }.toSet()
+        this@apply.codes = this@copy.codes.map { it.copy() }?.toSet()
         this@apply.comment = this@copy.comment
-        this@apply.content = this@copy.content.map { entry -> Pair(entry.key, entry.value.copy()) }.toMap()
+        this@apply.content = this@copy.content.map { entry -> Pair(entry.key, entry.value.copy()) }?.toMap()
         this@apply.contactId = this@copy.contactId
         this@apply.created = this@copy.created
         this@apply.encryptedSelf = this@copy.encryptedSelf
         this@apply.encryptedContent = this@copy.encryptedContent
-        this@apply.encryptionKeys = this@copy.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.copy() }) }.toMap()
+        this@apply.encryptionKeys = this@copy.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.copy() }) }?.toMap()
         this@apply.endOfLife = this@copy.endOfLife
         this@apply.formId = this@copy.formId
-        this@apply.healthElementsIds = this@copy.healthElementsIds.toMutableSet()
+        this@apply.healthElementsIds = this@copy.healthElementsIds?.toMutableSet()
         this@apply.id = this@copy.id
         this@apply.index = this@copy.index
-        this@apply.invoicingCodes = this@copy.invoicingCodes.toMutableSet()
+        this@apply.invoicingCodes = this@copy.invoicingCodes?.toMutableSet()
         this@apply.label = this@copy.label
         this@apply.modified = this@copy.modified
         this@apply.openingDate = this@copy.openingDate
-        this@apply.plansOfActionIds = this@copy.plansOfActionIds.toMutableSet()
+        this@apply.plansOfActionIds = this@copy.plansOfActionIds?.toMutableSet()
         this@apply.responsible = this@copy.responsible
-        this@apply.secretForeignKeys = this@copy.secretForeignKeys.toMutableSet()
+        this@apply.secretForeignKeys = this@copy.secretForeignKeys?.toMutableSet()
         this@apply.status = this@copy.status
-        this@apply.subContactIds = this@copy.subContactIds.toMutableSet()
+        this@apply.subContactIds = this@copy.subContactIds?.toMutableSet()
         this@apply.tags = this@copy.tags
-        this@apply.textIndexes = this@copy.textIndexes.map { Pair(it.key, it.value) }.toMap()
+        this@apply.textIndexes = this@copy.textIndexes.map { Pair(it.key, it.value) }?.toMap()
         this@apply.valueDate = this@copy.valueDate
     }
 }
 
 private fun RegimenItem.AdministrationQuantity.map(): RegimenItemDto.AdministrationQuantity {
     return RegimenItemDto.AdministrationQuantity().apply {
+        this@apply.administrationUnit = this@map.administrationUnit.map()
+        this@apply.quantity = this@map.quantity
+        this@apply.unit = this@map.unit
+    }
+}
+
+private fun RegimenItemDto.AdministrationQuantity.map(): RegimenItem.AdministrationQuantity {
+    return RegimenItem.AdministrationQuantity().apply {
         this@apply.administrationUnit = this@map.administrationUnit.map()
         this@apply.quantity = this@map.quantity
         this@apply.unit = this@map.unit
@@ -1556,6 +1689,15 @@ private fun AgreementAppendix.map(): AgreementAppendixDto {
     }
 }
 
+private fun AgreementAppendixDto.map(): AgreementAppendix {
+    return AgreementAppendix().apply {
+        this@apply.docSeq = this@map.docSeq
+        this@apply.documentId = this@map.documentId
+        this@apply.path = this@map.path
+        this@apply.verseSeq = this@map.verseSeq
+    }
+}
+
 private fun Code.map(): CodeDto {
     return CodeDto().apply {
         this@apply.code = this@map.code
@@ -1563,9 +1705,9 @@ private fun Code.map(): CodeDto {
         this@apply.flags = this@map.flags.map { it.map() }
         this@apply.label = this@map.label
         this@apply.level = this@map.level
-        this@apply.links = this@map.links.toList()
+        this@apply.links = this@map.links?.toList()
         this@apply.parent = this@map.parent
-        this@apply.qualifiedLinks = this@map.qualifiedLinks.map { Pair(it.key, it.value.toMutableList()) }.toMap()
+        this@apply.qualifiedLinks = this@map.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }?.toMap()
     }
 }
 
@@ -1573,12 +1715,12 @@ private fun CodeDto.copy(): CodeDto {
     return CodeDto().apply {
         this@apply.code = this@copy.code
         this@apply.data = this@copy.data
-        this@apply.flags = this@copy.flags.toList()
+        this@apply.flags = this@copy.flags?.toList()
         this@apply.label = this@copy.label
         this@apply.level = this@copy.level
-        this@apply.links = this@copy.links.toList()
+        this@apply.links = this@copy.links?.toList()
         this@apply.parent = this@copy.parent
-        this@apply.qualifiedLinks = this@copy.qualifiedLinks.map { Pair(it.key, it.value.toMutableList()) }.toMap()
+        this@apply.qualifiedLinks = this@copy.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }?.toMap()
     }
 }
 
@@ -1588,6 +1730,18 @@ private fun org.taktik.icure.entities.base.CodeFlag.map(): CodeFlag {
         org.taktik.icure.entities.base.CodeFlag.female_only -> CodeFlag.female_only
         else -> null
     } as CodeFlag
+}
+
+private fun CodeDto.map(): Code {
+    return Code().apply {
+        this@apply.code = this@map.code
+    }
+}
+
+private fun CodeDto.mapStub(): CodeStub {
+    return CodeStub().apply {
+        this@apply.code = this@mapStub.code
+    }
 }
 
 private fun CodeStub.map(): CodeDto {
@@ -1603,6 +1757,20 @@ private fun Content.map(): ContentDto {
         this@apply.documentId = this@map.documentId
         this@apply.fuzzyDateValue = this@map.fuzzyDateValue
         this@apply.instantValue = this@map.instantValue?.toEpochMilli()
+        this@apply.measureValue = this@map.measureValue?.map()
+        this@apply.medicationValue = this@map.medicationValue?.map()
+        this@apply.numberValue = this@map.numberValue
+        this@apply.stringValue = this@map.stringValue
+    }
+}
+
+private fun ContentDto.map(): Content {
+    return Content().apply {
+        this@apply.binaryValue = this@map.binaryValue
+        this@apply.booleanValue = this@map.booleanValue
+        this@apply.documentId = this@map.documentId
+        this@apply.fuzzyDateValue = this@map.fuzzyDateValue
+        this@apply.instantValue = Instant.ofEpochMilli(this@map.instantValue ?: 0)
         this@apply.measureValue = this@map.measureValue?.map()
         this@apply.medicationValue = this@map.medicationValue?.map()
         this@apply.numberValue = this@map.numberValue
@@ -1642,9 +1810,25 @@ private fun Delegation.map(): DelegationDto {
     }
 }
 
+private fun DelegationDto.map(): Delegation {
+    return Delegation().apply {
+        this@apply.delegatedTo = this@map.delegatedTo
+        this@apply.key = this@map.key
+        this@apply.owner = this@map.owner
+        this@apply.tags = this@map.tag?.let { listOf(it) } ?: emptyList<String>()
+    }
+}
+
 private fun Duration.map(): DurationDto {
     return DurationDto().apply {
         this@apply.unit = this@map.unit.map()
+        this@apply.value = this@map.value
+    }
+}
+
+private fun DurationDto.map(): Duration {
+    return Duration().apply {
+        this@apply.unit = this@map.unit.mapStub()
         this@apply.value = this@map.value
     }
 }
@@ -1657,7 +1841,20 @@ private fun Measure.map(): MeasureDto {
         this@apply.ref = this@map.ref
         this@apply.severity = this@map.severity
         this@apply.unit = this@map.unit
-        this@apply.unitCodes = this@map.unitCodes.map { it.map() }.toSet()
+        this@apply.unitCodes = this@map.unitCodes.map { it.map() }?.toSet()
+        this@apply.value = this@map.value
+    }
+}
+
+private fun MeasureDto.map(): Measure {
+    return Measure().apply {
+        this@apply.comment = this@map.comment
+        this@apply.max = this@map.max
+        this@apply.min = this@map.min
+        this@apply.ref = this@map.ref
+        this@apply.severity = this@map.severity
+        this@apply.unit = this@map.unit
+        this@apply.unitCodes = this@map.unitCodes.map { it.mapStub() }?.toSet()
         this@apply.value = this@map.value
     }
 }
@@ -1696,8 +1893,50 @@ private fun Medication.map(): MedicationDto {
         this@apply.substitutionAllowed = this@map.substitutionAllowed
         this@apply.regimen = this@map.regimen.map { it.map() }
         this@apply.posology = this@map.posology
-        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }.toMap()
-        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }.toMap()
+        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }?.toMap()
+        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }?.toMap()
+        this@apply.medicationSchemeIdOnSafe = this@map.medicationSchemeIdOnSafe
+        this@apply.medicationSchemeSafeVersion = this@map.medicationSchemeSafeVersion
+        this@apply.medicationSchemeTimeStampOnSafe = this@map.medicationSchemeTimeStampOnSafe
+        this@apply.medicationSchemeDocumentId = this@map.medicationSchemeDocumentId
+        this@apply.safeIdName = this@map.safeIdName
+        this@apply.idOnSafes = this@map.idOnSafes
+        this@apply.timestampOnSafe = this@map.timestampOnSafe
+        this@apply.changeValidated = this@map.changeValidated
+        this@apply.newSafeMedication = this@map.newSafeMedication
+        this@apply.medicationUse = this@map.medicationUse
+        this@apply.beginCondition = this@map.beginCondition
+        this@apply.endCondition = this@map.endCondition
+        this@apply.origin = this@map.origin
+        this@apply.medicationChanged = this@map.medicationChanged
+        this@apply.posologyChanged = this@map.posologyChanged
+        this@apply.prescriptionRID = this@map.prescriptionRID
+    }
+}
+
+private fun MedicationDto.map(): Medication {
+    return Medication().apply {
+        this@apply.compoundPrescription = this@map.compoundPrescription
+        this@apply.substanceProduct = this@map.substanceProduct?.map()
+        this@apply.medicinalProduct = this@map.medicinalProduct?.map()
+        this@apply.numberOfPackages = this@map.numberOfPackages
+        this@apply.batch = this@map.batch
+        this@apply.instructionForPatient = this@map.instructionForPatient
+        this@apply.commentForDelivery = this@map.commentForDelivery
+        this@apply.drugRoute = this@map.drugRoute
+        this@apply.temporality = this@map.temporality
+        this@apply.duration = this@map.duration?.map()
+        this@apply.renewal = this@map.renewal.map()
+        this@apply.beginMoment = this@map.beginMoment
+        this@apply.endMoment = this@map.endMoment
+        this@apply.knownUsage = this@map.knownUsage
+        this@apply.frequency = this@map.frequency.map()
+        this@apply.reimbursementReason = this@map.reimbursementReason.map()
+        this@apply.substitutionAllowed = this@map.substitutionAllowed
+        this@apply.regimen = this@map.regimen.map { it.map() }
+        this@apply.posology = this@map.posology
+        this@apply.options = this@map.options.map { Pair(it.key, it.value.map()) }?.toMap()
+        this@apply.agreements = this@map.agreements.map { Pair(it.key, it.value.map()) }?.toMap()
         this@apply.medicationSchemeIdOnSafe = this@map.medicationSchemeIdOnSafe
         this@apply.medicationSchemeSafeVersion = this@map.medicationSchemeSafeVersion
         this@apply.medicationSchemeTimeStampOnSafe = this@map.medicationSchemeTimeStampOnSafe
@@ -1768,8 +2007,41 @@ private fun Medicinalproduct.map(): MedicinalproductDto {
     }
 }
 
+private fun MedicinalproductDto.map(): Medicinalproduct {
+    return Medicinalproduct().apply {
+        this@apply.deliveredcds = this@map.deliveredcds.map { it.mapStub() }
+        this@apply.deliveredname = this@map.deliveredname
+        this@apply.intendedcds = this@map.intendedcds.map { it.mapStub() }
+        this@apply.intendedname = this@map.intendedname
+    }
+}
+
 private fun ParagraphAgreement.map(): ParagraphAgreementDto {
     return ParagraphAgreementDto().apply {
+        this@apply.agreementAppendices = this@map.agreementAppendices.map { it.map() }
+        this@apply.cancelationDate = this@map.cancelationDate
+        this@apply.careProviderReference = this@map.careProviderReference
+        this@apply.coverageType = this@map.coverageType
+        this@apply.decisionReference = this@map.decisionReference
+        this@apply.documentId = this@map.documentId
+        this@apply.end = this@map.end
+        this@apply.ioRequestReference = this@map.ioRequestReference
+        this@apply.paragraph = this@map.paragraph
+        this@apply.quantityUnit = this@map.quantityUnit
+        this@apply.quantityValue = this@map.quantityValue
+        this@apply.refusalJustification = this@map.refusalJustification
+        this@apply.responseType = this@map.responseType
+        this@apply.start = this@map.start
+        this@apply.strength = this@map.strength
+        this@apply.strengthUnit = this@map.strengthUnit
+        this@apply.timestamp = this@map.timestamp
+        this@apply.unitNumber = this@map.unitNumber
+        this@apply.verses = this@map.verses
+    }
+}
+
+private fun ParagraphAgreementDto.map(): ParagraphAgreement {
+    return ParagraphAgreement().apply {
         this@apply.agreementAppendices = this@map.agreementAppendices.map { it.map() }
         this@apply.cancelationDate = this@map.cancelationDate
         this@apply.careProviderReference = this@map.careProviderReference
@@ -1803,8 +2075,26 @@ private fun RegimenItem.map(): RegimenItemDto {
     }
 }
 
+private fun RegimenItemDto.map(): RegimenItem {
+    return RegimenItem().apply {
+        this@apply.administratedQuantity = this@map.administratedQuantity.map()
+        this@apply.date = this@map.date
+        this@apply.dayNumber = this@map.dayNumber
+        this@apply.dayPeriod = this@map.dayPeriod.map()
+        this@apply.timeOfDay = this@map.timeOfDay
+        this@apply.weekday = this@map.weekday.map()
+    }
+}
+
 private fun Renewal.map(): RenewalDto {
     return RenewalDto().apply {
+        this@apply.decimal = this@map.decimal
+        this@apply.duration = this@map.duration.map()
+    }
+}
+
+private fun RenewalDto.map(): Renewal {
+    return Renewal().apply {
         this@apply.decimal = this@map.decimal
         this@apply.duration = this@map.duration.map()
     }
@@ -1819,6 +2109,15 @@ private fun Substanceproduct.map(): SubstanceproductDto {
     }
 }
 
+private fun SubstanceproductDto.map(): Substanceproduct {
+    return Substanceproduct().apply {
+        this@apply.deliveredcds = this@map.deliveredcds.map { it.mapStub() }
+        this@apply.deliveredname = this@map.deliveredname
+        this@apply.intendedcds = this@map.intendedcds.map { it.mapStub() }
+        this@apply.intendedname = this@map.intendedname
+    }
+}
+
 private fun RegimenItem.Weekday.map(): RegimenItemDto.Weekday {
     return RegimenItemDto.Weekday().apply {
         this@apply.weekNumber = this@map.weekNumber
@@ -1826,9 +2125,18 @@ private fun RegimenItem.Weekday.map(): RegimenItemDto.Weekday {
     }
 }
 
+private fun RegimenItemDto.Weekday.map(): RegimenItem.Weekday {
+    return RegimenItem.Weekday().apply {
+        this@apply.weekNumber = this@map.weekNumber
+        this@apply.weekday = this@map.weekday.map()
+    }
+}
+
 private fun ServiceDto.decrypt(): ServiceDto {
     return this@decrypt.copy().apply {
-        this.content = mapOf(Pair("fr", ContentDto().apply {
+        this@apply.encryptedContent = null
+        this@apply.encryptedSelf = null
+        this@apply.content = mapOf(Pair("fr", ContentDto().apply {
             stringValue = when {
                 this@decrypt.encryptedContent?.length ?: 0 > 0 -> this@decrypt.encryptedContent
                 this@decrypt.encryptedSelf?.length ?: 0 > 0 -> this@decrypt.encryptedSelf
