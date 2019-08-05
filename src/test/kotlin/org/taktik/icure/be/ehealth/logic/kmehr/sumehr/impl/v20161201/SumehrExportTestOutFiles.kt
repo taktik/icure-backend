@@ -155,15 +155,14 @@ private class MyServices {
 
         val validServiceADRAssessment = Service().apply {
             this.id = newId.toString(); newId += 1 //1
-            this.endOfLife = null
-            this.status = 0 // must be active => Assessment
-            this.tags = mutableSetOf(MyTags.adrTag)
-            this.codes = mutableSetOf(MyCodes.atcCode)
-            this.label = medication
             this.content = MyContents.medicationCodeContent
-            this.comment = "It's the comment of validServiceADRAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
+            this.endOfLife = null
+            this.comment = "It's the comment of validServiceADRAssessment"
+            this.status = 0 // must be active => Assessment
+            this.codes = mutableSetOf(MyCodes.atcCode)
+            this.tags = mutableSetOf(MyTags.adrTag)
         }
 
         val validServiceADRHistory = Service().apply {
@@ -841,18 +840,19 @@ private class MyHealthElements {
             descr = "description of historyHealthElementAllergy"
             status = 1
             openingDate = yesterday
-            closingDate = FuzzyValues.getCurrentFuzzyDate()
+            closingDate = tomorrow
             tags = mutableSetOf(MyTags.allergyTag)
             codes = mutableSetOf(MyCodes.clinicalCode)
         }
-        val assessmentHealthElementAllergy = HealthElement().apply {
-            healthElementId = "4"
-            descr = "description of assessmentHealthElementAllergy"
-            status = 1
-            openingDate = yesterday
-            closingDate = null
-            tags = mutableSetOf(MyTags.allergyTag)
-            codes = mutableSetOf(MyCodes.clinicalCode)
+        val assessmentHealthElementAdr = HealthElement().apply {
+            this.id = "4"
+            this.openingDate = yesterday
+            this.closingDate = null
+            this.descr = "description of assessmentHealthElementAdr"
+            this.note = "This is note for assessmentHealthElementAdr"
+            this.status = 1
+            this.tags = mutableSetOf(MyTags.adrTag)
+            this.codes = mutableSetOf(MyCodes.clinicalCode)
         }
     }
 }
@@ -865,6 +865,7 @@ fun main() {
     generateFullPatientSumehr()
     generateFullSenderSumehr()
     generateFullRecipientSumehr()
+    generateFullAdrItemSumehr()
     generateEveryItemsSumehr()
 }
 
@@ -976,15 +977,7 @@ private fun generateMinimalist() {
     val os = File(DIR_PATH + "MinimalSumehr.xml").outputStream()
 
     /// Second parameter : pat
-    val patient = Patient().apply {
-        id = "316804da-9234-43d6-b18c-df0cccd46744"
-        firstName = "Sargent"
-        lastName = "Berie"
-        ssin = "50010100156"
-        gender = Gender.fromCode("M")
-        dateOfBirth = 19500101
-        languages = listOf("French")
-    }
+    val patient = MyPatients.minimalistPatient
 
     /// Third parameter : sfks
     val sfks = listOf("sfks")
@@ -1099,7 +1092,7 @@ private fun generateEveryItemsSumehr() {
     patients["Mother"] = MyPatients.motherPatient
     patients["Spouse"] = MyPatients.spousePatient
     patients["Sister"] = MyPatients.sisterPatient
-    healthElements.addAll(listOf(MyHealthElements.historyHealthElementProblem, MyHealthElements.assessmentHealthElementProblem, MyHealthElements.assessmentHealthElementAllergy, MyHealthElements.historyHealthElementAllergy))
+    healthElements.addAll(listOf(MyHealthElements.historyHealthElementProblem, MyHealthElements.assessmentHealthElementProblem, MyHealthElements.assessmentHealthElementAdr, MyHealthElements.historyHealthElementAllergy))
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
@@ -1112,126 +1105,7 @@ private fun generateFullPatientSumehr() {
     val os = File(DIR_PATH + "FullPatientSumehr.xml").outputStream()
 
     /// Second parameter : pat
-    val patient = Patient().apply {
-        active = true
-        administrativeNote = "This patient is fake"
-        addresses = listOf(Address().apply {
-            addressType = AddressType.home
-            city = "De Moeren"
-            country = "Belgium"
-            descr = "This address is fake"
-            houseNumber = "15"
-            postalCode = "8630"
-            postboxNumber = "15"
-            street = "Industriestraat"
-            telecoms = listOf(Telecom().apply {
-                telecomDescription = "This phone number is fake"
-                telecomNumber = "0490175135"
-                telecomType = TelecomType.mobile
-            })
-        })
-        this.alias = "Sarberie"
-        this.author = "Dr Flamand"
-        this.civility = "Mr"
-        this.created = 20190101
-        this.dateOfBirth = 19500101
-        this.education = "Master en Cobayologie supérieure"
-        this.externalId = "316804da-9234-43d6-b18c-df0cccd46744"
-        this.financialInstitutionInformation = listOf(FinancialInstitutionInformation().apply {
-            this.bankAccount = "553488836019"
-            this.bic = "BPOTBEB1"
-            this.key = "478"
-            this.name = "MR SARGENT BERIE"
-            this.preferredFiiForPartners = setOf("Foreign Institutional Investor")
-            this.proxyBankAccount = "910638884355"
-            this.proxyBic = "BPOTBEB"
-        })
-        this.firstName = "Sargent"
-        this.gender = Gender.fromCode("M")
-        this.id = "316804da-9234-43d6-b18c-df0cccd46744"
-        this.insurabilities = listOf(Insurability().apply {
-            this.ambulatory = true
-            this.dental = true
-            this.endDate = 20491231
-            this.hospitalisation = true
-            this.identificationNumber = "39672875"
-            this.insuranceDescription = "All inclusive"
-            this.insuranceId = "57827693"
-            this.parameters = mapOf(Pair("Param", "Value"))
-            this.startDate = 20000101
-            this.titularyId = "35976872"
-        })
-        this.maidenName = "Beries"
-        this.medicalHouseContracts = listOf(MedicalHouseContract().apply {
-            this.changeType = ContractChangeType.suspension
-            this.changedBy = "Damiane Drouin, Adviser"
-            this.contractId = "92571275"
-            this.endOfContract = 20290101
-            this.endOfCoverage = 20283112
-            this.endOfSuspension = tomorrow
-            this.hcpId = "971c149d-62a4-4f0c-8aa9-9fbeca47465b"
-            this.isForcedSuspension = true
-            this.isGp = false
-            this.isKine = true
-            this.isNoGp = true
-            this.isNoKine = false
-            this.isNoNurse = false
-            this.isNurse = true
-            this.mmNihii = "18000131004"
-            this.parentContractId = "57217592"
-            this.startOfContract = 20183112
-            this.startOfCoverage = 20190101
-            this.startOfSuspension = yesterday
-            this.suspensionReason = SuspensionReason.outsideOfCountry
-            this.suspensionSource = "Drouin D., Adviser"
-            this.unsubscriptionReasonId = 0
-            this.validFrom = 20150101
-            this.validTo = 20243112
-        })
-        this.languages = listOf("fr")
-        this.lastName = "Berie"
-        this.nationality = "be"
-        this.parameters = mapOf(Pair("Param", listOf("Value1", "Value2")))
-        this.partnerName = "Fayette Cadieux"
-        this.partnerships = listOf(Partnership().apply {
-            otherToMeRelationshipDescription = "Sœur"
-            meToOtherRelationshipDescription = "Frère"
-            partnershipDescription = "Jumeaux"
-            partnerId = "793df193-6efb-4e63-b5b3-7bd5570f077a"
-            status = PartnershipStatus.active
-            type = PartnershipType.sister
-        })
-        this.patientHealthCareParties = listOf(PatientHealthCareParty().apply {
-            this.healthcarePartyId = "3116d667-f3ba-4a9c-ab0a-313c9c3beeff"
-            this.isReferral = true
-            this.referralPeriods = sortedSetOf(
-                    ReferralPeriod().apply {
-                        this.comment = "First referral period"
-                        this.endDate = dateFormat.parse("20141231").toInstant()
-                        this.startDate = dateFormat.parse("20100101").toInstant()
-                    },
-                    ReferralPeriod().apply {
-                        this.comment = "Second referral period"
-                        this.endDate = dateFormat.parse("20191231").toInstant()
-                        this.startDate = dateFormat.parse("20150101").toInstant()
-                    },
-                    ReferralPeriod().apply {
-                        this.comment = "Third referral period"
-                        this.endDate = dateFormat.parse("20241231").toInstant()
-                        this.startDate = dateFormat.parse("20200101").toInstant()
-                    }
-            )
-            this.sendFormats = mapOf(Pair(TelecomType.mobile, "0484598271"))
-            this.type = PatientHealthCarePartyType.doctor
-        })
-        this.profession = "Cobaye"
-        this.patientProfessions = listOf(CodeStub("CD-PROFESSION", "Cobaye professionnel", "1.0"))
-        this.personalStatus = PersonalStatus.married
-        this.placeOfBirth = "Furnes"
-        this.spouseName = "Fayette Cadieux"
-        this.warning = "This patient is fake"
-        this.ssin = "50010100156"
-    }
+    val patient = MyPatients.fullPatient
 
     /// Third parameter : sfks
     val sfks = listOf("sfks")
@@ -1479,6 +1353,56 @@ private fun generateFullRecipientSumehr() {
 
     /// Eighth parameter
     val excludedIds = emptyList<String>()
+
+    // Execution
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+}
+
+private fun generateFullAdrItemSumehr(){
+    services.clear()
+
+    /// First parameter : os
+    val os = File(DIR_PATH + "FullAdrItemSumehr.xml").outputStream()
+
+    /// Second parameter : pat
+    val patient = MyPatients.minimalistPatient
+
+    /// Third parameter : sfks
+    val sfks = listOf("sfks")
+
+    /// Fourth parameter
+    val sender = HealthcareParty().apply {
+        id = "8e716232-04ce-4262-8f71-3c51521fd740"
+        nihii = "18000032004"
+        ssin = "50010100156"
+        firstName = "Orville"
+        lastName = "Flamand"
+        addresses = listOf(Address().apply {
+            addressType = AddressType.home
+            street = "Rue de Berloz"
+            houseNumber = "267"
+            postalCode = "4860"
+            city = "Cornesse"
+            telecoms = listOf(Telecom().apply {
+                telecomNumber = "0474301934"
+            })
+        })
+        speciality = "persphysician"
+    }
+
+    /// Fifth parameter
+    val recipient = HealthcareParty().apply {
+        speciality = "persphysician"
+    }
+
+    /// Seventh parameter
+    val comment = "All data is fake"
+
+    /// Eighth parameter
+    val excludedIds = emptyList<String>()
+
+    services.addAll(listOf(MyServices.validServiceADRAssessment))
+    healthElements.addAll(listOf( MyHealthElements.assessmentHealthElementAdr))
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
