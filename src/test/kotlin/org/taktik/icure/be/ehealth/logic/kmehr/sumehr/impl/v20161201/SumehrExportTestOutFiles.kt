@@ -102,7 +102,7 @@ private class MyContents {
                 }
             }
         }))
-        val codeContent = mapOf(Pair(language, Content().apply {
+        val medicationCodeContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
             }
         }))
@@ -160,7 +160,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.adrTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceADRAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -173,7 +173,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceADRHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -186,7 +186,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.allergyTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceAllergyAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -199,7 +199,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.allergyTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceAllergyHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -212,7 +212,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.socialriskTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceSocialriskAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -225,7 +225,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.socialriskTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceSocialriskHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -238,7 +238,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.riskTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceRiskAssessment"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -251,7 +251,7 @@ private class MyServices {
             this.tags = mutableSetOf(MyTags.riskTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of validServiceRiskHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
@@ -356,7 +356,7 @@ private class MyServices {
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.activeTag)
             this.codes = mutableSetOf(MyCodes.healthissueCode, MyCodes.atcCode)
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of healthissueAssessmentService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
@@ -367,7 +367,7 @@ private class MyServices {
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.healthissueCode, MyCodes.atcCode)
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of healthissueHistoryService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
@@ -378,7 +378,7 @@ private class MyServices {
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.activeTag)
             this.codes = mutableSetOf(MyCodes.healthcareelementCode, MyCodes.atcCode)
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of healthcareelementAssessmentService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
@@ -389,7 +389,7 @@ private class MyServices {
             this.status = 1 // must be inactive => History
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.inactiveTag)
             this.codes = mutableSetOf(MyCodes.healthcareelementCode, MyCodes.atcCode)
-            this.content = MyContents.codeContent
+            this.content = MyContents.medicationCodeContent
             this.comment = "It's the comment of healthcareelementHistoryService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
