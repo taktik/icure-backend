@@ -81,7 +81,7 @@ private class MyContents {
         val medicationContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
                 substanceProduct = Substanceproduct().apply {
-                    intendedcds = listOf(CodeStub("CD-INNCLUSTER","1449834","medication"))
+                    intendedcds = listOf(CodeStub("CD-INNCLUSTER", "1449834", "medication"))
                     intendedname = "paracetamol"
                 }
             }
@@ -89,7 +89,7 @@ private class MyContents {
         val treatmentContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
                 medicinalProduct = Medicinalproduct().apply {
-                    intendedcds = listOf(CodeStub("CD-DRUG-CNK","1449834","treatment"))
+                    intendedcds = listOf(CodeStub("CD-DRUG-CNK", "1449834", "treatment"))
                     intendedname = "ibuprofen"
                 }
             }
@@ -97,7 +97,7 @@ private class MyContents {
         val vaccineContent = mapOf(Pair(language, Content().apply {
             medicationValue = Medication().apply {
                 medicinalProduct = Medicinalproduct().apply {
-                    intendedcds = listOf(CodeStub("CD-DRUG-CNK","1449834","vaccine"))
+                    intendedcds = listOf(CodeStub("CD-DRUG-CNK", "1449834", "vaccine"))
                     intendedname = "gardasil"
                 }
             }
@@ -122,12 +122,12 @@ private class MyCodes {
         val datareuseforclinicalresearchconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicalresearchconsent", "4.6")
         val datareuseforclinicaltrialsconsentCode = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "datareuseforclinicaltrialsconsent", "4.6")
         val clinicaltrialparticipationconsent = CodeStub(CDCONTENTschemes.CD_PATIENTWILL.value(), "clinicaltrialparticipationconsent", "4.6")
-        val medicationCode = CodeStub ("CD-DRUG-CNK","medication","version")
-        val treatmentCode = CodeStub ("CD-DRUG-CNK","treatment","version")
-        val healthissueCode = CodeStub("type",healthissue,"version")
-        val healthcareelementCode = CodeStub("type",healthcareelement,"version")
-        val atcCode = CodeStub("CD-ATC","code","version")
-        val clinicalCode = CodeStub("CD-CLINICAL","code","version")
+        val medicationCode = CodeStub("CD-DRUG-CNK", "medication", "version")
+        val treatmentCode = CodeStub("CD-DRUG-CNK", "treatment", "version")
+        val healthissueCode = CodeStub("type", healthissue, "version")
+        val healthcareelementCode = CodeStub("type", healthcareelement, "version")
+        val atcCode = CodeStub("CD-ATC", "code", "version")
+        val clinicalCode = CodeStub("CD-CLINICAL", "code", "version")
     }
 }
 
@@ -139,16 +139,17 @@ private class MyTags {
         val socialriskTag = CodeStub("CD-ITEM", socialrisk, "1.0") //Fixe : code
         val riskTag = CodeStub("CD-ITEM", risk, "1.0") //Fixe : code
         val patientwillTag = CodeStub("CD-ITEM", patientwill, "1.2")
-        val vaccineTag = CodeStub("CD-ITEM", vaccine,"2.1")
-        val medicationTag = CodeStub("CD-ITEM", medication,"5.8")
+        val vaccineTag = CodeStub("CD-ITEM", vaccine, "2.1")
+        val medicationTag = CodeStub("CD-ITEM", medication, "5.8")
         val treatmentTag = CodeStub("CD-ITEM", treatment, "9.6")
-        val healthissueTag = CodeStub("CD-ITEM",healthissue,"version")
-        val healthcareelementTag = CodeStub("CD-ITEM",healthcareelement,"version")
-        val activeTag = CodeStub("CD-LIFECYCLE","active","9.5")
+        val healthissueTag = CodeStub("CD-ITEM", healthissue, "version")
+        val healthcareelementTag = CodeStub("CD-ITEM", healthcareelement, "version")
+        val activeTag = CodeStub("CD-LIFECYCLE", "active", "9.5")
     }
 }
 
 private val services = mutableListOf<Service>()
+
 private class MyServices {
     companion object {
         private var newId = 1
@@ -373,7 +374,7 @@ private class MyServices {
             this.endOfLife = null
             this.status = 0 //must be active
             this.tags = mutableSetOf(MyTags.vaccineTag)
-            this.codes = mutableSetOf(MyCodes.vaccineCode,MyCodes.atcCode)
+            this.codes = mutableSetOf(MyCodes.vaccineCode, MyCodes.atcCode)
             this.content = MyContents.vaccineContent
             this.comment = "It's the comment of vaccineValidService"
             this.openingDate = oneWeekAgo
@@ -384,7 +385,7 @@ private class MyServices {
             this.endOfLife = null
             this.status = 0 //must be active
             this.tags = mutableSetOf(MyTags.medicationTag)
-            this.codes = mutableSetOf(MyCodes.medicationCode,MyCodes.atcCode)
+            this.codes = mutableSetOf(MyCodes.medicationCode, MyCodes.atcCode)
             this.content = MyContents.medicationContent
             this.comment = "It's the comment of medicationValidService"
             this.openingDate = oneWeekAgo
@@ -448,8 +449,8 @@ private class MyServices {
     }
 }
 
-private var filtersIndex = 0
 private val filters = listOf(MyFilters.unionFilter, MyFilters.serviceFilter)
+
 private class MyFilters {
     companion object {
         val unionFilter = Filters.UnionFilter<String, Service>()
@@ -461,6 +462,7 @@ private class MyFilters {
 }
 
 private val hcparties = mutableMapOf<String, HealthcareParty>()
+
 private class MyHealthcareParties {
     companion object {
         val doctorGMD = HealthcareParty().apply {
@@ -612,6 +614,7 @@ private class MyHealthcareParties {
 }
 
 private val patients = mutableMapOf<String, Patient>()
+
 private class MyPatients {
     companion object {
         val minimalistPatient = Patient().apply {
@@ -867,6 +870,7 @@ private class MyPatients {
 }
 
 private val healthElements = mutableListOf<HealthElement>()
+
 private class MyHealthElements {
     companion object {
         val historyHealthElementProblem = HealthElement().apply {
@@ -919,12 +923,11 @@ fun main() {
     generateFullRecipientSumehr()
     generateFullAdrItemSumehr()
     generateEveryItemsSumehr()
+    generateDecryptedSumehr()
 }
 
 private fun initializeSumehrExport() {
-    sumehrExport.filters = Filters().apply {
-        setApplicationContext(applicationContext)
-    }
+    sumehrExport.filters = Filters().apply { setApplicationContext(applicationContext) }
     sumehrExport.contactLogic = contactLogic
     sumehrExport.codeLogic = codeLogic
     sumehrExport.healthcarePartyLogic = healthcarePartyLogic
@@ -938,8 +941,9 @@ private fun initializeMocks() {
         autowireCapableBeanFactory
     }
 
+    val filtersIterator = filters.iterator()
     Mockito.`when`(autowireCapableBeanFactory.createBean(any(), any() ?: 0, any() ?: false)).thenAnswer {
-        filters[filtersIndex++]
+        filtersIterator.next()
     }
 
     Mockito.`when`(contactLogic.getServices(any())).thenAnswer {
@@ -989,7 +993,7 @@ private fun initializeMocks() {
         hcparties[it.getArgumentAt(0, String::class.java) as String]
     }
 
-    Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(),any())).thenAnswer {
+    Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any())).thenAnswer {
         healthElements
     }
 
@@ -1024,6 +1028,7 @@ private fun initializeMocks() {
 
 private fun generateMinimalist() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "MinimalSumehr.xml").outputStream()
@@ -1071,6 +1076,7 @@ private fun generateMinimalist() {
 
 private fun generateEveryItemsSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "EveryItemsSumehr.xml").outputStream()
@@ -1134,9 +1140,9 @@ private fun generateEveryItemsSumehr() {
     services.addAll(listOf(MyServices.validServiceRiskAssessment, MyServices.validServiceRiskHistory))
     services.addAll(listOf(MyServices.patientwillNtbr, MyServices.patientwillBloodtransfusionrefusal, MyServices.patientwillIntubationrefusal, MyServices.patientwillEuthanasiarequest, MyServices.patientwillVaccinationrefusal))
     services.addAll(listOf(MyServices.vaccineValidService))
-    services.addAll(listOf(MyServices.medicationValidService,MyServices.treatmentValidService))
+    services.addAll(listOf(MyServices.medicationValidService, MyServices.treatmentValidService))
     services.addAll(listOf(MyServices.healthissueAssessmentService, MyServices.healthissueHistoryService))
-    services.addAll(listOf(MyServices.healthcareelementAssessmentService,MyServices.healthcareelementHistoryService))
+    services.addAll(listOf(MyServices.healthcareelementAssessmentService, MyServices.healthcareelementHistoryService))
     hcparties["1"] = MyHealthcareParties.doctorGMD
     hcparties["2"] = MyHealthcareParties.referralGMD
     hcparties["3"] = MyHealthcareParties.medicalhouseGMD
@@ -1152,6 +1158,7 @@ private fun generateEveryItemsSumehr() {
 
 private fun generateFullPatientSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullPatientSumehr.xml").outputStream()
@@ -1199,6 +1206,7 @@ private fun generateFullPatientSumehr() {
 
 private fun generateFullSenderSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullSenderSumehr.xml").outputStream()
@@ -1287,6 +1295,7 @@ private fun generateFullSenderSumehr() {
 
 private fun generateFullRecipientSumehr() {
     services.clear()
+    healthElements.clear()
 
     /// First parameter : os
     val os = File(DIR_PATH + "FullRecipientSumehr.xml").outputStream()
@@ -1410,12 +1419,12 @@ private fun generateFullRecipientSumehr() {
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
-private fun generateDecryptedSumehr(){
+private fun generateDecryptedSumehr() {
     services.clear()
     healthElements.clear()
 
     /// First parameter : os
-    val os = File(DIR_PATH + "FullAdrItemSumehr.xml").outputStream()
+    val os = File(DIR_PATH + "DecryptedSumehr.xml").outputStream()
 
     /// Second parameter : pat
     val patient = MyPatients.minimalistPatient
@@ -1460,7 +1469,7 @@ private fun generateDecryptedSumehr(){
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
 
-private fun generateFullAdrItemSumehr(){
+private fun generateFullAdrItemSumehr() {
     services.clear()
     healthElements.clear()
 
@@ -1505,7 +1514,7 @@ private fun generateFullAdrItemSumehr(){
     val excludedIds = emptyList<String>()
 
     services.addAll(listOf(MyServices.validServiceADRAssessment))
-    healthElements.addAll(listOf( MyHealthElements.assessmentHealthElementAdr))
+    healthElements.addAll(listOf(MyHealthElements.assessmentHealthElementAdr))
 
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
@@ -1557,16 +1566,16 @@ private fun ServiceDto.map(): Service {
         this@apply.encryptionKeys = this@map.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.map() }.toSet()) }.toMap()
         this@apply.endOfLife = this@map.endOfLife
         this@apply.formId = this@map.formId
-        this@apply.healthElementsIds = this@map.healthElementsIds.toMutableSet()
+        this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
         this@apply.id = this@map.id
         this@apply.index = this@map.index
-        this@apply.invoicingCodes = this@map.invoicingCodes.toMutableSet()
+        this@apply.invoicingCodes = this@map.invoicingCodes?.toMutableSet()
         this@apply.label = this@map.label
         this@apply.modified = this@map.modified
         this@apply.openingDate = this@map.openingDate
-        this@apply.plansOfActionIds = this@map.plansOfActionIds.toMutableSet()
+        this@apply.plansOfActionIds = this@map.plansOfActionIds?.toMutableSet()
         this@apply.responsible = this@map.responsible
-        this@apply.secretForeignKeys = this@map.secretForeignKeys.toMutableSet()
+        this@apply.secretForeignKeys = this@map.secretForeignKeys?.toMutableSet()
         this@apply.status = this@map.status
         this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
         this@apply.tags = this@map.tags.map { it.mapStub() }.toSet()
@@ -1589,18 +1598,18 @@ private fun ServiceDto.copy(): ServiceDto {
         this@apply.encryptionKeys = this@copy.encryptionKeys.map { entry -> Pair(entry.key, entry.value.map { it.copy() }) }.toMap()
         this@apply.endOfLife = this@copy.endOfLife
         this@apply.formId = this@copy.formId
-        this@apply.healthElementsIds = this@copy.healthElementsIds.toMutableSet()
+        this@apply.healthElementsIds = this@copy.healthElementsIds?.toMutableSet()
         this@apply.id = this@copy.id
         this@apply.index = this@copy.index
-        this@apply.invoicingCodes = this@copy.invoicingCodes.toMutableSet()
+        this@apply.invoicingCodes = this@copy.invoicingCodes?.toMutableSet()
         this@apply.label = this@copy.label
         this@apply.modified = this@copy.modified
         this@apply.openingDate = this@copy.openingDate
-        this@apply.plansOfActionIds = this@copy.plansOfActionIds.toMutableSet()
+        this@apply.plansOfActionIds = this@copy.plansOfActionIds?.toMutableSet()
         this@apply.responsible = this@copy.responsible
-        this@apply.secretForeignKeys = this@copy.secretForeignKeys.toMutableSet()
+        this@apply.secretForeignKeys = this@copy.secretForeignKeys?.toMutableSet()
         this@apply.status = this@copy.status
-        this@apply.subContactIds = this@copy.subContactIds.toMutableSet()
+        this@apply.subContactIds = this@copy.subContactIds?.toMutableSet()
         this@apply.tags = this@copy.tags
         this@apply.textIndexes = this@copy.textIndexes.map { Pair(it.key, it.value) }.toMap()
         this@apply.valueDate = this@copy.valueDate
@@ -1609,6 +1618,14 @@ private fun ServiceDto.copy(): ServiceDto {
 
 private fun RegimenItem.AdministrationQuantity.map(): RegimenItemDto.AdministrationQuantity {
     return RegimenItemDto.AdministrationQuantity().apply {
+        this@apply.administrationUnit = this@map.administrationUnit.map()
+        this@apply.quantity = this@map.quantity
+        this@apply.unit = this@map.unit
+    }
+}
+
+private fun RegimenItemDto.AdministrationQuantity.map(): RegimenItem.AdministrationQuantity {
+    return RegimenItem.AdministrationQuantity().apply {
         this@apply.administrationUnit = this@map.administrationUnit.map()
         this@apply.quantity = this@map.quantity
         this@apply.unit = this@map.unit
@@ -1624,6 +1641,15 @@ private fun AgreementAppendix.map(): AgreementAppendixDto {
     }
 }
 
+private fun AgreementAppendixDto.map(): AgreementAppendix {
+    return AgreementAppendix().apply {
+        this@apply.docSeq = this@map.docSeq
+        this@apply.documentId = this@map.documentId
+        this@apply.path = this@map.path
+        this@apply.verseSeq = this@map.verseSeq
+    }
+}
+
 private fun Code.map(): CodeDto {
     return CodeDto().apply {
         this@apply.code = this@map.code
@@ -1631,7 +1657,7 @@ private fun Code.map(): CodeDto {
         this@apply.flags = this@map.flags.map { it.map() }
         this@apply.label = this@map.label
         this@apply.level = this@map.level
-        this@apply.links = this@map.links.toList()
+        this@apply.links = this@map.links?.toList()
         this@apply.parent = this@map.parent
         this@apply.qualifiedLinks = this@map.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }.toMap()
     }
@@ -1641,10 +1667,10 @@ private fun CodeDto.copy(): CodeDto {
     return CodeDto().apply {
         this@apply.code = this@copy.code
         this@apply.data = this@copy.data
-        this@apply.flags = this@copy.flags.toList()
+        this@apply.flags = this@copy.flags?.toList()
         this@apply.label = this@copy.label
         this@apply.level = this@copy.level
-        this@apply.links = this@copy.links.toList()
+        this@apply.links = this@copy.links?.toList()
         this@apply.parent = this@copy.parent
         this@apply.qualifiedLinks = this@copy.qualifiedLinks.map { Pair(it.key, it.value?.toMutableList()) }.toMap()
     }
@@ -1656,6 +1682,18 @@ private fun org.taktik.icure.entities.base.CodeFlag.map(): CodeFlag {
         org.taktik.icure.entities.base.CodeFlag.female_only -> CodeFlag.female_only
         else -> null
     } as CodeFlag
+}
+
+private fun CodeDto.map(): Code {
+    return Code().apply {
+        this@apply.code = this@map.code
+    }
+}
+
+private fun CodeDto.mapStub(): CodeStub {
+    return CodeStub().apply {
+        this@apply.code = this@mapStub.code
+    }
 }
 
 private fun CodeStub.map(): CodeDto {
@@ -1724,9 +1762,25 @@ private fun Delegation.map(): DelegationDto {
     }
 }
 
+private fun DelegationDto.map(): Delegation {
+    return Delegation().apply {
+        this@apply.delegatedTo = this@map.delegatedTo
+        this@apply.key = this@map.key
+        this@apply.owner = this@map.owner
+        this@apply.tags = this@map.tag?.let { listOf(it) } ?: emptyList<String>()
+    }
+}
+
 private fun Duration.map(): DurationDto {
     return DurationDto().apply {
         this@apply.unit = this@map.unit.map()
+        this@apply.value = this@map.value
+    }
+}
+
+private fun DurationDto.map(): Duration {
+    return Duration().apply {
+        this@apply.unit = this@map.unit.mapStub()
         this@apply.value = this@map.value
     }
 }
@@ -1905,6 +1959,15 @@ private fun Medicinalproduct.map(): MedicinalproductDto {
     }
 }
 
+private fun MedicinalproductDto.map(): Medicinalproduct {
+    return Medicinalproduct().apply {
+        this@apply.deliveredcds = this@map.deliveredcds.map { it.mapStub() }
+        this@apply.deliveredname = this@map.deliveredname
+        this@apply.intendedcds = this@map.intendedcds.map { it.mapStub() }
+        this@apply.intendedname = this@map.intendedname
+    }
+}
+
 private fun ParagraphAgreement.map(): ParagraphAgreementDto {
     return ParagraphAgreementDto().apply {
         this@apply.agreementAppendices = this@map.agreementAppendices.map { it.map() }
@@ -1952,7 +2015,6 @@ private fun ParagraphAgreementDto.map(): ParagraphAgreement {
         this@apply.verses = this@map.verses
     }
 }
-
 
 private fun RegimenItem.map(): RegimenItemDto {
     return RegimenItemDto().apply {
