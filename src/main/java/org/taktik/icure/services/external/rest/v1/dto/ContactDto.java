@@ -40,7 +40,8 @@ public class ContactDto extends IcureDto {
     protected String descr;
     protected String location;
     protected String healthcarePartyId;
-	protected String externalId;
+    protected String externalId;
+    protected String modifiedContactId;
     protected CodeDto encounterType;
 
 	protected Set<SubContactDto> subContacts = new HashSet<>();
@@ -130,7 +131,15 @@ public class ContactDto extends IcureDto {
 
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
-	}
+    }
+
+    public String getModifiedContactId() {
+        return modifiedContactId;
+    }
+
+    public void setModifiedContactId(String modifiedContactId) {
+        this.modifiedContactId = modifiedContactId;
+    }
 
 	private String encryptedSelf;
 

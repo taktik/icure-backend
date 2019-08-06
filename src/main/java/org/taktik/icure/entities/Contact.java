@@ -56,6 +56,7 @@ public class Contact extends StoredICureDocument {
     protected String healthcarePartyId;
 
 	protected String externalId;
+    protected String modifiedContactId;
 
     protected Code encounterType;
 
@@ -173,7 +174,15 @@ public class Contact extends StoredICureDocument {
 
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
-	}
+    }
+
+    public @Nullable String getModifiedContactId() {
+        return modifiedContactId;
+    }
+
+    public void setModifiedContactId(String modifiedContactId) {
+        this.modifiedContactId = modifiedContactId;
+    }
 
 	private String encryptedSelf;
 	@Override
