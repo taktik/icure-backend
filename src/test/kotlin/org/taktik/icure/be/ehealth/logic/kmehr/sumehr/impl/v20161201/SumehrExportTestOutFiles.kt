@@ -7,7 +7,6 @@ import org.mockito.Mockito
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -78,6 +77,8 @@ private val oneMonthAgo = FuzzyValues.getFuzzyDate(LocalDateTime.now().minusMont
 
 private class MyContents {
     companion object {
+        val emptyContent = emptyMap<String, Content>()
+
         val neutralContent = mapOf(Pair(language, Content().apply {
             stringValue = "neutralContentStringValue"
         }))
@@ -190,10 +191,25 @@ private class MyServices {
             this.endOfLife = null
             this.status = 0
             this.tags = mutableSetOf(MyTags.adrTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationCodeContent.name
             this.comment = "It's the comment of validServiceEncryptedADR"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceEncryptedADRHistory = Service().apply {
+            this.id = "validServiceEncryptedADRHistory"
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.adrTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
+            this.label = medication
+            this.content = MyContents.emptyContent
+            this.encryptedContent = MyContents.Companion::medicationCodeContent.name
+            this.comment = "It's the comment of validServiceEncryptedADRHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
@@ -229,10 +245,25 @@ private class MyServices {
             this.endOfLife = null
             this.status = 0
             this.tags = mutableSetOf(MyTags.allergyTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationCodeContent.name
             this.comment = "It's the comment of validServiceEncryptedAllergy"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceEncryptedAllergyHistory = Service().apply {
+            this.id = "validServiceEncryptedAllergyHistory"
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.allergyTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
+            this.label = medication
+            this.content = MyContents.emptyContent
+            this.encryptedContent = MyContents.Companion::medicationCodeContent.name
+            this.comment = "It's the comment of validServiceEncryptedAllergyHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
@@ -268,10 +299,25 @@ private class MyServices {
             this.endOfLife = null
             this.status = 0
             this.tags = mutableSetOf(MyTags.socialriskTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationCodeContent.name
             this.comment = "It's the comment of validServiceEncryptedSocialrisk"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceEncryptedSocialriskHistory = Service().apply {
+            this.id = "validServiceEncryptedSocialriskHistory"
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.socialriskTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
+            this.label = medication
+            this.content = MyContents.emptyContent
+            this.encryptedContent = MyContents.Companion::medicationCodeContent.name
+            this.comment = "It's the comment of validServiceEncryptedSocialriskHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
@@ -307,10 +353,25 @@ private class MyServices {
             this.endOfLife = null
             this.status = 0
             this.tags = mutableSetOf(MyTags.riskTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
             this.label = medication
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationCodeContent.name
             this.comment = "It's the comment of validServiceEncryptedRisk"
+            this.openingDate = oneWeekAgo
+            this.closingDate = today
+        }
+
+        val validServiceEncryptedRiskHistory = Service().apply {
+            this.id = "validServiceEncryptedRiskHistory"
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.riskTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.atcCode)
+            this.label = medication
+            this.content = MyContents.emptyContent
+            this.encryptedContent = MyContents.Companion::medicationCodeContent.name
+            this.comment = "It's the comment of validServiceEncryptedRiskHistory"
             this.openingDate = oneWeekAgo
             this.closingDate = today
         }
@@ -333,7 +394,7 @@ private class MyServices {
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.ntbrCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::neutralContent.name
             this.comment = "It's the comment of encryptedPatientwillNtbr"
             this.openingDate = oneWeekAgo
@@ -358,7 +419,7 @@ private class MyServices {
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.bloodtransfusionrefusalCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::neutralContent.name
             this.comment = "It's the comment of encryptedPatientwillBloodtransfusionrefusal"
             this.openingDate = oneWeekAgo
@@ -383,7 +444,7 @@ private class MyServices {
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.intubationrefusalCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::neutralContent.name
             this.comment = "It's the comment of encryptedPatientwillIntubationrefusal"
             this.openingDate = oneWeekAgo
@@ -408,7 +469,7 @@ private class MyServices {
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.euthanasiarequestCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::neutralContent.name
             this.comment = "It's the comment of encryptedPatientwillEuthanasiarequest"
             this.openingDate = oneWeekAgo
@@ -433,7 +494,7 @@ private class MyServices {
             this.status = 0 //must be active and relevant
             this.tags = mutableSetOf(MyTags.patientwillTag)
             this.codes = mutableSetOf(MyCodes.patientwillCode, MyCodes.vaccinationrefusalCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::neutralContent.name
             this.comment = "It's the comment of encryptedPatientwillVaccinationrefusal"
             this.openingDate = oneWeekAgo
@@ -458,7 +519,7 @@ private class MyServices {
             this.status = 0 //must be active
             this.tags = mutableSetOf(MyTags.vaccineTag)
             this.codes = mutableSetOf(MyCodes.vaccineCode, MyCodes.atcCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::vaccineContent.name
             this.comment = "It's the comment of encryptedVaccineValidService"
             this.openingDate = oneWeekAgo
@@ -483,7 +544,7 @@ private class MyServices {
             this.status = 0 //must be active
             this.tags = mutableSetOf(MyTags.medicationTag)
             this.codes = mutableSetOf(MyCodes.medicationCode, MyCodes.atcCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationContent.name
             this.comment = "It's the comment of encryptedMedicationValidService"
             this.openingDate = oneWeekAgo
@@ -508,7 +569,7 @@ private class MyServices {
             this.status = 0 //must be active
             this.tags = mutableSetOf(MyTags.treatmentTag)
             this.codes = mutableSetOf(MyCodes.treatmentCode, MyCodes.atcCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::treatmentContent.name
             this.comment = "It's the comment of encryptedTreatmentValidService"
             this.openingDate = oneWeekAgo
@@ -545,9 +606,22 @@ private class MyServices {
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.activeTag)
             this.codes = mutableSetOf(MyCodes.healthissueCode, MyCodes.atcCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationCodeContent.name
             this.comment = "It's the comment of encryptedHealthissueAssessmentService"
+            this.openingDate = oneWeekAgo
+            this.closingDate = tomorrow
+        }
+
+        val encryptedHealthissueHistoryService = Service().apply {
+            this.id = "encryptedHealthissueHistoryService"
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.healthissueTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.healthissueCode, MyCodes.atcCode)
+            this.content = MyContents.emptyContent
+            this.encryptedContent = MyContents.Companion::medicationCodeContent.name
+            this.comment = "It's the comment of encryptedHealthissueHistoryService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
@@ -582,9 +656,22 @@ private class MyServices {
             this.status = 0 // must be active => Assessment
             this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.activeTag)
             this.codes = mutableSetOf(MyCodes.healthcareelementCode, MyCodes.atcCode)
-            this.content = emptyMap<String, Content>()
+            this.content = MyContents.emptyContent
             this.encryptedContent = MyContents.Companion::medicationCodeContent.name
             this.comment = "It's the comment of encryptedHealthcareelementAssessmentService"
+            this.openingDate = oneWeekAgo
+            this.closingDate = tomorrow
+        }
+
+        val encryptedHealthcareelementHistoryService = Service().apply {
+            this.id = "encryptedHealthcareelementHistoryService"
+            this.endOfLife = null
+            this.status = 1 // must be inactive => History
+            this.tags = mutableSetOf(MyTags.healthcareelementTag, MyTags.inactiveTag)
+            this.codes = mutableSetOf(MyCodes.healthcareelementCode, MyCodes.atcCode)
+            this.content = MyContents.emptyContent
+            this.encryptedContent = MyContents.Companion::medicationCodeContent.name
+            this.comment = "It's the comment of encryptedHealthcareelementHistoryService"
             this.openingDate = oneWeekAgo
             this.closingDate = tomorrow
         }
@@ -1640,6 +1727,15 @@ private fun generateDecryptedSumehr() {
             MyServices.encryptedHealthcareelementAssessmentService
     ))
 
+    services.addAll(listOf(
+            MyServices.validServiceEncryptedADRHistory,
+            MyServices.validServiceEncryptedAllergyHistory,
+            MyServices.validServiceEncryptedSocialriskHistory,
+            MyServices.validServiceEncryptedRiskHistory,
+            MyServices.encryptedHealthissueHistoryService,
+            MyServices.encryptedHealthcareelementHistoryService
+    ))
+
     // Execution
     sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
 }
@@ -2409,7 +2505,7 @@ private fun ServiceDto.decrypt(): ServiceDto {
                 MyContents.Companion::class.memberProperties
                         .first { it.name == this@decrypt.encryptedContent }
                         .let { it.get(MyContents.Companion) as Map<String, Content> }
-                        .map { Pair(it.key, it.value?.map()) }
+                        .map { Pair(it.key, it.value.map()) }
                         .toMap()
 
             else -> mapOf(Pair("fr", ContentDto().apply {
