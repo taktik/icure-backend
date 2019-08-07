@@ -109,7 +109,7 @@ class SumehrExportTest {
     private val validHealthElementWithEmptyEncryptedSelf = HealthElement().apply {
         this.tags.add(CodeStub("CD-ITEM", "familyrisk", "1.3"))
         this.codes.add(CodeStub("ICPC", "CD-VACCINE", "11.65"))
-        this.status = 3
+        this.status = 0
         this.closingDate = null
         this.descr = "Notnull"
     }
@@ -117,7 +117,7 @@ class SumehrExportTest {
         this.tags.add(CodeStub("CD-ITEM", "familyrisk", "1.3"))
         this.codes.add(CodeStub("ICPC", "CD-VACCINE", "11.65"))
         this.encryptedSelf = "encryptionKey"
-        this.status = 3
+        this.status = 0
         this.closingDate = null
         this.descr = "Notnull"
     }
@@ -1175,17 +1175,15 @@ class SumehrExportTest {
         sumehrExport.addHealthCareElements(hcPartyId, sfks, trn2, excludedIds, decryptor2)
 
         // Tests
-        val a1: HeadingType = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
         assertNotNull(trn1.headingsAndItemsAndTexts)
         assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
+        val a1: HeadingType = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
         assertEquals(a1.headingsAndItemsAndTexts.size, 2)
 
-        val a2: HeadingType = trn2.headingsAndItemsAndTexts.get(0) as HeadingType
         assertNotNull(trn1.headingsAndItemsAndTexts)
         assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
+        val a2: HeadingType = trn2.headingsAndItemsAndTexts.get(0) as HeadingType
         assertEquals(a2.headingsAndItemsAndTexts.size, 2)
-
-
     }
 
     @Test
@@ -1239,10 +1237,9 @@ class SumehrExportTest {
         // Tests
         val a1: HeadingType = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
         val b1: ItemType = a1.headingsAndItemsAndTexts.get(0) as ItemType
-        val c1 = b1.contents[0].cds[0]
+        val c1 = b1.contents[0].cds[1]
         assertEquals(eds1.tags.firstOrNull()?.code, "problem")
         assertEquals(eds1.tags.firstOrNull()?.version, "1.11")
-        assertEquals(eds1.codes.size, 1) // code1 (with "CD-AUTONOMY") is removed
         assertEquals(c1.value, "CD-VACCINE")
         assertEquals(c1.s.value(), "ICPC")
         assertEquals(c1.sv, "1")
@@ -1258,8 +1255,8 @@ class SumehrExportTest {
         val a3: HeadingType = trn3.headingsAndItemsAndTexts.get(0) as HeadingType
         assertEquals(eds3.tags.firstOrNull()?.code, "problem")
         assertEquals(eds3.tags.firstOrNull()?.version, "1.11")
-        assertEquals(eds3.codes.size, 0)
-        assertEquals(a3.headingsAndItemsAndTexts.size, 0)
+        assertEquals(eds3.codes.size, 1)
+        assertEquals(a3.headingsAndItemsAndTexts.size, 1)
 
         val a4: HeadingType = trn4.headingsAndItemsAndTexts.get(0) as HeadingType
         val b4: ItemType = a4.headingsAndItemsAndTexts.get(0) as ItemType
