@@ -172,7 +172,7 @@ class SumehrExportTest {
                 .thenAnswer { HealthcareParty() }
 
         Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any()))
-                .thenAnswer { healthcareParties }
+                .thenAnswer { healthcareParties.filter{ hcp -> (it.getArgumentAt(0, List::class.java) as List<String>).contains(hcp.id)} }
 
         Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
                 .thenAnswer { decryptedServiceDto }
@@ -994,17 +994,25 @@ class SumehrExportTest {
         sumehrExport.healthcarePartyLogic = this.healthcarePartyLogic
         val healthcareParty1 = HealthcareParty().apply {
             specialityCodes = listOf(CodeStub("Type", "Notpers", "1.0"), CodeStub("Type", "pers", "1.0"))
+            name = "healthcareParty1"
         }
         val healthcareParty2 = HealthcareParty().apply {
-            id = "LostID"
-            specialityCodes = listOf(CodeStub("Type", "pers", "1.0"))
+            id = "healthcareParty2Id"
+            specialityCodes = listOf(CodeStub("Type", "autre", "1.0"))
+            name = "healthcareParty2"
         }
         val healthcareParty3 = HealthcareParty().apply {
-            id = "healthcareParty2Id"
+            id = "healthcareParty3Id"
             specialityCodes = listOf(CodeStub("Type", "pers", "1.0"))
+            name = "healthcareParty3"
+        }
+        val healthcareParty4 = HealthcareParty().apply {
+            id = "excluded"
+            specialityCodes = listOf(CodeStub("Type", "pers", "1.0"))
+            name = "healthcareParty4"
         }
         this.healthcareParties.clear()
-        this.healthcareParties.addAll(listOf(healthcareParty1, healthcareParty2, healthcareParty3))
+        this.healthcareParties.addAll(listOf(healthcareParty1, healthcareParty2, healthcareParty3, healthcareParty4))
 
         /// First parameter
         val pat1 = Patient().apply {
@@ -1013,6 +1021,12 @@ class SumehrExportTest {
             })
             patientHealthCareParties.add(PatientHealthCareParty().apply {
                 healthcarePartyId = "healthcareParty2Id"
+            })
+            patientHealthCareParties.add(PatientHealthCareParty().apply {
+                healthcarePartyId = "healthcareParty3Id"
+            })
+            patientHealthCareParties.add(PatientHealthCareParty().apply {
+                healthcarePartyId = "excluded"
             })
         }
         val pat1PatientHealthCarePartiesSize = pat1.patientHealthCareParties.size
@@ -1024,24 +1038,29 @@ class SumehrExportTest {
         val config = this.config
 
         /// Fourth parameter
-        val excludedIds = emptyList<String>()
+        val excludedIds = listOf("excluded")
 
         // Execution
+        val itemsSize = if(trn1.headingsAndItemsAndTexts.size==0){
+            0
+        } else{
+            (trn1.headingsAndItemsAndTexts.get(0) as HeadingType).headingsAndItemsAndTexts.size
+        }
         sumehrExport.addPatientHealthcareParties(pat1, trn1, config, excludedIds)
 
         // Tests
-        assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
+        assertEquals(1, trn1.headingsAndItemsAndTexts.size)
         val a1 = trn1.headingsAndItemsAndTexts.get(0) as HeadingType
-        assertEquals(a1.headingsAndItemsAndTexts.size, 2)
-        val b1 = a1.headingsAndItemsAndTexts.get(1) as ItemType
-        assertEquals(b1.ids.size, 1)
-        assertEquals(b1.ids[0].value, "2")
-        assertEquals(b1.ids[0].s.value(), "ID-KMEHR")
-        assertEquals(b1.ids[0].sv, "1.0")
-        assertEquals(b1.cds.size, 1)
-        assertEquals(b1.cds[0].s.value(), "CD-ITEM")
-        assertEquals(b1.cds[0].value, "contacthcparty")
-        assertEquals(b1.contents.size, 1)
+        assertEquals(1, a1.headingsAndItemsAndTexts.size)
+        val b1 = a1.headingsAndItemsAndTexts.get(0) as ItemType
+        assertEquals(1, b1.ids.size)
+        assertEquals((itemsSize+1).toString(), b1.ids[0].value)
+        assertEquals("ID-KMEHR", b1.ids[0].s.value())
+        assertEquals("1.0", b1.ids[0].sv)
+        assertEquals(1, b1.cds.size)
+        assertEquals("CD-ITEM", b1.cds[0].s.value())
+        assertEquals("contacthcparty", b1.cds[0].value)
+        assertEquals(1, b1.contents.size)
         assertNotNull(b1.contents[0].hcparty)
     }
 
