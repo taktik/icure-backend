@@ -182,11 +182,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	    } else {
 		    if (FuzzyValues.isSsin(searchString)) {
 			    patientsPaginatedList = patientDAO.findPatientsByHcPartyAndSsin(searchString, healthcarePartyId, offset, false);
-
 		    } else if (FuzzyValues.isDate(searchString)) {
-			    patientsPaginatedList = patientDAO.findPatientsByHcPartyDateOfBirth(FuzzyValues.toYYYYMMDD(searchString),
-						FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false);
-
+			    patientsPaginatedList = patientDAO.findPatientsByHcPartyDateOfBirth(FuzzyValues.toYYYYMMDD(searchString), FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false);
 		    } else {
 				patientsPaginatedList = findByHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending);
 		    }
