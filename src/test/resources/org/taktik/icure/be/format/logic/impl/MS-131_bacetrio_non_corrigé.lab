@@ -1,0 +1,48 @@
+A1\B19B140800\Labo Luc Olivier\
+A2\B19B140800\NOM\PRENOM\F\01011950\
+A3\B19B140800\Rue factice 1\4520\Wanze\
+A4\B19B140800\Docteur Bidon\14022019\\C\
+L1\B19B140800\ATB\Antibiogramme\\\\       1 \
+L1\B19B140800\ATB\\\\\PENICILLINES\\\\\
+L1\B19B140800\ATB\Oxacilline          \\\\S                       \
+L1\B19B140800\ATB\Amoxi+Ac.clavulani  \\\\S                       \
+L1\B19B140800\ATB\\\\\CEPHALOSPORINES\\\\\
+L1\B19B140800\ATB\C‚furoxime          \\\\S                       \
+L1\B19B140800\ATB\C‚fotaxime          \\\\S                       \
+L1\B19B140800\ATB\Ceftriaxone         \\\\S                       \
+L1\B19B140800\ATB\Ceftazidime         \\\\S                       \
+L1\B19B140800\ATB\\\\\CARBAPENEMES\\\\\
+L1\B19B140800\ATB\Imip‚nŠme           \\\\S                       \
+L1\B19B140800\ATB\M‚rop‚nŠme          \\\\S                       \
+L1\B19B140800\ATB\\\\\AMINOSIDES\\\\\
+L1\B19B140800\ATB\Gentamicine         \\\\S                       \
+L1\B19B140800\ATB\Kanamycine          \\\\S                       \
+L1\B19B140800\ATB\Tobramycine         \\\\S                       \
+L1\B19B140800\ATB\Amikacine           \\\\S                       \
+L1\B19B140800\ATB\\\\\MACROLIDES\\\\\
+L1\B19B140800\ATB\Erythromycine       \\\\R                       \
+L1\B19B140800\ATB\Clindamycine        \\\\R                       \
+L1\B19B140800\ATB\Azithromycine       \\\\R                       \
+L1\B19B140800\ATB\\\\\GLYCOPEPTIDES\\\\\
+L1\B19B140800\ATB\Teicoplanine        \\\\R                       \
+L1\B19B140800\ATB\Vancomycine         \\\\S                       \
+L1\B19B140800\ATB\\\\\OXAZOLIDINONES\\\\\
+L1\B19B140800\ATB\Lin‚zolide          \\\\S                       \
+L1\B19B140800\ATB\\\\\QUINOLONES\\\\\
+L1\B19B140800\ATB\L‚vofloxacine       \\\\S                       \
+L1\B19B140800\ATB\Moxifloxacine       \\\\S                       \
+L1\B19B140800\ATB\Ciprofloxacine      \\\\S                       \
+L1\B19B140800\ATB\\\\\ACIDE FUSIDIQUE\\\\\
+L1\B19B140800\ATB\Acide Fusidique     \\\\S                       \
+L1\B19B140800\ATB\\\\\RIFAMYCINE\\\\\
+L1\B19B140800\ATB\Rifampicine         \\\\S                       \
+L1\B19B140800\ATB\\\\\TETRACYCLINES\\\\\
+L1\B19B140800\ATB\Minocycline         \\\\I                       \
+L1\B19B140800\ATB\\\\\SULFAMIDES-TRIM\\\\\
+L1\B19B140800\ATB\Trim‚thoprime/sul   \\\\S                       \
+L1\B19B140800\ATB\\\\\\
+L1\B19B140800\ATB\L‚gende\\\\\\\\
+L1\B19B140800\ATB\1. Staphylococcus haemolyticus\\\\\
+L1\B19B140800\ATB\S=sensible - R=r‚sistant - I=interm‚diaire       \\\\\\
+L1\B19B140800\ATB\\\\\\
+END
