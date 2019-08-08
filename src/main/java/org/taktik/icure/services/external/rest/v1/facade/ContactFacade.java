@@ -369,12 +369,7 @@ public class ContactFacade implements OpenApiFacade {
                 if (c.getClosingDate()==null) {
                     result.add(c);
                     c.setClosingDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS));
-                    try {
-                        contactLogic.modifyContact(c);
-                    } catch (MissingRequirementsException e) {
-                        log.warn(e.getMessage(), e);
-                        return Response.status(400).type("text/plain").entity(e.getMessage()).build();
-                    }
+                    contactLogic.modifyContact(c);
                 }
             }
 
@@ -424,21 +419,16 @@ public class ContactFacade implements OpenApiFacade {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        try {
-			handleServiceIndexes(contactDto);
+        handleServiceIndexes(contactDto);
 
-            contactLogic.modifyContact(mapper.map(contactDto, Contact.class));
-            Contact modifiedContact = contactLogic.getContact(contactDto.getId());
+        contactLogic.modifyContact(mapper.map(contactDto, Contact.class));
+        Contact modifiedContact = contactLogic.getContact(contactDto.getId());
 
-            boolean succeed = (modifiedContact != null);
-            if (succeed) {
-                return Response.ok().entity(mapper.map(modifiedContact, ContactDto.class)).build();
-            } else {
-                return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
-            }
-        } catch (MissingRequirementsException e) {
-            log.warn(e.getMessage(), e);
-            return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+        boolean succeed = (modifiedContact != null);
+        if (succeed) {
+            return Response.ok().entity(mapper.map(modifiedContact, ContactDto.class)).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
         }
     }
 
