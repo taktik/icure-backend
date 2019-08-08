@@ -762,7 +762,7 @@ class HealthOneLogicImplTest {
         /// File A2 then A3 then A1 then A4 Line
         Assert.assertEquals(res4.size, 1);
         Assert.assertTrue(res4[0].complete);
-        Assert.assertEquals(res4[0].demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")).toEpochMilli())
+        Assert.assertEquals(res4[0].demandDate, HealthOneLogicImpl.parseDemandDate("19032019").toEpochMilli())
         Assert.assertEquals(res4[0].services.size, 0);
         /// File with A1 and A2 (without date of birth) lines
         Assert.assertEquals(res5[0].lastName, "NOM")
@@ -774,26 +774,26 @@ class HealthOneLogicImplTest {
         /// File with A1 and A2 (with date of birth) lines
         Assert.assertEquals(res6[0].lastName, "NOM")
         Assert.assertEquals(res6[0].firstName, "PRENOM")
-        Assert.assertEquals(res6[0].dateOfBirth, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(Timestamp(HealthOneLogicImpl.readDate("01011950")).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res6[0].dateOfBirth, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(HealthOneLogicImpl.parseBirthDate("01011950").getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
         Assert.assertEquals(res6[0].protocol, "1903-19339")
         Assert.assertEquals(res6[0].sex, "F")
         Assert.assertEquals(res6[0].documentId, docID)
         /// File with A1, A2 and enpty S4.* lines
-        Assert.assertEquals(res7[0].dateOfBirth, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(Timestamp(HealthOneLogicImpl.readDate("01011950")).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res7[0].dateOfBirth, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(HealthOneLogicImpl.parseBirthDate("01011950").getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
         Assert.assertEquals(res7[0].sex, "F")
         /// File with A1, A2 and S4.*(with date of birth and sex) lines
-        Assert.assertEquals(res8[0].dateOfBirth, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(Timestamp(HealthOneLogicImpl.readDate("02021950")).getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
+        Assert.assertEquals(res8[0].dateOfBirth, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(HealthOneLogicImpl.parseBirthDate("02021950").getTime()), ZoneId.systemDefault()), ChronoUnit.DAYS))
         Assert.assertEquals(res8[0].sex, "M")
         /// File with A1,A2,S4.* and A4 lines
         /// with null r
         /// File with A1,A2,S4.* and A4 lines
         Assert.assertTrue(res9[0].complete);
-        Assert.assertEquals(res9[0].demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")).toEpochMilli())
+        Assert.assertEquals(res9[0].demandDate, HealthOneLogicImpl.parseDemandDate("19032019").toEpochMilli())
         Assert.assertEquals(res9[0].services.size, 0);
         /// File with A1,A2,S4.*,A4 and L1 lines
         Assert.assertTrue(res10[0].complete);
-        Assert.assertEquals(res10[0].demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")).toEpochMilli())
-        Assert.assertEquals(res10[0].services[0].valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")), ZoneId.systemDefault()), ChronoUnit.DAYS));
+        Assert.assertEquals(res10[0].demandDate, HealthOneLogicImpl.parseDemandDate("19032019").toEpochMilli())
+        Assert.assertEquals(res10[0].services[0].valueDate, FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(HealthOneLogicImpl.parseDemandDate("19032019"), ZoneId.systemDefault()), ChronoUnit.DAYS));
         Assert.assertEquals(res10[0].codes.size, 1)
         Assert.assertEquals(res10[0].codes[0].type, "CD-TRANSACTION")
         Assert.assertEquals(res10[0].codes[0].code, "labresult")
@@ -1042,7 +1042,7 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res3.firstName, "PRENOM")
         Assert.assertEquals(res3.lastName, "NOM")
         Assert.assertEquals(res3.sex, "F")
-        Assert.assertEquals(res3.dn, Timestamp(HealthOneLogicImpl.readDate("01011950")))
+        Assert.assertEquals(res3.dn, HealthOneLogicImpl.parseBirthDate("01011950"))
 
         // Complete Line with "A" and unaccepted date
         val line4 = "A2\\protocol\\NOM\\PRENOM\\A\\010\\"
@@ -1071,7 +1071,7 @@ class HealthOneLogicImplTest {
         val res3 = HealthOneLogicImpl.getExtraPatientLine(line3)
         Assert.assertEquals(res3.protocol, "protocol")
         Assert.assertEquals(res3.sex, "F")
-        Assert.assertEquals(res3.dn, Timestamp(HealthOneLogicImpl.readDate("01011950")))
+        Assert.assertEquals(res3.dn, HealthOneLogicImpl.parseBirthDate("01011950"))
 
         // Complete Line with "A" and unaccepted date
         val line4 = "S4.*\\protocol\\010\\A\\"
@@ -1190,7 +1190,7 @@ class HealthOneLogicImplTest {
         val res3 = HealthOneLogicImpl.getResultsInfosLine(line3)
         Assert.assertEquals(res3.protocol, "protocol")
         Assert.assertEquals(res3.complete, true)
-        Assert.assertEquals(res3.demandDate, Instant.ofEpochMilli(HealthOneLogicImpl.readDate("19032019")))
+        Assert.assertEquals(res3.demandDate, HealthOneLogicImpl.parseDemandDate("19032019"))
 
         // Complete line with P
         val line4 = "A4\\protocol\\Docteur Bidon\\19032019\\\\P\\"
@@ -1386,31 +1386,56 @@ class HealthOneLogicImplTest {
     }
 
     @Test
-    fun readDate() {
-
+    fun parseDate() {
         // Format ddmmyyyy
         val date1 = "01021950"
-        val res1 = HealthOneLogicImpl.readDate(date1);
+        val res1 = HealthOneLogicImpl.parseDate(date1);
         val a = res1.toString();
         Assert.assertTrue((res1.toString()).equals("-628477200000"))
 
         // Format ddmmyy
         val date2 = "010250"
-        val res2 = HealthOneLogicImpl.readDate(date2);
+        val res2 = HealthOneLogicImpl.parseDate(date2);
         Assert.assertTrue((res2.toString()).equals("-628477200000"))
 
         // Format dd/mm/yyyy
         val date3 = "01/02/1950"
-        val res3 = HealthOneLogicImpl.readDate(date3);
+        val res3 = HealthOneLogicImpl.parseDate(date3);
         Assert.assertTrue((res3.toString()).equals("-628477200000"))
 
         // Unaccepted format
         val date4 = "000"
         try {
-            val res4 = HealthOneLogicImpl.readDate(date4);
+            val res4 = HealthOneLogicImpl.parseDate(date4);
         } catch (e: NumberFormatException) {
             Assert.assertTrue(e.message!!.contains("Unreadable date: \"" + date4 + "\""))
         }
+    }
+
+    @Test
+    fun parseBirthDate() {
+        // Valid date after 01/01/1800
+        val date1 = "01021950"
+        val res1 = HealthOneLogicImpl.parseBirthDate(date1);
+        Assert.assertNotNull(res1)
+
+        // Date before 01/01/1800
+        val date2 = "01021750"
+        val res2 = HealthOneLogicImpl.parseBirthDate(date2);
+        Assert.assertNull(res2)
+    }
+
+    @Test
+    fun parseDemandDate() {
+        // Valid date after 01/01/1800
+        val date1 = "01021950"
+        val res1 = HealthOneLogicImpl.parseDemandDate(date1);
+        Assert.assertEquals(Instant.ofEpochMilli(HealthOneLogicImpl.parseDate(date1)), res1)
+
+        // Date before 01/01/1800
+        val date2 = "01021750"
+        val res2 = HealthOneLogicImpl.parseDemandDate(date2);
+        Assert.assertNotEquals(Instant.ofEpochMilli(HealthOneLogicImpl.parseDate(date2)), res2)
 
     }
 }
