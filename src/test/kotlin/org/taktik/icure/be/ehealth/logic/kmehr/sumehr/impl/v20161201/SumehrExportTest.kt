@@ -604,23 +604,37 @@ class SumehrExportTest {
         sumehrExport.healthElementLogic = this.healthElementLogic
         this.listOfHealthElement.clear()
         val filteredHealthElement1 = HealthElement().apply {
-            this.healthElementId = "Id1"
-            this.descr = "INBOX"
-            this.status = 1
+            this.id = "excluded";
+            this.descr = "NotINBOX";
+            this.status = 0; // active and relevant
         }
         val filteredHealthElement2 = HealthElement().apply {
-            this.healthElementId = "Id2"
-            this.status = 3
-            this.closingDate = 1L
-            this.descr = "NotINBOX"
+            this.healthElementId = "Id2";
+            this.descr = "INBOX";
         }
         val filteredHealthElement3 = HealthElement().apply {
-            this.id = "excluded"
-            this.status = 1
-            this.descr = "NotINBOX"
+            this.healthElementId = "Id3";
+            this.descr = "NotINBOX";
+            this.status = 2; // (active and) irrelevant
+            this.closingDate = 1L;
+        }
+        val filteredHealthElement4 = HealthElement().apply {
+            this.healthElementId = "Id4";
+            this.descr = "NotINBOX";
+            this.status = 3; // inactive and irrelevant
+        }
+        val keptHealthElement1 = HealthElement().apply {
+            this.healthElementId = "Id5";
+            this.descr = "NotINBOX";
+            this.status = 1; // (inactive and) relevant
+        }
+        val keptHealthElement2 = HealthElement().apply {
+            this.healthElementId = "Id6";
+            this.descr = "NotINBOX";
+            this.status = 2; // (active and) irrelevant
         }
 
-        this.listOfHealthElement.addAll(listOf(validHealthElement, filteredHealthElement1, filteredHealthElement2, filteredHealthElement3))
+        this.listOfHealthElement.addAll(listOf(filteredHealthElement1, filteredHealthElement2, filteredHealthElement3, filteredHealthElement4, keptHealthElement1, keptHealthElement2))
 
         /// First parameter
         val hcPartyId = "1"
@@ -637,9 +651,7 @@ class SumehrExportTest {
         // Tests
         val size = healthElementLogic.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks).size
         assertNotNull(res1)
-        assertFalse(ServiceStatus.isIrrelevant(filteredHealthElement1.status))
-        assertTrue(ServiceStatus.isIrrelevant(filteredHealthElement2.status))
-        assertEquals(res1.size, size - 3)
+        assertEquals(res1.size, size - 4)
     }
 
     @Test

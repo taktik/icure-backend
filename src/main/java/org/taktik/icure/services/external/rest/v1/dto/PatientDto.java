@@ -93,6 +93,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
+    protected Map<String,String> importedData = new HashMap<>();
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
 
@@ -489,5 +490,13 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
         this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }
