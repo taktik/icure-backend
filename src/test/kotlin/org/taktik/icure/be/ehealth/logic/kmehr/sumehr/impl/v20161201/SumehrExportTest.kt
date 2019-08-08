@@ -14,7 +14,6 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
-import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
@@ -601,6 +600,38 @@ class SumehrExportTest {
         assertTrue(items.contains(contact))     //
         assertTrue(items.contains(document))    //
         assertTrue(items.contains(invoice))     //
+
+        assertNotNull(fullTransaction)
+        assertNotNull(fullTransaction.headingsAndItemsAndTexts)
+        assertEquals(1, fullTransaction.headingsAndItemsAndTexts.size)
+        assertNotNull(fullTransaction.headingsAndItemsAndTexts[0])
+        assertTrue(fullTransaction.headingsAndItemsAndTexts[0] is HeadingType)
+        val fullHeading = fullTransaction.headingsAndItemsAndTexts[0] as HeadingType
+        assertNotNull(fullHeading)
+        assertEquals(0, fullHeading.headingsAndItemsAndTexts.size)
+
+        assertNotNull(partialTransaction)
+        assertNotNull(partialTransaction.headingsAndItemsAndTexts)
+        assertEquals(1, partialTransaction.headingsAndItemsAndTexts.size)
+        assertNotNull(partialTransaction.headingsAndItemsAndTexts[0])
+        assertTrue(partialTransaction.headingsAndItemsAndTexts[0] is HeadingType)
+        val partialHeading = partialTransaction.headingsAndItemsAndTexts[0] as HeadingType
+        assertNotNull(partialHeading)
+        assertNotNull(partialHeading.headingsAndItemsAndTexts)
+        assertEquals(1, partialHeading.headingsAndItemsAndTexts.size)
+        assertNotNull(partialHeading.headingsAndItemsAndTexts[0])
+        assertTrue(partialHeading.headingsAndItemsAndTexts[0] is ItemType)
+        val omittedItem = partialHeading.headingsAndItemsAndTexts[0] as ItemType
+        assertNotNull(omittedItem)
+        assertNotNull(omittedItem.contents)
+        assertEquals(1, omittedItem.contents.size)
+        val omittedContent = omittedItem.contents[0]
+        assertNotNull(omittedContent)
+        assertNotNull(omittedContent.cds)
+        assertEquals(1, omittedContent.cds.size)
+        val omittedCode = omittedContent.cds[0]
+        assertNotNull(omittedCode)
+        assertEquals("omissionofmedicaldata", omittedCode.value)
     }
 
     @Test
