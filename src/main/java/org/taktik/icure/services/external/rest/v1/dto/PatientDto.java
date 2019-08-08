@@ -41,6 +41,7 @@ import java.util.Set;
 public class PatientDto extends IcureDto implements EncryptableDto {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
+    protected Set<String> nonDuplicateIds = new HashSet<>();
 
     protected String firstName;
     protected String lastName;
@@ -92,6 +93,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
+    protected Map<String,String> importedData = new HashMap<>();
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
 
@@ -111,6 +113,10 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 	public void setMergedIds(Set<String> mergedIds) {
 		this.mergedIds = mergedIds;
 	}
+	
+    public Set<String> getNonDuplicateIds() {  return nonDuplicateIds;  }
+
+    public void setNonDuplicateIds(Set<String> nonDuplicateIds) {  this.nonDuplicateIds = nonDuplicateIds; }
 
 	public String getFirstName() {
         return firstName;
@@ -484,5 +490,13 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
         this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }

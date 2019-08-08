@@ -21,12 +21,18 @@ package org.taktik.icure.services.external.rest.v1.dto.be.kmehr;
 import java.io.Serializable;
 import java.util.List;
 
+import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
+import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
 
 public class SumehrContentDto implements Serializable {
 	List<ServiceDto> services;
 	List<HealthElementDto> healthElements;
+	List<PartnershipDto> partnerships;
+	List<PatientHealthCarePartyDto> patientHealthcareParties;
 
 	public List<HealthElementDto> getHealthElements() {
 		return healthElements;
@@ -42,5 +48,21 @@ public class SumehrContentDto implements Serializable {
 
 	public void setServices(List<ServiceDto> services) {
 		this.services = services;
+	}
+
+	public List<PartnershipDto> getPartnerships() {
+		return partnerships;
+	}
+
+	public void setPartnerships(List<PartnershipDto> partnerships) {
+		this.partnerships = partnerships;
+	}
+
+	public List<PatientHealthCarePartyDto> getPatientHealthcareParties() {
+		return patientHealthcareParties;
+	}
+
+	public void setPatientHealthcareParties(List<PatientHealthCarePartyDto> patientHealthcareParties) {
+		this.patientHealthcareParties = patientHealthcareParties;
 	}
 }

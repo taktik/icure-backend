@@ -155,6 +155,9 @@ public class V1MapperFactory {
 				c.setSearchTerms(source.getSearchTerms());
 				c.setDeletionDate(source.getDeletionDate());
 				c.setRev(source.getRev());
+				c.setAppendices(source.getAppendices());
+				c.setDisabled(source.isDisabled());
+				c.setQualifiedLinks(source.getQualifiedLinks());
 
 				return c;
 			}
