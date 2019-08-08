@@ -14,7 +14,6 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
-import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
