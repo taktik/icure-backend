@@ -55,20 +55,26 @@ object Utils {
                 minute = FIELD_UNDEFINED
                 second = FIELD_UNDEFINED
 
-                when (d) {
-                    in 0..9999 -> {
-                        year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
+                try {
+                    when (d) {
+                        in 0..9999 -> {
+                            year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
+                        }
+                        in 0..999912 -> {
+                            year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
+                        }
+                        in 0..99991231 -> {
+                            year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
+                        }
+                        else -> {
+                            year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
+                            hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
+                        }
                     }
-                    in 0..999912 -> {
-                        year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
-                    }
-                    in 0..99991231 -> {
-                        year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
-                    }
-                    else -> {
-                        year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
-                        hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
-                    }
+                }catch(ex : Exception) {
+                    var tmp = LocalDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.systemDefault())
+                    year = tmp.year; month = tmp.monthValue; day = tmp.dayOfMonth
+                    hour = tmp.hour; minute = tmp.minute; second = tmp.second
                 }
             }
         }

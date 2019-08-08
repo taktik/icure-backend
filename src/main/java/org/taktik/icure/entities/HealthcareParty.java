@@ -92,6 +92,7 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
     // the key encrypted using delegate's public key.
     protected Map<String, String[]> hcPartyKeys = new HashMap<String, String[]>();
+    protected Map<String, String> privateKeyShamirPartitions = new HashMap<>();
 
     protected List<FinancialInstitutionInformation> financialInstitutionInformation = new ArrayList<>();
 	protected Map<String, String> options = new HashMap<>();
@@ -106,6 +107,7 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     protected String contactPersonHcpId;
     protected List<FlatRateTarification> flatRateTarifications;
 
+    protected Map<String, String> importedData = new HashMap<>();
 
 	public HealthcareParty() {
 
@@ -280,6 +282,14 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     @Override
     public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
         this.hcPartyKeys = hcPartyKeys;
+    }
+
+    public Map<String, String> getPrivateKeyShamirPartitions() {
+        return privateKeyShamirPartitions;
+    }
+
+    public void setPrivateKeyShamirPartitions(Map<String, String> privateKeyShamirPartitions) {
+        this.privateKeyShamirPartitions = privateKeyShamirPartitions;
     }
 
     @Override
@@ -472,4 +482,11 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
         }
     }
 
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
+    }
 }
