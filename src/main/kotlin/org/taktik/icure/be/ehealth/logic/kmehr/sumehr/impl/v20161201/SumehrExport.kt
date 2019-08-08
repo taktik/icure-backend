@@ -270,6 +270,12 @@ class SumehrExport : KmehrExport() {
 			null == s.tags.find { it.type == "org.taktik.icure.entities.embed.Confidentiality" && it.code == "secret" } &&
 				null == s.codes.find { it.type == "org.taktik.icure.entities.embed.Visibility" && it.code == "maskedfromsummary" }
 		}
+		/*val assessment = getAssessment(trn)
+		if(filteredItems.size != items.size && null == assessment.headingsAndItemsAndTexts.find { item -> (item is ItemType) && item?.contents?.firstOrNull()?.cds?.firstOrNull()?.value == CDPATIENTWILLvalues.OMISSIONOFMEDICALDATA.value() }){
+			// We automatically add (once and only once) a patient's will "omissionofmedicaldata" if some elements are confidentials.
+			assessment.headingsAndItemsAndTexts.add(super.getOmissionOfMedicalDataWill(assessment.headingsAndItemsAndTexts.size + 1))
+		}*/
+		return filteredItems;
 	}
 
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
@@ -278,7 +284,15 @@ class SumehrExport : KmehrExport() {
 		}?.filter { s -> !excludedIds.contains(s.id) } ?: emptyList()
 	}
 
-	private fun getMedications(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
+		return patientLogic?.getPatient(patientId)?.partnerships?.filter{p -> !excludedIds.contains(p.partnerId)} ?: emptyList()
+	}
+
+	fun getPatientHealthCareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
+		return patientLogic?.getPatient(patientId)?.patientHealthCareParties?.filter{p -> !excludedIds.contains(p.healthcarePartyId)} ?: emptyList()
+	}
+
+	internal fun getMedications(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		val nowFuzzy = FuzzyValues.getCurrentFuzzyDate()
 		val medications = getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf("medication"), excludedIds, decryptor).filter { it.closingDate?.let { it >= nowFuzzy } ?: true }
 		val cnks = HashSet(medications.filter { m -> m.codes.find { it.type == "CD-DRUG-CNK" } != null }.mapNotNull { m -> m.codes.find { it.type == "CD-DRUG-CNK" }?.code })
@@ -396,9 +410,8 @@ class SumehrExport : KmehrExport() {
 		return super.createItemWithContent(he, idx, cdItem, contents)
 	}
 
-	@NotNull
-	private fun addContactPeople(pat: Patient, trn: TransactionType, config: Config) {
-		patientLogic?.getPatients(pat.partnerships.mapNotNull { it?.partnerId })?.forEach { p ->
+	internal fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
+		patientLogic?.getPatients(pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId })?.forEach { p ->
 			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
 			try {
 				rel.let {
@@ -416,8 +429,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-    @NotNull
-    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
+	internal fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config) {
         healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
             if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
                 val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
