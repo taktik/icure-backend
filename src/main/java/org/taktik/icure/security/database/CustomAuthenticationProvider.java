@@ -100,6 +100,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
 		List<User> matchingUsers = new LinkedList<>();
 
+		String password = auth.getCredentials().toString();
 		for (User userOnFallbackDb : users) {
 			String userId = userOnFallbackDb.getId().contains(":") ? userOnFallbackDb.getId().split(":")[1] : userOnFallbackDb.getId();
 			String gId = userOnFallbackDb.getGroupId();
@@ -120,8 +121,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 			log.warn("Invalid username or password for user "+username+", no user matched out of "+users.size()+" candidates");
 			throw new BadCredentialsException("Invalid username or password");
 		}
-		if (user.isUse2fa() != null && (user.isUse2fa() != null && user.isUse2fa()) && !user.isSecretEmpty()) {
-			String[] splittedPassword = auth.getCredentials().toString().split("\\|");
+		if (user.isUse2fa() != null && (user.isUse2fa() != null && user.isUse2fa()) && !user.isSecretEmpty() && !user.getApplicationTokens().containsValue(password)) {
+			String[] splittedPassword = password.split("\\|");
 			if (splittedPassword.length<2) {
 				throw new BadCredentialsException("Missing verfication code");
 			}
