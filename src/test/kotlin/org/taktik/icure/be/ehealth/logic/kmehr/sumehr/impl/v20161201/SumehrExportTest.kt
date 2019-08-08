@@ -100,10 +100,11 @@ class SumehrExportTest {
     private val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.label = vaccineLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val services = mutableListOf<List<Service>>()
 
-    private val patient = Patient().apply { this.id = "0dce1288"; this.partnerships = listOf(Partnership().apply { partnerId = "2ed64d50"; otherToMeRelationshipDescription = "father" }) }
+    private val patient = Patient().apply { this.id = "0dce1288"; this.partnerships = listOf(Partnership().apply { partnerId = "2ed64d50"; otherToMeRelationshipDescription = "father" }, Partnership().apply { partnerId = "excluded"; otherToMeRelationshipDescription = "uncle" }) }
     private val patientContact = Patient().apply { this.id = "2ed64d50"; this.partnerships = emptyList<Partnership>() }
     private val contactPatient = Patient().apply { this.id = "ad977492"; this.partnerships = listOf(Partnership().apply { partnerId = "0dce1288"; otherToMeRelationshipDescription = "brother" }) }
     private val unknownPatient = Patient().apply { this.id = "f9512b4f"; this.partnerships = emptyList<Partnership>() }
+    private val excludedPatient = Patient().apply { this.id = "excluded"; this.partnerships = emptyList<Partnership>() }
     private val patients = mutableListOf<Patient>()
 
     private val emptyHealthElement = HealthElement()
@@ -953,10 +954,10 @@ class SumehrExportTest {
     fun addContactPeople() {
         // Arrange
         val transaction = TransactionType()
-        val excludedIds = emptyList<String>()
+        val excludedIds = listOf("excluded")
         sumehrExport.patientLogic = this.patientLogic
         patients.clear()
-        patients.addAll(listOf(patient, patientContact, contactPatient, unknownPatient))
+        patients.addAll(listOf(patient, patientContact, contactPatient, unknownPatient, excludedPatient))
 
         // Execute
         sumehrExport.addContactPeople(patient, transaction, config, excludedIds)
