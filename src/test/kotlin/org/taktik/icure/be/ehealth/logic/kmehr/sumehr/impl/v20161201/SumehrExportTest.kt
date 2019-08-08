@@ -1343,9 +1343,9 @@ class SumehrExportTest {
             speciality = "persdentist"
         }
         val hcpartyOrg = HealthcareParty().apply {
-            firstName = "Christelle"
-            lastName = "Langlais"
-            name = "CHU Langlais"
+            firstName = "CHU Langlais"
+            lastName = null
+            name = null
             specialityCodes = listOf(CodeStub("hcparty", "orghospital", "1.0"), CodeStub("hcparty", "orglaboratory", "1.0"))
         }
         val hcpartyDept = HealthcareParty().apply {
@@ -1368,23 +1368,23 @@ class SumehrExportTest {
 
         // Asserts
         assertNotNull(hcpartyTypePers)
-        assertNotEquals("", hcpartyTypePers.firstname ?: "")
-        assertNotEquals("", hcpartyTypePers.familyname ?: "")
+        assertEquals("Christelle", hcpartyTypePers.firstname ?: "")
+        assertEquals("Langlais", hcpartyTypePers.familyname ?: "")
         assertNull(hcpartyTypePers.name)
 
         assertNotNull(hcpartyTypeOrg)
         assertNull(hcpartyTypeOrg.firstname)
         assertNull(hcpartyTypeOrg.familyname)
-        assertNotEquals("", hcpartyTypeOrg.name ?: "")
+        assertEquals("CHU Langlais", hcpartyTypeOrg.name ?: "")
 
         assertNotNull(hcpartyTypeDept)
         assertNull(hcpartyTypeDept.firstname)
         assertNull(hcpartyTypeDept.familyname)
-        assertNotEquals("", hcpartyTypeDept.name ?: "")
+        assertEquals("CHU Langlais Département Radiothérapie", hcpartyTypeDept.name ?: "")
 
         assertNotNull(hcpartyType)
-        assertNotEquals("", hcpartyType.firstname ?: "")
-        assertNotEquals("", hcpartyType.familyname ?: "")
+        assertEquals("Christelle", hcpartyType.firstname ?: "")
+        assertEquals("Langlais", hcpartyType.familyname ?: "")
         assertNull(hcpartyType.name)
     }
 }
