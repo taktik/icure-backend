@@ -233,6 +233,19 @@ open class KmehrExport {
         }
     }
 
+    open fun getOmissionOfMedicalDataWill(idx: Int): ItemType {
+        return ItemType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.PATIENTWILL.value() } )
+            contents.add(ContentType().apply { cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_PATIENTWILL); value = CDPATIENTWILLvalues.OMISSIONOFMEDICALDATA.value() }) })
+            lifecycle = LifecycleType().apply { cd = CDLIFECYCLE().apply { s = "CD-LIFECYCLE"; value = CDLIFECYCLEvalues.ACTIVE } }
+            isIsrelevant = true
+            beginmoment = Utils.makeMomentTypeDateFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
+            endmoment = Utils.makeMomentTypeDateFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
+            recorddatetime = makeXGC(Instant.now().toEpochMilli())
+        }
+    }
+
 	private fun filterEmptyContent(contents: List<ContentType>) = contents.filter {
 		it.isBoolean != null || it.cds?.size ?: 0 > 0 || it.bacteriology != null || it.compoundprescription != null ||
 			it.location != null || it.lnks?.size ?: 0 > 0 || it.bacteriology != null || it.ecg != null || it.holter != null ||
