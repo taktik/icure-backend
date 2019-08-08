@@ -125,10 +125,10 @@ class SumehrExportTest {
 
     private val healthcareParties = mutableListOf(HealthcareParty())
 
-    private var callNumber = 0;
+    private var callNumber = 0
     private fun resetServices() {
-        services.clear();
-        callNumber = 0;
+        services.clear()
+        callNumber = 0
     }
 
     @Before
@@ -246,14 +246,14 @@ class SumehrExportTest {
         /// First parameter
         val path1 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr1.xml"
         val file1 = File(path1)
-        val os1 = file1.outputStream();
+        val os1 = file1.outputStream()
         val path2 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr2.xml"
         val file2 = File(path2)
-        val os2 = file2.outputStream();
+        val os2 = file2.outputStream()
 
         /// Second parameter
         val pat = Patient().apply {
-            id = "idPatient";
+            id = "idPatient"
             addresses = listOf(Address().apply {
                 street = "streetPatient"
                 houseNumber = "1D"
@@ -263,17 +263,17 @@ class SumehrExportTest {
         }
 
         /// Third parameter
-        val sfks = listOf("sfks");
+        val sfks = listOf("sfks")
 
         /// Fourth parameter
         val sender = HealthcareParty().apply {
-            nihii = "nihiiSender";
-            id = "idSender";
-            ssin = "ssinSender";
+            nihii = "nihiiSender"
+            id = "idSender"
+            ssin = "ssinSender"
             specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
-            firstName = "firstNameSender";
-            lastName = "lastNameSender";
-            name = "nameSender";
+            firstName = "firstNameSender"
+            lastName = "lastNameSender"
+            name = "nameSender"
             addresses = listOf(Address().apply {
                 street = "streetSender"
                 houseNumber = "3A"
@@ -283,13 +283,13 @@ class SumehrExportTest {
         }
 
         /// Fifth parameter
-        val recipient = HealthcareParty();
+        val recipient = HealthcareParty()
 
         /// Sixth parameter
-        val language = "language";
+        val language = "language"
 
         /// Seventh parameter
-        val comment = "comment";
+        val comment = "comment"
 
         /// Eighth parameter
         val excludedIds = listOf("excludedId")
@@ -303,11 +303,11 @@ class SumehrExportTest {
         assertNotNull(file2)
         val mappings1 = file1.inputStream()
         val bufferedReader1 = mappings1.bufferedReader(Charset.forName("cp1252"))
-        val file1Line1 = bufferedReader1.readLine();
+        val file1Line1 = bufferedReader1.readLine()
         assertTrue(file1Line1.startsWith("<?xml"))
         val mappings2 = file2.inputStream()
         val bufferedReader2 = mappings2.bufferedReader(Charset.forName("cp1252"))
-        val file1Line2 = bufferedReader2.readLine();
+        val file1Line2 = bufferedReader2.readLine()
         assertTrue(file1Line2.startsWith("{"))
     }
 
@@ -316,11 +316,11 @@ class SumehrExportTest {
         // Arrange
         /// First parameter
         val file = File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml")
-        val os = file.outputStream();
+        val os = file.outputStream()
 
         /// Second parameter
         val pat = Patient().apply {
-            id = "idPatient";
+            id = "idPatient"
             addresses = listOf(Address().apply {
                 street = "streetPatient"
                 houseNumber = "1D"
@@ -330,17 +330,17 @@ class SumehrExportTest {
         }
 
         /// Third parameter
-        val sfks = listOf("sfks");
+        val sfks = listOf("sfks")
 
         /// Fourth parameter
         val sender = HealthcareParty().apply {
-            nihii = "nihiiSender";
-            id = "idSender";
-            ssin = "ssinSender";
+            nihii = "nihiiSender"
+            id = "idSender"
+            ssin = "ssinSender"
             specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
-            firstName = "firstNameSender";
-            lastName = "lastNameSender";
-            name = "nameSender";
+            firstName = "firstNameSender"
+            lastName = "lastNameSender"
+            name = "nameSender"
             addresses = listOf(Address().apply {
                 street = "streetSender"
                 houseNumber = "3A"
@@ -350,13 +350,13 @@ class SumehrExportTest {
         }
 
         /// Fifth parameter
-        val recipient = HealthcareParty();
+        val recipient = HealthcareParty()
 
         /// Sixth parameter
-        val language = "language";
+        val language = "language"
 
         /// Seventh parameter
-        val comment = "comment";
+        val comment = "comment"
 
         /// Eighth parameter
         val excludedIds = listOf("excludedId")
@@ -818,25 +818,25 @@ class SumehrExportTest {
         // Arrange
         /// First parameter
         val content1 = Content().apply {
-            booleanValue = true;
-            binaryValue = "binaryValue".toByteArray();
-            documentId = "documentId";
+            booleanValue = true
+            binaryValue = "binaryValue".toByteArray()
+            documentId = "documentId"
             measureValue = Measure().apply {
-                value = 1.0;
-                min = 1.1;
-                max = 1.2;
-                ref = 1.3;
-                severity = 1;
-                severityCode = "severityCode";
-                unit = "unit";
+                value = 1.0
+                min = 1.1
+                max = 1.2
+                ref = 1.3
+                severity = 1
+                severityCode = "severityCode"
+                unit = "unit"
                 unitCodes = setOf(CodeStub("type", "code", "version"))
-                comment = "comment";
-            };
-            numberValue = 1.4;
-            instantValue = Instant.ofEpochMilli(0L);
-            stringValue = "stringValue";
+                comment = "comment"
+            }
+            numberValue = 1.4
+            instantValue = Instant.ofEpochMilli(0L)
+            stringValue = "stringValue"
             medicationValue = Medication().apply {
-                compoundPrescription = "compoundPrescription";
+                compoundPrescription = "compoundPrescription"
                 substanceProduct = Substanceproduct().apply {
                     intendedname = "intendedname"
                 }
@@ -847,7 +847,7 @@ class SumehrExportTest {
         }
         val content2 = Content().apply {
             medicationValue = Medication().apply {
-                compoundPrescription = "compoundPrescription";
+                compoundPrescription = "compoundPrescription"
                 substanceProduct = Substanceproduct().apply {
                     intendedname = "intendedname"
                 }
@@ -1331,5 +1331,60 @@ class SumehrExportTest {
             }
         }
         assertTrue(test2)
+    }
+
+    @Test
+    fun createParty() {
+        // Arrange
+        val hcpartyPers = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "Cabinet Langlais"
+            speciality = "persdentist"
+        }
+        val hcpartyOrg = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "CHU Langlais"
+            specialityCodes = listOf(CodeStub("hcparty", "orghospital", "1.0"), CodeStub("hcparty", "orglaboratory", "1.0"))
+        }
+        val hcpartyDept = HealthcareParty().apply {
+            firstName = "CHU Langlais"
+            lastName = "Département Radiothérapie"
+            name = ""
+            speciality = "deptradiotherapy"
+        }
+        val hcparty = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "Cabinet Langlais"
+        }
+
+        // Act
+        val hcpartyTypePers = sumehrExport.createParty(hcpartyPers)
+        val hcpartyTypeOrg = sumehrExport.createParty(hcpartyOrg)
+        val hcpartyTypeDept = sumehrExport.createParty(hcpartyDept)
+        val hcpartyType = sumehrExport.createParty(hcparty)
+
+        // Asserts
+        assertNotNull(hcpartyTypePers)
+        assertNotEquals("", hcpartyTypePers.firstname ?: "")
+        assertNotEquals("", hcpartyTypePers.familyname ?: "")
+        assertNull(hcpartyTypePers.name)
+
+        assertNotNull(hcpartyTypeOrg)
+        assertNull(hcpartyTypeOrg.firstname)
+        assertNull(hcpartyTypeOrg.familyname)
+        assertNotEquals("", hcpartyTypeOrg.name ?: "")
+
+        assertNotNull(hcpartyTypeDept)
+        assertNull(hcpartyTypeDept.firstname)
+        assertNull(hcpartyTypeDept.familyname)
+        assertNotEquals("", hcpartyTypeDept.name ?: "")
+
+        assertNotNull(hcpartyType)
+        assertNotEquals("", hcpartyType.firstname ?: "")
+        assertNotEquals("", hcpartyType.familyname ?: "")
+        assertNull(hcpartyType.name)
     }
 }
