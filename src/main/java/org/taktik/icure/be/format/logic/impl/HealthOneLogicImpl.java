@@ -440,7 +440,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
                         if (full) {
                             LaboResultLine lrl = getLaboResultLine(line, ll);
                             if (lrl != null) {
-                                if (ll.labosList.size() > 0 && !lrl.analysisCode.equals(ll.labosList.get(0).analysisCode)) {
+                                if (ll.labosList.size() > 0 && !(lrl.analysisCode.equals(ll.labosList.get(0).analysisCode) && lrl.analysisType.equals(ll.labosList.get(0).analysisType))) {
                                     createServices(ll, language, position);
                                 }
                                 ll.labosList.add(lrl);
