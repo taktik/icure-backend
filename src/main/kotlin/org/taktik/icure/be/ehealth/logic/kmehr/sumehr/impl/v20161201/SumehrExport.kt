@@ -35,6 +35,8 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
@@ -190,7 +192,7 @@ class SumehrExport : KmehrExport() {
 		//itemIndex = addNonPassiveIrrelevantServiceUsingContent(p, trn, itemIndex, "familyrisk");
 
 		addGmdmanager(p, trn)
-		addContactPeople(p, trn, config)
+		addContactPeople(p, trn, config, listOf())
 		addPatientHealthcareParties(p, trn, config)
 
 
@@ -274,8 +276,8 @@ class SumehrExport : KmehrExport() {
 		if(filteredItems.size != items.size && null == assessment.headingsAndItemsAndTexts.find { item -> (item is ItemType) && item?.contents?.firstOrNull()?.cds?.firstOrNull()?.value == CDPATIENTWILLvalues.OMISSIONOFMEDICALDATA.value() }){
 			// We automatically add (once and only once) a patient's will "omissionofmedicaldata" if some elements are confidentials.
 			assessment.headingsAndItemsAndTexts.add(super.getOmissionOfMedicalDataWill(assessment.headingsAndItemsAndTexts.size + 1))
-		}*/
-		return filteredItems;
+		}
+		return filteredItems;*/
 	}
 
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
