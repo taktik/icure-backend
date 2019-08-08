@@ -18,7 +18,9 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-public class AccessLogDto extends IcureDto {
+import org.taktik.icure.entities.base.Encryptable;
+
+public class AccessLogDto extends IcureDto implements EncryptableDto {
 
 	protected String accessType;
 	protected Long date;
@@ -67,4 +69,16 @@ public class AccessLogDto extends IcureDto {
 	public void setDetail(String detail) {
 		this.detail = detail;
 	}
+
+	private String encryptedSelf;
+	@Override
+	public String getEncryptedSelf() {
+		return encryptedSelf;
+	}
+
+	@Override
+	public void setEncryptedSelf(String encryptedSelf) {
+		this.encryptedSelf = encryptedSelf;
+	}
+
 }

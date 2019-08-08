@@ -33,7 +33,6 @@ import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.dto.filter.chain.FilterChain;
 import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.Contact;
-import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.entities.embed.SubContact;
@@ -48,7 +47,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
@@ -153,7 +151,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	}
 
 	@Override
-	public Contact modifyContact(@Check @NotNull Contact contact) throws MissingRequirementsException {
+	public Contact modifyContact(@Check @NotNull Contact contact) {
 		try {
 			return contactDAO.save(contact);
 		} catch (UpdateConflictException e) {
