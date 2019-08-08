@@ -17,6 +17,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.logic.impl.ContactLogicImpl
 import org.taktik.icure.logic.impl.HealthElementLogicImpl
@@ -582,8 +583,13 @@ class SumehrExportTest {
             this.codes = emptySet<CodeStub>()
         }
 
+        val fullTransaction = TransactionType()
+        val partialTransaction = TransactionType()
+
         //Execute
-        val items = sumehrExport.getNonConfidentialItems(listOf(article, message, receipt, patient, contact, document, invoice))
+        val items = mutableListOf<ICureDocument>()
+        items.addAll(sumehrExport.getNonConfidentialItems(listOf(article, contact, document, invoice), fullTransaction))
+        items.addAll(sumehrExport.getNonConfidentialItems(listOf(message, receipt, patient), partialTransaction))
 
         //Tests
         assertNotNull(items)
@@ -947,12 +953,13 @@ class SumehrExportTest {
     fun addContactPeople() {
         // Arrange
         val transaction = TransactionType()
+        val excludedIds = emptyList<String>()
         sumehrExport.patientLogic = this.patientLogic
         patients.clear()
         patients.addAll(listOf(patient, patientContact, contactPatient, unknownPatient))
 
         // Execute
-        sumehrExport.addContactPeople(patient, transaction, config)
+        sumehrExport.addContactPeople(patient, transaction, config, excludedIds)
 
         // Tests
         assertNotNull(transaction)
@@ -1015,8 +1022,11 @@ class SumehrExportTest {
         /// Third parameter
         val config = this.config
 
+        /// Fourth parameter
+        val excludedIds = emptyList<String>()
+
         // Execution
-        sumehrExport.addPatientHealthcareParties(pat1, trn1, config)
+        sumehrExport.addPatientHealthcareParties(pat1, trn1, config, excludedIds)
 
         // Tests
         assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
