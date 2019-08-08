@@ -30,6 +30,7 @@ import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthElementLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.utils.FuzzyValues
 import java.io.InputStream
 import java.io.Serializable
@@ -77,12 +78,46 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
+    fun importSumehrByItemId(inputStream: InputStream,
+                     itemId: String,
+                     author: User,
+                     language: String,
+                     mappings: Map<String, List<ImportMapping>>,
+                     dest: Patient? = null): List<ImportResult> {
+        val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+
+        val unmarshaller = jc.createUnmarshaller()
+        val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
+
+        var allRes = LinkedList<ImportResult>()
+
+        val standard = kmehrMessage.header.standard.cd.value
+
+        //TODO Might want to have several implementations babsed on standards
+        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
+        kmehrMessage.folders.forEach { folder ->
+            val res = ImportResult().apply { allRes.add(this) }
+            createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
+                res.patient = patient
+                folder.transactions.forEach { trn ->
+                    val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
+                        "sumehr" -> parseSumehr(trn, author, res, language, mappings, itemId)
+                        else -> parseGenericTransaction(trn, author, res, language, mappings, itemId)
+                    }
+                    contactLogic.createContact(ctc)
+                    res.ctcs.add(ctc)
+                }
+            }
+        }
+        return allRes
+    }
+
     private fun parseSumehr(trn: TransactionType,
                                    author: User,
                                    v: ImportResult,
                                    language: String,
-                                   mappings: Map<String, List<ImportMapping>>): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings).apply {
+                                   mappings: Map<String, List<ImportMapping>>, itemId: String? = null): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, itemId).apply {
 
         }
     }
@@ -91,7 +126,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                                         author: User,
                                         v: ImportResult,
                                         language: String,
-                                        mappings: Map<String, List<ImportMapping>>): Contact {
+                                        mappings: Map<String, List<ImportMapping>>, itemId: String? = null): Contact {
         return Contact().apply {
             val contact = this
             this.id = idGenerator.newGUID().toString()
@@ -119,7 +154,21 @@ class SumehrImport(val patientLogic: PatientLogic,
                     } ?: listOf())
                 }
 
-            trn.findItems().forEach { item ->
+            var items = trn.findItems()
+            if(itemId!!.isNotBlank() && itemId!!.isNotEmpty()){
+                //itemId = "[headingId].[itemId]" OR "[itemId]"
+                val idList = itemId.split("/")
+                if(idList.count() > 1){
+                    //headings and items
+                    items = trn.findItemsByHeadingId(null, idList[0])
+                    items = items.filter{ it.ids.filter{it.s == IDKMEHRschemes.ID_KMEHR && it.value == idList[1]}.count() > 0}
+                } else {
+                    //only items
+                    items = items.filter{ it.ids.filter{it.s == IDKMEHRschemes.ID_KMEHR && it.value == idList[0]}.count() > 0}
+                }
+            }
+
+            items.forEach { item ->
                 var cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
                 // SumehrV2 use "problem" instead of "healthcareelement". Convert it into "healthcareelement"
                 cdItem = if (cdItem == "problem") "healthcareelement" else cdItem
@@ -460,6 +509,12 @@ private fun selector(headingsAndItemsAndTexts: MutableList<Serializable>,
 
 private fun TransactionType.findItem(predicate: ((ItemType) -> Boolean)? = null): ItemType? {
     return selector(this.headingsAndItemsAndTexts, predicate).firstOrNull()
+}
+
+private fun TransactionType.findItemsByHeadingId(predicate: ((ItemType) -> Boolean)? = null, headingId: String): List<ItemType> {
+    val hits = this.headingsAndItemsAndTexts.filter{it -> it is HeadingType && it.ids.filter{id -> id.value == headingId}.count() > 0}
+
+    return selector(hits.toMutableList(), predicate)
 }
 
 private fun TransactionType.findItems(predicate: ((ItemType) -> Boolean)? = null): List<ItemType> {

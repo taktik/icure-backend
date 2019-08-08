@@ -31,6 +31,8 @@ import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
@@ -41,6 +43,8 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.ImportResultDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import org.taktik.icure.utils.ResponseUtils
@@ -129,7 +133,8 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
 
         result.services = sumehrLogicV2.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, null).stream().map { s -> mapper!!.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
         result.healthElements = sumehrLogicV2.getHealthElements(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds).stream().map { h -> mapper!!.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
-
+		result.patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper!!.map<PatientHealthCareParty, PatientHealthCarePartyDto>(h, PatientHealthCarePartyDto::class.java)}.collect(Collectors.toList<PatientHealthCarePartyDto>())
+		result.partnerships = sumehrLogicV2.getContactPeople(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper!!.map<Partnership, PartnershipDto>(h, PartnershipDto::class.java)}.collect(Collectors.toList<PartnershipDto>())
         return ResponseUtils.ok(result)
     }
 
@@ -191,7 +196,7 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
 				mappings ?: HashMap()).map {mapper.map(it, CheckSMFPatientResult::class.java)})
 	}
 
-	@ApiOperation(value = "Import SMF into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
+	@ApiOperation(value = "Import sumehr into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/sumehr/{documentId}/import")
 	fun importSumehr(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
@@ -202,6 +207,19 @@ class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qua
 		return ResponseUtils.ok(sumehrLogicV1.importSumehr(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
 		                                                               patientId?.let { patientLogic.getPatient(patientId) },
 		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
+	}
+
+	@ApiOperation(value = "Import sumehr into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
+	@POST
+	@Path("/sumehr/{documentId}/importbyitemid")
+	fun importSumehrByItemId(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("itemId") itemId: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+		val user = sessionLogic.currentSessionContext.user
+		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
+		val document = documentLogic.get(documentId)
+
+		return ResponseUtils.ok(sumehrLogicV2.importSumehrByItemId(documentLogic.readAttachment(documentId, document.attachmentId), itemId!!, user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
+				patientId?.let { patientLogic.getPatient(patientId) },
+				mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 
 	@ApiOperation(value = "Import MedicationScheme into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")

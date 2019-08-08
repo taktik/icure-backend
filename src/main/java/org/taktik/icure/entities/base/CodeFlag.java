@@ -19,5 +19,10 @@
 package org.taktik.icure.entities.base;
 
 public enum CodeFlag {
-	male_only,female_only, deptkinesitherapy, deptnurse, deptgeneralpractice, deptsocialworker, deptpsychology, deptadministrative, deptdietetic, deptspeechtherapy, deptdentistry, deptoccupationaltherapy, depthealthcare, deptgynecology, deptpediatry
+	male_only,female_only, deptkinesitherapy, deptnursing, deptgeneralpractice, deptsocialworker, deptpsychology, deptadministrative, deptdietetics, deptspeechtherapy, deptdentistry, deptoccupationaltherapy, depthealthcare, deptgynecology, deptpediatry,
+	deptalgology, deptanatomopathology, deptanesthesiology, deptbacteriology, deptcardiacsurgery, deptcardiology, deptchildandadolescentpsychiatry, deptdermatology, deptdiabetology, deptemergency, deptendocrinology, deptgastroenterology, deptgenetics, deptgeriatry,
+	depthandsurgery, depthematology, deptinfectiousdisease, deptintensivecare, deptlaboratory, deptmajorburns, deptmaxillofacialsurgery, deptmedicine, deptmolecularbiology, deptneonatalogy, deptnephrology, deptneurology, deptneurosurgery, deptnte, deptnuclear,
+	deptnutritiondietetics, deptobstetrics, deptoncology, deptophtalmology, deptorthopedy, deptpalliativecare, deptpediatricintensivecare, deptpediatricsurgery, deptpharmacy, deptphysicalmedecine, deptphysiotherapy, deptplasticandreparatorysurgery,
+	deptpneumology, deptpodiatry, deptpsychiatry, deptradiology, deptradiotherapy, deptrevalidation, deptrheumatology, deptrhumatology, deptsenology, deptsocialservice, deptsportsmedecine, deptstomatology, deptsurgery, deptthoracicsurgery,
+	depttoxicology, depttropicalmedecine, depturology, deptvascularsurgery, deptvisceraldigestiveabdominalsurgery, depttransplantsurgery, deptpercutaneous, deptchildbirth
 }

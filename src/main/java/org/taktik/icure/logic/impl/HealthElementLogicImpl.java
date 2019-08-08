@@ -121,7 +121,7 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 		return healthElementDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
 			.stream().collect(groupingBy(HealthElement::getHealthElementId))
 			.values().stream()
-			.map(value -> value.stream().collect(Collectors.maxBy(Comparator.comparing(HealthElement::getCreated))).get())
+			.map(value -> value.stream().collect(Collectors.maxBy(Comparator.comparing(HealthElement::getModified))).get())
 			.collect(Collectors.toList());
 	}
 

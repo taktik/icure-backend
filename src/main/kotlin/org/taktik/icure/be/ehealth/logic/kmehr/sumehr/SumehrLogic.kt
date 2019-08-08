@@ -26,6 +26,8 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import java.io.InputStream
@@ -33,12 +35,15 @@ import java.io.OutputStream
 
 interface SumehrLogic {
     fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): SumehrStatus
-    fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, asJson: Boolean = false)
+    fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?)
 	fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?)
     fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?)
     fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service>
 	fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service>
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement>
+    fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership>
+    fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty>
 	fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): String
     fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
+    fun importSumehrByItemId(inputStream: InputStream, itemId: String, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
 }
