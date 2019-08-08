@@ -54,4 +54,5 @@ class SoftwareMedicalFileImportTest {
                       )
         Assert.assertNotNull("Patient must be assigned", res.firstOrNull()?.patient)
     }
+
 }

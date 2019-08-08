@@ -31,6 +31,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
+import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -79,23 +80,24 @@ class SumehrExport : KmehrExport() {
 	}
 
 	fun createSumehr(
-		os: OutputStream,
-		pat: Patient,
-		sfks: List<String>,
-		sender: HealthcareParty,
-		recipient: HealthcareParty?,
-		language: String,
-		comment: String?,
-		excludedIds: List<String>,
-		decryptor: AsyncDecrypt?,
-		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-		                        date = makeXGC(Instant.now().toEpochMilli())!!,
-		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
-		                        clinicalSummaryType = "",
-		                        defaultLanguage = "en"
-		                       )
-		) {
+			os: OutputStream,
+			pat: Patient,
+			sfks: List<String>,
+			sender: HealthcareParty,
+			recipient: HealthcareParty?,
+			language: String,
+			comment: String?,
+			excludedIds: List<String>,
+			decryptor: AsyncDecrypt?,
+			asJson: Boolean = false,
+			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
+					date = makeXGC(Instant.now().toEpochMilli())!!,
+					time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+					soft = Config.Software(name = "iCure", version = ICUREVERSION),
+					clinicalSummaryType = "",
+					defaultLanguage = "en"
+			)
+	) {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
@@ -115,36 +117,36 @@ class SumehrExport : KmehrExport() {
 	}
 
 	private val labelsMap = mapOf(
-		("CD-LAB" to "4548-4") to listOf("hba1c"),
-		("CD-LAB" to "2093-3") to listOf("cholesterol*total"),
-		("CD-LAB" to "13457-7") to listOf("ldl*cholesterol"),
-		("CD-LAB" to "2085-9") to listOf("cholesterol*hdl","hdl*cholesterol"),
-		("CD-LAB" to "2571-8") to listOf("triglycerides"),
-		("CD-LAB" to "33914-3") to listOf("egfr"),
-		("CD-LAB" to "2160-0") to listOf("creatinine"),
-		("CD-LAB" to "14957-5") to listOf("urine*microalbumin"),
-		("CD-LAB" to "14957-5") to listOf("microalbuminurie*24"),
-		("CD-LAB" to "718-7") to listOf("haemoglobin"),
-		("CD-LAB" to "14959-1") to listOf("albumine*creatinine")
+			("CD-LAB" to "4548-4") to listOf("hba1c"),
+			("CD-LAB" to "2093-3") to listOf("cholesterol*total"),
+			("CD-LAB" to "13457-7") to listOf("ldl*cholesterol"),
+			("CD-LAB" to "2085-9") to listOf("cholesterol*hdl","hdl*cholesterol"),
+			("CD-LAB" to "2571-8") to listOf("triglycerides"),
+			("CD-LAB" to "33914-3") to listOf("egfr"),
+			("CD-LAB" to "2160-0") to listOf("creatinine"),
+			("CD-LAB" to "14957-5") to listOf("urine*microalbumin"),
+			("CD-LAB" to "14957-5") to listOf("microalbuminurie*24"),
+			("CD-LAB" to "718-7") to listOf("haemoglobin"),
+			("CD-LAB" to "14959-1") to listOf("albumine*creatinine")
 	)
 
 	fun createSumehrPlusPlus(
-		os: OutputStream,
-		pat: Patient,
-		sfks: List<String>,
-		sender: HealthcareParty,
-		recipient: HealthcareParty?,
-		language: String,
-		comment: String?,
-		excludedIds: List<String>,
-		decryptor: AsyncDecrypt?,
-		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-		                        date = makeXGC(Instant.now().toEpochMilli())!!,
-		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
-		                        clinicalSummaryType = "",
-		                        defaultLanguage = "en"
-		                       )) {
+			os: OutputStream,
+			pat: Patient,
+			sfks: List<String>,
+			sender: HealthcareParty,
+			recipient: HealthcareParty?,
+			language: String,
+			comment: String?,
+			excludedIds: List<String>,
+			decryptor: AsyncDecrypt?,
+			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
+					date = makeXGC(Instant.now().toEpochMilli())!!,
+					time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+					soft = Config.Software(name = "iCure", version = ICUREVERSION),
+					clinicalSummaryType = "",
+					defaultLanguage = "en"
+			)) {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
@@ -165,7 +167,7 @@ class SumehrExport : KmehrExport() {
 		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
 	}
 
-	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, extraLabels: Map<Pair<String, String>, List<String>>?, language: String, config: Config, comment: String?, excludedIds: List<String>, decryptor: AsyncDecrypt?): FolderType {
+	internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, extraLabels: Map<Pair<String, String>, List<String>>?, language: String, config: Config, comment: String?, excludedIds: List<String>, decryptor: AsyncDecrypt?): FolderType {
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
 			author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
@@ -197,7 +199,7 @@ class SumehrExport : KmehrExport() {
 		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthissue", language, excludedIds, decryptor, false, "healthcareelement")
 		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthcareelement", language, excludedIds, decryptor)
 
-        addHealthCareElements(sender.id, sfks, trn, excludedIds, decryptor)
+		addHealthCareElements(sender.id, sfks, trn, excludedIds, decryptor)
 
 		if (comment?.length ?: 0 > 0) {
 			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
@@ -224,21 +226,21 @@ class SumehrExport : KmehrExport() {
 		return getAllServices(hcPartyId, sfks, excludedIds, decryptor)
 	}
 
-	private fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	internal fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		val f = Filters.UnionFilter(
-			sfks.map { k ->
-				Filters.UnionFilter(cdItems.map { cd ->
-					ServiceByHcPartyTagCodeDateFilter(hcPartyId, k, "CD-ITEM", cd, null, null, null, null)
+				sfks.map { k ->
+					Filters.UnionFilter(cdItems.map { cd ->
+						ServiceByHcPartyTagCodeDateFilter(hcPartyId, k, "CD-ITEM", cd, null, null, null, null)
+					}
+					)
 				}
-				)
-			}
 		)
 
 		var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
 			s.endOfLife == null && //Not end of lifed
-				!(((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
-					&& (((s.status ?: 0) and 2) != 0)) //And irrelevant
-				&& (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
+					!((ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
+							&& ServiceStatus.isIrrelevant(s.status)) //And irrelevant
+					&& (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
 		}?.filter { s -> !excludedIds.contains(s.id) }
 
 		val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
@@ -252,7 +254,7 @@ class SumehrExport : KmehrExport() {
 			chunkedToBeDecryptedServices?.forEach { itt ->
 				val decryptedServicesChunk = decryptor.decrypt(itt?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
 				decryptedServices.addAll(decryptedServicesChunk)
-			 }
+			}
 
 			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 		}
@@ -260,16 +262,21 @@ class SumehrExport : KmehrExport() {
 		return services ?: emptyList()
 	}
 
-	private fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {
-		return items.filter { s ->
+	internal fun <T : ICureDocument> getNonConfidentialItems(items: List<T>, trn: TransactionType): List<T> {
+		val filteredItems =  items.filter { s ->
 			null == s.tags.find { it.type == "org.taktik.icure.entities.embed.Confidentiality" && it.code == "secret" } &&
-				null == s.codes.find { it.type == "org.taktik.icure.entities.embed.Visibility" && it.code == "maskedfromsummary" }
+					null == s.codes.find { it.type == "org.taktik.icure.entities.embed.Visibility" && it.code == "maskedfromsummary" }
 		}
+		val assessment = getAssessment(trn)
+		if(filteredItems.size != items.size && null == assessment.headingsAndItemsAndTexts.find { item -> (item is ItemType) && item?.contents?.firstOrNull()?.cds?.firstOrNull()?.value == CDPATIENTWILLvalues.OMISSIONOFMEDICALDATA.value() }){
+			// We automatically add (once and only once) a patient's will "omissionofmedicaldata" if some elements are confidentials.
+			assessment.headingsAndItemsAndTexts.add(super.getOmissionOfMedicalDataWill(assessment.headingsAndItemsAndTexts.size + 1))
+		}
+		return filteredItems;
 	}
-
 	fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
 		return healthElementLogic?.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks)?.filter {
-			!(!it.descr.isNullOrBlank() && it.descr.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) || ((it.status ?: 0) and 2 != 0 && it.closingDate != null))
+			!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false || (ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null|| (ServiceStatus.isInactive(it.status)))))
 		}?.filter { s -> !excludedIds.contains(s.id) } ?: emptyList()
 	}
 
@@ -294,11 +301,11 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun getVaccines(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	internal fun getVaccines(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		return getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf("vaccine"), excludedIds, decryptor).filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }
 	}
 
-	private fun getAssessment(trn: TransactionType): HeadingType {
+	internal fun getAssessment(trn: TransactionType): HeadingType {
 		var assessment = trn.headingsAndItemsAndTexts.find { h -> (h is HeadingType) && h.cds.any { cd -> cd.value == "assessment" } }
 		if (assessment == null) {
 			assessment = HeadingType().apply {
@@ -310,22 +317,22 @@ class SumehrExport : KmehrExport() {
 		return assessment as HeadingType
 	}
 
-	private fun getHistory(trn: TransactionType): HeadingType {
+	internal fun getHistory(trn: TransactionType): HeadingType {
 		var history = trn.headingsAndItemsAndTexts.find { h -> (h is HeadingType) && h.cds.any { cd -> cd.value == "history" } }
 		if (history == null) {
 			history = HeadingType().apply {
 				ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
-				cds.add(CDHEADING().apply { s = CDHEADINGschemes.CD_HEADING; sv = "1.0"; value = "assessment" })
+				cds.add(CDHEADING().apply { s = CDHEADINGschemes.CD_HEADING; sv = "1.0"; value = "history" })
 			}
 			trn.headingsAndItemsAndTexts.add(history)
 		}
 		return history as HeadingType
 	}
 
-	private fun addNonPassiveIrrelevantServicesAsCD(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addNonPassiveIrrelevantServicesAsCD(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		val assessment = getAssessment(trn)
 
-		val services = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor))
+		val services = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor), trn)
 		values.forEach { value ->
 			services.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
 				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
@@ -335,14 +342,14 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addNonPassiveIrrelevantServiceUsingContent(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null) {
+	internal fun addNonPassiveIrrelevantServiceUsingContent(hcPartyId: String, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null) {
 		try {
-			val svcs = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor))
+			val svcs = getNonConfidentialItems(getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf(cdItem), excludedIds, decryptor), trn)
 			if (svcs.isEmpty()) {
 				log.debug("_writeItems : no services found with cd-item " + cdItem)
 			} else {
 				svcs.forEach { svc ->
-					val items = if (!((svc.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } || ((svc.status ?: 0) and 1) != 0) && !forcePassive)) {
+					val items = if (!((svc.tags.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } || ServiceStatus.isInactive(svc.status)) && !forcePassive)) {
 						getAssessment(trn).headingsAndItemsAndTexts
 					} else {
 						getHistory(trn).headingsAndItemsAndTexts
@@ -383,7 +390,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
+	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
 		val item = createItemWithContent(svc, itemIndex, "vaccine", svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null
@@ -403,19 +410,19 @@ class SumehrExport : KmehrExport() {
 	}
 
 	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String): ItemType? {
-		if (((svc.status ?: 0) and 4) != 0 || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
+		if (ServiceStatus.isAbsent(svc.status) || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
 		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
-		if (((he.status ?: 0) and 4) != 0 || he.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
+		if (ServiceStatus.isAbsent(he.status) || he.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
 		return super.createItemWithContent(he, idx, cdItem, contents)
 	}
 
 	@NotNull
-	private fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
+	internal fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
 		patientLogic?.getPatients(pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId })?.forEach { p ->
 			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
 			try {
@@ -435,7 +442,7 @@ class SumehrExport : KmehrExport() {
 	}
 
     @NotNull
-    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
+    private fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>, config: Config) {
         healthcarePartyLogic?.getHealthcareParties(pat.patientHealthCareParties?.filter { s -> !excludedIds.contains(s.healthcarePartyId) }?.mapNotNull {it?.healthcarePartyId})?.forEach { hcp ->
             if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
                 val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
@@ -455,8 +462,7 @@ class SumehrExport : KmehrExport() {
         }
     }
 
-
-	private fun addGmdmanager(pat: Patient, trn: TransactionType) {
+	internal fun addGmdmanager(pat: Patient, trn: TransactionType) {
 		try {
 			val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate } ?: false }
 			if (gmdRelationship != null) {
@@ -474,9 +480,9 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addMedications(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addMedications(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		try {
-			val medications = getNonConfidentialItems(getMedications(hcPartyId, sfks, excludedIds, decryptor))
+			val medications = getNonConfidentialItems(getMedications(hcPartyId, sfks, excludedIds, decryptor), trn)
 			medications.forEach { m ->
 				if (null == m.closingDate) {
 					m.closingDate = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)
@@ -509,9 +515,9 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	private fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
+	internal fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, decryptor: AsyncDecrypt?) {
 		try {
-			getNonConfidentialItems(getVaccines(hcPartyId, sfks, excludedIds, decryptor)).forEach {
+			getNonConfidentialItems(getVaccines(hcPartyId, sfks, excludedIds, decryptor), trn).forEach {
 				val items = getAssessment(trn).headingsAndItemsAndTexts
 				items.add(createVaccineItem(it, items.size + 1))
 			}
@@ -520,27 +526,27 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-    private fun addHealthCareElements(hcPartyId: String,
-                                      sfks: List<String>,
-                                      trn: TransactionType,
-									  excludedIds: List<String>,
-                                      decryptor: AsyncDecrypt?) {
+	internal fun addHealthCareElements(hcPartyId: String,
+									   sfks: List<String>,
+									   trn: TransactionType,
+									   excludedIds: List<String>,
+									   decryptor: AsyncDecrypt?) {
 
-        var nonConfidentialItems = getNonConfidentialItems(getHealthElements(hcPartyId, sfks, excludedIds ))
+        var nonConfidentialItems = getNonConfidentialItems(getHealthElements(hcPartyId, sfks, excludedIds ), trn)
 
-        val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
 
-        if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
-            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
-            nonConfidentialItems = nonConfidentialItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
-        }
+		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
+			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
+			nonConfidentialItems = nonConfidentialItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
+		}
 
-        for (healthElement in nonConfidentialItems) {
+		for (healthElement in nonConfidentialItems) {
 			addHealthCareElement(trn, healthElement)
 		}
 	}
 
-	private fun addHealthCareElement(trn: TransactionType, eds: HealthElement) {
+	internal fun addHealthCareElement(trn: TransactionType, eds: HealthElement) {
 		try {
 			val items = if (eds.closingDate != null) {
 				getHistory(trn).headingsAndItemsAndTexts
@@ -564,32 +570,24 @@ class SumehrExport : KmehrExport() {
 
 			listOf("problem", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
 				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
-					if(edType == "problem"){
-						// Recommended codifications: IBUI, ICPC-2, ICD-10.
-						eds.codes?.removeIf { c -> c.type != "ICPC" && c.type != "ICD" && c.type != "CD-CLINICAL" && c.type != "BE-THESAURUS" }
-					}
-					if(eds.codes.isNotEmpty()){
-						createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
-							eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
-							it.contents.add(ContentType().apply {
-								eds.codes?.forEach { c ->
-									try{
-										// CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
-										val version = if (c.type == "CD-ATC") "1.0" else c.version
-										// BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
-										val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
-										val cdt = CDCONTENTschemes.fromValue(type)
-										this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
-									} catch (ignored : IllegalArgumentException) {
-										log.error(ignored)
-									}
-								}
-							})
-							items.add(it)
-						}
-					}else{
-						log.debug("Health element skipped because of missing codification. id=" + eds.id )
-					}
+                    createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
+                        eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
+                        it.contents.add(ContentType().apply {
+                            eds.codes?.forEach { c ->
+                                try{
+                                    // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+                                    val version = if (c.type == "CD-ATC") "1.0" else c.version
+                                    // BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
+                                    val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
+                                    val cdt = CDCONTENTschemes.fromValue(type)
+                                    this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+                                } catch (ignored : IllegalArgumentException) {
+                                    log.error(ignored)
+                                }
+                            }
+                        })
+                        items.add(it)
+                    }
 				}
 			}
 		} catch (e: Exception) {
