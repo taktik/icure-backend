@@ -331,6 +331,20 @@ class SumehrExport : KmehrExport() {
 
 					val it = createItemWithContent(svc, items.size+1, forceCdItem?:cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let {listOf(it)} ?: emptyList())
                     if (it != null) {
+                        it.contents.add(ContentType().apply {
+                            svc.codes?.forEach { c ->
+                                try{
+                                    // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+                                    val version = if (c.type == "CD-ATC") "1.0" else c.version
+                                    // BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
+                                    val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
+                                    val cdt = CDCONTENTschemes.fromValue(type)
+                                    this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+                                } catch (ignored : IllegalArgumentException) {
+                                    log.error(ignored)
+                                }
+                            }
+                        })
                         for ((key, value) in svc.content) {
                             if (value.medicationValue != null) {
                                 fillMedicationItem(svc,it, key)
