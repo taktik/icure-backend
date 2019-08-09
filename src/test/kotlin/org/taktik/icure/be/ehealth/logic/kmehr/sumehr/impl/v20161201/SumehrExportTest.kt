@@ -574,13 +574,10 @@ class SumehrExportTest {
             this.codes = emptySet<CodeStub>()
         }
 
-        val fullTransaction = TransactionType()
-        val partialTransaction = TransactionType()
-
         //Execute
         val items = mutableListOf<ICureDocument>()
-        items.addAll(sumehrExport.getNonConfidentialItems(listOf(article, contact, document, invoice), fullTransaction))
-        items.addAll(sumehrExport.getNonConfidentialItems(listOf(message, receipt, patient), partialTransaction))
+        items.addAll(sumehrExport.getNonConfidentialItems(listOf(article, contact, document, invoice)))
+        items.addAll(sumehrExport.getNonConfidentialItems(listOf(message, receipt, patient)))
 
         //Tests
         assertNotNull(items)
@@ -592,38 +589,6 @@ class SumehrExportTest {
         assertTrue(items.contains(contact))     //
         assertTrue(items.contains(document))    //
         assertTrue(items.contains(invoice))     //
-
-        assertNotNull(fullTransaction)
-        assertNotNull(fullTransaction.headingsAndItemsAndTexts)
-        assertEquals(1, fullTransaction.headingsAndItemsAndTexts.size)
-        assertNotNull(fullTransaction.headingsAndItemsAndTexts[0])
-        assertTrue(fullTransaction.headingsAndItemsAndTexts[0] is HeadingType)
-        val fullHeading = fullTransaction.headingsAndItemsAndTexts[0] as HeadingType
-        assertNotNull(fullHeading)
-        assertEquals(0, fullHeading.headingsAndItemsAndTexts.size)
-
-        assertNotNull(partialTransaction)
-        assertNotNull(partialTransaction.headingsAndItemsAndTexts)
-        assertEquals(1, partialTransaction.headingsAndItemsAndTexts.size)
-        assertNotNull(partialTransaction.headingsAndItemsAndTexts[0])
-        assertTrue(partialTransaction.headingsAndItemsAndTexts[0] is HeadingType)
-        val partialHeading = partialTransaction.headingsAndItemsAndTexts[0] as HeadingType
-        assertNotNull(partialHeading)
-        assertNotNull(partialHeading.headingsAndItemsAndTexts)
-        assertEquals(1, partialHeading.headingsAndItemsAndTexts.size)
-        assertNotNull(partialHeading.headingsAndItemsAndTexts[0])
-        assertTrue(partialHeading.headingsAndItemsAndTexts[0] is ItemType)
-        val omittedItem = partialHeading.headingsAndItemsAndTexts[0] as ItemType
-        assertNotNull(omittedItem)
-        assertNotNull(omittedItem.contents)
-        assertEquals(1, omittedItem.contents.size)
-        val omittedContent = omittedItem.contents[0]
-        assertNotNull(omittedContent)
-        assertNotNull(omittedContent.cds)
-        assertEquals(1, omittedContent.cds.size)
-        val omittedCode = omittedContent.cds[0]
-        assertNotNull(omittedCode)
-        assertEquals("omissionofmedicaldata", omittedCode.value)
     }
 
     @Test
