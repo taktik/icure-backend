@@ -24,8 +24,8 @@ import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.bind.JAXBContext
-import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper
 import com.sun.xml.internal.ws.util.NoCloseInputStream
+import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 
 
 fun main(args: Array<String>) = Samv2Import().main(args)
@@ -35,17 +35,27 @@ fun String.md5(): String {
     return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
 }
 
+fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : CommentedClassification? = cc.datas?.sortedBy { d -> d.from.toGregorianCalendar().timeInMillis }?.lastOrNull()?.let { lcc ->
+    CommentedClassification(
+            lcc.title?.let { SamText(it.fr, it.nl, it.de, it.en) },
+            lcc.url?.let { SamText(it.fr, it.nl, it.de, it.en) },
+            cc.commentedClassifications?.mapNotNull { cc -> commentedClassificationMapper(cc) } ?: listOf()
+    )
+}
+
 class Samv2Import : CliktCommand() {
     val samv2url: String by option(help="The url of the zip file").prompt("Samv2 file url")
     val url: String by option(help="The database server to connect to").prompt("Database server url")
     val username: String by option(help="The Username").prompt("Username")
     val password: String by option(help="The Password").prompt("Password")
     val dbName: String by option(help="The database name").prompt("Database name")
+    val update: String by option(help="Force update of existing entries").prompt("Force update")
 
     override fun run() {
         val httpClient = StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url(url).username(username).password(password).build()
         val dbInstance = StdCouchDbInstance(httpClient)
         val couchdbConfig = StdCouchDbICureConnector(dbName, dbInstance)
+        val updateExistingDocs = (update == "true" || update == "yes")
 
         URI(samv2url).toURL().openStream().let { zis ->
             val zip = ZipInputStream(zis)
@@ -53,28 +63,36 @@ class Samv2Import : CliktCommand() {
             while (zip.let { entry = it.nextEntry;entry != null }) {
                 when {
                     entry!!.name.startsWith("AMP") ->
-                        (JAXBContext.newInstance(ExportActualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportActualMedicines)?.let { importActualMedicines(it, couchdbConfig) }
+                        (JAXBContext.newInstance(ExportActualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportActualMedicines)?.let { importActualMedicines(it, couchdbConfig, updateExistingDocs) }
                     entry!!.name.startsWith("VMP") ->
-                        (JAXBContext.newInstance(ExportVirtualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportVirtualMedicines)?.let { importVirtualMedicines(it, couchdbConfig) }
+                        (JAXBContext.newInstance(ExportVirtualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportVirtualMedicines)?.let { importVirtualMedicines(it, couchdbConfig, updateExistingDocs) }
                 }
             }
         }
     }
 
-    private fun importVirtualMedicines(export: ExportVirtualMedicines, couchdbConfig: CouchDbICureConnector) {
+    private fun importVirtualMedicines(export: ExportVirtualMedicines, couchdbConfig: CouchDbICureConnector, force: Boolean) {
         val vmpGroupDAO = VmpGroupDAOImpl(couchdbConfig , UUIDGenerator())
         val vmpDAO = VmpDAOImpl(couchdbConfig , UUIDGenerator())
 
+        val currentVmpGroups = HashSet(vmpGroupDAO.allIds)
+        val currentVmps = HashSet(vmpDAO.allIds)
+
         val vmpGroupIds = HashMap<Int,String>()
-        val vmpIds = HashMap<Int,String>()
 
         export.vmpGroups.forEach { vmpg ->
             vmpg.datas.map { d ->
-                vmpGroupDAO.create(VmpGroup(
-                        from = d.from?.toGregorianCalendar()?.timeInMillis,
-                        to = d.to?.toGregorianCalendar()?.timeInMillis,
+                val code = vmpg.code.toString()
+                val from = d.from?.toGregorianCalendar()?.timeInMillis
+                val to = d.to?.toGregorianCalendar()?.timeInMillis
+
+                val id = "VMPGROUP:$code:$from".md5()
+
+                VmpGroup(
+                        from = from,
+                        to = to,
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
-                        code = vmpg.code.toString(),
+                        code = code,
                         noGenericPrescriptionReason = d.noGenericPrescriptionReason?.let { reason ->
                             NoGenericPrescriptionReason(reason.code, reason.description?.let { SamText(it.fr, it.nl, it.de, it.en) })
                         },
@@ -82,32 +100,71 @@ class Samv2Import : CliktCommand() {
                             NoSwitchReason(reason.code, reason.description?.let { SamText(it.fr, it.nl, it.de, it.en) })
                         }
                 ).apply {
-                    id = "VMPGROUP:$code:$from:$to".md5()
-                })
+                    this.id = id
+                }.let { vmpg ->
+                    if (!currentVmpGroups.contains(id)) {
+                        vmpGroupDAO.create(vmpg)
+                    } else if (force) {
+                        val prev = vmpGroupDAO.get(vmpg.id)
+                        if(prev != vmpg) {
+                            vmpGroupDAO.update(vmpg.apply {this.rev=prev.rev})
+                        }
+                        vmpg
+                    } else vmpg
+                }
             }.sortedBy { it.to }.lastOrNull()?.let {
                 latestVmpGroup -> vmpGroupIds[vmpg.code] = latestVmpGroup.id
             }
         }
         export.vmps.forEach { vmp ->
             vmp.datas.map { d ->
-                vmpDAO.create(Vmp(
-                        from = d.from?.toGregorianCalendar()?.timeInMillis,
-                        to = d.to?.toGregorianCalendar()?.timeInMillis,
-                        code = vmp.code.toString(),
+                val code = vmp.code.toString()
+                val from = d.from?.toGregorianCalendar()?.timeInMillis
+                val to = d.to?.toGregorianCalendar()?.timeInMillis
+
+                val id = "VMP:$code:$from".md5()
+
+                if (!currentVmps.contains(id) || force) Vmp(
+                        from = from,
+                        to = to,
+                        code = code,
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         abbreviation = d.abbreviation?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         vmpGroupId = vmpGroupIds[d.vmpGroup.code],
-                        vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.datas?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) })
+                        vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.datas?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }),
+                        commentedClassifications = d.commentedClassifications?.mapNotNull { cc -> commentedClassificationMapper(cc)} ?: listOf(),
+                        components = vmp.vmpComponents?.mapNotNull { vmpc ->
+                            vmpc?.datas?.sortedBy { d -> d.from.toGregorianCalendar().timeInMillis }?.lastOrNull()?.let { comp ->
+                                VmpComponent(
+                                        virtualForm = comp.virtualForm?.let { virtualForm ->
+                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                        },
+                                        routeOfAdministrations = comp.routeOfAdministrations?.map { roa ->
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                        } ?: listOf(),
+                                        phaseNumber = comp.phaseNumber,
+                                        name = comp.name?.let { SamText(it.fr, it.nl, it.de, it.en) }
+                                )
+                            }
+                        } ?: listOf()
                 ).apply {
-                    id = "VMP:$code:$from:$to".md5()
-                })
-            }.sortedBy { it.to }.lastOrNull()?.let {
-                latestVmp -> vmpIds[vmp.code] = latestVmp.id
+                    this.id = id
+                }.let { vmp ->
+                    if (!currentVmps.contains(id)) {
+                        vmpDAO.create(vmp)
+                    } else if (force) {
+                        val prev = vmpDAO.get(vmp.id)
+                        if(prev != vmp) {
+                            vmpDAO.update(vmp.apply {this.rev=prev.rev})
+                        }
+                        vmp
+                    } else vmp
+                }
             }
         }
     }
 
-    private fun importActualMedicines(export: ExportActualMedicines, couchdbConfig: CouchDbICureConnector) {
+    private fun importActualMedicines(export: ExportActualMedicines, couchdbConfig: CouchDbICureConnector, force: Boolean) {
         val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
         val currentAmps = HashSet(ampDAO.allIds)
 
@@ -118,9 +175,9 @@ class Samv2Import : CliktCommand() {
                 val from = d.from?.toGregorianCalendar()?.timeInMillis
                 val to = d.to?.toGregorianCalendar()?.timeInMillis
 
-                val id = "AMP:$code:$from:$to".md5()
+                val id = "AMP:$code:$from".md5()
 
-                if (!currentAmps.contains(id)) ampDAO.create(Amp(
+                if (!currentAmps.contains(id) || force) Amp(
                         from = from,
                         to = to,
                         code = code,
@@ -204,7 +261,17 @@ class Samv2Import : CliktCommand() {
                         } ?: listOf()
                 ).apply {
                     this.id = id
-                })
+                }.let { amp ->
+                    if (!currentAmps.contains(id)) {
+                        ampDAO.create(amp)
+                    } else if (force) {
+                        val prev = ampDAO.get(amp.id)
+                        if(prev != amp) {
+                            ampDAO.update(amp.apply { this.rev = prev.rev })
+                        }
+                        amp
+                    } else amp
+                }
             }
         }
     }
