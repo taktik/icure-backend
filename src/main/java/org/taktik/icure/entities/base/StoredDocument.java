@@ -181,7 +181,7 @@ public class StoredDocument implements Versionable<String> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(deletionDate, id, rev);
+		return Objects.hash(deletionDate, id);
 	}
 
 	protected void solveConflictsWith(StoredDocument other) {
