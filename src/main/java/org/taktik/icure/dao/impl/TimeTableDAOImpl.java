@@ -48,7 +48,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
         ViewQuery viewQuery = createQuery("by_agenda")
                 .startKey(agendaId)
                 .endKey(agendaId)
-                .includeDocs(false);
+                .includeDocs(true);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
 
@@ -70,7 +70,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
         ViewQuery viewQuery = createQuery("by_agenda_and_startdate")
                 .startKey(from)
                 .endKey(to)
-                .includeDocs(false);
+                .includeDocs(true);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
 
@@ -92,7 +92,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
         ViewQuery viewQuery = createQuery("by_agenda_and_enddate")
                 .startKey(from)
                 .endKey(to)
-                .includeDocs(false);
+                .includeDocs(true);
 
         List<TimeTable> timeTables = db.queryView(viewQuery, TimeTable.class);
 

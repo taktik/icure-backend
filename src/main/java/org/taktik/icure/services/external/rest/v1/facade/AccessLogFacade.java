@@ -30,12 +30,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.AccessLog;
-import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.AccessLogLogic;
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto;
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogPaginatedList;
-import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -125,15 +123,15 @@ public class AccessLogFacade implements OpenApiFacade{
 		return response;
 	}
 
-	@ApiOperation(response = AccessLogDto.class, responseContainer = "Array", value = "Lists access logs")
+	@ApiOperation(response = AccessLogPaginatedList.class, value = "Lists access logs")
 	@GET
-	public Response listAccessLogs(@QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit) {
+	public Response listAccessLogs(@QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit,  @QueryParam("descending") Boolean descending) {
 		Response response;
 
 		PaginationOffset paginationOffset = new PaginationOffset(null, startDocumentId, null, limit != null ? Integer.valueOf(limit) : null);
 		PaginatedList<AccessLogDto> accessLogDtos = new PaginatedList<>();
 
-		org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.listAccessLogs(paginationOffset);
+		org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.listAccessLogs(paginationOffset, descending != null ? descending : false);
 		if (accessLogs != null) {
 			mapper.map(accessLogs, accessLogDtos, new TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {
 			}.build(), new TypeBuilder<PaginatedList<AccessLogDto>>() {
@@ -171,7 +169,7 @@ public class AccessLogFacade implements OpenApiFacade{
 
 	@ApiOperation(
 			value = "List access logs found By Healthcare Party and secret foreign keyelementIds.",
-			response = HealthElementDto.class,
+			response = AccessLogDto.class,
 			responseContainer = "Array",
 			httpMethod = "GET",
 			notes = "Keys must be separatedby coma"

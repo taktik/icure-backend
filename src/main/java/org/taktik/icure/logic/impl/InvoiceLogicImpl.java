@@ -234,6 +234,10 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				newInvoice.setCreated(System.currentTimeMillis());
 				newInvoice.setModified(newInvoice.getCreated());
 
+				newInvoice.setCareProviderType("persphysician");
+				newInvoice.setInvoicePeriod(0);
+				newInvoice.setThirdPartyPaymentJustification("0");
+
 				//The invoice must be completed with ids and delegations and created on the server
 				createdInvoices.add(newInvoice);
 				invoices.add(newInvoice);

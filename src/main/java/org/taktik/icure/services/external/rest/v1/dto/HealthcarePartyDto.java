@@ -76,6 +76,7 @@ public class HealthcarePartyDto extends StoredDto {
     //For a pair of HcParties, this key is called the AES exchange key
     //Each HcParty always has one AES exchange key for himself
 	protected Map<String, String[]> hcPartyKeys = new HashMap<>();
+    protected Map<String, String> privateKeyShamirPartitions = new HashMap<>();
 
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
@@ -88,6 +89,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected String contactPersonHcpId;
     protected List<FlatRateTarificationDto> flatRateTarifications;
 
+    protected Map<String, String> importedData = new HashMap<>();
 
 	public String getName() {
         return name;
@@ -215,6 +217,14 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
         this.hcPartyKeys = hcPartyKeys;
+    }
+
+    public Map<String, String> getPrivateKeyShamirPartitions() {
+        return privateKeyShamirPartitions;
+    }
+
+    public void setPrivateKeyShamirPartitions(Map<String, String> privateKeyShamirPartitions) {
+        this.privateKeyShamirPartitions = privateKeyShamirPartitions;
     }
 
     public String getSsin() {
@@ -372,5 +382,13 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setFlatRateTarifications(List<FlatRateTarificationDto> flatRateTarifications) {
         this.flatRateTarifications = flatRateTarifications;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }

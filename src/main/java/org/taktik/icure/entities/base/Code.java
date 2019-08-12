@@ -41,6 +41,8 @@ public class Code extends StoredDocument implements CodeIdentification {
 
 	// id = type|code|version  => this must be unique
 
+    protected String author;
+
 	protected Set<String> regions; //ex: be,fr
 
 	protected String type; //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
@@ -61,6 +63,10 @@ public class Code extends StoredDocument implements CodeIdentification {
 	protected String data;
 
     protected String parent; //ID of the parent
+
+    protected Map<AppendixType, String> appendices;
+
+    protected boolean disabled;
 
 	public static Code dataCode(String typeAndCodeAndVersion, String data) {
 		Code c = new Code(typeAndCodeAndVersion);
@@ -218,6 +224,18 @@ public class Code extends StoredDocument implements CodeIdentification {
     public String getParent() { return parent; }
 
     public void setParent(String parent) { this.parent = parent; }
+
+    public String getAuthor() { return author; }
+
+    public void setAuthor(String author) { this.author = author; }
+
+    public Map<AppendixType, String> getAppendices() { return appendices; }
+
+    public void setAppendices(Map<AppendixType, String> appendices) { this.appendices = appendices; }
+
+    public boolean isDisabled() { return disabled; }
+
+    public void setDisabled(boolean disabled) { this.disabled = disabled; }
 
     @Override
 	public boolean equals(Object o) {

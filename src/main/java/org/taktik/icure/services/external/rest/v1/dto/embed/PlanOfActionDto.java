@@ -50,6 +50,11 @@ public class PlanOfActionDto implements Serializable {
     protected List<CodeDto> codes = new java.util.ArrayList<CodeDto>();
     protected List<CodeDto> tags = new java.util.ArrayList<CodeDto>();
 
+    protected List<String> documentIds;
+    protected String prescriberId; //healthcarePartyId
+    protected Integer numberOfCares;
+    protected Integer status;
+
     public PlanOfActionDto() {
 	}
 
@@ -173,7 +178,23 @@ public class PlanOfActionDto implements Serializable {
         this.valueDate = valueDate;
     }
 
-	private String encryptedSelf;
+    public List<String> getDocumentIds() { return documentIds; }
+
+    public void setDocumentIds(List<String> documentIds) { this.documentIds = documentIds; }
+
+    public String getPrescriberId() { return prescriberId;}
+
+    public void setPrescriberId(String prescriberId) { this.prescriberId = prescriberId; }
+
+    public Integer getNumberOfCares() { return numberOfCares; }
+
+    public void setNumberOfCares(Integer numberOfCares) { this.numberOfCares = numberOfCares; }
+
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
+
+    private String encryptedSelf;
 	public String getEncryptedSelf() {
 		return encryptedSelf;
 	}

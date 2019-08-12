@@ -30,6 +30,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
@@ -53,6 +54,7 @@ import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
+import kotlin.collections.ArrayList
 
 open class KmehrExport {
     @Autowired var patientLogic: PatientLogic? = null
@@ -157,7 +159,7 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (((svc.status ?: 0) and 2) != 0 || (svc.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate())) {
+                value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 0 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
                 } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
@@ -225,10 +227,23 @@ open class KmehrExport {
                 }
             }
 
-            isIsrelevant = ((svc.status?: 0) and 2) == 0
+            isIsrelevant = ServiceStatus.isRelevant(svc.status)
             beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
             endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
             recorddatetime = makeXGC(svc.modified)
+        }
+    }
+
+    open fun getOmissionOfMedicalDataWill(idx: Int): ItemType {
+        return ItemType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.PATIENTWILL.value() } )
+            contents.add(ContentType().apply { cds.add(CDCONTENT().apply { s(CDCONTENTschemes.CD_PATIENTWILL); value = CDPATIENTWILLvalues.OMISSIONOFMEDICALDATA.value() }) })
+            lifecycle = LifecycleType().apply { cd = CDLIFECYCLE().apply { s = "CD-LIFECYCLE"; value = CDLIFECYCLEvalues.ACTIVE } }
+            isIsrelevant = true
+            beginmoment = Utils.makeMomentTypeDateFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
+            endmoment = Utils.makeMomentTypeDateFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
+            recorddatetime = makeXGC(Instant.now().toEpochMilli())
         }
     }
 
@@ -250,12 +265,18 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (((he.status ?: 0) and 2) != 0 || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
+                value = if (ServiceStatus.isIrrelevant(he.status) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
 					CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
 			} }
-            isIsrelevant = ((he.status?: 0) and 2) == 0
+
+            certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" }?.let {
+                CertaintyType().apply {
+                    cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
+                }
+            }
+            isIsrelevant = ServiceStatus.isRelevant(he.status)
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
             recorddatetime = makeXGC(he.modified)
@@ -274,6 +295,16 @@ open class KmehrExport {
         } ?: emptyList()
     }
 
+    fun makeDummyTelecom(): List<TelecomType>{
+        var lst = ArrayList<TelecomType>()
+        lst.add(TelecomType().apply {
+            cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_ADDRESS); value = "home"})
+            cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = "phone"})
+            telecomnumber = "00.00.00"
+        })
+        return lst
+    }
+
     fun makeAddresses(addresses: Collection<Address>?): List<AddressType> {
         return addresses?.filter { it.addressType != null && it.postalCode != null && it.street != null }?.mapTo(ArrayList<AddressType>()) { a ->
             AddressType().apply {
@@ -287,6 +318,18 @@ open class KmehrExport {
 
             }
         } ?: emptyList()
+    }
+
+    fun makeDummyAddress(): List<AddressType>{
+        var lst = ArrayList<AddressType>()
+        lst.add(AddressType().apply {
+            cds.add(CDADDRESS().apply { s(CDADDRESSschemes.CD_ADDRESS); value = "work" })
+            country = CountryType().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_FED_COUNTRY); value = "be" } }
+            zip = "0000"
+            street = "unknown"
+            city = "unknown"
+        })
+        return lst
     }
 
     fun  makeXGC(date: Long?): XMLGregorianCalendar? {
