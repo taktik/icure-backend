@@ -196,8 +196,8 @@ class SumehrExport : KmehrExport() {
 		addVaccines(sender.id, sfks, trn, excludedIds, decryptor)
 		addMedications(sender.id, sfks, trn, excludedIds, decryptor)
 
-		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthissue", language, excludedIds, decryptor, false, "healthcareelement")
-		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthcareelement", language, excludedIds, decryptor)
+		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthissue", language, excludedIds, decryptor, false, "problem")
+		addNonPassiveIrrelevantServiceUsingContent(sender.id, sfks, trn, "healthcareelement", language, excludedIds, decryptor, false, "problem")
 
 		addHealthCareElements(sender.id, sfks, trn, excludedIds, decryptor)
 
