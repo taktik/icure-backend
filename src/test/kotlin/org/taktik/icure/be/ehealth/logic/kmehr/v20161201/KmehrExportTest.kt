@@ -10,8 +10,11 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDWEEKDAYvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AdministrationquantityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
 import org.taktik.icure.constants.ServiceStatus
+import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
@@ -196,6 +199,61 @@ class KmehrExportTest {
 
         /// recorddatetime
         Assert.assertEquals(makeXGC(svc1.modified), res1?.recorddatetime)
+    }
 
+    @Test
+    fun createParty() {
+        // Arrange
+        val kmehrExport = KmehrExport()
+        val hcpartyPers = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "Cabinet Langlais"
+            speciality = "persdentist"
+        }
+        val hcpartyOrg = HealthcareParty().apply {
+            firstName = "CHU Langlais"
+            lastName = null
+            name = null
+            specialityCodes = listOf(CodeStub("hcparty", "orghospital", "1.0"), CodeStub("hcparty", "orglaboratory", "1.0"))
+        }
+        val hcpartyDept = HealthcareParty().apply {
+            firstName = "CHU Langlais"
+            lastName = "Département Radiothérapie"
+            name = ""
+            speciality = "deptradiotherapy"
+        }
+        val hcparty = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "Cabinet Langlais"
+        }
+
+        // Act
+        val hcpartyTypePers = kmehrExport.createParty(hcpartyPers)
+        val hcpartyTypeOrg = kmehrExport.createParty(hcpartyOrg)
+        val hcpartyTypeDept = kmehrExport.createParty(hcpartyDept)
+        val hcpartyType = kmehrExport.createParty(hcparty)
+
+        // Asserts
+        Assert.assertNotNull(hcpartyTypePers)
+        Assert.assertEquals("Christelle", hcpartyTypePers.firstname ?: "")
+        Assert.assertEquals("Langlais", hcpartyTypePers.familyname ?: "")
+        Assert.assertNull(hcpartyTypePers.name)
+
+        Assert.assertNotNull(hcpartyTypeOrg)
+        Assert.assertNull(hcpartyTypeOrg.firstname)
+        Assert.assertNull(hcpartyTypeOrg.familyname)
+        Assert.assertEquals("CHU Langlais", hcpartyTypeOrg.name ?: "")
+
+        Assert.assertNotNull(hcpartyTypeDept)
+        Assert.assertNull(hcpartyTypeDept.firstname)
+        Assert.assertNull(hcpartyTypeDept.familyname)
+        Assert.assertEquals("CHU Langlais Département Radiothérapie", hcpartyTypeDept.name ?: "")
+
+        Assert.assertNotNull(hcpartyType)
+        Assert.assertEquals("Christelle", hcpartyType.firstname ?: "")
+        Assert.assertEquals("Langlais", hcpartyType.familyname ?: "")
+        Assert.assertNull(hcpartyType.name)
     }
 }
