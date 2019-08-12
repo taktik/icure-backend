@@ -1965,12 +1965,12 @@ private fun Service.map(): ServiceDto {
         this@apply.closingDate = this@map.closingDate
         this@apply.codes = this@map.codes?.map { it?.map() }?.toSet()
         this@apply.comment = this@map.comment
-        this@apply.content = this@map.content?.filter { it != null }?.map { entry -> Pair(entry.key, entry.value?.map()) }?.toMap()
+        this@apply.content = this@map.content?.map { entry -> Pair(entry.key, entry.value?.map()) }?.toMap()
         this@apply.contactId = this@map.contactId
         this@apply.created = this@map.created
         this@apply.encryptedSelf = this@map.encryptedSelf
         this@apply.encryptedContent = this@map.encryptedContent
-        this@apply.encryptionKeys = this@map.encryptionKeys?.filter { it != null }?.map { entry -> Pair(entry.key, entry.value?.map { it?.map() }) }?.toMap()
+        this@apply.encryptionKeys = this@map.encryptionKeys?.map { entry -> Pair(entry.key, entry.value?.map { it?.map() }) }?.toMap()
         this@apply.endOfLife = this@map.endOfLife
         this@apply.formId = this@map.formId
         this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
@@ -1986,7 +1986,7 @@ private fun Service.map(): ServiceDto {
         this@apply.status = this@map.status
         this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
         this@apply.tags = this@map.tags?.map { it?.map() }?.toSet()
-        this@apply.textIndexes = this@map.textIndexes?.filter { it != null }?.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.textIndexes = this@map.textIndexes?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.valueDate = this@map.valueDate
     }
 }
@@ -1997,12 +1997,12 @@ private fun ServiceDto.map(): Service {
         this@apply.closingDate = this@map.closingDate
         this@apply.codes = this@map.codes?.map { it?.mapStub() }?.toSet()
         this@apply.comment = this@map.comment
-        this@apply.content = this@map.content?.filter { it != null }?.map { entry -> Pair(entry.key, entry.value?.map()) }?.toMap()
+        this@apply.content = this@map.content?.map { entry -> Pair(entry.key, entry.value?.map()) }?.toMap()
         this@apply.contactId = this@map.contactId
         this@apply.created = this@map.created
         this@apply.encryptedSelf = this@map.encryptedSelf
         this@apply.encryptedContent = this@map.encryptedContent
-        this@apply.encryptionKeys = this@map.encryptionKeys?.filter { it != null }?.map { entry -> Pair(entry.key, entry.value?.map { it?.map() }?.toSet()) }?.toMap()
+        this@apply.encryptionKeys = this@map.encryptionKeys?.map { entry -> Pair(entry.key, entry.value?.map { it?.map() }?.toSet()) }?.toMap()
         this@apply.endOfLife = this@map.endOfLife
         this@apply.formId = this@map.formId
         this@apply.healthElementsIds = this@map.healthElementsIds?.toMutableSet()
@@ -2018,7 +2018,7 @@ private fun ServiceDto.map(): Service {
         this@apply.status = this@map.status
         this@apply.subContactIds = this@map.subContactIds?.toMutableSet()
         this@apply.tags = this@map.tags?.map { it?.mapStub() }?.toSet()
-        this@apply.textIndexes = this@map.textIndexes?.filter { it != null }?.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.textIndexes = this@map.textIndexes?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.valueDate = this@map.valueDate
     }
 }
@@ -2029,12 +2029,12 @@ private fun ServiceDto.copy(): ServiceDto {
         this@apply.closingDate = this@copy.closingDate
         this@apply.codes = this@copy.codes?.map { it?.copy() }?.toSet()
         this@apply.comment = this@copy.comment
-        this@apply.content = this@copy.content?.filter { it != null }?.map { entry -> Pair(entry.key, entry.value?.copy()) }?.toMap()
+        this@apply.content = this@copy.content?.map { entry -> Pair(entry.key, entry.value?.copy()) }?.toMap()
         this@apply.contactId = this@copy.contactId
         this@apply.created = this@copy.created
         this@apply.encryptedSelf = this@copy.encryptedSelf
         this@apply.encryptedContent = this@copy.encryptedContent
-        this@apply.encryptionKeys = this@copy.encryptionKeys?.filter { it != null }?.map { entry -> Pair(entry.key, entry.value?.map { it?.copy() }) }?.toMap()
+        this@apply.encryptionKeys = this@copy.encryptionKeys?.map { entry -> Pair(entry.key, entry.value?.map { it?.copy() }) }?.toMap()
         this@apply.endOfLife = this@copy.endOfLife
         this@apply.formId = this@copy.formId
         this@apply.healthElementsIds = this@copy.healthElementsIds?.toMutableSet()
@@ -2050,7 +2050,7 @@ private fun ServiceDto.copy(): ServiceDto {
         this@apply.status = this@copy.status
         this@apply.subContactIds = this@copy.subContactIds?.toMutableSet()
         this@apply.tags = this@copy.tags
-        this@apply.textIndexes = this@copy.textIndexes?.filter { it != null }?.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.textIndexes = this@copy.textIndexes?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.valueDate = this@copy.valueDate
     }
 }
@@ -2094,13 +2094,13 @@ private fun Code.map(): CodeDto {
         this@apply.code = this@map.code
         this@apply.data = this@map.data
         this@apply.flags = this@map.flags?.map { it.map() }?.toList()
-        this@apply.label = this@map.label?.filter { it != null }?.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.label = this@map.label?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.level = this@map.level
         this@apply.links = this@map.links?.toList()
         this@apply.parent = this@map.parent
-        this@apply.qualifiedLinks = this@map.qualifiedLinks?.filter { it != null }?.map { Pair(it.key, it.value?.toList()) }?.toMap()
+        this@apply.qualifiedLinks = this@map.qualifiedLinks?.map { Pair(it.key, it.value?.toList()) }?.toMap()
         this@apply.regions = this@map.regions?.toSet()
-        this@apply.searchTerms = this@map.searchTerms?.filter { it != null }?.map { Pair(it.key, it.value?.toSet()) }?.toMap()
+        this@apply.searchTerms = this@map.searchTerms?.map { Pair(it.key, it.value?.toSet()) }?.toMap()
         this@apply.type = this@map.type
         this@apply.version = this@map.version
     }
@@ -2144,13 +2144,13 @@ private fun CodeDto.map(): Code {
         this@apply.code = this@map.code
         this@apply.data = this@map.data
         this@apply.flags = this@map.flags?.map { it.map() }?.toSet()
-        this@apply.label = this@map.label?.filter { it != null }?.map { Pair(it.key, it.value) }?.toMap()
+        this@apply.label = this@map.label?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.level = this@map.level
         this@apply.links = this@map.links?.toList()
         this@apply.parent = this@map.parent
-        this@apply.qualifiedLinks = this@map.qualifiedLinks?.filter { it != null }?.map { Pair(it.key, it.value?.toList()) }?.toMap()
+        this@apply.qualifiedLinks = this@map.qualifiedLinks?.map { Pair(it.key, it.value?.toList()) }?.toMap()
         this@apply.regions = this@map.regions?.toSet()
-        this@apply.searchTerms = this@map.searchTerms?.filter { it != null }?.map { Pair(it.key, it.value?.toSet()) }?.toMap()
+        this@apply.searchTerms = this@map.searchTerms?.map { Pair(it.key, it.value?.toSet()) }?.toMap()
         this@apply.type = this@map.type
         this@apply.version = this@map.version
     }
@@ -2317,8 +2317,8 @@ private fun Medication.map(): MedicationDto {
         this@apply.substitutionAllowed = this@map.substitutionAllowed
         this@apply.regimen = this@map.regimen?.map { it?.map() }
         this@apply.posology = this@map.posology
-        this@apply.options = this@map.options?.filter { it != null }?.map { Pair(it.key, it.value?.map()) }?.toMap()
-        this@apply.agreements = this@map.agreements?.filter { it != null }?.map { Pair(it.key, it.value?.map()) }?.toMap()
+        this@apply.options = this@map.options?.map { Pair(it.key, it.value?.map()) }?.toMap()
+        this@apply.agreements = this@map.agreements?.map { Pair(it.key, it.value?.map()) }?.toMap()
         this@apply.medicationSchemeIdOnSafe = this@map.medicationSchemeIdOnSafe
         this@apply.medicationSchemeSafeVersion = this@map.medicationSchemeSafeVersion
         this@apply.medicationSchemeTimeStampOnSafe = this@map.medicationSchemeTimeStampOnSafe
@@ -2359,8 +2359,8 @@ private fun MedicationDto.map(): Medication {
         this@apply.substitutionAllowed = this@map.substitutionAllowed
         this@apply.regimen = this@map.regimen?.map { it?.map() }
         this@apply.posology = this@map.posology
-        this@apply.options = this@map.options?.filter { it != null }?.map { Pair(it.key, it.value?.map()) }?.toMap()
-        this@apply.agreements = this@map.agreements?.filter { it != null }?.map { Pair(it.key, it.value?.map()) }?.toMap()
+        this@apply.options = this@map.options?.map { Pair(it.key, it.value?.map()) }?.toMap()
+        this@apply.agreements = this@map.agreements?.map { Pair(it.key, it.value?.map()) }?.toMap()
         this@apply.medicationSchemeIdOnSafe = this@map.medicationSchemeIdOnSafe
         this@apply.medicationSchemeSafeVersion = this@map.medicationSchemeSafeVersion
         this@apply.medicationSchemeTimeStampOnSafe = this@map.medicationSchemeTimeStampOnSafe
