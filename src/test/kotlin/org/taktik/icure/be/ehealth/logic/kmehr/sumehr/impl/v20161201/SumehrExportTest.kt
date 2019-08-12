@@ -262,9 +262,6 @@ class SumehrExportTest {
         val path1 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr1.xml"
         val file1 = File(path1)
         val os1 = file1.outputStream()
-        val path2 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr2.xml"
-        val file2 = File(path2)
-        val os2 = file2.outputStream()
 
         /// Second parameter
         val pat = Patient().apply {
@@ -311,19 +308,13 @@ class SumehrExportTest {
 
         // Execution
         sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
-        sumehrExport.createSumehr(os2, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor, true)
 
         // Tests
         assertNotNull(file1)
-        assertNotNull(file2)
         val mappings1 = file1.inputStream()
         val bufferedReader1 = mappings1.bufferedReader(Charset.forName("cp1252"))
         val file1Line1 = bufferedReader1.readLine()
         assertTrue(file1Line1.startsWith("<?xml"))
-        val mappings2 = file2.inputStream()
-        val bufferedReader2 = mappings2.bufferedReader(Charset.forName("cp1252"))
-        val file1Line2 = bufferedReader2.readLine()
-        assertTrue(file1Line2.startsWith("{"))
     }
 
     @Test
@@ -1263,11 +1254,13 @@ class SumehrExportTest {
         assertNotNull(element)
         assertTrue(element is HeadingType)
         val heading = element as HeadingType
-        assertEquals(3, heading.headingsAndItemsAndTexts.size)
-        for (e in heading.headingsAndItemsAndTexts) {
-            assertNotNull(e)
-            assertTrue(e is ItemType)
-            val item = e as ItemType
+        val items = heading.headingsAndItemsAndTexts
+                .filter { it is ItemType }
+                .map { it as ItemType }
+                .filter { it.contents.all { it.cds.all { it.value != "omissionofmedicaldata" }}}
+        assertEquals(3, items.size)
+        for (item in items) {
+            assertNotNull(item)
             assertNotNull(item.contents)
             assertEquals(3, item.contents.size)
             assertFalse(item.contents.any { it == null })
@@ -1405,7 +1398,7 @@ class SumehrExportTest {
         assertEquals(eds2.tags.firstOrNull()?.code, "allergy")
         assertEquals(eds2.tags.firstOrNull()?.version, "1")
         assertEquals(eds2.codes.size, 1)
-        assertEquals(a2.headingsAndItemsAndTexts.size, 0)
+        assertEquals(a2.headingsAndItemsAndTexts.size, 1)
 
         val a3: HeadingType = trn3.headingsAndItemsAndTexts.get(0) as HeadingType
         assertEquals(eds3.tags.firstOrNull()?.code, "problem")
