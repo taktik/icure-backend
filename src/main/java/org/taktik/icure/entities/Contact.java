@@ -42,8 +42,9 @@ import java.util.TreeSet;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Contact extends StoredICureDocument {
-	@NotNull(autoFix = AutoFix.UUID)
-	protected String groupId; // Several contacts can be combined in a logical contact if they share the same groupId
+
+    @NotNull(autoFix = AutoFix.UUID)
+    protected String groupId; // Several contacts can be combined in a logical contact if they share the same groupId
 
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
@@ -55,40 +56,41 @@ public class Contact extends StoredICureDocument {
     //Redundant... Should be responsible
     protected String healthcarePartyId;
 
-	protected String externalId;
+    protected String externalId;
+
     protected String modifiedContactId;
 
     protected Code encounterType;
 
-	@Valid
-	protected Set<SubContact> subContacts = new HashSet<>();
+    @Valid
+    protected Set<SubContact> subContacts = new HashSet<>();
 
     @Valid
     protected Set<Service> services = new TreeSet<>();
 
-	public Contact solveConflictWith(Contact other) {
-		super.solveConflictsWith(other);
-		this.encryptedSelf = this.encryptedSelf == null ? other.encryptedSelf : this.encryptedSelf;
+    public Contact solveConflictWith(Contact other) {
+	super.solveConflictsWith(other);
+	this.encryptedSelf = this.encryptedSelf == null ? other.encryptedSelf : this.encryptedSelf;
 
-		this.openingDate = other.openingDate==null?this.openingDate:this.openingDate==null?other.openingDate:Long.valueOf(Math.min(this.openingDate,other.openingDate));
-		this.closingDate = other.closingDate==null?this.closingDate:this.closingDate==null?other.closingDate:Long.valueOf(Math.max(this.closingDate,other.closingDate));
+	this.openingDate = other.openingDate==null?this.openingDate:this.openingDate==null?other.openingDate:Long.valueOf(Math.min(this.openingDate,other.openingDate));
+	this.closingDate = other.closingDate==null?this.closingDate:this.closingDate==null?other.closingDate:Long.valueOf(Math.max(this.closingDate,other.closingDate));
 
-		this.descr = this.descr == null ? other.descr : this.descr;
-		this.location = this.location == null ? other.location : this.location;
-		this.encounterType = this.encounterType == null ? other.encounterType : this.encounterType;
+	this.descr = this.descr == null ? other.descr : this.descr;
+	this.location = this.location == null ? other.location : this.location;
+	this.encounterType = this.encounterType == null ? other.encounterType : this.encounterType;
 
-		this.subContacts = MergeUtil.mergeSets(this.subContacts, other.subContacts, new HashSet<>(),
-			(a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
-			(a,b)-> {a.solveConflictWith(b); return a;});
+	this.subContacts = MergeUtil.mergeSets(this.subContacts, other.subContacts, new HashSet<>(),
+					       (a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
+					       (a,b)-> {a.solveConflictWith(b); return a;});
 
-		this.services = MergeUtil.mergeSets(this.services, other.services, new TreeSet<>(),
-			(a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
-			Service::solveConflictWith);
+	this.services = MergeUtil.mergeSets(this.services, other.services, new TreeSet<>(),
+					    (a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
+					    Service::solveConflictWith);
 
-		return this;
-	}
+	return this;
+    }
 
-	public Contact(){}
+    public Contact(){}
     public Contact (String healthcarePartyId) {
     	this.healthcarePartyId = healthcarePartyId;
     	openingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS);
@@ -168,12 +170,12 @@ public class Contact extends StoredICureDocument {
         this.groupId = groupId;
     }
 
-	public @Nullable String getExternalId() {
-		return externalId;
-	}
+    public @Nullable String getExternalId() {
+	return externalId;
+    }
 
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
+    public void setExternalId(String externalId) {
+	this.externalId = externalId;
     }
 
     public @Nullable String getModifiedContactId() {
@@ -184,14 +186,14 @@ public class Contact extends StoredICureDocument {
         this.modifiedContactId = modifiedContactId;
     }
 
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
+    private String encryptedSelf;
+    @Override
+    public String getEncryptedSelf() {
+	return encryptedSelf;
+    }
 
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
+    @Override
+    public void setEncryptedSelf(String encryptedSelf) {
+	this.encryptedSelf = encryptedSelf;
+    }
 }
