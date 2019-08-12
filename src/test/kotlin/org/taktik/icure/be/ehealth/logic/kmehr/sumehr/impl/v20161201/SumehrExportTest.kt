@@ -74,11 +74,21 @@ class SumehrExportTest {
     private val validContent = mapOf(Pair("valid", Content().apply { booleanValue = true }), Pair("medication", Content().apply { medicationValue = medication }))
     private val validContentDto = mapOf(Pair("valid", ContentDto().apply { booleanValue = true }))
     private val emptyContent = mapOf(Pair("empty", Content()))
+    private val stringValueContent = mapOf(Pair("stringValue", Content().apply { stringValue = "stringValue" }))
+    private val medicationValueContent = mapOf(Pair("medicationValue", Content().apply { medicationValue = medication }))
+    private val doubleContent = mapOf(Pair("stringValue", Content().apply { stringValue = "stringValue" }), Pair("medicationValue", Content().apply { medicationValue = medication }))
 
     private val patientwillCodes = setOf(CodeStub("CD-PATIENTWILL", "organdonationconsent", "15.7"))
     private val drugsCodes = setOf(CodeStub("CD-DRUG-CNK", "3434784", "15.7"))
     private val drugsCodesDto = setOf(CodeDto("CD-DRUG-CNK", "3434784", "15.7"))
     private val vaccineCodes = setOf(CodeStub("CD-VACCINEINDICATION", "maskedfromsummary", "15.7"))
+    private val autonomyCode = CodeStub("CD-AUTONOMY", "CD-ITEM", "1")
+    private val icpcCode = CodeStub("ICPC", "CD-VACCINE", "1")
+    private val atcCode = CodeStub("CD-ATC", "CD-MEDICATION", "2")
+    private val beThesaurusCode = CodeStub("BE-THESAURUS", "CD-MEDICATION", "3.1")
+    private val notATypeCode = CodeStub("NOTATYPE", "CD-MEDICATION", "3.1")
+    private val codes = setOf(atcCode, beThesaurusCode, notATypeCode)
+
 
     private val medicationLabel = "medication"
     private val treatmentLabel = "treatment"
@@ -97,6 +107,10 @@ class SumehrExportTest {
     private val medicationService = Service().apply { this.id = "medication"; this.endOfLife = null; this.status = 0; this.tags = validTags; this.label = medicationLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val treatmentService = Service().apply { this.id = "treatment"; this.endOfLife = null; this.status = 0; this.tags = validTags; this.label = treatmentLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.label = vaccineLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val medicationHistoryService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = medicationValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
+    private val notMedicationAssessmentServiceOneContent = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = stringValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo}
+    private val assessmentServiceTwoContents = Service().apply { this.id = "3"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = doubleContent; this.comment = "comment"; this.openingDate = oneWeekAgo }
+
     private val services = mutableListOf<List<Service>>()
 
     private val patient = Patient().apply { this.id = "0dce1288"; this.partnerships = listOf(Partnership().apply { partnerId = "2ed64d50"; otherToMeRelationshipDescription = "father" }, Partnership().apply { partnerId = "excluded"; otherToMeRelationshipDescription = "uncle" }) }
@@ -823,18 +837,35 @@ class SumehrExportTest {
     @Test
     fun addNonPassiveIrrelevantServiceUsingContent() {
         // Arrange
-        val hcPartyId = "1"
-        val sfks = listOf("")
-        val emptyTransaction = TransactionType()
-        val filledTransaction = TransactionType()
-        val cdItem = "healthissue"
-        val language = "fr"
-        val excludedIds = emptyList<String>()
-        val forcePassive = false
-        val forceCdItem = "healthcareelement"
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
         this.resetServices()
+
+        /// First parameter
+        val hcPartyId = "1"
+
+        /// Second parameter
+        val sfks = listOf("")
+
+        /// Third parameter
+        val emptyTransaction = TransactionType()
+        val filledTransaction = TransactionType()
+
+        /// Fourth parameter
+        val cdItem = "healthissue"
+
+        /// Fifth parameter
+        val language = "fr"
+
+        /// Sixth parameter
+        val excludedIds = emptyList<String>()
+
+        /// Eigth parameter
+        val forcePassive = false
+
+        /// Nineth parameter
+        val forceCdItem = "healthcareelement"
+
 
         // Execute
         try {
@@ -843,24 +874,84 @@ class SumehrExportTest {
             fail()
         }
 
-        services.add(listOf(validService, encryptedService, oldService, closedService))
+        services.add(listOf(medicationHistoryService, notMedicationAssessmentServiceOneContent, assessmentServiceTwoContents))
         sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, filledTransaction, cdItem, language, excludedIds, decryptor, forcePassive, forceCdItem)
 
         // Tests
+        /// consequences of log.debug
         assertNotNull(emptyTransaction)
         assertTrue(sumehrExport.getAssessment(emptyTransaction).headingsAndItemsAndTexts.isEmpty())
         assertTrue(sumehrExport.getHistory(emptyTransaction).headingsAndItemsAndTexts.isEmpty())
 
+        ///
         assertNotNull(filledTransaction)
-        assertEquals(2, sumehrExport.getAssessment(filledTransaction).headingsAndItemsAndTexts.size)
-        assertEquals(1, sumehrExport.getHistory(filledTransaction).headingsAndItemsAndTexts.size)
+        val assessments = sumehrExport.getAssessment(filledTransaction).headingsAndItemsAndTexts as ArrayList<ItemType>
+        val histories = sumehrExport.getHistory(filledTransaction).headingsAndItemsAndTexts as ArrayList<ItemType>
+        assertEquals(2, assessments.size) // notMedicationAssessmentServiceOneContent and assessmentServiceTwoContents
+        assertEquals(1, histories.size) // medicationHistoryService
 
-        val item = sumehrExport.getHistory(filledTransaction).headingsAndItemsAndTexts[0] as ItemType
-        assertNotNull(item.texts)
-        assertEquals(1, item.texts.size)
-        assertNotNull(item.texts[0])
-        assertNotNull(item.texts[0].value)
-        assertEquals("comment", item.texts[0].value)
+        (assessments + histories).forEach {
+            assertNotNull(it.contents)
+            val cdsSize1 = it.contents.filter{ content -> content.cds != null && content.cds.size > 0}.count()
+            val textsSize1 = it.contents.filter{ content ->  content.texts != null}.count()
+            assertTrue(cdsSize1 <= 1)
+            assertEquals(1, textsSize1)
+            assertEquals(cdsSize1+textsSize1, it.contents.size)
+        }
+
+        /// medication(HistoryService)
+        //// texts
+        assertNotNull(histories[0].texts)
+        assertEquals(1, histories[0].texts.size)
+        assertNotNull(histories[0].texts[0])
+        assertNotNull(histories[0].texts[0].value)
+        assertEquals("comment", histories[0].texts[0].value)
+        //// contents - texts
+        assertEquals(1, histories[0].contents.find { it.texts != null }?.texts?.size)
+        assertEquals(medicationHistoryService.content["medicationValue"]?.medicationValue?.medicinalProduct?.intendedname, histories[0]?.contents?.find { it.texts != null }?.texts?.get(0)?.value)
+        //// contents - codes
+        assertEquals(2, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.size)
+        assertEquals("1.0", histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.sv)
+        assertEquals(beThesaurusCode.version, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.sv)
+        assertEquals(atcCode.type, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.dn)
+        assertEquals("CD-CLINICAL", histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.dn)
+        assertEquals(atcCode.code, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.value)
+        assertEquals(beThesaurusCode.code, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.value)
+        assertEquals(CDCONTENTschemes.fromValue(atcCode.type), histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.s)
+        assertEquals(CDCONTENTschemes.fromValue(beThesaurusCode.type), histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.s)
+
+
+        /// notMedication(AssessmentServiceOneContent)
+        //// contents - texts
+        assertEquals(1, assessments[0].contents.find { it.texts != null }?.texts?.size)
+        assertEquals(notMedicationAssessmentServiceOneContent.content["stringValue"]?.stringValue, assessments[0]?.contents?.find { it.texts != null }?.texts?.get(0)?.value)
+        //// contents - codes
+        assertEquals(2, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.size)
+        assertEquals("1.0", assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.sv)
+        assertEquals(beThesaurusCode.version, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.sv)
+        assertEquals(atcCode.type, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.dn)
+        assertEquals("CD-CLINICAL", assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.dn)
+        assertEquals(atcCode.code, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.value)
+        assertEquals(beThesaurusCode.code, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.value)
+        assertEquals(CDCONTENTschemes.fromValue(atcCode.type), assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.s)
+        assertEquals(CDCONTENTschemes.fromValue(beThesaurusCode.type), assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.s)
+
+        /// (assessmentService)TwoContents
+        //// contents - texts
+        assertEquals(2, assessments[1].contents.find { it.texts != null }?.texts?.size)
+        assertNotNull(assessments[1]?.contents?.find { it.texts != null }?.texts?.find { it.value == notMedicationAssessmentServiceOneContent.content["stringValue"]?.stringValue })
+        assertNotNull(assessments[1]?.contents?.find { it.texts != null }?.texts?.find { it.value == medicationHistoryService.content["medicationValue"]?.medicationValue?.medicinalProduct?.intendedname })
+        //// contents - codes
+        assertEquals(2, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.size)
+        assertEquals("1.0", assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.sv)
+        assertEquals(beThesaurusCode.version, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.sv)
+        assertEquals(atcCode.type, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.dn)
+        assertEquals("CD-CLINICAL", assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.dn)
+        assertEquals(atcCode.code, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.value)
+        assertEquals(beThesaurusCode.code, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.value)
+        assertEquals(CDCONTENTschemes.fromValue(atcCode.type), assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.s)
+        assertEquals(CDCONTENTschemes.fromValue(beThesaurusCode.type), assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.s)
+
     }
 
     @Test
@@ -1126,10 +1217,7 @@ class SumehrExportTest {
         /// Second parameter
         val trn1 = ObjectFactory().createTransactionType()
         val trn2 = ObjectFactory().createTransactionType()
-        /* val head1 = HeadingType()
-         val head2 = HeadingType()
-         trn1.headingsAndItemsAndTexts.add(head1)
-         trn2.headingsAndItemsAndTexts.add(head2)*/
+
 
         // Execution
         sumehrExport.addGmdmanager(pat1, trn1)
@@ -1286,18 +1374,12 @@ class SumehrExportTest {
         eds4.tags.add(tag2)
         eds5.tags.add(tag2)
         eds6.tags.add(tag2)
-        val code1 = CodeStub("CD-AUTONOMY", "CD-ITEM", "1")
-        val code2 = CodeStub("ICPC", "CD-VACCINE", "1")
-        val code3 = CodeStub("CD-ATC", "CD-MEDICATION", "2")
-        val code4 = CodeStub("BE-THESAURUS", "CD-MEDICATION", "3.1")
-        val code5 = CodeStub("NOTATYPE", "CD-MEDICATION", "3.1")
-        eds1.codes.add(code1)
-        eds1.codes.add(code2)
-        eds2.codes.add(code1)
-        eds3.codes.add(code1)
-        eds4.codes.add(code3)
-        eds5.codes.add(code4)
-        eds6.codes.add(code5)
+        eds1.codes.addAll(setOf(autonomyCode,icpcCode))
+        eds2.codes.add(autonomyCode)
+        eds3.codes.add(autonomyCode)
+        eds4.codes.add(atcCode)
+        eds5.codes.add(beThesaurusCode)
+        eds6.codes.add(notATypeCode)
 
         // Execution
         sumehrExport.addHealthCareElement(trn1, eds1)
@@ -1358,15 +1440,13 @@ class SumehrExportTest {
     fun addServiceCodesAndTags() {
         // Arrange
         /// First parameter
-        val code1 = CodeStub("CD-AUTONOMY", "CD-ITEM", "1")
+        val code1 = autonomyCode
         val tag1 = CodeStub("CD-AUTONOMY", "CD-ITEM", "1")
         val code2 = CodeStub("CD-AUTONOMY", "CD-VACCINE", "1")
         val tag2 = CodeStub("CD-AUTONOMY", "CD-VACCINE", "1")
         val svc1 = Service()
-        svc1.codes.add(code1)
-        svc1.tags.add(tag1)
-        svc1.codes.add(code2)
-        svc1.tags.add(tag2)
+        svc1.codes.addAll(setOf(code1,code2))
+        svc1.tags.addAll(setOf(tag1,tag2))
 
         /// Second parameter
         val item1 = ItemType()
