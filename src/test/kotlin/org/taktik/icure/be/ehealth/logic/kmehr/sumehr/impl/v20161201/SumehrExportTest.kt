@@ -413,6 +413,7 @@ class SumehrExportTest {
         }
 
         val getId = fun(item: ItemType) = item.ids[1].value
+        val getCd = fun(item: ItemType) = item.cds[0].value
         assertEquals("adr", getId(items[0]))
         assertEquals("allergy", getId(items[1]))
         assertEquals("socialrisk", getId(items[2]))
@@ -423,6 +424,8 @@ class SumehrExportTest {
         assertEquals("treatment", getId(items[7]))
         assertEquals("healthissue", getId(items[8]))
         assertEquals("healthcareelement", getId(items[9]))
+        assertEquals("problem", getCd(items[8]))
+        assertEquals("problem", getCd(items[9]))
 
         assertTrue(transaction.headingsAndItemsAndTexts[1] is TextType)
         val comment = transaction.headingsAndItemsAndTexts[1] as TextType
