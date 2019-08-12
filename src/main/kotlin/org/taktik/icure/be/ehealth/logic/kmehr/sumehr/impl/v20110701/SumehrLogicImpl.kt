@@ -36,6 +36,8 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.ContactLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
@@ -72,7 +74,11 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV1
         return sumehrImport.importSumehr(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, asJson: Boolean) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor, asJson)
+    override fun importSumehrByItemId(inputStream: InputStream, itemId: String, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
+        return sumehrImport.importSumehrByItemId(inputStream, itemId, author, language, mappings, dest)
+    }
+
+    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
 	override fun createSumehrPlusPlus(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, decryptor: AsyncDecrypt?) = sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, decryptor)
 
@@ -105,4 +111,11 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV1
         return sumehrExport.getHealthElements(hcPartyId, sfks)
     }
 
+    override fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
+        return sumehrExport.getContactPeople(hcPartyId, sfks, excludedIds, patientId)
+    }
+
+    override fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
+        return sumehrExport.getPatientHealthCareParties(hcPartyId, sfks, excludedIds, patientId)
+    }
 }

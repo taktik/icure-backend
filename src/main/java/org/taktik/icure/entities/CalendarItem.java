@@ -34,6 +34,8 @@ public class CalendarItem extends StoredICureDocument {
 
     private String calendarItemTypeId;
 
+    private String masterCalendarItemId;
+
     @Deprecated
     protected String patientId;
 
@@ -84,6 +86,14 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setCalendarItemTypeId(String calendarItemTypeId) {
         this.calendarItemTypeId = calendarItemTypeId;
+    }
+
+    public String getMasterCalendarItemId() {
+        return masterCalendarItemId;
+    }
+
+    public void setMasterCalendarItemId(String masterCalendarItemId) {
+        this.masterCalendarItemId = masterCalendarItemId;
     }
 
     public String getResponsible() {
