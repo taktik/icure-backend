@@ -1,5 +1,9 @@
+language: java
+install: true
+
 os: linux
-language : groovy
-sudo: required
-install : ./gradlew clean
-script : ./gradlew assemble -P skipFrontend=0 -x test 
+dist: trusty
+jdk: oraclejdk8
+
+script:
+  - ./gradlew test

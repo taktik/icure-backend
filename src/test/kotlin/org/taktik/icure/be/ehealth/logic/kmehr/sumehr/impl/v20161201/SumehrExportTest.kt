@@ -108,7 +108,7 @@ class SumehrExportTest {
     private val treatmentService = Service().apply { this.id = "treatment"; this.endOfLife = null; this.status = 0; this.tags = validTags; this.label = treatmentLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.label = vaccineLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val medicationHistoryService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = medicationValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
-    private val notMedicationAssessmentServiceOneContent = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = stringValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo}
+    private val notMedicationAssessmentServiceOneContent = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = stringValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo }
     private val assessmentServiceTwoContents = Service().apply { this.id = "3"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = doubleContent; this.comment = "comment"; this.openingDate = oneWeekAgo }
 
     private val services = mutableListOf<List<Service>>()
@@ -185,7 +185,7 @@ class SumehrExportTest {
                 .thenAnswer { HealthcareParty() }
 
         Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any()))
-                .thenAnswer { healthcareParties.filter{ hcp -> (it.getArgumentAt(0, List::class.java) as List<String>).contains(hcp.id)} }
+                .thenAnswer { healthcareParties.filter { hcp -> (it.getArgumentAt(0, List::class.java) as List<String>).contains(hcp.id) } }
 
         Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
                 .thenAnswer { decryptedServiceDto }
@@ -588,13 +588,10 @@ class SumehrExportTest {
             this.codes = emptySet<CodeStub>()
         }
 
-        val fullTransaction = TransactionType()
-        val partialTransaction = TransactionType()
-
         //Execute
         val items = mutableListOf<ICureDocument>()
-        items.addAll(sumehrExport.getNonConfidentialItems(listOf(article, contact, document, invoice), fullTransaction))
-        items.addAll(sumehrExport.getNonConfidentialItems(listOf(message, receipt, patient), partialTransaction))
+        items.addAll(sumehrExport.getNonConfidentialItems(listOf(article, contact, document, invoice)))
+        items.addAll(sumehrExport.getNonConfidentialItems(listOf(message, receipt, patient)))
 
         //Tests
         assertNotNull(items)
@@ -606,38 +603,6 @@ class SumehrExportTest {
         assertTrue(items.contains(contact))     //
         assertTrue(items.contains(document))    //
         assertTrue(items.contains(invoice))     //
-
-        assertNotNull(fullTransaction)
-        assertNotNull(fullTransaction.headingsAndItemsAndTexts)
-        assertEquals(1, fullTransaction.headingsAndItemsAndTexts.size)
-        assertNotNull(fullTransaction.headingsAndItemsAndTexts[0])
-        assertTrue(fullTransaction.headingsAndItemsAndTexts[0] is HeadingType)
-        val fullHeading = fullTransaction.headingsAndItemsAndTexts[0] as HeadingType
-        assertNotNull(fullHeading)
-        assertEquals(0, fullHeading.headingsAndItemsAndTexts.size)
-
-        assertNotNull(partialTransaction)
-        assertNotNull(partialTransaction.headingsAndItemsAndTexts)
-        assertEquals(1, partialTransaction.headingsAndItemsAndTexts.size)
-        assertNotNull(partialTransaction.headingsAndItemsAndTexts[0])
-        assertTrue(partialTransaction.headingsAndItemsAndTexts[0] is HeadingType)
-        val partialHeading = partialTransaction.headingsAndItemsAndTexts[0] as HeadingType
-        assertNotNull(partialHeading)
-        assertNotNull(partialHeading.headingsAndItemsAndTexts)
-        assertEquals(1, partialHeading.headingsAndItemsAndTexts.size)
-        assertNotNull(partialHeading.headingsAndItemsAndTexts[0])
-        assertTrue(partialHeading.headingsAndItemsAndTexts[0] is ItemType)
-        val omittedItem = partialHeading.headingsAndItemsAndTexts[0] as ItemType
-        assertNotNull(omittedItem)
-        assertNotNull(omittedItem.contents)
-        assertEquals(1, omittedItem.contents.size)
-        val omittedContent = omittedItem.contents[0]
-        assertNotNull(omittedContent)
-        assertNotNull(omittedContent.cds)
-        assertEquals(1, omittedContent.cds.size)
-        val omittedCode = omittedContent.cds[0]
-        assertNotNull(omittedCode)
-        assertEquals("omissionofmedicaldata", omittedCode.value)
     }
 
     @Test
@@ -647,34 +612,34 @@ class SumehrExportTest {
         sumehrExport.healthElementLogic = this.healthElementLogic
         this.listOfHealthElement.clear()
         val filteredHealthElement1 = HealthElement().apply {
-            this.id = "excluded";
-            this.descr = "NotINBOX";
-            this.status = 0; // active and relevant
+            this.id = "excluded"
+            this.descr = "NotINBOX"
+            this.status = 0 // active and relevant
         }
         val filteredHealthElement2 = HealthElement().apply {
-            this.healthElementId = "Id2";
-            this.descr = "INBOX";
+            this.healthElementId = "Id2"
+            this.descr = "INBOX"
         }
         val filteredHealthElement3 = HealthElement().apply {
-            this.healthElementId = "Id3";
-            this.descr = "NotINBOX";
-            this.status = 2; // (active and) irrelevant
-            this.closingDate = 1L;
+            this.healthElementId = "Id3"
+            this.descr = "NotINBOX"
+            this.status = 2 // (active and) irrelevant
+            this.closingDate = 1L
         }
         val filteredHealthElement4 = HealthElement().apply {
-            this.healthElementId = "Id4";
-            this.descr = "NotINBOX";
-            this.status = 3; // inactive and irrelevant
+            this.healthElementId = "Id4"
+            this.descr = "NotINBOX"
+            this.status = 3 // inactive and irrelevant
         }
         val keptHealthElement1 = HealthElement().apply {
-            this.healthElementId = "Id5";
-            this.descr = "NotINBOX";
-            this.status = 1; // (inactive and) relevant
+            this.healthElementId = "Id5"
+            this.descr = "NotINBOX"
+            this.status = 1 // (inactive and) relevant
         }
         val keptHealthElement2 = HealthElement().apply {
-            this.healthElementId = "Id6";
-            this.descr = "NotINBOX";
-            this.status = 2; // (active and) irrelevant
+            this.healthElementId = "Id6"
+            this.descr = "NotINBOX"
+            this.status = 2 // (active and) irrelevant
         }
 
         this.listOfHealthElement.addAll(listOf(filteredHealthElement1, filteredHealthElement2, filteredHealthElement3, filteredHealthElement4, keptHealthElement1, keptHealthElement2))
@@ -823,126 +788,6 @@ class SumehrExportTest {
         assertEquals(1, euthanasia.contents[0].cds.size)
         assertNotNull(euthanasia.contents[0].cds[0])
         assertEquals("euthanasiarequest", euthanasia.contents[0].cds[0].value)
-    }
-
-    @Test
-    fun addNonPassiveIrrelevantServiceUsingContent() {
-        // Arrange
-        sumehrExport.contactLogic = this.contactLogic
-        sumehrExport.mapper = this.mapper
-        this.resetServices()
-
-        /// First parameter
-        val hcPartyId = "1"
-
-        /// Second parameter
-        val sfks = listOf("")
-
-        /// Third parameter
-        val emptyTransaction = TransactionType()
-        val filledTransaction = TransactionType()
-
-        /// Fourth parameter
-        val cdItem = "healthissue"
-
-        /// Fifth parameter
-        val language = "fr"
-
-        /// Sixth parameter
-        val excludedIds = emptyList<String>()
-
-        /// Eigth parameter
-        val forcePassive = false
-
-        /// Nineth parameter
-        val forceCdItem = "healthcareelement"
-
-
-        // Execute
-        try {
-            sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, emptyTransaction, cdItem, language, excludedIds, decryptor)
-        } catch (_: Exception) {
-            fail()
-        }
-
-        services.add(listOf(medicationHistoryService, notMedicationAssessmentServiceOneContent, assessmentServiceTwoContents))
-        sumehrExport.addNonPassiveIrrelevantServiceUsingContent(hcPartyId, sfks, filledTransaction, cdItem, language, excludedIds, decryptor, forcePassive, forceCdItem)
-
-        // Tests
-        /// consequences of log.debug
-        assertNotNull(emptyTransaction)
-        assertTrue(sumehrExport.getAssessment(emptyTransaction).headingsAndItemsAndTexts.isEmpty())
-        assertTrue(sumehrExport.getHistory(emptyTransaction).headingsAndItemsAndTexts.isEmpty())
-
-        ///
-        assertNotNull(filledTransaction)
-        val assessments = sumehrExport.getAssessment(filledTransaction).headingsAndItemsAndTexts as ArrayList<ItemType>
-        val histories = sumehrExport.getHistory(filledTransaction).headingsAndItemsAndTexts as ArrayList<ItemType>
-        assertEquals(2, assessments.size) // notMedicationAssessmentServiceOneContent and assessmentServiceTwoContents
-        assertEquals(1, histories.size) // medicationHistoryService
-
-        (assessments + histories).forEach {
-            assertNotNull(it.contents)
-            val cdsSize1 = it.contents.filter{ content -> content.cds != null && content.cds.size > 0}.count()
-            val textsSize1 = it.contents.filter{ content ->  content.texts != null}.count()
-            assertTrue(cdsSize1 <= 1)
-            assertEquals(1, textsSize1)
-            assertEquals(cdsSize1+textsSize1, it.contents.size)
-        }
-
-        /// medication(HistoryService)
-        //// texts
-        assertNotNull(histories[0].texts)
-        assertEquals(1, histories[0].texts.size)
-        assertNotNull(histories[0].texts[0])
-        assertNotNull(histories[0].texts[0].value)
-        assertEquals("comment", histories[0].texts[0].value)
-        //// contents - texts
-        assertEquals(1, histories[0].contents.find { it.texts != null }?.texts?.size)
-        assertEquals(medicationHistoryService.content["medicationValue"]?.medicationValue?.medicinalProduct?.intendedname, histories[0]?.contents?.find { it.texts != null }?.texts?.get(0)?.value)
-        //// contents - codes
-        assertEquals(2, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.size)
-        assertEquals("1.0", histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.sv)
-        assertEquals(beThesaurusCode.version, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.sv)
-        assertEquals(atcCode.type, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.dn)
-        assertEquals("CD-CLINICAL", histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.dn)
-        assertEquals(atcCode.code, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.value)
-        assertEquals(beThesaurusCode.code, histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.value)
-        assertEquals(CDCONTENTschemes.fromValue(atcCode.type), histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.s)
-        assertEquals(CDCONTENTschemes.fromValue(beThesaurusCode.type), histories[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.s)
-
-
-        /// notMedication(AssessmentServiceOneContent)
-        //// contents - texts
-        assertEquals(1, assessments[0].contents.find { it.texts != null }?.texts?.size)
-        assertEquals(notMedicationAssessmentServiceOneContent.content["stringValue"]?.stringValue, assessments[0]?.contents?.find { it.texts != null }?.texts?.get(0)?.value)
-        //// contents - codes
-        assertEquals(2, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.size)
-        assertEquals("1.0", assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.sv)
-        assertEquals(beThesaurusCode.version, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.sv)
-        assertEquals(atcCode.type, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.dn)
-        assertEquals("CD-CLINICAL", assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.dn)
-        assertEquals(atcCode.code, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.value)
-        assertEquals(beThesaurusCode.code, assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.value)
-        assertEquals(CDCONTENTschemes.fromValue(atcCode.type), assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.s)
-        assertEquals(CDCONTENTschemes.fromValue(beThesaurusCode.type), assessments[0].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.s)
-
-        /// (assessmentService)TwoContents
-        //// contents - texts
-        assertEquals(2, assessments[1].contents.find { it.texts != null }?.texts?.size)
-        assertNotNull(assessments[1]?.contents?.find { it.texts != null }?.texts?.find { it.value == notMedicationAssessmentServiceOneContent.content["stringValue"]?.stringValue })
-        assertNotNull(assessments[1]?.contents?.find { it.texts != null }?.texts?.find { it.value == medicationHistoryService.content["medicationValue"]?.medicationValue?.medicinalProduct?.intendedname })
-        //// contents - codes
-        assertEquals(2, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.size)
-        assertEquals("1.0", assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.sv)
-        assertEquals(beThesaurusCode.version, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.sv)
-        assertEquals(atcCode.type, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.dn)
-        assertEquals("CD-CLINICAL", assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.dn)
-        assertEquals(atcCode.code, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.value)
-        assertEquals(beThesaurusCode.code, assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.value)
-        assertEquals(CDCONTENTschemes.fromValue(atcCode.type), assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(0)?.s)
-        assertEquals(CDCONTENTschemes.fromValue(beThesaurusCode.type), assessments[1].contents.find { it.cds != null && it.cds.size > 0}?.cds?.get(1)?.s)
-
     }
 
     @Test
@@ -1154,9 +999,9 @@ class SumehrExportTest {
         val excludedIds = listOf("excluded")
 
         // Execution
-        val itemsSize = if(trn1.headingsAndItemsAndTexts.size==0){
+        val itemsSize = if (trn1.headingsAndItemsAndTexts.size == 0) {
             0
-        } else{
+        } else {
             (trn1.headingsAndItemsAndTexts.get(0) as HeadingType).headingsAndItemsAndTexts.size
         }
         sumehrExport.addPatientHealthcareParties(pat1, trn1, config, excludedIds)
@@ -1167,7 +1012,7 @@ class SumehrExportTest {
         assertEquals(1, a1.headingsAndItemsAndTexts.size)
         val b1 = a1.headingsAndItemsAndTexts.get(0) as ItemType
         assertEquals(1, b1.ids.size)
-        assertEquals((itemsSize+1).toString(), b1.ids[0].value)
+        assertEquals((itemsSize + 1).toString(), b1.ids[0].value)
         assertEquals("ID-KMEHR", b1.ids[0].s.value())
         assertEquals("1.0", b1.ids[0].sv)
         assertEquals(1, b1.cds.size)
@@ -1257,7 +1102,7 @@ class SumehrExportTest {
         val items = heading.headingsAndItemsAndTexts
                 .filter { it is ItemType }
                 .map { it as ItemType }
-                .filter { it.contents.all { it.cds.all { it.value != "omissionofmedicaldata" }}}
+                .filter { it.contents.all { it.cds.all { it.value != "omissionofmedicaldata" } } }
         assertEquals(3, items.size)
         for (item in items) {
             assertNotNull(item)
@@ -1367,7 +1212,7 @@ class SumehrExportTest {
         eds4.tags.add(tag2)
         eds5.tags.add(tag2)
         eds6.tags.add(tag2)
-        eds1.codes.addAll(setOf(autonomyCode,icpcCode))
+        eds1.codes.addAll(setOf(autonomyCode, icpcCode))
         eds2.codes.add(autonomyCode)
         eds3.codes.add(autonomyCode)
         eds4.codes.add(atcCode)
@@ -1438,8 +1283,8 @@ class SumehrExportTest {
         val code2 = CodeStub("CD-AUTONOMY", "CD-VACCINE", "1")
         val tag2 = CodeStub("CD-AUTONOMY", "CD-VACCINE", "1")
         val svc1 = Service()
-        svc1.codes.addAll(setOf(code1,code2))
-        svc1.tags.addAll(setOf(tag1,tag2))
+        svc1.codes.addAll(setOf(code1, code2))
+        svc1.tags.addAll(setOf(tag1, tag2))
 
         /// Second parameter
         val item1 = ItemType()
@@ -1477,5 +1322,60 @@ class SumehrExportTest {
             }
         }
         assertTrue(test2)
+    }
+
+    @Test
+    fun createParty() {
+        // Arrange
+        val hcpartyPers = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "Cabinet Langlais"
+            speciality = "persdentist"
+        }
+        val hcpartyOrg = HealthcareParty().apply {
+            firstName = "CHU Langlais"
+            lastName = null
+            name = null
+            specialityCodes = listOf(CodeStub("hcparty", "orghospital", "1.0"), CodeStub("hcparty", "orglaboratory", "1.0"))
+        }
+        val hcpartyDept = HealthcareParty().apply {
+            firstName = "CHU Langlais"
+            lastName = "Département Radiothérapie"
+            name = ""
+            speciality = "deptradiotherapy"
+        }
+        val hcparty = HealthcareParty().apply {
+            firstName = "Christelle"
+            lastName = "Langlais"
+            name = "Cabinet Langlais"
+        }
+
+        // Act
+        val hcpartyTypePers = sumehrExport.createParty(hcpartyPers)
+        val hcpartyTypeOrg = sumehrExport.createParty(hcpartyOrg)
+        val hcpartyTypeDept = sumehrExport.createParty(hcpartyDept)
+        val hcpartyType = sumehrExport.createParty(hcparty)
+
+        // Asserts
+        assertNotNull(hcpartyTypePers)
+        assertEquals("Christelle", hcpartyTypePers.firstname ?: "")
+        assertEquals("Langlais", hcpartyTypePers.familyname ?: "")
+        assertNull(hcpartyTypePers.name)
+
+        assertNotNull(hcpartyTypeOrg)
+        assertNull(hcpartyTypeOrg.firstname)
+        assertNull(hcpartyTypeOrg.familyname)
+        assertEquals("CHU Langlais", hcpartyTypeOrg.name ?: "")
+
+        assertNotNull(hcpartyTypeDept)
+        assertNull(hcpartyTypeDept.firstname)
+        assertNull(hcpartyTypeDept.familyname)
+        assertEquals("CHU Langlais Département Radiothérapie", hcpartyTypeDept.name ?: "")
+
+        assertNotNull(hcpartyType)
+        assertEquals("Christelle", hcpartyType.firstname ?: "")
+        assertEquals("Langlais", hcpartyType.familyname ?: "")
+        assertNull(hcpartyType.name)
     }
 }
