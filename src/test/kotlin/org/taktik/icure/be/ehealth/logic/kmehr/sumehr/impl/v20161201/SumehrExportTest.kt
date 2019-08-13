@@ -318,69 +318,11 @@ class SumehrExportTest {
     }
 
     @Test
-    fun createSumehrPlusPlus() {
-        // Arrange
-        /// First parameter
-        val file = File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml")
-        val os = file.outputStream()
-
-        /// Second parameter
-        val pat = Patient().apply {
-            id = "idPatient"
-            addresses = listOf(Address().apply {
-                street = "streetPatient"
-                houseNumber = "1D"
-                postalCode = "1050"
-                city = "Ixelles"
-            })
-        }
-
-        /// Third parameter
-        val sfks = listOf("sfks")
-
-        /// Fourth parameter
-        val sender = HealthcareParty().apply {
-            nihii = "nihiiSender"
-            id = "idSender"
-            ssin = "ssinSender"
-            specialityCodes = mutableListOf(CodeStub("type", "code", "version"))
-            firstName = "firstNameSender"
-            lastName = "lastNameSender"
-            name = "nameSender"
-            addresses = listOf(Address().apply {
-                street = "streetSender"
-                houseNumber = "3A"
-                postalCode = "1000"
-                city = "Bruxelles"
-            })
-        }
-
-        /// Fifth parameter
-        val recipient = HealthcareParty()
-
-        /// Sixth parameter
-        val language = "language"
-
-        /// Seventh parameter
-        val comment = "comment"
-
-        /// Eighth parameter
-        val excludedIds = listOf("excludedId")
-
-        // Execution
-        sumehrExport.createSumehrPlusPlus(os, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
-
-        // Tests
-        assertNotNull(File("src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehrPlusPlus.xml"))
-    }
-
-    @Test
     fun fillPatientFolder() {
         // Arrange
         val folder = FolderType()
         val sfks = listOf("")
         val sender = HealthcareParty().apply { id = "48cf7938" }
-        val extraLabs = mapOf(Pair(Pair("", ""), listOf("")))
         val excludedIds = emptyList<String>()
         sumehrExport.contactLogic = this.contactLogic
         sumehrExport.mapper = this.mapper
@@ -397,7 +339,7 @@ class SumehrExportTest {
         this.services.add(listOf(Service().apply { id = "healthcareelement"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
 
         // Execute
-        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, extraLabs, "fr", config, "comment", excludedIds, decryptor)
+        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, "fr", config, "comment", excludedIds, decryptor)
 
         // Tests
         assertNotNull(folder)

@@ -89,7 +89,6 @@ class SumehrExport : KmehrExport() {
 			comment: String?,
 			excludedIds: List<String>,
 			decryptor: AsyncDecrypt?,
-			asJson: Boolean = false,
 			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 					date = makeXGC(Instant.now().toEpochMilli())!!,
 					time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -106,7 +105,7 @@ class SumehrExport : KmehrExport() {
 		val folder = FolderType()
 		folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
 		folder.patient = makePerson(pat, config)
-		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, excludedIds, decryptor)
+		fillPatientFolder(folder, pat, sfks, sender, language, config, comment, excludedIds, decryptor)
 		message.folders.add(folder)
 
 		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -116,58 +115,7 @@ class SumehrExport : KmehrExport() {
 		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
 	}
 
-	private val labelsMap = mapOf(
-			("CD-LAB" to "4548-4") to listOf("hba1c"),
-			("CD-LAB" to "2093-3") to listOf("cholesterol*total"),
-			("CD-LAB" to "13457-7") to listOf("ldl*cholesterol"),
-			("CD-LAB" to "2085-9") to listOf("cholesterol*hdl","hdl*cholesterol"),
-			("CD-LAB" to "2571-8") to listOf("triglycerides"),
-			("CD-LAB" to "33914-3") to listOf("egfr"),
-			("CD-LAB" to "2160-0") to listOf("creatinine"),
-			("CD-LAB" to "14957-5") to listOf("urine*microalbumin"),
-			("CD-LAB" to "14957-5") to listOf("microalbuminurie*24"),
-			("CD-LAB" to "718-7") to listOf("haemoglobin"),
-			("CD-LAB" to "14959-1") to listOf("albumine*creatinine")
-	)
-
-	fun createSumehrPlusPlus(
-			os: OutputStream,
-			pat: Patient,
-			sfks: List<String>,
-			sender: HealthcareParty,
-			recipient: HealthcareParty?,
-			language: String,
-			comment: String?,
-			excludedIds: List<String>,
-			decryptor: AsyncDecrypt?,
-			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-					date = makeXGC(Instant.now().toEpochMilli())!!,
-					time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-					soft = Config.Software(name = "iCure", version = ICUREVERSION),
-					clinicalSummaryType = "",
-					defaultLanguage = "en"
-			)) {
-		val message = initializeMessage(sender, config)
-		message.header.recipients.add(RecipientType().apply {
-			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
-		})
-
-		val folder = FolderType()
-		folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-		folder.patient = makePerson(pat, config)
-		fillPatientFolder(folder, pat, sfks, sender, labelsMap, language, config, comment, excludedIds, decryptor)
-		message.folders.add(folder)
-
-		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
-
-		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
-	}
-
-	internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, extraLabels: Map<Pair<String, String>, List<String>>?, language: String, config: Config, comment: String?, excludedIds: List<String>, decryptor: AsyncDecrypt?): FolderType {
+	internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, decryptor: AsyncDecrypt?): FolderType {
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
 			author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
