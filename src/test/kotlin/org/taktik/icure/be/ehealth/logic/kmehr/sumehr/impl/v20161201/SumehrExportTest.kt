@@ -108,7 +108,7 @@ class SumehrExportTest {
     private val treatmentService = Service().apply { this.id = "treatment"; this.endOfLife = null; this.status = 0; this.tags = validTags; this.label = treatmentLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val vaccineService = Service().apply { this.id = "vaccine"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = vaccineCodes; this.label = vaccineLabel; this.content = validContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
     private val medicationHistoryService = Service().apply { this.id = "1"; this.endOfLife = null; this.status = 1; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = medicationValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo; this.closingDate = today }
-    private val notMedicationAssessmentServiceOneContent = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = stringValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo}
+    private val notMedicationAssessmentServiceOneContent = Service().apply { this.id = "2"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = stringValueContent; this.comment = "comment"; this.openingDate = oneWeekAgo }
     private val assessmentServiceTwoContents = Service().apply { this.id = "3"; this.endOfLife = null; this.status = 2; this.tags = validTags; this.codes = codes; this.label = medicationLabel; this.content = doubleContent; this.comment = "comment"; this.openingDate = oneWeekAgo }
 
     private val services = mutableListOf<List<Service>>()
@@ -185,7 +185,7 @@ class SumehrExportTest {
                 .thenAnswer { HealthcareParty() }
 
         Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any()))
-                .thenAnswer { healthcareParties.filter{ hcp -> (it.getArgumentAt(0, List::class.java) as List<String>).contains(hcp.id)} }
+                .thenAnswer { healthcareParties.filter { hcp -> (it.getArgumentAt(0, List::class.java) as List<String>).contains(hcp.id) } }
 
         Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
                 .thenAnswer { decryptedServiceDto }
@@ -612,34 +612,34 @@ class SumehrExportTest {
         sumehrExport.healthElementLogic = this.healthElementLogic
         this.listOfHealthElement.clear()
         val filteredHealthElement1 = HealthElement().apply {
-            this.id = "excluded";
-            this.descr = "NotINBOX";
-            this.status = 0; // active and relevant
+            this.id = "excluded"
+            this.descr = "NotINBOX"
+            this.status = 0 // active and relevant
         }
         val filteredHealthElement2 = HealthElement().apply {
-            this.healthElementId = "Id2";
-            this.descr = "INBOX";
+            this.healthElementId = "Id2"
+            this.descr = "INBOX"
         }
         val filteredHealthElement3 = HealthElement().apply {
-            this.healthElementId = "Id3";
-            this.descr = "NotINBOX";
-            this.status = 2; // (active and) irrelevant
-            this.closingDate = 1L;
+            this.healthElementId = "Id3"
+            this.descr = "NotINBOX"
+            this.status = 2 // (active and) irrelevant
+            this.closingDate = 1L
         }
         val filteredHealthElement4 = HealthElement().apply {
-            this.healthElementId = "Id4";
-            this.descr = "NotINBOX";
-            this.status = 3; // inactive and irrelevant
+            this.healthElementId = "Id4"
+            this.descr = "NotINBOX"
+            this.status = 3 // inactive and irrelevant
         }
         val keptHealthElement1 = HealthElement().apply {
-            this.healthElementId = "Id5";
-            this.descr = "NotINBOX";
-            this.status = 1; // (inactive and) relevant
+            this.healthElementId = "Id5"
+            this.descr = "NotINBOX"
+            this.status = 1 // (inactive and) relevant
         }
         val keptHealthElement2 = HealthElement().apply {
-            this.healthElementId = "Id6";
-            this.descr = "NotINBOX";
-            this.status = 2; // (active and) irrelevant
+            this.healthElementId = "Id6"
+            this.descr = "NotINBOX"
+            this.status = 2 // (active and) irrelevant
         }
 
         this.listOfHealthElement.addAll(listOf(filteredHealthElement1, filteredHealthElement2, filteredHealthElement3, filteredHealthElement4, keptHealthElement1, keptHealthElement2))
@@ -999,9 +999,9 @@ class SumehrExportTest {
         val excludedIds = listOf("excluded")
 
         // Execution
-        val itemsSize = if(trn1.headingsAndItemsAndTexts.size==0){
+        val itemsSize = if (trn1.headingsAndItemsAndTexts.size == 0) {
             0
-        } else{
+        } else {
             (trn1.headingsAndItemsAndTexts.get(0) as HeadingType).headingsAndItemsAndTexts.size
         }
         sumehrExport.addPatientHealthcareParties(pat1, trn1, config, excludedIds)
@@ -1012,7 +1012,7 @@ class SumehrExportTest {
         assertEquals(1, a1.headingsAndItemsAndTexts.size)
         val b1 = a1.headingsAndItemsAndTexts.get(0) as ItemType
         assertEquals(1, b1.ids.size)
-        assertEquals((itemsSize+1).toString(), b1.ids[0].value)
+        assertEquals((itemsSize + 1).toString(), b1.ids[0].value)
         assertEquals("ID-KMEHR", b1.ids[0].s.value())
         assertEquals("1.0", b1.ids[0].sv)
         assertEquals(1, b1.cds.size)
@@ -1102,7 +1102,7 @@ class SumehrExportTest {
         val items = heading.headingsAndItemsAndTexts
                 .filter { it is ItemType }
                 .map { it as ItemType }
-                .filter { it.contents.all { it.cds.all { it.value != "omissionofmedicaldata" }}}
+                .filter { it.contents.all { it.cds.all { it.value != "omissionofmedicaldata" } } }
         assertEquals(3, items.size)
         for (item in items) {
             assertNotNull(item)
@@ -1212,7 +1212,7 @@ class SumehrExportTest {
         eds4.tags.add(tag2)
         eds5.tags.add(tag2)
         eds6.tags.add(tag2)
-        eds1.codes.addAll(setOf(autonomyCode,icpcCode))
+        eds1.codes.addAll(setOf(autonomyCode, icpcCode))
         eds2.codes.add(autonomyCode)
         eds3.codes.add(autonomyCode)
         eds4.codes.add(atcCode)
@@ -1283,8 +1283,8 @@ class SumehrExportTest {
         val code2 = CodeStub("CD-AUTONOMY", "CD-VACCINE", "1")
         val tag2 = CodeStub("CD-AUTONOMY", "CD-VACCINE", "1")
         val svc1 = Service()
-        svc1.codes.addAll(setOf(code1,code2))
-        svc1.tags.addAll(setOf(tag1,tag2))
+        svc1.codes.addAll(setOf(code1, code2))
+        svc1.tags.addAll(setOf(tag1, tag2))
 
         /// Second parameter
         val item1 = ItemType()
