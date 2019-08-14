@@ -264,9 +264,8 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {
-		val assessment = getAssessment(trn)
-		val alreadyMarked = assessment.headingsAndItemsAndTexts
+	internal fun hasOmissionOfMedicalDataItem(trn: TransactionType): Boolean {
+		return getAssessment(trn).headingsAndItemsAndTexts
 				.filter { it != null && it is ItemType }
 				.map { it as ItemType }
 				.any { item ->
@@ -276,9 +275,12 @@ class SumehrExport : KmehrExport() {
 						}
 					}
 				}
+	}
 
-		if (!alreadyMarked) {
+	internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {
+		if (!hasOmissionOfMedicalDataItem(trn)) {
 			// We automatically add (once and only once) a patient's will "omissionofmedicaldata" if some elements are confidentials.
+			val assessment = getAssessment(trn)
 			assessment.headingsAndItemsAndTexts.add(super.getOmissionOfMedicalDataWill(assessment.headingsAndItemsAndTexts.size + 1))
 		}
 	}
