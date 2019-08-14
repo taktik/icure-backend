@@ -610,6 +610,22 @@ class SumehrExportTest {
     }
 
     @Test
+    fun hasOmissionOfMedicalDataItem()
+    {
+        // Arrange
+        val transaction1 = TransactionType()
+        val transaction2 = TransactionType().apply { sumehrExport.getAssessment(this).headingsAndItemsAndTexts.add(sumehrExport.getOmissionOfMedicalDataWill(1)) }
+
+        // Execution
+        val firstIsMarked = sumehrExport.hasOmissionOfMedicalDataItem(transaction1)
+        val secondIsMarked = sumehrExport.hasOmissionOfMedicalDataItem(transaction2)
+
+        // Tests
+        assertFalse(firstIsMarked)
+        assertTrue(secondIsMarked)
+    }
+
+    @Test
     fun addOmissionOfMedicalDataItem()
     {
         // Arrange
