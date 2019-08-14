@@ -10,6 +10,7 @@ import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDPATIENTWILLvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
@@ -606,6 +607,44 @@ class SumehrExportTest {
         assertTrue(items.contains(contact))     //
         assertTrue(items.contains(document))    //
         assertTrue(items.contains(invoice))     //
+    }
+
+    @Test
+    fun addOmissionOfMedicalDataItem()
+    {
+        // Arrange
+        val transaction0 = TransactionType()    // no oomd  ->   1 oomd (effective addition)
+        val transaction1 = TransactionType()    // no oomd  ->  no oomd (no non-expected addition)
+        val transaction2 = TransactionType()    //  1 oomd  ->   1 oomd (no deletion)
+                .apply { sumehrExport.getAssessment(this).headingsAndItemsAndTexts.add(sumehrExport.getOmissionOfMedicalDataWill(1)) }
+        val transaction3 = TransactionType()    // no oomd  ->   1 oomd (effective conditional addition)
+        val transaction4 = TransactionType()    //  1 oomd  ->   1 oomd (no duplicate)
+                .apply { sumehrExport.getAssessment(this).headingsAndItemsAndTexts.add(sumehrExport.getOmissionOfMedicalDataWill(1)) }
+        val transaction5 = TransactionType()    // no oomd  ->   1 oomd (effective overwritten condition addition)
+        val transaction6 = TransactionType()    // no oomd  ->  no oomd (no overwritten condition non-expected addition)
+
+        val filledList = listOf(Service())
+        val emptyList = emptyList<Service>()
+
+        fun <T: ICureDocument> predicate(a: List<T>, b: List<T>) = a.size == b.size
+
+        // Execution
+        sumehrExport.addOmissionOfMedicalDataItem(transaction0)                 // effective addition
+        sumehrExport.addOmissionOfMedicalDataItem(transaction1, filledList, filledList)   // no non-expected addition
+        sumehrExport.addOmissionOfMedicalDataItem(transaction2, filledList, filledList)   // no deletion
+        sumehrExport.addOmissionOfMedicalDataItem(transaction3, filledList,  emptyList)   // effective conditional addition
+        sumehrExport.addOmissionOfMedicalDataItem(transaction4, filledList,  emptyList)   // no duplicate
+        sumehrExport.addOmissionOfMedicalDataItem(transaction5, filledList, filledList, ::predicate)    // effective overwritten condition addition
+        sumehrExport.addOmissionOfMedicalDataItem(transaction6, filledList,  emptyList, ::predicate)    // no overwritten condition non-expected addition
+
+        // Tests
+        assertTrue(sumehrExport.hasOmissionOfMedicalDataItem(transaction0))     // effective addition
+        assertFalse(sumehrExport.hasOmissionOfMedicalDataItem(transaction1))    // no non-expected addition
+        assertTrue(sumehrExport.hasOmissionOfMedicalDataItem(transaction2))     // no deletion
+        assertTrue(sumehrExport.hasOmissionOfMedicalDataItem(transaction3))     // effective conditional addition
+        assertTrue(sumehrExport.hasOmissionOfMedicalDataItem(transaction4))     // no duplicate
+        assertTrue(sumehrExport.hasOmissionOfMedicalDataItem(transaction5))     // effective overwritten condition addition
+        assertFalse(sumehrExport.hasOmissionOfMedicalDataItem(transaction6))    // no overwritten condition non-expected addition
     }
 
     @Test
