@@ -638,6 +638,8 @@ private class MyPatients {
                 this.startDate = 20000101
                 this.titularyId = "35976872"
             })
+            this.languages = listOf("fr")
+            this.lastName = "Berie"
             this.maidenName = "Beries"
             this.medicalHouseContracts = listOf(MedicalHouseContract().apply {
                 this.changeType = ContractChangeType.suspension
@@ -665,8 +667,6 @@ private class MyPatients {
                 this.validFrom = 20150101
                 this.validTo = 20243112
             })
-            this.languages = listOf("fr")
-            this.lastName = "Berie"
             this.nationality = "be"
             this.parameters = mapOf(Pair("Param", listOf("Value1", "Value2")))
             this.partnerName = "Fayette Cadieux"
@@ -1172,6 +1172,7 @@ private fun generateFullSenderSumehr() {
         id = "8e716232-04ce-4262-8f71-3c51521fd740"
         invoiceHeader = "CHU Pepinster, Unité d'Accueil"
         lastName = "Flamand"
+        name = "Orville Flamand"
         nihii = "18000032004"
         nihiiSpecCode = "004"
         notes = "This sender is fake"
