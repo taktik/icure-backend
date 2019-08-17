@@ -98,9 +98,16 @@ open class KmehrExport {
 				else
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" }))
 
-            firstname = m.firstName
-            familyname = m.lastName
-            name = m.name
+            if (this.cds.filter { it.s == CDHCPARTYschemes.CD_HCPARTY }.any {it.value.startsWith("pers")}) {
+                firstname = m.firstName
+                familyname = m.lastName
+            } else {
+                name = m.name?.trim().let { when(it) {
+                    null, "" -> listOfNotNull(m.firstName, m.lastName).joinToString(" ").trim()
+                    else -> it
+                }}
+            }
+
             addresses.addAll(makeAddresses(m.addresses))
             telecoms.addAll(makeTelecoms(m.addresses))
         }
