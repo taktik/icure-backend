@@ -32,11 +32,15 @@ class Ampp(
         var definedDailyDose: Quantity? = null,
         var officialExFactoryPrice: Double? = null,
         var realExFactoryPrice: Double? = null,
-        var pricingInformationDecisionDate: Long? = null
+        var pricingInformationDecisionDate: Long? = null,
+        var components: List<AmppComponent?>? = null,
+        var commercializations: List<Commercialization>? = null,
+        var dmpps: List<Dmpp?>? = null
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as Ampp
 
@@ -68,12 +72,16 @@ class Ampp(
         if (officialExFactoryPrice != other.officialExFactoryPrice) return false
         if (realExFactoryPrice != other.realExFactoryPrice) return false
         if (pricingInformationDecisionDate != other.pricingInformationDecisionDate) return false
+        if (components != other.components) return false
+        if (commercializations != other.commercializations) return false
+        if (dmpps != other.dmpps) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = isOrphan.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + isOrphan.hashCode()
         result = 31 * result + (leafletLink?.hashCode() ?: 0)
         result = 31 * result + (spcLink?.hashCode() ?: 0)
         result = 31 * result + (rmaPatientLink?.hashCode() ?: 0)
@@ -101,6 +109,9 @@ class Ampp(
         result = 31 * result + (officialExFactoryPrice?.hashCode() ?: 0)
         result = 31 * result + (realExFactoryPrice?.hashCode() ?: 0)
         result = 31 * result + (pricingInformationDecisionDate?.hashCode() ?: 0)
+        result = 31 * result + (components?.hashCode() ?: 0)
+        result = 31 * result + (commercializations?.hashCode() ?: 0)
+        result = 31 * result + (dmpps?.hashCode() ?: 0)
         return result
     }
 }

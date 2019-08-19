@@ -2,7 +2,10 @@ package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
 
-class AmpComponent(var pharmaceuticalForms: List<PharmaceuticalForm>? = null,
+class AmpComponent(from: Long? = null,
+                   to: Long? = null,
+                   var ingredients: List<Ingredient>? = null,
+                   var pharmaceuticalForms: List<PharmaceuticalForm>? = null,
                    var routeOfAdministrations: List<RouteOfAdministration>? = null,
                    var dividable: String? = null,
                    var scored: String? = null,
@@ -13,13 +16,15 @@ class AmpComponent(var pharmaceuticalForms: List<PharmaceuticalForm>? = null,
                    var specificDrugDevice: Int? = null,
                    var dimensions: String? = null,
                    var name: SamText? = null,
-                   var note: SamText? = null) : DataPeriod(), Serializable {
+                   var note: SamText? = null) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
 
         other as AmpComponent
 
+        if (ingredients != other.ingredients) return false
         if (pharmaceuticalForms != other.pharmaceuticalForms) return false
         if (routeOfAdministrations != other.routeOfAdministrations) return false
         if (dividable != other.dividable) return false
@@ -37,7 +42,9 @@ class AmpComponent(var pharmaceuticalForms: List<PharmaceuticalForm>? = null,
     }
 
     override fun hashCode(): Int {
-        var result = pharmaceuticalForms?.hashCode() ?: 0
+        var result = super.hashCode()
+        result = 31 * result + (ingredients?.hashCode() ?: 0)
+        result = 31 * result + (pharmaceuticalForms?.hashCode() ?: 0)
         result = 31 * result + (routeOfAdministrations?.hashCode() ?: 0)
         result = 31 * result + (dividable?.hashCode() ?: 0)
         result = 31 * result + (scored?.hashCode() ?: 0)
