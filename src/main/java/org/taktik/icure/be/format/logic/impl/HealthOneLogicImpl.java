@@ -503,10 +503,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         String[] parts = splitLine(line);
         LaboLine ll = new LaboLine();
         if (parts.length > 1) {
-            ll.resultReference = parts[1];
+            ll.resultReference = parts[1].trim();
         }
         if (parts.length > 2) {
-            ll.labo = parts[2];
+            ll.labo = parts[2].trim();
         }
         ll.fullLine = line;
         return ll;
@@ -516,7 +516,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         String[] parts = splitLine(line);
         PatientLine pl = new PatientLine();
         if (parts.length > 1) {
-            pl.protocol = parts[1];
+            pl.protocol = parts[1].trim();
         }
         if (parts.length > 3) {
             pl.firstName = parts[3].trim();
@@ -556,10 +556,10 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             lrl.protocol = lrl.analysisCode = lrl.analysisType = lrl.referenceValues = lrl.unit = lrl.severity = lrl.value = "";
 
             if (parts.length > 1) {
-                lrl.protocol = parts[1];
+                lrl.protocol = parts[1].trim();
             }
             if (parts.length > 2) {
-                lrl.analysisCode = parts[2];
+                lrl.analysisCode = parts[2].trim();
             }
             if (parts.length > 3) {
                 lrl.analysisType = parts[3].trim();
@@ -576,16 +576,16 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             } else {
                 if (lrl.analysisType.length() == 0 && ll.labosList.size() > 0 && ll.labosList.get(ll.labosList.size() - 1).analysisCode != null && ll.labosList.get(ll.labosList.size() - 1).analysisCode.equals(lrl.analysisCode)) {
                     lrl.analysisType = ll.labosList.get(ll.labosList.size() - 1).analysisType;
-                    lrl.value = parts[4];
+                    lrl.value = parts[4].trim();
                 } else {
                     if (parts.length > 4) {
-                        lrl.referenceValues = parts[4];
+                        lrl.referenceValues = parts[4].trim();
                     }
                     if (parts.length > 5) {
-                        lrl.unit = parts[5];
+                        lrl.unit = parts[5].trim();
                     }
                     if (parts.length > 6) {
-                        lrl.severity = parts[6];
+                        lrl.severity = parts[6].trim();
                     }
                 }
             }
@@ -608,15 +608,15 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             String[] parts = splitLine(line);
             ProtocolLine pl = new ProtocolLine();
             if (parts.length > 1) {
-                pl.protocol = parts[1];
+                pl.protocol = parts[1].trim();
             }
             if (parts.length > 2) {
-                pl.code = parts[2];
+                pl.code = parts[2].trim();
             }
             if (parts.length > 7) {
-                pl.text = parts[7];
+                pl.text = parts[7].trim();
             } else if (parts.length > 3) {
-                pl.text = parts[3];
+                pl.text = parts[3].trim();
             }
             return pl;
         } catch (Exception e) {
@@ -631,11 +631,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             String[] parts = splitLine(line);
             ResultsInfosLine ril = new ResultsInfosLine();
             if (parts.length > 1) {
-                ril.protocol = parts[1];
+                ril.protocol = parts[1].trim();
             }
             ril.complete = parts.length <= 5 || parts[5].toLowerCase().contains("c");
             if (parts.length > 3) {
-                ril.demandDate = parseDemandDate(parts[3]);
+                ril.demandDate = parseDemandDate(parts[3].trim());
             }
             return ril;
         } catch (Exception e) {
@@ -670,24 +670,24 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         String[] parts = splitLine(line);
         PatientAddressLine pal = new PatientAddressLine();
         if (parts.length > 1) {
-            pal.protocol = parts[1];
+            pal.protocol = parts[1].trim();
         }
         if (parts.length > 4) {
-            pal.locality = parts[4];
+            pal.locality = parts[4].trim();
         }
         if (parts.length > 3) {
-            Matcher zipMatcher = zipCode.matcher(parts[3]);
+            Matcher zipMatcher = zipCode.matcher(parts[3].trim());
             if (zipMatcher.matches()) {
                 pal.zipCode = zipMatcher.group(1);
             }
         }
         if (parts.length > 2) {
-            Matcher addressMatcher = address.matcher(parts[2]);
+            Matcher addressMatcher = address.matcher(parts[2].trim());
             if (addressMatcher.matches()) {
                 pal.address = addressMatcher.group(1) == null ? addressMatcher.group(3) : addressMatcher.group(2);
                 pal.number = addressMatcher.group(1) == null ? addressMatcher.group(4) : addressMatcher.group(1);
             } else {
-                pal.address = parts[2];
+                pal.address = parts[2].trim();
             }
         }
         return pal;
