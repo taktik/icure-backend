@@ -1315,6 +1315,7 @@ class HealthOneLogicImplTest {
         val file = File(path)
         val out = file.outputStream();
 
+
         // Execution
         /// File 1
         val res1 = HealthOneLogicImpl.doExport(sender, recipient, patient, date, ref, text, out);
