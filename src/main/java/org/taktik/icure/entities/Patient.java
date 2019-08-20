@@ -50,6 +50,7 @@ import java.util.TreeSet;
 public class Patient extends StoredICureDocument implements Person, Encryptable, CryptoActor {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
+    protected Set<String> nonDuplicateIds = new HashSet<>();
     protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
     protected String firstName;
@@ -95,6 +96,8 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
     protected Map<String,List<String>> parameters = new HashMap<>();
 
+    protected Map<String,String> importedData = new HashMap<>();
+
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
 
@@ -122,6 +125,10 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     public void setMergeToPatientId(String mergeToPatientId) {
         this.mergeToPatientId = mergeToPatientId;
     }
+
+    public Set<String> getNonDuplicateIds() {  return nonDuplicateIds;  }
+
+    public void setNonDuplicateIds(Set<String> nonDuplicateIds) {  this.nonDuplicateIds = nonDuplicateIds; }
 
     public @Nullable String getFirstName() {
         return firstName;
@@ -649,5 +656,13 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
     public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
         this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }

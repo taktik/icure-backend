@@ -33,7 +33,7 @@ public class Insurance extends StoredDocument {
     protected boolean ambulatoryInsurance = false;
 
     protected String code;
-
+    protected String agreementNumber;
     protected String parent; //ID of the parent
 
     protected Address address= new Address();
@@ -46,6 +46,14 @@ public class Insurance extends StoredDocument {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public String getAgreementNumber() {
+        return agreementNumber;
+    }
+
+    public void setAgreementNumber(String agreementNumber) {
+        this.agreementNumber = agreementNumber;
     }
 
     public boolean isPrivateInsurance() {

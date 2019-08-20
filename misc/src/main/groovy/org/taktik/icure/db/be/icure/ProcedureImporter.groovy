@@ -90,7 +90,7 @@ class ProcedureImporter extends Importer{
                     if (it[k].text().length()) links << "INAMI-RIZIV|${it[k].text().replaceAll(/ ?\|.+/,'')}|1".toString()
                 }
 
-                for (String k in ['deptgeneralpractice','deptkinesitherapy','deptnurse','deptsocialworker','deptpsychology','deptadministrative','deptdietetic','deptspeechtherapy ','deptdentistry','deptoccupationaltherapy','deptgynecology','depthealthcare']) {
+                for (String k in ['deptgeneralpractice','deptkinesitherapy','deptnursing','deptsocialworker','deptpsychology','deptadministrative','deptdietetics','deptspeechtherapy ','deptdentistry','deptoccupationaltherapy','deptgynecology','depthealthcare']) {
                     if (it[k].text().length()){
                         flags << CodeFlag.valueOf(k)
                     }

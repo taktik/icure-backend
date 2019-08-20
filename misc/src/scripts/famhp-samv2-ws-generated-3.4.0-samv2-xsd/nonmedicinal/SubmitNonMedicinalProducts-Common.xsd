@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:nonmedicinal:common" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:nonmedicinal:common" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddNonMedicinalProductRequest" type="AddNonMedicinalProductRequestType"/>
+  <xs:element name="AddNonMedicinalProductResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveNonMedicinalProductRequest" type="RemoveNonMedicinalProductRequestType"/>
+  <xs:element name="RemoveNonMedicinalProductResponse" type="core:StandardResponseType"/>
+  <xs:complexType name="NonMedicinalProductKeyType">
+    <xs:attribute name="code" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="AddNonMedicinalProductRequestType">
+    <xs:sequence>
+      <xs:element name="NonMedicinalProduct" type="AddNonMedicinalProductType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AddNonMedicinalProductType">
+    <xs:complexContent>
+      <xs:extension base="NonMedicinalProductKeyType">
+        <xs:sequence>
+          <xs:group ref="NonMedicinalProductFields"/>
+        </xs:sequence>
+        <xs:attribute name="action" type="core:addActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" use="required"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveNonMedicinalProductRequestType">
+    <xs:sequence>
+      <xs:element name="NonMedicinalProduct" type="RemoveNonMedicinalProductType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveNonMedicinalProductType">
+    <xs:complexContent>
+      <xs:extension base="NonMedicinalProductKeyType">
+        <xs:attribute name="action" type="core:removeActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" use="required"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:group name="NonMedicinalProductFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:TextType"/>
+      <xs:element name="Category">
+        <xs:annotation>
+          <xs:documentation>"S" = spécialité
+            "H" = homéopathie
+            "D" = diététique - nutrition - alimentation
+            "C" = cosmétique
+            "E" = hygiène
+            "M" = matière première
+            "B" = bandage et pansement
+            "I" = stomie et incontinence
+            "A" = accessoire
+            "R" = réactif
+            "F" = pesticide à usage agricole
+            "G" = dispositif médical
+            "O" = autre
+            "T" = moyen diagnostique
+            "K" = biocide
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="S"/>
+            <xs:enumeration value="H"/>
+            <xs:enumeration value="D"/>
+            <xs:enumeration value="C"/>
+            <xs:enumeration value="E"/>
+            <xs:enumeration value="M"/>
+            <xs:enumeration value="B"/>
+            <xs:enumeration value="I"/>
+            <xs:enumeration value="A"/>
+            <xs:enumeration value="R"/>
+            <xs:enumeration value="F"/>
+            <xs:enumeration value="G"/>
+            <xs:enumeration value="O"/>
+            <xs:enumeration value="T"/>
+            <xs:enumeration value="K"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="CommercialStatus">
+        <xs:annotation>
+          <xs:documentation>"M" = sur le marché
+            "S" = retiré du marché
+            "I" = interdit par A.R. ou A.M.
+            "O" = suspendu par A.M. ou A.R.
+            "U" = coffret d'urgence et pas sur le marché belge
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="M"/>
+            <xs:enumeration value="S"/>
+            <xs:enumeration value="I"/>
+            <xs:enumeration value="O"/>
+            <xs:enumeration value="U"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="Producer" type="core:TextType">
+        <xs:annotation>
+          <xs:documentation>Name of the producer of the product</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Distributor" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name of the distributor of the product</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+</xs:schema>

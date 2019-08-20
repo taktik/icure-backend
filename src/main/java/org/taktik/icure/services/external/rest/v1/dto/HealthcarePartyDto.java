@@ -89,6 +89,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected String contactPersonHcpId;
     protected List<FlatRateTarificationDto> flatRateTarifications;
 
+    protected Map<String, String> importedData = new HashMap<>();
 
 	public String getName() {
         return name;
@@ -381,5 +382,13 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setFlatRateTarifications(List<FlatRateTarificationDto> flatRateTarifications) {
         this.flatRateTarifications = flatRateTarifications;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }

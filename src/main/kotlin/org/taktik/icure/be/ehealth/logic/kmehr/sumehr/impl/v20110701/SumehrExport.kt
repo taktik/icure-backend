@@ -35,6 +35,8 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.embed.Content
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
@@ -83,7 +85,6 @@ class SumehrExport : KmehrExport() {
             language : String,
             comment : String?,
 		    decryptor: AsyncDecrypt?,
-            asJson: Boolean = false,
 		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -100,75 +101,17 @@ class SumehrExport : KmehrExport() {
         val folder = FolderType()
         folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
 		folder.patient = makePerson(pat, config)
-		fillPatientFolder(folder, pat, sfks, sender, null, language, config, comment, decryptor)
+		fillPatientFolder(folder, pat, sfks, sender, language, config, comment, decryptor)
         message.folders.add(folder)
 
-        if(asJson){
-            val jmap = jacksonObjectMapper()
-            jmap.writerWithDefaultPrettyPrinter().writeValue(os, message)
-        } else {
-
-            val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-
-            // output pretty printed
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-            jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
-
-            jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
-        }
+        val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+        // output pretty printed
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
+        jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
     }
 
-	private val labelsMap = mapOf(
-		("CD-LAB" to "4548-4") to listOf("hba1c"),
-		("CD-LAB" to "2093-3") to listOf("cholesterol*total"),
-		("CD-LAB" to "13457-7") to listOf("ldl*cholesterol"),
-		("CD-LAB" to "2085-9") to listOf("cholesterol*hdl","hdl*cholesterol"),
-		("CD-LAB" to "2571-8") to listOf("triglycerides"),
-		("CD-LAB" to "33914-3") to listOf("egfr"),
-		("CD-LAB" to "2160-0") to listOf("creatinine"),
-		("CD-LAB" to "14957-5") to listOf("urine*microalbumin"),
-		("CD-LAB" to "14957-5") to listOf("microalbuminurie*24"),
-		("CD-LAB" to "718-7") to listOf("haemoglobin"),
-		("CD-LAB" to "14959-1") to listOf("albumine*creatinine")
-	)
-
-	fun createSumehrPlusPlus(
-		os : OutputStream,
-		pat : Patient,
-		sfks : List<String>,
-		sender : HealthcareParty,
-		recipient : HealthcareParty?,
-		language : String,
-		comment : String?,
-		decryptor: AsyncDecrypt?,
-		config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-		                        date = makeXGC(Instant.now().toEpochMilli())!!,
-		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
-		                        clinicalSummaryType = "",
-		                        defaultLanguage = "en"
-		                       )) {
-		val message = initializeMessage(sender, config)
-		message.header.recipients.add(RecipientType().apply {
-			hcparties.add(recipient?.let {createParty(it, emptyList())} ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0"}), "gp-software-migration"))
-		})
-
-		val folder = FolderType()
-		folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-		folder.patient = makePerson(pat, config)
-		fillPatientFolder(folder, pat, sfks, sender, labelsMap, language, config, comment, decryptor)
-		message.folders.add(folder)
-
-		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
-
-		jaxbMarshaller.marshal(message, OutputStreamWriter(os,"UTF-8"))
-	}
-
-	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, extraLabels: Map<Pair<String, String>, List<String>>?, language: String, config: Config, comment: String?, decryptor: AsyncDecrypt?): FolderType {
+	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, decryptor: AsyncDecrypt?): FolderType {
         val trn = TransactionType().apply {
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
             author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
@@ -262,6 +205,14 @@ class SumehrExport : KmehrExport() {
         } ?: emptyList()
     }
 
+    fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
+        return patientLogic?.getPatient(patientId)?.partnerships?.filter{p -> !excludedIds.contains(p.partnerId)} ?: emptyList()
+    }
+
+    fun getPatientHealthCareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
+        return patientLogic?.getPatient(patientId)?.patientHealthCareParties?.filter{p -> !excludedIds.contains(p.healthcarePartyId)} ?: emptyList()
+    }
+
     private fun getMedications(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
         val nowFuzzy = FuzzyValues.getCurrentFuzzyDate()
         val medications = getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf("medication"), decryptor).filter { it.closingDate?.let {it >= nowFuzzy} ?: true }
@@ -330,6 +281,20 @@ class SumehrExport : KmehrExport() {
 
 					val it = createItemWithContent(svc, items.size+1, forceCdItem?:cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let {listOf(it)} ?: emptyList())
                     if (it != null) {
+                        it.contents.add(ContentType().apply {
+                            svc.codes?.forEach { c ->
+                                try{
+                                    // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
+                                    val version = if (c.type == "CD-ATC") "1.0" else c.version
+                                    // BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
+                                    val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
+                                    val cdt = CDCONTENTschemes.fromValue(type)
+                                    this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+                                } catch (ignored : IllegalArgumentException) {
+                                    log.error(ignored)
+                                }
+                            }
+                        })
                         for ((key, value) in svc.content) {
                             if (value.medicationValue != null) {
                                 fillMedicationItem(svc,it, key)

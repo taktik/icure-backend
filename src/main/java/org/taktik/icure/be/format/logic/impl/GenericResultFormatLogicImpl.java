@@ -97,7 +97,7 @@ public abstract class GenericResultFormatLogicImpl {
 
 		// Test BOM
 		// Test utf-16 byte order mark presence
-        if (rawData != rawData) {
+        if (rawData != null) {
             CharsetDecoder utf8Decoder = StandardCharsets.UTF_8.newDecoder();
             try {
                 CharBuffer decodedChars = utf8Decoder.decode(ByteBuffer.wrap(rawData));

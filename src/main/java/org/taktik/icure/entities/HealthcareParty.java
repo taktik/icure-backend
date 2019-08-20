@@ -107,6 +107,7 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     protected String contactPersonHcpId;
     protected List<FlatRateTarification> flatRateTarifications;
 
+    protected Map<String, String> importedData = new HashMap<>();
 
 	public HealthcareParty() {
 
@@ -481,4 +482,11 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
         }
     }
 
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
+    }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:actual:package:famhp" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:actual="urn:be:fgov:ehealth:samws:v2:actual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:actual:package:famhp" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common" schemaLocation="SubmitActualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddDrugPackageFamhpRequest" type="AddDrugPackageFamhpRequestType"/>
+  <xs:element name="AddDrugPackageFamhpResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeDrugPackageFamhpRequest" type="ChangeDrugPackageFamhpRequestType"/>
+  <xs:element name="ChangeDrugPackageFamhpResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveDrugPackageFamhpRequest" type="RemoveDrugPackageFamhpRequestType"/>
+  <xs:element name="RemoveDrugPackageFamhpResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddDrugPackageFamhpRequestType">
+    <xs:sequence>
+      <xs:element name="Amp" type="actual:AddAmppFamhpToExistingAmpType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeDrugPackageFamhpRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:ChangeAmppFamhpType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveDrugPackageFamhpRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:RemoveAmppType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

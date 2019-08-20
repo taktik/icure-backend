@@ -79,6 +79,40 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
+    fun importSumehrByItemId(inputStream: InputStream,
+                     itemId: String,
+                     author: User,
+                     language: String,
+                     mappings: Map<String, List<ImportMapping>>,
+                     dest: Patient? = null): List<ImportResult> {
+        val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+
+        val unmarshaller = jc.createUnmarshaller()
+        val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
+
+        var allRes = LinkedList<ImportResult>()
+
+        val standard = kmehrMessage.header.standard.cd.value
+
+        //TODO Might want to have several implementations babsed on standards
+        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
+        kmehrMessage.folders.forEach { folder ->
+            val res = ImportResult().apply { allRes.add(this) }
+            createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
+                res.patient = patient
+                folder.transactions.forEach { trn ->
+                    val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
+                        "sumehr" -> parseSumehr(trn, author, res, language, mappings)
+                        else -> parseGenericTransaction(trn, author, res, language, mappings)
+                    }
+                    contactLogic.createContact(ctc)
+                    res.ctcs.add(ctc)
+                }
+            }
+        }
+        return allRes
+    }
+
     private fun parseSumehr(trn: TransactionType,
                                    author: User,
                                    v: ImportResult,
