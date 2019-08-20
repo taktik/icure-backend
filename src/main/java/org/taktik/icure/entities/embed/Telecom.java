@@ -21,6 +21,7 @@ package org.taktik.icure.entities.embed;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.entities.base.Encryptable;
 
 import java.io.Serializable;
 
@@ -29,11 +30,12 @@ import java.io.Serializable;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Telecom implements Serializable, Comparable<Telecom> {
+public class Telecom implements Serializable, Comparable<Telecom>, Encryptable {
 
     protected TelecomType telecomType;
     protected String telecomNumber;
     protected String telecomDescription;
+	protected String encryptedSelf;
 
 	public Telecom() {
 	}
@@ -73,17 +75,29 @@ public class Telecom implements Serializable, Comparable<Telecom> {
 		this.telecomDescription = telecomDescription;
 	}
 
+	public String getEncryptedSelf() {
+		return encryptedSelf;
+	}
+
+	public void setEncryptedSelf(String encryptedSelf) {
+		this.encryptedSelf = encryptedSelf;
+	}
+
 	@Override
 	public int compareTo(Telecom other) {
 		return this.telecomType.compareTo(other.telecomType);
 	}
 
 	public void mergeFrom(Telecom other) {
+		if (this.telecomType == null && other.telecomType != null) { this.telecomType = other.telecomType; }
 		if (this.telecomNumber == null && other.telecomNumber != null) { this.telecomNumber = other.telecomNumber; }
+		if (this.encryptedSelf == null && other.encryptedSelf != null) { this.encryptedSelf = other.encryptedSelf; }
 	}
 
 	public void forceMergeFrom(Telecom other) {
+		if (other.telecomType != null) { this.telecomType = other.telecomType; }
 		if (other.telecomNumber != null) { this.telecomNumber = other.telecomNumber; }
+		if (other.encryptedSelf != null) { this.encryptedSelf = other.encryptedSelf; }
 	}
 
 }

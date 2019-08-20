@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.taktik.icure.entities.base.AppendixType;
 import org.taktik.icure.entities.base.LinkQualification;
 import org.taktik.icure.services.external.rest.v1.dto.embed.CodeFlag;
 
@@ -33,6 +34,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.CodeFlag;
 public class CodeDto extends StoredDto {
 	// id = type|code|version  => this must be unique
 
+	protected String parent; //ID of the parent
+	protected String author;
 	protected Set<String> regions; //ex: be,fr
 	protected String type; //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
 	protected String version; //ex: 10
@@ -48,6 +51,10 @@ public class CodeDto extends StoredDto {
 	protected List<CodeFlag> flags; //flags (like female only) for the code
 
 	protected String data;
+
+	protected Map<AppendixType, String> appendices;
+
+	protected boolean disabled;
 
 	public CodeDto() {
 	}
@@ -182,6 +189,22 @@ public class CodeDto extends StoredDto {
 	public void setData(String data) {
 		this.data = data;
 	}
+
+	public String getParent() { return parent; }
+
+	public void setParent(String parent) { this.parent = parent; }
+
+	public String getAuthor() { return author; }
+
+	public void setAuthor(String author) { this.author = author; }
+
+	public Map<AppendixType, String> getAppendices() { return appendices; }
+
+	public void setAppendices(Map<AppendixType, String> appendices) { this.appendices = appendices; }
+
+	public boolean isDisabled() { return disabled; }
+
+	public void setDisabled(boolean disabled) { this.disabled = disabled; }
 
 	@Override
 	public boolean equals(Object o) {

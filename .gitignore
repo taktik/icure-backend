@@ -51,6 +51,11 @@ web/icure-ht/package-lock\.json
 web/icure-ht/package\.json
 
 bin/
-misc/
+misc/bin
+misc/build
+misc/out
 .classpath
 .settings
+
+# Test generated files
+src/test/resources/**/out*

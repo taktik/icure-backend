@@ -1,0 +1,53 @@
+<jxb:bindings version="2.1"
+               xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+               jxb:extensionBindingPrefixes="xjc">
+  <jxb:globalBindings>
+    <xjc:simple/>
+   <xjc:serializable uid="20150301"/>
+  </jxb:globalBindings>
+
+
+  <jxb:bindings schemaLocation="../../../../src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20150301/external/XSD/xmldsig-core-schema.xsd">
+     <jxb:schemaBindings>
+        <jxb:package name="org.taktik.icure.be.ehealth.dto.kmehr.v20150301.org.w3.xmldsig"/>
+     </jxb:schemaBindings>
+  </jxb:bindings>
+
+
+  <jxb:bindings schemaLocation="../../../../src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20150301/external/XSD/xenc-schema.xsd">
+     <jxb:schemaBindings>
+        <jxb:package name="org.taktik.icure.be.ehealth.dto.kmehr.v20150301.org.w3.xmlenc"/>
+     </jxb:schemaBindings>
+  </jxb:bindings>
+
+
+  <jxb:bindings schemaLocation="../../../../src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20150301/ehealth-kmehr/XSD/cd-1_12.xsd">
+     <jxb:schemaBindings>
+        <jxb:package name="org.taktik.icure.be.ehealth.dto.kmehr.v20150301.be.fgov.ehealth.standards.kmehr.cd.v1"/>
+     </jxb:schemaBindings>
+  </jxb:bindings>
+
+
+  <jxb:bindings schemaLocation="../../../../src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20150301/ehealth-kmehr/XSD/id-1_12.xsd">
+     <jxb:schemaBindings>
+        <jxb:package name="org.taktik.icure.be.ehealth.dto.kmehr.v20150301.be.fgov.ehealth.standards.kmehr.id.v1"/>
+     </jxb:schemaBindings>
+  </jxb:bindings>
+
+
+  <jxb:bindings schemaLocation="../../../../src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20150301/ehealth-kmehr/XSD/kmehr-1_12.xsd">
+     <jxb:schemaBindings>
+        <jxb:package name="org.taktik.icure.be.ehealth.dto.kmehr.v20150301.be.fgov.ehealth.standards.kmehr.schema.v1"/>
+     </jxb:schemaBindings>
+  </jxb:bindings>
+
+
+  <jxb:bindings schemaLocation="../../../../src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20150301/ehealth-kmehr/XSD/dt-1_12.xsd">
+     <jxb:schemaBindings>
+        <jxb:package name="org.taktik.icure.be.ehealth.dto.kmehr.v20150301.be.fgov.ehealth.standards.kmehr.dt.v1"/>
+     </jxb:schemaBindings>
+  </jxb:bindings>
+
+</jxb:bindings>

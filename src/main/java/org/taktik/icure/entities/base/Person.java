@@ -23,7 +23,6 @@ import org.taktik.icure.entities.embed.Gender;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 public interface Person extends Serializable, Identifiable<String> {
     String getCivility();

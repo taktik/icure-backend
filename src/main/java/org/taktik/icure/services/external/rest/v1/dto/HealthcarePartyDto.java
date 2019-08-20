@@ -18,18 +18,18 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FlatRateTarificationDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
+import org.taktik.icure.services.external.rest.v1.dto.embed.HealthcarePartyStatus;
+import org.taktik.icure.services.external.rest.v1.dto.embed.TelecomType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.taktik.icure.services.external.rest.v1.dto.embed.FlatRateTarificationDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.HealthcarePartyStatus;
-import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
-import org.taktik.icure.services.external.rest.v1.dto.embed.TelecomType;
 
 public class HealthcarePartyDto extends StoredDto {
 
@@ -54,7 +54,10 @@ public class HealthcarePartyDto extends StoredDto {
     protected String publicKey;
     protected String nihii;
     protected String ssin;
-	protected String cbe;
+
+    protected byte[] picture;
+
+    protected String cbe;
 	protected Integer convention; //0,1,2,9
     protected String userId;
     protected String parentId;
@@ -73,6 +76,7 @@ public class HealthcarePartyDto extends StoredDto {
     //For a pair of HcParties, this key is called the AES exchange key
     //Each HcParty always has one AES exchange key for himself
 	protected Map<String, String[]> hcPartyKeys = new HashMap<>();
+    protected Map<String, String> privateKeyShamirPartitions = new HashMap<>();
 
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
@@ -85,6 +89,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected String contactPersonHcpId;
     protected List<FlatRateTarificationDto> flatRateTarifications;
 
+    protected Map<String, String> importedData = new HashMap<>();
 
 	public String getName() {
         return name;
@@ -182,6 +187,14 @@ public class HealthcarePartyDto extends StoredDto {
         this.proxyBic = proxyBic;
     }
 
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
+
     public String getCbe() {
 		return cbe;
 	}
@@ -204,6 +217,14 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
         this.hcPartyKeys = hcPartyKeys;
+    }
+
+    public Map<String, String> getPrivateKeyShamirPartitions() {
+        return privateKeyShamirPartitions;
+    }
+
+    public void setPrivateKeyShamirPartitions(Map<String, String> privateKeyShamirPartitions) {
+        this.privateKeyShamirPartitions = privateKeyShamirPartitions;
     }
 
     public String getSsin() {
@@ -361,5 +382,13 @@ public class HealthcarePartyDto extends StoredDto {
 
     public void setFlatRateTarifications(List<FlatRateTarificationDto> flatRateTarifications) {
         this.flatRateTarifications = flatRateTarifications;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }

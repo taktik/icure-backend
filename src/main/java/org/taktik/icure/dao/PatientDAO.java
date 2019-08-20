@@ -25,6 +25,7 @@ import org.taktik.icure.entities.Patient;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface PatientDAO extends GenericDAO<Patient> {
 
@@ -79,4 +80,7 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	List<String> listIdsByHcPartyAndSsins(Collection<String> ssins, String healthcarePartyId);
 
     List<String> listByHcPartyName(String searchString, String healthcarePartyId);
+
+	@View(name = "by_hcparty_delegate_keys", map = "classpath:js/healthcareparty/By_hcparty_delegate_keys_map.js")
+	Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
 }

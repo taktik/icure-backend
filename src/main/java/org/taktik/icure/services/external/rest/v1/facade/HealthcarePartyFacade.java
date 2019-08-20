@@ -398,6 +398,31 @@ public class HealthcarePartyFacade implements OpenApiFacade{
 	}
 
 	@ApiOperation(
+			value = "Find children of an healthcare parties",
+			response = HealthcarePartyDto.class,
+			responseContainer = "Array",
+			httpMethod = "GET",
+			notes = "Return a list of children hcp."
+	)
+	@GET
+	@Path("/{parentId}/children")
+	public Response getHealthcarePartiesByParentId(@PathParam("parentId") String parentId){
+		if (parentId == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		List<HealthcareParty> healthcareParties = healthcarePartyLogic.getHealthcarePartiesByParentId(parentId);
+
+		boolean succeed = (healthcareParties != null);
+		if (succeed) {
+			return Response.ok().entity(healthcareParties.stream().map((h) -> mapper.map(h, HealthcarePartyDto.class)).collect(Collectors.toList())).build();
+		} else {
+			return Response.status(404).type("text/plain").entity("A problem regarding fetching the healthcare party. Probable reasons: no such party exists, or server error. Please try again or read the server log.").build();
+		}
+	}
+
+
+	@ApiOperation(
 			value = "Get public key of a healthcare party",
 			response = PublicKeyDto.class,
 			httpMethod = "GET",

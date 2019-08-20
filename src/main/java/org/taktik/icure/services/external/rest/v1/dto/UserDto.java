@@ -50,6 +50,7 @@ public class UserDto extends StoredDto implements Cloneable, Serializable {
 	private Long passwordTokenExpirationDate;
 	private Long termsOfUseDate;
 	private String healthcarePartyId;
+	private String patientId;
 
 	private List<String> roles = new ArrayList<>();
     private String email;
@@ -232,6 +233,14 @@ public class UserDto extends StoredDto implements Cloneable, Serializable {
 
 	public void setHealthcarePartyId(String healthcarePartyId) {
 		this.healthcarePartyId = healthcarePartyId;
+	}
+
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
 	}
 
 	public Map<String, Set<String>> getAutoDelegations() {

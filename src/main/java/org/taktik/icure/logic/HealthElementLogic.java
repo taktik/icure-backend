@@ -37,6 +37,8 @@ public interface HealthElementLogic extends EntityPersister<HealthElement, Strin
 
 	List<HealthElement> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
 
+	List<HealthElement> findLatestByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
+
 	Set<String> deleteHealthElements(Set<String> ids);
 
 	HealthElement modifyHealthElement(HealthElement healthElement);

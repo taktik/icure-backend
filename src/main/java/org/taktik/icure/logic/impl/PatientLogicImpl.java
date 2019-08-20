@@ -182,11 +182,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	    } else {
 		    if (FuzzyValues.isSsin(searchString)) {
 			    patientsPaginatedList = patientDAO.findPatientsByHcPartyAndSsin(searchString, healthcarePartyId, offset, false);
-
 		    } else if (FuzzyValues.isDate(searchString)) {
-			    patientsPaginatedList = patientDAO.findPatientsByHcPartyDateOfBirth(FuzzyValues.toYYYYMMDD(searchString),
-						FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false);
-
+			    patientsPaginatedList = patientDAO.findPatientsByHcPartyDateOfBirth(FuzzyValues.toYYYYMMDD(searchString), FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false);
 		    } else {
 				patientsPaginatedList = findByHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending);
 		    }
@@ -341,7 +338,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			}
 
 			if (idx<0) {
-				throw new IllegalArgumentException("Invalid start key");
+				//throw new IllegalArgumentException("Invalid start key");
+				return new PaginatedList<>(offset.getLimit(), patients.size(), new ArrayList<>(),  null);
 			}
 			while(idx>0 && safeKey.equals(patientKeys.get(idx-1))) {
 				idx--;
@@ -350,7 +348,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 				idx++;
 			}
 			if (offset.getStartDocumentId() != null && !offset.getStartDocumentId().equals(patients.get(idx).getId())) {
-				throw new IllegalArgumentException("Invalid document id");
+				//throw new IllegalArgumentException("Invalid document id");
+				return new PaginatedList<>(offset.getLimit(), patients.size(), new ArrayList<>(),  null);
 			}
 			int lastIdx = Math.min(patients.size(), idx + offset.getLimit());
 			return new PaginatedList<>(offset.getLimit(), patients.size(), patients.subList(idx, lastIdx), lastIdx < patients.size() ? new PaginatedDocumentKeyIdPair(Arrays.asList(healthcarePartyId, patientKeys.get(lastIdx)), patients.get(lastIdx).getId()) : null);
@@ -430,7 +429,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	public Patient modifyPatient(@Check @NotNull Patient patient) throws MissingRequirementsException {
 		log.debug("Modifying patient with id:"+patient.getId());
 		// checking requirements
-		if (patient.getFirstName() == null || patient.getLastName() == null) {
+		if ((patient.getFirstName() == null || patient.getLastName() == null) && patient.getEncryptedSelf() == null) {
 			throw new MissingRequirementsException("modifyPatient: Name, Last name  are required.");
 		}
 
@@ -552,6 +551,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			});
 			patientDAO.save(p);
 		});
+	}
+
+	@Override
+	public Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId) {
+		return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId);
 	}
 
 	@Override

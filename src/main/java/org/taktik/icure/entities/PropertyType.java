@@ -26,6 +26,7 @@ import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.entities.base.StoredDocument;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -119,9 +120,7 @@ public class PropertyType extends StoredDocument implements Cloneable, Serializa
 
 		PropertyType that = (PropertyType) o;
 
-		if (id != null ? !id.equals(that.id) : that.id != null) return false;
-
-		return true;
+		return Objects.equals(id, that.id);
 	}
 
 	@Override

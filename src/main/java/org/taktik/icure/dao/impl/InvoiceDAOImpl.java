@@ -183,7 +183,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 
 	@Override
 	@View(name = "tarification_by_hcparty_code", map = "classpath:js/invoice/Tarification_by_hcparty_code.js", reduce = "_count")
-	public List<String> findTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+	public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
 		if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
 		if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
 		ComplexKey from = ComplexKey.of(
@@ -197,7 +197,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 				endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
 		);
 
-		ViewQuery viewQuery = createQuery("service_by_hcparty_code")
+		ViewQuery viewQuery = createQuery("tarification_by_hcparty_code")
 				.startKey(from)
 				.endKey(to)
 				.reduce(false)

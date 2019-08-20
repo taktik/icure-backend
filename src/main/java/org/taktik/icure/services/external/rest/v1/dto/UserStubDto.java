@@ -18,12 +18,11 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.constants.Roles;
-import org.taktik.icure.constants.Users;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class UserStubDto extends StoredDto implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -32,6 +31,7 @@ public class UserStubDto extends StoredDto implements Cloneable, Serializable {
 	protected String login;
 	protected Long lastLoginDate;
 	protected String healthcarePartyId;
+	protected String patientId;
     protected String email;
 
 	protected Map<String,Set<String>> autoDelegations; //healthcareIds
@@ -58,6 +58,14 @@ public class UserStubDto extends StoredDto implements Cloneable, Serializable {
 
 	public void setHealthcarePartyId(String healthcarePartyId) {
 		this.healthcarePartyId = healthcarePartyId;
+	}
+
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
 	}
 
 	public Map<String, Set<String>> getAutoDelegations() {

@@ -30,6 +30,7 @@ import org.taktik.icure.validation.ValidCode;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -40,6 +41,12 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanOfAction implements ICureDocument, Serializable {
 	private static final long serialVersionUID = 1L;
+
+    public final static int STATUS_PLANNED 				= 1 << 0;
+    public final static int STATUS_ONGOING 				= 1 << 1;
+    public final static int STATUS_FINISHED 			= 1 << 2;
+    public final static int STATUS_PROLONGED 			= 1 << 3;
+    public final static int STATUS_CANCELED			    = 1 << 4;
 
     @NotNull
     protected String id;
@@ -73,6 +80,13 @@ public class PlanOfAction implements ICureDocument, Serializable {
 	protected Set<CodeStub> codes = new HashSet<>();
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected Set<CodeStub> tags = new HashSet<>();
+
+    protected List<String> documentIds;
+    protected String prescriberId; //healthcarePartyId
+    protected Integer numberOfCares;
+    protected Integer status;
+
+
 
 	public PlanOfAction solveConflictWith(PlanOfAction other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
@@ -232,4 +246,20 @@ public class PlanOfAction implements ICureDocument, Serializable {
     public void setCreated(Long created) {
         this.created = created;
     }
+
+    public List<String> getDocumentIds() { return documentIds; }
+
+    public void setDocumentIds(List<String> documentIds) { this.documentIds = documentIds; }
+
+    public String getPrescriberId() { return prescriberId;}
+
+    public void setPrescriberId(String prescriberId) { this.prescriberId = prescriberId; }
+
+    public Integer getNumberOfCares() { return numberOfCares; }
+
+    public void setNumberOfCares(Integer numberOfCares) { this.numberOfCares = numberOfCares; }
+
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
 }

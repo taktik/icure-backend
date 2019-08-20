@@ -11,529 +11,799 @@
   <VALUE>
     <CODE>deptalgology</CODE>
     <DESCRIPTION L='en'>algology</DESCRIPTION>
-    <DESCRIPTION L='fr'>algologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'algologie</DESCRIPTION>
     <DESCRIPTION L='nl'>algologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptanatomopathology</CODE>
     <DESCRIPTION L='en'>anatomopathology</DESCRIPTION>
-    <DESCRIPTION L='fr'>anatomopathologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'anatomopathologie</DESCRIPTION>
     <DESCRIPTION L='nl'>anatomopathologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptanesthesiology</CODE>
     <DESCRIPTION L='en'>anesthesiology</DESCRIPTION>
-    <DESCRIPTION L='fr'>anesthésiologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'anesthésiologie</DESCRIPTION>
     <DESCRIPTION L='nl'>anesthesiologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptbacteriology</CODE>
     <DESCRIPTION L='en'>bacteriology</DESCRIPTION>
-    <DESCRIPTION L='fr'>bactériologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de bacteriologie</DESCRIPTION>
     <DESCRIPTION L='nl'>bacteriologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptcardiacsurgery</CODE>
     <DESCRIPTION L='en'>cardiac surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie cardiaque</DESCRIPTION>
+    <DESCRIPTION L='nl'>cardiac surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptcardiology</CODE>
     <DESCRIPTION L='en'>cardiology</DESCRIPTION>
-    <DESCRIPTION L='fr'>cardiologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de cardiologie</DESCRIPTION>
     <DESCRIPTION L='nl'>cardiologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptchildandadolescentpsychiatry</CODE>
     <DESCRIPTION L='en'>child and adolescent psychiatry</DESCRIPTION>
-    <DESCRIPTION L='fr'>pédo-psychiatrie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de pédopsychiatrie (enfant et ado)</DESCRIPTION>
     <DESCRIPTION L='nl'>child and adolescent psychiatrie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptdentistry</CODE>
     <DESCRIPTION L='en'>dentistry</DESCRIPTION>
-    <DESCRIPTION L='fr'>dentisetrie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de dentisterie</DESCRIPTION>
     <DESCRIPTION L='nl'>tandsarts</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptdermatology</CODE>
     <DESCRIPTION L='en'>dermatology</DESCRIPTION>
-    <DESCRIPTION L='fr'>dermatologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de dermatologie</DESCRIPTION>
     <DESCRIPTION L='nl'>dermatologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptdiabetology</CODE>
     <DESCRIPTION L='en'>diabetology</DESCRIPTION>
-    <DESCRIPTION L='fr'>diabètologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de diabétologie</DESCRIPTION>
     <DESCRIPTION L='nl'>diabetologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptdietetics</CODE>
     <DESCRIPTION L='en'>dietetics</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de diétetique</DESCRIPTION>
+    <DESCRIPTION L='nl'>dietetics</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptemergency</CODE>
     <DESCRIPTION L='en'>emergency</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département des urgences</DESCRIPTION>
+    <DESCRIPTION L='nl'>emergency</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptendocrinology</CODE>
     <DESCRIPTION L='en'>endocrinology</DESCRIPTION>
-    <DESCRIPTION L='fr'>endocrinologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'endocrinologie</DESCRIPTION>
     <DESCRIPTION L='nl'>endocrinologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptgastroenterology</CODE>
     <DESCRIPTION L='en'>gastroenterology</DESCRIPTION>
-    <DESCRIPTION L='fr'>gastroentérologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de gastroentérologie</DESCRIPTION>
     <DESCRIPTION L='nl'>gastroenterologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptgeneralpractice</CODE>
     <DESCRIPTION L='en'>general practice</DESCRIPTION>
-    <DESCRIPTION L='fr'>médecine générale</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de médecine générale</DESCRIPTION>
     <DESCRIPTION L='nl'>huisarts</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptgenetics</CODE>
     <DESCRIPTION L='en'>genetics</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de génétique</DESCRIPTION>
+    <DESCRIPTION L='nl'>genetics</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptgeriatry</CODE>
     <DESCRIPTION L='en'>geriatry</DESCRIPTION>
-    <DESCRIPTION L='fr'>geriatrie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de gériatrie</DESCRIPTION>
     <DESCRIPTION L='nl'>geriatrie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptgynecology</CODE>
     <DESCRIPTION L='en'>gynecology</DESCRIPTION>
-    <DESCRIPTION L='fr'>gynécologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de gynecologie</DESCRIPTION>
     <DESCRIPTION L='nl'>gynecologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>depthandsurgery</CODE>
     <DESCRIPTION L='en'>hand surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de la chirugie de la main</DESCRIPTION>
+    <DESCRIPTION L='nl'>hand surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>depthematology</CODE>
     <DESCRIPTION L='en'>hematology</DESCRIPTION>
-    <DESCRIPTION L='fr'>hématologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'hématologie</DESCRIPTION>
     <DESCRIPTION L='nl'>hematologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptinfectiousdisease</CODE>
     <DESCRIPTION L='en'>infectious disease</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département des maladies infectieuses</DESCRIPTION>
+    <DESCRIPTION L='nl'>infectious disease</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptintensivecare</CODE>
     <DESCRIPTION L='en'>intensive care</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département des soins intensifs</DESCRIPTION>
+    <DESCRIPTION L='nl'>intensive care</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptkinesitherapy</CODE>
     <DESCRIPTION L='en'>kinesitherapy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de kinésithérapie</DESCRIPTION>
+    <DESCRIPTION L='nl'>kinesitherapy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptlaboratory</CODE>
     <DESCRIPTION L='en'>laboratory</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'analyse laboratoire</DESCRIPTION>
+    <DESCRIPTION L='nl'>laboratory</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptmajorburns</CODE>
     <DESCRIPTION L='en'>major burns</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département des grands brulés</DESCRIPTION>
+    <DESCRIPTION L='nl'>major burns</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptmaxillofacialsurgery</CODE>
     <DESCRIPTION L='en'>maxillofacial surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie maxilo facial</DESCRIPTION>
+    <DESCRIPTION L='nl'>maxillofacial surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptmedicine</CODE>
     <DESCRIPTION L='en'>medicine</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de médecine interne</DESCRIPTION>
+    <DESCRIPTION L='nl'>medicine</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptmolecularbiology</CODE>
     <DESCRIPTION L='en'>molecular biology</DESCRIPTION>
-    <DESCRIPTION L='fr'>biologie moléculaire</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de biologie moléculaire</DESCRIPTION>
     <DESCRIPTION L='nl'>molecular biologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptneonatalogy</CODE>
     <DESCRIPTION L='en'>neonatalogy</DESCRIPTION>
-    <DESCRIPTION L='fr'>néo-natalogie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de néonatalogie</DESCRIPTION>
     <DESCRIPTION L='nl'>neonatalogie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptnephrology</CODE>
     <DESCRIPTION L='en'>nephrology</DESCRIPTION>
-    <DESCRIPTION L='fr'>néphrologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de néphrologie</DESCRIPTION>
     <DESCRIPTION L='nl'>nephrologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptneurology</CODE>
     <DESCRIPTION L='en'>neurology</DESCRIPTION>
-    <DESCRIPTION L='fr'>neurologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de neurologie</DESCRIPTION>
     <DESCRIPTION L='nl'>neurologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptneurosurgery</CODE>
     <DESCRIPTION L='en'>neuro surgery</DESCRIPTION>
-    <DESCRIPTION L="fr">Neurochirurgie</DESCRIPTION>
+    <DESCRIPTION L="fr">Département de neurochirurgie</DESCRIPTION>
+    <DESCRIPTION L='nl'>neuro surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptnte</CODE>
     <DESCRIPTION L='en'>nose-throat-ear</DESCRIPTION>
-    <DESCRIPTION L='fr'>oto-rhino-laryngologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département oto-rhino-laryngologie</DESCRIPTION>
+    <DESCRIPTION L='nl'>nose-throat-ear</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptnuclear</CODE>
     <DESCRIPTION L='en'>nuclear</DESCRIPTION>
-    <DESCRIPTION L='fr'>médecine nucléaire</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de médecine nucléaire</DESCRIPTION>
+    <DESCRIPTION L='nl'>nuclear</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>deptnursing</CODE>
+    <DESCRIPTION L='en'>nursing</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département infirmier</DESCRIPTION>
+    <DESCRIPTION L='nl'>nursing</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptnutritiondietetics</CODE>
     <DESCRIPTION L='en'>nutrition dietetics</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de diététique</DESCRIPTION>
+    <DESCRIPTION L='nl'>nutrition dietetics</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptobstetrics</CODE>
     <DESCRIPTION L='en'>obstetrics</DESCRIPTION>
-    <DESCRIPTION L='fr'>obstétrique</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'obstétrie</DESCRIPTION>
+    <DESCRIPTION L='nl'>obstetrics</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptoccupationaltherapy</CODE>
     <DESCRIPTION L='en'>occupational therapy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'ergothérapie</DESCRIPTION>
+    <DESCRIPTION L='nl'>occupational therapy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptoncology</CODE>
     <DESCRIPTION L='en'>oncology</DESCRIPTION>
-    <DESCRIPTION L='fr'>oncologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'oncologie</DESCRIPTION>
     <DESCRIPTION L='nl'>oncologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptophtalmology</CODE>
     <DESCRIPTION L='en'>ophtalmology</DESCRIPTION>
-    <DESCRIPTION L='fr'>ophtalmologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'ophtalmologie</DESCRIPTION>
     <DESCRIPTION L='nl'>oftalmologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptorthopedy</CODE>
     <DESCRIPTION L='en'>orthopedy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'orthopédie</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthopedy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpalliativecare</CODE>
     <DESCRIPTION L='en'>palliative care</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département des soins palliatifs</DESCRIPTION>
+    <DESCRIPTION L='nl'>palliative care</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpediatricintensivecare</CODE>
     <DESCRIPTION L='en'>pediatric intensive care</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département pédiatrique de soins intensifs</DESCRIPTION>
+    <DESCRIPTION L='nl'>pediatric intensive care</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpediatricsurgery</CODE>
     <DESCRIPTION L='en'>pediatric surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie pédiatrique</DESCRIPTION>
+    <DESCRIPTION L='nl'>pediatric surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpediatry</CODE>
     <DESCRIPTION L='en'>pediatry</DESCRIPTION>
-    <DESCRIPTION L='fr'>pédiatrie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de pédiatrie</DESCRIPTION>
     <DESCRIPTION L='nl'>pediatrie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpharmacy</CODE>
     <DESCRIPTION L='en'>pharmacy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacie hospitalière</DESCRIPTION>
+    <DESCRIPTION L='nl'>pharmacy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptphysicalmedecine</CODE>
     <DESCRIPTION L='en'>physical medecine</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de médecine physique</DESCRIPTION>
+    <DESCRIPTION L='nl'>physical medecine</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptphysiotherapy</CODE>
     <DESCRIPTION L='en'>physiotherapy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de kinésithérapie</DESCRIPTION>
+    <DESCRIPTION L='nl'>physiotherapy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptplasticandreparatorysurgery</CODE>
     <DESCRIPTION L='en'>plastic and reparatory surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie plastique et de chirurgie réparatoire</DESCRIPTION>
+    <DESCRIPTION L='nl'>plastic and reparatory surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpneumology</CODE>
     <DESCRIPTION L='en'>pneumology</DESCRIPTION>
-    <DESCRIPTION L='fr'>pneumologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de pneumologie</DESCRIPTION>
     <DESCRIPTION L='nl'>pneumologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpodiatry</CODE>
     <DESCRIPTION L='en'>podiatry</DESCRIPTION>
-    <DESCRIPTION L='fr'>podiatrie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de podologie</DESCRIPTION>
     <DESCRIPTION L='nl'>podiatrie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpsychiatry</CODE>
     <DESCRIPTION L='en'>psychiatry</DESCRIPTION>
-    <DESCRIPTION L='fr'>psychiatrie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de psychiatrie</DESCRIPTION>
     <DESCRIPTION L='nl'>psychiatrie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpsychology</CODE>
     <DESCRIPTION L='en'>psychology</DESCRIPTION>
-    <DESCRIPTION L='fr'>psychologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de psychologie</DESCRIPTION>
     <DESCRIPTION L='nl'>psychologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptradiology</CODE>
     <DESCRIPTION L='en'>radiology</DESCRIPTION>
-    <DESCRIPTION L='fr'>radiologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de radiologie</DESCRIPTION>
     <DESCRIPTION L='nl'>radiologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptradiotherapy</CODE>
     <DESCRIPTION L='en'>radiotherapy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de radiothérapie</DESCRIPTION>
+    <DESCRIPTION L='nl'>radiotherapy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptrevalidation</CODE>
     <DESCRIPTION L='en'>revalidation</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de revalidation</DESCRIPTION>
+    <DESCRIPTION L='nl'>revalidation</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptrheumatology</CODE>
     <DESCRIPTION L='en'>rheumatology</DESCRIPTION>
-    <DESCRIPTION L='fr'>rheumatologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de rhumatologie</DESCRIPTION>
     <DESCRIPTION L='nl'>rheumatologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptrhumatology</CODE>
     <DESCRIPTION L='en'>rhumatology</DESCRIPTION>
-    <DESCRIPTION L='fr'>rhumatologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de rhumatologie</DESCRIPTION>
     <DESCRIPTION L='nl'>rhumatologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptsenology</CODE>
     <DESCRIPTION L='en'>senology</DESCRIPTION>
-    <DESCRIPTION L='fr'>sénologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de sénologie</DESCRIPTION>
     <DESCRIPTION L='nl'>senologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptsocialservice</CODE>
     <DESCRIPTION L='en'>social service</DESCRIPTION>
+    <DESCRIPTION L='fr'>Service sociaux</DESCRIPTION>
+    <DESCRIPTION L='nl'>social service</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptspeechtherapy</CODE>
     <DESCRIPTION L='en'>speech therapy</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'orthophonie</DESCRIPTION>
+    <DESCRIPTION L='nl'>speech therapy</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptsportsmedecine</CODE>
     <DESCRIPTION L='en'>sports medecine</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de médecine sportive</DESCRIPTION>
+    <DESCRIPTION L='nl'>sports medecine</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptstomatology</CODE>
     <DESCRIPTION L='en'>stomatology</DESCRIPTION>
-    <DESCRIPTION L='fr'>stomatologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de stomatologie</DESCRIPTION>
     <DESCRIPTION L='nl'>stomatologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptsurgery</CODE>
     <DESCRIPTION L='en'>surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie</DESCRIPTION>
+    <DESCRIPTION L='nl'>surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptthoracicsurgery</CODE>
     <DESCRIPTION L='en'>thoracic surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie thoracique</DESCRIPTION>
+    <DESCRIPTION L='nl'>thoracic surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>depttoxicology</CODE>
     <DESCRIPTION L='en'>toxicology</DESCRIPTION>
-    <DESCRIPTION L='fr'>toxicologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de toxicologie</DESCRIPTION>
     <DESCRIPTION L='nl'>toxicologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>depttropicalmedecine</CODE>
     <DESCRIPTION L='en'>tropical medecine</DESCRIPTION>
-    <DESCRIPTION L='fr'>médecine tropicale</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de médecine tropicale</DESCRIPTION>
+    <DESCRIPTION L='nl'>tropical medecine</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>depturology</CODE>
     <DESCRIPTION L='en'>urology</DESCRIPTION>
-    <DESCRIPTION L='fr'>urologie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département d'urologie</DESCRIPTION>
     <DESCRIPTION L='nl'>urologie</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptvascularsurgery</CODE>
     <DESCRIPTION L='en'>vascular surgery</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie vasculaire</DESCRIPTION>
+    <DESCRIPTION L='nl'>vascular surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptvisceraldigestiveabdominalsurgery</CODE>
     <DESCRIPTION L='en'>visceral digestive abdominal surgery</DESCRIPTION>
-    <DESCRIPTION L='fr'>Chirurgie viscerale digestive et abdominale</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>orghospital</CODE>
-    <DESCRIPTION L='en'>hospital</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>orginsurance</CODE>
-    <DESCRIPTION L='en'>insurance</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>orglaboratory</CODE>
-    <DESCRIPTION L='en'>laboratory</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>orgpharmacy</CODE>
-    <DESCRIPTION L='en'>pharmacy organisation</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>orgpractice</CODE>
-    <DESCRIPTION L='en'>practice organisation</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>orgpublichealth</CODE>
-    <DESCRIPTION L='en'>public health organisation</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persadministrative</CODE>
-    <DESCRIPTION L='en'>administrative</DESCRIPTION>
-    <DESCRIPTION L='fr'>Personnel admistratif</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persambulancefirstaid</CODE>
-    <DESCRIPTION L='en'>ambulance first aid</DESCRIPTION>
-    <DESCRIPTION L='fr'>Ambulance premier secours</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persaudician</CODE>
-    <DESCRIPTION L='en'>audician</DESCRIPTION>
-    <DESCRIPTION L='fr'></DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persaudiologist</CODE>
-    <DESCRIPTION L='en'>audiologist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Audicien</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persbiologist</CODE>
-    <DESCRIPTION L='en'>biologist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Biologiste</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perscaregiver</CODE>
-    <DESCRIPTION L='en'>caregiver</DESCRIPTION>
-    <DESCRIPTION L='fr'>Soignant</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persdentist</CODE>
-    <DESCRIPTION L='en'>dentist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Dentiste</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persdietician</CODE>
-    <DESCRIPTION L='en'>dietician</DESCRIPTION>
-    <DESCRIPTION L='fr'>Diététicien</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perseducator</CODE>
-    <DESCRIPTION L='en'>educator</DESCRIPTION>
-    <DESCRIPTION L='fr'>Educateur</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perslogopedist</CODE>
-    <DESCRIPTION L='en'>logopedist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Logopède</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persmidwife</CODE>
-    <DESCRIPTION L='en'>midwife</DESCRIPTION>
-    <DESCRIPTION L='fr'>Sage-femme</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persnurse</CODE>
-    <DESCRIPTION L='en'>nurse</DESCRIPTION>
-    <DESCRIPTION L='fr'>Infirmière</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persoccupationaltherapist</CODE>
-    <DESCRIPTION L='en'>occupational therapist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Ergothérapeute</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persoptician</CODE>
-    <DESCRIPTION L='en'>optician</DESCRIPTION>
-    <DESCRIPTION L='fr'>Opticien</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persorthopedist</CODE>
-    <DESCRIPTION L='en'>orthopedist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Orthopédiste</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persorthoptist</CODE>
-    <DESCRIPTION L='en'>orthoptist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Orthoptiste</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persparamedical</CODE>
-    <DESCRIPTION L='en'>paramedical</DESCRIPTION>
-    <DESCRIPTION L='fr'>Personnel paramédical</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perspharmacist</CODE>
-    <DESCRIPTION L='en'>pharmacist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Pharmacien</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perspharmacyassistant</CODE>
-    <DESCRIPTION L='en'>pharmacy assistant</DESCRIPTION>
-    <DESCRIPTION L='fr'>Pharmacien assistant</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persphysician</CODE>
-    <DESCRIPTION L='en'>physician</DESCRIPTION>
-    <DESCRIPTION L='fr'>Médecin</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persphysiotherapist</CODE>
-    <DESCRIPTION L='en'>physiotherapist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Kinésithérapeute</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perspodologist</CODE>
-    <DESCRIPTION L='en'>podologist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Podologue</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perspracticalnurse</CODE>
-    <DESCRIPTION L='en'>practical nurse</DESCRIPTION>
-    <DESCRIPTION L='fr'>Aide-soignante</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perspsychologist</CODE>
-    <DESCRIPTION L='en'>psychologist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Psychologue</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perssocialworker</CODE>
-    <DESCRIPTION L='en'>social worker</DESCRIPTION>
-    <DESCRIPTION L='fr'>Travailleur social</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perstechnician</CODE>
-    <DESCRIPTION L='en'>technician</DESCRIPTION>
-    <DESCRIPTION L='fr'>Technicien d'imagerie médicale</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>perspharmacistclinicalbiologist</CODE>
-    <DESCRIPTION L='en'>pharmacist clinical biologist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Pharmacien-biologiste clinicien</DESCRIPTION>
-  </VALUE>
-  <VALUE>
-    <CODE>persorthotist</CODE>
-    <DESCRIPTION L='en'>orthotist</DESCRIPTION>
-    <DESCRIPTION L='fr'>Prothésiste</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département de chirurgie viscerale digestive et abdominale</DESCRIPTION>
+    <DESCRIPTION L='nl'>visceral digestive abdominal surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>depttransplantsurgery</CODE>
     <DESCRIPTION L="en">Transplant surgery</DESCRIPTION>
     <DESCRIPTION L="fr">Chirurgie de transplantation</DESCRIPTION>
+    <DESCRIPTION L="nl">Transplant surgery</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptpercutaneous</CODE>
     <DESCRIPTION L="en">Percutaneous intervention</DESCRIPTION>
     <DESCRIPTION L="fr">Intervention percutanée</DESCRIPTION>
+    <DESCRIPTION L="nl">Percutaneous intervention</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>deptchildbirth</CODE>
     <DESCRIPTION L="en">childbirth</DESCRIPTION>
     <DESCRIPTION L="fr">Maternité/Accouchement</DESCRIPTION>
+    <DESCRIPTION L="nl">childbirth</DESCRIPTION>
   </VALUE>
-
+  <VALUE>
+    <CODE>orghospital</CODE>
+    <DESCRIPTION L='en'>hospital</DESCRIPTION>
+    <DESCRIPTION L='fr'>Hopital</DESCRIPTION>
+    <DESCRIPTION L='nl'>hospital</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orginsurance</CODE>
+    <DESCRIPTION L='en'>insurance</DESCRIPTION>
+    <DESCRIPTION L='fr'>Assurance</DESCRIPTION>
+    <DESCRIPTION L='nl'>insurance</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orglaboratory</CODE>
+    <DESCRIPTION L='en'>Laboratory</DESCRIPTION>
+    <DESCRIPTION L='fr'>Laboratoire</DESCRIPTION>
+    <DESCRIPTION L='nl'>Laboratory</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orgpharmacy</CODE>
+    <DESCRIPTION L='en'>pharmacy organisation</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacie</DESCRIPTION>
+    <DESCRIPTION L='nl'>pharmacy organisation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orgpractice</CODE>
+    <DESCRIPTION L='en'>practice organisation</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pratique de groupe</DESCRIPTION>
+    <DESCRIPTION L='nl'>practice organisation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orgpublichealth</CODE>
+    <DESCRIPTION L='en'>public health organisation</DESCRIPTION>
+    <DESCRIPTION L='fr'>Organisation ehealth</DESCRIPTION>
+    <DESCRIPTION L='nl'>public health organisation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persadministrative</CODE>
+    <DESCRIPTION L='en'>administrative</DESCRIPTION>
+    <DESCRIPTION L='fr'>Personnel admistratif</DESCRIPTION>
+    <DESCRIPTION L='nl'>administrative</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persambulancefirstaid</CODE>
+    <DESCRIPTION L='en'>ambulance first aid</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ambulance premier secours</DESCRIPTION>
+    <DESCRIPTION L='nl'>ambulance first aid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persaudician</CODE>
+    <DESCRIPTION L='en'>audician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Audicien</DESCRIPTION>
+    <DESCRIPTION L='nl'>audician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persaudiologist</CODE>
+    <DESCRIPTION L='en'>audiologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Audicien</DESCRIPTION>
+    <DESCRIPTION L='nl'>audiologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persbiologist</CODE>
+    <DESCRIPTION L='en'>biologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Biologiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>biologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perscaregiver</CODE>
+    <DESCRIPTION L='en'>caregiver</DESCRIPTION>
+    <DESCRIPTION L='fr'>Soignant</DESCRIPTION>
+    <DESCRIPTION L='nl'>caregiver</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persclinicalorthopedagogist</CODE>
+    <DESCRIPTION L='en'>clinical orthopedagogist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Orthopédagogiste clinique</DESCRIPTION>
+    <DESCRIPTION L='nl'>clinical orthopedagogist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persclinicalpsychologist</CODE>
+    <DESCRIPTION L='en'>clinical psychologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Psychologue clinicien</DESCRIPTION>
+    <DESCRIPTION L='nl'>clinical psychologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persdentist</CODE>
+    <DESCRIPTION L='en'>dentist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dentiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>dentist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persdietician</CODE>
+    <DESCRIPTION L='en'>dietician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Diététicien</DESCRIPTION>
+    <DESCRIPTION L='nl'>dietician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perseducator</CODE>
+    <DESCRIPTION L='en'>educator</DESCRIPTION>
+    <DESCRIPTION L='fr'>Educateur</DESCRIPTION>
+    <DESCRIPTION L='nl'>educator</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perslogopedist</CODE>
+    <DESCRIPTION L='en'>logopedist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Logopède</DESCRIPTION>
+    <DESCRIPTION L='nl'>logopedist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persmidwife</CODE>
+    <DESCRIPTION L='en'>midwife</DESCRIPTION>
+    <DESCRIPTION L='fr'>Sage-femme</DESCRIPTION>
+    <DESCRIPTION L='nl'>midwife</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persnurse</CODE>
+    <DESCRIPTION L='en'>nurse</DESCRIPTION>
+    <DESCRIPTION L='fr'>Infirmière</DESCRIPTION>
+    <DESCRIPTION L='nl'>nurse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persoccupationaltherapist</CODE>
+    <DESCRIPTION L='en'>occupational therapist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ergothérapeute</DESCRIPTION>
+    <DESCRIPTION L='nl'>occupational therapist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persoptician</CODE>
+    <DESCRIPTION L='en'>optician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Opticien</DESCRIPTION>
+    <DESCRIPTION L='nl'>optician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persorthopedist</CODE>
+    <DESCRIPTION L='en'>orthopedist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Orthopédiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthopedist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persoraldentalhygienist</CODE>
+    <DESCRIPTION L='en'>oral dental hygienist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Hygiéniste dentaire</DESCRIPTION>
+    <DESCRIPTION L='nl'>oral dental hygienist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persorthoptist</CODE>
+    <DESCRIPTION L='en'>orthoptist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Orthoptiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthoptist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persparamedical</CODE>
+    <DESCRIPTION L='en'>paramedical</DESCRIPTION>
+    <DESCRIPTION L='fr'>Personnel paramédical</DESCRIPTION>
+    <DESCRIPTION L='nl'>paramedical</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspharmacist</CODE>
+    <DESCRIPTION L='en'>pharmacist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacien</DESCRIPTION>
+    <DESCRIPTION L='nl'>pharmacist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspharmacyassistant</CODE>
+    <DESCRIPTION L='en'>pharmacy assistant</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacien assistant</DESCRIPTION>
+    <DESCRIPTION L='nl'>pharmacy assistant</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persphysician</CODE>
+    <DESCRIPTION L='en'>physician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Médecin</DESCRIPTION>
+    <DESCRIPTION L='fr'>physician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persphysiotherapist</CODE>
+    <DESCRIPTION L='en'>physiotherapist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Kinésithérapeute</DESCRIPTION>
+    <DESCRIPTION L='nl'>physiotherapist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspodologist</CODE>
+    <DESCRIPTION L='en'>podologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Podologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>podologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspracticalnurse</CODE>
+    <DESCRIPTION L='en'>practical nurse</DESCRIPTION>
+    <DESCRIPTION L='fr'>Aide-soignante</DESCRIPTION>
+    <DESCRIPTION L='nl'>practical nurse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspsychologist</CODE>
+    <DESCRIPTION L='en'>psychologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Psychologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>psychologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perssocialworker</CODE>
+    <DESCRIPTION L='en'>social worker</DESCRIPTION>
+    <DESCRIPTION L='fr'>Travailleur social</DESCRIPTION>
+    <DESCRIPTION L='nl'>social worker</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perstrussmaker</CODE>
+    <DESCRIPTION L='en'>truss maker</DESCRIPTION>
+    <DESCRIPTION L='fr'>Bandagiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>truss maker</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perstechnician</CODE>
+    <DESCRIPTION L='en'>technician</DESCRIPTION>
+    <DESCRIPTION L='fr'>Technicien d'imagerie médicale</DESCRIPTION>
+    <DESCRIPTION L='nl'>technician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspharmacistclinicalbiologist</CODE>
+    <DESCRIPTION L='en'>pharmacist clinical biologist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pharmacien-biologiste clinicien</DESCRIPTION>
+    <DESCRIPTION L='nl'>pharmacist clinical biologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persorthotist</CODE>
+    <DESCRIPTION L='en'>orthotist</DESCRIPTION>
+    <DESCRIPTION L='fr'>Prothésiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthotist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persanesthetist</CODE>
+    <DESCRIPTION L='fr'>Anesthésiste</DESCRIPTION>
+    <DESCRIPTION L='nl'></DESCRIPTION>
+    <DESCRIPTION L='en'>anesthetist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persstomatologist</CODE>
+    <DESCRIPTION L='fr'>Stomatologue</DESCRIPTION>
+    <DESCRIPTION L='nl'></DESCRIPTION>
+    <DESCRIPTION L='en'>stomatologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perslung</CODE>
+    <DESCRIPTION L='fr'>Pneumologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>lung</DESCRIPTION>
+    <DESCRIPTION L='en'>lung</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persneuropsychiatrist</CODE>
+    <DESCRIPTION L='fr'>Neuropsychiatre</DESCRIPTION>
+    <DESCRIPTION L='nl'>neuropsychiatrist</DESCRIPTION>
+    <DESCRIPTION L='en'>neuropsychiatrist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persneurologist</CODE>
+    <DESCRIPTION L='fr'>Neurologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>neurologist</DESCRIPTION>
+    <DESCRIPTION L='en'>neurologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persneurosurgeon</CODE>
+    <DESCRIPTION L='fr'>Neurochirurgien</DESCRIPTION>
+    <DESCRIPTION L='nl'>neurosurgeon</DESCRIPTION>
+    <DESCRIPTION L='en'>neurosurgeon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persgeriatrician</CODE>
+    <DESCRIPTION L='fr'>Gériatre</DESCRIPTION>
+    <DESCRIPTION L='nl'>geriatrician</DESCRIPTION>
+    <DESCRIPTION L='en'>geriatrician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persobstetrician</CODE>
+    <DESCRIPTION L='fr'>Obstétricien</DESCRIPTION>
+    <DESCRIPTION L='nl'>obstetrician</DESCRIPTION>
+    <DESCRIPTION L='en'>obstetrician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persophtalmologist</CODE>
+    <DESCRIPTION L='fr'>Ophtalmologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>ophtalmologist</DESCRIPTION>
+    <DESCRIPTION L='en'>ophtalmologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persotorhinolaryngologist</CODE>
+    <DESCRIPTION L='fr'>Oto Rhino Laryngologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>persotorhinolaryngologist</DESCRIPTION>
+    <DESCRIPTION L='en'>persotorhinolaryngologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persurologist</CODE>
+    <DESCRIPTION L='fr'>Urologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>urologist</DESCRIPTION>
+    <DESCRIPTION L='en'>urologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persdermatologist</CODE>
+    <DESCRIPTION L='fr'>Dermatologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>dermatologist</DESCRIPTION>
+    <DESCRIPTION L='en'>dermatologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persorthopedist</CODE>
+    <DESCRIPTION L='fr'>Orthopédiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>orthopedist</DESCRIPTION>
+    <DESCRIPTION L='en'>orthopedist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perspediatrician</CODE>
+    <DESCRIPTION L='fr'>Pédiatre</DESCRIPTION>
+    <DESCRIPTION L='nl'>pediatrician</DESCRIPTION>
+    <DESCRIPTION L='en'>pediatrician</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persradiologist</CODE>
+    <DESCRIPTION L='fr'>Radiologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>persradiologist</DESCRIPTION>
+    <DESCRIPTION L='en'>persradiologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persgastroenterologist</CODE>
+    <DESCRIPTION L='fr'>Gastro entérologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>gastroenterologist</DESCRIPTION>
+    <DESCRIPTION L='en'>gastroenterologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>personcologist</CODE>
+    <DESCRIPTION L='fr'>Oncologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>oncologist</DESCRIPTION>
+    <DESCRIPTION L='en'>oncologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>perscardiologist</CODE>
+    <DESCRIPTION L='fr'>Cardiologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>cardiologist</DESCRIPTION>
+    <DESCRIPTION L='en'>cardiologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persrheumatologist</CODE>
+    <DESCRIPTION L='fr'>Rhumatologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>rheumatologist</DESCRIPTION>
+    <DESCRIPTION L='en'>rheumatologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persanesthetist</CODE>
+    <DESCRIPTION L='fr'>Anesthésiste</DESCRIPTION>
+    <DESCRIPTION L='nl'>Anesthetist</DESCRIPTION>
+    <DESCRIPTION L='en'>Anesthetist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persgynecologist</CODE>
+    <DESCRIPTION L='fr'>Gynécologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>gynecologist</DESCRIPTION>
+    <DESCRIPTION L='en'>gynecologist</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>persnephrologist</CODE>
+    <DESCRIPTION L='fr'>Néphrologue</DESCRIPTION>
+    <DESCRIPTION L='nl'>nephrologist</DESCRIPTION>
+    <DESCRIPTION L='en'>nephrologist</DESCRIPTION>
+  </VALUE>
 </kmehr-cd>

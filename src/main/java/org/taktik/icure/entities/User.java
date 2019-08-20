@@ -58,6 +58,7 @@ public class User extends StoredDocument implements Principal, Cloneable, Serial
 
 	private String groupId;
     private String healthcarePartyId;
+	private String patientId;
 	private Map<DelegationTag,Set<String>> autoDelegations = new HashMap<>(); //DelegationTag -> healthcarePartyIds
 
 	@JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
@@ -158,7 +159,15 @@ public class User extends StoredDocument implements Principal, Cloneable, Serial
         this.healthcarePartyId = healthcarePartyId;
     }
 
-    public Instant getCreatedDate() {
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
+	}
+
+	public Instant getCreatedDate() {
 		return createdDate;
 	}
 

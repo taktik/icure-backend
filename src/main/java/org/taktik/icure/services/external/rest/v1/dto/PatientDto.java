@@ -20,7 +20,15 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
-import org.taktik.icure.services.external.rest.v1.dto.embed.*;
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.DeactivationReasonDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
+import org.taktik.icure.services.external.rest.v1.dto.embed.InsurabilityDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.MedicalHouseContractDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PersonalStatusDto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +36,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 @SuppressWarnings("UnusedDeclaration")
-public class PatientDto extends IcureDto {
+public class PatientDto extends IcureDto implements EncryptableDto {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
+    protected Set<String> nonDuplicateIds = new HashSet<>();
 
     protected String firstName;
     protected String lastName;
@@ -63,6 +70,7 @@ public class PatientDto extends IcureDto {
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
+    protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
     @ApiModelProperty(dataType = "string")
     protected byte[] picture;
@@ -71,6 +79,8 @@ public class PatientDto extends IcureDto {
 
     //No guarantee of unicity
     protected String externalId;
+    protected Map<String, String[]> hcPartyKeys = new HashMap<String, String[]>();
+    protected String publicKey;
 
     protected List<AddressDto> addresses = new ArrayList<>();
 	protected List<InsurabilityDto> insurabilities = new ArrayList<>();
@@ -83,6 +93,7 @@ public class PatientDto extends IcureDto {
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
+    protected Map<String,String> importedData = new HashMap<>();
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
 
@@ -102,6 +113,10 @@ public class PatientDto extends IcureDto {
 	public void setMergedIds(Set<String> mergedIds) {
 		this.mergedIds = mergedIds;
 	}
+	
+    public Set<String> getNonDuplicateIds() {  return nonDuplicateIds;  }
+
+    public void setNonDuplicateIds(Set<String> nonDuplicateIds) {  this.nonDuplicateIds = nonDuplicateIds; }
 
 	public String getFirstName() {
         return firstName;
@@ -384,7 +399,23 @@ public class PatientDto extends IcureDto {
         this.medicalHouseContracts = medicalHouseContracts;
     }
 
-	@Override
+    public Map<String, String[]> getHcPartyKeys() {
+        return hcPartyKeys;
+    }
+
+    public void setHcPartyKeys(Map<String, String[]> hcPartyKeys) {
+        this.hcPartyKeys = hcPartyKeys;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -451,5 +482,21 @@ public class PatientDto extends IcureDto {
 
     public void setDeactivationReason(DeactivationReasonDto deactivationReason) {
         this.deactivationReason = deactivationReason;
+    }
+
+    public Set<String> getEncryptedAdministrativesDocuments() {
+        return encryptedAdministrativesDocuments;
+    }
+
+    public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
+        this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
+    }
+
+    public Map<String, String> getImportedData() {
+        return importedData;
+    }
+
+    public void setImportedData(Map<String, String> importedData) {
+        this.importedData = importedData;
     }
 }

@@ -41,7 +41,7 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 	List<Invoice> listByHcPartyPatientFk(String hcParty, Set<String> secretPatientKeys);
 	List<Invoice> listByHcPartyRecipientIdsUnsent(String hcParty, Set<String> recipientIds);
 	List<Invoice> listByHcPartyPatientFkUnsent(String hcParty, Set<String> secretPatientKeys);
-	
+
  	List<Invoice> listByHcPartySentMediumTypeInvoiceTypeSentDate(String hcParty, MediumType sentMediumType, InvoiceType invoiceType, boolean sent, Long fromDate, Long toDate);
 	List<Invoice> listByHcPartySendingModeStatus(String hcParty, String sendingMode, String status, Long fromDate, Long toDate);
 
@@ -49,7 +49,9 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 
 	List<Invoice> listAllHcpsByStatus(String status, Long from, Long to, List<String> hcpIds);
 	List<Invoice> listConflicts();
-	List<String> findTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate);
+
+	List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate);
+
 	List<CouchKeyValue<Long>> listTarificationsFrequencies(String hcPartyId);
 
 }

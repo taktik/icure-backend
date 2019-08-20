@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -44,6 +45,7 @@ import org.taktik.icure.utils.ResponseUtils;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -180,6 +182,20 @@ public class UserFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.").build();
 		}
 	}
+
+	@ApiOperation(
+			value = "Check the validity of the password for the logged user",
+			response = Boolean.class,
+			httpMethod = "GET",
+			notes = "General information about the user"
+	)
+	@GET
+	@Path("/checkPassword")
+	public Response checkPassword(@HeaderParam("password") String password) {
+		boolean succeed = userLogic.checkPassword(password);
+		return Response.ok().entity(userLogic.checkPassword(password)).build();
+	}
+
 
 	@ApiOperation(
 			value = "Get a user by his Email/Login",

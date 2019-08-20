@@ -32,18 +32,16 @@ import java.util.Map;
 public class Partnership implements Serializable {
 	@JsonIgnore
 	private String partnershipDescription;
-    private PartnershipType type;
+
+    private PartnershipType type; //codes are from CD-CONTACT-PERSON
     private PartnershipStatus status;
 
+    private String partnerId; //Person: can either be a patient or a hcp
+
+    @Deprecated
     private String meToOtherRelationshipDescription; //son if partnerId is my son - codes are from CD-CONTACT-PERSON
+    @Deprecated
     private String otherToMeRelationshipDescription; //father/mother if partnerId is my son
-
-    //  John is patient 1 and is the father of patient 2
-    //  patient 1 - partnership(meToOther...=son,otherToMeRelationshipDescription=father) - partnerId - patient 2
-    //
-
-    String partnerId; //Person: can either be a patient or a contactPerson
-
 
     public @Nullable PartnershipType getType() {
         return type;

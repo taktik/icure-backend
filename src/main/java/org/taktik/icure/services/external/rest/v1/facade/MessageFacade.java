@@ -331,7 +331,7 @@ public class MessageFacade implements OpenApiFacade{
     @Path("/byTransportGuidSentDate")
     public Response findMessagesByTransportGuidSentDate(@QueryParam("transportGuid") String transportGuid, @QueryParam("from") Long fromDate, @QueryParam("to") Long toDate,
                                                         @QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId,
-                                                        @QueryParam("limit") Integer limit) throws LoginException {
+                                                        @QueryParam("limit") Integer limit, @QueryParam("hcpId") String hcpId) throws LoginException {
         Response response;
 
 
@@ -342,7 +342,7 @@ public class MessageFacade implements OpenApiFacade{
         PaginationOffset paginationOffset = new PaginationOffset<List<Object>>(startKeyList, startDocumentId, null, limit == null ? null : limit);
 
         PaginatedList<Message> messages = messageLogic.findByTransportGuidSentDate(
-                sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
+                hcpId != null ? hcpId : sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(),
                 transportGuid,
                 fromDate,
                 toDate,

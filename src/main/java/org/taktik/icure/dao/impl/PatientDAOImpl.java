@@ -18,8 +18,10 @@
 
 package org.taktik.icure.dao.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.ektorp.ComplexKey;
 import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
 import org.ektorp.support.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,9 @@ import org.taktik.icure.entities.Patient;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -423,4 +427,22 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
             .endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).includeDocs(false);
         return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
     }
+
+	@Override
+	@View(name = "by_hcparty_delegate_keys", map = "classpath:js/patient/By_hcparty_delegate_keys_map.js")
+	public Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId) {
+		//Not transactional aware
+		ViewResult result = db.queryView(createQuery("by_hcparty_delegate_keys")
+				.includeDocs(false)
+				.key(healthcarePartyId));
+
+		Map<String,String> resultMap = new HashMap<>();
+		for (ViewResult.Row row : result.getRows()) {
+			JsonNode valueNode = row.getValueAsNode();
+			resultMap.put(valueNode.get(0).asText(), valueNode.get(1).asText());
+		}
+
+		return resultMap;
+	}
+
 }

@@ -22,5 +22,40 @@ import org.taktik.icure.entities.base.EnumVersion;
 
 @EnumVersion(1l)
 public enum PartnershipType {
-    primary_contact,primary_contact_for,tutor,family,friend,counselor,contact
+    @Deprecated
+    primary_contact,
+    @Deprecated
+    primary_contact_for,
+    @Deprecated
+    family,
+    @Deprecated
+    friend,
+    @Deprecated
+    counselor,
+    @Deprecated
+    contact,
+    //From Kmehr
+    brother,
+    brotherinlaw,
+    child,
+    daughter,
+    employer,
+    father,
+    grandchild,
+    grandparent,
+    husband,
+    lawyer,
+    mother,
+    neighbour,
+    notary,
+    partner,
+    sister,
+    sisterinlaw,
+    son,
+    spouse,
+    stepdaughter,
+    stepfather,
+    stepmother,
+    stepson,
+    tutor
 }
