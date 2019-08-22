@@ -25,7 +25,7 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
     @View(name = "by_language_label", map = "classpath:js/amp/By_language_label.js")
     override fun findAmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Amp> {
         val sanitizedLabel = label?.let { StringUtils.sanitizeString(it)}
-        @Suppress("UNCHECKED_CAST") val startKey = if (pagination == null) null else pagination.startKey as MutableList<Any?>
+        @Suppress("UNCHECKED_CAST") val startKey = if (pagination?.startKey == null) null else pagination.startKey as MutableList<Any?>
         if (startKey != null && startKey.size > 2 && startKey[2] != null) {
             startKey[2] = StringUtils.sanitizeString(startKey[2] as String)
         }
