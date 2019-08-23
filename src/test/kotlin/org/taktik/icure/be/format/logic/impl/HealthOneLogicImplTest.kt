@@ -140,15 +140,15 @@ class HealthOneLogicImplTest {
         val content2 = HealthOneLogicImpl.decodeRawData(mappings2.readBytes());
         val r2 = StringReader(content2);
         /// File 3
-        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_4.LAB");
+        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_4.lab");
         val content3 = HealthOneLogicImpl.decodeRawData(mappings3.readBytes());
         val r3 = StringReader(content3);
         /// File 4
-        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_5.LAB");
+        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_5.lab");
         val content4 = HealthOneLogicImpl.decodeRawData(mappings4.readBytes());
         val r4 = StringReader(content4);
         /// File 5
-        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_6-A1LineOnly.LAB");
+        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_6-A1LineOnly.lab");
         val content5 = HealthOneLogicImpl.decodeRawData(mappings5.readBytes());
         val r5 = StringReader(content5)
         /// File 6
@@ -172,7 +172,7 @@ class HealthOneLogicImplTest {
         val content10 = HealthOneLogicImpl.decodeRawData(mappings10.readBytes());
         val r10 = StringReader(content10);
         // File 11
-        val mappings11 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
+        val mappings11 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.lab")
         val content11 = HealthOneLogicImpl.decodeRawData(mappings11.readBytes());
         val r11 = StringReader(content11);
         // File 12
@@ -671,40 +671,40 @@ class HealthOneLogicImplTest {
         val mappings1 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/FichierVide.txt")
         val bufferedreader1 = mappings1.bufferedReader(Charset.forName("cp1252"));
         /// File 2
-        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_2_WithoutA1.LAB")
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_2_WithoutA1.lab")
         val bufferedreader2 = mappings2.bufferedReader(Charset.forName("cp850"));
         /// File 3
-        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_6-A1LineOnly.LAB")
+        val mappings3 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_6-A1LineOnly.lab")
         val bufferedreader3 = mappings3.bufferedReader(Charset.forName("cp850"));
         // File 4
-        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_4.LAB")
+        val mappings4 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_4.lab")
         val bufferedreader4 = mappings4.bufferedReader(Charset.forName("cp850"));
         // File 5
-        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_10_A1+A2WithoutDateOfBirth.LAB")
+        val mappings5 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_10_A1+A2WithoutDateOfBirth.lab")
         val bufferedreader5 = mappings5.bufferedReader(Charset.forName("cp850"));
         // File 6
-        val mappings6 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_11_A1+A2WithDateOfBirth.LAB")
+        val mappings6 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_11_A1+A2WithDateOfBirth.lab")
         val bufferedreader6 = mappings6.bufferedReader(Charset.forName("cp850"));
         // File 7
-        val mappings7 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_12_A1+A2+S4.LAB")
+        val mappings7 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_12_A1+A2+S4.lab")
         val bufferedreader7 = mappings7.bufferedReader(Charset.forName("cp850"));
         // File 8
-        val mappings8 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_13_A1+A2+S4.LAB")
+        val mappings8 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_13_A1+A2+S4.lab")
         val bufferedreader8 = mappings8.bufferedReader(Charset.forName("cp850"));
         // File 9
-        val mappings9 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_14.LAB")
+        val mappings9 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_14.lab")
         val bufferedreader9 = mappings9.bufferedReader(Charset.forName("cp850"));
         // File 10
-        val mappings10 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_15.LAB")
+        val mappings10 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_15.lab")
         val bufferedreader10 = mappings10.bufferedReader(Charset.forName("cp850"));
         // File 11
-        val mappings11 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_16.LAB")
+        val mappings11 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_16.lab")
         val bufferedreader11 = mappings11.bufferedReader(Charset.forName("cp850"));
         // File 12
         val mappings12 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_9.txt")
         val bufferedreader12 = mappings12.bufferedReader(Charset.forName("cp850"));
         // File 13
-        val mappings13 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_5.LAB")
+        val mappings13 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_5.lab")
         val bufferedreader13 = mappings13.bufferedReader(Charset.forName("cp850"));
         // File 14
         val mappings14 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506")
@@ -713,10 +713,10 @@ class HealthOneLogicImplTest {
         val mappings15 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/st-jean-gaspar_MS-506_2")
         val bufferedreader15 = mappings15.bufferedReader(Charset.forName("cp850"));
         // File 16
-        val mappings16 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.LAB")
+        val mappings16 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/15692224004003_MS-642.lab")
         val bufferedreader16 = mappings16.bufferedReader(Charset.forName("cp1252"));
         // File 17
-        val mappings17 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/MS-131_bacetrio_non_corrigé.LAB")
+        val mappings17 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/MS-131_bacetrio_non_corrigé.lab")
         val bufferedreader17 = mappings17.bufferedReader(Charset.forName("cp1252"));
 
         // Second parameter
