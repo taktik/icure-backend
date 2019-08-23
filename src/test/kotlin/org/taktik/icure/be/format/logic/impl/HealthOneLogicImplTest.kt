@@ -136,7 +136,7 @@ class HealthOneLogicImplTest {
         val content1 = HealthOneLogicImpl.decodeRawData(mappings1.readBytes());
         val r1 = StringReader(content1);
         /// File 2
-        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_2_WithoutA1.LAB");
+        val mappings2 = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/format/logic/impl/19611222006001_MS-339_2_WithoutA1.lab");
         val content2 = HealthOneLogicImpl.decodeRawData(mappings2.readBytes());
         val r2 = StringReader(content2);
         /// File 3
