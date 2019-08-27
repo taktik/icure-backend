@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:virtual:Vtm" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:virtual="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:virtual:Vtm" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common" schemaLocation="SubmitVirtualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddVtmRequest" type="AddVtmRequestType"/>
+  <xs:element name="AddVtmResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeVtmRequest" type="ChangeVtmRequestType"/>
+  <xs:element name="ChangeVtmResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveVtmRequest" type="RemoveVtmRequestType"/>
+  <xs:element name="RemoveVtmResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddVtmRequestType">
+    <xs:sequence>
+      <xs:element name="Vtm" type="virtual:AddVtmType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeVtmRequestType">
+    <xs:sequence>
+      <xs:element name="Vtm" type="virtual:ChangeVtmType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveVtmRequestType">
+    <xs:sequence>
+      <xs:element name="Vtm" type="virtual:RemoveVtmType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

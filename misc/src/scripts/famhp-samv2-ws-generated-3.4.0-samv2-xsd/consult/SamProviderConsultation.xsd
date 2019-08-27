@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:consultation:provider" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:amp="urn:be:fgov:ehealth:samws:v2:actual:common"
+           xmlns:company="urn:be:fgov:ehealth:samws:v2:company:submit" xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           xmlns:export="urn:be:fgov:ehealth:samws:v2:export"
+           xmlns:rmb="urn:be:fgov:ehealth:samws:v2:reimbursement:submit"
+           xmlns:vmp="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           xmlns:compounding="urn:be:fgov:ehealth:samws:v2:compounding:common"
+           xmlns:nonmedicinal="urn:be:fgov:ehealth:samws:v2:nonmedicinal:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:consultation:provider" elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common"
+             schemaLocation="../amp/SubmitActualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:company:submit"
+             schemaLocation="../company/SubmitCompany-Company.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:export" schemaLocation="../export/SamExport.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit"
+             schemaLocation="../legaltexts/SubmitReimbursementLaw.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:refdata" schemaLocation="../ref/SamReferences.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:reimbursement:submit"
+             schemaLocation="../reimbursements/SubmitReimbursement.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common"
+             schemaLocation="../vmp/SubmitVirtualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:compounding:common"
+             schemaLocation="../compounding/SubmitCompoundMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:nonmedicinal:common"
+             schemaLocation="../nonmedicinal/SubmitNonMedicinalProducts-Common.xsd"/>
+  <xs:element name="GetAmpRequest" type="GetAmpRequestType"/>
+  <xs:element name="GetAmpResponse" type="GetAmpResponseType"/>
+  <xs:element name="GetVmpRequest" type="GetVmpRequestType"/>
+  <xs:element name="GetVmpResponse" type="GetVmpResponseType"/>
+  <xs:element name="GetCompanyRequest" type="GetCompanyRequestType"/>
+  <xs:element name="GetCompanyResponse" type="GetCompanyResponseType"/>
+  <xs:element name="GetReimbursementRequest" type="GetReimbursementRequestType"/>
+  <xs:element name="GetReimbursementResponse" type="GetReimbursementResponseType"/>
+  <xs:element name="GetReimbursementLawRequest" type="GetReimbursementLawRequestType"/>
+  <xs:element name="GetReimbursementLawResponse" type="GetReimbursementLawResponseType"/>
+  <xs:element name="GetVtmRequest" type="GetVtmRequestType"/>
+  <xs:element name="GetVtmResponse" type="GetVtmResponseType"/>
+  <xs:element name="GetVmpGroupRequest" type="GetVmpGroupRequestType"/>
+  <xs:element name="GetVmpGroupResponse" type="GetVmpGroupResponseType"/>
+  <xs:element name="GetCommentedClassificationRequest" type="GetCommentedClassificationRequestType"/>
+  <xs:element name="GetCommentedClassificationResponse" type="GetCommentedClassificationResponseType"/>
+  <xs:element name="GetCompoundingIngredientRequest" type="GetCompoundingIngredientRequestType"/>
+  <xs:element name="GetCompoundingIngredientResponse" type="GetCompoundingIngredientResponseType"/>
+  <xs:element name="GetCompoundingFormulaRequest" type="GetCompoundingFormulaRequestType"/>
+  <xs:element name="GetCompoundingFormulaResponse" type="GetCompoundingFormulaResponseType"/>
+  <xs:element name="GetNonMedicinalProductRequest" type="GetNonMedicinalProductRequestType"/>
+  <xs:element name="GetNonMedicinalProductResponse" type="GetNonMedicinalProductResponseType"/>
+  <!--Web services definition - Requests-->
+  <xs:complexType name="GetAmpRequestType">
+    <xs:sequence>
+      <xs:element name="AmpKey" type="amp:AmpKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetAmpResponseType">
+    <xs:choice>
+      <xs:element name="Amp" type="export:AmpFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetVmpRequestType">
+    <xs:sequence>
+      <xs:element name="VmpKey" type="core:VmpKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetVmpResponseType">
+    <xs:choice>
+      <xs:element name="Vmp" type="export:VmpFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetCompanyRequestType">
+    <xs:sequence>
+      <xs:element name="CompanyKey" type="company:CompanyKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetCompanyResponseType">
+    <xs:choice>
+      <xs:element name="Company" type="export:CompanyFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetReimbursementRequestType">
+    <xs:sequence>
+      <xs:element name="ReimbursementContextKey" type="rmb:ReimbursementContextKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetReimbursementResponseType">
+    <xs:choice>
+      <xs:element name="ReimbursementContext" type="export:ReimbursementContextFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetReimbursementLawRequestType">
+    <xs:sequence>
+      <xs:element name="LegalReferencePath" type="core:LegalReferencePathType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetReimbursementLawResponseType">
+    <xs:choice>
+      <xs:element name="LegalBasis" type="export:LegalBasisFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetVtmRequestType">
+    <xs:sequence>
+      <xs:element name="VtmKey" type="vmp:VtmKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetVtmResponseType">
+    <xs:choice>
+      <xs:element name="Vtm" type="export:VtmFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetVmpGroupRequestType">
+    <xs:sequence>
+      <xs:element name="VmpGroupKey" type="vmp:VmpGroupKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetVmpGroupResponseType">
+    <xs:choice>
+      <xs:element name="VmpGroup" type="export:VmpGroupFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetCommentedClassificationRequestType">
+    <xs:sequence>
+      <xs:element name="CommentedClassificationKey" type="vmp:CommentedClassificationKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetCommentedClassificationResponseType">
+    <xs:choice>
+      <xs:element name="CommentedClassification" type="export:CommentedClassificationFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetCompoundingIngredientRequestType">
+    <xs:sequence>
+      <xs:element name="CompoundingIngredientKey" type="compounding:CompoundingIngredientKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetCompoundingIngredientResponseType">
+    <xs:choice>
+      <xs:element name="CompoundingIngredient" type="export:CompoundingIngredientFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetCompoundingFormulaRequestType">
+    <xs:sequence>
+      <xs:element name="CompoundingFormulaKey" type="compounding:CompoundingFormulaKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetCompoundingFormulaResponseType">
+    <xs:choice>
+      <xs:element name="CompoundingFormula" type="export:CompoundingFormulaFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GetNonMedicinalProductRequestType">
+    <xs:sequence>
+      <xs:element name="NonMedicinalProductKey" type="nonmedicinal:NonMedicinalProductKeyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="GetNonMedicinalProductResponseType">
+    <xs:choice>
+      <xs:element name="NonMedicinalProduct" type="export:NonMedicinalProductFullDataType"/>
+      <xs:element name="Anomaly" type="core:AnomalyType" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+</xs:schema>
