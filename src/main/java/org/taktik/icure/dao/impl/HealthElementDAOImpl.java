@@ -19,6 +19,7 @@
 package org.taktik.icure.dao.impl;
 
 import org.ektorp.ComplexKey;
+import org.ektorp.ViewQuery;
 import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,37 +42,47 @@ import java.util.stream.Collectors;
 @Repository("healthElementDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) emit( doc.patientId, doc._id )}")
 class HealthElementDAOImpl extends GenericIcureDAOImpl<HealthElement> implements HealthElementDAO {
-    @Autowired
-    public HealthElementDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
-        super(HealthElement.class, couchdb, idGenerator);
-        initStandardDesignDocument();
-    }
+	@Autowired
+	public HealthElementDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
+		super(HealthElement.class, couchdb, idGenerator);
+		initStandardDesignDocument();
+	}
 
-    @Override
-    public List<HealthElement> findByPatient(String patientId) {
-        return queryView("all", patientId);
-    }
+	@Override
+	public List<HealthElement> findByPatient(String patientId) {
+		return queryView("all", patientId);
+	}
 
-    @Override
-    @View(name = "by_patient_and_codes", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
-            "  for (var i=0;i<doc.codes.length;i++) {\n" +
-            "  emit( [doc.patientId, doc.codes[i].type+':'+doc.codes[i].code], doc._id );\n" +
-            "  }}}")
-    public List<HealthElement> findByPatientAndCodes(String patientId, Set<Code> codes) {
-        ComplexKey[] keys = codes.stream().map(c -> ComplexKey.of(patientId, c.toString())).collect(Collectors.toList()).toArray(new ComplexKey[codes.size()]);
-        return queryView("by_patient_and_codes", keys);
-    }
+	@Override
+	@View(name = "by_patient_and_codes", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
+			"  for (var i=0;i<doc.codes.length;i++) {\n" +
+			"  emit( [doc.patientId, doc.codes[i].type+':'+doc.codes[i].code], doc._id );\n" +
+			"  }}}")
+	public List<HealthElement> findByPatientAndCodes(String patientId, Set<Code> codes) {
+		ComplexKey[] keys = codes.stream().map(c -> ComplexKey.of(patientId, c.toString())).collect(Collectors.toList()).toArray(new ComplexKey[codes.size()]);
+		return queryView("by_patient_and_codes", keys);
+	}
 
-    @Override
-    @View(name = "by_planOfActionId", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
-            "            for(var i= 0;i<doc.plansOfAction.length;i++) {\n" +
-            "        emit([doc.plansOfAction[i].id], doc._id);\n" +
-            "    }\n" +
-            "}}")
-    public HealthElement findHealthElementByPlanOfActionId(String planOfActionId) {
-        List<HealthElement> result = queryView("by_planOfActionId", planOfActionId);
-        return result.size()>0?result.get(0):null;
-    }
+	@Override
+	@View(name = "by_hcparty_and_codes", map = "classpath:js/healthelement/By_hcparty_patient_map.js")
+	public List<String> findByHCPartyAndCodes(String healthCarePartyId, String codeType, String codeNumber) {
+		ViewQuery viewQuery = createQuery("by_hcparty_and_codes")
+				.key(ComplexKey.of(healthCarePartyId, codeType + ':' + codeNumber))
+				.includeDocs(false);
+
+		return db.queryView(viewQuery, String.class);
+	}
+
+	@Override
+	@View(name = "by_planOfActionId", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
+			"            for(var i= 0;i<doc.plansOfAction.length;i++) {\n" +
+			"        emit([doc.plansOfAction[i].id], doc._id);\n" +
+			"    }\n" +
+			"}}")
+	public HealthElement findHealthElementByPlanOfActionId(String planOfActionId) {
+		List<HealthElement> result = queryView("by_planOfActionId", planOfActionId);
+		return result.size() > 0 ? result.get(0) : null;
+	}
 
 	@Override
 	public HealthElement getHealthElement(String healthElementId) {
@@ -83,10 +94,14 @@ class HealthElementDAOImpl extends GenericIcureDAOImpl<HealthElement> implements
 	public List<HealthElement> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
 		ComplexKey[] keys = secretPatientKeys.stream().map(fk -> ComplexKey.of(hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretPatientKeys.size()]);
 
-        List<HealthElement> result = new ArrayList<>();
-        queryView("by_hcparty_patient", keys).forEach((e)->{if (result.isEmpty() || !e.getId().equals(result.get(result.size()-1).getId())) {result.add(e); }});
+		List<HealthElement> result = new ArrayList<>();
+		queryView("by_hcparty_patient", keys).forEach((e) -> {
+			if (result.isEmpty() || !e.getId().equals(result.get(result.size() - 1).getId())) {
+				result.add(e);
+			}
+		});
 
-        return result;
+		return result;
 	}
 
 	@Override
