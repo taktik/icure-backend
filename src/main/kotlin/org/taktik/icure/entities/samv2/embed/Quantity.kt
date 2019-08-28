@@ -1,6 +1,8 @@
 package org.taktik.icure.entities.samv2.embed
 
-class Quantity(var value: Int? = null, var unit: String? = null) {
+import java.math.BigDecimal
+
+class Quantity(var value: BigDecimal? = null, var unit: String? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -14,8 +16,9 @@ class Quantity(var value: Int? = null, var unit: String? = null) {
     }
 
     override fun hashCode(): Int {
-        var result = value ?: 0
+        var result = value?.hashCode() ?: 0
         result = 31 * result + (unit?.hashCode() ?: 0)
         return result
     }
+
 }

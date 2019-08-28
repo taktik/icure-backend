@@ -40,6 +40,13 @@ import java.util.TreeMap;
 public class StoredDocument implements Versionable<String> {
 	private static final long serialVersionUID = 1L;
 
+	public StoredDocument() {
+	}
+
+	public StoredDocument(String id) {
+		this.id = id;
+	}
+
 	@JsonProperty("_attachments")
 	private Map<String, Attachment> attachments = new HashMap<>();
 

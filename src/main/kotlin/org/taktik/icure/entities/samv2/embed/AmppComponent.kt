@@ -13,10 +13,8 @@ class AmppComponent(
 )  : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is AmppComponent) return false
         if (!super.equals(other)) return false
-
-        other as AmppComponent
 
         if (contentType != other.contentType) return false
         if (contentMultiplier != other.contentMultiplier) return false
@@ -30,7 +28,7 @@ class AmppComponent(
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + (contentType?.hashCode() ?: 0)
-        result = 31 * result + (contentMultiplier?.hashCode() ?: 0)
+        result = 31 * result + (contentMultiplier ?: 0)
         result = 31 * result + (packSpecification?.hashCode() ?: 0)
         result = 31 * result + (deviceType?.hashCode() ?: 0)
         result = 31 * result + (packagingType?.hashCode() ?: 0)
