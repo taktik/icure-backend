@@ -24,25 +24,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.dao.HealthElementDAO;
 import org.taktik.icure.dao.Option;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
+import org.taktik.icure.db.PaginatedDocumentKeyIdPair;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.filter.chain.FilterChain;
+import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.HealthElement;
-import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.HealthElementLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
+import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 import org.taktik.icure.validation.aspect.Check;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 
@@ -55,7 +53,7 @@ import static java.util.stream.Collectors.groupingBy;
 @org.springframework.stereotype.Service
 public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, HealthElementDAO> implements HealthElementLogic {
 	private static final Logger log = LoggerFactory.getLogger(HealthElementLogicImpl.class);
-
+	private org.taktik.icure.logic.impl.filter.Filters filters;
 
 	private HealthElementDAO healthElementDAO;
 	private UUIDGenerator uuidGenerator;
@@ -65,17 +63,25 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	public void setHealthElementDAO(HealthElementDAO healthElementDAO) {
 		this.healthElementDAO = healthElementDAO;
 	}
+
 	@Autowired
 	public void setUuidGenerator(UUIDGenerator uuidGenerator) {
 		this.uuidGenerator = uuidGenerator;
 	}
+
 	@Autowired
 	public void setSessionLogic(ICureSessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
 	}
+
 	@Override
 	protected HealthElementDAO getGenericDAO() {
 		return healthElementDAO;
+	}
+
+	@Autowired
+	public void setFilters(Filters filters) {
+		this.filters = filters;
 	}
 
 	@Override
@@ -87,7 +93,9 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 
 			// Setting Healthcare problem attributes
 			healthElement.setId(uuidGenerator.newGUID().toString());
-			if (healthElement.getOpeningDate() == null) { healthElement.setOpeningDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)); }
+			if (healthElement.getOpeningDate() == null) {
+				healthElement.setOpeningDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS));
+			}
 			healthElement.setAuthor(healthcarePartyId);
 			healthElement.setResponsible(healthcarePartyId);
 
@@ -98,7 +106,7 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 			log.error("createHealthElement: " + e.getMessage());
 			throw new IllegalArgumentException("Invalid Healthcare problem", e);
 		}
-		return createdHealthElements.size() == 0 ? null:createdHealthElements.get(0);
+		return createdHealthElements.size() == 0 ? null : createdHealthElements.get(0);
 	}
 
 	@Override
@@ -126,6 +134,15 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 				return modified != null ? modified : 0L;
 			})).orElse(null))
 			.collect(Collectors.toList());
+				.stream().collect(groupingBy(HealthElement::getHealthElementId))
+				.values().stream()
+				.map(value -> value.stream().collect(Collectors.maxBy(Comparator.comparing(HealthElement::getModified))).get())
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<String> findByHCPartyAndCodes(String hcPartyId, String codeType, String codeNumber) {
+		return healthElementDAO.findByHCPartyAndCodes(hcPartyId, codeType, codeNumber);
 	}
 
 	@Override
@@ -143,7 +160,7 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	public HealthElement modifyHealthElement(@Check @NotNull HealthElement healthElement) {
 		try {
 			updateEntities(Collections.singleton(healthElement));
-            return getHealthElement(healthElement.getId());
+			return getHealthElement(healthElement.getId());
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid Health problem", e);
 		}
@@ -160,7 +177,7 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	@Override
 	public HealthElement addDelegations(String healthElementId, List<Delegation> delegations) {
 		HealthElement healthElement = getHealthElement(healthElementId);
-		delegations.forEach(d->healthElement.addDelegation(d.getDelegatedTo(),d));
+		delegations.forEach(d -> healthElement.addDelegation(d.getDelegatedTo(), d));
 
 		return healthElementDAO.save(healthElement);
 
@@ -169,8 +186,8 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	@Override
 	public void solveConflicts() {
 		List<HealthElement> healthElementsInConflict = healthElementDAO.listConflicts().stream().map(it -> healthElementDAO.get(it.getId(), Option.CONFLICTS)).collect(Collectors.toList());
-		healthElementsInConflict.forEach(p-> {
-			Arrays.stream(p.getConflicts()).map(c->healthElementDAO.get(p.getId(),c)).forEach(cp -> {
+		healthElementsInConflict.forEach(p -> {
+			Arrays.stream(p.getConflicts()).map(c -> healthElementDAO.get(p.getId(), c)).forEach(cp -> {
 				p.solveConflictWith(cp);
 				healthElementDAO.purge(cp);
 			});
@@ -179,5 +196,12 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 
 	}
 
+	@Override
+	public List<HealthElement> filter(FilterChain<HealthElement> filter) {
+		List<String> ids = new ArrayList<>(filters.resolve(filter.getFilter()));
+		List<HealthElement> healthElements = this.getHealthElements(ids);
 
+		Predicate predicate = filter.getPredicate();
+		return new ArrayList<>(predicate != null ? healthElements.stream().filter(predicate::apply).collect(Collectors.toList()) : healthElements);
+	}
 }
