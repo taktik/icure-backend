@@ -23,10 +23,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
 @Component
-@ConfigurationProperties("icure.mikrono")
-data class MikronoProperties(
-	var server : String? = null,
-	var superuser : String? = null,
-	var supertoken : String? = null,
-	var applicationtoken : String? = null
+@ConfigurationProperties("icure.twilio")
+class TwilioProperties(
+	var sendgridapikey : String? = null,
+	var sendgridfrom : String? = null
 )
