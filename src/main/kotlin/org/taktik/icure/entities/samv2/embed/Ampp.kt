@@ -5,6 +5,7 @@ import java.io.Serializable
 class Ampp(
         from: Long? = null,
         to: Long? = null,
+        var ctiExtended: String? = null,
         var isOrphan: Boolean = false,
         var leafletLink: SamText? = null,
         var spcLink: SamText? = null,
@@ -16,7 +17,9 @@ class Ampp(
         var packAmount: Quantity? = null,
         var packDisplayValue: String? = null,
         var status: AmpStatus? = null,
-        var atcs: List<String> = listOf(),
+        var atcs: List<Atc> = listOf(),
+        var crmLink: SamText? = null,
+        var deliveryModusCode: String? = null,
         var deliveryModus: SamText? = null,
         var deliveryModusSpecification: SamText? = null,
         var distributorCompany: Company? = null,
@@ -39,11 +42,10 @@ class Ampp(
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is Ampp) return false
         if (!super.equals(other)) return false
 
-        other as Ampp
-
+        if (ctiExtended != other.ctiExtended) return false
         if (isOrphan != other.isOrphan) return false
         if (leafletLink != other.leafletLink) return false
         if (spcLink != other.spcLink) return false
@@ -56,6 +58,8 @@ class Ampp(
         if (packDisplayValue != other.packDisplayValue) return false
         if (status != other.status) return false
         if (atcs != other.atcs) return false
+        if (crmLink != other.crmLink) return false
+        if (deliveryModusCode != other.deliveryModusCode) return false
         if (deliveryModus != other.deliveryModus) return false
         if (deliveryModusSpecification != other.deliveryModusSpecification) return false
         if (distributorCompany != other.distributorCompany) return false
@@ -81,6 +85,7 @@ class Ampp(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + (ctiExtended?.hashCode() ?: 0)
         result = 31 * result + isOrphan.hashCode()
         result = 31 * result + (leafletLink?.hashCode() ?: 0)
         result = 31 * result + (spcLink?.hashCode() ?: 0)
@@ -93,6 +98,8 @@ class Ampp(
         result = 31 * result + (packDisplayValue?.hashCode() ?: 0)
         result = 31 * result + (status?.hashCode() ?: 0)
         result = 31 * result + atcs.hashCode()
+        result = 31 * result + (crmLink?.hashCode() ?: 0)
+        result = 31 * result + (deliveryModusCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModus?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusSpecification?.hashCode() ?: 0)
         result = 31 * result + (distributorCompany?.hashCode() ?: 0)
@@ -114,4 +121,5 @@ class Ampp(
         result = 31 * result + (dmpps?.hashCode() ?: 0)
         return result
     }
+
 }

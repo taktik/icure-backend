@@ -67,7 +67,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	private static final PropertyUtilsBean pub = new PropertyUtilsBean();
 
-
 	private static final Duration CHECK_USERS_EXPIRATION_TIME_RANGE = Duration.ofDays(1);
 
 	private UserDAO userDAO;

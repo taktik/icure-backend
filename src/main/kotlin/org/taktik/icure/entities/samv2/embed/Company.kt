@@ -22,9 +22,8 @@ class Company(
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Company
+        if (other !is Company) return false
+        if (!super.equals(other)) return false
 
         if (authorisationNr != other.authorisationNr) return false
         if (vatNr != other.vatNr) return false
@@ -46,7 +45,8 @@ class Company(
     }
 
     override fun hashCode(): Int {
-        var result = authorisationNr?.hashCode() ?: 0
+        var result = super.hashCode()
+        result = 31 * result + (authorisationNr?.hashCode() ?: 0)
         result = 31 * result + (vatNr?.hashCode() ?: 0)
         result = 31 * result + (europeanNr?.hashCode() ?: 0)
         result = 31 * result + (denomination?.hashCode() ?: 0)
@@ -63,4 +63,5 @@ class Company(
         result = 31 * result + (website?.hashCode() ?: 0)
         return result
     }
+
 }

@@ -2,7 +2,8 @@ package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
 
-class AmpComponent(from: Long? = null,
+class AmpComponent(
+        from: Long? = null,
                    to: Long? = null,
                    var ingredients: List<Ingredient>? = null,
                    var pharmaceuticalForms: List<PharmaceuticalForm>? = null,
@@ -19,10 +20,8 @@ class AmpComponent(from: Long? = null,
                    var note: SamText? = null) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is AmpComponent) return false
         if (!super.equals(other)) return false
-
-        other as AmpComponent
 
         if (ingredients != other.ingredients) return false
         if (pharmaceuticalForms != other.pharmaceuticalForms) return false
@@ -58,4 +57,5 @@ class AmpComponent(from: Long? = null,
         result = 31 * result + (note?.hashCode() ?: 0)
         return result
     }
+
 }

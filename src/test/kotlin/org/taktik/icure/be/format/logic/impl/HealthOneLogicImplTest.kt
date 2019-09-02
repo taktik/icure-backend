@@ -815,7 +815,7 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res16[0].services.size, 2)
         /// File contains a Microbiogramme
         Assert.assertEquals(res17.size, 1)
-        Assert.assertEquals(res17[0].services.size, 43)
+        Assert.assertEquals(res17[0].services.size, 29)
     }
 
 
