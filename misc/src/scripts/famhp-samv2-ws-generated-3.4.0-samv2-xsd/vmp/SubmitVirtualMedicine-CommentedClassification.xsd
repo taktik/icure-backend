@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:virtual:commentedclassification"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           xmlns:virtual="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:virtual:commentedclassification" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common" schemaLocation="SubmitVirtualMedicine-Common.xsd"/>
+  <xs:element name="AddCommentedClassificationRequest" type="AddCommentedClassificationRequestType"/>
+  <xs:element name="AddCommentedClassificationResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeCommentedClassificationRequest" type="ChangeCommentedClassificationRequestType"/>
+  <xs:element name="ChangeCommentedClassificationResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveCommentedClassificationRequest" type="RemoveCommentedClassificationRequestType"/>
+  <xs:element name="RemoveCommentedClassificationResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddCommentedClassificationRequestType">
+    <xs:sequence>
+      <xs:element name="CommentedClassification" type="virtual:AddCommentedClassificationType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeCommentedClassificationRequestType">
+    <xs:sequence>
+      <xs:element name="CommentedClassification" type="virtual:ChangeCommentedClassificationType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveCommentedClassificationRequestType">
+    <xs:sequence>
+      <xs:element name="CommentedClassification" type="virtual:RemoveCommentedClassificationType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
