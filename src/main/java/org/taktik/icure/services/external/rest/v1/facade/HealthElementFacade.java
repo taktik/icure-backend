@@ -18,14 +18,20 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.metadata.TypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.HealthElementLogic;
@@ -33,6 +39,7 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
+import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
@@ -55,10 +62,10 @@ import java.util.stream.Collectors;
 
 @Component
 @Path("/helement")
-@Api(tags = { "helement" })
-@Consumes({ "application/json" })
-@Produces({ "application/json" })
-public class HealthElementFacade implements OpenApiFacade{
+@Api(tags = {"helement"})
+@Consumes({"application/json"})
+@Produces({"application/json"})
+public class HealthElementFacade implements OpenApiFacade {
 
 	private static final Logger logger = LoggerFactory.getLogger(HealthElementFacade.class);
 
@@ -147,7 +154,7 @@ public class HealthElementFacade implements OpenApiFacade{
 	@GET
 	@Path("/byHcPartySecretForeignKeys/delegations")
 	public Response findDelegationsStubsByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId,
-	                                                                @QueryParam("secretFKeys") String secretFKeys) {
+																	@QueryParam("secretFKeys") String secretFKeys) {
 		if (hcPartyId == null || secretFKeys == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
@@ -179,18 +186,18 @@ public class HealthElementFacade implements OpenApiFacade{
 	@ApiOperation(
 			value = "Delete health elements.",
 			response = String.class,
-            responseContainer = "Array",
-            httpMethod = "DELETE",
+			responseContainer = "Array",
+			httpMethod = "DELETE",
 			notes = "Response is a set containing the ID's of deleted health elements."
 	)
 	@DELETE
 	@Path("/{healthElementIds}")
 	public Response deleteHealthElements(@PathParam("healthElementIds") String healthElementIds) {
-        if (healthElementIds==null) {
-            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
-        }
-        List<String> ids = Arrays.asList(healthElementIds.split(","));
-        if (ids.size() == 0) {
+		if (healthElementIds == null) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+		List<String> ids = Arrays.asList(healthElementIds.split(","));
+		if (ids.size() == 0) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 
@@ -218,14 +225,14 @@ public class HealthElementFacade implements OpenApiFacade{
 
 
 		healthElementLogic.modifyHealthElement(mapper.map(healthElementDto, HealthElement.class));
-        HealthElement modifiedHealthElement = healthElementLogic.getHealthElement(healthElementDto.getId());
+		HealthElement modifiedHealthElement = healthElementLogic.getHealthElement(healthElementDto.getId());
 
-        boolean succeed = (modifiedHealthElement != null);
-        if (succeed) {
-            return Response.ok().entity(mapper.map(modifiedHealthElement, HealthElementDto.class)).build();
-        } else {
-            return Response.status(500).type("text/plain").entity("Health element modification failed.").build();
-        }
+		boolean succeed = (modifiedHealthElement != null);
+		if (succeed) {
+			return Response.ok().entity(mapper.map(modifiedHealthElement, HealthElementDto.class)).build();
+		} else {
+			return Response.status(500).type("text/plain").entity("Health element modification failed.").build();
+		}
 	}
 
 	@ApiOperation(
@@ -264,7 +271,7 @@ public class HealthElementFacade implements OpenApiFacade{
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 
-		healthElementLogic.addDelegations(healthElementId, ds.stream().map(d->mapper.map(d, Delegation.class)).collect(Collectors.toList()));
+		healthElementLogic.addDelegations(healthElementId, ds.stream().map(d -> mapper.map(d, Delegation.class)).collect(Collectors.toList()));
 		HealthElement healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId);
 
 		boolean succeed = (healthElementWithDelegation != null && healthElementWithDelegation.getDelegations() != null && healthElementWithDelegation.getDelegations().size() > 0);
@@ -275,11 +282,38 @@ public class HealthElementFacade implements OpenApiFacade{
 		}
 	}
 
+	@ApiOperation(
+			value = "Filter health elements for the current user (HcParty)",
+			response = ArrayList.class,
+			httpMethod = "POST",
+			notes = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page."
+	)
+	@POST
+	@Path("/filter")
+	public Response filterBy(FilterChain filterChain) {
+		Response response;
 
-    @Context
-    public void setMapper(MapperFacade mapper) {
-        this.mapper = mapper;
-    }
+		List<HealthElement> healthElements;
+		if (filterChain != null) {
+			healthElements = healthElementLogic.filter(new org.taktik.icure.dto.filter.chain.FilterChain(filterChain.getFilter(), mapper.map(filterChain.getPredicate(), Predicate.class)));
+		} else {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		if (healthElements != null) {
+			List<HealthElementDto> elementDtoList = healthElements.stream().map(element -> mapper.map(element, HealthElementDto.class)).collect(Collectors.toList());
+			response = ResponseUtils.ok(elementDtoList);
+		} else {
+			response = ResponseUtils.internalServerError("Listing and filtering of healthElements failed.");
+		}
+
+		return response;
+	}
+
+	@Context
+	public void setMapper(MapperFacade mapper) {
+		this.mapper = mapper;
+	}
 
 	@Context
 	public void setHealthElementLogic(HealthElementLogic healthElementLogic) {
