@@ -370,7 +370,7 @@ class Samv2Import : CliktCommand() {
                             ampc?.datas?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { comp ->
                                 AmpComponent(
                                         pharmaceuticalForms = comp.pharmaceuticalForms?.map { pharmForm ->
-                                            PharmaceuticalForm( pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            PharmaceuticalForm( pharmForm.code, pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         routeOfAdministrations = comp.routeOfAdministrations?.map { roa ->
                                             RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
