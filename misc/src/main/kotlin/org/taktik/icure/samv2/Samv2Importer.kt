@@ -28,6 +28,7 @@ import com.sun.xml.internal.ws.util.NoCloseInputStream
 import org.taktik.icure.entities.samv2.embed.AmppComponent
 import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2.entities.ExportReimbursements
+import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import java.util.*
 import kotlin.collections.HashMap
@@ -247,7 +248,7 @@ class Samv2Import : CliktCommand() {
                             }
                         } ?: listOf()
                 ).let { vmp ->
-                    vmp.code?.let { vmps[it] = VmpStub(code= vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup) }
+                    vmp.code?.let { vmps[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                     if (!currentVmps.contains(id)) {
                         vmpDAO.create(vmp)
                     } else if (force) {
@@ -370,7 +371,7 @@ class Samv2Import : CliktCommand() {
                             ampc?.datas?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { comp ->
                                 AmpComponent(
                                         pharmaceuticalForms = comp.pharmaceuticalForms?.map { pharmForm ->
-                                            PharmaceuticalForm( pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            PharmaceuticalForm( pharmForm.code, pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         routeOfAdministrations = comp.routeOfAdministrations?.map { roa ->
                                             RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())

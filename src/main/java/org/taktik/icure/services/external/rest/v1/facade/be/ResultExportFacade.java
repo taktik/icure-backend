@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.be.format.logic.HealthOneLogic;
+import org.taktik.icure.be.format.logic.KmehrReportLogic;
 import org.taktik.icure.be.format.logic.MedidocLogic;
 import org.taktik.icure.logic.HealthcarePartyLogic;
 import org.taktik.icure.logic.PatientLogic;
@@ -53,6 +54,7 @@ public class ResultExportFacade implements OpenApiFacade {
 
     private HealthOneLogic  healthOneLogic;
     private MedidocLogic    medidocLogic;
+    private KmehrReportLogic kmehrReportLogic;
     private PatientLogic    patientLogic;
     private HealthcarePartyLogic healthcarePartyLogic;
 
@@ -76,12 +78,17 @@ public class ResultExportFacade implements OpenApiFacade {
         this.healthcarePartyLogic = healthcarePartyLogic;
     }
 
+    @Context
+    public void setKmehrReportLogic(KmehrReportLogic kmehrReportLogic) {
+        this.kmehrReportLogic = kmehrReportLogic;
+    }
+
     @ApiOperation(value = "Export data", httpMethod = "POST")
     @POST
     @Path("/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response exportMedidoc(@PathParam("fromHcpId") String fromHcpId, @PathParam("toHcpId") String toHcpId, @PathParam("patId") String patId, @PathParam("date") Long date, @PathParam("ref") String ref, @QueryParam("mustCrypt") Boolean mustCrypt, byte[] bodyText) {
+    public Response exportMedidoc(@PathParam("fromHcpId") String fromHcpId, @PathParam("toHcpId") String toHcpId, @PathParam("patId") String patId, @PathParam("date") Long date, @PathParam("ref") String ref, byte[] bodyText) {
         return ResponseUtils.ok((StreamingOutput) output -> medidocLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, new String(bodyText,"UTF8"), output));
     }
 
@@ -90,8 +97,17 @@ public class ResultExportFacade implements OpenApiFacade {
     @Path("/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response exportHealthOne(@PathParam("fromHcpId") String fromHcpId, @PathParam("toHcpId") String toHcpId, @PathParam("patId") String patId, @PathParam("date") Long date, @PathParam("ref") String ref, @QueryParam("mustCrypt") Boolean mustCrypt, byte[] bodyText) {
+    public Response exportHealthOne(@PathParam("fromHcpId") String fromHcpId, @PathParam("toHcpId") String toHcpId, @PathParam("patId") String patId, @PathParam("date") Long date, @PathParam("ref") String ref, byte[] bodyText) {
         return ResponseUtils.ok((StreamingOutput) output -> healthOneLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, new String(bodyText,"UTF8"), output));
+    }
+
+    @ApiOperation(value = "Export data", httpMethod = "POST")
+    @POST
+    @Path("/kmehrreport/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportKmehrReport(@PathParam("fromHcpId") String fromHcpId, @PathParam("toHcpId") String toHcpId, @PathParam("patId") String patId, @PathParam("date") Long date, @PathParam("ref") String ref, @QueryParam("mimeType") Boolean mimeType, byte[] bodyText) {
+        return ResponseUtils.ok((StreamingOutput) output -> kmehrReportLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, new String(bodyText,"UTF8"), output));
     }
 
     @ExceptionHandler(Exception.class)

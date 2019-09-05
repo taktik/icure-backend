@@ -4,8 +4,9 @@
  * This file is part of iCureBackend.
  *
  * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
  *
  * iCureBackend is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,8 +17,14 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package org.taktik.icure.properties
 
-package org.taktik.icure.be.format.logic;
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.stereotype.Component
 
-public interface KmehrReportImportLogic extends ResultFormatLogic {
-}
+@Component
+@ConfigurationProperties("icure.twilio")
+class TwilioProperties(
+	var sendgridapikey : String? = null,
+	var sendgridfrom : String? = null
+)
