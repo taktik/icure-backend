@@ -815,7 +815,7 @@ class HealthOneLogicImplTest {
         Assert.assertEquals(res16[0].services.size, 2)
         /// File contains a Microbiogramme
         Assert.assertEquals(res17.size, 1)
-        Assert.assertEquals(res17[0].services.size, 43)
+        Assert.assertEquals(res17[0].services.size, 29)
     }
 
 
@@ -1314,6 +1314,7 @@ class HealthOneLogicImplTest {
         val path = "src/test/resources/org/taktik/icure/be/format/logic/impl/outDoExport.lab"
         val file = File(path)
         val out = file.outputStream();
+
 
         // Execution
         /// File 1

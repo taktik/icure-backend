@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:company:submit" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" targetNamespace="urn:be:fgov:ehealth:samws:v2:company:submit"
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddCompanyRequest" type="AddCompanyRequestType"/>
+  <xs:element name="AddCompanyResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeCompanyRequest" type="ChangeCompanyRequestType"/>
+  <xs:element name="ChangeCompanyResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveCompanyRequest" type="RemoveCompanyRequestType"/>
+  <xs:element name="RemoveCompanyResponse" type="core:StandardResponseType"/>
+  <!--Business Object Types-->
+  <xs:complexType name="CompanyType">
+    <xs:complexContent>
+      <xs:extension base="CompanyKeyType">
+        <xs:sequence>
+          <xs:group ref="CompanyFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CompanyKeyType">
+    <xs:attribute name="actorNr" type="core:CompanyActorNrType" use="required"/>
+  </xs:complexType>
+  <xs:group name="CompanyFields">
+    <xs:sequence>
+      <xs:element name="AuthorisationNr" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Authorisation number delivered by the FAMHP to a Belgian company when it is officially
+            allowed to manufacture, pack, distribute, import or export medicinal products on (or from) the Belgian
+            Market.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VatNr" type="VatNrPerCountryType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Value-Added Tax number of a pharmaceutical company.
+            Initially, this field contains both VAT country code and VAT number. In the future, the country code will be
+            isolated in the field VAT Country Code.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EuropeanNr" type="EuropeanNrType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Data Universal Numbering System Number (D-U-N-S). This is a 9 digit identification number
+            identifying company entities and delivered by Dun &amp; Bradstreet (D&amp;B).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Denomination" type="core:String255Type">
+        <xs:annotation>
+          <xs:documentation>Official name of the company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LegalForm" type="core:String30Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Legal form of the company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Building" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name used as additional information to the address of the company to identify its location.
+            Example: ‘Granta Park’, ‘Business Park South’.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StreetName" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Street name of the address of the company.
+            Currently, this contains the name, the number and the postbox of the address. In the future, these three
+            data will be split so that only the name remains in this field, the number in the field Street Num and the
+            postbox in the field Postbox.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StreetNum" type="core:String10Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Street number of the address of the company.
+            Currently contained in Street Name. This one will be filled in later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Postbox" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Postbox of the address of the company.
+            Currently contained in Street Name. This one will be filled in later.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Postcode" type="core:String10Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>ZIP code of the city of the address of the company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="City" type="core:String50Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name of the city of the address of the company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CountryCode" type="CountryCodeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>ISO 3166-1 alpha 2 country code of the address of the company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Phone" type="core:String30Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Phone number of the company’s responsible to contact when a communication is required.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Language" type="CompanyLanguageType">
+        <xs:annotation>
+          <xs:documentation>Official language of the company.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Website" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>URL address of the Company’s official website.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <!--Message Types-->
+  <xs:complexType name="AddCompanyType">
+    <xs:complexContent>
+      <xs:extension base="CompanyType">
+        <xs:attribute name="action" type="core:addActionType" use="required"/>
+        <xs:attribute name="from" type="core:validityDateType" default="1960-01-01"/>
+        <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeCompanyType">
+    <xs:complexContent>
+      <xs:extension base="CompanyType">
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveCompanyType">
+    <xs:complexContent>
+      <xs:extension base="CompanyKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AddCompanyRequestType">
+    <xs:sequence>
+      <xs:element name="Company" type="AddCompanyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeCompanyRequestType">
+    <xs:sequence>
+      <xs:element name="Company" type="ChangeCompanyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveCompanyRequestType">
+    <xs:sequence>
+      <xs:element name="Company" type="RemoveCompanyType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--Simple types limited to Company-->
+  <xs:simpleType name="CompanyLanguageType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FR"/>
+      <xs:enumeration value="NL"/>
+      <xs:enumeration value="FR/NL"/>
+      <xs:enumeration value="DE"/>
+      <xs:enumeration value="EN"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CountryCodeType">
+    <xs:restriction base="xs:string">
+      <xs:length value="2"/>
+      <xs:pattern value="[A-Z][A-Z]"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="EuropeanNrType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="40"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="VatNrPerCountryType">
+    <xs:simpleContent>
+      <xs:extension base="VatNrType">
+        <xs:attribute name="countryCode" type="CountryCodeType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:simpleType name="VatNrType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="7"/>
+      <xs:maxLength value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

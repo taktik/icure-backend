@@ -24,7 +24,10 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration
 import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
@@ -51,7 +54,33 @@ import org.taktik.icure.logic.PropertyLogic
 import org.taktik.icure.logic.ReplicationLogic
 import org.taktik.icure.services.external.http.WebSocketServlet
 
-@SpringBootApplication(exclude = [FreeMarkerAutoConfiguration::class])
+@SpringBootApplication(scanBasePackages = [
+    "org.springframework.boot.autoconfigure.aop",
+    "org.springframework.boot.autoconfigure.cache",
+    "org.springframework.boot.autoconfigure.context",
+    "org.springframework.boot.autoconfigure.dao",
+    "org.springframework.boot.autoconfigure.jackson",
+    "org.springframework.boot.autoconfigure.jdbc",
+    "org.springframework.boot.autoconfigure.jersey",
+    "org.springframework.boot.autoconfigure.transaction",
+    "org.springframework.boot.autoconfigure.validation",
+    "org.springframework.boot.autoconfigure.websocket",
+    "org.taktik.icure.config",
+    "org.taktik.icure.dao",
+    "org.taktik.icure.logic",
+    "org.taktik.icure.be.ehealth.logic",
+    "org.taktik.icure.be.drugs.dao",
+    "org.taktik.icure.be.drugs.logic",
+    "org.taktik.icure.be.format.logic",
+    "org.taktik.icure.be.samv2.logic",
+    "org.taktik.icure.properties",
+    "org.taktik.icure.services"
+], exclude = [
+    FreeMarkerAutoConfiguration::class,
+    CacheAutoConfiguration::class,
+    DataSourceAutoConfiguration::class,
+    JndiDataSourceAutoConfiguration::class
+])
 @EnableWebSecurity
 @PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
@@ -88,7 +117,6 @@ class ICureBackendApplication {
                 }
             }
         }
-
 
         //Schedule background tasks (plugins) + replication + index refresh
         taskScheduler.scheduleAtFixedRate({ replicationLogic.startReplications() }, 60_000L)

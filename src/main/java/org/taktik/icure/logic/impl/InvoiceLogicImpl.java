@@ -39,6 +39,7 @@ import org.taktik.icure.dao.Option;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.dto.data.LabelledOccurence;
+import org.taktik.icure.entities.EntityReference;
 import org.taktik.icure.entities.Form;
 import org.taktik.icure.entities.Insurance;
 import org.taktik.icure.entities.Invoice;
@@ -49,6 +50,7 @@ import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
 import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
+import org.taktik.icure.logic.EntityReferenceLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.utils.FuzzyValues;
@@ -58,6 +60,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	private static final Logger log = LoggerFactory.getLogger(InvoiceLogicImpl.class);
 
 	private UserLogic userLogic;
+	private EntityReferenceLogic entityReferenceLogic;
 	private InvoiceDAO invoiceDAO;
 
 	@Override
@@ -179,8 +182,17 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 			String startScheme = refScheme.replaceAll("yyyy", "" + ldt.getYear()).replaceAll("MM", f.format(ldt.getMonthValue())).replaceAll("dd", "" + f.format(ldt.getDayOfMonth()));
 			String endScheme = refScheme.replaceAll("0", "9").replaceAll("yyyy", "" + ldt.getYear()).replaceAll("MM", "" + f.format(ldt.getMonthValue())).replaceAll("dd", "" + f.format(ldt.getDayOfMonth()));
 
-			List<Invoice> prevInvoices = invoiceDAO.listByHcPartyReferences(hcParty, endScheme, null, true, 1);
-			invoice.setInvoiceReference("" + (prevInvoices.size() > 0 && prevInvoices.get(0).getInvoiceReference() != null ? Math.max(Long.valueOf(prevInvoices.get(0).getInvoiceReference()) + 1L,Long.valueOf(startScheme) + 1L) : Long.valueOf(startScheme) + 1L));
+			String prefix = "invoice:" + invoice.getAuthor() + ":xxx:";
+			String fix = startScheme.replaceAll("0+$", "");
+
+			EntityReference reference = entityReferenceLogic.getLatest(prefix + fix);
+
+			if (reference == null || !reference.getId().startsWith(prefix)) {
+				List<Invoice> prevInvoices = invoiceDAO.listByHcPartyReferences(hcParty, endScheme, null, true, 1);
+				invoice.setInvoiceReference("" + (prevInvoices.size() > 0 && prevInvoices.get(0).getInvoiceReference() != null ? Math.max(Long.valueOf(prevInvoices.get(0).getInvoiceReference()) + 1L, Long.valueOf(startScheme) + 1L) : Long.valueOf(startScheme) + 1L));
+			} else {
+				invoice.setInvoiceReference(fix + (Integer.parseInt(reference.getId().substring(prefix.length() + fix.length())) + 1));
+			}
 		}
 		invoice.setSentDate(System.currentTimeMillis());
 		return modifyInvoice(invoice);
@@ -322,6 +334,11 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	@Autowired
 	public void setUserLogic(UserLogic userLogic) {
 		this.userLogic = userLogic;
+	}
+
+	@Autowired
+	public void setEntityReferenceLogic(EntityReferenceLogic entityReferenceLogic) {
+		this.entityReferenceLogic = entityReferenceLogic;
 	}
 
 	@Override

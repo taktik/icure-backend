@@ -56,10 +56,12 @@ public class HealthElement extends StoredICureDocument {
 
 	private String idService; //When a service is used to create the healthElement
 
-	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
+	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
 	@Valid
 	private List<PlanOfAction> plansOfAction = new java.util.ArrayList<>();
+
+    private String encryptedSelf;
 
 	public HealthElement solveConflictWith(HealthElement other) {
 		super.solveConflictsWith(other);
@@ -177,7 +179,6 @@ public class HealthElement extends StoredICureDocument {
 		this.idService = idService;
 	}
 
-	private String encryptedSelf;
 	@Override
 	public String getEncryptedSelf() {
 		return encryptedSelf;
