@@ -1,14 +1,14 @@
 package org.taktik.icure.entities.samv2.stub
 
 import org.taktik.icure.entities.samv2.embed.StoredDocumentWithPeriod
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpGroupDto
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed.SamTextDto
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.stub.VmpGroupStubDto
 import java.io.Serializable
 
 class VmpStubDto(
         id: String? = null,
         var code: String? = null,
-        var vmpGroup: VmpGroupDto? = null,
+        var vmpGroup: VmpGroupStubDto? = null,
         var name: SamTextDto? = null
 ) : StoredDocumentWithPeriod(id), Serializable {
     override fun equals(other: Any?): Boolean {
