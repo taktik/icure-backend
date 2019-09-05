@@ -28,6 +28,7 @@ import com.sun.xml.internal.ws.util.NoCloseInputStream
 import org.taktik.icure.entities.samv2.embed.AmppComponent
 import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2.entities.ExportReimbursements
+import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import java.util.*
 import kotlin.collections.HashMap
@@ -247,7 +248,7 @@ class Samv2Import : CliktCommand() {
                             }
                         } ?: listOf()
                 ).let { vmp ->
-                    vmp.code?.let { vmps[it] = VmpStub(code= vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup) }
+                    vmp.code?.let { vmps[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                     if (!currentVmps.contains(id)) {
                         vmpDAO.create(vmp)
                     } else if (force) {

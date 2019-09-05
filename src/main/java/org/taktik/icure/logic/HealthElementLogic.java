@@ -18,7 +18,11 @@
 
 package org.taktik.icure.logic;
 
+import org.taktik.icure.db.PaginatedList;
+import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.filter.chain.FilterChain;
 import org.taktik.icure.entities.HealthElement;
+import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.embed.Delegation;
 
 import java.util.List;
@@ -39,6 +43,8 @@ public interface HealthElementLogic extends EntityPersister<HealthElement, Strin
 
 	List<HealthElement> findLatestByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
 
+	List<String> findByHCPartyAndCodes(String hcPartyId, String codeType, String codeNumber);
+
 	Set<String> deleteHealthElements(Set<String> ids);
 
 	HealthElement modifyHealthElement(HealthElement healthElement);
@@ -48,4 +54,6 @@ public interface HealthElementLogic extends EntityPersister<HealthElement, Strin
 	HealthElement addDelegations(String healthElementId, List<Delegation> delegations);
 
 	void solveConflicts();
+
+	List<HealthElement> filter(FilterChain<HealthElement> filterChain);
 }

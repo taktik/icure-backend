@@ -21,6 +21,7 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.CareMember;
 import org.taktik.icure.entities.embed.PlanOfAction;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
@@ -61,6 +62,8 @@ public class HealthElement extends StoredICureDocument {
 	@Valid
 	private List<PlanOfAction> plansOfAction = new java.util.ArrayList<>();
 
+    private List<CareMember> careTeam = new java.util.ArrayList<>();
+
     private String encryptedSelf;
 
 	public HealthElement solveConflictWith(HealthElement other) {
@@ -83,7 +86,9 @@ public class HealthElement extends StoredICureDocument {
 			(a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
 			PlanOfAction::solveConflictWith);
 
-		return this;
+        this.careTeam = MergeUtil.mergeListsDistinct(this.careTeam, other.careTeam,Objects::equals,(a,b)->a);
+
+        return this;
 	}
 
 	public Long getValueDate() {

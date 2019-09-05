@@ -19,5 +19,5 @@
 
 package org.taktik.icure.be.format.logic;
 
-public interface KmehrReportImportLogic extends ResultFormatLogic {
+public interface KmehrReportLogic extends ResultFormatLogic {
 }
