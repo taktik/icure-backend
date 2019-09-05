@@ -29,7 +29,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.be.format.logic.KmehrReportImportLogic
+import org.taktik.icure.be.format.logic.KmehrReportLogic
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
@@ -52,8 +52,8 @@ import java.time.temporal.ChronoUnit
 import javax.xml.bind.JAXBContext
 
 @org.springframework.stereotype.Service
-class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportImportLogic {
-	internal var log = LogFactory.getLog(this.javaClass)
+class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
+    internal var log = LogFactory.getLog(this.javaClass)
 	var documentLogic: DocumentLogic? = null
 	var contactLogic: ContactLogic? = null
 
@@ -61,7 +61,12 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
-	@Throws(IOException::class)
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
+    @Throws(IOException::class)
 	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
