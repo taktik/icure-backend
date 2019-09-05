@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareMemberDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PlanOfActionDto;
 import org.taktik.icure.validation.NotNull;
 
@@ -50,7 +51,9 @@ public class HealthElementDto extends IcureDto {
 
 	protected List<PlanOfActionDto> plansOfAction;
 
-	public HealthElementDto() {
+    private List<CareMemberDto> careTeam = new java.util.ArrayList<>();
+
+    public HealthElementDto() {
 	}
 
 	public HealthElementDto(String healthElementId, String descr, List<PlanOfActionDto> plansOfAction, CodeDto... tags) {
@@ -74,7 +77,7 @@ public class HealthElementDto extends IcureDto {
     }
 
     public List<PlanOfActionDto> getPlansOfAction() {
-		if(plansOfAction==null ) plansOfAction= new ArrayList<PlanOfActionDto>();
+		if(plansOfAction==null ) plansOfAction= new ArrayList<>();
 		return plansOfAction;
 	}
 
@@ -82,7 +85,16 @@ public class HealthElementDto extends IcureDto {
 		this.plansOfAction = plansOfAction;
 	}
 
-	public String getDescr() {
+    public List<CareMemberDto> getCareTeam() {
+        if(careTeam==null ) careTeam= new ArrayList<>();
+        return careTeam;
+    }
+
+    public void setCareTeam(List<CareMemberDto> careTeam) {
+        this.careTeam = careTeam;
+    }
+
+    public String getDescr() {
 		return descr;
 	}
 
