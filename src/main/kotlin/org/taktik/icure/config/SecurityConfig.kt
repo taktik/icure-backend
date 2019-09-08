@@ -136,6 +136,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
                 .antMatchers("/rest/*/icure/c").permitAll()
                 .antMatchers("/rest/*/icure/ok").permitAll()
                 .antMatchers("/rest/*/icure/pok").permitAll()
+                .antMatchers("/rest/*/user/forgottenPassword/*").permitAll()
+
                 .antMatchers("/rest/**").hasRole("USER")
 
                 .antMatchers("/api/login.html").permitAll()

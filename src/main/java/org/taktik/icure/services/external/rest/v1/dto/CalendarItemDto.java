@@ -12,6 +12,8 @@ public class CalendarItemDto extends IcureDto {
 
     private String calendarItemTypeId;
 
+    private String masterCalendarItemId;
+
     protected String patientId;
 
     protected Boolean important;
@@ -58,6 +60,14 @@ public class CalendarItemDto extends IcureDto {
 
     public void setCalendarItemTypeId(String calendarItemTypeId) {
         this.calendarItemTypeId = calendarItemTypeId;
+    }
+
+    public String getMasterCalendarItemId() {
+        return masterCalendarItemId;
+    }
+
+    public void setMasterCalendarItemId(String masterCalendarItemId) {
+        this.masterCalendarItemId = masterCalendarItemId;
     }
 
     public String getPatientId() {

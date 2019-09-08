@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:actual:package:nihdi" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:actual="urn:be:fgov:ehealth:samws:v2:actual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:actual:package:nihdi" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:actual:common" schemaLocation="SubmitActualMedicine-Common.xsd"/>
+  <xs:element name="AddDrugPackageNihdiRequest" type="AddDrugPackageNihdiRequestType"/>
+  <xs:element name="AddDrugPackageNihdiResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeDrugPackageNihdiRequest" type="ChangeDrugPackageNihdiRequestType"/>
+  <xs:element name="ChangeDrugPackageNihdiResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveDrugPackageNihdiRequest" type="RemoveDrugPackageNihdiRequestType"/>
+  <xs:element name="RemoveDrugPackageNihdiResponse" type="core:StandardResponseType"/>
+  <xs:element name="AddDrugPackageNihdiBisRequest" type="AddDrugPackageNihdiBisRequestType"/>
+  <xs:element name="AddDrugPackageNihdiBisResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeDrugPackageNihdiBisRequest" type="ChangeDrugPackageNihdiBisRequestType"/>
+  <xs:element name="ChangeDrugPackageNihdiBisResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveDrugPackageNihdiBisRequest" type="RemoveDrugPackageNihdiBisRequestType"/>
+  <xs:element name="RemoveDrugPackageNihdiBisResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddDrugPackageNihdiRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:AddAmppNihdiType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeDrugPackageNihdiRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:ChangeAmppNihdiType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveDrugPackageNihdiRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:RemoveAmppType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AddDrugPackageNihdiBisRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:AddAmppNihdiBisType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeDrugPackageNihdiBisRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:ChangeAmppNihdiBisType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveDrugPackageNihdiBisRequestType">
+    <xs:sequence>
+      <xs:element name="Ampp" type="actual:RemoveAmppType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

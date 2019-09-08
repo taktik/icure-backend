@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:core" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <!--[ Inter-domain and introduction/consultation Identifier Types ]-->
+  <xs:simpleType name="CompanyActorNrType">
+    <xs:annotation>
+      <xs:documentation>A Company ActorNr is a number of exactly five digits with significant leading zeroes
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d\d\d\d\d"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="AmpCodeType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="SAM\d{6}\-\d{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CtiExtendedType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{6}\-\d{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DmppCodeType">
+    <xs:annotation>
+      <xs:documentation>Code number used to uniquely identify a package or a group of packages being delivered in a
+        given environment and reimbursed according to the same rules.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{7}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DeliveryEnvironmentType">
+    <xs:annotation>
+      <xs:documentation>Type of environment in which a medicinal product is delivered.
+        Possible values :
+        - ‘P’ for Public,
+        - ‘A’ for Ambulatory,
+        - ‘H’ for Hospital,
+        - ‘R’ For Residential care
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="P"/>
+      <xs:enumeration value="A"/>
+      <xs:enumeration value="H"/>
+      <xs:enumeration value="R"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DmppCodeTypeType">
+    <xs:annotation>
+      <xs:documentation>Type of the mentioned code, among the following:
+        - ‘CNK’: Code National – Nationale Kode . This code is attributed by the APB (“Association Pharmaceutique
+        Belge”) to identify unequivocally one medicinal product package, or by the NIHDI for identifying tarification
+        units, which meet to the same reimbursement criteria.
+        - ‘PSEUDO’: Pseudo-code used for the flat-pricing of drugs in certain environments such as radiopharmaca in
+        hospitals.
+        - ‘PSEUDOCODE’: Code used for the flat-pricing of drugs in certain environments such as radiopharmaca in
+        hospitals.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CNK"/>
+      <xs:enumeration value="PSEUDO"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="IngredientTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ACTIVE_SUBSTANCE"/>
+      <xs:enumeration value="EXCIPIENT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LegalReferencePathType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="79"/>
+      <xs:pattern value="[A-Za-z0-9_]{1,15}(\-[A-Za-z0-9_]{1,15}){0,4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="VmpKeyType">
+    <xs:attribute name="code" type="core:PositiveIntType" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="VmpComponentKeyType">
+    <xs:attribute name="code" type="core:PositiveIntType" use="required"/>
+  </xs:complexType>
+  <!--[ Inter-domain and introduction/consultation Enums ]-->
+  <!--[ Generic Complex Types ]-->
+  <xs:complexType name="AnomalyType">
+    <xs:sequence>
+      <xs:element name="Code" type="xs:string"/>
+      <xs:element name="Description" type="xs:string"/>
+      <xs:element name="TargetObject" type="xs:string"/>
+      <xs:element name="TargetReference" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="QuantityType">
+    <xs:simpleContent>
+      <xs:extension base="core:Decimal20d4Type">
+        <xs:attribute name="unit" type="core:String20Type" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="RangeType">
+    <xs:sequence>
+      <xs:element name="Min" type="core:Decimal20d4Type"/>
+      <xs:element name="Max" type="core:Decimal20d4Type"/>
+    </xs:sequence>
+    <xs:attribute name="unit" type="core:String20Type" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="StandardResponseType">
+    <xs:sequence>
+      <xs:element name="Anomaly" type="core:AnomalyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="StrengthRangeType">
+    <xs:sequence>
+      <xs:element name="NumeratorRange" type="core:RangeType"/>
+      <xs:element name="Denominator" type="core:QuantityType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="StrengthType">
+    <xs:sequence>
+      <xs:element name="Numerator" type="core:QuantityType"/>
+      <xs:element name="Denominator" type="core:QuantityType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TextType">
+    <xs:sequence>
+      <xs:element name="Fr" type="xs:string"/>
+      <xs:element name="Nl" type="xs:string"/>
+      <xs:element name="De" type="xs:string" minOccurs="0"/>
+      <xs:element name="En" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Text255Type">
+    <xs:sequence>
+      <xs:element name="Fr" type="core:String255Type"/>
+      <xs:element name="Nl" type="core:String255Type"/>
+      <xs:element name="De" type="core:String255Type" minOccurs="0"/>
+      <xs:element name="En" type="core:String255Type" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!--[ String maxlength restrictions ]-->
+  <xs:simpleType name="PositiveShortType">
+    <xs:restriction base="xs:short">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PositiveIntType">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Decimal9d3Type">
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="3"/>
+      <xs:totalDigits value="9"/>
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="1000000"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Decimal10d4Type">
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="4"/>
+      <xs:totalDigits value="10"/>
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="1000000"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Decimal20d4Type">
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="4"/>
+      <xs:totalDigits value="20"/>
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="10000000000000000"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="NonWhiteSpaceStringType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\S.*\S|\S"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String2Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String7Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="7"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String8Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="8"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String10Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String15Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String20Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="20"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String30Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="30"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String50Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String100Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="String255Type">
+    <xs:restriction base="core:NonWhiteSpaceStringType">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="255"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="SearchStringType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="3"/>
+      <xs:maxLength value="255"/>
+      <xs:pattern value="[\S-[%_]][^%_]*[\S-[%_]]|[\S-[%_]]"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--[ Temporality ]-->
+  <xs:attributeGroup name="actionPeriod">
+    <xs:annotation>
+      <xs:documentation>A default action period has a required from date and optional to date</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="from" type="core:validityDateType" use="required"/>
+    <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="noChangeActionPeriod">
+    <xs:annotation>
+      <xs:documentation>When an actions metadata group includes the NO_CHANGE action, a from date is optional
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="from" type="core:validityDateType" use="optional"/>
+    <xs:attribute name="to" type="core:validityDateType" use="optional"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="validityDateType">
+    <xs:restriction base="xs:date">
+      <xs:minInclusive value="1830-10-04"/>
+      <xs:maxInclusive value="9999-12-31"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <!--[ Actions ]-->
+  <xs:attributeGroup name="allActionsMetadata">
+    <xs:attribute name="action" type="core:allActionsType" use="required"/>
+    <xs:attributeGroup ref="core:noChangeActionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="allActionsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ADD"/>
+      <xs:enumeration value="CHANGE"/>
+      <xs:enumeration value="REMOVE"/>
+      <xs:enumeration value="NO_CHANGE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="addChangeRemoveMetadata">
+    <xs:attribute name="action" type="core:addChangeRemoveType" use="required"/>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="addChangeRemoveType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ADD"/>
+      <xs:enumeration value="CHANGE"/>
+      <xs:enumeration value="REMOVE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="addActionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ADD"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="addMetadata">
+    <xs:attribute name="action" type="core:addActionType" use="required"/>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="addNoChangeActionsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ADD"/>
+      <xs:enumeration value="NO_CHANGE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="addNoChangeMetadata">
+    <xs:attribute name="action" type="core:addNoChangeActionsType" use="required"/>
+    <xs:attributeGroup ref="core:noChangeActionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="changeActionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CHANGE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="changeMetadata">
+    <xs:attribute name="action" type="core:changeActionType" use="required"/>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="changeNoChangeActionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CHANGE"/>
+      <xs:enumeration value="NO_CHANGE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="changeNoChangeMetadata">
+    <xs:attribute name="action" type="core:changeNoChangeActionType" use="required"/>
+    <xs:attributeGroup ref="core:noChangeActionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="removeActionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="REMOVE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="removeMetadata">
+    <xs:attribute name="action" type="core:removeActionType" use="required"/>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:attributeGroup>
+  <xs:simpleType name="removeNoChangeActionsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="REMOVE"/>
+      <xs:enumeration value="NO_CHANGE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:attributeGroup name="removeNoChangeMetadata">
+    <xs:attribute name="action" type="core:removeNoChangeActionsType" use="required"/>
+    <xs:attributeGroup ref="core:noChangeActionPeriod"/>
+  </xs:attributeGroup>
+</xs:schema>

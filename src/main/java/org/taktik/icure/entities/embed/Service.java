@@ -105,6 +105,8 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected Set<CodeStub> tags = new HashSet<>(); //stub object of the tag
 
+	private String encryptedSelf;
+
 	public Service solveConflictWith(Service other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
 		this.modified = other.modified==null?this.modified:this.modified==null?other.modified:Long.valueOf(Math.max(this.modified,other.modified));
@@ -344,7 +346,6 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.responsible = responsible;
 	}
 
-	private String encryptedSelf;
 	@Override
 	public String getEncryptedSelf() {
 		return encryptedSelf;

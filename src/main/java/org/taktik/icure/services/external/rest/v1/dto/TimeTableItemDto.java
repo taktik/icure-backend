@@ -27,6 +27,7 @@ public class TimeTableItemDto {
     private List<String> recurrenceTypes;
     private String calendarItemTypeId;
     private boolean homeVisit;
+    private boolean unavailable;
     private String placeId;
 
     public List<String> getDays() {
@@ -75,5 +76,13 @@ public class TimeTableItemDto {
 
     public void setPlaceId(String placeId) {
         this.placeId = placeId;
+    }
+
+    public boolean isUnavailable() {
+        return unavailable;
+    }
+
+    public void setUnavailable(boolean unavailable) {
+        this.unavailable = unavailable;
     }
 }

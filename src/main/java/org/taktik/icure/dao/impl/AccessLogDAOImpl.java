@@ -48,9 +48,9 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
 
 	@Override
 	@View(name = "all_by_date", map = "classpath:js/accesslog/all_by_date_map.js")
-	public PaginatedList<AccessLog> list(PaginationOffset pagination) {
-		String key = pagination.getStartKey() == null ? null : (String) pagination.getStartKey();
-		return pagedQueryView("all_by_date", key, null, pagination, false);
+	public PaginatedList<AccessLog> list(PaginationOffset pagination, boolean descending) {
+		Long key = pagination.getStartKey() == null ? null : (Long) pagination.getStartKey();
+		return pagedQueryView("all_by_date", key, null, pagination, descending);
 	}
 
     @Override
