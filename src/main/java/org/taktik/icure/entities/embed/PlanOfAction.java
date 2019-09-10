@@ -21,7 +21,6 @@ package org.taktik.icure.entities.embed;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-import org.taktik.icure.entities.base.AgreementType;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.validation.AutoFix;
@@ -63,8 +62,6 @@ public class PlanOfAction implements ICureDocument, Serializable {
     protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
     protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
     protected Long deadlineDate;// YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-
-    protected Map<AgreementType, Long> agreementDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -268,8 +265,4 @@ public class PlanOfAction implements ICureDocument, Serializable {
     public Long getDeadlineDate() { return deadlineDate; }
 
     public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
-
-    public Map<AgreementType, Long> getAgreementDate() { return agreementDate; }
-
-    public void setAgreementDate(Map<AgreementType, Long> agreementDate) { this.agreementDate = agreementDate; }
 }
