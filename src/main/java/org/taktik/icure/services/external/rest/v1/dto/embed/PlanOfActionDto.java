@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.taktik.icure.entities.base.AgreementType;
-import org.taktik.icure.entities.base.TeamType;
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 
 public class PlanOfActionDto implements Serializable {
@@ -60,7 +59,6 @@ public class PlanOfActionDto implements Serializable {
     protected String prescriberId; //healthcarePartyId
     protected Integer numberOfCares;
     protected Integer status;
-    protected Map<TeamType, Set<String>> team;
 
     public PlanOfActionDto() {
 	}
@@ -217,8 +215,4 @@ public class PlanOfActionDto implements Serializable {
     public Map<AgreementType, Long> getAgreementDate() { return agreementDate; }
 
     public void setAgreementDate(Map<AgreementType, Long> agreementDate) { this.agreementDate = agreementDate; }
-
-    public Map<TeamType, Set<String>> getTeam() { return team; }
-
-    public void setTeam(Map<TeamType, Set<String>> team) { this.team = team; }
 }
