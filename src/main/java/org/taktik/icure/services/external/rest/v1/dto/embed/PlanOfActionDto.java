@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.taktik.icure.entities.base.AgreementType;
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 
 public class PlanOfActionDto implements Serializable {
@@ -40,7 +39,6 @@ public class PlanOfActionDto implements Serializable {
     protected Long openingDate;
     protected Long closingDate;
     protected Long deadlineDate;
-    protected Map<AgreementType, Long> agreementDate;
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -211,8 +209,4 @@ public class PlanOfActionDto implements Serializable {
     public Long getDeadlineDate() { return deadlineDate; }
 
     public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
-
-    public Map<AgreementType, Long> getAgreementDate() { return agreementDate; }
-
-    public void setAgreementDate(Map<AgreementType, Long> agreementDate) { this.agreementDate = agreementDate; }
 }
