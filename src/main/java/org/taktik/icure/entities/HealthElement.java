@@ -21,7 +21,7 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.entities.embed.CareMember;
+import org.taktik.icure.entities.embed.CareTeamMember;
 import org.taktik.icure.entities.embed.PlanOfAction;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
@@ -62,7 +62,7 @@ public class HealthElement extends StoredICureDocument {
 	@Valid
 	private List<PlanOfAction> plansOfAction = new java.util.ArrayList<>();
 
-    private List<CareMember> careTeam = new java.util.ArrayList<>();
+    private List<CareTeamMember> careTeam = new java.util.ArrayList<>();
 
     private String encryptedSelf;
 

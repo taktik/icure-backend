@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
+import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 import org.taktik.icure.validation.ValidCode;
@@ -31,6 +32,7 @@ import org.taktik.icure.validation.ValidCode;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -86,6 +88,7 @@ public class PlanOfAction implements ICureDocument, Serializable {
     protected Integer numberOfCares;
     protected Integer status;
 
+    protected List<CareTeamMembership> careTeamMemberships;
 
 
 	public PlanOfAction solveConflictWith(PlanOfAction other) {
@@ -104,7 +107,9 @@ public class PlanOfAction implements ICureDocument, Serializable {
 		this.idOpeningContact = this.idOpeningContact == null ? other.idOpeningContact : this.idOpeningContact;
 		this.idClosingContact = this.idClosingContact == null ? other.idClosingContact : this.idClosingContact;
 
-		return this;
+        this.careTeamMemberships = MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships, Objects::equals,(a, b)->a);
+
+        return this;
 	}
 
 	public PlanOfAction() {
@@ -262,4 +267,12 @@ public class PlanOfAction implements ICureDocument, Serializable {
     public Integer getStatus() { return status; }
 
     public void setStatus(Integer status) { this.status = status; }
+
+    public List<CareTeamMembership> getCareTeamMemberships() {
+        return careTeamMemberships;
+    }
+
+    public void setCareTeamMemberships(List<CareTeamMembership> careTeamMemberships) {
+        this.careTeamMemberships = careTeamMemberships;
+    }
 }
