@@ -213,6 +213,9 @@ dependencies {
 	compile name: 'probatron4j-custom-0.7.4'
 	compile name: 'ehvalidator-service-core-2.1.1'
 
+    //HAPI
+    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v25', version: '2.3'
+
     // mustache
     compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
 
