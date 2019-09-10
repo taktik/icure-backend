@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.AgreementType;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
-import org.taktik.icure.entities.base.TeamType;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 import org.taktik.icure.validation.ValidCode;
@@ -90,9 +89,6 @@ public class PlanOfAction implements ICureDocument, Serializable {
     protected String prescriberId; //healthcarePartyId
     protected Integer numberOfCares;
     protected Integer status;
-    protected Map<TeamType, Set<String>> team;
-
-
 
 	public PlanOfAction solveConflictWith(PlanOfAction other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
@@ -276,8 +272,4 @@ public class PlanOfAction implements ICureDocument, Serializable {
     public Map<AgreementType, Long> getAgreementDate() { return agreementDate; }
 
     public void setAgreementDate(Map<AgreementType, Long> agreementDate) { this.agreementDate = agreementDate; }
-
-    public Map<TeamType, Set<String>> getTeam() { return team; }
-
-    public void setTeam(Map<TeamType, Set<String>> team) { this.team = team; }
 }
