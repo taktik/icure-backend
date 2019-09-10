@@ -20,6 +20,8 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 
@@ -36,6 +38,7 @@ public class PlanOfActionDto implements Serializable {
 
     protected Long openingDate;
     protected Long closingDate;
+    protected Long deadlineDate;
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -202,4 +205,8 @@ public class PlanOfActionDto implements Serializable {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public Long getDeadlineDate() { return deadlineDate; }
+
+    public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
 }
