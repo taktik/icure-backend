@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.HealthElement
@@ -65,7 +66,15 @@ import javax.ws.rs.core.StreamingOutput
 @Api(tags = ["be_kmehr"])
 @Consumes("application/json")
 @Produces("application/json")
-class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qualifier("sumehrLogicV1") val sumehrLogicV1: SumehrLogic, @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic, val softwareMedicalFileLogic: SoftwareMedicalFileLogic, val medicationSchemeLogic: MedicationSchemeLogic, val healthcarePartyLogic: HealthcarePartyLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic) : OpenApiFacade {
+class KmehrFacade(val mapper: MapperFacade, val sessionLogic: SessionLogic, @Qualifier("sumehrLogicV1") val sumehrLogicV1: SumehrLogic, @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic, @Qualifier("diaryNoteLogic") val diaryNoteLogic: DiaryNoteLogic, val softwareMedicalFileLogic: SoftwareMedicalFileLogic, val medicationSchemeLogic: MedicationSchemeLogic, val healthcarePartyLogic: HealthcarePartyLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic) : OpenApiFacade {
+    @ApiOperation(value = "Generate diarynote", httpMethod = "POST", notes = "")
+    @POST
+    @Path("/diarynote/{patientId}/export")
+    @Produces("application/octet-stream")
+    fun generateDiaryNote(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: DiaryNoteExportInfoDto): Response {
+        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper!!.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, null) })
+    }
+
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
     @POST
     @Path("/sumehr/{patientId}/export")
