@@ -287,8 +287,6 @@ public class ContactFacade implements OpenApiFacade {
 
         boolean succeed = (contactList != null);
         if (succeed) {
-
-            // mapping to Dto
             List<ContactDto> contactDtoList = contactList.stream().map(contact -> mapper.map(contact, ContactDto.class)).collect(Collectors.toList());
             return Response.ok().entity(contactDtoList).build();
         } else {
