@@ -115,11 +115,16 @@ class DiaryNoteExport : KmehrExport() {
 
     internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, decryptor: AsyncDecrypt?): FolderType {
         val trn = TransactionType().apply {
-            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = CDTRANSACTIONschemes.CD_TRANSACTION.version(); value = "diarynote" })
-            author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
+            cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "diarynote" })
+            author = AuthorType().apply {
+                hcparties.add(createParty(sender, emptyList()))
+                if (isPsy){ hcparties.add(HcpartyType().apply {
+                   cds.add(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "deptpsychiatry"})
+                })}
+            }
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = ICUREVERSION; value = p.id.replace("-".toRegex(), "").substring(0, 8) + "." + System.currentTimeMillis() })
-            tags.forEach { tag -> cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_DIARY; sv = CDTRANSACTIONschemes.CD_DIARY.version(); value = tag }) }
+            tags.forEach { tag -> cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_DIARY); value = tag }) }
             contexts.forEach {context -> cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.LOCAL; sv = "1.0"; sl = "CD-RSW-CONTEXT"; value = context; dn = dnFromContext(context) })}
             makeXGC(System.currentTimeMillis()).let { date = it; time = it }
             isIscomplete = true
