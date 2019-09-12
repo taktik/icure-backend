@@ -48,8 +48,13 @@ public class Address implements Serializable, Comparable<Address>, Encryptable {
     protected String city;
     protected String country;
 	protected String encryptedSelf;
+	protected String note;
 
-	protected List<Telecom> telecoms = new LinkedList<>();
+    public String getNote() { return note; }
+
+    public void setNote(String note) { this.note = note; }
+
+    protected List<Telecom> telecoms = new LinkedList<>();
 
 	public Address() {
 	}

@@ -20,8 +20,13 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import org.taktik.icure.entities.base.CodeStub;
+import org.taktik.icure.entities.embed.EmploymentInfo;
+import org.taktik.icure.entities.embed.PreferenceType;
+import org.taktik.icure.entities.embed.SchoolingInfo;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DeactivationReasonDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.EmploymentInfoDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.FinancialInstitutionInformationDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.Gender;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InsurabilityDto;
@@ -29,6 +34,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.MedicalHouseContract
 import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PersonalStatusDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.PreferenceTypeDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.SchoolingInfoDto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,6 +77,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 	protected String warning;
     protected String nationality;
 	protected String preferredUserId;
+	protected String comment;
     protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
     @ApiModelProperty(dataType = "string")
@@ -93,9 +101,17 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
     protected Map<String,List<String>> parameters = new HashMap<>();
-    protected Map<String,String> importedData = new HashMap<>();
 
     protected java.util.List<CodeDto> patientProfessions = new java.util.ArrayList<>();
+
+    protected CodeStub fatherBirthCountry;
+    protected CodeStub birthCountry;
+    protected CodeStub nativeCountry;
+    protected CodeStub socialStatus;
+    protected CodeStub mainSourceOfIncome;
+    protected List<SchoolingInfoDto> schoolingInfos;
+    protected List<EmploymentInfoDto> employementInfos;
+    protected Map<PreferenceTypeDto, Boolean> preferences;
 
 
     public String getMergeToPatientId() {
@@ -113,7 +129,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 	public void setMergedIds(Set<String> mergedIds) {
 		this.mergedIds = mergedIds;
 	}
-	
+
     public Set<String> getNonDuplicateIds() {  return nonDuplicateIds;  }
 
     public void setNonDuplicateIds(Set<String> nonDuplicateIds) {  this.nonDuplicateIds = nonDuplicateIds; }
@@ -492,11 +508,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
         this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
     }
 
-    public Map<String, String> getImportedData() {
-        return importedData;
-    }
+    public String getComment() { return comment; }
 
-    public void setImportedData(Map<String, String> importedData) {
-        this.importedData = importedData;
-    }
+    public void setComment(String comment) { this.comment = comment; }
 }
