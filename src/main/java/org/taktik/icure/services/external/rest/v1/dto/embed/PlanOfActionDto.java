@@ -20,10 +20,9 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareTeamMembershipDto;
 
 public class PlanOfActionDto implements Serializable {
 
@@ -57,6 +56,9 @@ public class PlanOfActionDto implements Serializable {
     protected String prescriberId; //healthcarePartyId
     protected Integer numberOfCares;
     protected Integer status;
+
+    protected List<CareTeamMembershipDto> careTeamMemberships;
+
 
     public PlanOfActionDto() {
 	}
@@ -209,4 +211,8 @@ public class PlanOfActionDto implements Serializable {
     public Long getDeadlineDate() { return deadlineDate; }
 
     public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
+
+    public List<CareTeamMembershipDto> getCareTeamMemberships() { return careTeamMemberships; }
+
+    public void setCareTeamMemberships(List<CareTeamMembershipDto> careTeamMemberships) { this.careTeamMemberships = careTeamMemberships; }
 }
