@@ -22,13 +22,9 @@ package org.taktik.icure.dto.filter.service;
 import org.taktik.icure.dto.filter.Filter;
 import org.taktik.icure.entities.embed.Service;
 
-public interface ServiceByHcPartyTagCodeDateFilter extends Filter<String, Service> {
+import java.util.Set;
+
+public interface ServiceBySecretForeignKeys extends Filter<String, Service> {
 	String getHealthcarePartyId();
-    String getPatientSecretForeignKey();
-	String getTagType();
-	String getTagCode();
-	String getCodeType();
-	String getCodeCode();
-	Long getStartValueDate();
-	Long getEndValueDate();
+    Set<String> getPatientSecretForeignKeys();
 }

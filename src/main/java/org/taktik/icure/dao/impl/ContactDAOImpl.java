@@ -224,7 +224,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
 
 	@Override
     @View(name = "service_by_hcparty_patient_code", map = "classpath:js/contact/Service_by_hcparty_patient_code.js")
-    public List<String> findServicesByPatientCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
+    public List<String> findServicesByForeignKeys(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
     	if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
 		if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
         ComplexKey from = ComplexKey.of(
@@ -249,6 +249,11 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
 
         List<String> ids = db.queryView(viewQuery, String.class);
         return ids;
+    }
+
+    @Override
+    public List<String> findServicesByForeignKeys(String hcPartyId, Set<String> patientSecretForeignKeys) {
+        return this.findByHcPartyPatient(hcPartyId, new ArrayList<>(patientSecretForeignKeys)).stream().flatMap(c -> c.getServices().stream().map(s -> s.getId())).collect(Collectors.toList());
     }
 
     @Override
