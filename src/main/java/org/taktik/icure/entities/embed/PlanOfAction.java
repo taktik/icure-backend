@@ -21,9 +21,9 @@ package org.taktik.icure.entities.embed;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
+import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 import org.taktik.icure.validation.ValidCode;
@@ -31,6 +31,7 @@ import org.taktik.icure.validation.ValidCode;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -61,6 +62,7 @@ public class PlanOfAction implements ICureDocument, Serializable {
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
     protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+    protected Long deadlineDate;// YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -86,6 +88,7 @@ public class PlanOfAction implements ICureDocument, Serializable {
     protected Integer numberOfCares;
     protected Integer status;
 
+    protected List<CareTeamMembership> careTeamMemberships;
 
 
 	public PlanOfAction solveConflictWith(PlanOfAction other) {
@@ -104,7 +107,9 @@ public class PlanOfAction implements ICureDocument, Serializable {
 		this.idOpeningContact = this.idOpeningContact == null ? other.idOpeningContact : this.idOpeningContact;
 		this.idClosingContact = this.idClosingContact == null ? other.idClosingContact : this.idClosingContact;
 
-		return this;
+        this.careTeamMemberships = MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships, Objects::equals,(a, b)->a);
+
+        return this;
 	}
 
 	public PlanOfAction() {
@@ -262,4 +267,16 @@ public class PlanOfAction implements ICureDocument, Serializable {
     public Integer getStatus() { return status; }
 
     public void setStatus(Integer status) { this.status = status; }
+
+    public List<CareTeamMembership> getCareTeamMemberships() {
+        return careTeamMemberships;
+    }
+
+    public void setCareTeamMemberships(List<CareTeamMembership> careTeamMemberships) {
+        this.careTeamMemberships = careTeamMemberships;
+    }
+
+    public Long getDeadlineDate() { return deadlineDate; }
+
+    public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
 }
