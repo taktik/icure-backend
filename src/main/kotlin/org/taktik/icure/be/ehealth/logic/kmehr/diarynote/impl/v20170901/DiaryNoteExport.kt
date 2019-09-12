@@ -102,12 +102,25 @@ class DiaryNoteExport : KmehrExport() {
         jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
     }
 
+    private fun dnFromContext(context: String) : String{
+        return when (context) {
+            "psichronilux" ->  "CHRONILUX"
+            "psipact" ->  "PACT"
+            "psiresinam" ->  "RéSiNam"
+            "psi3c4h" ->  "3C4H"
+            "psirelian" ->  "RéLIAN"
+            else ->  ""
+        }
+    }
+
     internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, decryptor: AsyncDecrypt?): FolderType {
         val trn = TransactionType().apply {
-            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "diarynote" })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = CDTRANSACTIONschemes.CD_TRANSACTION.version(); value = "diarynote" })
             author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = ICUREVERSION; value = p.id.replace("-".toRegex(), "").substring(0, 8) + "." + System.currentTimeMillis() })
+            tags.forEach { tag -> cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_DIARY; sv = CDTRANSACTIONschemes.CD_DIARY.version(); value = tag }) }
+            contexts.forEach {context -> cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.LOCAL; sv = "1.0"; sl = "CD-RSW-CONTEXT"; value = context; dn = dnFromContext(context) })}
             makeXGC(System.currentTimeMillis()).let { date = it; time = it }
             isIscomplete = true
             isIsvalidated = true
