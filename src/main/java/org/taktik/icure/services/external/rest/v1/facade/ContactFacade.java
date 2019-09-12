@@ -279,7 +279,7 @@ public class ContactFacade implements OpenApiFacade {
     @POST
     @Path("/byHcPartyPatientForeignKeys")
     public Response findByHCPartyPatientForeignKeys(@QueryParam("hcPartyId") String hcPartyId, ListOfIdsDto patientForeignKeys) {
-        if (hcPartyId == null || patientForeignKeys == null || patientForeignKeys.getIds().size()==0) {
+        if (hcPartyId == null || patientForeignKeys == null || patientForeignKeys.getIds().size() == 0) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
@@ -287,8 +287,6 @@ public class ContactFacade implements OpenApiFacade {
 
         boolean succeed = (contactList != null);
         if (succeed) {
-
-            // mapping to Dto
             List<ContactDto> contactDtoList = contactList.stream().map(contact -> mapper.map(contact, ContactDto.class)).collect(Collectors.toList());
             return Response.ok().entity(contactDtoList).build();
         } else {
