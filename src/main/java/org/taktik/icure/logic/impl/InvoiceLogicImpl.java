@@ -222,9 +222,12 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		for (InvoicingCode invoicingCode : new ArrayList<>(invoicingCodes)) {
 			LocalDateTime icDateTime = FuzzyValues.getDateTime(invoicingCode.getDateCode());
 
-			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : invoices.stream().filter(i ->
-					i.getInvoiceDate() != null && Math.abs(FuzzyValues.getDateTime(i.getInvoiceDate()).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
-			).findAny();
+			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : icDateTime != null ? invoices.stream().filter(i ->
+                    {
+                        LocalDateTime invoiceDate = FuzzyValues.getDateTime(i.getInvoiceDate());
+                        return invoiceDate != null && Math.abs(invoiceDate.withHour(0).withMinute(0).withSecond(0).withNano(0).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays;
+                    }
+			).findAny() : Optional.empty();
 
 			if (unsentInvoice.isPresent()) {
 				Invoice invoice = unsentInvoice.get();

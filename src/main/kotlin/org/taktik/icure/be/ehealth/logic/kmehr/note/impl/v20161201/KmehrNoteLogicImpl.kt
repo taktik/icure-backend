@@ -14,6 +14,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
 import javax.xml.bind.JAXBContext
@@ -34,8 +35,8 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
     )
 
     override fun createNote(
-            id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
-    ): String {
+            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
+    ) {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD } }
@@ -76,15 +77,12 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
         }
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-        val bos = ByteArrayOutputStream(10000)
 
         // output pretty printed
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8)
+        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8.toString())
 
-        jaxbMarshaller.marshal(message, OutputStreamWriter(bos, UTF_8))
-
-        return bos.toString(UTF_8)
+        jaxbMarshaller.marshal(message, OutputStreamWriter(output, UTF_8))
     }
 
 }

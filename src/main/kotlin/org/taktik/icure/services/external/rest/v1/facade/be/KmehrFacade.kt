@@ -189,7 +189,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generateContactreportExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "contactreport", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "contactreport", mimeType, document ) })
     }
 
     @ApiOperation(value = "Get Kmehr labresult")
@@ -199,7 +199,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generateLabresultExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "labresult", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "labresult", mimeType, document ) })
     }
 
     @ApiOperation(value = "Get Kmehr note")
@@ -209,7 +209,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generateNoteExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "note", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "note", mimeType, document ) })
     }
 
     @ApiOperation(value = "Get Kmehr prescription")
@@ -219,7 +219,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generatePrescriptionExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "prescription", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "prescription", mimeType, document ) })
     }
 
     @ApiOperation(value = "Get Kmehr report")
@@ -229,7 +229,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generateReportExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "report", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "report", mimeType, document ) })
     }
 
     @ApiOperation(value = "Get Kmehr request")
@@ -239,7 +239,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generateRequestExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "request", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "request", mimeType, document ) })
     }
 
     @ApiOperation(value = "Get Kmehr result")
@@ -249,7 +249,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun generateResultExport(@PathParam("patientId") patientId: String, @PathParam("id") id: String, @QueryParam("date") date: Long, @QueryParam("language") language: String, @QueryParam("recipientNihii") recipientNihii: String, @QueryParam("recipientFirstName") recipientFirstName: String, @QueryParam("recipientLastName") recipientLastName: String, @QueryParam("mimeType") mimeType: String, document: ByteArray) : Response {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "result", mimeType, document ) })
+        return ResponseUtils.ok(StreamingOutput { output -> kmehrNoteLogic.createNote(output, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "result", mimeType, document ) })
     }
 
     @ApiOperation(value = "Import SMF into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
