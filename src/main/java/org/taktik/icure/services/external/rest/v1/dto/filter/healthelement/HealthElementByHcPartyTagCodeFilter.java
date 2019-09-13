@@ -81,7 +81,7 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(healthCarePartyId, codeType, codeNumber);
+		return Objects.hashCode(healthCarePartyId, codeType, codeNumber, tagType, tagCode, status);
 	}
 
 	@Override
@@ -94,13 +94,14 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 		}
 		final HealthElementByHcPartyTagCodeFilter other = (HealthElementByHcPartyTagCodeFilter) obj;
 		return Objects.equal(this.healthCarePartyId, other.healthCarePartyId) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeNumber, other.codeNumber)
-				&& Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode);
+				&& Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.status, other.status);
 	}
 
 	@Override
 	public boolean matches(HealthElement item) {
 		return (healthCarePartyId == null || item.getDelegations().keySet().contains(healthCarePartyId))
 				&& (codeType == null || (item.getCodes().stream().filter(code -> codeType.equals(code.getType()) && codeNumber.equals(code.getCode())).findAny().isPresent())
-				&& (tagType == null || item.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent()));
+				&& (tagType == null || item.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent())
+				&& (status < 0 || item.getStatus() == status));
 	}
 }
