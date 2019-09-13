@@ -84,6 +84,16 @@ class HealthElementDAOImpl extends GenericIcureDAOImpl<HealthElement> implements
 	}
 
 	@Override
+	@View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")
+	public List<String> findByHCPartyAndStatus(String healthCarePartyId, int status) {
+		ViewQuery viewQuery = createQuery("by_hcparty_and_status")
+				.key(ComplexKey.of(healthCarePartyId, status))
+				.includeDocs(false);
+
+		return db.queryView(viewQuery, String.class);
+	}
+
+	@Override
 	@View(name = "by_planOfActionId", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
 			"            for(var i= 0;i<doc.plansOfAction.length;i++) {\n" +
 			"        emit([doc.plansOfAction[i].id], doc._id);\n" +

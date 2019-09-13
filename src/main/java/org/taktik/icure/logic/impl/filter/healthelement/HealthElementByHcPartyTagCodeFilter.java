@@ -36,10 +36,25 @@ public class HealthElementByHcPartyTagCodeFilter implements Filter<String, Healt
             }
 
             if (filter.getCodeType() != null && filter.getCodeNumber() != null) {
-                ids = new HashSet<>(healthElementLogic.findByHCPartyAndCodes(hcPartyId, filter.getCodeType(), filter.getCodeNumber()));
-            }
+				HashSet<String> byCode = new HashSet<>(healthElementLogic.findByHCPartyAndCodes(hcPartyId, filter.getCodeType(), filter.getCodeNumber()));
+				if (ids == null) {
+					ids = byCode;
+				} else {
+					ids.retainAll(byCode);
+				}
+			}
 
-            return ids != null ? ids : new HashSet<>();
+			if (filter.getStatus() >= 0) {
+				HashSet<String> byStatus = new HashSet<>(healthElementLogic.findByHCPartyAndStatus(hcPartyId, filter.getStatus()));
+
+				if (ids == null) {
+					ids = byStatus;
+				} else {
+					ids.retainAll(byStatus);
+				}
+			}
+
+			return ids != null ? ids : new HashSet<>();
 		} catch (LoginException e) {
 			throw new IllegalArgumentException(e);
 		}

@@ -14,4 +14,5 @@ public interface HealthElementByHcPartyTagCodeFilter extends Filter<String, Heal
 
 	String getTagCode();
 
+	int getStatus();
 }

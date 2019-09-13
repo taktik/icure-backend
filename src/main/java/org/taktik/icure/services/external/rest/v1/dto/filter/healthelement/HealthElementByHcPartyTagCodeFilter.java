@@ -12,6 +12,7 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 	String codeNumber;
 	String tagType;
 	String tagCode;
+	int status;
 
 	public HealthElementByHcPartyTagCodeFilter() {
 	}
@@ -49,6 +50,11 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 		return this.tagCode;
 	}
 
+	@Override
+	public int getStatus() {
+		return this.status;
+	}
+
 	public void setHealthCarePartyId(String healthCarePartyId) {
 		this.healthCarePartyId = healthCarePartyId;
 	}
@@ -67,6 +73,10 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 
 	public void setTagCode(String tagCode) {
 		this.tagCode = tagCode;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 	@Override

@@ -47,6 +47,8 @@ public interface HealthElementLogic extends EntityPersister<HealthElement, Strin
 
 	List<String> findByHCPartyAndTags(String hcPartyId, String tagType, String tagCode);
 
+	List<String> findByHCPartyAndStatus(String hcPartyId, int status);
+
 	Set<String> deleteHealthElements(Set<String> ids);
 
 	HealthElement modifyHealthElement(HealthElement healthElement);
