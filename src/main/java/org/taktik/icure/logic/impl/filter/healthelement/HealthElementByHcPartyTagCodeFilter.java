@@ -30,10 +30,11 @@ public class HealthElementByHcPartyTagCodeFilter implements Filter<String, Healt
 	public Set<String> resolve(org.taktik.icure.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter filter, Filters context) {
 		try {
 			String hcPartyId = filter.getHealthCarePartyId() != null ? filter.getHealthCarePartyId() : getLoggedHealthCarePartyId();
-            HashSet<String> ids = null;
-            if (filter.getTagType() != null && filter.getTagCode() != null) {
-                ids = new HashSet<>(healthElementLogic.findByHCPartyAndTags(hcPartyId, filter.getTagType(), filter.getTagCode()));;
-            }
+			HashSet<String> ids = null;
+			if (filter.getTagType() != null && filter.getTagCode() != null) {
+				ids = new HashSet<>(healthElementLogic.findByHCPartyAndTags(hcPartyId, filter.getTagType(), filter.getTagCode()));
+				;
+			}
 
             if (filter.getCodeType() != null && filter.getCodeNumber() != null) {
 				HashSet<String> byCode = new HashSet<>(healthElementLogic.findByHCPartyAndCodes(hcPartyId, filter.getCodeType(), filter.getCodeNumber()));
