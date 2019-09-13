@@ -134,24 +134,17 @@ class DiaryNoteExport : KmehrExport() {
             isIscomplete = true
             isIsvalidated = true
         }
-
         folder.transactions.add(trn)
-
         if(documentId != "" && attachmentId != "") {
             val document = documentLogic?.get(documentId)
             val attachment = document?.decryptAttachment(sfks)
             if(attachment != null){
-                val uti = UTI.get(document.mainUti)
-                val xmlSource = StreamSource(ByteArrayInputStream(attachment))
-                val str = xmlSource.toString()
+                trn.headingsAndItemsAndTexts.add(LnkType().apply{type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(document); value = attachment })
             }
         }
         if (note?.length ?: 0 > 0) {
             trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = note })
         }
-
-        //add document
-
         //Remove empty headings
         val iterator = folder.transactions[0].headingsAndItemsAndTexts.iterator()
         while (iterator.hasNext()) {
