@@ -45,7 +45,7 @@ public class HealthElementByHcPartyTagCodeFilter implements Filter<String, Healt
 				}
 			}
 
-			if (filter.getStatus() >= 0) {
+			if (filter.getStatus() != null) {
 				HashSet<String> byStatus = new HashSet<>(healthElementLogic.findByHCPartyAndStatus(hcPartyId, filter.getStatus()));
 
 				if (ids == null) {

@@ -12,7 +12,7 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 	String codeNumber;
 	String tagType;
 	String tagCode;
-	int status;
+	Integer status;
 
 	public HealthElementByHcPartyTagCodeFilter() {
 	}
@@ -51,7 +51,7 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 	}
 
 	@Override
-	public int getStatus() {
+	public Integer getStatus() {
 		return this.status;
 	}
 
@@ -75,7 +75,7 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 		this.tagCode = tagCode;
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
 
@@ -102,6 +102,6 @@ public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> i
 		return (healthCarePartyId == null || item.getDelegations().keySet().contains(healthCarePartyId))
 				&& (codeType == null || (item.getCodes().stream().filter(code -> codeType.equals(code.getType()) && codeNumber.equals(code.getCode())).findAny().isPresent())
 				&& (tagType == null || item.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent())
-				&& (status < 0 || item.getStatus() == status));
+				&& (status == null || item.getStatus() == status));
 	}
 }

@@ -42,5 +42,5 @@ public interface HealthElementDAO  extends GenericDAO<HealthElement>  {
 
 	List<String> findByHCPartyAndTags(String healthCarePartyId, String tagType, String tagCode);
 
-	List<String> findByHCPartyAndStatus(String healthCarePartyId, int status);
+	List<String> findByHCPartyAndStatus(String healthCarePartyId, Integer status);
 }

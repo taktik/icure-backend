@@ -85,7 +85,7 @@ class HealthElementDAOImpl extends GenericIcureDAOImpl<HealthElement> implements
 
 	@Override
 	@View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")
-	public List<String> findByHCPartyAndStatus(String healthCarePartyId, int status) {
+	public List<String> findByHCPartyAndStatus(String healthCarePartyId, Integer status) {
 		ViewQuery viewQuery = createQuery("by_hcparty_and_status")
 				.key(ComplexKey.of(healthCarePartyId, status))
 				.includeDocs(false);

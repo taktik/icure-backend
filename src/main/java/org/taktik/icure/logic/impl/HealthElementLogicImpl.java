@@ -149,7 +149,7 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	}
 
 	@Override
-	public List<String> findByHCPartyAndStatus(String hcPartyId, int status) {
+	public List<String> findByHCPartyAndStatus(String hcPartyId, Integer status) {
 		return healthElementDAO.findByHCPartyAndStatus(hcPartyId, status);
 	}
 
