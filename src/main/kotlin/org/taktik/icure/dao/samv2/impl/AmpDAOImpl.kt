@@ -46,13 +46,13 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
         )
     }
 
-    @View(name = "by_code", map = "classpath:js/amp/By_code.js")
+    @View(name = "by_vmpcode", map = "classpath:js/amp/By_vmpcode.js")
     override fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
         val from = vmpCode
         val to = vmpCode
 
         return pagedQueryView(
-                "by_code",
+                "by_vmpcode",
                 from,
                 to,
                 paginationOffset,
@@ -60,13 +60,13 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
         )
     }
 
-    @View(name = "by_id", map = "classpath:js/amp/By_id.js")
+    @View(name = "by_vmpid", map = "classpath:js/amp/By_vmpid.js")
     override fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
         val from = vmpId
         val to = vmpId
 
         return pagedQueryView(
-                "by_id",
+                "by_vmpid",
                 from,
                 to,
                 paginationOffset,
