@@ -64,7 +64,7 @@ public class KmehrWsFacade {
         try {
             diaryNoteLogic.createDiaryNote(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
                 healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-                mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getNote(), info.getTags(), info.getContexts(), info.getPsy(), info.getDocumentId(), operation);
+                mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getNote(), info.getTags(), info.getContexts(), info.getPsy(), info.getDocumentId(), info.getAttachmentId(), operation);
             operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
             bos.close();
         } catch (Exception e) {

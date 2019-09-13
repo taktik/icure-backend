@@ -51,6 +51,9 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
+import org.taktik.commons.uti.UTI
+import java.io.ByteArrayInputStream
+import javax.xml.transform.stream.StreamSource
 
 @org.springframework.stereotype.Service("dairyNoteExport")
 class DiaryNoteExport : KmehrExport() {
@@ -75,6 +78,7 @@ class DiaryNoteExport : KmehrExport() {
         contexts: List<String>,
         isPsy: Boolean,
         documentId: String?,
+        attachmentId : String?,
         decryptor: AsyncDecrypt?,
         config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
             date = makeXGC(Instant.now().toEpochMilli())!!,
@@ -92,7 +96,7 @@ class DiaryNoteExport : KmehrExport() {
         val folder = FolderType()
         folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
         folder.patient = makePerson(pat, config)
-        fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, decryptor)
+        fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
         message.folders.add(folder)
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
@@ -113,7 +117,7 @@ class DiaryNoteExport : KmehrExport() {
         }
     }
 
-    internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, decryptor: AsyncDecrypt?): FolderType {
+    internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?): FolderType {
         val trn = TransactionType().apply {
             cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "diarynote" })
             author = AuthorType().apply {
@@ -133,10 +137,15 @@ class DiaryNoteExport : KmehrExport() {
 
         folder.transactions.add(trn)
 
-        //add tags
-
-        //add contexts (optional ?)
-
+        if(documentId != "" && attachmentId != "") {
+            val document = documentLogic?.get(documentId)
+            val attachment = document?.decryptAttachment(sfks)
+            if(attachment != null){
+                val uti = UTI.get(document.mainUti)
+                val xmlSource = StreamSource(ByteArrayInputStream(attachment))
+                val str = xmlSource.toString()
+            }
+        }
         if (note?.length ?: 0 > 0) {
             trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = note })
         }

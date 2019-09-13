@@ -12,6 +12,7 @@ public class DiaryNoteExportInfoDto implements Serializable {
     List<String> contexts;
     private Boolean isPsy;
     private String documentId;
+    private String attachmentId;
     HealthcarePartyDto recipient;
     String note;
 
@@ -75,5 +76,13 @@ public class DiaryNoteExportInfoDto implements Serializable {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public String getAttachmentId() {
+        return attachmentId;
+    }
+
+    public void setAttachmentId(String attachmentId) {
+        this.attachmentId = attachmentId;
     }
 }
