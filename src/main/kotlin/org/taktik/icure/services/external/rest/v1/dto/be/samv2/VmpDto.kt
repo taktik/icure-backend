@@ -1,6 +1,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.be.samv2
 
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed.*
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.stub.VmpGroupStubDto
 
 import java.io.Serializable
 
@@ -9,7 +10,7 @@ class VmpDto(
         from: Long? = null,
         to: Long? = null,
         var code: String? = null,
-        var vmpGroup: VmpGroupDto? = null,
+        var vmpGroup: VmpGroupStubDto? = null,
         var name: SamTextDto? = null,
         var abbreviation: SamTextDto? = null,
         var vtm: VtmDto? = null,

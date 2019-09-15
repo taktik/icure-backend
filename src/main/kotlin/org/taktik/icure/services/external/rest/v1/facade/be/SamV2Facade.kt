@@ -132,7 +132,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     @GET
     @Path("/vmp/byGroupId/{vmpgId}")
     fun findPaginatedVmpsByGroupId(
-            @ApiParam(value = "vmpgCode", required = true) @PathParam("vmpgId") vmpgId: String,
+            @ApiParam(value = "vmpgId", required = true) @PathParam("vmpgId") vmpgId: String,
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @QueryParam("startKey") startKey: String?,
             @ApiParam(value = "A vmp document ID", required = false) @QueryParam("startDocumentId") startDocumentId: String?,

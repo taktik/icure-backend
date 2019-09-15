@@ -1,6 +1,7 @@
 package org.taktik.icure.entities.samv2
 
 import org.taktik.icure.entities.samv2.embed.*
+import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import java.io.Serializable
 
 class Vmp(
@@ -8,7 +9,7 @@ class Vmp(
         from: Long? = null,
         to: Long? = null,
         var code: String? = null,
-        var vmpGroup: VmpGroup? = null,
+        var vmpGroup: VmpGroupStub? = null,
         var name: SamText? = null,
         var abbreviation: SamText? = null,
         var vtm: Vtm? = null,
