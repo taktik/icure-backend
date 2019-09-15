@@ -56,7 +56,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        filter.getPatientSecretForeignKeys(), filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate()));
             }
@@ -64,7 +64,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.findServicesByCode(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        filter.getPatientSecretForeignKeys(), filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
