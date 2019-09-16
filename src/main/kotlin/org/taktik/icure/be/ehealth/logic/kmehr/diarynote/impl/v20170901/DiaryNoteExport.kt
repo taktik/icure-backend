@@ -73,7 +73,7 @@ class DiaryNoteExport : KmehrExport() {
         sender: HealthcareParty,
         recipient: HealthcareParty?,
         language: String,
-        note: String?,
+        note: String?, //should be in format like: <?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<p xmlns=\"http://www.ehealth.fgov.be/standards/kmehr/schema/v1\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/08/addressing\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">dit een note met alle type en context selected</p>
         tags: List<String>,
         contexts: List<String>,
         isPsy: Boolean,
@@ -143,7 +143,9 @@ class DiaryNoteExport : KmehrExport() {
             }
         }
         if (note?.length ?: 0 > 0) {
-            trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = note })
+            val t = TextWithLayoutType().apply { l = sender.languages.firstOrNull() ?: "fr"}
+            t.content.add(note)
+            trn.headingsAndItemsAndTexts.add(t)
         }
         //Remove empty headings
         val iterator = folder.transactions[0].headingsAndItemsAndTexts.iterator()
