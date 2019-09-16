@@ -115,7 +115,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     protected CodeStub mainSourceOfIncome;
     protected List<SchoolingInfo> schoolingInfos;
     protected List<EmploymentInfo> employementInfos;
-    protected Map<PreferenceType, Boolean> preferences;
+    private Set<Property> properties = new HashSet<>();
 
     public @Nullable
 	String getMergeToPatientId() {
@@ -712,7 +712,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
     public void setEmployementInfos(List<EmploymentInfo> employementInfos) { this.employementInfos = employementInfos; }
 
-    public Map<PreferenceType, Boolean> getPreferences() { return preferences; }
+    public Set<Property> getProperties() { return properties; }
 
-    public void setPreferences(Map<PreferenceType, Boolean> preferences) { this.preferences = preferences; }
+    public void setProperties(Set<Property> properties) { this.properties = properties; }
 }

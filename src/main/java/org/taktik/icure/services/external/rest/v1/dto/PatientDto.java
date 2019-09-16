@@ -20,10 +20,8 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.base.CodeStub;
-import org.taktik.icure.entities.embed.EmploymentInfo;
-import org.taktik.icure.entities.embed.PreferenceType;
-import org.taktik.icure.entities.embed.SchoolingInfo;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DeactivationReasonDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.EmploymentInfoDto;
@@ -34,7 +32,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.MedicalHouseContract
 import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PersonalStatusDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.PreferenceTypeDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.SchoolingInfoDto;
 
 import java.util.ArrayList;
@@ -96,7 +93,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected List<PartnershipDto> partnerships = new ArrayList<>();
 	protected List<PatientHealthCarePartyDto> patientHealthCareParties = new ArrayList<>();
 
-        protected List<MedicalHouseContractDto> medicalHouseContracts = new ArrayList<>();
+	protected List<MedicalHouseContractDto> medicalHouseContracts = new ArrayList<>();
 
     protected List<FinancialInstitutionInformationDto> financialInstitutionInformation = new ArrayList<>();
 
@@ -111,7 +108,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected CodeStub mainSourceOfIncome;
     protected List<SchoolingInfoDto> schoolingInfos;
     protected List<EmploymentInfoDto> employementInfos;
-    protected Map<PreferenceTypeDto, Boolean> preferences;
+    private Set<Property> properties = new HashSet<>();
 
 
     public String getMergeToPatientId() {
@@ -511,4 +508,36 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     public String getComment() { return comment; }
 
     public void setComment(String comment) { this.comment = comment; }
+
+    public CodeStub getFatherBirthCountry() { return fatherBirthCountry; }
+
+    public void setFatherBirthCountry(CodeStub fatherBirthCountry) { this.fatherBirthCountry = fatherBirthCountry; }
+
+    public CodeStub getBirthCountry() { return birthCountry; }
+
+    public void setBirthCountry(CodeStub birthCountry) { this.birthCountry = birthCountry; }
+
+    public CodeStub getNativeCountry() { return nativeCountry; }
+
+    public void setNativeCountry(CodeStub nativeCountry) { this.nativeCountry = nativeCountry; }
+
+    public CodeStub getSocialStatus() { return socialStatus; }
+
+    public void setSocialStatus(CodeStub socialStatus) { this.socialStatus = socialStatus; }
+
+    public CodeStub getMainSourceOfIncome() { return mainSourceOfIncome; }
+
+    public void setMainSourceOfIncome(CodeStub mainSourceOfIncome) { this.mainSourceOfIncome = mainSourceOfIncome; }
+
+    public List<SchoolingInfoDto> getSchoolingInfos() { return schoolingInfos; }
+
+    public void setSchoolingInfos(List<SchoolingInfoDto> schoolingInfos) { this.schoolingInfos = schoolingInfos; }
+
+    public List<EmploymentInfoDto> getEmployementInfos() { return employementInfos; }
+
+    public void setEmployementInfos(List<EmploymentInfoDto> employementInfos) { this.employementInfos = employementInfos; }
+
+    public Set<Property> getProperties() { return properties; }
+
+    public void setProperties(Set<Property> properties) { this.properties = properties; }
 }
