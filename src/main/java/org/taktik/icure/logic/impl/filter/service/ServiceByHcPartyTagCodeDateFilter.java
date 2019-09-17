@@ -54,10 +54,13 @@ public class ServiceByHcPartyTagCodeDateFilter
 		try {
             String hcPartyId = filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId();
             HashSet<String> ids = null;
+            List<String> patientSFKList = filter.getPatientSecretForeignKey() != null ?
+                    Arrays.asList(filter.getPatientSecretForeignKey()) :
+                    null;
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
-                        Arrays.asList(filter.getPatientSecretForeignKey()), filter.getTagType(),
+                        patientSFKList, filter.getTagType(),
                         filter.getTagCode(), filter.getStartValueDate(), filter.getEndValueDate()
                 ));
             }
@@ -65,7 +68,7 @@ public class ServiceByHcPartyTagCodeDateFilter
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.findServicesByCode(
                         hcPartyId,
-                        Arrays.asList(filter.getPatientSecretForeignKey()), filter.getCodeType(),
+                        patientSFKList, filter.getCodeType(),
                         filter.getCodeCode(), filter.getStartValueDate(), filter.getEndValueDate()
                 );
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
