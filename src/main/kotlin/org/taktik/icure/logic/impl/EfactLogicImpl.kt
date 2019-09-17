@@ -253,10 +253,10 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
             val prefix = "efact:${hcp.id}:${insurance.code}:"
             val latestPrefix = entityReferenceLogic.getLatest(prefix)
             val sendNumber = prefix + ("" + (((latestPrefix?.id?.let { it.substring(prefix.length).toLong() } ?: 0) + 1) % 1000000000)).padStart(9 /*1 billion invoices that are going to be mod 1000*/, '0')
-            val er = entityReferenceLogic.createEntities(listOf(EntityReference().apply {
+            entityReferenceLogic.createEntities(listOf(EntityReference().apply {
                 id = sendNumber
                 docId =  batchRef
-            }), listOf())
+            }), mutableListOf())
 
             val mm = org.taktik.icure.entities.Message()
 
