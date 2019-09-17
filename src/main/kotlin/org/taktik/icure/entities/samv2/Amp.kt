@@ -1,12 +1,14 @@
 package org.taktik.icure.entities.samv2
 
 import org.taktik.icure.entities.samv2.embed.*
+import org.taktik.icure.entities.samv2.stub.VmpStub
 
 class Amp(
+        id: String? = null,
         from: Long? = null,
         to: Long? = null,
         var code: String? = null,
-        var vmpCode: String? = null,
+        var vmp: VmpStub? = null,
         var officialName: String? = null,
         var status: AmpStatus? = null,
         var name: SamText? = null,
@@ -18,7 +20,7 @@ class Amp(
         var prescriptionName: SamText? = null,
         var ampps : List<Ampp> = listOf(),
         var components: List<AmpComponent> = listOf()
-) : StoredDocumentWithPeriod(from, to) {
+) : StoredDocumentWithPeriod(id, from, to) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -27,7 +29,7 @@ class Amp(
         other as Amp
 
         if (code != other.code) return false
-        if (vmpCode != other.vmpCode) return false
+        if (vmp != other.vmp) return false
         if (officialName != other.officialName) return false
         if (status != other.status) return false
         if (name != other.name) return false
@@ -46,7 +48,7 @@ class Amp(
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + (code?.hashCode() ?: 0)
-        result = 31 * result + (vmpCode?.hashCode() ?: 0)
+        result = 31 * result + (vmp?.hashCode() ?: 0)
         result = 31 * result + (officialName?.hashCode() ?: 0)
         result = 31 * result + (status?.hashCode() ?: 0)
         result = 31 * result + (name?.hashCode() ?: 0)
@@ -60,5 +62,6 @@ class Amp(
         result = 31 * result + components.hashCode()
         return result
     }
+
 }
 

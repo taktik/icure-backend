@@ -3,9 +3,7 @@ package org.taktik.icure.entities.samv2.embed
 class Wada(var code: String? = null, var name: SamText? = null, var description: SamText? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Wada
+        if (other !is Wada) return false
 
         if (code != other.code) return false
         if (name != other.name) return false

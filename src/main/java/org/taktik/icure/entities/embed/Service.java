@@ -52,6 +52,8 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	private Set<String> plansOfActionIds; //Only used when the Service is emitted outside of its contact
 	@JsonIgnore
 	private Set<String> healthElementsIds; //Only used when the Service is emitted outside of its contact
+    @JsonIgnore
+    private Set<String> formIds; //Only used when the Service is emitted outside of its contact
 	@JsonIgnore
 	private Set<String> secretForeignKeys = new HashSet<>(); //Only used when the Service is emitted outside of its contact
 	@JsonIgnore
@@ -107,7 +109,7 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 
 	private String encryptedSelf;
 
-	public Service solveConflictWith(Service other) {
+    public Service solveConflictWith(Service other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
 		this.modified = other.modified==null?this.modified:this.modified==null?other.modified:Long.valueOf(Math.max(this.modified,other.modified));
 
@@ -188,19 +190,19 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.index = index;
 	}
 
-	public java.util.Set<CodeStub> getCodes() {
+	public Set<CodeStub> getCodes() {
 		return codes;
 	}
 
-	public void setCodes(java.util.Set<CodeStub> codes) {
+	public void setCodes(Set<CodeStub> codes) {
 		this.codes = codes;
 	}
 
-	public java.util.Set<CodeStub> getTags() {
+	public Set<CodeStub> getTags() {
 		return tags;
 	}
 
-	public void setTags(java.util.Set<CodeStub> tags) {
+	public void setTags(Set<CodeStub> tags) {
 		this.tags = tags;
 	}
 
@@ -380,7 +382,15 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		this.healthElementsIds = healthElementsIds;
 	}
 
-	@Override
+    public Set<String> getFormIds() {
+        return formIds;
+    }
+
+    public void setFormIds(Set<String> formIds) {
+        this.formIds = formIds;
+    }
+
+    @Override
 	public String toString() {
 		return "Service{" +
 				"id='" + id + '\'' +

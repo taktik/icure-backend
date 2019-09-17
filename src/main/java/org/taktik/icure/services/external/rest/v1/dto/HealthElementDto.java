@@ -19,6 +19,7 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
 import org.taktik.icure.services.external.rest.v1.dto.embed.EpisodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareMemberDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PlanOfActionDto;
 
 import java.util.ArrayList;
@@ -51,7 +52,9 @@ public class HealthElementDto extends IcureDto {
     protected List<PlanOfActionDto> plansOfAction;
     protected List<EpisodeDto> episodes;
 
-	public HealthElementDto() {
+    private List<CareMemberDto> careTeam = new java.util.ArrayList<>();
+
+    public HealthElementDto() {
 	}
 
 	public HealthElementDto(String healthElementId, String descr, List<PlanOfActionDto> plansOfAction, CodeDto... tags) {
@@ -90,6 +93,15 @@ public class HealthElementDto extends IcureDto {
 
     public void setEpisodes(List<EpisodeDto> episodes) {
         this.episodes = episodes;
+    }
+
+    public List<CareMemberDto> getCareTeam() {
+        if(careTeam==null ) careTeam= new ArrayList<>();
+        return careTeam;
+    }
+
+    public void setCareTeam(List<CareMemberDto> careTeam) {
+        this.careTeam = careTeam;
     }
 
     public String getDescr() {

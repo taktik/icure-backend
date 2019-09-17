@@ -199,6 +199,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		s.setSubContactIds(subContacts.stream().map(SubContact::getId).collect(Collectors.toSet()));
 		s.setPlansOfActionIds(subContacts.stream().map(SubContact::getPlanOfActionId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setHealthElementsIds(subContacts.stream().map(SubContact::getHealthElementId).filter(Objects::nonNull).collect(Collectors.toSet()));
+        s.setFormIds(subContacts.stream().map(SubContact::getFormId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setDelegations(c.getDelegations());
 		s.setEncryptionKeys(c.getEncryptionKeys());
 
@@ -212,7 +213,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 
 	@Override
 	public List<String> findServicesByCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKey == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientCode(hcPartyId, patientSecretForeignKey, codeType, codeCode, startValueDate, endValueDate);
+		return patientSecretForeignKey == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKey, codeType, codeCode, startValueDate, endValueDate);
 	}
 
 	@Override
@@ -220,7 +221,12 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		return contactDAO.findByServices(services);
 	}
 
-	@Override
+    @Override
+    public List<String> findServicesBySecretForeignKeys(String hcPartyId, Set<String> patientSecretForeignKeys) {
+        return contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys);
+    }
+
+    @Override
 	public List<Contact> findContactsByHCPartyFormId(String hcPartyId, String formId) {
 		return contactDAO.findByHcPartyFormId(hcPartyId, formId);
 	}

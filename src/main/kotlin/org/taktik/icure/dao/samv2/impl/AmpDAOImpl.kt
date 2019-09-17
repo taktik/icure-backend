@@ -18,6 +18,106 @@ import org.taktik.icure.entities.samv2.Amp
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
 class AmpDAOImpl @Autowired
 constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
+    @View(name = "by_groupcode", map = "classpath:js/amp/By_groupcode.js")
+    override fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+        val from = vmpgCode
+        val to = vmpgCode
+
+        return pagedQueryView(
+                "by_groupcode",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
+    @View(name = "by_groupid", map = "classpath:js/amp/By_groupid.js")
+    override fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+        val from = vmpgId
+        val to = vmpgId
+
+        return pagedQueryView(
+                "by_groupid",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
+    @View(name = "by_vmpcode", map = "classpath:js/amp/By_vmpcode.js")
+    override fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+        val from = vmpCode
+        val to = vmpCode
+
+        return pagedQueryView(
+                "by_vmpcode",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
+    @View(name = "by_vmpid", map = "classpath:js/amp/By_vmpid.js")
+    override fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+        val from = vmpId
+        val to = vmpId
+
+        return pagedQueryView(
+                "by_vmpid",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
+    override fun listAmpIdsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): List<String> {
+        val from = vmpgCode
+        val to = vmpgCode
+
+        return db.queryView(createQuery(
+                "by_groupcode")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
+    }
+
+    override fun listAmpIdsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): List<String> {
+        val from = vmpgId
+        val to = vmpgId
+
+        return db.queryView(createQuery(
+                "by_groupid")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
+    }
+
+    override fun listAmpIdsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): List<String> {
+        val from = vmpCode
+        val to = vmpCode
+
+        return db.queryView(createQuery(
+                "by_code")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
+    }
+
+    override fun listAmpIdsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): List<String> {
+        val from = vmpId
+        val to = vmpId
+
+        return db.queryView(createQuery(
+                "by_id")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
+    }
+
     init {
         initStandardDesignDocument()
     }

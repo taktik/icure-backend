@@ -45,8 +45,8 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	List<String> listIdsByHcPartyAndDateOfBirth(Integer date, String healthcarePartyId);
 	List<String> listIdsByHcPartyAndDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId);
 	List<String> listIdsForHcPartyDateOfBirth(Integer date, String healthcarePartyId);
-	List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId);
-	List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId);
+	List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit);
+	List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit);
 
 	List<String> listIdsByHcPartyAndExternalId(String externalId, String healthcarePartyId);
 
