@@ -29,6 +29,8 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
 @JsonPolymorphismRoot(Filter.class)
 public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implements ContactByHcPartyPatientTagCodeDateFilter {
 	String healthcarePartyId;
+	@Deprecated
+    String patientSecretForeignKey;
 	List<String> patientSecretForeignKeys;
 	String tagType;
 	String tagCode;
@@ -69,7 +71,16 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 		this.patientSecretForeignKeys = patientSecretForeignKeys;
 	}
 
-	@Override
+    @Override
+    public String getPatientSecretForeignKey() {
+        return patientSecretForeignKey;
+    }
+
+    public void setPatientSecretForeignKey(String patientSecretForeignKey) {
+        this.patientSecretForeignKey = patientSecretForeignKey;
+    }
+
+    @Override
 	public String getTagType() {
 		return tagType;
 	}

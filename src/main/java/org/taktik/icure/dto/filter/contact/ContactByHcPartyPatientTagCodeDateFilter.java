@@ -25,7 +25,9 @@ import org.taktik.icure.entities.Contact;
 
 public interface ContactByHcPartyPatientTagCodeDateFilter extends Filter<String,Contact> {
 	String getHealthcarePartyId();
-  List<String> getPatientSecretForeignKeys();
+	@Deprecated
+    String getPatientSecretForeignKey();
+    List<String> getPatientSecretForeignKeys();
 	String getTagType();
 	String getTagCode();
 	String getCodeType();
