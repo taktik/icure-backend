@@ -293,7 +293,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
-    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
     @Path("/vmpgroup")
     fun findPaginatedVmpGroupsByLabel(
