@@ -102,8 +102,8 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
     public Response getFrontEndMigrations() {
         Response response;
 
-        String userId = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
-        if(userId == null){
+        String userId = sessionLogic.getCurrentSessionContext().getUser().getId();
+        if(userId == null) {
             return ResponseUtils.badRequest("Not authorized");
         }
 
