@@ -7,13 +7,14 @@ import org.taktik.icure.entities.samv2.embed.StoredDocumentWithPeriod
 import java.io.Serializable
 
 class VmpGroup(
+        id: String? = null,
         from: Long? = null,
         to: Long? = null,
         var code: String? = null,
         var name: SamText? = null,
         var noGenericPrescriptionReason: NoGenericPrescriptionReason? = null,
         var noSwitchReason: NoSwitchReason? = null
-) : StoredDocumentWithPeriod(from, to), Serializable {
+) : StoredDocumentWithPeriod(id, from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

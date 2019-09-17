@@ -10,10 +10,8 @@ class Vtm(
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is Vtm) return false
         if (!super.equals(other)) return false
-
-        other as Vtm
 
         if (code != other.code) return false
         if (name != other.name) return false

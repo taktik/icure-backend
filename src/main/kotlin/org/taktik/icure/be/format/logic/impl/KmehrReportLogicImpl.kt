@@ -29,7 +29,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.be.format.logic.KmehrReportImportLogic
+import org.taktik.icure.be.format.logic.KmehrReportLogic
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
@@ -52,8 +52,8 @@ import java.time.temporal.ChronoUnit
 import javax.xml.bind.JAXBContext
 
 @org.springframework.stereotype.Service
-class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportImportLogic {
-	internal var log = LogFactory.getLog(this.javaClass)
+class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
+    internal var log = LogFactory.getLog(this.javaClass)
 	var documentLogic: DocumentLogic? = null
 	var contactLogic: ContactLogic? = null
 
@@ -61,25 +61,30 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
-	@Throws(IOException::class)
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
+    @Throws(IOException::class)
 	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } } } ?: false
+		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report") } } } ?: false
     }
 
 	@Throws(IOException::class)
 	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>?): List<ResultInfo>? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && it.value == "contactreport" } }.map { t -> ResultInfo().apply {
+		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report") } }.map { t -> ResultInfo().apply {
 			ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
 			lastName = f.patient.familyname
 			firstName = f.patient.firstnames.firstOrNull()
 			dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDateTime(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
 			sex = f.patient.sex?.cd?.value?.value() ?:"unknown"
 			documentId = doc.id
-			protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
+			protocol = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
 			complete = t.isIscomplete
 			labo = getAuthorDescription(t)
 			demandDate = demandEpochMillis(t)
@@ -91,16 +96,16 @@ class KmehrReportImportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportIm
 	override fun doImport(language: String,
 		doc: Document,
 		hcpId: String,
-		protocolIds: MutableList<String>,
-		formIds: MutableList<String>,
+		protocolIds: List<String>,
+		formIds: List<String>,
 		planOfActionId: String,
 		ctc: Contact,
-		enckeys: MutableList<String>?): Contact? {
+		enckeys: List<String>?): Contact? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		msg?.folders?.forEach { f ->
-			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds.contains(it.value) } }.forEach { t ->
-				val protocolId = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
+			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.ID_KMEHR && protocolIds.contains(it.value) } }.forEach { t ->
+				val protocolId = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
 				val demandTimestamp = demandEpochMillis(t)
 
 				val s = Service().apply {
