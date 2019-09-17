@@ -207,13 +207,13 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	}
 
 	@Override
-	public List<String> findServicesByTag(String hcPartyId, String patientSecretForeignKey, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKey == null ? contactDAO.findServicesByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientTag(hcPartyId, patientSecretForeignKey, tagType, tagCode, startValueDate, endValueDate);
+	public List<String> findServicesByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
+		return patientSecretForeignKeys == null ? contactDAO.findServicesByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate);
 	}
 
 	@Override
-	public List<String> findServicesByCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKey == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKey, codeType, codeCode, startValueDate, endValueDate);
+	public List<String> findServicesByCode(String hcPartyId, List<String> patientSecretForeignKeys, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
+		return patientSecretForeignKeys == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate);
 	}
 
 	@Override

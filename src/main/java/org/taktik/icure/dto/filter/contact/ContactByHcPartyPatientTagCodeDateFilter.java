@@ -18,13 +18,16 @@
 
 package org.taktik.icure.dto.filter.contact;
 
+import java.util.List;
 
 import org.taktik.icure.dto.filter.Filter;
 import org.taktik.icure.entities.Contact;
 
 public interface ContactByHcPartyPatientTagCodeDateFilter extends Filter<String,Contact> {
 	String getHealthcarePartyId();
+	@Deprecated
     String getPatientSecretForeignKey();
+    List<String> getPatientSecretForeignKeys();
 	String getTagType();
 	String getTagCode();
 	String getCodeType();
