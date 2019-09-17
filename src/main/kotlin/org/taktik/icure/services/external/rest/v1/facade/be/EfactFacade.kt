@@ -37,7 +37,7 @@ class EfactFacade(val mapper: MapperFacade, val efactLogic: EfactLogic, val sess
     @POST
 
     @Throws(IOException::class, LoginException::class, CreationException::class)
-    fun createBatchAndMessage(@PathParam("insuranceId") insuranceId: String, @PathParam("batchRef") batchRef: String, @PathParam("numericalRef") numericalRef: Long, ids: MapOfIdsDto): MessageWithBatch {
+    fun createBatchAndMessage(@PathParam("insuranceId") insuranceId: String, @PathParam("batchRef") batchRef: String, @PathParam("numericalRef") numericalRef: Long, ids: MapOfIdsDto): MessageWithBatch? {
         val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
         val ins = insuranceLogic.getInsurance(insuranceId)
 
