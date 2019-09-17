@@ -75,7 +75,7 @@ public class HealthElementDto extends IcureDto {
     }
 
     public List<PlanOfActionDto> getPlansOfAction() {
-        if (plansOfAction == null) plansOfAction = new ArrayList<PlanOfActionDto>();
+        if (plansOfAction == null) plansOfAction = new ArrayList<>();
         return plansOfAction;
     }
 
@@ -83,7 +83,16 @@ public class HealthElementDto extends IcureDto {
         this.plansOfAction = plansOfAction;
     }
 
-	public String getDescr() {
+    public List<EpisodeDto> getEpisodes() {
+	    if(episodes == null) episodes = new ArrayList<>();
+        return episodes;
+    }
+
+    public void setEpisodes(List<EpisodeDto> episodes) {
+        this.episodes = episodes;
+    }
+
+    public String getDescr() {
 		return descr;
 	}
 
