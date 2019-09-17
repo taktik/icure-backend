@@ -22,9 +22,15 @@ package org.taktik.icure.dao.samv2
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 
 interface VmpDAO : GenericDAO<Vmp> {
     fun findVmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Vmp>
+    fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<Vmp>
+    fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
+
+    fun listVmpIdsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): List<String>
+    fun listVmpIdsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): List<String>
     fun listVmpIdsByLabel(language: String?, label: String?): List<String>
 }

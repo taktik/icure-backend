@@ -2,7 +2,7 @@ package org.taktik.icure.entities.samv2.embed
 
 import java.math.BigDecimal
 
-class Pricing(var quantity: String? = null, var label: SamText? = null) {
+class Pricing(var quantity: BigDecimal? = null, var label: SamText? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

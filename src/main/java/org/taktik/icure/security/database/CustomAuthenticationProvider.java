@@ -22,16 +22,13 @@ import org.jboss.aerogear.security.otp.Totp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.taktik.icure.constants.Users;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.PermissionLogic;
 import org.taktik.icure.logic.UserLogic;
@@ -39,7 +36,6 @@ import org.taktik.icure.properties.AuthenticationProperties;
 import org.taktik.icure.security.PermissionSet;
 import org.taktik.icure.security.PermissionSetIdentifier;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -92,7 +88,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		boolean isPartialToken = username.matches("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
 
 		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUserOnFallbackDb(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialIdOnFallbackDb(username) : userLogic.findUsersByLoginOnFallbackDb(username) ).stream().filter(u ->
-				u != null && this.isPasswordValid(u, auth.getCredentials().toString())
+				u != null && u.getStatus() == Users.Status.ACTIVE && this.isPasswordValid(u, auth.getCredentials().toString())
 		).sorted(Comparator.comparing(User::getId)).collect(Collectors.toList());
 
 		User user = null;

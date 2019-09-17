@@ -136,7 +136,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 
 	@Override
     public List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId) {
-        return patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId);
+        return patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, null);
     }
 
     @Override
@@ -311,7 +311,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
     public PaginatedList<Patient> findByHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, PaginationOffset offset, boolean descending) {
 		String sanSs = sanitizeString(searchString);
 
-		Set<String> ids = new HashSet<>(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId));
+        //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
+        //We will get partial results but at least we will not overload the servers
+        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.min(1000, offset.getLimit() * 10) : null;
+
+        Set<String> ids = new HashSet<>(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, limit));
 		List<Patient> patients = patientDAO.get(ids).stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList());
 
 		List<String> patientKeys = patients.stream().map(p -> sanitizeString(safeConcat(p.getLastName(), p.getFirstName()))).collect(Collectors.toList());
@@ -322,7 +326,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	public PaginatedList<Patient> findOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, PaginationOffset offset, boolean descending) {
 		String sanSs = sanitizeString(searchString);
 
-		Set<String> ids = new HashSet<>(patientDAO.listIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId));
+		//TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
+		//We will get partial results but at least we will not overload the servers
+        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.min(1000, offset.getLimit() * 10) : null;
+
+        Set<String> ids = new HashSet<>(patientDAO.listIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, limit));
 		List<Patient> patients = patientDAO.get(ids).stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList());
 
 		List<String> patientKeys = patients.stream().map(p -> sanitizeString(safeConcat(p.getLastName(), p.getFirstName()))).collect(Collectors.toList());

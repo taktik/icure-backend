@@ -22,6 +22,20 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
         initStandardDesignDocument()
     }
 
+    @View(name = "by_groupcode", map = "classpath:js/vmp/By_groupcode.js")
+    override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<Vmp> {
+        val from = vmpgCode
+        val to = vmpgCode
+
+        return pagedQueryView(
+                "by_groupcode",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
     @View(name = "by_language_label", map = "classpath:js/vmp/By_language_label.js")
     override fun findVmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Vmp> {
         val sanitizedLabel = label?.let { StringUtils.sanitizeString(it)}
@@ -48,6 +62,42 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 pagination,
                 false
         )
+    }
+
+    @View(name = "by_groupid", map = "classpath:js/vmp/By_groupid.js")
+    override fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp> {
+        val from = vmpgId
+        val to = vmpgId
+
+        return pagedQueryView(
+                "by_groupid",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
+    override fun listVmpIdsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): List<String> {
+        val from = vmpgCode
+        val to = vmpgCode
+
+        return db.queryView(createQuery(
+                "by_groupcode")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
+    }
+
+    override fun listVmpIdsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): List<String> {
+        val from = vmpgId
+        val to = vmpgId
+
+        return db.queryView(createQuery(
+                "by_groupid")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
     }
 
     override fun listVmpIdsByLabel(language: String?, label: String?): List<String> {
