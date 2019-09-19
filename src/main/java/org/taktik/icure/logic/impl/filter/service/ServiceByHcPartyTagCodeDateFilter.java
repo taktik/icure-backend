@@ -54,9 +54,10 @@ public class ServiceByHcPartyTagCodeDateFilter
 		try {
             String hcPartyId = filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId();
             HashSet<String> ids = null;
-            List<String> patientSFKList = filter.getPatientSecretForeignKey() != null ?
-                    Arrays.asList(filter.getPatientSecretForeignKey()) :
-                    null;
+
+            String patientSFK = filter.getPatientSecretForeignKey();
+            List<String> patientSFKList = patientSFK != null ? Arrays.asList(patientSFK) : null;
+
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
