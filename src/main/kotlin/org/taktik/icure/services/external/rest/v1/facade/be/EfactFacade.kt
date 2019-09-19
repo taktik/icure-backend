@@ -13,7 +13,6 @@ import org.taktik.icure.logic.InvoiceLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.MapOfIdsDto
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicesBatch
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import java.io.IOException
@@ -33,11 +32,11 @@ import javax.ws.rs.Produces
 @Produces("application/json")
 class EfactFacade(val mapper: MapperFacade, val efactLogic: EfactLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : OpenApiFacade {
 
-    @Path("/{insuranceId}/{batchRef}/{numericalRef}")
+    @Path("/{insuranceId}/{newMessageId}/{numericalRef}")
     @POST
 
     @Throws(IOException::class, LoginException::class, CreationException::class)
-    fun createBatchAndMessage(@PathParam("insuranceId") insuranceId: String, @PathParam("batchRef") batchRef: String, @PathParam("numericalRef") numericalRef: Long, ids: MapOfIdsDto): MessageWithBatch? {
+    fun createBatchAndMessage(@PathParam("insuranceId") insuranceId: String, @PathParam("newMessageId") newMessageId: String, @PathParam("numericalRef") numericalRef: Long, ids: MapOfIdsDto): MessageWithBatch? {
         val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
         val ins = insuranceLogic.getInsurance(insuranceId)
 
@@ -46,7 +45,7 @@ class EfactFacade(val mapper: MapperFacade, val efactLogic: EfactLogic, val sess
             invoices[key] = invoiceLogic.getInvoices(value)
         }
 
-        return efactLogic.prepareBatch(batchRef, numericalRef, hcp, ins, false, invoices)
+        return efactLogic.prepareBatch(newMessageId, numericalRef, hcp, ins, false, invoices)
     }
 }
 
