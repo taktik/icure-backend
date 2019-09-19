@@ -74,6 +74,7 @@ class KmehrFacade(
         @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic,
         val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
         val medicationSchemeLogic: MedicationSchemeLogic,
+        val diaryNoteLogic: DiaryNoteLogic,
         val kmehrNoteLogic: KmehrNoteLogic,
         val healthcarePartyLogic: HealthcarePartyLogic,
         val patientLogic: PatientLogic,
