@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareTeamMembershipDto;
 
 public class PlanOfActionDto implements Serializable {
 
@@ -36,6 +37,7 @@ public class PlanOfActionDto implements Serializable {
 
     protected Long openingDate;
     protected Long closingDate;
+    protected Long deadlineDate;
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -54,6 +56,9 @@ public class PlanOfActionDto implements Serializable {
     protected String prescriberId; //healthcarePartyId
     protected Integer numberOfCares;
     protected Integer status;
+
+    protected List<CareTeamMembershipDto> careTeamMemberships;
+
 
     public PlanOfActionDto() {
 	}
@@ -202,4 +207,12 @@ public class PlanOfActionDto implements Serializable {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public Long getDeadlineDate() { return deadlineDate; }
+
+    public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
+
+    public List<CareTeamMembershipDto> getCareTeamMemberships() { return careTeamMemberships; }
+
+    public void setCareTeamMemberships(List<CareTeamMembershipDto> careTeamMemberships) { this.careTeamMemberships = careTeamMemberships; }
 }

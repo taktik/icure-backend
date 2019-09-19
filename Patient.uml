@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.taktik.icure.entities.Patient</OriginalElement>
+  <nodes>
+    <node x="1231.487613960114" y="211.0">org.taktik.icure.entities.base.Versionable</node>
+    <node x="1309.7499999999998" y="99.0">org.taktik.icure.entities.base.Identifiable</node>
+    <node x="800.1542806267805" y="222.0">org.taktik.icure.entities.base.HasTags</node>
+    <node x="1423.4999999999998" y="0.0">java.io.Serializable</node>
+    <node x="655.9999999999998" y="665.0">org.taktik.icure.entities.embed.Insurability</node>
+    <node x="998.047799145299" y="378.0">org.taktik.icure.entities.base.ICureDocument</node>
+    <node x="328.9999999999998" y="709.0">org.taktik.icure.entities.embed.Partnership</node>
+    <node x="1720.9542877492875" y="1080.0">org.taktik.icure.entities.HealthcareParty</node>
+    <node x="1688.6564886039882" y="200.0">org.taktik.icure.entities.embed.Telecom</node>
+    <node x="0.0" y="720.0">org.taktik.icure.entities.embed.PatientHealthCareParty</node>
+    <node x="1000.1542806267805" y="222.0">org.taktik.icure.entities.base.HasCodes</node>
+    <node x="1771.087613960114" y="698.0">org.taktik.icure.entities.embed.FinancialInstitutionInformation</node>
+    <node x="1513.987613960114" y="709.0">org.taktik.icure.entities.base.Person</node>
+    <node x="1299.4999999999998" y="367.0">org.taktik.icure.entities.base.StoredDocument</node>
+    <node x="1715.1564886039882" y="345.0">org.taktik.icure.entities.embed.Address</node>
+    <node x="1024.547799145299" y="632.0">org.taktik.icure.entities.base.StoredICureDocument</node>
+    <node x="1014.4376210826208" y="1047.0">org.taktik.icure.entities.Patient</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.taktik.icure.entities.base.ICureDocument" target="org.taktik.icure.entities.base.HasTags">
+      <point x="-59.33333333333337" y="-80.5" />
+      <point x="1027.7144658119655" y="320.0" />
+      <point x="890.1542806267805" y="320.0" />
+      <point x="0.0" y="25.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.Person" target="org.taktik.icure.entities.embed.Address">
+      <point x="69.33333333333326" y="-80.5" />
+      <point x="1687.3209472934473" y="612.0" />
+      <point x="1736.7564886039881" y="612.0" />
+      <point x="-86.40000000000009" y="113.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.Telecom" target="java.io.Serializable">
+      <point x="0.0" y="-47.5" />
+      <point x="1796.1564886039882" y="69.0" />
+      <point x="1503.2499999999998" y="69.0" />
+      <point x="21.75" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.Insurability" target="java.io.Serializable">
+      <point x="0.0" y="-124.5" />
+      <point x="780.4999999999998" y="69.0" />
+      <point x="1459.7499999999998" y="69.0" />
+      <point x="-21.75" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.Person" target="java.io.Serializable">
+      <point x="0.0" y="-80.5" />
+      <point x="1617.987613960114" y="612.0" />
+      <point x="1612.9999999999998" y="612.0" />
+      <point x="1612.9999999999998" y="79.0" />
+      <point x="1488.7499999999998" y="79.0" />
+      <point x="7.25" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.base.StoredDocument">
+      <point x="35.84615384615381" y="-443.5" />
+      <point x="1283.2837749287746" y="977.0" />
+      <point x="1460.8666737891733" y="977.0" />
+      <point x="1460.8666737891733" y="612.0" />
+      <point x="1445.4999999999998" y="612.0" />
+      <point x="0.0" y="91.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.embed.Insurability">
+      <point x="-35.84615384615381" y="-443.5" />
+      <point x="1211.591467236467" y="977.0" />
+      <point x="842.7499999999998" y="977.0" />
+      <point x="62.25" y="124.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.StoredICureDocument" target="org.taktik.icure.entities.base.ICureDocument">
+      <point x="-122.33333333333326" y="-157.5" />
+      <point x="1085.7144658119657" y="612.0" />
+      <point x="1087.047799145299" y="612.0" />
+      <point x="0.0" y="80.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.Versionable" target="org.taktik.icure.entities.base.Identifiable">
+      <point x="0.0" y="-36.5" />
+      <point x="1353.487613960114" y="175.0" />
+      <point x="1367.2499999999998" y="175.0" />
+      <point x="0.0" y="25.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.Address" target="java.io.Serializable">
+      <point x="81.0" y="-113.5" />
+      <point x="1904.1564886039882" y="320.0" />
+      <point x="1914.1564886039882" y="320.0" />
+      <point x="1914.1564886039882" y="59.0" />
+      <point x="1517.7499999999998" y="59.0" />
+      <point x="36.25" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.Partnership" target="java.io.Serializable">
+      <point x="0.0" y="-80.5" />
+      <point x="482.4999999999998" y="59.0" />
+      <point x="1445.2499999999998" y="59.0" />
+      <point x="-36.25" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.ICureDocument" target="org.taktik.icure.entities.base.Identifiable">
+      <point x="59.33333333333326" y="-80.5" />
+      <point x="1146.3811324786323" y="320.0" />
+      <point x="1200.6542806267805" y="320.0" />
+      <point x="1200.6542806267805" y="175.0" />
+      <point x="1328.9166666666665" y="175.0" />
+      <point x="-38.33333333333326" y="25.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.embed.Partnership">
+      <point x="-143.38461538461547" y="-443.5" />
+      <point x="1104.0530056980053" y="1007.0" />
+      <point x="405.7499999999998" y="1007.0" />
+      <point x="-76.75" y="80.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.embed.FinancialInstitutionInformation">
+      <point x="179.23076923076928" y="-443.5" />
+      <point x="1426.66839031339" y="1017.0" />
+      <point x="1804.962613960114" y="1017.0" />
+      <point x="-101.625" y="91.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.PatientHealthCareParty" target="java.io.Serializable">
+      <point x="0.0" y="-69.5" />
+      <point x="154.5" y="49.0" />
+      <point x="1430.7499999999998" y="49.0" />
+      <point x="-50.75" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.ICureDocument" target="org.taktik.icure.entities.base.HasCodes">
+      <point x="0.0" y="-80.5" />
+      <point x="1087.047799145299" y="320.0" />
+      <point x="1095.1542806267805" y="320.0" />
+      <point x="0.0" y="25.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.base.Person">
+      <point x="71.69230769230762" y="-443.5" />
+      <point x="1319.1299287749284" y="987.0" />
+      <point x="1565.987613960114" y="987.0" />
+      <point x="-52.0" y="80.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.Address" target="org.taktik.icure.entities.embed.Telecom">
+      <point x="-81.0" y="-113.5" />
+      <point x="1742.1564886039882" y="320.0" />
+      <point x="1724.4898219373217" y="320.0" />
+      <point x="-71.66666666666674" y="47.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.embed.Address">
+      <point x="143.38461538461547" y="-443.5" />
+      <point x="1390.8222364672363" y="1007.0" />
+      <point x="1758.237613960114" y="1007.0" />
+      <point x="1758.237613960114" y="612.0" />
+      <point x="1823.1564886039882" y="612.0" />
+      <point x="0.0" y="113.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.HealthcareParty" target="org.taktik.icure.entities.embed.FinancialInstitutionInformation">
+      <point x="38.83333333333326" y="-410.5" />
+      <point x="1992.7876210826207" y="1027.0" />
+      <point x="2008.212613960114" y="1027.0" />
+      <point x="101.625" y="91.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.StoredDocument" target="org.taktik.icure.entities.base.Versionable">
+      <point x="0.0" y="-91.5" />
+      <point x="1445.4999999999998" y="320.0" />
+      <point x="1414.487613960114" y="320.0" />
+      <point x="61.0" y="36.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.HealthcareParty" target="org.taktik.icure.entities.base.Person">
+      <point x="-116.5" y="-410.5" />
+      <point x="1837.4542877492875" y="967.0" />
+      <point x="1669.987613960114" y="967.0" />
+      <point x="52.0" y="80.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.HealthcareParty" target="org.taktik.icure.entities.embed.Address">
+      <point x="116.5" y="-410.5" />
+      <point x="2070.4542877492877" y="1027.0" />
+      <point x="2101.4064886039882" y="1027.0" />
+      <point x="2101.4064886039882" y="602.0" />
+      <point x="1866.3564886039885" y="602.0" />
+      <point x="43.200000000000045" y="113.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.HealthcareParty" target="org.taktik.icure.entities.base.StoredDocument">
+      <point x="-194.16666666666674" y="-410.5" />
+      <point x="1759.7876210826207" y="977.0" />
+      <point x="1477.4999999999998" y="977.0" />
+      <point x="1477.4999999999998" y="612.0" />
+      <point x="1542.833333333333" y="612.0" />
+      <point x="97.33333333333326" y="91.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.StoredICureDocument" target="org.taktik.icure.entities.base.StoredDocument">
+      <point x="122.33333333333326" y="-157.5" />
+      <point x="1330.3811324786323" y="612.0" />
+      <point x="1348.1666666666665" y="612.0" />
+      <point x="-97.33333333333326" y="91.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.embed.FinancialInstitutionInformation" target="java.io.Serializable">
+      <point x="0.0" y="-91.5" />
+      <point x="1906.587613960114" y="612.0" />
+      <point x="1955.4064886039882" y="612.0" />
+      <point x="1955.4064886039882" y="49.0" />
+      <point x="1532.2499999999998" y="49.0" />
+      <point x="50.75" y="14.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.Person" target="org.taktik.icure.entities.base.Identifiable">
+      <point x="-69.33333333333326" y="-80.5" />
+      <point x="1548.6542806267807" y="612.0" />
+      <point x="1601.9999999999998" y="612.0" />
+      <point x="1601.9999999999998" y="175.0" />
+      <point x="1405.583333333333" y="175.0" />
+      <point x="38.33333333333326" y="25.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.base.StoredICureDocument">
+      <point x="0.0" y="-443.5" />
+      <point x="1247.4376210826208" y="967.0" />
+      <point x="1208.047799145299" y="967.0" />
+      <point x="0.0" y="157.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.Patient" target="org.taktik.icure.entities.embed.PatientHealthCareParty">
+      <point x="-179.23076923076928" y="-443.5" />
+      <point x="1068.2068518518515" y="1017.0" />
+      <point x="231.75" y="1017.0" />
+      <point x="77.25" y="69.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.StoredICureDocument" target="org.taktik.icure.entities.base.Versionable">
+      <point x="0.0" y="-157.5" />
+      <point x="1208.047799145299" y="612.0" />
+      <point x="1256.487613960114" y="612.0" />
+      <point x="1256.487613960114" y="320.0" />
+      <point x="1292.487613960114" y="320.0" />
+      <point x="-61.0" y="36.5" />
+    </edge>
+    <edge source="org.taktik.icure.entities.base.Identifiable" target="java.io.Serializable">
+      <point x="0.0" y="-25.5" />
+      <point x="1367.2499999999998" y="79.0" />
+      <point x="1474.2499999999998" y="79.0" />
+      <point x="-7.25" y="14.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="1373.0" y="821.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

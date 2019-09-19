@@ -50,7 +50,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
-        patientSecretForeignKeys.forEach { k -> sumehrServiceIds.addAll(contactLogic!!.findServicesByTag(hcPartyId, k, "CD-TRANSACTION", "sumehr", null, null)) }
+       sumehrServiceIds.addAll(contactLogic!!.findServicesByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null))
 
         if (sumehrServiceIds.isEmpty()) {
             return SumehrStatus.absent

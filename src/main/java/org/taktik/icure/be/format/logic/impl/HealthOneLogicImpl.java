@@ -693,6 +693,7 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
         return pal;
     }
 
+
     @Override
     public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output) {
         PrintWriter pw;
@@ -743,6 +744,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             pw.print("L5\\" + ref + "\\DIVER\\\\\\\\\\" + line + "\\\r\n");
         }
         pw.flush();
+    }
+
+    @Override
+    public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String mimeType, byte[] content, OutputStream output) {
+
     }
 
 

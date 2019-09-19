@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableMap;
+import org.taktik.icure.entities.embed.Periodicity;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +45,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     protected String author;
 
 	protected Set<String> regions; //ex: be,fr
-
+    protected List<Periodicity> periodicity;
 	protected String type; //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
     protected String code; //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
     protected String version; //ex: 10. Must be lexicographically searchable
@@ -236,6 +237,10 @@ public class Code extends StoredDocument implements CodeIdentification {
     public boolean isDisabled() { return disabled; }
 
     public void setDisabled(boolean disabled) { this.disabled = disabled; }
+
+    public List<Periodicity> getPeriodicity() { return periodicity; }
+
+    public void setPeriodicity(List<Periodicity> periodicity) { this.periodicity = periodicity; }
 
     @Override
 	public boolean equals(Object o) {

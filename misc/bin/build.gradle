@@ -41,6 +41,7 @@ sourceSets {
 }
 
 dependencies {
+    compile 'com.github.ajalt:clikt:2.0.0'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.2'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'

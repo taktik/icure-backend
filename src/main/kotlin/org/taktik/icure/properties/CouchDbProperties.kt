@@ -24,13 +24,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationProperties("icure.couchdb")
-class CouchDbProperties {
-	var autoUpdateViewOnChange = false
-	var prefix = ""
-	var url = "http://127.0.0.1:5984"
-	var maxConnections = 500
-	var socketTimeout = 60_000
-	var username :String? = "icure"
+data class CouchDbProperties(
+	var autoUpdateViewOnChange: Boolean  = false,
+	var prefix: String = "",
+	var url:String = "http://127.0.0.1:5984",
+	var maxConnections:Int = 500,
+	var socketTimeout:Int = 60_000,
+	var username :String? = "icure",
 	var password :String? = object : Any() {
 		internal var t: Int = 0
 		override fun toString(): String {
@@ -66,5 +66,5 @@ class CouchDbProperties {
 			return String(buf)
 		}
 	}.toString()
-}
+)
 

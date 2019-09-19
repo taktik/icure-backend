@@ -21,6 +21,8 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.entities.embed.CareTeamMember;
+import org.taktik.icure.entities.embed.Episode;
 import org.taktik.icure.entities.embed.PlanOfAction;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
@@ -35,8 +37,7 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HealthElement extends StoredICureDocument {
     @NotNull
-    private
-    String healthElementId; //The Unique UUID common to a group of HealthElements that forms an history
+    private String healthElementId; //The Unique UUID common to a group of HealthElements that forms an history
 
     //Usually one of the following is used (either valueDate or openingDate and closingDate)
     @NotNull(autoFix = AutoFix.FUZZYNOW)
@@ -56,10 +57,14 @@ public class HealthElement extends StoredICureDocument {
 
 	private String idService; //When a service is used to create the healthElement
 
-	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
+	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
-	@Valid
-	private List<PlanOfAction> plansOfAction = new java.util.ArrayList<>();
+    @Valid
+    private List<PlanOfAction> plansOfAction = new ArrayList<>();
+    @Valid
+    private List<Episode> episodes = new ArrayList<>();
+
+    private List<CareTeamMember> careTeam = new java.util.ArrayList<>();
 
     private String encryptedSelf;
 
@@ -79,12 +84,18 @@ public class HealthElement extends StoredICureDocument {
 
 		this.status = this.status == null ? other.status : this.status;
 
-		this.plansOfAction = MergeUtil.mergeListsDistinct(this.plansOfAction, other.plansOfAction,
-			(a,b)-> (a==null&&b==null)||(a!=null&&b!=null&&Objects.equals(a.getId(),b.getId())),
-			PlanOfAction::solveConflictWith);
+        this.plansOfAction = MergeUtil.mergeListsDistinct(this.plansOfAction, other.plansOfAction,
+                (a, b) -> (a == null && b == null) || (a != null && b != null && Objects.equals(a.getId(), b.getId())),
+                PlanOfAction::solveConflictWith);
 
-		return this;
-	}
+        this.careTeam = MergeUtil.mergeListsDistinct(this.careTeam, other.careTeam,Objects::equals,(a,b)->a);
+
+        this.episodes = MergeUtil.mergeListsDistinct(this.episodes, other.episodes,
+                (a, b) -> (a == null && b == null) || (a != null && b != null && Objects.equals(a.getId(), b.getId())),
+                Episode::solveConflictWith);
+
+        return this;
+    }
 
 	public Long getValueDate() {
         return valueDate;
@@ -147,12 +158,21 @@ public class HealthElement extends StoredICureDocument {
     }
 
     public List<PlanOfAction> getPlansOfAction() {
-    	if(plansOfAction == null) plansOfAction = new ArrayList<>();
+        if (plansOfAction == null) plansOfAction = new ArrayList<>();
         return plansOfAction;
     }
 
     public void setPlansOfAction(List<PlanOfAction> plansOfAction) {
         this.plansOfAction = plansOfAction;
+    }
+
+    public List<Episode> getEpisodes() {
+        if (episodes == null) episodes = new ArrayList<>();
+        return episodes;
+    }
+
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
     }
 
     public String getHealthElementId() {

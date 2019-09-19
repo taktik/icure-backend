@@ -40,49 +40,49 @@ public class Medication implements Serializable {
 	protected Substanceproduct substanceProduct;
 	protected Medicinalproduct medicinalProduct;
 
-	Integer numberOfPackages;
+	private Integer numberOfPackages;
 
-	String batch;
+	private String batch;
 
-	String instructionForPatient;
-	String commentForDelivery;
-	String drugRoute; //CD-DRUG-ROUTE
-	String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
-	Code frequency; //CD-PERIODICITY
-	Code reimbursementReason;
-	Boolean substitutionAllowed;
+	private String instructionForPatient;
+	private String commentForDelivery;
+	private String drugRoute; //CD-DRUG-ROUTE
+	private String temporality; //CD-TEMPORALITY : chronic, acute, oneshot
+	private Code frequency; //CD-PERIODICITY
+	private Code reimbursementReason;
+	private Boolean substitutionAllowed;
 
-	Long beginMoment;
-	Long endMoment;
+	private Long beginMoment;
+	private Long endMoment;
 
-	Duration duration;
-	Renewal renewal;
+	private Duration duration;
+	private Renewal renewal;
 
-	Boolean knownUsage;
+	private Boolean knownUsage;
 
-	List<RegimenItem> regimen;
-	String posology; // replace structured posology by text
+	private List<RegimenItem> regimen;
+	private String posology; // replace structured posology by text
 
-	Map<String, Content> options;
-	Map<String, ParagraphAgreement> agreements;
+	private Map<String, Content> options;
+	private Map<String, ParagraphAgreement> agreements;
 
-	String medicationSchemeIdOnSafe;
-	Integer medicationSchemeSafeVersion;
-	Long medicationSchemeTimeStampOnSafe;
-	String medicationSchemeDocumentId;
-	String safeIdName; //can be: vitalinkuri, RSWID, RSBID
-	String idOnSafes; //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
-	Long timestampOnSafe; //transaction date+time
-	Boolean changeValidated; //accept change on safe
-	Boolean newSafeMedication; //new medication on safe
-	String medicationUse; //free text
-	String beginCondition; //free text
-	String endCondition; //free text
-	String origin; // regularprocess, recorded
-	Boolean medicationChanged;
-	Boolean posologyChanged;
+	private String medicationSchemeIdOnSafe;
+	private Integer medicationSchemeSafeVersion;
+	private Long medicationSchemeTimeStampOnSafe;
+	private String medicationSchemeDocumentId;
+	private String safeIdName; //can be: vitalinkuri, RSWID, RSBID
+	private String idOnSafes; //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
+	private Long timestampOnSafe; //transaction date+time
+	private Boolean changeValidated; //accept change on safe
+	private Boolean newSafeMedication; //new medication on safe
+	private String medicationUse; //free text
+	private String beginCondition; //free text
+	private String endCondition; //free text
+	private String origin; // regularprocess, recorded
+	private Boolean medicationChanged;
+	private Boolean posologyChanged;
 
-	String prescriptionRID;
+	private String prescriptionRID;
 
 	public Map<String, Content> getOptions() {
 		return options;
