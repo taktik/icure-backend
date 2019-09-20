@@ -20,6 +20,7 @@
 package org.taktik.icure.be.format.logic.impl
 
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
@@ -54,8 +55,8 @@ import javax.xml.bind.JAXBContext
 @org.springframework.stereotype.Service
 class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
     internal var log = LogFactory.getLog(this.javaClass)
-	var documentLogic: DocumentLogic? = null
-	var contactLogic: ContactLogic? = null
+    @Autowired var documentLogic: DocumentLogic? = null
+    @Autowired var contactLogic: ContactLogic? = null
 
 	override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {
 		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -64,6 +65,7 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
     override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
 
 
     @Throws(IOException::class)
