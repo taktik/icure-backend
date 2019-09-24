@@ -30,7 +30,6 @@ import be.fgov.ehealth.ehvalidator.core.EhValidator
 import org.springframework.beans.factory.annotation.Qualifier
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
-import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201.SumehrImport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthElement
@@ -41,12 +40,13 @@ import org.taktik.icure.entities.embed.Partnership
 import org.taktik.icure.entities.embed.PatientHealthCareParty
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.ContactLogic
+import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.xml.sax.SAXException
 import java.io.InputStream
 
 @org.springframework.stereotype.Service("sumehrLogicV2")
-class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV2") val sumehrImport: SumehrImport) : SumehrLogic {
+class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: HealthcarePartyLogic, @Qualifier("sumehrExportV2") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV2") val sumehrImport: SumehrImport) : SumehrLogic {
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
@@ -101,20 +101,20 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, @Qualifier("sumehrExportV2
     }
 
 	override fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServices(hcPartyId, sfks, excludedIds, decryptor)
+        = sumehrExport.getAllServices(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, decryptor)
 
 	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, excludedIds, decryptor)
+        = sumehrExport.getAllServicesPlusPlus(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, decryptor)
 
 	override fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
-        return sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds)
+        return sumehrExport.getHealthElements(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds)
     }
 
     override fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
-        return sumehrExport.getContactPeople(hcPartyId, sfks, excludedIds, patientId)
+        return sumehrExport.getContactPeople(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
     }
 
     override fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
-        return sumehrExport.getPatientHealthCareParties(hcPartyId, sfks, excludedIds, patientId)
+        return sumehrExport.getPatientHealthCareParties(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
     }
 }

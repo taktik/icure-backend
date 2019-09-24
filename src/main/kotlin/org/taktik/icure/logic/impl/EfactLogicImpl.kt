@@ -46,6 +46,7 @@ import java.util.LinkedList
 import java.util.Optional
 import java.util.UUID
 import javax.security.auth.login.LoginException
+import kotlin.math.roundToLong
 
 @Service
 class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
@@ -174,9 +175,9 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
                         hcp,
                         encodeRefFromUUID(UUID.fromString(ivc.id)),
                         java.lang.Long.valueOf(if (ivc.code != null) ivc.code else ivc.tarificationId.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]),
-                        Math.round(reimbursement * 100),
-                        Math.round(patientIntervention * 100),
-                        Math.round(doctorSupplement * 100),
+                            (reimbursement * 100).roundToLong(),
+                            (patientIntervention * 100).roundToLong(),
+                            (doctorSupplement * 100).roundToLong(),
                         ivc.contract,
                         ivc.dateCode,
                         ivc.eidReadingHour,
