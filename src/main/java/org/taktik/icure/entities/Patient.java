@@ -558,7 +558,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
         //medicalhousecontracts
         for(MedicalHouseContract fromMedicalHouseContract:other.medicalHouseContracts){
-            Optional<MedicalHouseContract> destMedicalHouseContract = this.getMedicalHouseContracts().stream().filter(medicalHouseContract -> medicalHouseContract.getMmNihii().equals(fromMedicalHouseContract.getMmNihii())).findAny();
+            Optional<MedicalHouseContract> destMedicalHouseContract = this.getMedicalHouseContracts().stream().filter(medicalHouseContract -> medicalHouseContract.getMmNihii()!=null && medicalHouseContract.getMmNihii().equals(fromMedicalHouseContract.getMmNihii())).findAny();
             if(!destMedicalHouseContract.isPresent()){
                 this.getMedicalHouseContracts().add(fromMedicalHouseContract);
             }

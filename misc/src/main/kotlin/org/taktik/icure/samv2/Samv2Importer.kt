@@ -199,7 +199,7 @@ class Samv2Import : CliktCommand() {
                         from = from,
                         to = to,
                         code = code,
-                        vmpGroup = d.vmpGroup?.let { VmpGroup(id = vmpGroupIds[d.vmpGroup.code], code = it.code.toString(), name = it.datas?.maxBy { c -> c.from?.toGregorianCalendar()?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
+                        vmpGroup = d.vmpGroup?.let { VmpGroupStub(id = vmpGroupIds[d.vmpGroup.code], code = it.code.toString(), name = it.datas?.maxBy { c -> c.from?.toGregorianCalendar()?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         abbreviation = d.abbreviation?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.datas?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }),

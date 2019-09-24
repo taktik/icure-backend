@@ -270,6 +270,30 @@ public class ContactFacade implements OpenApiFacade {
 		}
 	}
 
+    @ApiOperation(
+            value = "List contacts found By Healthcare Party and Patient foreign keys.",
+            response = ContactDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST"
+    )
+    @POST
+    @Path("/byHcPartyPatientForeignKeys")
+    public Response findByHCPartyPatientForeignKeys(@QueryParam("hcPartyId") String hcPartyId, ListOfIdsDto patientForeignKeys) {
+        if (hcPartyId == null || patientForeignKeys == null || patientForeignKeys.getIds().size() == 0) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<Contact> contactList = contactLogic.findByHCPartyPatient(hcPartyId, patientForeignKeys.getIds());
+
+        boolean succeed = (contactList != null);
+        if (succeed) {
+            List<ContactDto> contactDtoList = contactList.stream().map(contact -> mapper.map(contact, ContactDto.class)).collect(Collectors.toList());
+            return Response.ok().entity(contactDtoList).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting Contacts failed. Please try again or read the server log.").build();
+        }
+    }
+
 	@ApiOperation(
             value = "List contacts found By Healthcare Party and secret foreign keys.",
             response = ContactDto.class,
