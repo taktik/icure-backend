@@ -227,4 +227,8 @@ public class CalendarItem extends StoredICureDocument {
     public Boolean getWasMigrated() { return wasMigrated; }
 
     public void setWasMigrated(Boolean wasMigrated) { this.wasMigrated = wasMigrated; }
+
+
+
+
 }
