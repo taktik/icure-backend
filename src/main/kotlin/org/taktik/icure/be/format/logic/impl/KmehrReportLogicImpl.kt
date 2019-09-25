@@ -46,6 +46,7 @@ import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.utils.FuzzyValues
 import java.io.IOException
 import java.io.OutputStream
+import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -72,14 +73,14 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report") } } } ?: false
+		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription") } } } ?: false
     }
 
 	@Throws(IOException::class)
 	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>?): List<ResultInfo>? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report") } }.map { t -> ResultInfo().apply {
+		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription") } }.map { t -> ResultInfo().apply {
 			ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
 			lastName = f.patient.familyname
 			firstName = f.patient.firstnames.firstOrNull()
@@ -110,12 +111,16 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 				val protocolId = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
 				val demandTimestamp = demandEpochMillis(t)
 
-				val s = Service().apply {
-					id = uuidGen.newGUID().toString()
-					content.put(language, Content(t.headingsAndItemsAndTexts.filterIsInstance(TextType::class.java).joinToString(separator = "\n") { it.value }))
-					label = "Protocol"
-					demandTimestamp?.let { valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()), ChronoUnit.SECONDS) }
-				}
+                var s: Service? = null;
+                val textItems = t.headingsAndItemsAndTexts.filterIsInstance(TextType::class.java);
+                if (textItems.isNotEmpty()) {
+                    s = Service().apply {
+                        id = uuidGen.newGUID().toString()
+                        content.put(language, Content(t.headingsAndItemsAndTexts.filterIsInstance(TextType::class.java).joinToString(separator = "\n") { it.value }))
+                        label = "Protocol"
+                        demandTimestamp?.let { valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()), ChronoUnit.SECONDS) }
+                    }
+                }
 
 				val docServices = t?.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.map { lnk ->
 					Service().apply {
@@ -148,9 +153,14 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 
 				ssc.status = SubContact.STATUS_PROTOCOL_RESULT or SubContact.STATUS_UNREAD or (if (t.isIscomplete) SubContact.STATUS_COMPLETE else 0)
 				ssc.formId = formIds[protocolIds.indexOf(protocolId)]
-				ssc.services = listOf(ServiceLink(s.id)).plus(docServices.map { ServiceLink(it.id) })
 
-				ctc.services.add(s)
+                if (s != null) {
+                    ssc.services = listOf(ServiceLink(s.id))
+                    ctc.services.add(s)
+                }
+                
+                ssc.services = ssc.services.plus(docServices.map { ServiceLink(it.id) })
+
 				ctc.services.addAll(docServices)
 				ctc.subContacts.add(ssc)
 			}
