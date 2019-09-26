@@ -73,14 +73,14 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription") } } } ?: false
+		return msg?.folders?.any { it.transactions.any { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription" || it.value == "request") } } } ?: false
     }
 
 	@Throws(IOException::class)
 	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>?): List<ResultInfo>? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
-		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription") } }.map { t -> ResultInfo().apply {
+		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription" || it.value == "request") } }.map { t -> ResultInfo().apply {
 			ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
 			lastName = f.patient.familyname
 			firstName = f.patient.firstnames.firstOrNull()
@@ -158,7 +158,7 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
                     ssc.services = listOf(ServiceLink(s.id))
                     ctc.services.add(s)
                 }
-                
+
                 ssc.services = ssc.services.plus(docServices.map { ServiceLink(it.id) })
 
 				ctc.services.addAll(docServices)
