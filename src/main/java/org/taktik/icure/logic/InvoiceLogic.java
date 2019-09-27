@@ -25,6 +25,7 @@ import org.ektorp.ComplexKey;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.dto.data.LabelledOccurence;
+import org.taktik.icure.dto.filter.chain.FilterChain;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.InvoiceType;
@@ -77,6 +78,5 @@ public interface InvoiceLogic {
 
 	void solveConflicts();
 
-
-
+	List<Invoice> filter(FilterChain<Invoice> filterChain);
 }
