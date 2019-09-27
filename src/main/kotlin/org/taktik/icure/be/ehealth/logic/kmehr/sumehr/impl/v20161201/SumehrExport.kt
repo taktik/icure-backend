@@ -218,7 +218,7 @@ class SumehrExport : KmehrExport() {
 			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 		}
 
-		return services ?: emptyList()
+		return services?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
 	}
 
 	internal fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {
@@ -268,7 +268,7 @@ class SumehrExport : KmehrExport() {
 	fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
 		return ArrayList(hcPartyIds).flatMap { healthElementLogic?.findLatestByHCPartySecretPatientKeys(it, sfks) ?: listOf() }?.filter {
 			!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false || (ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null|| (ServiceStatus.isInactive(it.status)))))
-		}?.filter { s -> !excludedIds.contains(s.id) } ?: emptyList()
+		}?.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
 	}
 
 	fun getContactPeople(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
