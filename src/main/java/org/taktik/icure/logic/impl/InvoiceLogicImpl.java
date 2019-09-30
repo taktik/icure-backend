@@ -325,10 +325,15 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				.collect(Collectors.toList());
 	}
 
-    @Override
-    public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
-        return invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
-    }
+	@Override
+	public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		return invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+	}
+
+	@Override
+	public List<String> listInvoiceIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		return invoiceDAO.listInvoiceIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+	}
 
 	@Override
 	public List<Invoice> filter(FilterChain<Invoice> filter) {
