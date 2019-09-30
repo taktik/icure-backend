@@ -46,8 +46,8 @@ public class InvoiceByHcPartyCodeDateFilter implements Filter<String, Invoice, o
 
     @Override
     public Set<String> resolve(org.taktik.icure.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter filter, Filters context) {
-        return filter.getHealthcarePartyId() != null ? new HashSet<>(invoiceLogic.listIdsByTarificationsByCode(filter.getHealthcarePartyId(), filter.code(), filter.getStartInvoiceDate(), filter.getEndInvoiceDate())) :
-                healthcarePartyLogic.getAllEntityIds().parallelStream().map(hcpId -> invoiceLogic.listIdsByTarificationsByCode(hcpId, filter.code(), filter.getStartInvoiceDate(), filter.getEndInvoiceDate()))
+        return filter.getHealthcarePartyId() != null ? new HashSet<>(invoiceLogic.listInvoiceIdsByTarificationsByCode(filter.getHealthcarePartyId(), filter.code(), filter.getStartInvoiceDate(), filter.getEndInvoiceDate())) :
+                healthcarePartyLogic.getAllEntityIds().parallelStream().map(hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code(), filter.getStartInvoiceDate(), filter.getEndInvoiceDate()))
                         .flatMap(Collection::stream).collect(Collectors.toSet());
     }
 }

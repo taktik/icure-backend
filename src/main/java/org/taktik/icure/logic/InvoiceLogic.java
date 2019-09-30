@@ -78,5 +78,7 @@ public interface InvoiceLogic {
 
 	void solveConflicts();
 
+	List<String> listInvoiceIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate);
+
 	List<Invoice> filter(FilterChain<Invoice> filterChain);
 }
