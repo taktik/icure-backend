@@ -52,6 +52,7 @@ import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.EntityReferenceLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 
 @Service
@@ -356,5 +357,10 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	@Override
 	protected InvoiceDAO getGenericDAO() {
 		return invoiceDAO;
+	}
+
+	@Autowired
+	public void setFilters(Filters filters) {
+		this.filters = filters;
 	}
 }
