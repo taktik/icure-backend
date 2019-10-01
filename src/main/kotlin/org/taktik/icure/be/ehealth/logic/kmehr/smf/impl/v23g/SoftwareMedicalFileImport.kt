@@ -644,7 +644,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     )
                             )
                         }
-                        item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
+                        item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.map {
                             extractMFIDFromUrl(it.url)
                         }.filterNotNull().map {
                             state.subcontactLinks.add(
