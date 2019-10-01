@@ -3,9 +3,10 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.embed.CareTeamMemberType;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class CareTeamMemberDto {
+public class CareTeamMemberDto implements Serializable {
     private String id;
     private CareTeamMemberType careTeamMemberType;
     private String healthcarePartyId;

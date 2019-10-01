@@ -29,6 +29,7 @@ public class DateTimeEditor extends Editor {
 	boolean displayTime;
 	boolean showPicker;
 	boolean webAgenda;
+	boolean fullDateMode;
 
 	public boolean isDisplayTime() {
 		return displayTime;
@@ -53,4 +54,11 @@ public class DateTimeEditor extends Editor {
 	public void setWebAgenda(boolean webAgenda) {
 		this.webAgenda = webAgenda;
 	}
+
+	public boolean isFullDateMode() { return fullDateMode; }
+
+	public void setFullDateMode(boolean fullDateMode) {
+		this.fullDateMode = fullDateMode;
+	}
+
 }
