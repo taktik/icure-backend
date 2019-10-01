@@ -547,6 +547,10 @@ class SumehrExport : KmehrExport() {
 									   decryptor: AsyncDecrypt?): List<String> {
         val serviceIds = mutableListOf<String>()
         val healthElements = getHealthElements(hcPartyIds, sfks, excludedIds )
+        for (healthElement in healthElements) {
+            healthElement.idService?.let {serviceIds.add(it)}
+        }
+
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
 
@@ -559,7 +563,6 @@ class SumehrExport : KmehrExport() {
 
 		for (healthElement in nonConfidentialItems) {
 			addHealthCareElement(trn, healthElement)
-            healthElement.idService?.let {serviceIds.add(it)}
         }
         return serviceIds
 	}
