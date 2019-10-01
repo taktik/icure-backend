@@ -1,9 +1,11 @@
-package org.taktik.icure.entities.embed;
+package org.taktik.icure.services.external.rest.v1.dto.embed;
+
+import org.taktik.icure.entities.embed.Address;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Employer implements Serializable {
+public class EmployerDto implements Serializable {
     private String name;
     private Address addresse;
 
@@ -19,7 +21,7 @@ public class Employer implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Employer employer = (Employer) o;
+        EmployerDto employer = (EmployerDto) o;
         return Objects.equals(name, employer.name) &&
                 Objects.equals(addresse, employer.addresse);
     }

@@ -39,6 +39,7 @@ import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Delegation;
+import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.entities.embed.PatientHealthCareParty;
 import org.taktik.icure.entities.embed.ReferralPeriod;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
@@ -129,7 +130,12 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
         return patientDAO.listIdsByHcPartyAndDateOfBirth(date, healthcarePartyId);
     }
 
-	@Override
+    @Override
+    public List<String> listByHcPartyGenderEducationProfessionIdsOnly(String healthcarePartyId, Gender gender, String education, String profession) {
+        return patientDAO.listIdsByHcPartyGenderEducationProfession(healthcarePartyId, gender, education, profession);
+    }
+
+    @Override
 	public List<String> listByHcPartyDateOfBirthIdsOnly(Integer startDate, Integer endDate, String healthcarePartyId) {
 		return patientDAO.listIdsByHcPartyAndDateOfBirth(startDate, endDate, healthcarePartyId);
 	}

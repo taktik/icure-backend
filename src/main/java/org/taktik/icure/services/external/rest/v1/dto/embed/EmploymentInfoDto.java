@@ -3,11 +3,13 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.embed.Employer;
 
-public class EmploymentInfoDto {
+import java.io.Serializable;
+
+public class EmploymentInfoDto implements Serializable {
     private Long startDate;
     private Long endDate;
     private CodeStub professionType;
-    private Employer employer;
+    private EmployerDto employer;
 
     public Long getStartDate() {
         return startDate;
@@ -33,11 +35,11 @@ public class EmploymentInfoDto {
         this.professionType = professionType;
     }
 
-    public Employer getEmployer() {
+    public EmployerDto getEmployer() {
         return employer;
     }
 
-    public void setEmployer(Employer employer) {
+    public void setEmployer(EmployerDto employer) {
         this.employer = employer;
     }
 }
