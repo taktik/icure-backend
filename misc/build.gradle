@@ -43,12 +43,13 @@ sourceSets {
 
 dependencies {
     compile group: 'com.github.ajalt', name: 'clikt', version: '2.0.0'
-    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.3.2'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.3'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
     compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '6.4.0.jre8'
     compile group: 'com.xlson.groovycsv', name: 'groovycsv', version: '1.0'
     compile group: 'net.sf.ucanaccess', name: 'ucanaccess', version: '4.0.1'
+    compile ('org.codehaus.groovy:groovy-xml:2.4.3')
     compile project(path: ':')
 }
 
@@ -60,3 +61,17 @@ configurations.all {
         force group: 'net.sf.jsignature.io-tools', name: 'easystream', version: '1.2.12'
     }
 }
+
+// for pricare migration
+/*
+springBoot {
+    mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
+}
+
+jar {
+    enabled = true
+    manifest {
+        attributes 'Main-Class': 'org.taktik.icure.db.TopazImporter.PricareImporter'
+    }
+}
+*/

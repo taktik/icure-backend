@@ -623,7 +623,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             // diagnostics are in MSOAP form but also create an HealthcareElement
                             parseAndLinkHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id, mapping, state)
                         }
-                        if(isMedication(service)) {
+                        val procedures_items_types = listOf("vaccine", "acts") // vaccine have medication data but is not a medication
+                        if(procedures_items_types.contains(cdItem)) {
+                            service.label = "Actes"
+
+                        } else if(isMedication(service)) {
                             service.label = "Medication"
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
                             state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
@@ -640,7 +644,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     )
                             )
                         }
-                        item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
+                        item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.map {
                             extractMFIDFromUrl(it.url)
                         }.filterNotNull().map {
                             state.subcontactLinks.add(
