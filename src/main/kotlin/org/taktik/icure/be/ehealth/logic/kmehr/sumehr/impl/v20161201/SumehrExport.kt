@@ -114,7 +114,8 @@ class SumehrExport : KmehrExport() {
 
 	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, decryptor: AsyncDecrypt?): FolderType {
         val hcpartyIds = getHcpHierarchyIds(sender)
-
+        val addedServiceIds = mutableListOf<String>()
+        //Create transaction
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
 			author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
@@ -126,26 +127,31 @@ class SumehrExport : KmehrExport() {
 		}
 
 		folder.transactions.add(trn)
+        //risks
+		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "adr", language, excludedIds, addedServiceIds, decryptor)
+		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "allergy", language, excludedIds, addedServiceIds, decryptor)
+		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "socialrisk", language, excludedIds, addedServiceIds, decryptor)
+		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "risk", language, excludedIds, addedServiceIds, decryptor)
 
-		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "adr", language, excludedIds, decryptor)
-		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "allergy", language, excludedIds, decryptor)
-		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "socialrisk", language, excludedIds, decryptor)
-		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "risk", language, excludedIds, decryptor)
-
+        //people: gmdmanager/contact/patienthcp
 		addGmdmanager(p, trn)
 		addContactPeople(p, trn, config, excludedIds)
 		addPatientHealthcareParties(p, trn, config, excludedIds)
 
+        //patientwill
 		addNonPassiveIrrelevantServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "intubationrefusal", "euthanasiarequest", "vaccinationrefusal", "organdonationconsent", "datareuseforclinicalresearchconsent", "datareuseforclinicaltrialsconsent", "clinicaltrialparticipationconsent"), excludedIds, decryptor)
 
+        //vac/med
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, decryptor)
 		addMedications(hcpartyIds, sfks, trn, excludedIds, decryptor)
 
-		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, decryptor, false, "problem")
-		addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, decryptor, false, "problem")
+        //healthelement healthissue
+        addedServiceIds.addAll( addHealthCareElements(hcpartyIds, sfks, trn, excludedIds, decryptor))
 
-		addHealthCareElements(hcpartyIds, sfks, trn, excludedIds, decryptor)
+        addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, addedServiceIds, decryptor, false, "problem")
+        addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, addedServiceIds, decryptor, false, "problem")
 
+        //global comment
 		if (comment?.length ?: 0 > 0) {
 			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
 		}
@@ -267,7 +273,8 @@ class SumehrExport : KmehrExport() {
 
 	fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>): List<HealthElement> {
 		return ArrayList(hcPartyIds).flatMap { healthElementLogic?.findLatestByHCPartySecretPatientKeys(it, sfks) ?: listOf() }?.filter {
-			!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false || (ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null|| (ServiceStatus.isInactive(it.status)))))
+			(!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
+                &&  !(ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null|| (ServiceStatus.isInactive(it.status)))))
 		}?.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
 	}
 
@@ -335,12 +342,14 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	internal fun addNonPassiveIrrelevantServiceUsingContent(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null) {
-		try {
-			val services = getNonPassiveIrrelevantServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, decryptor)
-			val nonConfidentialItems = getNonConfidentialItems(services)
-			addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
+	internal fun addNonPassiveIrrelevantServiceUsingContent(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, addedServiceIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null): List<String> {
+        val serviceIds = mutableListOf<String>()
+        try {
 
+			val services = getNonPassiveIrrelevantServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, decryptor)
+			var nonConfidentialItems = getNonConfidentialItems(services)
+			addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
+            nonConfidentialItems = nonConfidentialItems.filter{ s -> !addedServiceIds.contains(s.id)}
 			if (nonConfidentialItems.isEmpty()) {
 				log.debug("_writeItems : no services found with cd-item " + cdItem)
 			} else {
@@ -377,6 +386,9 @@ class SumehrExport : KmehrExport() {
 						if (svc.comment != null) {
 							it.texts.add(TextType().apply { l = "fr"; value = svc.comment })
 						}
+                        if(svc.healthElementsIds.count()  > 0){
+                            svc.id?.let { serviceIds.add(it) }
+                        }
 						items.add(it)
 					}
 				}
@@ -384,6 +396,7 @@ class SumehrExport : KmehrExport() {
 		} catch (e: RuntimeException) {
 			log.error("Unexpected error", e)
 		}
+        return serviceIds
 	}
 
 	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
@@ -531,8 +544,8 @@ class SumehrExport : KmehrExport() {
 									   sfks: List<String>,
 									   trn: TransactionType,
 									   excludedIds: List<String>,
-									   decryptor: AsyncDecrypt?) {
-
+									   decryptor: AsyncDecrypt?): List<String> {
+        val serviceIds = mutableListOf<String>()
         val healthElements = getHealthElements(hcPartyIds, sfks, excludedIds )
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
@@ -546,7 +559,9 @@ class SumehrExport : KmehrExport() {
 
 		for (healthElement in nonConfidentialItems) {
 			addHealthCareElement(trn, healthElement)
-		}
+            healthElement.idService?.let {serviceIds.add(it)}
+        }
+        return serviceIds
 	}
 
 	internal fun addHealthCareElement(trn: TransactionType, eds: HealthElement) {
@@ -570,8 +585,17 @@ class SumehrExport : KmehrExport() {
 				version = "1.11"
 			}
 
+            eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthissue"}?.apply {
+                code = "problem"
+                version = "1.11"
+            }
 
-			listOf("problem", "allergy", "adr", "risk", "socialrisk").forEach { edType ->
+            eds.tags?.find {it.type == "CD-ITEM" && it.code == "surgery"}?.apply {
+                code = "treatment"
+                version = "1.11"
+            }
+
+			listOf("problem", "allergy", "adr", "risk", "socialrisk", "treatment").forEach { edType ->
 				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
                     createItemWithContent(eds, items.size+1, edType, listOf(makeContent("fr", Content(eds.descr))).filterNotNull())?.let {
                         eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
