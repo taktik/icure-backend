@@ -29,6 +29,7 @@ public class SumehrExportInfoDto implements Serializable {
 	List<String> excludedIds;
 	HealthcarePartyDto recipient;
 	String comment;
+	Boolean includeIrrelevantInformation;
 
 	public List<String> getSecretForeignKeys() {
 		return secretForeignKeys;
@@ -64,4 +65,12 @@ public class SumehrExportInfoDto implements Serializable {
 	public void setRecipient(HealthcarePartyDto recipient) {
 		this.recipient = recipient;
 	}
+
+    public Boolean getIncludeIrrelevantInformation() {
+        return includeIrrelevantInformation;
+    }
+
+    public void setIncludeIrrelevantInformation(Boolean includeIrrelevantInformation) {
+        this.includeIrrelevantInformation = includeIrrelevantInformation;
+    }
 }
