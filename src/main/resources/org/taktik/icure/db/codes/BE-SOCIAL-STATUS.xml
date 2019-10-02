@@ -1,0 +1,94 @@
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Social status codes</NAME>
+    <VALUE>
+        <CODE>0</CODE>
+        <DESCRIPTION L='fr'>Statut social inconnu</DESCRIPTION>
+        <DESCRIPTION L='nl'>Sociaal statuut niet gekend</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>1</CODE>
+        <DESCRIPTION L='fr'>Pas de statut social</DESCRIPTION>
+        <DESCRIPTION L='nl'>Geen sociaal statuut</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>2</CODE>
+        <DESCRIPTION L='fr'>Chômage</DESCRIPTION>
+        <DESCRIPTION L='nl'>Werkloosheid</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>3</CODE>
+        <DESCRIPTION L='fr'>Maladie mutuelle</DESCRIPTION>
+        <DESCRIPTION L='nl'>Ziekteuitkering</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>4</CODE>
+        <DESCRIPTION L='fr'>Maladie invalidité</DESCRIPTION>
+        <DESCRIPTION L='nl'>Invaliditeit</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>5</CODE>
+        <DESCRIPTION L='fr'>CPAS</DESCRIPTION>
+        <DESCRIPTION L='nl'>OCMW</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>6</CODE>
+        <DESCRIPTION L='fr'>Handicapé(e)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Gehandicapt</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>7</CODE>
+        <DESCRIPTION L='fr'>Pensionné(e)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Gepensioneerd</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>8</CODE>
+        <DESCRIPTION L='fr'>Etudiant(e)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Student</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>9</CODE>
+        <DESCRIPTION L='fr'>Cohabitant(e)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Samenwonend</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>10</CODE>
+        <DESCRIPTION L='fr'>Travail</DESCRIPTION>
+        <DESCRIPTION L='nl'>Werk</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>11</CODE>
+        <DESCRIPTION L='fr'>Autre</DESCRIPTION>
+        <DESCRIPTION L='nl'>Andere</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>12</CODE>
+        <DESCRIPTION L='fr'>Illégal</DESCRIPTION>
+        <DESCRIPTION L='nl'>Illegaal</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>13</CODE>
+        <DESCRIPTION L='fr'>(Candidat) Réfugié politique</DESCRIPTION>
+        <DESCRIPTION L='nl'>(Kand) Politiek Vluchteling</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+    <VALUE>
+        <CODE>14</CODE>
+        <DESCRIPTION L='fr'>SDF</DESCRIPTION>
+        <DESCRIPTION L='nl'>Dakloze</DESCRIPTION>
+        <DESCRIPTION L='en'/>
+    </VALUE>
+</kmehr-cd>

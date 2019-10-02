@@ -23,6 +23,7 @@ import org.taktik.icure.db.Sorting;
 import org.taktik.icure.dto.filter.chain.FilterChain;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Delegation;
+import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
 import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.db.PaginationOffset;
@@ -89,7 +90,9 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 
     List<String> listByHcPartyDateOfBirthIdsOnly(Integer date, String healthcarePartyId);
 
-	List<String> listByHcPartyDateOfBirthIdsOnly(Integer startDate, Integer endDate, String healthcarePartyId);
+    List<String> listByHcPartyGenderEducationProfessionIdsOnly(String healthcarePartyId, Gender gender, String education, String profession);
+
+    List<String> listByHcPartyDateOfBirthIdsOnly(Integer startDate, Integer endDate, String healthcarePartyId);
 
 	List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId);
 
