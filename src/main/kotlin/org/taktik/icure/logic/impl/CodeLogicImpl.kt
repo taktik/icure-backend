@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.ObjectUtils
+import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -35,6 +36,7 @@ import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
+import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.logic.CodeLogic
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
@@ -48,6 +50,8 @@ import kotlin.collections.HashMap
 
 @Service
 class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
+    val log = LogFactory.getLog(this.javaClass)
+
     override fun getTagTypeCandidates(): List<String> {
         return Arrays.asList("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
     }
@@ -170,14 +174,18 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
             val stack = LinkedList<Code>()
 
             val batchSave : (Code?, Boolean?) -> Unit = { c, flush ->
-                c?.let { stack.push(it) }
+                c?.let { stack.add(it) }
                 if (stack.size == 100 || flush == true) {
                     val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
-                    codeDAO.save(stack.map { c ->
-                        val prev = existings[c.id]
-                        prev?.let { c.rev = it.rev }
-                        c
-                    })
+                    try {
+                        codeDAO.save(stack.map { c ->
+                            val prev = existings[c.id]
+                            prev?.let { c.rev = it.rev }
+                            c
+                        })
+                    } catch (e:BulkUpdateConflictException) {
+                        log.error("${e.conflicts.size} conflicts for type $type")
+                    }
                     stack.clear()
                 }
             }
@@ -233,6 +241,8 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
                 saxParser.parse(stream, handler)
                 batchSave(null, true)
                 create(Code("ICURE-SYSTEM", md5, "1"))
+            } catch(e:IllegalArgumentException) {
+                //Skip
             } finally {
                 stream.close()
             }
