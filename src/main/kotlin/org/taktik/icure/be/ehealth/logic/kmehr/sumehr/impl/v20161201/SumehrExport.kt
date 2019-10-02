@@ -151,11 +151,13 @@ class SumehrExport : KmehrExport() {
         addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, addedServiceIds, decryptor, false, "problem")
         addNonPassiveIrrelevantServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, addedServiceIds, decryptor, false, "problem")
 
+        addNoContentItemIfNeeded(trn, "problem")
+        addNoContentItemIfNeeded(trn, "treatment")
+
         //global comment
 		if (comment?.length ?: 0 > 0) {
 			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
 		}
-
 		//Remove empty headings
 		val iterator = folder.transactions[0].headingsAndItemsAndTexts.iterator()
 		while (iterator.hasNext()) {
@@ -168,6 +170,38 @@ class SumehrExport : KmehrExport() {
 		}
 		return folder
 	}
+
+    fun addNoContentItemIfNeeded(trn: TransactionType, type: String){
+        //TODO: implementation can sure be shorter ...
+        val history = getHistory(trn).headingsAndItemsAndTexts
+        val assessment = getAssessment(trn).headingsAndItemsAndTexts
+
+        val hasHistoryItem = history.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .any { item ->
+                    item.cds.filterNotNull().any { cd ->
+                        cd.value == type
+                    }
+            }
+
+        val hasAssessmentItem = assessment.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .any { item ->
+                item.cds.filterNotNull().any { cd ->
+                    cd.value == type
+                }
+            }
+        if(!(hasHistoryItem || hasAssessmentItem)){
+            trn.headingsAndItemsAndTexts.add(ItemType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
+                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); nullFlavor = "NA"; value = type })
+                lifecycle =  LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
+                    value = CDLIFECYCLEvalues.INACTIVE } }
+            })
+        }
+
+
+    }
 
     fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String> {
         val hcpartyIds = HashSet<String>()
