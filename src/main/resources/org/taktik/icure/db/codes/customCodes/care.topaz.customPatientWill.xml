@@ -56,4 +56,16 @@
         <DESCRIPTION L="nl">Vaccinatie</DESCRIPTION>
         <DESCRIPTION L="en">Vaccination</DESCRIPTION>
     </VALUE>
+    <VALUE>
+        <CODE>hospitalisation</CODE>
+        <DESCRIPTION L="fr">Hospitalisation</DESCRIPTION>
+        <DESCRIPTION L="nl">Ziekenhuisopname</DESCRIPTION>
+        <DESCRIPTION L="en">Hospitalisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>resuscitation</CODE>
+        <DESCRIPTION L="fr">Réanimation</DESCRIPTION>
+        <DESCRIPTION L="nl">Reanimatie</DESCRIPTION>
+        <DESCRIPTION L="en">Resuscitation</DESCRIPTION>
+    </VALUE>
 </kmehr-cd>
