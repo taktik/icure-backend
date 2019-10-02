@@ -247,7 +247,7 @@ class SumehrExportTest {
         val excludedIds = listOf("")
 
         //Execution
-        val md5 = sumehrExport.getMd5(hcPartyId, patient, sfks, excludedIds)
+        val md5 = sumehrExport.getMd5(hcPartyId, patient, sfks, excludedIds, false)
 
         //Tests
         assertNotNull(md5)
@@ -307,7 +307,7 @@ class SumehrExportTest {
         val excludedIds = listOf("excludedId")
 
         // Execution
-        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(file1)
@@ -339,7 +339,7 @@ class SumehrExportTest {
         this.services.add(listOf(Service().apply { id = "healthcareelement"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
 
         // Execute
-        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, "fr", config, "comment", excludedIds, decryptor)
+        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, "fr", config, "comment", excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(folder)
@@ -770,7 +770,7 @@ class SumehrExportTest {
         ))
 
         // Execute
-        sumehrExport.addActiveServicesAsCD(hcPartyId, sfks, transaction, cdItem, type, values, excludedIds, includeIrrelevantInformation, decryptor)
+        sumehrExport.addActiveServicesAsCD(hcPartyId, sfks, transaction, cdItem, type, values, excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(transaction)

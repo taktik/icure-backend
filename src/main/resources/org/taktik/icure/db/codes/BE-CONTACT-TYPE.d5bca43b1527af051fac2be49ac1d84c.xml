@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Contact type</NAME>
+    <VALUE>
+        <CODE>1</CODE>
+        <DESCRIPTION L="fr">Consultation</DESCRIPTION>
+        <DESCRIPTION L="nl">Raadpleging</DESCRIPTION>
+        <DESCRIPTION L="en">Consultation</DESCRIPTION>
+        <CD-ENCOUNTER>consultation</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>2</CODE>
+        <DESCRIPTION L="fr">Visite</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezoek</DESCRIPTION>
+        <DESCRIPTION L="en">Home visit</DESCRIPTION>
+        <CD-ENCOUNTER>homevisit</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>3</CODE>
+        <DESCRIPTION L="fr">Avis téléphonique</DESCRIPTION>
+        <DESCRIPTION L="nl">Telefonisch consult</DESCRIPTION>
+        <DESCRIPTION L="en">Telephonic consultation</DESCRIPTION>
+        <CD-ENCOUNTER>telephonicconsultation</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>4</CODE>
+        <DESCRIPTION L="fr">Contact Dossier</DESCRIPTION>
+        <DESCRIPTION L="nl">Dossiercontact</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>5</CODE>
+        <DESCRIPTION L="fr">Consultation pluridisciplinaire</DESCRIPTION>
+        <DESCRIPTION L="nl">Multidisciplinair raadpleging</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER>multidisciplinaryconsult</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>6</CODE>
+        <DESCRIPTION L="fr">Visite en maison de repos</DESCRIPTION>
+        <DESCRIPTION L="nl">Rusthuis bezoek</DESCRIPTION>
+        <DESCRIPTION L="en">Rest home visit</DESCRIPTION>
+        <CD-ENCOUNTER>resthomevisit</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>7</CODE>
+        <DESCRIPTION L="fr">Consultation électronique</DESCRIPTION>
+        <DESCRIPTION L="nl">E-raadpleging</DESCRIPTION>
+        <DESCRIPTION L="en">E consultation</DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>8</CODE>
+        <DESCRIPTION L="fr">Visite urgente</DESCRIPTION>
+        <DESCRIPTION L="nl">Dringend bezoek</DESCRIPTION>
+        <DESCRIPTION L="en">Emergency home visit</DESCRIPTION>
+        <CD-ENCOUNTER>emergencyhomevisit</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>9</CODE>
+        <DESCRIPTION L="fr">Autre</DESCRIPTION>
+        <DESCRIPTION L="nl">Ander</DESCRIPTION>
+        <DESCRIPTION L="en">Other</DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>10</CODE>
+        <DESCRIPTION L="fr">Absent au rendez-vous</DESCRIPTION>
+        <DESCRIPTION L="nl">Niet op afspraak</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>11</CODE>
+        <DESCRIPTION L="fr">Protocole</DESCRIPTION>
+        <DESCRIPTION L="nl">Verslagbrief</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>12</CODE>
+        <DESCRIPTION L="fr">Réunion pluridisciplinaire</DESCRIPTION>
+        <DESCRIPTION L="nl">Multidisciplinair overleg</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER>Multidisciplinary meeting</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>13</CODE>
+        <DESCRIPTION L="fr">Laboratoire</DESCRIPTION>
+        <DESCRIPTION L="nl">Laboresultaat</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER>Lab result</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>14</CODE>
+        <DESCRIPTION L="fr">Sumehr</DESCRIPTION>
+        <DESCRIPTION L="nl">Sumehr</DESCRIPTION>
+        <DESCRIPTION L="en">Sumehr</DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>15</CODE>
+        <DESCRIPTION L="fr">Échéance collective</DESCRIPTION>
+        <DESCRIPTION L="nl">Collectieve planning</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>16</CODE>
+        <DESCRIPTION L="fr">Renouvellement d'ordonnance</DESCRIPTION>
+        <DESCRIPTION L="nl">Herhaalvoorschrift</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER>Renewal prescription</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>17</CODE>
+        <DESCRIPTION L="fr">Schéma</DESCRIPTION>
+        <DESCRIPTION L="nl">Schema</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>18</CODE>
+        <DESCRIPTION L="fr">SMF/PMF</DESCRIPTION>
+        <DESCRIPTION L="nl">SMF/PMF</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>19</CODE>
+        <DESCRIPTION L="fr">DMG+</DESCRIPTION>
+        <DESCRIPTION L="nl">GMD+</DESCRIPTION>
+        <DESCRIPTION L="en"></DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>20</CODE>
+        <DESCRIPTION L="fr">Intervention</DESCRIPTION>
+        <DESCRIPTION L="nl">Interventie</DESCRIPTION>
+        <DESCRIPTION L="en">Intervention</DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>21</CODE>
+        <DESCRIPTION L="fr">eForms</DESCRIPTION>
+        <DESCRIPTION L="nl">eForms</DESCRIPTION>
+        <DESCRIPTION L="en">eForms</DESCRIPTION>
+        <CD-ENCOUNTER></CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>22</CODE>
+        <DESCRIPTION L="fr">Hospitalisation</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <DESCRIPTION L="en">Hospital</DESCRIPTION>
+        <CD-ENCOUNTER>hospital</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>23</CODE>
+        <DESCRIPTION L="fr">Admission aux urgences</DESCRIPTION>
+        <DESCRIPTION  L="nl"></DESCRIPTION>
+        <DESCRIPTION L="en">Emergency</DESCRIPTION>
+        <CD-ENCOUNTER>emergency</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>24</CODE>
+        <DESCRIPTION L="fr">Séjour en one day</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <DESCRIPTION L="en">One day</DESCRIPTION>
+        <CD-ENCOUNTER>oneday</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>25</CODE>
+        <DESCRIPTION L="fr">Technique</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <DESCRIPTION L="en">Technical</DESCRIPTION>
+        <CD-ENCOUNTER>technical</CD-ENCOUNTER>
+    </VALUE>
+    <VALUE>
+        <CODE>26</CODE>
+        <DESCRIPTION L="fr">Consultation hôpital</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <DESCRIPTION L="en">Consult</DESCRIPTION>
+        <CD-ENCOUNTER>consult</CD-ENCOUNTER>
+    </VALUE>
+</kmehr-cd>

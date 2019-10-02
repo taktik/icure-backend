@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>BVT Available Materials</NAME>
+  <VALUE>
+    <CODE>blood</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>correspondingnormaltissue</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>cytology</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>dna</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>other</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>plasma</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>proteins</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>rna</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>serum</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>tissue</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>urine</CODE>
+  </VALUE>
+</kmehr-cd>

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>BCR Differentiation Degree</NAME>
+  <VALUE>
+    <CODE>bcell</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>moderatelydifferentiated</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>nkcell</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>nullcell</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>poorlydifferentiated</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>tcell</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>undifferentiatedanaplastic</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>unknown</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>welldifferentiated</CODE>
+  </VALUE>
+</kmehr-cd>

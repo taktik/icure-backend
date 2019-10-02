@@ -36,10 +36,15 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.logic.CodeLogic
+import org.xml.sax.Attributes
+import org.xml.sax.helpers.DefaultHandler
+import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 import java.util.stream.Collectors
 import javax.security.auth.login.LoginException
+import javax.xml.parsers.SAXParserFactory
+import kotlin.collections.HashMap
 
 @Service
 class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
@@ -51,11 +56,11 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
         return Arrays.asList("fr", "be")
     }
 
-    override fun get(id: String): Code {
+    override fun get(id: String): Code? {
         return codeDAO[id]
     }
 
-    override fun get(@NotNull type: String, @NotNull code: String, @NotNull version: String): Code {
+    override fun get(@NotNull type: String, @NotNull code: String, @NotNull version: String): Code? {
         return codeDAO["$type|$code|$version"]
     }
 
@@ -84,7 +89,7 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
 
         updateEntities(setOf(code))
 
-        return this.get(code.id)
+        return this.get(code.id)!!
     }
 
     override fun findCodeTypes(type: String?): List<String> {
@@ -155,6 +160,87 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
 
     }
 
+    override fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
+        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id))
+
+        if (check.isEmpty()) {
+            val factory = SAXParserFactory.newInstance();
+            val saxParser = factory.newSAXParser();
+
+            val stack = LinkedList<Code>()
+
+            val batchSave : (Code?, Boolean?) -> Unit = { c, flush ->
+                c?.let { stack.push(it) }
+                if (stack.size == 100 || flush == true) {
+                    val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+                    codeDAO.save(stack.map { c ->
+                        val prev = existings[c.id]
+                        prev?.let { c.rev = it.rev }
+                        c
+                    })
+                    stack.clear()
+                }
+            }
+
+            val handler = object : DefaultHandler() {
+                var initialized = false
+                var version: String? = null
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: Code? = null
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "kmehr-cd") {
+                        throw IllegalArgumentException("Not supported")
+                    }
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VERSION" -> charsHandler = {
+                                version = it
+                            }
+                            "VALUE" -> {
+                                code = Code(type, null, version).apply { label = HashMap() }
+                            }
+                            "CODE" -> charsHandler = { code?.code = it }
+                            "DESCRIPTION" -> charsHandler = { code?.label?.put(attributes?.getValue("L"), it) }
+                            else -> {
+                                charsHandler = null
+                            }
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VALUE" -> {
+                                batchSave(code, false)
+                            }
+                            else -> null
+                        }
+                    }
+
+                }
+            }
+            try {
+                saxParser.parse(stream, handler)
+                batchSave(null, true)
+                create(Code("ICURE-SYSTEM", md5, "1"))
+            } finally {
+                stream.close()
+            }
+        } else {
+            stream.close()
+        }
+    }
+
     override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
         var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.filter))
         if (filterChain.predicate != null || sort != null && sort != "id") {
@@ -199,14 +285,14 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
     }
 
 
-    override fun getOrCreateCode(type: String, code: String): Code {
+    override fun getOrCreateCode(type: String, code: String, version: String): Code {
         val codes = findCodesBy(type, code, null)
 
         if (codes.isNotEmpty()) {
             return codes.stream().sorted { a, b -> b.version.compareTo(a.version) }.findFirst().get()
         }
 
-        return this.create(Code(type, code, "1.0"))
+        return this.create(Code(type, code, version))
     }
 
 	override fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code {
