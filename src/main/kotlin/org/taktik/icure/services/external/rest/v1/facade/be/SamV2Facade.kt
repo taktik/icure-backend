@@ -132,7 +132,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     @GET
     @Path("/vmp/byGroupId/{vmpgId}")
     fun findPaginatedVmpsByGroupId(
-            @ApiParam(value = "vmpgCode", required = true) @PathParam("vmpgId") vmpgId: String,
+            @ApiParam(value = "vmpgId", required = true) @PathParam("vmpgId") vmpgId: String,
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @QueryParam("startKey") startKey: String?,
             @ApiParam(value = "A vmp document ID", required = false) @QueryParam("startDocumentId") startDocumentId: String?,
@@ -293,7 +293,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
-    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
     @Path("/vmpgroup")
     fun findPaginatedVmpGroupsByLabel(

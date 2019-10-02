@@ -2,7 +2,9 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 import org.taktik.icure.entities.embed.MembershipType;
 
-public class CareTeamMembershipDto {
+import java.io.Serializable;
+
+public class CareTeamMembershipDto implements Serializable {
     private Long startDate;
     private Long endDate;
     private String careTeamMemberId;

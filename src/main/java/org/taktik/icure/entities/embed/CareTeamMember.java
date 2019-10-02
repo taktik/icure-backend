@@ -2,9 +2,10 @@ package org.taktik.icure.entities.embed;
 
 import org.taktik.icure.entities.base.CodeStub;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class CareTeamMember {
+public class CareTeamMember implements Serializable {
     private String id;
     private CareTeamMemberType careTeamMemberType;
     private String healthcarePartyId;

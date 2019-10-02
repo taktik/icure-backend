@@ -46,6 +46,7 @@ import java.util.LinkedList
 import java.util.Optional
 import java.util.UUID
 import javax.security.auth.login.LoginException
+import kotlin.math.roundToLong
 
 @Service
 class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
@@ -63,6 +64,14 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return uuid
     }
 
+    private fun encodeShortRefFromUUID(uuid: UUID): String {
+        val bb = java.nio.ByteBuffer.wrap(ByteArray(16))
+        bb.putLong(uuid.mostSignificantBits)
+        bb.putLong(uuid.leastSignificantBits)
+
+        return BigInteger(1, bb.array().sliceArray(0 until 8)).toString(36).padStart(13, '0')
+    }
+
     private fun encodeRefFromUUID(uuid: UUID): String {
         val bb = java.nio.ByteBuffer.wrap(ByteArray(16))
         bb.putLong(uuid.mostSignificantBits)
@@ -71,6 +80,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return BigInteger(1, bb.array()).toString(36)
     }
 
+
     protected fun encodeNumberFromUUID(uuid: UUID): Long? {
         val bb = java.nio.ByteBuffer.wrap(ByteArray(16))
         bb.putLong(uuid.mostSignificantBits)
@@ -78,15 +88,22 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return BigInteger(1, Arrays.copyOfRange(bb.array(), 0, 4)).toLong()
     }
 
-    private fun createBatch(batchRef: String, `is`: Insurance, ivs: Map<String, List<org.taktik.icure.entities.Invoice>>, hcp: HealthcareParty): InvoicesBatch {
+    private fun createBatch(sendNumber: Int, messageId: String, `is`: Insurance, ivs: Map<String, List<org.taktik.icure.entities.Invoice>>, hcp: HealthcareParty): InvoicesBatch {
         val invBatch = InvoicesBatch()
 
         val calendar = Calendar.getInstance()
 
+        val longRef = encodeRefFromUUID(UUID.fromString(messageId));
+        val shortRef = encodeShortRefFromUUID(UUID.fromString(messageId));
+
         invBatch.invoicingYear = calendar.get(Calendar.YEAR)
         invBatch.invoicingMonth = calendar.get(Calendar.MONTH) + 1
-        invBatch.batchRef = "" + batchRef
+        invBatch.uniqueSendNumber = sendNumber.toLong()
+        invBatch.batchRef = "" + longRef
+        invBatch.fileRef = "" + shortRef
         invBatch.ioFederationCode = `is`.code
+
+        invBatch.numericalRef = invBatch.invoicingYear.toLong() * 1000000 + (invBatch.ioFederationCode!!).toLong() * 1000 + sendNumber;
 
         assert(hcp.cbe != null)
         assert(hcp.nihii != null)
@@ -102,6 +119,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
         invBatch.sender = InvoiceSender().apply{
             this.nihii = java.lang.Long.valueOf(hcp.nihii!!.replace("[^0-9]".toRegex(), ""))
+            this.ssin = hcp.ssin!!.replace("[^0-9]".toRegex(), "")
             this.bic = bic
             this.iban = iban
             this.firstName = hcp.firstName
@@ -157,9 +175,9 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
                         hcp,
                         encodeRefFromUUID(UUID.fromString(ivc.id)),
                         java.lang.Long.valueOf(if (ivc.code != null) ivc.code else ivc.tarificationId.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]),
-                        Math.round(reimbursement * 100),
-                        Math.round(patientIntervention * 100),
-                        Math.round(doctorSupplement * 100),
+                            (reimbursement * 100).roundToLong(),
+                            (patientIntervention * 100).roundToLong(),
+                            (doctorSupplement * 100).roundToLong(),
                         ivc.contract,
                         ivc.dateCode,
                         ivc.eidReadingHour,
@@ -238,10 +256,8 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return invoiceItem
     }
 
-    override fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch {
+    override fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch? {
         synchronized(this) {
-            val invBatch = createBatch(encodeRefFromUUID(UUID.fromString(batchRef)).substring(0, 13), insurance, invoices, hcp)
-
             var zonedDateTime = ZonedDateTime.now().minusDays(1)
             for (invoice in invoices.values.flatten()) {
                 val invoiceDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(invoice.invoiceDate!!), ZoneId.systemDefault())
@@ -252,40 +268,51 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
             val prefix = "efact:${hcp.id}:${insurance.code}:"
             val latestPrefix = entityReferenceLogic.getLatest(prefix)
-            val sendNumber = prefix + ("" + (((latestPrefix?.id?.let { it.substring(prefix.length).toLong() } ?: 0) + 1) % 1000000000)).padStart(9 /*1 billion invoices that are going to be mod 1000*/, '0')
-            val er = entityReferenceLogic.createEntities(listOf(EntityReference().apply {
-                id = sendNumber
-                docId =  batchRef
-            }), listOf())
+            val entityRefId = prefix + ("" + (((latestPrefix?.id?.let { it.substring(prefix.length).toLong() } ?: 0) + 1) % 1000000000)).padStart(9 /*1 billion invoices that are going to be mod 1000*/, '0')
+            val entityRefs = mutableListOf<EntityReference>()
+            entityReferenceLogic.createEntities(listOf(EntityReference().apply {
+                id = entityRefId
+                docId =  messageId
+            }), entityRefs)
 
-            val mm = org.taktik.icure.entities.Message()
+            return entityRefs.firstOrNull()?.let { ref ->
+                val sendNumber = ref.id.split(":").last()
 
-            mm.id = batchRef
-            mm.invoiceIds = invoices.values.flatMap { it.map { it.id } }
-            mm.subject = "Facture tiers payant"
-            mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
-            mm.transportGuid = "EFACT:BATCH:$numericalRef"
-            mm.author = sessionLogic.currentSessionContext.user.id
-            mm.responsible = hcp.id
-            mm.fromHealthcarePartyId = hcp.id
-            mm.recipients = setOf(insurance.id)
-            mm.externalRef = ("" + sendNumber.toLong() % 1000).padStart(3, '0')
-            mm.metas = mapOf(
-                "ioFederationCode" to (invBatch.ioFederationCode  ?: ""),
-                "numericalRef" to (invBatch.numericalRef?.toString() ?: ""),
-                "invoiceMonth" to (invBatch.numericalRef?.toString() ?: ""),
-                "invoiceYear" to (invBatch.invoicingYear.toString()),
-                "totalAmount" to (invoices.values.sumByDouble { it.sumByDouble { it.invoicingCodes.sumByDouble { it.reimbursement } } } ).toString()
-                            )
-            val delegations = HashMap<String, Set<Delegation>>()
-            delegations[hcp.id] = HashSet()
+                val mm = org.taktik.icure.entities.Message()
 
-            mm.delegations = delegations
-            mm.toAddresses = setOf(insurance.address?.telecoms?.first { t: Telecom -> t.telecomType == TelecomType.email && t.telecomNumber?.isNotEmpty() ?: false }?.let { it.telecomNumber } ?: insurance.code)
-            mm.sent = System.currentTimeMillis()
+                mm.id = messageId
+                mm.invoiceIds = invoices.values.flatMap { it.map { it.id } }
+                mm.subject = "Facture tiers payant"
+                mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
+                mm.transportGuid = "EFACT:BATCH:$numericalRef"
+                mm.author = sessionLogic.currentSessionContext.user.id
+                mm.responsible = hcp.id
+                mm.fromHealthcarePartyId = hcp.id
+                mm.recipients = setOf(insurance.id)
 
-            return MessageWithBatch().apply { invoicesBatch = invBatch; message = mapper.map(mm, MessageDto::class.java) }
-        }
+                val shortSendNumber = sendNumber.toInt() % 1000
+
+                mm.externalRef = ("" + shortSendNumber).padStart(3, '0')
+
+                val invBatch = createBatch(shortSendNumber, messageId, insurance, invoices, hcp)
+
+                mm.metas = mapOf(
+                        "ioFederationCode" to (invBatch.ioFederationCode  ?: ""),
+                        "numericalRef" to (invBatch.numericalRef?.toString() ?: ""),
+                        "invoiceMonth" to (invBatch.numericalRef?.toString() ?: ""),
+                        "invoiceYear" to (invBatch.invoicingYear.toString()),
+                        "totalAmount" to (invoices.values.sumByDouble { it.sumByDouble { it.invoicingCodes.sumByDouble { it.reimbursement } } } ).toString()
+                )
+                val delegations = HashMap<String, Set<Delegation>>()
+                delegations[hcp.id] = HashSet()
+
+                mm.delegations = delegations
+                mm.toAddresses = setOf(insurance.address?.telecoms?.firstOrNull { t: Telecom -> t.telecomType == TelecomType.email && t.telecomNumber?.isNotEmpty() ?: false }?.let { it.telecomNumber } ?: insurance.code)
+                mm.sent = System.currentTimeMillis()
+
+                MessageWithBatch().apply { invoicesBatch = invBatch; message = mapper.map(mm, MessageDto::class.java) }
+            }
+       }
     }
 
     @Throws(LoginException::class, MissingRequirementsException::class)

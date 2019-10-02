@@ -144,6 +144,16 @@ public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, Heal
 	}
 
 	@Override
+	public List<String> findByHCPartyAndTags(String hcPartyId, String tagType, String tagCode) {
+		return healthElementDAO.findByHCPartyAndTags(hcPartyId, tagType, tagCode);
+	}
+
+	@Override
+	public List<String> findByHCPartyAndStatus(String hcPartyId, Integer status) {
+		return healthElementDAO.findByHCPartyAndStatus(hcPartyId, status);
+	}
+
+	@Override
 	public Set<String> deleteHealthElements(Set<String> ids) {
 		try {
 			deleteEntities(ids);

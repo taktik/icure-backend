@@ -19,12 +19,13 @@
 package org.taktik.icure.services.external.rest.v1.dto.filter;
 
 import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter;
+import org.taktik.icure.dto.filter.patient.PatientByHcPartyGenderEducationProfession;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
 import org.taktik.icure.services.external.rest.v1.dto.filter.code.CodeByRegionTypeLabelLanguageFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.contact.ContactByHcPartyTagCodeDateFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.contact.ContactByServiceIdsFilter;
-import org.taktik.icure.services.external.rest.v1.dto.filter.healthelement.HealthElementByHcPartyCodeFilter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndExternalIdFilter;
 import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientByHcPartyAndSsinFilter;
@@ -47,9 +48,9 @@ import java.util.stream.Collectors;
 		CodeByRegionTypeLabelLanguageFilter.class,
 		PatientByHcPartyFilter.class, PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthBetweenFilter.class, PatientByHcPartyAndSsinFilter.class,
 		PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyNameFilter.class,
-		PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyAndActiveFilter.class,
+		PatientByHcPartyAndSsinsFilter.class, PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class, PatientByHcPartyAndActiveFilter.class, PatientByHcPartyGenderEducationProfession.class,
 		ContactByHcPartyTagCodeDateFilter.class, ContactByHcPartyPatientTagCodeDateFilter.class, ContactByServiceIdsFilter.class, ServiceByHcPartyTagCodeDateFilter.class, InvoiceByHcPartyCodeDateFilter.class,
-		HealthElementByHcPartyCodeFilter.class})
+		HealthElementByHcPartyTagCodeFilter.class})
 public abstract class Filter<O extends Identifiable<String>> implements org.taktik.icure.dto.filter.Filter<String,O>, Serializable {
 	String desc;
 

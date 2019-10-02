@@ -22,6 +22,7 @@ import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.embed.Gender;
 
 import java.util.Collection;
 import java.util.List;
@@ -44,9 +45,10 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	List<String> listIdsByHcParty(String healthcarePartyId);
 	List<String> listIdsByHcPartyAndDateOfBirth(Integer date, String healthcarePartyId);
 	List<String> listIdsByHcPartyAndDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId);
-	List<String> listIdsForHcPartyDateOfBirth(Integer date, String healthcarePartyId);
-	List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId);
-	List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId);
+    List<String> listIdsByHcPartyGenderEducationProfession(String healthcarePartyId, Gender gender, String education, String profession);
+    List<String> listIdsForHcPartyDateOfBirth(Integer date, String healthcarePartyId);
+	List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit);
+	List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit);
 
 	List<String> listIdsByHcPartyAndExternalId(String externalId, String healthcarePartyId);
 

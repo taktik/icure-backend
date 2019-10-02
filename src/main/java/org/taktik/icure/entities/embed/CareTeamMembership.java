@@ -1,8 +1,9 @@
 package org.taktik.icure.entities.embed;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class CareTeamMembership {
+public class CareTeamMembership implements Serializable {
     private Long startDate;
     private Long endDate;
     private String careTeamMemberId;

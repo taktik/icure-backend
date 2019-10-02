@@ -29,6 +29,8 @@ import org.taktik.icure.logic.impl.filter.Filter;
 import org.taktik.icure.logic.impl.filter.Filters;
 
 import javax.security.auth.login.LoginException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,10 +55,21 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
 		try {
             String hcPartyId = filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId();
             HashSet<String> ids = null;
+
+            List<String> patientSecretForeignKeys = filter.getPatientSecretForeignKeys();
+
+            if (patientSecretForeignKeys == null) {
+                if (filter.getPatientSecretForeignKey() != null) {
+                    patientSecretForeignKeys = Arrays.asList(filter.getPatientSecretForeignKey());
+                } else {
+                    patientSecretForeignKeys = new ArrayList<>();
+                }
+            }
+
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        patientSecretForeignKeys, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate()));
             }
@@ -64,7 +77,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.findServicesByCode(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        patientSecretForeignKeys, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
