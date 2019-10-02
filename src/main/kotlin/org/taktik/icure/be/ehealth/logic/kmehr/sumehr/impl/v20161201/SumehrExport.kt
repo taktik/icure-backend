@@ -286,15 +286,24 @@ class SumehrExport : KmehrExport() {
 
 	internal fun getMedications(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
 		val nowFuzzy = FuzzyValues.getCurrentFuzzyDate()
-		val medications = getActiveServices(hcPartyIds, sfks, listOf("medication"), emptyList(), includeIrrelevantInformation, decryptor).filter { it.closingDate?.let { it >= nowFuzzy } ?: true }
+		val medications = getActiveServices(hcPartyIds, sfks, listOf("medication"), emptyList(), includeIrrelevantInformation, decryptor).filter {
+            getMedicationServiceClosingDate(it)?.let { it >= nowFuzzy } ?: true }
 		val cnks = HashSet(medications.filter { m -> m.codes.find { it.type == "CD-DRUG-CNK" } != null }.mapNotNull { m -> m.codes.find { it.type == "CD-DRUG-CNK" }?.code })
 		return medications.filter{!excludedIds.contains(it.id)} + getActiveServices(hcPartyIds, sfks, listOf("treatment"), excludedIds, false, decryptor).filter {
 			val cnk = it.codes.find { it.type == "CD-DRUG-CNK" }?.code
-			val res = (null == cnk || !cnks.contains(cnk)) && ((null == it.closingDate && FuzzyValues.compare((it.openingDate ?: it.valueDate ?: 1970101), FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(2), ChronoUnit.SECONDS)) > 0) || (it.closingDate?.let { it >= nowFuzzy } ?: false))
+            val res = (null == cnk || !cnks.contains(cnk)) && ((null == getMedicationServiceClosingDate(it) && FuzzyValues.compare((it.openingDate ?: it.valueDate ?: 1970101) , FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(2), ChronoUnit.SECONDS))>0) || (getMedicationServiceClosingDate(it)?.let {it >= nowFuzzy} ?: false))
 			cnk?.let { cnks.add(it) }
 			res
 		}
 	}
+
+    internal fun getMedicationServiceClosingDate(it: Service): Long? {
+        return (it.closingDate
+                ?: it.content?.values?.mapNotNull {
+                    it.medicationValue?.endMoment?.let { FuzzyValues.getFuzzyDateTime(FuzzyValues.getDateTime(it), ChronoUnit.SECONDS) }
+                }?.firstOrNull()
+                )
+    }
 
 	internal fun getVaccines(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
 		return getActiveServices(hcPartyIds, sfks, listOf("vaccine"), excludedIds, false, decryptor).filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }

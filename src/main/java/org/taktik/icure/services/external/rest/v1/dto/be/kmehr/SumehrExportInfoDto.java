@@ -43,7 +43,7 @@ public class SumehrExportInfoDto implements Serializable {
 		if(excludedIds != null)
 			return excludedIds;
 		else
-			return new ArrayList<String>();
+			return new ArrayList<>();
 	}
 
 	public void setExcludedIds(List<String> excludedIds) {
