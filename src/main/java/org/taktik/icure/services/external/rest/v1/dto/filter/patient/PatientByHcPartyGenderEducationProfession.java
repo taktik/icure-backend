@@ -32,6 +32,16 @@ public class PatientByHcPartyGenderEducationProfession extends Filter<Patient> i
     private String education;
     private String profession;
 
+    public PatientByHcPartyGenderEducationProfession() {
+    }
+
+    public PatientByHcPartyGenderEducationProfession(Gender gender, String education, String profession, String healthcarePartyId) {
+        this.healthcarePartyId = healthcarePartyId;
+        this.gender = gender;
+        this.education = education;
+        this.profession = profession;
+    }
+
     @Override
 	public boolean matches(Patient item) {
         return (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
