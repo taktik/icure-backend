@@ -46,6 +46,8 @@ public class InvoicingCodeDto implements Serializable {
     protected Double doctorSupplement;
 	protected Double vat;
 
+	protected Integer transplantationCode;
+
 	//Etarif
 	protected String code;
     protected String error;
@@ -440,4 +442,8 @@ public class InvoicingCodeDto implements Serializable {
 	public Long getPrescriptionDate() {	return prescriptionDate;	}
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+    public Integer getTransplantation() {	return transplantationCode;	}
+
+    public void setTransplantation(Integer transplantationCode) {	this.transplantationCode = transplantationCode;	}
 }
