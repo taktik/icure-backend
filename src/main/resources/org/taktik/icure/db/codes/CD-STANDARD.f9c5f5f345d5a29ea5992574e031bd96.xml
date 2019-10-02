@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-10-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Message standardisation version</NAME>
+  <VALUE>
+    <CODE>20010424</CODE>
+    <DESCRIPTION L='en'>Recommendation 4, 24/04/2001</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20021205</CODE>
+    <DESCRIPTION L='en'>Recommendation 19, draft</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20030909</CODE>
+    <DESCRIPTION L='en'>Kmehr-Bis specification approved by Recommendation 19a of the Commission for Norms in Healthcare Telematics</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20090101</CODE>
+    <DESCRIPTION L='en'>Evolution for new transactions: eCare-SAFE, eBirth, prescription (draft)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20100601</CODE>
+    <DESCRIPTION L='en'>Evolution for Sumehr 1.1. New namespace !</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20100901</CODE>
+    <DESCRIPTION L='en'>Evolution for GP software migration format.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20110701</CODE>
+    <DESCRIPTION L='en'>Evolution for Hub-Metahub 1.1, GP software migration format 1.1, Biobank.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20120401</CODE>
+    <DESCRIPTION L='en'>Evolution for TucoDeclaration, OrthoDeclaration, Vitalink.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20120701</CODE>
+    <DESCRIPTION L='en'>Evolution for Therapeuticlink.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20121001</CODE>
+    <DESCRIPTION L='en'>Evolution for gmd, magistral preparation.</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20130701</CODE>
+    <DESCRIPTION L='en'>Evolution for Medex, GP Software homologation 2013</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>20131001</CODE>
+    <DESCRIPTION L='en'>Evolution for DefibDeclaration, homologation 2013</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

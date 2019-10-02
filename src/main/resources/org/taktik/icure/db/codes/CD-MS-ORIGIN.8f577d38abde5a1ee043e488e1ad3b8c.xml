@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Medication Scheme Origin</NAME>
+  <VALUE>
+    <CODE>recorded</CODE>
+    <DESCRIPTION L='en'>Recorded</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>regularprocess</CODE>
+    <DESCRIPTION L='en'>Regular Process</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

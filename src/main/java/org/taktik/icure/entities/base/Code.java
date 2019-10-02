@@ -118,7 +118,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     @Deprecated
     public void setDescrFR(String descrFR) {
-        if (label == null) { label = new HashMap<String, String>(); }
+        if (label == null) { label = new HashMap<>(); }
         label.put("fr", descrFR);
     }
 
@@ -130,7 +130,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     @Deprecated
     public void setDescrNL(String descrNL) {
-        if (label == null) { label = new HashMap<String, String>(); }
+        if (label == null) { label = new HashMap<>(); }
         label.put("nl", descrNL);
     }
 
@@ -139,6 +139,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
     public void setCode(String code) {
+        this.id = type+'|'+code+'|'+version;
         this.code = code;
     }
 
@@ -163,6 +164,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
     public void setType(String type) {
+        this.id = type+'|'+code+'|'+version;
         this.type = type;
     }
 
@@ -179,6 +181,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 	}
 
 	public void setVersion(String version) {
+        this.id = type+'|'+code+'|'+version;
 		this.version = version;
 	}
 

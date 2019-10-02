@@ -982,7 +982,7 @@ private fun generateMinimalist() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateEveryItemsSumehr() {
@@ -1060,7 +1060,7 @@ private fun generateEveryItemsSumehr() {
     healthElements.addAll(listOf(MyHealthElements.historyHealthElementProblem, MyHealthElements.assessmentHealthElementProblem, MyHealthElements.assessmentHealthElementAdr, MyHealthElements.historyHealthElementAllergy))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullPatientSumehr() {
@@ -1110,7 +1110,7 @@ private fun generateFullPatientSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullSenderSumehr() {
@@ -1202,7 +1202,7 @@ private fun generateFullSenderSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullRecipientSumehr() {
@@ -1330,7 +1330,7 @@ private fun generateFullRecipientSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateDecryptedSumehr() {
@@ -1391,7 +1391,7 @@ private fun generateDecryptedSumehr() {
     ))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullAdrItemSumehr() { // same structure as 'allergy', 'risk' and 'socialrisk'
@@ -1443,7 +1443,7 @@ private fun generateFullAdrItemSumehr() { // same structure as 'allergy', 'risk'
     healthElements.addAll(listOf(MyHealthElements.assessmentHealthElementAdr))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullGmdManagerItemSumehr() {
@@ -1498,7 +1498,7 @@ private fun generateFullGmdManagerItemSumehr() {
     hcparties["4"] = MyHealthcareParties.retirementhomeGMD
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullContactPersonItemSumehr() {
@@ -1552,7 +1552,7 @@ private fun generateFullContactPersonItemSumehr() {
     patients["Sister"] = MyPatients.sisterPatient
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun generateFullContactHcPartyItemSumehr() {
@@ -1607,7 +1607,7 @@ private fun generateFullContactHcPartyItemSumehr() {
     hcparties["4"] = MyHealthcareParties.retirementhomeGMD
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 }
 
 private fun Service.map(): ServiceDto {

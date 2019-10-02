@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-07-10</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Incapacity type</NAME>
+  <VALUE>
+    <CODE>school</CODE>
+    <DESCRIPTION L='en'>incapacity to follow courses</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable d'assister aux cours</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>schoolsports</CODE>
+    <DESCRIPTION L='en'>incapacity to perform school sports</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable de pratiquer le sport</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sport</CODE>
+    <DESCRIPTION L='en'>incapacity to perform gymnastics</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable d'assister au cours de gymnastique</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>swim</CODE>
+    <DESCRIPTION L='en'>incapacity to swim</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable de pratiquer la natation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>travel</CODE>
+    <DESCRIPTION L='en'>incapacity to travel</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable de voyager</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>vote</CODE>
+    <DESCRIPTION L='en'>incapacity to vote</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable de se rendre au bureau de vote</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>work</CODE>
+    <DESCRIPTION L='en'>incapacity to work</DESCRIPTION>
+    <DESCRIPTION L='fr'>incapable de travailler</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>
