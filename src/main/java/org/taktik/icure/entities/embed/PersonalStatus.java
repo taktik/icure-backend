@@ -24,5 +24,5 @@ import java.io.Serializable;
 
 @EnumVersion(1l)
 public enum PersonalStatus implements Serializable {
-    single, in_couple, married, separated, divorced,  divorcing, widowed, widower, complicated, unknown
+    single, in_couple, married, separated, divorced,  divorcing, widowed, widower, complicated, unknown, contract, other
 }

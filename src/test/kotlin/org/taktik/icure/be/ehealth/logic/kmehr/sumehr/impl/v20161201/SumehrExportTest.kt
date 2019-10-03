@@ -653,7 +653,7 @@ class SumehrExportTest {
         val excludedIds = listOf("excluded")
 
         // Execute
-        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds, false)
+        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds, false, mutableListOf())
 
         // Tests
         val size = healthElementLogic.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks).size
