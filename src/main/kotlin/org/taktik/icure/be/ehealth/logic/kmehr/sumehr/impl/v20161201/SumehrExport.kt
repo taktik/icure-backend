@@ -227,7 +227,10 @@ class SumehrExport : KmehrExport() {
 		return services?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
 	}
 
-    internal fun isInactiveAndIrelevant(s: Service) =
+    internal fun isInactiveAndIrrelevant(it: HealthElement) =
+            ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null || ServiceStatus.isInactive(it.status))
+
+    internal fun isInactiveAndIrrelevant(s: Service) =
             ((ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
                     && ServiceStatus.isIrrelevant(s.status))
 
@@ -254,7 +257,7 @@ class SumehrExport : KmehrExport() {
     fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
         return ArrayList(hcPartyIds).flatMap { healthElementLogic?.findLatestByHCPartySecretPatientKeys(it, sfks) ?: listOf() }?.filter {
             (!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
-                    &&  !(ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null|| (ServiceStatus.isInactive(it.status)))))
+                &&  (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status)))
         }?.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
     }
 
