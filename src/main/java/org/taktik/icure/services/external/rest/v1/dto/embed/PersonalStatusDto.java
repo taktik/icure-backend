@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 public enum PersonalStatusDto {
-    single, in_couple, married, separated, divorced,  divorcing, widowed, widower, complicated, unknown
+    single, in_couple, married, separated, divorced,  divorcing, widowed, widower, complicated, unknown, contract, other
 }
