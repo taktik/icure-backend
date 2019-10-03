@@ -21,13 +21,12 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.contact;
 import java.util.List;
 
 import com.google.common.base.Objects;
-import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
 
 @JsonPolymorphismRoot(Filter.class)
-public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implements ContactByHcPartyPatientTagCodeDateFilter {
+public class ContactByHcPartyPatientTagCodeDateFilter extends Filter<Contact> implements org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter {
 	String healthcarePartyId;
 	@Deprecated
     String patientSecretForeignKey;
@@ -39,10 +38,10 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 	Long startServiceValueDate;
 	Long endServiceValueDate;
 
-	public ContactByHcPartyTagCodeDateFilter() {
+	public ContactByHcPartyPatientTagCodeDateFilter() {
 	}
 
-	public ContactByHcPartyTagCodeDateFilter(String healthcarePartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, String codeType, String codeCode, Long startServiceValueDate, Long endServiceValueDate) {
+	public ContactByHcPartyPatientTagCodeDateFilter(String healthcarePartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, String codeType, String codeCode, Long startServiceValueDate, Long endServiceValueDate) {
 		this.healthcarePartyId = healthcarePartyId;
 		this.patientSecretForeignKeys = patientSecretForeignKeys;
 		this.tagType = tagType;
@@ -145,7 +144,7 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final ContactByHcPartyTagCodeDateFilter other = (ContactByHcPartyTagCodeDateFilter) obj;
+		final ContactByHcPartyPatientTagCodeDateFilter other = (ContactByHcPartyPatientTagCodeDateFilter) obj;
 		return Objects.equal(this.healthcarePartyId, other.healthcarePartyId) && Objects.equal(this.patientSecretForeignKeys, other.patientSecretForeignKeys) && Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeCode, other.codeCode) && Objects.equal(this.startServiceValueDate, other.startServiceValueDate) && Objects.equal(this.endServiceValueDate, other.endServiceValueDate);
 	}
 
