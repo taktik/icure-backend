@@ -259,13 +259,22 @@ class SumehrExport : KmehrExport() {
     }
 
 	internal fun getMedications(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
-        val nowFuzzy = FuzzyValues.getCurrentFuzzyDate()
+		val now = LocalDateTime.now()
+
+        //Chronic medications
 		val medications = getActiveServices(hcPartyIds, sfks, listOf("medication"), emptyList(), includeIrrelevantInformation, decryptor).filter {
-            getMedicationServiceClosingDate(it)?.let { it >= nowFuzzy } ?: true }
+            getMedicationServiceClosingDate(it)?.let { FuzzyValues.getDateTime(it)?.isAfter(now) != false } ?: true }
+
         val cnks = HashSet(medications.filter { m->m.codes.find {it.type == "CD-DRUG-CNK"} != null}.mapNotNull { m->m.codes.find {it.type == "CD-DRUG-CNK"}?.code})
+
+        //Prescriptions
 		return medications.filter{!excludedIds.contains(it.id)} + getActiveServices(hcPartyIds, sfks, listOf("treatment"), excludedIds, false, decryptor).filter {
             val cnk = it.codes.find {it.type == "CD-DRUG-CNK"}?.code
-            val res = (null == cnk || !cnks.contains(cnk)) && ((null == getMedicationServiceClosingDate(it) && FuzzyValues.compare((it.openingDate ?: it.valueDate ?: 1970101) , FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(2), ChronoUnit.SECONDS))>0) || (getMedicationServiceClosingDate(it)?.let {it >= nowFuzzy} ?: false))
+            val res = (null == cnk || !cnks.contains(cnk)) &&
+                    (
+                            (null == getMedicationServiceClosingDate(it) && FuzzyValues.compare((it.openingDate ?: it.valueDate ?: 1970101) , FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(2), ChronoUnit.SECONDS))>0)
+                                    || (getMedicationServiceClosingDate(it)?.let { FuzzyValues.getDateTime(it)?.isAfter(now) != false } ?: false)
+                     )
             cnk?.let {cnks.add(it)}
             res
         }
