@@ -225,7 +225,14 @@ class SumehrExport : KmehrExport() {
 		return getAllServices(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, decryptor)
 	}
 
-	internal fun getActiveServices(hcPartyIds: Set<String>, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
+    internal fun isInactiveAndIrrelevant(it: HealthElement) =
+            ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null || ServiceStatus.isInactive(it.status))
+
+    internal fun isInactiveAndIrrelevant(s: Service) =
+            ((ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
+                    && ServiceStatus.isIrrelevant(s.status))
+
+    internal fun getActiveServices(hcPartyIds: Set<String>, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
 		val f = Filters.UnionFilter(
                 hcPartyIds.map { hcpId ->
                     Filters.UnionFilter(
@@ -238,7 +245,7 @@ class SumehrExport : KmehrExport() {
 
 		var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
 			s.endOfLife == null && //Not end of lifed
-                    (if (includeIrrelevantInformation) !isInactiveAndIrelevant(s) else !ServiceStatus.isIrrelevant(s.status))
+                    (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(s) else !ServiceStatus.isIrrelevant(s.status))
 					&& (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
 		}?.filter { s -> !excludedIds.contains(s.id) }
 
@@ -260,10 +267,6 @@ class SumehrExport : KmehrExport() {
 
 		return services?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
 	}
-
-    internal fun isInactiveAndIrelevant(s: Service) =
-            ((ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
-                    && ServiceStatus.isIrrelevant(s.status))
 
     internal fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {
 		return items.filter { s ->
@@ -288,7 +291,7 @@ class SumehrExport : KmehrExport() {
     fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
         return ArrayList(hcPartyIds).flatMap { healthElementLogic?.findLatestByHCPartySecretPatientKeys(it, sfks) ?: listOf() }?.filter {
             (!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
-                    &&  !(ServiceStatus.isIrrelevant(it.status) && (it.closingDate != null|| (ServiceStatus.isInactive(it.status)))))
+                &&  (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status)))
         }?.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
     }
 

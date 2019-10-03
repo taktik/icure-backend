@@ -208,4 +208,8 @@ public class HealthElement extends StoredICureDocument {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public List<CareTeamMember> getCareTeam() { return careTeam; }
+
+    public void setCareTeam(List<CareTeamMember> careTeam) { this.careTeam = careTeam; }
 }

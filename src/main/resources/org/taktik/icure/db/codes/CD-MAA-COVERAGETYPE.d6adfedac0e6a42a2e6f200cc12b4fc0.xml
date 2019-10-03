@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>MAA Coverage Type</NAME>
+  <VALUE>
+    <CODE>chapter4limited</CODE>
+    <DESCRIPTION L='fr'>Accord sur un nombre de conditionnements sur une période</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>chapter4unlimited</CODE>
+    <DESCRIPTION L='fr'>Accord sur une période.</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

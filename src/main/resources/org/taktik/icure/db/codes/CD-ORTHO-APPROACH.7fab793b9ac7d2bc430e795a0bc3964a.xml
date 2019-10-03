@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Ortho Approach</NAME>
+  <VALUE>
+    <CODE>anterior</CODE>
+    <DESCRIPTION L='en'>Anterior</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>bytrochanterotomy</CODE>
+    <DESCRIPTION L='en'>By Trochanterotomy</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lateral</CODE>
+    <DESCRIPTION L='en'>Lateral</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>midvastus</CODE>
+    <DESCRIPTION L='en'>Midvastus</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>other</CODE>
+    <DESCRIPTION L='en'>Other</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>parapatellarlateral</CODE>
+    <DESCRIPTION L='en'>Parapatellar Lateral</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>parapatellarmedial</CODE>
+    <DESCRIPTION L='en'>Parapatellar Medial</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>posterior</CODE>
+    <DESCRIPTION L='en'>Posterior</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>subvastus</CODE>
+    <DESCRIPTION L='en'>Subvastus</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tuberositasosteotomie</CODE>
+    <DESCRIPTION L='en'>Tuberositasosteotomie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>withfemoralosteotomy</CODE>
+    <DESCRIPTION L='en'>With Femoral Osteotomy</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

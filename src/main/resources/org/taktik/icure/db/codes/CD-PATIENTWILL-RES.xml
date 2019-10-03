@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-10-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Patient's will res</NAME>
+  <VALUE>
+    <CODE>dnr0</CODE>
+    <DESCRIPTION L='fr'>Aucune limite de traitement</DESCRIPTION>
+    <DESCRIPTION L='nl'>Geen therapiebeperking</DESCRIPTION>
+    <DESCRIPTION L='en'>No limit on treatment</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dnr1</CODE>
+    <DESCRIPTION L='fr'>Ne pas tenter la réanimation</DESCRIPTION>
+    <DESCRIPTION L='nl'>Geen reanimatie</DESCRIPTION>
+    <DESCRIPTION L='en'>Do not attempt resuscitation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dnr2</CODE>
+    <DESCRIPTION L='fr'>Ne pas tenter la réanimation et ne pas étendre le traitement</DESCRIPTION>
+    <DESCRIPTION L='nl'>Geen reanimatie en therapie niet uitbreiden</DESCRIPTION>
+    <DESCRIPTION L='en'>Do not attempt resuscitation and do not extend treatment</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dnr3</CODE>
+    <DESCRIPTION L='fr'>Ne pas tenter la réanimation et le traitement par élimination progressive</DESCRIPTION>
+    <DESCRIPTION L='nl'>Geen reanimatie en therapie afbouwen</DESCRIPTION>
+    <DESCRIPTION L='en'>Do not attempt resuscitation and phase out treatment</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

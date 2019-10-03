@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2002-07-17</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Lab Item Type</NAME>
+  <VALUE>
+    <CODE>19123-9</CODE>
+    <DESCRIPTION L='fr'>Magnésium</DESCRIPTION>
+    <DESCRIPTION L='nl'>Serum Magnesium</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2019-8</CODE>
+    <DESCRIPTION L='fr'>pCO2 (sang artériel)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Arteriële PCO2</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2518-9</CODE>
+    <DESCRIPTION L='fr'>Acide lactique</DESCRIPTION>
+    <DESCRIPTION L='nl'>Melkzuur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>2951-2</CODE>
+    <DESCRIPTION L='fr'>Sodium</DESCRIPTION>
+    <DESCRIPTION L='nl'>Natrium</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>3040-3</CODE>
+    <DESCRIPTION L='fr'>Lipase</DESCRIPTION>
+    <DESCRIPTION L='nl'>Lipase</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>4544-3</CODE>
+    <DESCRIPTION L='fr'>Hématocrite</DESCRIPTION>
+    <DESCRIPTION L='nl'>Hematocriet</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>6690-2</CODE>
+    <DESCRIPTION L='fr'>Globules blancs</DESCRIPTION>
+    <DESCRIPTION L='nl'>Witte bloedcellen</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>718-7</CODE>
+    <DESCRIPTION L='fr'>Hémoglobine</DESCRIPTION>
+    <DESCRIPTION L='nl'>Hemoglobine</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>789-8</CODE>
+    <DESCRIPTION L='fr'>Globules rouges</DESCRIPTION>
+    <DESCRIPTION L='nl'>Rode bloedcellen</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

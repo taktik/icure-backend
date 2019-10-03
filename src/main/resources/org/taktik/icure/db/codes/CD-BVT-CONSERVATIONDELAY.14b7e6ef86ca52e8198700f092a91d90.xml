@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>BVT Conservation Delay</NAME>
+  <VALUE>
+    <CODE>lessthan30mins</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>morethan30mins</CODE>
+  </VALUE>
+</kmehr-cd>
