@@ -107,7 +107,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
         = sumehrExport.getAllServicesPlusPlus(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
 	override fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
-        return sumehrExport.getHealthElements(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation)
+        return sumehrExport.getHealthElements(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, HashSet())
     }
 
     override fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {

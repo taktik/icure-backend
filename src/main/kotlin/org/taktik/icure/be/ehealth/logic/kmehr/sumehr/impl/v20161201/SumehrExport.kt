@@ -67,8 +67,9 @@ class SumehrExport : KmehrExport() {
 	fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): String {
 		val signatures = ArrayList(listOf(patient.signature))
         val hcPartyIds = getHcpHierarchyIds(healthcarePartyLogic!!.getHealthcareParty(hcPartyId))
-		getAllServices(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation).forEach { signatures.add(it.modified.toString()) }
-		getHealthElements(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation).forEach { signatures.add(it.modified.toString()) }
+        val treatedServiceIds = HashSet<String>()
+        getHealthElements(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, treatedServiceIds).forEach { signatures.add(it.modified.toString()) }
+        getAllServices(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation).filter{!treatedServiceIds.contains(it.id)}.forEach { signatures.add(it.modified.toString()) }
 
 		val sorted = signatures.sorted()
 
@@ -115,7 +116,7 @@ class SumehrExport : KmehrExport() {
 
 	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {
         val hcpartyIds = getHcpHierarchyIds(sender)
-        val addedServiceIds = mutableListOf<String>()
+        val treatedServiceIds = HashSet<String>()
         //Create transaction
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.0"; value = "sumehr" })
@@ -128,11 +129,15 @@ class SumehrExport : KmehrExport() {
 		}
 
 		folder.transactions.add(trn)
+
+        //healthelement healthissue
+        treatedServiceIds.addAll( addHealthCareElements(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor))
+
         //risks
-		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "adr", language, excludedIds, addedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
-		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "allergy", language, excludedIds, addedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
-		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "socialrisk", language, excludedIds, addedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
-		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "risk", language, excludedIds, addedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
+		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "adr", language, excludedIds, treatedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
+		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "allergy", language, excludedIds, treatedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
+		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "socialrisk", language, excludedIds, treatedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
+		addActiveServiceUsingContent(hcpartyIds, sfks, trn, "risk", language, excludedIds, treatedServiceIds, decryptor, includeIrrelevantInformation = includeIrrelevantInformation)
 
         //people: gmdmanager/contact/patienthcp
 		addGmdmanager(p, trn)
@@ -146,11 +151,8 @@ class SumehrExport : KmehrExport() {
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor)
 		addMedications(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor)
 
-        //healthelement healthissue
-        addedServiceIds.addAll( addHealthCareElements(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor))
-
-        addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, addedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
-        addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, addedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
+        addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, treatedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
+        addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, treatedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
 
         //global comment
 		if (comment?.length ?: 0 > 0) {
@@ -243,8 +245,8 @@ class SumehrExport : KmehrExport() {
 
     internal fun hasOmissionOfMedicalDataItem(trn: TransactionType): Boolean {
         return getAssessment(trn).headingsAndItemsAndTexts
-                .filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-                .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+                .filter { it != null && it is ItemType }
+                .map { it as ItemType }
                 .any { item ->
                     item.contents.filterNotNull().any { content ->
                         content.cds.filterNotNull().any { cd ->
@@ -254,11 +256,14 @@ class SumehrExport : KmehrExport() {
                 }
     }
 
-    fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
-        return ArrayList(hcPartyIds).flatMap { healthElementLogic?.findLatestByHCPartySecretPatientKeys(it, sfks) ?: listOf() }?.filter {
+    fun getHealthElements(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, treatedServiceIds: MutableSet<String>): List<HealthElement> {
+        return ArrayList(hcPartyIds).flatMap { healthElementLogic?.findLatestByHCPartySecretPatientKeys(it, sfks) ?: listOf() }.map {
+            it.idService?.let { treatedServiceIds.add(it) }
+            it
+        }.filter {
             (!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
                 &&  (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status)))
-        }?.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
+        }.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
     }
 
     internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {
@@ -288,13 +293,22 @@ class SumehrExport : KmehrExport() {
 	}
 
 	internal fun getMedications(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
-		val nowFuzzy = FuzzyValues.getCurrentFuzzyDate()
-		val medications = getActiveServices(hcPartyIds, sfks, listOf("medication"), emptyList(), includeIrrelevantInformation, decryptor).filter {
-            getMedicationServiceClosingDate(it)?.let { it >= nowFuzzy } ?: true }
+		val now = LocalDateTime.now()
+
+        //Chronic medications
+        val medications = getActiveServices(hcPartyIds, sfks, listOf("medication"), emptyList(), includeIrrelevantInformation, decryptor).filter {
+            getMedicationServiceClosingDate(it)?.let { FuzzyValues.getDateTime(it)?.isAfter(now) != false } ?: true }
+
 		val cnks = HashSet(medications.filter { m -> m.codes.find { it.type == "CD-DRUG-CNK" } != null }.mapNotNull { m -> m.codes.find { it.type == "CD-DRUG-CNK" }?.code })
+
+        //Prescriptions
 		return medications.filter{!excludedIds.contains(it.id)} + getActiveServices(hcPartyIds, sfks, listOf("treatment"), excludedIds, false, decryptor).filter {
 			val cnk = it.codes.find { it.type == "CD-DRUG-CNK" }?.code
-            val res = (null == cnk || !cnks.contains(cnk)) && ((null == getMedicationServiceClosingDate(it) && FuzzyValues.compare((it.openingDate ?: it.valueDate ?: 1970101) , FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(2), ChronoUnit.SECONDS))>0) || (getMedicationServiceClosingDate(it)?.let {it >= nowFuzzy} ?: false))
+            val res = (null == cnk || !cnks.contains(cnk)) &&
+                    (
+                            (null == getMedicationServiceClosingDate(it) && FuzzyValues.compare((it.openingDate ?: it.valueDate ?: 1970101) , FuzzyValues.getFuzzyDate(LocalDateTime.now().minusWeeks(2), ChronoUnit.SECONDS))>0)
+                                    || (getMedicationServiceClosingDate(it)?.let { FuzzyValues.getDateTime(it)?.isAfter(now) != false } ?: false)
+                     )
 			cnk?.let { cnks.add(it) }
 			res
 		}
@@ -352,13 +366,12 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	internal fun addActiveServiceUsingContent(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, addedServiceIds: List<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null, includeIrrelevantInformation: Boolean = false): List<String> {
-        val serviceIds = mutableListOf<String>()
+	internal fun addActiveServiceUsingContent(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, treatedServiceIds: Set<String>, decryptor: AsyncDecrypt?, forcePassive: Boolean = false, forceCdItem: String? = null, includeIrrelevantInformation: Boolean = false) {
         try {
 			val services = getActiveServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, includeIrrelevantInformation, decryptor)
 			var nonConfidentialItems = getNonConfidentialItems(services)
 			addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
-            nonConfidentialItems = nonConfidentialItems.filter{ s -> !addedServiceIds.contains(s.id)}
+            nonConfidentialItems = nonConfidentialItems.filter{ s -> !treatedServiceIds.contains(s.id)}
 			if (nonConfidentialItems.isEmpty()) {
 				log.debug("_writeItems : no services found with cd-item " + cdItem)
 			} else {
@@ -395,9 +408,6 @@ class SumehrExport : KmehrExport() {
 						if (svc.comment != null) {
 							it.texts.add(TextType().apply { l = "fr"; value = svc.comment })
 						}
-                        if(svc.healthElementsIds.count()  > 0){
-                            svc.id?.let { serviceIds.add(it) }
-                        }
 						items.add(it)
 					}
 				}
@@ -405,7 +415,6 @@ class SumehrExport : KmehrExport() {
 		} catch (e: RuntimeException) {
 			log.error("Unexpected error", e)
 		}
-        return serviceIds
 	}
 
 	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
@@ -554,12 +563,9 @@ class SumehrExport : KmehrExport() {
 									   trn: TransactionType,
 									   excludedIds: List<String>,
                                        includeIrrelevantInformation: Boolean,
-									   decryptor: AsyncDecrypt?): List<String> {
-        val serviceIds = mutableListOf<String>()
-        val healthElements = getHealthElements(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation )
-        for (healthElement in healthElements) {
-            healthElement.idService?.let {serviceIds.add(it)}
-        }
+									   decryptor: AsyncDecrypt?): Set<String> {
+        val serviceIds = HashSet<String>()
+        val healthElements = getHealthElements(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, serviceIds )
 
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
