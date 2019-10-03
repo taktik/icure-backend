@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-07-30</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>eBirth type of neonatal department</NAME>
+  <VALUE>
+    <CODE>nic</CODE>
+    <DESCRIPTION L='de'>NIC-Station</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département-NIC</DESCRIPTION>
+    <DESCRIPTION L='nl'>NIC-dienst</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>nstar</CODE>
+    <DESCRIPTION L='de'>N*-Station</DESCRIPTION>
+    <DESCRIPTION L='fr'>Département-N*</DESCRIPTION>
+    <DESCRIPTION L='nl'>N*-dienst</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

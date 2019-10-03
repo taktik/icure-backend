@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2002-07-17</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Telecom type</NAME>
+  <VALUE>
+    <CODE>email</CODE>
+    <DESCRIPTION L='en'>Electronic mail</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>fax</CODE>
+    <DESCRIPTION L='en'>Fax</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mobile</CODE>
+    <DESCRIPTION L='en'>Mobile telephone</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>phone</CODE>
+    <DESCRIPTION L='en'>Non mobile telephone</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>MAA Items</NAME>
+  <VALUE>
+    <CODE>agreementenddate</CODE>
+    <DESCRIPTION L='fr'>Date de fin de la demande</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>agreementstartdate</CODE>
+    <DESCRIPTION L='fr'>Date de début de la demande</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>agreementtype</CODE>
+    <DESCRIPTION L='fr'>Type d’accord</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>careproviderreference</CODE>
+    <DESCRIPTION L='fr'>Référence demande prescripteur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>chapter4annexreference</CODE>
+    <DESCRIPTION L='fr'>Référence à la base règlementaire annexe chapitre IV</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>chapter4reference</CODE>
+    <DESCRIPTION L='fr'>Référence à la base règlementaire chapitre IV</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>consultationenddate</CODE>
+    <DESCRIPTION L='fr'>Date de fin de consultation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>consultationstartdate</CODE>
+    <DESCRIPTION L='fr'>Date de fin de la demande</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>coveragetype</CODE>
+    <DESCRIPTION L='fr'>Type de couverture</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>decisionreference</CODE>
+    <DESCRIPTION L='fr'>Référence de la decision</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>iorequestreference</CODE>
+    <DESCRIPTION L='fr'>Référence demande attribuée par OA</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orphandrugdeliveryid</CODE>
+    <DESCRIPTION L='fr'>Numéro unique – medicaments orphelins</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>orphandrugdeliveryplace</CODE>
+    <DESCRIPTION L='fr'>Etablissement hospitalier – medicaments orphelins</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>refusaljustification</CODE>
+    <DESCRIPTION L='fr'>Motif de refus</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>requesttype</CODE>
+    <DESCRIPTION L='fr'>Type de demande</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>responsetype</CODE>
+    <DESCRIPTION L='fr'>Type de réponse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>reststrength</CODE>
+    <DESCRIPTION L='fr'>Strength restant à délivrer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>restunitnumber</CODE>
+    <DESCRIPTION L='fr'>Strength restant à délivrer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>strength</CODE>
+    <DESCRIPTION L='fr'>Nombre d’unités restant à délivrer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>unitnumber</CODE>
+    <DESCRIPTION L='fr'>Strength accordé</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>
