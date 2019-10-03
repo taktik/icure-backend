@@ -22,6 +22,8 @@
   <VALUE>
     <CODE>gmdplus</CODE>
     <DESCRIPTION L='en'>General Medical Record +</DESCRIPTION>
+    <DESCRIPTION L="fr">Dmg +</DESCRIPTION>
+    <DESCRIPTION L="nl">Gmd +</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>primaryprevention</CODE>
