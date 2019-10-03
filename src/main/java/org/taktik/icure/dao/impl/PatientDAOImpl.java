@@ -125,8 +125,8 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
     @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
     public List<String> listIdsByHcPartyGenderEducationProfession(String healthcarePartyId, Gender gender, String education, String profession) {
         ViewQuery viewQuery = createQuery("by_hcparty_gender_education_profession")
-                .startKey(ComplexKey.of(healthcarePartyId, gender.getCode(), education, profession))
-                .endKey(ComplexKey.of(healthcarePartyId, gender.getCode(), education == null ? ComplexKey.emptyObject() : education,  profession == null ? ComplexKey.emptyObject() : profession)).includeDocs(false);
+                .startKey(ComplexKey.of(healthcarePartyId, gender == null ? null : gender.getName(), education, profession))
+                .endKey(ComplexKey.of(healthcarePartyId, gender == null ? ComplexKey.emptyObject() : gender.getName(), education == null ? ComplexKey.emptyObject() : education,  profession == null ? ComplexKey.emptyObject() : profession)).includeDocs(false);
         return db.queryView(viewQuery, String.class);
     }
 
