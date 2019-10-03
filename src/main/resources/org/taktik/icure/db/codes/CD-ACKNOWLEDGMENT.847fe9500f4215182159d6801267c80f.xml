@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2002-07-17</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Message acknowledgment</NAME>
+  <VALUE>
+    <CODE>always</CODE>
+    <DESCRIPTION L='en'>Always send an acknowledgement</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>never</CODE>
+    <DESCRIPTION L='en'>Never send an acknowledgement</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>onerror</CODE>
+    <DESCRIPTION L='en'>Send an acknowledgement for error/reject conditions only</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>onsuccess</CODE>
+    <DESCRIPTION L='en'>Send an acknowledgement for successful completion only</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-08-06</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Time unit</NAME>
+  <VALUE>
+    <CODE>friday</CODE>
+    <DESCRIPTION L='fr'>vendredi</DESCRIPTION>
+    <DESCRIPTION L='en'>friday</DESCRIPTION>
+    <DESCRIPTION L='nl'>vrijdag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>monday</CODE>
+    <DESCRIPTION L='fr'>lundi</DESCRIPTION>
+    <DESCRIPTION L='en'>monday</DESCRIPTION>
+    <DESCRIPTION L='nl'>maandag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>saturday</CODE>
+    <DESCRIPTION L='fr'>samedi</DESCRIPTION>
+    <DESCRIPTION L='en'>saturday</DESCRIPTION>
+    <DESCRIPTION L='nl'>zaterdag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sunday</CODE>
+    <DESCRIPTION L='fr'>dimanche</DESCRIPTION>
+    <DESCRIPTION L='en'>sunday</DESCRIPTION>
+    <DESCRIPTION L='nl'>zondag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>thursday</CODE>
+    <DESCRIPTION L='fr'>jeudi</DESCRIPTION>
+    <DESCRIPTION L='en'>thursday</DESCRIPTION>
+    <DESCRIPTION L='nl'>donderdag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tuesday</CODE>
+    <DESCRIPTION L='fr'>mardi</DESCRIPTION>
+    <DESCRIPTION L='en'>tuesday</DESCRIPTION>
+    <DESCRIPTION L='nl'>dinsdag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>wednesday</CODE>
+    <DESCRIPTION L='fr'>mercredi</DESCRIPTION>
+    <DESCRIPTION L='en'>wednesday</DESCRIPTION>
+    <DESCRIPTION L='nl'>woensdag</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

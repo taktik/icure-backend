@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Revised Component</NAME>
+  <VALUE>
+    <CODE>femur</CODE>
+    <DESCRIPTION L='en'>Femur</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>insert</CODE>
+    <DESCRIPTION L='en'>Insert</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>patella</CODE>
+    <DESCRIPTION L='en'>Patella</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tibia</CODE>
+    <DESCRIPTION L='en'>Tibia</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

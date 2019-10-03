@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>Medication Scheme Item</NAME>
+  <VALUE>
+    <CODE>adaptationflag</CODE>
+    <DESCRIPTION L='en'>Adaptation Flag</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>begincondition</CODE>
+    <DESCRIPTION L='en'>Begin Condition</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>endcondition</CODE>
+    <DESCRIPTION L='en'>End Condition</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>medicationtype</CODE>
+    <DESCRIPTION L='en'>Medication Type</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>medicationuse</CODE>
+    <DESCRIPTION L='en'>Medication Use</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>origin</CODE>
+    <DESCRIPTION L='en'>Origin</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>
