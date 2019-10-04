@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-07-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Incapacity reason</NAME>
+  <VALUE>
+    <CODE>accident</CODE>
+    <DESCRIPTION L='fr'>accident</DESCRIPTION>
+    <DESCRIPTION L='en'>Accident</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>careencounter</CODE>
+    <DESCRIPTION L='fr'>rencontre médicale</DESCRIPTION>
+    <DESCRIPTION L='en'>Care encounter</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>family</CODE>
+    <DESCRIPTION L='fr'>motif familial</DESCRIPTION>
+    <DESCRIPTION L='en'>Family</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hospitalisation</CODE>
+    <DESCRIPTION L='fr'>hospitalisation</DESCRIPTION>
+    <DESCRIPTION L='en'>Hospitalisation</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>illness</CODE>
+    <DESCRIPTION L='fr'>maladie</DESCRIPTION>
+    <DESCRIPTION L='en'>Illness</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>occupationaldisease</CODE>
+    <DESCRIPTION L='fr'>maladie professionnelle</DESCRIPTION>
+    <DESCRIPTION L='en'>Occupational disease</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>other</CODE>
+    <DESCRIPTION L='fr'>autre</DESCRIPTION>
+    <DESCRIPTION L='en'>Other</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pregnancy</CODE>
+    <DESCRIPTION L='fr'>grossesse</DESCRIPTION>
+    <DESCRIPTION L='en'>Pregnancy</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sickness</CODE>
+    <DESCRIPTION L='fr'>maladie</DESCRIPTION>
+    <DESCRIPTION L='en'>Sickness</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>workaccident</CODE>
+    <DESCRIPTION L='fr'>accident de travail</DESCRIPTION>
+    <DESCRIPTION L='en'>Work accident</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

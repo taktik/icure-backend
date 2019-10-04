@@ -1,8 +1,9 @@
 package org.taktik.icure.entities.embed;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Employer {
+public class Employer implements Serializable {
     private String name;
     private Address addresse;
 

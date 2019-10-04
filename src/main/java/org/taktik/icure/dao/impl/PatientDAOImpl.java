@@ -35,6 +35,7 @@ import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.db.StringUtils;
 import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.embed.Gender;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -119,6 +120,15 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 		ViewQuery viewQuery = createQuery("by_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false);
 		return db.queryView(viewQuery, String.class);
 	}
+
+    @Override
+    @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
+    public List<String> listIdsByHcPartyGenderEducationProfession(String healthcarePartyId, Gender gender, String education, String profession) {
+        ViewQuery viewQuery = createQuery("by_hcparty_gender_education_profession")
+                .startKey(ComplexKey.of(healthcarePartyId, gender == null ? null : gender.getName(), education, profession))
+                .endKey(ComplexKey.of(healthcarePartyId, gender == null ? ComplexKey.emptyObject() : gender.getName(), education == null ? ComplexKey.emptyObject() : education,  profession == null ? ComplexKey.emptyObject() : profession)).includeDocs(false);
+        return db.queryView(viewQuery, String.class);
+    }
 
 	@Override
 	public List<String> listIdsByHcPartyAndDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId) {

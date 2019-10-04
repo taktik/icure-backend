@@ -52,6 +52,8 @@ public interface InvoiceDAO extends GenericDAO<Invoice> {
 
 	List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate);
 
+	List<String> listInvoiceIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate);
+
 	List<CouchKeyValue<Long>> listTarificationsFrequencies(String hcPartyId);
 
 }

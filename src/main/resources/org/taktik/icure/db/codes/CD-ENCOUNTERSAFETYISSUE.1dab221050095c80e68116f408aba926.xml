@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2002-07-17</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Encounter safety issue types</NAME>
+  <VALUE>
+    <CODE>fysical</CODE>
+    <DESCRIPTION L='en'>fysical agression</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>material</CODE>
+    <DESCRIPTION L='en'>demolition of material and infrastructure</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>notificationtopolice</CODE>
+    <DESCRIPTION L='en'>notification of agression or demolition to the police</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>verbal</CODE>
+    <DESCRIPTION L='en'>verbal agression</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

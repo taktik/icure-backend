@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableMap;
 import org.taktik.icure.entities.embed.Periodicity;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,7 +85,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
 	public Code(String type, String code, String version) {
-		this(new HashSet<>(),type, code, version);
+		this(new HashSet<>(Arrays.asList("be","fr")),type, code, version);
 	}
 
 	public Code(Set<String> regions, String type, String code, String version) {
@@ -118,7 +119,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     @Deprecated
     public void setDescrFR(String descrFR) {
-        if (label == null) { label = new HashMap<String, String>(); }
+        if (label == null) { label = new HashMap<>(); }
         label.put("fr", descrFR);
     }
 
@@ -130,7 +131,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     @Deprecated
     public void setDescrNL(String descrNL) {
-        if (label == null) { label = new HashMap<String, String>(); }
+        if (label == null) { label = new HashMap<>(); }
         label.put("nl", descrNL);
     }
 
@@ -139,6 +140,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
     public void setCode(String code) {
+        this.id = type+'|'+code+'|'+version;
         this.code = code;
     }
 
@@ -163,6 +165,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
     public void setType(String type) {
+        this.id = type+'|'+code+'|'+version;
         this.type = type;
     }
 
@@ -179,6 +182,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 	}
 
 	public void setVersion(String version) {
+        this.id = type+'|'+code+'|'+version;
 		this.version = version;
 	}
 

@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-07-30</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>eBirth caesarian indication</NAME>
+  <VALUE>
+    <CODE>abruptioplacentae</CODE>
+    <DESCRIPTION L='de'>Placentabedingt (Ablösung, Placenta praevia)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Cause placentaire (décollement, praevia)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Placentair</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>breechpresentation</CODE>
+    <DESCRIPTION L='de'>Steißgeburt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Siège</DESCRIPTION>
+    <DESCRIPTION L='nl'>Stuitligging</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dystocieinlabourinsufficientdilatation</CODE>
+    <DESCRIPTION L='de'>Geburtshindernis, während der Wehen, aber Stagnation, Dehnung</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dystocie, en travail mais stagnation dilatation</DESCRIPTION>
+    <DESCRIPTION L='nl'>Dystocie, wel in arbeid en niet vorderende ontsluiting</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dystocieinlabourinsufficientexpulsion</CODE>
+    <DESCRIPTION L='de'>Geburtshindernis, während der Wehen, aber kein Fortschreiten bei der Austreibung</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dystocie, en travail mais arrêt de la progression à l'expulsion</DESCRIPTION>
+    <DESCRIPTION L='nl'>Dystocie, wel in arbeid en niet vorderende uitdrijving</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>dystocienotinlabour</CODE>
+    <DESCRIPTION L='de'>Geburtshindernis, außerhalb der Wehen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Dystocie, pas en travail</DESCRIPTION>
+    <DESCRIPTION L='nl'>Dysproportie, niet in arbeid</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>foetaldistress</CODE>
+    <DESCRIPTION L='de'>Leiden des Fötus</DESCRIPTION>
+    <DESCRIPTION L='fr'>Souffrance foetale</DESCRIPTION>
+    <DESCRIPTION L='nl'>Foetale nood</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>maternalindication</CODE>
+    <DESCRIPTION L='de'>Krankheitsbild der Mutter</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pathologie maternelle</DESCRIPTION>
+    <DESCRIPTION L='nl'>Maternaal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>multiplepregnancy</CODE>
+    <DESCRIPTION L='de'>Mehrfachschwangerschaft</DESCRIPTION>
+    <DESCRIPTION L='fr'>Grossesse multiple</DESCRIPTION>
+    <DESCRIPTION L='nl'>Meerling</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>other</CODE>
+    <DESCRIPTION L='de'>Sonstiges</DESCRIPTION>
+    <DESCRIPTION L='fr'>Autre</DESCRIPTION>
+    <DESCRIPTION L='nl'>Andere</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>previouscaesareansection</CODE>
+    <DESCRIPTION L='de'>Früherer Kaiserschnitt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Césarienne antérieure</DESCRIPTION>
+    <DESCRIPTION L='nl'>Voorafgaande keizersnede</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>requestedbypatient</CODE>
+    <DESCRIPTION L='de'>Von der Patientin gewünscht</DESCRIPTION>
+    <DESCRIPTION L='fr'>Demandée par la patiente</DESCRIPTION>
+    <DESCRIPTION L='nl'>Op vraag van patiënt zonder medische indicatie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>transversepresentation</CODE>
+    <DESCRIPTION L='de'>Transversal</DESCRIPTION>
+    <DESCRIPTION L='fr'>Transverse</DESCRIPTION>
+    <DESCRIPTION L='nl'>Dwarsligging</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

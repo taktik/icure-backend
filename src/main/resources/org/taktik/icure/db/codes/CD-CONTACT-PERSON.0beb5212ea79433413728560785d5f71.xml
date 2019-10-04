@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-09-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Contact person</NAME>
+  <VALUE>
+    <CODE>brother</CODE>
+    <DESCRIPTION L='en'>brother</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>brotherinlaw</CODE>
+    <DESCRIPTION L='en'>brother-in-law</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>child</CODE>
+    <DESCRIPTION L='en'>child</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>daughter</CODE>
+    <DESCRIPTION L='en'>daughter</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>employer</CODE>
+    <DESCRIPTION L='en'>employer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>father</CODE>
+    <DESCRIPTION L='en'>father</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>grandchild</CODE>
+    <DESCRIPTION L='en'>grandchild</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>grandparent</CODE>
+    <DESCRIPTION L='en'>grandparent</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>husband</CODE>
+    <DESCRIPTION L='en'>husband</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lawyer</CODE>
+    <DESCRIPTION L='en'>lawyer</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>mother</CODE>
+    <DESCRIPTION L='en'>mother</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>neighbour</CODE>
+    <DESCRIPTION L='en'>neighbour</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>notary</CODE>
+    <DESCRIPTION L='en'>notary</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>partner</CODE>
+    <DESCRIPTION L='en'>partner</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sister</CODE>
+    <DESCRIPTION L='en'>sister</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>sisterinlaw</CODE>
+    <DESCRIPTION L='en'>sisterinlaw</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>son</CODE>
+    <DESCRIPTION L='en'>son</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>spouse</CODE>
+    <DESCRIPTION L='en'>spouse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>stepdaughter</CODE>
+    <DESCRIPTION L='en'>stepdaughter</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>stepfather</CODE>
+    <DESCRIPTION L='en'>stepfather</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>stepmother</CODE>
+    <DESCRIPTION L='en'>stepmother</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>stepson</CODE>
+    <DESCRIPTION L='en'>stepson</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>tutor</CODE>
+    <DESCRIPTION L='en'>tutor</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

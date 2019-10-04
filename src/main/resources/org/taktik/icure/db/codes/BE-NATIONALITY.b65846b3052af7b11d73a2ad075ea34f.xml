@@ -1,0 +1,1561 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <DATE>2019-09-13</DATE>
+    <STATUS>Published</STATUS>
+    <NAME>Nationality</NAME>
+    <VALUE>
+        <CODE>251</CODE>
+        <DESCRIPTION L="fr">Afghanistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Afghanistan</DESCRIPTION>
+        <DESCRIPTION L="en">Afghanistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>381</CODE>
+        <DESCRIPTION L="fr">Angola</DESCRIPTION>
+        <DESCRIPTION L="nl">Angola</DESCRIPTION>
+        <DESCRIPTION L="en">Angola</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>341</CODE>
+        <DESCRIPTION L="fr">Angola</DESCRIPTION>
+        <DESCRIPTION L="nl">Angola</DESCRIPTION>
+        <DESCRIPTION L="en">Angola</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>101</CODE>
+        <DESCRIPTION L="fr">Albanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Albanië</DESCRIPTION>
+        <DESCRIPTION L="en">Albania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>102</CODE>
+        <DESCRIPTION L="fr">Andorre</DESCRIPTION>
+        <DESCRIPTION L="nl">Andorra</DESCRIPTION>
+        <DESCRIPTION L="en">Andorra</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>260</CODE>
+        <DESCRIPTION L="fr">Emirats Arabes Unis</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigde Arabische Emiraten</DESCRIPTION>
+        <DESCRIPTION L="en">United Arab Emirates</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>511</CODE>
+        <DESCRIPTION L="fr">Argentine</DESCRIPTION>
+        <DESCRIPTION L="nl">Argentinië</DESCRIPTION>
+        <DESCRIPTION L="en">Argentina</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>249</CODE>
+        <DESCRIPTION L="fr">Arménie</DESCRIPTION>
+        <DESCRIPTION L="nl">Armenië</DESCRIPTION>
+        <DESCRIPTION L="en">Armenia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>491</CODE>
+        <DESCRIPTION L="fr">Antigua et Barbuda</DESCRIPTION>
+        <DESCRIPTION L="nl">Antigua en Barbuda</DESCRIPTION>
+        <DESCRIPTION L="en">Antigua and Barbuda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>403</CODE>
+        <DESCRIPTION L="fr">Antigua et Barbuda</DESCRIPTION>
+        <DESCRIPTION L="nl">Antigua en Barbuda</DESCRIPTION>
+        <DESCRIPTION L="en">Antigua and Barbuda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>611</CODE>
+        <DESCRIPTION L="fr">Australie</DESCRIPTION>
+        <DESCRIPTION L="nl">Australië</DESCRIPTION>
+        <DESCRIPTION L="en">Australia</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+    <VALUE>
+        <CODE>105</CODE>
+        <DESCRIPTION L="fr">Autriche</DESCRIPTION>
+        <DESCRIPTION L="nl">Oostenrijk</DESCRIPTION>
+        <DESCRIPTION L="en">Austria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>250</CODE>
+        <DESCRIPTION L="fr">Azerbaïdjan</DESCRIPTION>
+        <DESCRIPTION L="nl">Azerbeidzjan</DESCRIPTION>
+        <DESCRIPTION L="en">Azerbaijan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>361</CODE>
+        <DESCRIPTION L="fr">Burundi</DESCRIPTION>
+        <DESCRIPTION L="nl">Burundi</DESCRIPTION>
+        <DESCRIPTION L="en">Burundi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>303</CODE>
+        <DESCRIPTION L="fr">Burundi</DESCRIPTION>
+        <DESCRIPTION L="nl">Burundi</DESCRIPTION>
+        <DESCRIPTION L="en">Burundi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>150</CODE>
+        <DESCRIPTION L="fr">Belgique</DESCRIPTION>
+        <DESCRIPTION L="nl">België</DESCRIPTION>
+        <DESCRIPTION L="en">Belgium</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>310</CODE>
+        <DESCRIPTION L="fr">Bénin</DESCRIPTION>
+        <DESCRIPTION L="nl">Benin</DESCRIPTION>
+        <DESCRIPTION L="en">Benin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>308</CODE>
+        <DESCRIPTION L="fr">Burkina Faso</DESCRIPTION>
+        <DESCRIPTION L="nl">Burkina Faso</DESCRIPTION>
+        <DESCRIPTION L="en">Burkina Faso</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>237</CODE>
+        <DESCRIPTION L="fr">Bangladesh</DESCRIPTION>
+        <DESCRIPTION L="nl">Bangladesh</DESCRIPTION>
+        <DESCRIPTION L="en">Bangladesh</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>106</CODE>
+        <DESCRIPTION L="fr">Bulgarie</DESCRIPTION>
+        <DESCRIPTION L="nl">Bulgarije</DESCRIPTION>
+        <DESCRIPTION L="en">Bulgaria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>268</CODE>
+        <DESCRIPTION L="fr">Bahreïn</DESCRIPTION>
+        <DESCRIPTION L="nl">Bahrein</DESCRIPTION>
+        <DESCRIPTION L="en">Bahrain</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>425</CODE>
+        <DESCRIPTION L="fr">Bahamas</DESCRIPTION>
+        <DESCRIPTION L="nl">Bahamas</DESCRIPTION>
+        <DESCRIPTION L="en">Bahamas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>484</CODE>
+        <DESCRIPTION L="fr">Bahamas</DESCRIPTION>
+        <DESCRIPTION L="nl">Bahamas</DESCRIPTION>
+        <DESCRIPTION L="en">Bahamas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>149</CODE>
+        <DESCRIPTION L="fr">Bosnie-Herzégovine</DESCRIPTION>
+        <DESCRIPTION L="nl">Bosnië en Herzegovina</DESCRIPTION>
+        <DESCRIPTION L="en">Bosnia and Herzegovina</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>142</CODE>
+        <DESCRIPTION L="fr">Bélarus</DESCRIPTION>
+        <DESCRIPTION L="nl">Wit-Rusland</DESCRIPTION>
+        <DESCRIPTION L="en">Belarus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>430</CODE>
+        <DESCRIPTION L="fr">Belize</DESCRIPTION>
+        <DESCRIPTION L="nl">Belize</DESCRIPTION>
+        <DESCRIPTION L="en">Belize</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>512</CODE>
+        <DESCRIPTION L="fr">Bolivie</DESCRIPTION>
+        <DESCRIPTION L="nl">Bolivië</DESCRIPTION>
+        <DESCRIPTION L="en">Bolivia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>513</CODE>
+        <DESCRIPTION L="fr">Brésil</DESCRIPTION>
+        <DESCRIPTION L="nl">Brazilië</DESCRIPTION>
+        <DESCRIPTION L="en">Brazil</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>423</CODE>
+        <DESCRIPTION L="fr">Barbade</DESCRIPTION>
+        <DESCRIPTION L="nl">Barbados</DESCRIPTION>
+        <DESCRIPTION L="en">Barbados</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>224</CODE>
+        <DESCRIPTION L="fr">Brunéi Darussalam</DESCRIPTION>
+        <DESCRIPTION L="nl">Brunei Darussalam</DESCRIPTION>
+        <DESCRIPTION L="en">Brunei Darussalam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>223</CODE>
+        <DESCRIPTION L="fr">Bhoutan</DESCRIPTION>
+        <DESCRIPTION L="nl">Bhutan</DESCRIPTION>
+        <DESCRIPTION L="en">Bhutan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>232</CODE>
+        <DESCRIPTION L="fr">Birma</DESCRIPTION>
+        <DESCRIPTION L="nl">Birma</DESCRIPTION>
+        <DESCRIPTION L="en">Burma</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>302</CODE>
+        <DESCRIPTION L="fr">Botswana</DESCRIPTION>
+        <DESCRIPTION L="nl">Botswana</DESCRIPTION>
+        <DESCRIPTION L="en">Botswana</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>305</CODE>
+        <DESCRIPTION L="fr">Centrafricaine, République</DESCRIPTION>
+        <DESCRIPTION L="nl">Centraal-Afrika</DESCRIPTION>
+        <DESCRIPTION L="en">Central Africa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>401</CODE>
+        <DESCRIPTION L="fr">Canada</DESCRIPTION>
+        <DESCRIPTION L="nl">Canada</DESCRIPTION>
+        <DESCRIPTION L="en">Canada</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>127</CODE>
+        <DESCRIPTION L="fr">Suisse</DESCRIPTION>
+        <DESCRIPTION L="nl">Zwitserland</DESCRIPTION>
+        <DESCRIPTION L="en">Switzerland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>514</CODE>
+        <DESCRIPTION L="fr">Chili</DESCRIPTION>
+        <DESCRIPTION L="nl">Chili</DESCRIPTION>
+        <DESCRIPTION L="en">Chile</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>218</CODE>
+        <DESCRIPTION L="fr">Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">China</DESCRIPTION>
+        <DESCRIPTION L="en">China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>238</CODE>
+        <DESCRIPTION L="fr">Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">China</DESCRIPTION>
+        <DESCRIPTION L="en">China</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+
+
+
+
+
+    <VALUE>
+        <CODE>309</CODE>
+        <DESCRIPTION L="fr">Cote d'Ivoire</DESCRIPTION>
+        <DESCRIPTION L="nl">Ivoorkust</DESCRIPTION>
+        <DESCRIPTION L="en">Cote d'Ivoire</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>304</CODE>
+        <DESCRIPTION L="fr">Cameroun</DESCRIPTION>
+        <DESCRIPTION L="nl">Kameroen</DESCRIPTION>
+        <DESCRIPTION L="en">Cameroon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>306</CODE>
+        <DESCRIPTION L="fr">La République Démocratique du Congo</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Republiek Congo</DESCRIPTION>
+        <DESCRIPTION L="en">Congo, Democratic Republic Of</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>307</CODE>
+        <DESCRIPTION L="fr">République du Congo</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Congo</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of the Congo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>515</CODE>
+        <DESCRIPTION L="fr">Colombie</DESCRIPTION>
+        <DESCRIPTION L="nl">Colombia</DESCRIPTION>
+        <DESCRIPTION L="en">Colombia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>386</CODE>
+        <DESCRIPTION L="fr">Comores</DESCRIPTION>
+        <DESCRIPTION L="nl">Comoren</DESCRIPTION>
+        <DESCRIPTION L="en">Comoros</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>343</CODE>
+        <DESCRIPTION L="fr">Comores</DESCRIPTION>
+        <DESCRIPTION L="nl">Comoren</DESCRIPTION>
+        <DESCRIPTION L="en">Comoros</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>339</CODE>
+        <DESCRIPTION L="fr">Cap-Vert</DESCRIPTION>
+        <DESCRIPTION L="nl">Kaapverdië</DESCRIPTION>
+        <DESCRIPTION L="en">Cape Verde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>385</CODE>
+        <DESCRIPTION L="fr">Cap-Vert</DESCRIPTION>
+        <DESCRIPTION L="nl">Kaapverdië</DESCRIPTION>
+        <DESCRIPTION L="en">Cape Verde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>411</CODE>
+        <DESCRIPTION L="fr">Costa Rica</DESCRIPTION>
+        <DESCRIPTION L="nl">Costa Rica</DESCRIPTION>
+        <DESCRIPTION L="en">Costa Rica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>171</CODE>
+        <DESCRIPTION L="fr">Tchécoslovaquie</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjecho-Slowakije</DESCRIPTION>
+        <DESCRIPTION L="en">Czechoslovakia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>130</CODE>
+        <DESCRIPTION L="fr">Tchécoslovaquie</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjecho-Slowakije</DESCRIPTION>
+        <DESCRIPTION L="en">Czechoslovakia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>412</CODE>
+        <DESCRIPTION L="fr">Cuba</DESCRIPTION>
+        <DESCRIPTION L="nl">Cuba</DESCRIPTION>
+        <DESCRIPTION L="en">Cuba</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>107</CODE>
+        <DESCRIPTION L="fr">Chypre</DESCRIPTION>
+        <DESCRIPTION L="nl">Cyprus</DESCRIPTION>
+        <DESCRIPTION L="en">Cyprus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>140</CODE>
+        <DESCRIPTION L="fr">Tcheque</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjechië</DESCRIPTION>
+        <DESCRIPTION L="en">Czech Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>170</CODE>
+        <DESCRIPTION L="fr">Allemagne de l'Est</DESCRIPTION>
+        <DESCRIPTION L="nl">Oost-Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">East Germany</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>104</CODE>
+        <DESCRIPTION L="fr">Allemagne de l'Est</DESCRIPTION>
+        <DESCRIPTION L="nl">Oost-Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">East Germany</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>103</CODE>
+        <DESCRIPTION L="fr">Allemagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">Germany</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>134</CODE>
+        <DESCRIPTION L="fr">Allemagne de l'Ouest</DESCRIPTION>
+        <DESCRIPTION L="nl">West-Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">West Germany</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>345</CODE>
+        <DESCRIPTION L="fr">Djibouti</DESCRIPTION>
+        <DESCRIPTION L="nl">Djibouti</DESCRIPTION>
+        <DESCRIPTION L="en">Djibouti</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>480</CODE>
+        <DESCRIPTION L="fr">Dominique</DESCRIPTION>
+        <DESCRIPTION L="nl">Dominica</DESCRIPTION>
+        <DESCRIPTION L="en">Dominica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>427</CODE>
+        <DESCRIPTION L="fr">Dominique</DESCRIPTION>
+        <DESCRIPTION L="nl">Dominica</DESCRIPTION>
+        <DESCRIPTION L="en">Dominica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>108</CODE>
+        <DESCRIPTION L="fr">Danemark</DESCRIPTION>
+        <DESCRIPTION L="nl">Denemarken</DESCRIPTION>
+        <DESCRIPTION L="en">Denmark</DESCRIPTION>
+    </VALUE>
+
+
+    <VALUE>
+        <CODE>420</CODE>
+        <DESCRIPTION L="fr">République Dominicaine</DESCRIPTION>
+        <DESCRIPTION L="nl">Dominicaanse Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Dominican Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>351</CODE>
+        <DESCRIPTION L="fr">Algérie</DESCRIPTION>
+        <DESCRIPTION L="nl">Algerije</DESCRIPTION>
+        <DESCRIPTION L="en">Algeria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>516</CODE>
+        <DESCRIPTION L="fr">Equateur</DESCRIPTION>
+        <DESCRIPTION L="nl">Ecuador</DESCRIPTION>
+        <DESCRIPTION L="en">Ecuador</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>352</CODE>
+        <DESCRIPTION L="fr">Egypte</DESCRIPTION>
+        <DESCRIPTION L="nl">Egypte</DESCRIPTION>
+        <DESCRIPTION L="en">Egypt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>349</CODE>
+        <DESCRIPTION L="fr">Erythrée</DESCRIPTION>
+        <DESCRIPTION L="nl">Eritrea</DESCRIPTION>
+        <DESCRIPTION L="en">Eritrea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>109</CODE>
+        <DESCRIPTION L="fr">Espagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Spanje</DESCRIPTION>
+        <DESCRIPTION L="en">Spain</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>136</CODE>
+        <DESCRIPTION L="fr">Estonie</DESCRIPTION>
+        <DESCRIPTION L="nl">Estland</DESCRIPTION>
+        <DESCRIPTION L="en">Estonia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>311</CODE>
+        <DESCRIPTION L="fr">Ethiopie</DESCRIPTION>
+        <DESCRIPTION L="nl">Ethiopië</DESCRIPTION>
+        <DESCRIPTION L="en">Ethiopia</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>110</CODE>
+        <DESCRIPTION L="fr">Finlande</DESCRIPTION>
+        <DESCRIPTION L="nl">Finland</DESCRIPTION>
+        <DESCRIPTION L="en">Finland</DESCRIPTION>
+    </VALUE>
+
+
+    <VALUE>
+        <CODE>617</CODE>
+        <DESCRIPTION L="fr">Fidji</DESCRIPTION>
+        <DESCRIPTION L="nl">Fiji</DESCRIPTION>
+        <DESCRIPTION L="en">Fiji</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>111</CODE>
+        <DESCRIPTION L="fr">France</DESCRIPTION>
+        <DESCRIPTION L="nl">Frankrijk</DESCRIPTION>
+        <DESCRIPTION L="en">France</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <VALUE>
+        <CODE>602</CODE>
+        <DESCRIPTION L="fr">Micronésie</DESCRIPTION>
+        <DESCRIPTION L="nl">Micronesië</DESCRIPTION>
+        <DESCRIPTION L="en">Micronesia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>312</CODE>
+        <DESCRIPTION L="fr">Gabon</DESCRIPTION>
+        <DESCRIPTION L="nl">Gabon</DESCRIPTION>
+        <DESCRIPTION L="en">Gabon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>112</CODE>
+        <DESCRIPTION L="fr">Royaume-Uni</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigd Koninkrijk</DESCRIPTION>
+        <DESCRIPTION L="en">United Kingdom</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <VALUE>
+        <CODE>253</CODE>
+        <DESCRIPTION L="fr">Géorgie</DESCRIPTION>
+        <DESCRIPTION L="nl">Georgië</DESCRIPTION>
+        <DESCRIPTION L="en">Georgia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>314</CODE>
+        <DESCRIPTION L="fr">Ghana</DESCRIPTION>
+        <DESCRIPTION L="nl">Ghana</DESCRIPTION>
+        <DESCRIPTION L="en">Ghana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>315</CODE>
+        <DESCRIPTION L="fr">Guinée</DESCRIPTION>
+        <DESCRIPTION L="nl">Guinea</DESCRIPTION>
+        <DESCRIPTION L="en">Guinea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>313</CODE>
+        <DESCRIPTION L="fr">Gambie</DESCRIPTION>
+        <DESCRIPTION L="nl">Gambia</DESCRIPTION>
+        <DESCRIPTION L="en">Gambia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>338</CODE>
+        <DESCRIPTION L="fr">Guinee-Bissau</DESCRIPTION>
+        <DESCRIPTION L="nl">Guinee-Bissau</DESCRIPTION>
+        <DESCRIPTION L="en">Guinea-Bissau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>391</CODE>
+        <DESCRIPTION L="fr">Guinee-Bissau</DESCRIPTION>
+        <DESCRIPTION L="nl">Guinee-Bissau</DESCRIPTION>
+        <DESCRIPTION L="en">Guinea-Bissau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>337</CODE>
+        <DESCRIPTION L="fr">Guinée équatoriale</DESCRIPTION>
+        <DESCRIPTION L="nl">Equatoriaal-Guinea</DESCRIPTION>
+        <DESCRIPTION L="en">Equatorial Guinea</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>114</CODE>
+        <DESCRIPTION L="fr">Grèce</DESCRIPTION>
+        <DESCRIPTION L="nl">Griekenland</DESCRIPTION>
+        <DESCRIPTION L="en">Greece</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>426</CODE>
+        <DESCRIPTION L="fr">Grenade</DESCRIPTION>
+        <DESCRIPTION L="nl">Grenada</DESCRIPTION>
+        <DESCRIPTION L="en">Grenada</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>413</CODE>
+        <DESCRIPTION L="fr">Guatemala</DESCRIPTION>
+        <DESCRIPTION L="nl">Guatemala</DESCRIPTION>
+        <DESCRIPTION L="en">Guatemala</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>521</CODE>
+        <DESCRIPTION L="fr">Guyana</DESCRIPTION>
+        <DESCRIPTION L="nl">Guyana</DESCRIPTION>
+        <DESCRIPTION L="en">Guyana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>414</CODE>
+        <DESCRIPTION L="fr">Honduras</DESCRIPTION>
+        <DESCRIPTION L="nl">Honduras</DESCRIPTION>
+        <DESCRIPTION L="en">Honduras</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>146</CODE>
+        <DESCRIPTION L="fr">Croatie</DESCRIPTION>
+        <DESCRIPTION L="nl">Kroatië</DESCRIPTION>
+        <DESCRIPTION L="en">Croatia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>419</CODE>
+        <DESCRIPTION L="fr">Haïti</DESCRIPTION>
+        <DESCRIPTION L="nl">Haïti</DESCRIPTION>
+        <DESCRIPTION L="en">Haiti</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>115</CODE>
+        <DESCRIPTION L="fr">Hongrie</DESCRIPTION>
+        <DESCRIPTION L="nl">Hongarije</DESCRIPTION>
+        <DESCRIPTION L="en">Hungary</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>138</CODE>
+        <DESCRIPTION L="fr">Hongrie</DESCRIPTION>
+        <DESCRIPTION L="nl">Hongarije</DESCRIPTION>
+        <DESCRIPTION L="en">Hungary</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>316</CODE>
+        <DESCRIPTION L="fr">Haute-Volta</DESCRIPTION>
+        <DESCRIPTION L="nl">Opper-Volta</DESCRIPTION>
+        <DESCRIPTION L="en">Upper Volta</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>208</CODE>
+        <DESCRIPTION L="fr">Indonésie</DESCRIPTION>
+        <DESCRIPTION L="nl">Indonesië</DESCRIPTION>
+        <DESCRIPTION L="en">Indonesia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>207</CODE>
+        <DESCRIPTION L="fr">Inde</DESCRIPTION>
+        <DESCRIPTION L="nl">India</DESCRIPTION>
+        <DESCRIPTION L="en">India</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>116</CODE>
+        <DESCRIPTION L="fr">Irlande</DESCRIPTION>
+        <DESCRIPTION L="nl">Ierland</DESCRIPTION>
+        <DESCRIPTION L="en">Ireland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>233</CODE>
+        <DESCRIPTION L="fr">Iran</DESCRIPTION>
+        <DESCRIPTION L="nl">Iran</DESCRIPTION>
+        <DESCRIPTION L="en">Iran</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>255</CODE>
+        <DESCRIPTION L="fr">Iran</DESCRIPTION>
+        <DESCRIPTION L="nl">Iran</DESCRIPTION>
+        <DESCRIPTION L="en">Iran</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>254</CODE>
+        <DESCRIPTION L="fr">Iraq</DESCRIPTION>
+        <DESCRIPTION L="nl">Irak</DESCRIPTION>
+        <DESCRIPTION L="en">Iraq</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>117</CODE>
+        <DESCRIPTION L="fr">Islande</DESCRIPTION>
+        <DESCRIPTION L="nl">Ijsland</DESCRIPTION>
+        <DESCRIPTION L="en">Iceland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>256</CODE>
+        <DESCRIPTION L="fr">Israël</DESCRIPTION>
+        <DESCRIPTION L="nl">Israël</DESCRIPTION>
+        <DESCRIPTION L="en">Israel</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>128</CODE>
+        <DESCRIPTION L="fr">Italie</DESCRIPTION>
+        <DESCRIPTION L="nl">Italië</DESCRIPTION>
+        <DESCRIPTION L="en">Italy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>415</CODE>
+        <DESCRIPTION L="fr">Jamaïque</DESCRIPTION>
+        <DESCRIPTION L="nl">Jamaica</DESCRIPTION>
+        <DESCRIPTION L="en">Jamaica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>257</CODE>
+        <DESCRIPTION L="fr">Jordanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Jordanië</DESCRIPTION>
+        <DESCRIPTION L="en">Jordan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>209</CODE>
+        <DESCRIPTION L="fr">Japon</DESCRIPTION>
+        <DESCRIPTION L="nl">Japan</DESCRIPTION>
+        <DESCRIPTION L="en">Japan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>225</CODE>
+        <DESCRIPTION L="fr">Kazakhstan</DESCRIPTION>
+        <DESCRIPTION L="nl">Kazachstan</DESCRIPTION>
+        <DESCRIPTION L="en">Kazakhstan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>336</CODE>
+        <DESCRIPTION L="fr">Kenya</DESCRIPTION>
+        <DESCRIPTION L="nl">Kenia</DESCRIPTION>
+        <DESCRIPTION L="en">Kenya</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>226</CODE>
+        <DESCRIPTION L="fr">Kirgisistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Kirgistan</DESCRIPTION>
+        <DESCRIPTION L="en">Kyrgyzstan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>216</CODE>
+        <DESCRIPTION L="fr">Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Cambodia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>202</CODE>
+        <DESCRIPTION L="fr">Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Cambodia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>211</CODE>
+        <DESCRIPTION L="fr">Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Cambodia</DESCRIPTION>
+    </VALUE>
+
+
+
+
+    <VALUE>
+        <CODE>607</CODE>
+        <DESCRIPTION L="fr">Kiribati</DESCRIPTION>
+        <DESCRIPTION L="nl">Kiribati</DESCRIPTION>
+        <DESCRIPTION L="en">Kiribati</DESCRIPTION>
+    </VALUE>
+
+
+    <VALUE>
+        <CODE>431</CODE>
+        <DESCRIPTION L="fr">Saint Kitts et Nevis</DESCRIPTION>
+        <DESCRIPTION L="nl">Saint Kitts en Nevis</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Kitts and Nevis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>206</CODE>
+        <DESCRIPTION L="fr">Corée du Sud</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid Korea</DESCRIPTION>
+        <DESCRIPTION L="en">South Korea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>264</CODE>
+        <DESCRIPTION L="fr">Koweït</DESCRIPTION>
+        <DESCRIPTION L="nl">Koeweit</DESCRIPTION>
+        <DESCRIPTION L="en">Kuwait</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>210</CODE>
+        <DESCRIPTION L="fr">Lao</DESCRIPTION>
+        <DESCRIPTION L="nl">Laos</DESCRIPTION>
+        <DESCRIPTION L="en">Lao</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>258</CODE>
+        <DESCRIPTION L="fr">Liban</DESCRIPTION>
+        <DESCRIPTION L="nl">Libanon</DESCRIPTION>
+        <DESCRIPTION L="en">Lebanon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>318</CODE>
+        <DESCRIPTION L="fr">Libéria</DESCRIPTION>
+        <DESCRIPTION L="nl">Liberia</DESCRIPTION>
+        <DESCRIPTION L="en">Liberia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>353</CODE>
+        <DESCRIPTION L="fr">Libye</DESCRIPTION>
+        <DESCRIPTION L="nl">Libië</DESCRIPTION>
+        <DESCRIPTION L="en">Libya</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>428</CODE>
+        <DESCRIPTION L="fr">Sainte-Lucie</DESCRIPTION>
+        <DESCRIPTION L="nl">Sint Lucia</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Lucia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>118</CODE>
+        <DESCRIPTION L="fr">Liechtenstein</DESCRIPTION>
+        <DESCRIPTION L="nl">Liechtenstein</DESCRIPTION>
+        <DESCRIPTION L="en">Liechtenstein</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>203</CODE>
+        <DESCRIPTION L="fr">Sri Lanka</DESCRIPTION>
+        <DESCRIPTION L="nl">Sri Lanka</DESCRIPTION>
+        <DESCRIPTION L="en">Sri Lanka</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>301</CODE>
+        <DESCRIPTION L="fr">Lesotho</DESCRIPTION>
+        <DESCRIPTION L="nl">Lesotho</DESCRIPTION>
+        <DESCRIPTION L="en">Lesotho</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>137</CODE>
+        <DESCRIPTION L="fr">Lituanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Litouwen</DESCRIPTION>
+        <DESCRIPTION L="en">Lithuania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>113</CODE>
+        <DESCRIPTION L="fr">Luxembourg</DESCRIPTION>
+        <DESCRIPTION L="nl">Luxemburg</DESCRIPTION>
+        <DESCRIPTION L="en">Luxembourg</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>135</CODE>
+        <DESCRIPTION L="fr">Lettonie</DESCRIPTION>
+        <DESCRIPTION L="nl">Letland</DESCRIPTION>
+        <DESCRIPTION L="en">Latvia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>354</CODE>
+        <DESCRIPTION L="fr">Maroc</DESCRIPTION>
+        <DESCRIPTION L="nl">Marokko</DESCRIPTION>
+        <DESCRIPTION L="en">Morocco</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>120</CODE>
+        <DESCRIPTION L="fr">Monaco</DESCRIPTION>
+        <DESCRIPTION L="nl">Monaco</DESCRIPTION>
+        <DESCRIPTION L="en">Monaco</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>144</CODE>
+        <DESCRIPTION L="fr">Moldova</DESCRIPTION>
+        <DESCRIPTION L="nl">Moldavië</DESCRIPTION>
+        <DESCRIPTION L="en">Moldova</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>324</CODE>
+        <DESCRIPTION L="fr">Madagascar</DESCRIPTION>
+        <DESCRIPTION L="nl">Madagascar</DESCRIPTION>
+        <DESCRIPTION L="en">Madagascar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>222</CODE>
+        <DESCRIPTION L="fr">Maldives</DESCRIPTION>
+        <DESCRIPTION L="nl">Maldiven</DESCRIPTION>
+        <DESCRIPTION L="en">Maldives</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>416</CODE>
+        <DESCRIPTION L="fr">Mexique</DESCRIPTION>
+        <DESCRIPTION L="nl">Mexico</DESCRIPTION>
+        <DESCRIPTION L="en">Mexico</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>603</CODE>
+        <DESCRIPTION L="fr">Iles Marshal</DESCRIPTION>
+        <DESCRIPTION L="nl">Marshalleilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Marshall Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>148</CODE>
+        <DESCRIPTION L="fr">Macédoine</DESCRIPTION>
+        <DESCRIPTION L="nl">Macedonië</DESCRIPTION>
+        <DESCRIPTION L="en">Macedonia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>319</CODE>
+        <DESCRIPTION L="fr">Mali</DESCRIPTION>
+        <DESCRIPTION L="nl">Mali</DESCRIPTION>
+        <DESCRIPTION L="en">Mali</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>119</CODE>
+        <DESCRIPTION L="fr">Malte</DESCRIPTION>
+        <DESCRIPTION L="nl">Malta</DESCRIPTION>
+        <DESCRIPTION L="en">Malta</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>201</CODE>
+        <DESCRIPTION L="fr">Myanmar</DESCRIPTION>
+        <DESCRIPTION L="nl">Myanmar</DESCRIPTION>
+        <DESCRIPTION L="en">Myanmar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>151</CODE>
+        <DESCRIPTION L="fr">Monténégro</DESCRIPTION>
+        <DESCRIPTION L="nl">Montenegro</DESCRIPTION>
+        <DESCRIPTION L="en">Montenegro</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>221</CODE>
+        <DESCRIPTION L="fr">Mongolie</DESCRIPTION>
+        <DESCRIPTION L="nl">Mongolië</DESCRIPTION>
+        <DESCRIPTION L="en">Mongolia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>383</CODE>
+        <DESCRIPTION L="fr">Mozambique</DESCRIPTION>
+        <DESCRIPTION L="nl">Mozambique</DESCRIPTION>
+        <DESCRIPTION L="en">Mozambique</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>340</CODE>
+        <DESCRIPTION L="fr">Mozambique</DESCRIPTION>
+        <DESCRIPTION L="nl">Mozambique</DESCRIPTION>
+        <DESCRIPTION L="en">Mozambique</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>355</CODE>
+        <DESCRIPTION L="fr">Mauritanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Mauritanië</DESCRIPTION>
+        <DESCRIPTION L="en">Mauritania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>317</CODE>
+        <DESCRIPTION L="fr">Maurice</DESCRIPTION>
+        <DESCRIPTION L="nl">Mauritius</DESCRIPTION>
+        <DESCRIPTION L="en">Mauritius</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>358</CODE>
+        <DESCRIPTION L="fr">Malawi</DESCRIPTION>
+        <DESCRIPTION L="nl">Malawi</DESCRIPTION>
+        <DESCRIPTION L="en">Malawi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>212</CODE>
+        <DESCRIPTION L="fr">Malaisie</DESCRIPTION>
+        <DESCRIPTION L="nl">Maleisië</DESCRIPTION>
+        <DESCRIPTION L="en">Malaysia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>384</CODE>
+        <DESCRIPTION L="fr">Namibie</DESCRIPTION>
+        <DESCRIPTION L="nl">Namibië</DESCRIPTION>
+        <DESCRIPTION L="en">Namibia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>321</CODE>
+        <DESCRIPTION L="fr">Niger</DESCRIPTION>
+        <DESCRIPTION L="nl">Niger</DESCRIPTION>
+        <DESCRIPTION L="en">Niger</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>322</CODE>
+        <DESCRIPTION L="fr">Nigéria</DESCRIPTION>
+        <DESCRIPTION L="nl">Nigeria</DESCRIPTION>
+        <DESCRIPTION L="en">Nigeria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>417</CODE>
+        <DESCRIPTION L="fr">Nicaragua</DESCRIPTION>
+        <DESCRIPTION L="nl">Nicaragua</DESCRIPTION>
+        <DESCRIPTION L="en">Nicaragua</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>129</CODE>
+        <DESCRIPTION L="fr">Pays-Bas</DESCRIPTION>
+        <DESCRIPTION L="nl">Nederland</DESCRIPTION>
+        <DESCRIPTION L="en">the Netherlands</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+
+    <VALUE>
+        <CODE>121</CODE>
+        <DESCRIPTION L="fr">Norvège</DESCRIPTION>
+        <DESCRIPTION L="nl">Noorwegen</DESCRIPTION>
+        <DESCRIPTION L="en">Norway</DESCRIPTION>
+    </VALUE>
+
+
+
+    <VALUE>
+        <CODE>213</CODE>
+        <DESCRIPTION L="fr">Népal</DESCRIPTION>
+        <DESCRIPTION L="nl">Nepal</DESCRIPTION>
+        <DESCRIPTION L="en">Nepal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>615</CODE>
+        <DESCRIPTION L="fr">Nauru</DESCRIPTION>
+        <DESCRIPTION L="nl">Nauru</DESCRIPTION>
+        <DESCRIPTION L="en">Nauru</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>613</CODE>
+        <DESCRIPTION L="fr">Nouvelle-Zélande</DESCRIPTION>
+        <DESCRIPTION L="nl">Nieuw-Zeeland</DESCRIPTION>
+        <DESCRIPTION L="en">New Zealand</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+
+    <VALUE>
+        <CODE>266</CODE>
+        <DESCRIPTION L="fr">Oman</DESCRIPTION>
+        <DESCRIPTION L="nl">Oman</DESCRIPTION>
+        <DESCRIPTION L="en">Oman</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>259</CODE>
+        <DESCRIPTION L="fr">Pakistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Pakistan</DESCRIPTION>
+        <DESCRIPTION L="en">Pakistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>418</CODE>
+        <DESCRIPTION L="fr">Panama</DESCRIPTION>
+        <DESCRIPTION L="nl">Panama</DESCRIPTION>
+        <DESCRIPTION L="en">Panama</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>518</CODE>
+        <DESCRIPTION L="fr">Pérou</DESCRIPTION>
+        <DESCRIPTION L="nl">Peru</DESCRIPTION>
+        <DESCRIPTION L="en">Peru</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>214</CODE>
+        <DESCRIPTION L="fr">Philippines</DESCRIPTION>
+        <DESCRIPTION L="nl">Filipijnen</DESCRIPTION>
+        <DESCRIPTION L="en">Philippines</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>679</CODE>
+        <DESCRIPTION L="fr">Palaos</DESCRIPTION>
+        <DESCRIPTION L="nl">Palau</DESCRIPTION>
+        <DESCRIPTION L="en">Palau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>619</CODE>
+        <DESCRIPTION L="fr">Papouasie-Nouvelle-Guinée</DESCRIPTION>
+        <DESCRIPTION L="nl">Papoea-Nieuw-Guinea</DESCRIPTION>
+        <DESCRIPTION L="en">Papua New Guinea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>139</CODE>
+        <DESCRIPTION L="fr">Pologne</DESCRIPTION>
+        <DESCRIPTION L="nl">Polen</DESCRIPTION>
+        <DESCRIPTION L="en">Poland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>122</CODE>
+        <DESCRIPTION L="fr">Pologne</DESCRIPTION>
+        <DESCRIPTION L="nl">Polen</DESCRIPTION>
+        <DESCRIPTION L="en">Poland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>219</CODE>
+        <DESCRIPTION L="fr">Corée du Nord</DESCRIPTION>
+        <DESCRIPTION L="nl">Noord-Korea</DESCRIPTION>
+        <DESCRIPTION L="en">North Korea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>123</CODE>
+        <DESCRIPTION L="fr">Portugal</DESCRIPTION>
+        <DESCRIPTION L="nl">Portugal</DESCRIPTION>
+        <DESCRIPTION L="en">Portugal</DESCRIPTION>
+    </VALUE>
+
+
+    <VALUE>
+        <CODE>517</CODE>
+        <DESCRIPTION L="fr">Paraguay</DESCRIPTION>
+        <DESCRIPTION L="nl">Paraguay</DESCRIPTION>
+        <DESCRIPTION L="en">Paraguay</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>283</CODE>
+        <DESCRIPTION L="fr">Palestinien Occupé, Territoire</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezette Palestijnse gebieden</DESCRIPTION>
+        <DESCRIPTION L="en">Palestinian Territory, Occupied</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>273</CODE>
+        <DESCRIPTION L="fr">Palestinien Occupé, Territoire</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezette Palestijnse gebieden</DESCRIPTION>
+        <DESCRIPTION L="en">Palestinian Territory, Occupied</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>271</CODE>
+        <DESCRIPTION L="fr">Palestinien Occupé, Territoire</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezette Palestijnse gebieden</DESCRIPTION>
+        <DESCRIPTION L="en">Palestinian Territory, Occupied</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>267</CODE>
+        <DESCRIPTION L="fr">Qatar</DESCRIPTION>
+        <DESCRIPTION L="nl">Qatar</DESCRIPTION>
+        <DESCRIPTION L="en">Qatar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>124</CODE>
+        <DESCRIPTION L="fr">Roumanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Roemenië</DESCRIPTION>
+        <DESCRIPTION L="en">Romania</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>145</CODE>
+        <DESCRIPTION L="fr">Russie</DESCRIPTION>
+        <DESCRIPTION L="nl">Rusland</DESCRIPTION>
+        <DESCRIPTION L="en">Russia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>327</CODE>
+        <DESCRIPTION L="fr">Rwanda</DESCRIPTION>
+        <DESCRIPTION L="nl">Rwanda</DESCRIPTION>
+        <DESCRIPTION L="en">Rwanda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>360</CODE>
+        <DESCRIPTION L="fr">Rwanda</DESCRIPTION>
+        <DESCRIPTION L="nl">Rwanda</DESCRIPTION>
+        <DESCRIPTION L="en">Rwanda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>252</CODE>
+        <DESCRIPTION L="fr">Arabie Saoudite</DESCRIPTION>
+        <DESCRIPTION L="nl">Saoedi-Arabië</DESCRIPTION>
+        <DESCRIPTION L="en">Saudi Arabia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>132</CODE>
+        <DESCRIPTION L="fr">Serbie-et-Monténégro</DESCRIPTION>
+        <DESCRIPTION L="nl">Servië en Montenegro</DESCRIPTION>
+        <DESCRIPTION L="en">Serbia and Montenegro</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>356</CODE>
+        <DESCRIPTION L="fr">Soudan</DESCRIPTION>
+        <DESCRIPTION L="nl">Soedan</DESCRIPTION>
+        <DESCRIPTION L="en">Sudan</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>320</CODE>
+        <DESCRIPTION L="fr">Sénégal</DESCRIPTION>
+        <DESCRIPTION L="nl">Senegal</DESCRIPTION>
+        <DESCRIPTION L="en">Senegal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>205</CODE>
+        <DESCRIPTION L="fr">Singapour</DESCRIPTION>
+        <DESCRIPTION L="nl">Singapore</DESCRIPTION>
+        <DESCRIPTION L="en">Singapore</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>623</CODE>
+        <DESCRIPTION L="fr">Iles de Salomon</DESCRIPTION>
+        <DESCRIPTION L="nl">Salomonseilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Solomon Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>328</CODE>
+        <DESCRIPTION L="fr">Sierra Leone</DESCRIPTION>
+        <DESCRIPTION L="nl">Sierra Leone</DESCRIPTION>
+        <DESCRIPTION L="en">Sierra Leone</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>421</CODE>
+        <DESCRIPTION L="fr">El Salvador</DESCRIPTION>
+        <DESCRIPTION L="nl">El Salvador</DESCRIPTION>
+        <DESCRIPTION L="en">El Salvador</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>125</CODE>
+        <DESCRIPTION L="fr">Saint-Marin</DESCRIPTION>
+        <DESCRIPTION L="nl">San Marino</DESCRIPTION>
+        <DESCRIPTION L="en">San Marino</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>329</CODE>
+        <DESCRIPTION L="fr">Somalie</DESCRIPTION>
+        <DESCRIPTION L="nl">Somalië</DESCRIPTION>
+        <DESCRIPTION L="en">Somalia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>152</CODE>
+        <DESCRIPTION L="fr">Serbie</DESCRIPTION>
+        <DESCRIPTION L="nl">Servië</DESCRIPTION>
+        <DESCRIPTION L="en">Serbia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>365</CODE>
+        <DESCRIPTION L="fr">Soudan du Sud</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid-Soedan</DESCRIPTION>
+        <DESCRIPTION L="en">South Sudan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>346</CODE>
+        <DESCRIPTION L="fr">Sao Tome-et-Principe</DESCRIPTION>
+        <DESCRIPTION L="nl">São Tomé en Príncipe</DESCRIPTION>
+        <DESCRIPTION L="en">Sao Tome and Principe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>393</CODE>
+        <DESCRIPTION L="fr">Sao Tome-et-Principe</DESCRIPTION>
+        <DESCRIPTION L="nl">São Tomé en Príncipe</DESCRIPTION>
+        <DESCRIPTION L="en">Sao Tome and Principe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>131</CODE>
+        <DESCRIPTION L="fr">URSS</DESCRIPTION>
+        <DESCRIPTION L="nl">Sovjet-Unie</DESCRIPTION>
+        <DESCRIPTION L="en">USSR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>172</CODE>
+        <DESCRIPTION L="fr">URSS</DESCRIPTION>
+        <DESCRIPTION L="nl">Sovjet-Unie</DESCRIPTION>
+        <DESCRIPTION L="en">USSR</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>522</CODE>
+        <DESCRIPTION L="fr">Suriname</DESCRIPTION>
+        <DESCRIPTION L="nl">Suriname</DESCRIPTION>
+        <DESCRIPTION L="en">Suriname</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>583</CODE>
+        <DESCRIPTION L="fr">Suriname</DESCRIPTION>
+        <DESCRIPTION L="nl">Suriname</DESCRIPTION>
+        <DESCRIPTION L="en">Suriname</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>141</CODE>
+        <DESCRIPTION L="fr">Slovaquie</DESCRIPTION>
+        <DESCRIPTION L="nl">Slowakije</DESCRIPTION>
+        <DESCRIPTION L="en">Slovakia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>147</CODE>
+        <DESCRIPTION L="fr">Slovénie</DESCRIPTION>
+        <DESCRIPTION L="nl">Slovenië</DESCRIPTION>
+        <DESCRIPTION L="en">Slovenia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>126</CODE>
+        <DESCRIPTION L="fr">Suède</DESCRIPTION>
+        <DESCRIPTION L="nl">Zweden</DESCRIPTION>
+        <DESCRIPTION L="en">Sweden</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>331</CODE>
+        <DESCRIPTION L="fr">Swaziland</DESCRIPTION>
+        <DESCRIPTION L="nl">Swaziland</DESCRIPTION>
+        <DESCRIPTION L="en">Swaziland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>347</CODE>
+        <DESCRIPTION L="fr">Swaziland</DESCRIPTION>
+        <DESCRIPTION L="nl">Swaziland</DESCRIPTION>
+        <DESCRIPTION L="en">Swaziland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>395</CODE>
+        <DESCRIPTION L="fr">Swaziland</DESCRIPTION>
+        <DESCRIPTION L="nl">Swaziland</DESCRIPTION>
+        <DESCRIPTION L="en">Swaziland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>390</CODE>
+        <DESCRIPTION L="fr">Seychelles</DESCRIPTION>
+        <DESCRIPTION L="nl">Seychellen</DESCRIPTION>
+        <DESCRIPTION L="en">Seychelles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>342</CODE>
+        <DESCRIPTION L="fr">Seychelles</DESCRIPTION>
+        <DESCRIPTION L="nl">Seychellen</DESCRIPTION>
+        <DESCRIPTION L="en">Seychelles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>261</CODE>
+        <DESCRIPTION L="fr">Syrie</DESCRIPTION>
+        <DESCRIPTION L="nl">Syrië</DESCRIPTION>
+        <DESCRIPTION L="en">Syria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>333</CODE>
+        <DESCRIPTION L="fr">Tchad</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjaad</DESCRIPTION>
+        <DESCRIPTION L="en">Chad</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>334</CODE>
+        <DESCRIPTION L="fr">Togo</DESCRIPTION>
+        <DESCRIPTION L="nl">Togo</DESCRIPTION>
+        <DESCRIPTION L="en">Togo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>235</CODE>
+        <DESCRIPTION L="fr">Thaïlande</DESCRIPTION>
+        <DESCRIPTION L="nl">Thailand</DESCRIPTION>
+        <DESCRIPTION L="en">Thailand</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>228</CODE>
+        <DESCRIPTION L="fr">Tadjikistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Tadzjikistan</DESCRIPTION>
+        <DESCRIPTION L="en">Tajikistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>229</CODE>
+        <DESCRIPTION L="fr">Turkménistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Turkmenistan</DESCRIPTION>
+        <DESCRIPTION L="en">Turkmenistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>215</CODE>
+        <DESCRIPTION L="fr">Timor-Oriental</DESCRIPTION>
+        <DESCRIPTION L="nl">Oost-Timor</DESCRIPTION>
+        <DESCRIPTION L="en">East Timor</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>616</CODE>
+        <DESCRIPTION L="fr">Tonga</DESCRIPTION>
+        <DESCRIPTION L="nl">Tonga</DESCRIPTION>
+        <DESCRIPTION L="en">Tonga</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>422</CODE>
+        <DESCRIPTION L="fr">Trinité-et-Tobago</DESCRIPTION>
+        <DESCRIPTION L="nl">Trinidad en Tobago</DESCRIPTION>
+        <DESCRIPTION L="en">Trinidad and Tobago</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>357</CODE>
+        <DESCRIPTION L="fr">Tunisie</DESCRIPTION>
+        <DESCRIPTION L="nl">Tunesië</DESCRIPTION>
+        <DESCRIPTION L="en">Tunisia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>262</CODE>
+        <DESCRIPTION L="fr">Turquie</DESCRIPTION>
+        <DESCRIPTION L="nl">Turkije</DESCRIPTION>
+        <DESCRIPTION L="en">Turkey</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>621</CODE>
+        <DESCRIPTION L="fr">Tuvalu</DESCRIPTION>
+        <DESCRIPTION L="nl">Tuvalu</DESCRIPTION>
+        <DESCRIPTION L="en">Tuvalu</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>332</CODE>
+        <DESCRIPTION L="fr">Tanzanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Tanzanië</DESCRIPTION>
+        <DESCRIPTION L="en">Tanzania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>323</CODE>
+        <DESCRIPTION L="fr">Ouganda</DESCRIPTION>
+        <DESCRIPTION L="nl">Oeganda</DESCRIPTION>
+        <DESCRIPTION L="en">Uganda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>143</CODE>
+        <DESCRIPTION L="fr">Ukraine</DESCRIPTION>
+        <DESCRIPTION L="nl">Oekraïne</DESCRIPTION>
+        <DESCRIPTION L="en">Ukraine</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>519</CODE>
+        <DESCRIPTION L="fr">Uruguay</DESCRIPTION>
+        <DESCRIPTION L="nl">Uruguay</DESCRIPTION>
+        <DESCRIPTION L="en">Uruguay</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>402</CODE>
+        <DESCRIPTION L="fr">Etats-Unis</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigde Staten</DESCRIPTION>
+        <DESCRIPTION L="en">United States</DESCRIPTION>
+    </VALUE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <VALUE>
+        <CODE>227</CODE>
+        <DESCRIPTION L="fr">Ouzbékistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Oezbekistan</DESCRIPTION>
+        <DESCRIPTION L="en">Uzbekistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>133</CODE>
+        <DESCRIPTION L="fr">Vatican</DESCRIPTION>
+        <DESCRIPTION L="nl">Vaticaanstad</DESCRIPTION>
+        <DESCRIPTION L="en">Vatican City</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>429</CODE>
+        <DESCRIPTION L="fr">Saint-Vincent-et-les Grenadines</DESCRIPTION>
+        <DESCRIPTION L="nl">Saint Vincent en de Grenadines</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Vincent and the Grenadines</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>.0</CODE>
+        <DESCRIPTION L="fr">Nord-Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Noord-Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">North Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>520</CODE>
+        <DESCRIPTION L="fr">Venezuela</DESCRIPTION>
+        <DESCRIPTION L="nl">Venezuela</DESCRIPTION>
+        <DESCRIPTION L="en">Venezuela</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>220</CODE>
+        <DESCRIPTION L="fr">Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>217</CODE>
+        <DESCRIPTION L="fr">Sud-Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid-Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">South Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>279</CODE>
+        <DESCRIPTION L="fr">Sud-Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid-Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">South Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>624</CODE>
+        <DESCRIPTION L="fr">Vanuatu</DESCRIPTION>
+        <DESCRIPTION L="nl">Vanuatu</DESCRIPTION>
+        <DESCRIPTION L="en">Vanuatu</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>606</CODE>
+        <DESCRIPTION L="fr">Samoa</DESCRIPTION>
+        <DESCRIPTION L="nl">Samoa</DESCRIPTION>
+        <DESCRIPTION L="en">Samoa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>614</CODE>
+        <DESCRIPTION L="fr">Samoa</DESCRIPTION>
+        <DESCRIPTION L="nl">Samoa</DESCRIPTION>
+        <DESCRIPTION L="en">Samoa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>999</CODE>
+        <DESCRIPTION L="fr">Inconnu</DESCRIPTION>
+        <DESCRIPTION L="nl">Onbekend</DESCRIPTION>
+        <DESCRIPTION L="en">Unknown</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>263</CODE>
+        <DESCRIPTION L="fr">Yémen du Nord</DESCRIPTION>
+        <DESCRIPTION L="nl">Noord-Jemen</DESCRIPTION>
+        <DESCRIPTION L="en">North Yemen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>270</CODE>
+        <DESCRIPTION L="fr">Yémen</DESCRIPTION>
+        <DESCRIPTION L="nl">Jemen</DESCRIPTION>
+        <DESCRIPTION L="en">Yemen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>265</CODE>
+        <DESCRIPTION L="fr">Yémen du Sud</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid-Jemen</DESCRIPTION>
+        <DESCRIPTION L="en">South Yemen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>169</CODE>
+        <DESCRIPTION L="fr">Yougoslavie</DESCRIPTION>
+        <DESCRIPTION L="nl">Joegoslavië</DESCRIPTION>
+        <DESCRIPTION L="en">Yugoslavia</DESCRIPTION>
+    </VALUE>
+
+    <VALUE>
+        <CODE>325</CODE>
+        <DESCRIPTION L="fr">Afrique du Sud</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid-Afrika</DESCRIPTION>
+        <DESCRIPTION L="en">South Africa</DESCRIPTION>
+    </VALUE>
+
+
+    <VALUE>
+        <CODE>364</CODE>
+        <DESCRIPTION L="fr">Zaïre</DESCRIPTION>
+        <DESCRIPTION L="nl">Zaïre</DESCRIPTION>
+        <DESCRIPTION L="en">Zaire</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>335</CODE>
+        <DESCRIPTION L="fr">Zambie</DESCRIPTION>
+        <DESCRIPTION L="nl">Zambia</DESCRIPTION>
+        <DESCRIPTION L="en">Zambia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>344</CODE>
+        <DESCRIPTION L="fr">Zimbabwe</DESCRIPTION>
+        <DESCRIPTION L="nl">Zimbabwe</DESCRIPTION>
+        <DESCRIPTION L="en">Zimbabwe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>153</CODE>
+        <DESCRIPTION L="fr">Kosovo</DESCRIPTION>
+        <DESCRIPTION L="nl">Kosovo</DESCRIPTION>
+        <DESCRIPTION L="en">Kosovo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>362</CODE>
+        <DESCRIPTION L="fr">Congo</DESCRIPTION>
+        <DESCRIPTION L="nl">Kongo</DESCRIPTION>
+        <DESCRIPTION L="en">Congo</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
