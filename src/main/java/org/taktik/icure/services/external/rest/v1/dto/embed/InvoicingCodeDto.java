@@ -443,7 +443,7 @@ public class InvoicingCodeDto implements Serializable {
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
 
-    public Integer getTransplantation() {	return transplantationCode;	}
+    public Integer getTransplantationCode() {	return transplantationCode;	}
 
-    public void setTransplantation(Integer transplantationCode) {	this.transplantationCode = transplantationCode;	}
+    public void setTransplantationCode(Integer transplantationCode) {	this.transplantationCode = transplantationCode;	}
 }
