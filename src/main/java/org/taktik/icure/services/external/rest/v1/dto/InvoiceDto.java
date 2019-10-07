@@ -90,8 +90,6 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
-	protected String treatmentReason;
-
 
 	protected Map<String,String> receipts = new HashMap<>();
 
@@ -245,10 +243,6 @@ public class InvoiceDto extends IcureDto {
 	public Integer getInvoicePeriod() { return invoicePeriod;}
 
 	public void setInvoicePeriod(Integer invoicePeriod) { this.invoicePeriod = invoicePeriod; }
-
-	public String getTreatmentReason() { return treatmentReason;}
-
-	public void setTreatmentReason(String treatmentReason) { this.treatmentReason = treatmentReason; }
 
 	public String getInternshipNihii() { return internshipNihii; }
 
