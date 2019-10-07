@@ -290,7 +290,7 @@ public class HealthElementFacade implements OpenApiFacade {
 	)
 	@POST
 	@Path("/filter")
-	public Response filterBy(FilterChain filterChain) {
+public Response filterBy(FilterChain filterChain) {
 		Response response;
 
 		List<HealthElement> healthElements;
