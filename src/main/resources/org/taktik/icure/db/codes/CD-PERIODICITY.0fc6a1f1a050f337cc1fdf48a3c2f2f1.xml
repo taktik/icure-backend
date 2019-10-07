@@ -403,4 +403,32 @@
     <DESCRIPTION L='en'>Per 6 weeks</DESCRIPTION>
     <DESCRIPTION L='nl'>per 6 weken </DESCRIPTION>
   </VALUE>
+  <VALUE>
+    <CODE>MF</CODE>
+    <DESCRIPTION L='de'>Pro 15 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 15 mois</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 15 months</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 15 maanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JE</CODE>
+    <DESCRIPTION L='de'>Pro 11 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 11 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 11 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 11 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JY</CODE>
+    <DESCRIPTION L='de'>Pro 13 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 13 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 13 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 13 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JF</CODE>
+    <DESCRIPTION L='de'>Pro 15 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 15 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 15 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 15 années</DESCRIPTION>
+  </VALUE>
 </kmehr-cd>
