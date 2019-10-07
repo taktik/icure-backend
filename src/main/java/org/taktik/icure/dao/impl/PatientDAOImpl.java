@@ -56,11 +56,11 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
         initStandardDesignDocument();
     }
 
-	@Override
-	@View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js")
-	public List<String> listIdsByHcPartyAndName(String name, String healthcarePartyId) {
-		return listIdsForName(name, healthcarePartyId, "by_hcparty_name");
-	}
+    @Override
+    @View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js", reduce = "_count")
+    public List<String> listIdsByHcPartyAndName(String name, String healthcarePartyId) {
+        return listIdsForName(name, healthcarePartyId, "by_hcparty_name");
+    }
 
 	@Override
 	@View(name = "of_hcparty_name", map = "classpath:js/patient/Of_hcparty_name_map.js")
@@ -454,5 +454,46 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
 		return resultMap;
 	}
+
+    @Override
+    public List<Patient> getDuplicatePatients(List<String> healthcarePartyIds) {
+        List<Patient> duplicatePatients = new ArrayList<>();
+        duplicatePatients.addAll(this.getDuplicatesFromView("by_hcparty_ssin", healthcarePartyIds));
+        duplicatePatients.addAll(this.getDuplicatesFromView("by_hcparty_name", healthcarePartyIds));
+
+        return duplicatePatients.stream()
+                .filter(patient -> patient.getActive() == true)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private List<Patient> getDuplicatesFromView(String viewName, List<String> healthcarePartyIds) {
+        List<JsonNode> keysWithDuplicates = new ArrayList<>();
+        for (String healthcarePartyId : healthcarePartyIds) {
+            ComplexKey from = ComplexKey.of(healthcarePartyId, "");
+            ComplexKey to = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject());
+            ViewQuery viewQuery = createQuery(viewName)
+                    .startKey(from)
+                    .endKey(to)
+                    .reduce(true)
+                    .group(true);
+            ViewResult viewResult = db.queryView(viewQuery);
+
+            for (ViewResult.Row row : viewResult.getRows()) {
+                if (row.getValueAsInt() > 1) {
+                    keysWithDuplicates.add(row.getKeyAsNode());
+                }
+            }
+        }
+
+        List<Patient> duplicatePatients = db.queryView(
+                createQuery(viewName)
+                        .keys(keysWithDuplicates)
+                        .reduce(false)
+                        .includeDocs(true),
+                Patient.class);
+
+        return duplicatePatients;
+    }
 
 }

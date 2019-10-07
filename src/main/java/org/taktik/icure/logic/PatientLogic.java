@@ -38,55 +38,56 @@ import java.util.Set;
 
 public interface PatientLogic extends EntityPersister<Patient, String> {
 
-	/**
-	 */
-	Patient addDelegation(String patientId, Delegation delegation);
+    /**
+     *
+     */
+    Patient addDelegation(String patientId, Delegation delegation);
 
-	Patient addDelegations(String patientId, Collection<Delegation> delegations);
+    Patient addDelegations(String patientId, Collection<Delegation> delegations);
 
-	Patient createPatient(Patient patient) throws MissingRequirementsException;
+    Patient createPatient(Patient patient) throws MissingRequirementsException;
 
-	List<Patient> fuzzySearchPatients(String healthcarePartyId, String firstName, String lastName, Integer dateOfBirth);
+    List<Patient> fuzzySearchPatients(String healthcarePartyId, String firstName, String lastName, Integer dateOfBirth);
 
-	Set<String> deletePatients(Set<String> ids) throws DocumentNotFoundException;
+    Set<String> deletePatients(Set<String> ids) throws DocumentNotFoundException;
 
-	PaginatedList<Patient> findDeletedPatientsByDeleteDate(Long start, Long end, boolean descending, PaginationOffset paginationOffset);
+    PaginatedList<Patient> findDeletedPatientsByDeleteDate(Long start, Long end, boolean descending, PaginationOffset paginationOffset);
 
     List<Patient> findDeletedPatientsByNames(String firstName, String lastName);
 
     Set<String> undeletePatients(Set<String> ids) throws DocumentNotFoundException;
 
-	PaginatedList<String> findByHcPartyIdsOnly(String healthcarePartyId, PaginationOffset offset);
+    PaginatedList<String> findByHcPartyIdsOnly(String healthcarePartyId, PaginationOffset offset);
 
-	PaginatedList<Patient> findByHcPartyAndSsin(String ssin, String healthcarePartyId, PaginationOffset paginationOffset);
+    PaginatedList<Patient> findByHcPartyAndSsin(String ssin, String healthcarePartyId, PaginationOffset paginationOffset);
 
-	PaginatedList<Patient> findByHcPartyDateOfBirth(Integer date, String hcPartyId, PaginationOffset pagination);
+    PaginatedList<Patient> findByHcPartyDateOfBirth(Integer date, String hcPartyId, PaginationOffset pagination);
 
-	PaginatedList<Patient> findByHcPartyModificationDate(Long start, Long end, String healthcarePartyId, boolean descending, PaginationOffset paginationOffset);
+    PaginatedList<Patient> findByHcPartyModificationDate(Long start, Long end, String healthcarePartyId, boolean descending, PaginationOffset paginationOffset);
 
-	PaginatedList<Patient> findOfHcPartyModificationDate(Long start, Long end, String healthcarePartyId, boolean descending, PaginationOffset paginationOffset);
+    PaginatedList<Patient> findOfHcPartyModificationDate(Long start, Long end, String healthcarePartyId, boolean descending, PaginationOffset paginationOffset);
 
-	PaginatedList<Patient> findByHcPartyNameContainsFuzzy(String searchString, String hcPartyId, PaginationOffset pagination, boolean descending);
+    PaginatedList<Patient> findByHcPartyNameContainsFuzzy(String searchString, String hcPartyId, PaginationOffset pagination, boolean descending);
 
-	PaginatedList<Patient> findOfHcPartyNameContainsFuzzy(String searchString, String hcPartyId, PaginationOffset pagination, boolean descending);
+    PaginatedList<Patient> findOfHcPartyNameContainsFuzzy(String searchString, String hcPartyId, PaginationOffset pagination, boolean descending);
 
-	List<Patient> listOfMergesAfter(Long date);
+    List<Patient> listOfMergesAfter(Long date);
 
-	PaginatedList<Patient> findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(String healthcarePartyId, PaginationOffset offset, String filterValue, Sorting sorting);
+    PaginatedList<Patient> findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(String healthcarePartyId, PaginationOffset offset, String filterValue, Sorting sorting);
 
-	PaginatedList<Patient> listPatients(PaginationOffset paginationOffset, FilterChain<Patient> filterChain, String sort, Boolean desc) throws LoginException;
+    PaginatedList<Patient> listPatients(PaginationOffset paginationOffset, FilterChain<Patient> filterChain, String sort, Boolean desc) throws LoginException;
 
-	PaginatedList<Patient> findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(String hcPartyId, PaginationOffset offset, String filterValue, Sorting sorting);
+    PaginatedList<Patient> findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(String hcPartyId, PaginationOffset offset, String filterValue, Sorting sorting);
 
-	Integer countByHcParty(String healthcarePartyId);
+    Integer countByHcParty(String healthcarePartyId);
 
-	Integer countOfHcParty(String healthcarePartyId);
+    Integer countOfHcParty(String healthcarePartyId);
 
-	List<String> listByHcPartyIdsOnly(String healthcarePartyId);
+    List<String> listByHcPartyIdsOnly(String healthcarePartyId);
 
-	List<String> listByHcPartyAndSsinIdsOnly(String ssin, String healthcarePartyId);
+    List<String> listByHcPartyAndSsinIdsOnly(String ssin, String healthcarePartyId);
 
-	List<String> listByHcPartyAndSsinsIdsOnly(Collection<String> ssins, String healthcarePartyId);
+    List<String> listByHcPartyAndSsinsIdsOnly(Collection<String> ssins, String healthcarePartyId);
 
     List<String> listByHcPartyDateOfBirthIdsOnly(Integer date, String healthcarePartyId);
 
@@ -94,35 +95,37 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 
     List<String> listByHcPartyDateOfBirthIdsOnly(Integer startDate, Integer endDate, String healthcarePartyId);
 
-	List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId);
+    List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId);
 
     List<String> listByHcPartyName(String searchString, String healthcarePartyId);
 
     List<String> listByHcPartyAndExternalIdsOnly(String externalId, String healthcarePartyId);
 
-	List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId);
+    List<String> listByHcPartyAndActiveIdsOnly(boolean active, String healthcarePartyId);
 
-	Patient findByUserId(String id);
+    Patient findByUserId(String id);
 
-	Patient getPatient(String patientId);
+    Patient getPatient(String patientId);
 
-	Map<String, Object> getPatientSummary(PatientDto patientDto, List<String> propertyExpressions);
+    Map<String, Object> getPatientSummary(PatientDto patientDto, List<String> propertyExpressions);
 
-	List<Patient> getPatients(List<String> selectedIds);
+    List<Patient> getPatients(List<String> selectedIds);
 
-	Patient modifyPatient(Patient patient) throws MissingRequirementsException;
+    Patient modifyPatient(Patient patient) throws MissingRequirementsException;
 
     void logAllPatients(String hcPartyId);
 
-	Patient modifyPatientReferral(Patient patient, String referralId, Instant start, Instant end) throws MissingRequirementsException;
+    Patient modifyPatientReferral(Patient patient, String referralId, Instant start, Instant end) throws MissingRequirementsException;
 
-	Patient mergePatient(Patient patient, List<Patient> fromPatients);
+    Patient mergePatient(Patient patient, List<Patient> fromPatients);
 
-	Patient getByExternalId(String externalId);
+    Patient getByExternalId(String externalId);
 
-	void solveConflicts();
+    void solveConflicts();
 
-	Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
+    Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
 
-	PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, Long startKey, String startDocumentId, Integer limit);
+    PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, Long startKey, String startDocumentId, Integer limit);
+
+    List<Patient> getDuplicatePatients(List<String> healthcarePartyIds);
 }
