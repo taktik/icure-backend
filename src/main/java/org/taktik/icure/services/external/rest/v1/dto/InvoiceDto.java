@@ -54,6 +54,7 @@ public class InvoiceDto extends IcureDto {
 
 	private String thirdPartyPaymentJustification;
 	protected String thirdPartyPaymentReason;
+	protected String reason;
 
 	protected String gnotionNihii;
 	protected String gnotionSsin;
@@ -366,6 +367,14 @@ public class InvoiceDto extends IcureDto {
 	public void setThirdPartyPaymentReason(String thirdPartyPaymentReason) {
 		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
 	}
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 
 	public PaymentType getPaymentType() {
 		return paymentType;

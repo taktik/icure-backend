@@ -55,6 +55,7 @@ public class Invoice extends StoredICureDocument {
 
 	private String thirdPartyPaymentJustification;
 	private String thirdPartyPaymentReason;
+	private String reason;
 
 	private InvoiceType invoiceType;
 	private MediumType sentMediumType;
@@ -549,7 +550,16 @@ public class Invoice extends StoredICureDocument {
 		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
 	}
 
-	public PaymentType getPaymentType() {
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+
+    public PaymentType getPaymentType() {
 		return paymentType;
 	}
 
