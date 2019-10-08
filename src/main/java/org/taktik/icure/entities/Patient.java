@@ -97,7 +97,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     protected Map<String,List<String>> parameters = new HashMap<>();
 
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
-	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
+	protected java.util.List<CodeStub> patientProfessions = new ArrayList<>();
 
     //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
     //For a pair of HcParties, this key is called the AES exchange key
@@ -113,8 +113,8 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     protected CodeStub nativeCountry;
     protected CodeStub socialStatus;
     protected CodeStub mainSourceOfIncome;
-    protected List<SchoolingInfo> schoolingInfos;
-    protected List<EmploymentInfo> employementInfos;
+    protected List<SchoolingInfo> schoolingInfos = new ArrayList<>();
+    protected List<EmploymentInfo> employementInfos = new ArrayList<>();
     private Set<Property> properties = new HashSet<>();
 
     public @Nullable
