@@ -431,4 +431,25 @@
     <DESCRIPTION L='en'>Per 15 years</DESCRIPTION>
     <DESCRIPTION L='nl'>Par 15 années</DESCRIPTION>
   </VALUE>
+  <VALUE>
+    <CODE>JX</CODE>
+    <DESCRIPTION L='de'>Pro 10 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 10 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 10 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 10 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JW</CODE>
+    <DESCRIPTION L='de'>Pro 12 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 12 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 12 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 12 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JB</CODE>
+    <DESCRIPTION L='de'>Pro 14 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 14 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 14 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 14 années</DESCRIPTION>
+  </VALUE>
 </kmehr-cd>
