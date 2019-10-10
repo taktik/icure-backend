@@ -392,10 +392,13 @@ class SumehrExport : KmehrExport() {
 		addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
 
 		values.forEach { value ->
-			nonConfidentialItems.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
-				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
-					assessment.headingsAndItemsAndTexts.add(it)
-				}
+			nonConfidentialItems.filter { s -> null != s.codes.find { it.type.replace("-", "") == type.value().replace("-", "") && value == it.code } }.forEach {
+                val svc = it
+				if(svc.content.any{it.value.stringValue!!.contains("|consent")}) {
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
+                        assessment.headingsAndItemsAndTexts.add(it)
+                    }
+                }
 			}
 		}
 	}
