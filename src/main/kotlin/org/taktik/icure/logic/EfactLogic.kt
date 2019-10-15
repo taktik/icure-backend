@@ -28,5 +28,5 @@ import java.util.HashMap
 
 
 interface EfactLogic  {
-    fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch
+    fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch?
 }

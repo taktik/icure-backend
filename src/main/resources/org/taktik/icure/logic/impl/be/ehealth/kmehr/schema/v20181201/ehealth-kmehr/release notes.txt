@@ -1,0 +1,730 @@
+***********************************
+Version 1.27/Kmehr release 20181201
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20181201'
+CD-ITEM-MYCARENETvalues: added value 'istrialperiod', 'closurejustification'
+CD-VACCINEINDICATIONvalues: added value 'herpeszoster', 'varicella', 'cholera'
+CD-ITEM-REGvalues: removed duplicate values 'approach', 'resynchronisation'
+
+***********************************
+Version 1.26/Kmehr release 20180901
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20180901'
+CD-HCPARTY: added value 'persoraldentalhygienist', 'persclinicalpsychologist', 'persclinicalorthopedagogist'
+CD-TRANSACTION-MYCARENET: added value 'maa', 'maaextension', 'maaappendix', 'maacancellation', 'maaclosure', 'maaagreement', 
+				'maarefusal', 'maaintreatment'
+CD-ITEM-MYCARENET: added value 'agreementenddate', 'agreementstartdate', 'agreementtype', 'consultationenddate', 'consultationstartdate',
+				'authorisationtype', 'decisionreference', 'orphandrugdeliveryplace', 'refusaljustification', 'reststrength',
+				'restunitnumber', 'legalbasis', 'legalunitnumber', 'legalstrength'
+CD-CONTENTschemes: added value 'CD-LEGALREFERENCE', 'CD-LEGALTEXT', 'CD-FORMALINTERPRETATION', 'CD-REIMBURSEMENT-TERM-PARAMETER',
+		 		'CD-REIMBURSEMENT-CONTEXT-ENVIRONMENT'		 		
+CD-CONTENTschemes: values 'CD-MAA-TYPE', 'CD-MAA-REQUESTTYPE', 'CD-MAA-RESPONSETYPE', 'CD-MAA-COVERAGE-TYPE', 
+				'CD-MAA-REFUSALJUSTIFICATION', 'CD-TRANSACTION-MAA', 'CD-ITEM-MAA', 'CD-CHAPTER4PARAGRAPH', 
+				'CD-CHAPTER4VERSE', 'CD-CHAPTER4CATEGORY', 'CD-CHAPTER4CRITERIA', 'CD-CHAPTER4VERSESEQAPPENDIX',
+				'CD-CHAPTER4DOCUMENTSEQAPPENDIX', 'CD-CHAPTER4FORMALINTERPRETATION' are now deprecated		 		
+CD-ADMINISTRATIONUNIT: value '0025' is now deprecated
+CD-DAYPERIOD: value 'betweendinnerandsleep' is now deprecated	
+CD-TRANSACTION: value 'medicaladvisoragreement' is now deprecated		
+
+id file
+
+ID-HCPARTYschemes: added value 'ID-ENCRYPTION-KEY'
+
+***********************************
+Version 1.25/Kmehr release 20180601
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20180601'
+CD-TRANSACTION-MYCARENET: added value 'cgacancellation'
+CD-ITEM-MYCARENET: added value 'treatmentreason'
+
+***********************************
+Version 1.24/Kmehr release 20180301
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20180301'
+CD-DRUG-CNKschemes: added value 'CD-AMP'
+CD-HCPARTY: added value 'deptnursing'
+CD-PARAMETER: added value 'bloodsugar'
+
+***********************************
+Version 1.23/Kmehr release 20171201
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20171201'
+CD-MEDIATYPE: added value 'application/hl7-sda+xml'
+CD-TRANSACTION: added value 'perinatal'
+
+***********************************
+Version 1.22/Kmehr release 20170901
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20170901'
+CD-TRANSACTION: added value 'diarynote', 'mea'
+CD-TRANSACTIONschemes: added value 'CD-DIARY'
+CD-HCPARTY: added value 'perspharmacistclinicalbiologist'
+
+kmehr file
+
+memberinsuranceType: added type 'xsd:string' to 'member' element
+
+***********************************
+Version 1.21/Kmehr release 20170601
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20170601'
+CD-INCAPACITY: added value 'heavyphysicalactivity'
+CD-INCAPACITYREASON: added value 'traveltofromworkaccident'
+added table CD-EMPLOYMENTSITUATION
+
+kmehr file
+
+professionType: added optional cd element
+
+***********************************
+Version 1.20/Kmehr release 20170301
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20170301'
+CD-ENCRYPTION-ACTOR: added value 'SSIN'
+
+kmehr file
+
+medicinalproducttype: added xsd:string to deliveredname 
+substanceproducttype: added xsd:string to deliveredname
+
+***********************************
+Version 1.19/Kmehr release 20161201
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20161201'
+CD-TRANSACTIONschemes: added value 'CD-HUBSERVICE'
+CD-CONTENTschemes: added value 'CD-PATIENTWILL-RES', 'CD-PATIENTWILL-HOS'
+CD-LIFECYCLE: added value 'retracted'
+CD-TRANSACTION-MYCARENET: added value 'mea'
+CD-ITEM: added value 'problem'
+CD-TRANSACTION: added value 'careplan', 'applicationlink'
+CD-PATIENTWILL: added value 'omissionofmedicaldata'
+added CD-INNCLUSTERschemes to allow new table 'CD-VMPGROUP'
+added table 'CD-PATIENTWILL-RES', 'CD-PATIENTWILL-HOS'
+
+id file
+
+ID-HCPARTYschemes: added value 'ID-EHP'
+
+kmehr file
+
+transactionType: added optionnal 'version' element
+addressType: all elements are now optionnal
+removed ambigous annotation of "issubstitutionallowed" element
+
+***********************************
+Version 1.18/Kmehr release 20160901
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20160901'
+CD-ITEM: added value 'membership'
+CD-TRANSACTION-MYCARENET: added value 'tariffmediprima', 'cga', 'cgd'
+CD-ITEM-MYCARENET: added values 'patientpaid', 'supplement', 'paymentreceivingparty', 'internship', 'documentidentity', 
+					'invoicingnumber', 'reimbursement-fpssi', 'reimbursement-pswc', 'umc', 'mediprimanumber', 'pswc'
+CD-HCPARTY: added value 'orgprevention', 'persorthotist', 'perspatientdriver'
+CD-LIFECYCLE: added value 'proposed'
+CD-CONTENTschemes: added value 'CD-CHAPTER4FORMALINTERPRETATION'
+
+id file
+
+ID-HCPARTYschemes: added value 'ID-CBE'
+ID-KMEHRschemes: added value 'ID-CBE'
+
+***********************************
+Version 1.17/Kmehr release 20160601
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20160601'
+CD-PROOF: removed enumeration and linked to website
+
+kmehr file
+
+created personTypeLight, a more basic version of PersonType
+errortype: added optionnal id element
+
+***********************************
+Version 1.16/Kmehr release 20160301
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20160301'
+CD-ITEM-MYCARENET: added value 'refusal'
+CD-ITEM: added value 'autonomy'
+CD-TRANSACTION: added value 'population-based-screening', 'child-prevention'
+CD-TRANSACTION-TYPE: added value 'childrecord'
+CD-CONTENTschemes: added value 'CD-EBIRTH-CAESAREANINDICATION', 'CD-NIHDI-RELATEDSERVICE', 'CD-MYCARENET-REFUSAL', 'CD-ISO-3950'
+CD-SUBSTANCEschemes: added value 'CD-SUBSTANCE-CNK'
+CD-CONTENTschemes: added value 'CD-TARDIS-PRODUCT-TYPE', 'CD-AUTONOMY'
+added CD-GALENICFORMschemes
+
+kmehr file
+
+itemtype: added 'feedback' element
+galenicformType: 'CD-MAGISTRALFORM' is now authorized for cd element
+
+***********************************
+Version 1.15/Kmehr release 20151201
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20151201'
+CD-TRANSACTION-REG: added value 'arthritis-notification'
+CD-HEADING-REG: added value 'infiltration', 'das28', 'haq', 'posology'
+CD-ITEM-REG: added value 'registration-type', 'declarationdas28', 'declarationhaq', 'declarationinfiltration', 
+		'declarationmedication', 'substance', 'medicationstopinfo', 'chapter4', 'dosis', 'frequency', 'route'
+CD-EBIRTH-CONGENITALMALFORMATION: added value 'other'
+CD-ITEM-EBIRTH: added value 'othermedicalrisk'
+CD-CONTENTschemes: added value 'CD-TARDIS-REGISTRATIONTYPE', 'CD-TARDIS-DIAGNOSIS', 'CD-TARDIS-DRUG', 'CD-TARDIS-DRUG-ENDREASON', 
+		'CD-TARDIS-DRUG-ROUTE'
+CD-UNITschemes: added value 'CD-TIMEUNIT'
+
+***********************************
+Version 1.14/Kmehr release 20150901
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20150901'
+CD-ITEM-REG: added value 'indication'
+CD-CONTENTschemes: added value 'CD-ACTS-NURSING', 'CD-PM-INDICATION'
+
+***********************************
+Version 1.13/Kmehr release 20150601
+***********************************
+Bug fixing
+----------
+
+(1.13.1) Removed white space at the end of 'CD-PM-ELEC-TYPE' and 'CD-PM-DISTURBANCE'
+
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20150601'
+CD-ITEM-REG: added value 'informationprimo', 'lvef', 'qrs', 'diameter', 'cardiacasynchrony'
+CD-TRANSACTION-REG: added value 'pacemaker-intervention'
+CD-HEADING-REG: added value 'crtp'
+CD-CONTENTschemes: added value 'CD-PM-SYMPTOM', 'CD-PM-ECG', 'CD-PM-AETIOLOGY', 'CD-PM-INFOPRIMO', 'CD-PM-STIMULATION',
+	 'CD-PM-REASON', 'CD-PM-ABROAD-INDICATOR', 'CD-PM-ELEC-TYPE ', 'CD-PM-ELEC-REASON', 'CD-PM-CARDIOMYOPATHY', 
+	 'CD-PM-DISTURBANCE'
+
+***********************************
+Version 1.12/Kmehr release 20150301
+***********************************
+Bug fixing
+----------
+
+(1.12.0) corrected complextype CD-ENCOUTER to CD-ENCOUNTER
+(1.12.0) Moved 'CD-MYCARENET-JUSTIFICATION' from CD-ITEMschemes to CD-CONTENTschemes
+
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20150301'
+CD-ITEM: added value 'agreedtreatment'
+CD-PARAMETER: added values 'katz', 'belrai'
+CD-TRANSACTION-TYPE: added value 'transferdocument'
+CD-HCPARTY: added value 'perstrussmaker', 'patient'
+CD-IMPLANTATION-TYPE: added values 'hemiprosthesismodular', 'resurfacingfemhemi', 'resurfacingfemcup', 'resurfacingpartial', 
+			'resurfacingpartialfemcondyle'
+CD-UNITschemes: added value 'UCUM'
+added table CD-CIVILSTATE
+added attribute 'nullFlavor' to CD tag of item and content
+
+kmehr file
+
+regimen: daytime is now optional
+persontype: added optional 'civilstate' (+ mandatory cd CD-CIVILSTATE)
+
+***********************************
+Version 1.11/Kmehr release 20141201
+***********************************
+Bug fixing
+----------
+
+(1.11.1) CD-UNIT: changed 'sap' to 'Gy.cm2' in CD-UNIT values
+(1.11.1) CD-ORTHO-GRAFT: added value 'none'
+(1.11.1) added some missing values in release notes
+
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20141201'
+CD-HCPARTY: added values 'guardpost', 'groupofphysicianssameaddress', 'groupofphysiciansdifferentaddress', 'groupofnurses', 'certificateholder'
+CD-UNIT: added value 'shock', 'atptreatment', 'sap', 'ml/min/1.73m2'
+CD-FED-COUNTRY: added value 'gg', 'im', 'je', 'rs', 'aq', 'aw', 'ax', 'bq'
+CD-TRANSACTION: added value 'genericregistryentry'
+CD-ITEM-REG: added value 'infiltration'
+CD-HEADING-REG: added value 'chapter4', 'non-biologic', 'bmi', 'primarykneeprocedure', 'approachtechnic', 'instrumentation', 'orthopedicanatomy', 
+	'interface', 'revisionplan', 'material', 'notified-material', 'not-notified-material', 'not-notified-ortho-device', 'criteria', 'comorbidities', 
+	'comorbiditiesinformation', 'results', 'resynchronisationinfo'
+CD-ITEM: added value 'result'
+CD-CERTAINTY: added value 'undefined'
+CD-ITEMschemes: added value 'CD-QERMID-INTERVENTIONTYPE'
+CD-ORTHO-DIAGNOSIS: added value 'inflammatory'
+CD-CONTENTschemes: added value 'CD-QERMID-INTERVENTIONTYPE', 'CD-ASA-SCORE', 'CD-QERMID-OPERATIONTYPE', 'CD-QERMID-ALIGNMENT', 'CD-QERMID-CUSTOMINSTRUMENT',
+	 'CD-QERMID-ORTHOPART', 'CD-QERMID-SUBSTITUTE', 'CD-QERMID-MODNECK-FRONTALVIEW', 'CD-QERMID-MODNECK-LATERALVIEW', 'CD-QERMID-MODNECK-OFFSET', 
+	 'CD-QERMID-MAT-CATEGORY', 'CD-QERMID-MAT-TYPE', 'CD-QERMID-CEMENT', 'CD-QERMID-INTERVENTION-SUBTYPE'
+CD-ITEM-REG: added values 'operation-type', 'alignment', 'approach', 'custominstrumentation', 'substitute', 'modularneck', 'materialsremark', 
+	'ortho-device', 'devicename', 'distributor', 'manufacturer', 'femoralreplacement', 'acetabularreplacement', 'revisedcomponent', 'cardioversion', 
+	'motivation', 'criteriacomments', 'resynchronisation', 'comorbiditiescomments'
+CD-SITE: added values 'lfem', 'rfem', 'ltib', 'rtib'
+CD-ORTHO-APPROACH: added values 'antelateral', 'postlateral'
+CD-ORTHO-NAVCOM: added value 'none'
+CD-IMPLANTATION-TYPE: added values 'totalprosthesis', 'totalprosthesisdualmobility', 'hemiprosthesismonoblock', 'hemiprosthesisbipolar', 'bicruciateretaining'
+CD-ORTHO-GRAFT: added values 'autograft', 'alloandautograft'
+
+***********************************
+Version 1.10/Kmehr release 20141001
+***********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20141001'
+CD-BALLON-DEVICE: added value 'deb'
+CD-TUCO-PATHOLOGYTYPE: added value 'cardioshockatstartpci', 'stroke', 'peripheralvasculardisease', 'stentthrombosis'
+CD-TUCO-STEMITYPE: added value 'stagedpci', 'complicationpriorpci', 'recurrendischaemia'
+CD-ITEM-REG: added value 'issecondoperator', 'postpcitimi', 'poststenosis'
+CD-STENT-DEVICE: added value 'other'
+CD-MEDIATYPE: added value 'image/dicom'
+CD-SEX: added value 'undefined'
+CD-ACTS-NURSING: added list of values
+CD-ADDRESS: added value 'careaddress'
+CD-UNIT: added value 'ml/min'
+CD-ADMINISTRATIONUNIT: added value 'mg', 'mg/ml'
+CD-TRANSACTION: added value 'ecare-tardis-consultation'
+
+kmehr file
+
+locationBirthPlaceType: 'cd' is now optional
+
+**********************************
+Version 1.9/Kmehr release 20140701
+**********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20140701'
+CD-STENT-DEVICE: added value 'bvs'
+removed values for CD-REIMBURSEMENTNOMENCLATURE
+
+**********************************
+Version 1.8/Kmehr release 20140401
+**********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20140401'
+CD-PROOF: added value 'isireading'
+CD-TRANSACTION: addad values 'medicationscheme', 'vaccinationscheme', 'vaccinationschemeelement'
+CD-ITEMschemes: added value 'CD-ACTS-NURSING'
+
+added table: 'CD-ACTS-NURSING'
+
+id file
+
+ID-PATIENTschemes: added value 'ISI-CARDNO'
+
+kmehr file:
+
+regimen: extended weekday to allow optionnal weeknumber
+
+**********************************
+Version 1.7/Kmehr release 20131001
+**********************************
+Bug fixing
+----------
+
+(1.7.1) CD-LIFECYCLE: removed duplication: 'completed'
+(1.7.0) CD-HCPARTY: removed duplication: 'deptphysiotherapy' , 'depttoxicology'
+
+Evolutions
+----------
+
+cd file
+
+(1.7.1) CD-HCPARTY: added value 'orgprimaryhealthcarecenter'
+(1.7.1) CD-ITEMschemes: added value 'CD-MYCARENET-JUSTIFICATION'
+(1.7.1) CD-TRANSACTION-MYCARENET: added value 'tariff'
+(1.7.1) CD-ITEM-MYCARENET: added values 'fee', 'reimbursement', 'patientfee', 'financialcontract'
+(1.7.1) Added table "CD-MYCARENET-JUSTIFICATION"
+CD-ITEMschemes: added value 'CD-DEFIB-DIAGNOSIS'
+CD-CONTENTschemes: added values 'CD-DEFIB-TYPE', 'CD-DEFIB-ARRHYTHMIA', 'CD-DEFIB-SYMPTOM', 'CD-DEFIB-AETIOLOGY', 'CD-DEFIB-ANTECEDENT',
+ 								'CD-DEFIB-PARAM', 'CD-DEFIB-MEDICALCARE', 'CD-DEFIB-AFFECTIONTYPE', 'CD-DEFIB-RISK', 
+ 								'CD-DEFIB-INFARCTMOMENT', 'CD-DEFIB-REVASCULARISATION', 'CD-DEFIB-DRUGCARE', 'CD-DEFIB-SYNCOPE',
+ 								'CD-DEFIB-COMPLICATION', 'CD-DEFIB-DIAGNOSIS', 'CD-DEFIB-CONFIG', 'CD-DEFIB-INDICATION',
+ 								'CD-DEFIB-SURGERY', 'CD-DEFIB-REASON', 'CD-DEFIB-FIRM', 'CD-DEFIB-ELEC-REASON', 'CD-DEFIB-MODEL',
+ 								'CD-DEFIB-ELEC-TYPE', 'CD-DEFIB-RESULT'
+CD-SEVERITYschemes: added value 'CD-NYHA'
+CD-TRANSACTION-REG: added value 'defib-intervention'
+CD-ITEM-REG: added value 'resynchronisation', 'pacingindication'
+CD-UNIT: added value 'mgper100ml'
+CD-STANDARD: added value '20131001'
+CD-ITEM: added values 'outcome', 'agreementwithpatient', 'patientcooperation', 'reimbursementclass', 'financialcontract', 'justification'
+CD-LIFECYCLE: added values 'expected', 'obtained'
+CD-HEADING: added values 'anamnesis', 'examination', 'plan', 'outcomeevaluation'
+CD-TRANSACTION-TYPE: added values 'nursing', 'physiotherapy', 'intermediarynursing', 'intermediaryphysiotherapy'
+CD-ENCOUNTER: added values 'resthomevisit', 'consult', 'multidisciplinaryconsult'
+CD-HCPARTY: added values 'deptrheumatology', 'persambulancefirstaid', 'persaudician', 'persaudiologist', 'perscaregiver', 'persdietician',
+						'perseducator', 'perslogopedist', 'persoccupationaltherapist', 'persorthopedist', 'persorthoptist',
+						'persoptician', 'perspharmacyassistant', 'persphysiotherapist', 'perspodologist', 'perspracticalnurse',
+						'perspsychologist'
+CD-ADMINISTRATIONUNIT:  created restriction list with values
+CD-PATIENTWILL: added values 'organdonationconsent', 'datareuseforclinicalresearchconsent', 'datareuseforclinicaltrialsconsent',
+							'clinicaltrialparticipationconsent'
+
+
+id file
+
+ID-KMEHRschemes: added value 'ID-SERIALNO'
+
+kmehr file
+
+added element "strength" to itemType
+medicinalproduct: "intendedcd" and "deliveredcd" aren't limited to 1 max anymore and allow use of CD-CNK-CLUSTER as "S" value for the codification
+
+**********************************
+Version 1.6/Kmehr release 20130701
+**********************************
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20130701'
+CD-TRANSACTION: added value 'prescription', 'notification', 'report'
+CD-INCAPACITY: added values 'schoolsports','travel', 'vote'
+CD-INCAPACITYREASON: added values 'careencounter','illness', 'hospitalisation',
+		 			 'pregnancy', 'workaccident', 'occupationaldisease'
+CD-MESSAGE: added values 'gppatientmigration','ptsoftwaremigration', 'ptpatientmigration',
+		 			 'nursingsoftwaremigration', 'nursingpatientmigration'
+CD-LIFECYCLE: added value 'notpresent', 'ordered', 'scheduled', 'todo',
+					'postponed', 'pending', 'completed'
+
+added table 'CD-TRANSACTION-TYPE'
+		 			 
+id file
+
+added ID-PROFESSION and ID-PROFESSIONSCHEMES with value 'ID-MEDEX' and 'ID-CBE'
+
+kmehr file
+
+added element "id" to professiontype
+
+
+**********************************
+Version 1.5/Kmehr release 20121001
+**********************************
+
+Bug fixing
+----------
+(1.5.1) added type="xsd:string" in intendedname element for substanceproduct
+(1.5.1) adapted compoundprescription element for backward compatibility with older Kmehr versions
+(1.5.1) added processcontent="lax" in the sequence of "textWithLayoutType" element
+(1.5.1) corrected the values added in version 1.5.0 in CD-HCPARTY by adding a "dept" at the begin
+(1.5.1) added id element (ID-KMEHR) to addressType, addressTypeBase and telecomType
+
+
+Evolutions
+----------
+
+cd file
+
+CD-STANDARD: added value '20121001'
+CD-HCPARTY: added value 'orgpharmacy', 'algology', 'cardiacsurgery', 'handsurgery', 'maxillofacialsurgery', 'pediatricsurgery',
+			'plasticandreparatorysurgery', 'thoracicsurgery', 'vascularsurgery', 'visceraldigestiveabdominalsurgery', 'dentistry', 
+			'diabetology', 'endocrinology', 'occupationaltherapy', 'majorburns', 'infectiousdisease', 'physiotherapy', 'speechtherapy',
+			'sportsmedecine', 'physicalmedecine', 'tropicalmedecine', 'neurosurgery', 'nutritiondietetics', 'obstetrics', 'orhtopedics',
+			'childandadolescentpsychiatry', 'podiatry', 'psychology', 'revalidation', 'senology', 'socialservice', 'toxicology'
+			'pediatricintensivecare', 'palliativecare'
+CD-LIFECYCLE: added value 'excluded'
+CD-TRANSACTIONschemes: added value 'CD-TRANSACTION-MYCARENET'
+CD-ITEMschemes: added value 'CD-ITEM-MYCARENET'
+CD-ITEM: added value 'claim'
+CD-CONTENTschemes: added value 'CD-NIHDI', 'CD-SNOMED'
+CD-UNITschemes: added value 'CD-CURRENCY'
+
+added table 'CD-REFUSAL-MYCARENET', 'CD-CURRENCY', 'CD-TRANSACTION-MYCARENET',
+			'CD-ITEM-MYCARENET','CD-QUANTITYPREFIX'
+
+id file
+
+ID-KMEHRschemes: added value 'ID-IBAN'
+ID-HCPARTYschemes: added value 'ID-INSURANCE'
+
+kmehr file
+
+the content(compoundprescription) was extended
+added an error type for MYCARENET
+
+
+**********************************
+Version 1.4/Kmehr release 20120701
+**********************************
+
+Evolutions
+----------
+
+0 cd file
+
+CD-STANDARD: added value '20120701'
+CD-ITEM-REG: added value 'doctorsremark'
+CD-HCPARTY: added value 'orgpractice'
+CD-LIFECYCLE: added value 'aborted'
+CD-CLINICALPLAN: added value 'gmdplus'
+
+added tables 'CD-THERAPEUTICLINKTYPE', 'CD-PROOFTYPE'
+
+
+
+**********************************
+Version 1.3/Kmehr release 20120401
+**********************************
+
+Bug fixing
+----------
+(1.3.0) CD-THERAPEUTICLINKvalues: deleted whitespace at the end of value 'carepath'
+
+Regression fixing
+-----------------
+(1.3.0) CD-ITEM: added values 'encounternumber', 'emergencyevaluation', 'healthissue', 'referringtype'
+
+Evolutions
+----------
+0 cd file
+
+CD-STANDARDvalues: added value '20120401'
+CD-HCPARTY : added value 'deptorthopedy'
+CD-HCPARTYschemes: added value 'CD-ROLE'
+CD-TRANSACTION : added values 'intervention', 'clinicalpath', 'telemonitoring', 'radiationexposuremonitoring'
+				'medicationschemeelement', 'treatmentsuspension'
+CD-TRANSACTIONschemes : added value 'CD-TRANSACTION-REG'
+CD-ITEMschemes : added value 'CD-ITEM-REG'
+CD-HEADINGschemes: added value 'CD-HEADING-REG'
+CD-DAYPERIOD : added values 'duringbreakfast', 'duringlunch', 'duringdinner'
+CD-SITE : added values 'lk', 'rk', 'lhip', 'rhip'
+CD-LICEYCLEvalues : added values 'suspended', 'stopped'
+
+CD-CONTENTschemes : added ‘CD-ITEM-REG’, ‘CD-STENT-DOMINANCE’, ‘CD-STENT-BRIDGETYPE’, ‘CD-STENT-LESIONTYPE’, 
+			   ‘CD-STENT-SEGMENT’, ‘CD-STENT-DEVICE’,‘CD-TUCO-PATHOLOGYTYPE’, ‘CD-TUCO-STEMITYPE’, ‘CD-BALLON-DEVICE’, 
+			   CD-DISCHARGETYPE’, ‘CD-REIMBURSEMENT-NOMENCLATURE’, ‘ID-STENT-DEVICE’, 
+			   ‘CD-ORTHO-TYPE’, ‘CD-ORTHO-DIAGNOSIS’, ‘CD-ORTHO-APPROACH’,‘CD-ORTHO-NAVCOM’, ‘CD-IMPLANTATION-DEVICE’,
+			   ‘CD-BEARING-SURFACE’, ‘CD-ORTHO-GRAFT’, ‘CD-ORTHO-INTERFACE’, ‘CD-ORTHO-TECHREVISION’, ‘CD-IMPLANTATION-TYPE’, 
+			   ‘CD-ORTHO-KNEE-INSERT’, ‘CD-REV-COMPONENT’,   
+			   ‘CD-EAN’, ‘CD-ITEM-MS’, ‘CD-MS-ORIGIN’, ‘CD-MS-ADAPTATION’, ‘CD-MS-MEDICATIONTYPE’
+
+added tables ‘CD-TRANSACTION-REG’, ‘CD-ITEM-REG’, ‘CD-HEADING-REG’, 
+			   ‘CD-STENT-DOMINANCE’, ‘CD-STENT-BRIDGETYPE’, ‘CD-STENT-LESIONTYPE’, 
+			   ‘CD-STENT-SEGMENT’, ‘CD-STENT-DEVICE’, ‘CD-TUCO-PATHOLOGYTYPE’, ‘CD-TUCO-STEMITYPE’, ‘CD-BALLON-DEVICE’, 
+			   ‘CD-DISCHARGETYPE’, ‘CD-REIMBURSEMENT-NOMENCLATURE’,
+			   ‘CD-ORTHO-TYPE’, ‘CD-ORTHO-DIAGNOSIS’, ‘CD-ORTHO-APPROACH’,‘CD-ORTHO-NAVCOM’, ‘CD-IMPLANTATION-DEVICE’,
+			   ‘CD-BEARING-SURFACE’, ‘CD-ORTHO-GRAFT’, ‘CD-ORTHO-INTERFACE’, ‘CD-ORTHO-TECHREVISION’, ‘CD-IMPLANTATION-TYPE’, 
+			   ‘CD-ORTHO-KNEE-INSERT’, ‘CD-REV-COMPONENT’,
+			   ‘CD-ITEM-MS’, ‘CD-MS-ORIGIN’, ‘CD-MS-ADAPTATION’, ‘CD-MS-MEDICATIONTYPE’
+
+**********************************
+Version 1.2/Kmehr release 20110701
+**********************************
+
+Bug fixing
+----------
+(1.2.1) CD-TIMEUNIT : replaced with new case-sensitive version 2.0, which is not backward compatible.
+(1.2.1) CD-TIMEUNITscheme : added CD-TIMEUNIT, LOCAL.
+(1.2.2) Base64EncryptedValue: now accepts base64 data again. 
+(1.2.2) CD-ITEM : added missing contacthcparty.
+
+Evolutions
+----------
+0 Release related changes
+0.1 cd file
+CD-STANDARD : added value ‘20110701’
+CD-ENCRYPTION-ACTOR: added value 'EHP'
+
+1 Integration of the elements related to Medical Advisor Agreements (Chapter IV) 
+	
+1.2 cd file	
+CD-TRANSACTIONschemes : added 'CD-TRANSACTION-MAA'
+CD-TRANSACTION : added value 'medicaladvisoragreement'
+
+CD-CONTENTschemes : added 'CD-MAA-TYPE', 'CD-MAA-REQUESTTYPE',
+                    'CD-MAA-RESPONSETYPE', 'CD-MAA-REFUSALJUSTIFICATION', 
+                    'CD-CHAPTER4PARAGRAPH', 'CD-CHAPTER4VERSET', 'CD-CHAPTER4APPENDIX'
+
+Added tables   ‘CD-MAA-COVERAGETYPE’, ‘CD-MAA-REQUESTTYPE’, ‘CD-MAA-RESPONSETYPE’, 
+			   ‘CD-MAA-TYPE’, ‘CD-MAAREFUSALJUSTIFICATION’, 
+			   ‘CD-CHAPTER4PARAGRAPH, ‘CD-CHAPTER4CATEGORY, ‘CD-CHAPTER4CRITERIA’,
+			   ‘CD-CHAPTER4VERSESEQAPPENDIX, ‘CD-CHAPTER4DOCUMENTSEQAPPENDIX’, 
+			   ‘CD-CHAPTER4VERSE’
+
+1.3 kmehr file
+No changes
+
+2 Integration of the elements related to the GPSMF Release 1.1
+2.1 id file 
+
+2.2 cd file
+CD-TRANSACTION : removed ‘preventionplan’
+
+CD-CAREPATH :  added '010'
+
+CD-LNKvalues : added ‘isaservicefor’, ‘isrealisationof’, ’isapproachfor’, 
+			   ’isplannedfor’, ’ isattestationof’
+
+added tables : ‘CD-CAREPATH’, ‘CD-CLINICALPLAN’
+
+2.3 kmehr file
+No changes
+
+3 Integration of the elements related to the BCR Biobank project.
+3.1 id file
+No changes
+
+3.2 cd file
+CD-TRANSACTION : added ‘bvt-sample’
+CD-ITEMschemes : added 'CD-ITEM-BVT', 'CD-BVT-AVAILABLEMATERIALS', 
+				 'CD-BVT-CONSERVATIONDELAY', 'CD-BVT-CONSERVATIONMODE', 
+				 'CD-BVT-SAMPLETYPE', 'CD-BCR-DIFFERENTATIONDEGREE', 
+				 'CD-BVT-LATERALITY', 'CD-BVT-PATIENTOPPOSITION', 'CD-BVT-STATUS'
+
+Added tables 	 ‘CD-BVT-CONSERVATIONMODE’, ‘CD-BVT-CONSERVATIONDELAY’, 
+				 ‘CD-BVT-AVAILABLEMATERIALS’, ‘CD-BCR-DIFFERENTATIONDEGREE’,
+				 ‘CD-BVT-SAMPLETYPE’, ‘CD-BVT-LATERALITY’,‘CD-BVT-PATIENTOPPOSITION’,
+				 ‘CD-BVT-STATUS’
+                   
+3.3 kmehr file
+No changes
+
+4 Integration of the elements related to the Hub/Metahub 1.1 release
+4.1 id file
+ID-PATIENTschemes: added 'EID-CARDNO', 'SIS-CARDNO'
+
+4.2 cd file
+No changes
+
+4.3 kmehr file
+Added attribute 'encoding' to element Base64EncryptedValue.
+
+
+**********************************
+Version 1.1/Kmehr release 2010901
+**********************************
+
+Bug fixing
+----------
+cd file
+
+CD-UNIT : remove double occurrence of 'mm'
+
+Evolutions
+----------
+
+1 Integration of the elements related to hub-metahub system (draft status)
+
+1.1 id file 
+
+ID-HCPARTY: add scheme: ID-ENCRYPTION-APPLICATION, ID-ENCRYPTION-ACTOR (support ETEE) 
+	
+1.2 cd file	
+
+new table: CD-CONSENT, CD-THERAPEUTICLINK
+new table: CD-ENCRYPTION-ACTOR, CD-ENCRYPTION-METHOD
+ 
+1.3 kmehr file
+
+kmehrMessageType: add element: Base64EncryptedData   
+
+2 GP software migration format
+
+2.1 cd file
+
+CD-STANDARD : add value : 2010091 
+CD-TRANSACTION : add value : clinicalsummary, preventionplan
+CD-ITEM : add values : insurancystatus, patientwill, professionalrisk, familyrisk, parameter
+		: add scheme : CD-PARAMETER
+CD-CONTENT: add scheme: CD-PATIENTWILL
+CD-CONTACT-PERSON : add value : brother, sister, brotherinlaw, tutor, notary, lawyer, employer, grandparent
+
+new table: CD-PATIENTWILL
+new table: CD-PARAMETER 
+new table: CD-MESSAGE 
+
+2.3 kmehr file
+
+standardType : add element: specialisation
+personType : add element : profession
+itemType : add element : recorddatetime, isrelevant
+ 		
+
+
+	

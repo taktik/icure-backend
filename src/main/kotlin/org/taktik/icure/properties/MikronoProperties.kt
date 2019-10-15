@@ -24,9 +24,9 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationProperties("icure.mikrono")
-class MikronoProperties {
-	var server : String? = null
-	var superuser : String? = null
-	var supertoken : String? = null
+data class MikronoProperties(
+	var server : String? = null,
+	var superuser : String? = null,
+	var supertoken : String? = null,
 	var applicationtoken : String? = null
-}
+)

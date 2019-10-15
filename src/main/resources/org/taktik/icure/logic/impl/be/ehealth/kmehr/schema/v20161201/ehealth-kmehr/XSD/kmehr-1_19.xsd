@@ -9,7 +9,7 @@
  Implementation-Title: XSD 22. KMEHR
  Specification-Version: 1.19
  Implementation-Version: 1.19.0
- Build-Time: 20161209-1445 
+ Build-Time: 20161209-1445
  </xs:appinfo>
  </xs:annotation>
   <xsd:import namespace="http://www.ehealth.fgov.be/standards/kmehr/cd/v1" schemaLocation="cd-1_19.xsd" />
@@ -35,8 +35,8 @@
               <xsd:documentation>to specify the type of address (home, work,...)</xsd:documentation>
             </xsd:annotation>
           </xsd:element>
-          
-            
+
+
               <xsd:element name="country" type="countryType" minOccurs="0" />
               <xsd:element name="zip" type="xsd:string" minOccurs="0" />
               <xsd:element name="nis" type="xsd:string" minOccurs="0">
@@ -58,9 +58,9 @@
               <xsd:element name="housenumber" type="xsd:string" minOccurs="0" />
               <xsd:element name="postboxnumber" type="xsd:string" minOccurs="0" />
               <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
-          
-         
-          
+
+
+
         </xsd:sequence>
       </xsd:restriction>
     </xsd:complexContent>
@@ -73,8 +73,8 @@
           <xsd:documentation>to specify the type of address (home, work,...)</xsd:documentation>
         </xsd:annotation>
       </xsd:element>
-       
-     
+
+
           <xsd:element name="country" type="countryType" minOccurs="0" />
           <xsd:element name="zip" type="xsd:string" minOccurs="0" />
           <xsd:element name="nis" type="xsd:string" minOccurs="0">
@@ -96,9 +96,9 @@
           <xsd:element name="housenumber" type="xsd:string" minOccurs="0" />
           <xsd:element name="postboxnumber" type="xsd:string" minOccurs="0" />
           <xsd:element name="text" type="DT:textType" minOccurs="0" maxOccurs="unbounded" />
-       
-          
-     
+
+
+
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="administrationquantityType">
@@ -812,7 +812,7 @@
       </xsd:element>
       <xsd:element name="renewal" type="renewalType" minOccurs="0" />
       <xsd:element name="route" type="routeType" minOccurs="0" />
-      <!-- <xsd:element name="noswitch" type="xsd:boolean" minOccurs="0"> <xsd:annotation> <xsd:documentation>The pharmacist would be free to choose the medicinal product package the first time a prescription is issued for this drug in INN, but that the pharmacist 
+      <!-- <xsd:element name="noswitch" type="xsd:boolean" minOccurs="0"> <xsd:annotation> <xsd:documentation>The pharmacist would be free to choose the medicinal product package the first time a prescription is issued for this drug in INN, but that the pharmacist
         is supposed to stick to this choice for further deliveries.</xsd:documentation> </xsd:annotation> </xsd:element> -->
       <xsd:element name="batch" type="xsd:string" minOccurs="0">
         <xsd:annotation>

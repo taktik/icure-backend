@@ -23,6 +23,8 @@ import org.ektorp.CouchDbConnector;
 public interface CouchDbICureConnector extends CouchDbConnector {
 	String getUuid();
 
+	void initSystemDesignDocument();
+
 	CouchDbICureConnector getCurrentUserRealConnector();
 
 	CouchDbICureConnector getCouchDbICureConnector(String groupId, String dbInstanceUrl, boolean allowFallback);

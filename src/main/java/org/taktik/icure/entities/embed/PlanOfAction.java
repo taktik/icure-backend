@@ -21,15 +21,17 @@ package org.taktik.icure.entities.embed;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jetbrains.annotations.Nullable;
-import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.ICureDocument;
+import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
 import org.taktik.icure.validation.NotNull;
 import org.taktik.icure.validation.ValidCode;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -40,6 +42,12 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanOfAction implements ICureDocument, Serializable {
 	private static final long serialVersionUID = 1L;
+
+    public final static int STATUS_PLANNED 				= 1 << 0;
+    public final static int STATUS_ONGOING 				= 1 << 1;
+    public final static int STATUS_FINISHED 			= 1 << 2;
+    public final static int STATUS_PROLONGED 			= 1 << 3;
+    public final static int STATUS_CANCELED			    = 1 << 4;
 
     @NotNull
     protected String id;
@@ -54,6 +62,7 @@ public class PlanOfAction implements ICureDocument, Serializable {
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
     protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+    protected Long deadlineDate;// YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -74,6 +83,14 @@ public class PlanOfAction implements ICureDocument, Serializable {
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected Set<CodeStub> tags = new HashSet<>();
 
+    protected List<String> documentIds;
+    protected String prescriberId; //healthcarePartyId
+    protected Integer numberOfCares;
+    protected Integer status;
+
+    protected List<CareTeamMembership> careTeamMemberships;
+
+
 	public PlanOfAction solveConflictWith(PlanOfAction other) {
 		this.created = other.created==null?this.created:this.created==null?other.created:Long.valueOf(Math.min(this.created,other.created));
 		this.modified = other.modified==null?this.modified:this.modified==null?other.modified:Long.valueOf(Math.max(this.modified,other.modified));
@@ -90,7 +107,9 @@ public class PlanOfAction implements ICureDocument, Serializable {
 		this.idOpeningContact = this.idOpeningContact == null ? other.idOpeningContact : this.idOpeningContact;
 		this.idClosingContact = this.idClosingContact == null ? other.idClosingContact : this.idClosingContact;
 
-		return this;
+        this.careTeamMemberships = MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships, Objects::equals,(a, b)->a);
+
+        return this;
 	}
 
 	public PlanOfAction() {
@@ -232,4 +251,32 @@ public class PlanOfAction implements ICureDocument, Serializable {
     public void setCreated(Long created) {
         this.created = created;
     }
+
+    public List<String> getDocumentIds() { return documentIds; }
+
+    public void setDocumentIds(List<String> documentIds) { this.documentIds = documentIds; }
+
+    public String getPrescriberId() { return prescriberId;}
+
+    public void setPrescriberId(String prescriberId) { this.prescriberId = prescriberId; }
+
+    public Integer getNumberOfCares() { return numberOfCares; }
+
+    public void setNumberOfCares(Integer numberOfCares) { this.numberOfCares = numberOfCares; }
+
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
+
+    public List<CareTeamMembership> getCareTeamMemberships() {
+        return careTeamMemberships;
+    }
+
+    public void setCareTeamMemberships(List<CareTeamMembership> careTeamMemberships) {
+        this.careTeamMemberships = careTeamMemberships;
+    }
+
+    public Long getDeadlineDate() { return deadlineDate; }
+
+    public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
 }

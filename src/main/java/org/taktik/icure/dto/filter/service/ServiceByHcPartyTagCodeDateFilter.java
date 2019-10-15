@@ -31,5 +31,4 @@ public interface ServiceByHcPartyTagCodeDateFilter extends Filter<String, Servic
 	String getCodeCode();
 	Long getStartValueDate();
 	Long getEndValueDate();
-
 }

@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.taktik.icure.entities.base.StoredDocument;
+import org.taktik.icure.entities.base.Encryptable;
+import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.utils.InstantDeserializer;
 import org.taktik.icure.utils.InstantSerializer;
 
@@ -30,11 +31,12 @@ import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccessLog extends StoredDocument {
+public class AccessLog extends StoredICureDocument implements Encryptable  {
 
 	public static final String USER_ACCESS = "USER_ACCESS";
 	public static final String COMPUTER_ACCESS = "COMPUTER_ACCESS";
 
+    @Deprecated
     protected String patientId;
 
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
@@ -43,6 +45,7 @@ public class AccessLog extends StoredDocument {
 
     protected String accessType;
     protected String user;
+    protected String detail;
 
     public AccessLog() {
         super();
@@ -74,6 +77,7 @@ public class AccessLog extends StoredDocument {
         this.user = user;
     }
 
+    @Deprecated
 	public String getPatientId() {
 		return patientId;
 	}
@@ -81,4 +85,24 @@ public class AccessLog extends StoredDocument {
 	public void setPatientId(String patientId) {
 		this.patientId = patientId;
 	}
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    private String encryptedSelf;
+    @Override
+    public String getEncryptedSelf() {
+        return encryptedSelf;
+    }
+
+    @Override
+    public void setEncryptedSelf(String encryptedSelf) {
+        this.encryptedSelf = encryptedSelf;
+    }
+
 }

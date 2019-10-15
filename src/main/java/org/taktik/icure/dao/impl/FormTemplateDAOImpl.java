@@ -77,6 +77,18 @@ class FormTemplateDAOImpl extends GenericDAOImpl<FormTemplate> implements FormTe
 		return formTemplates;
 	}
 
+	@Override
+	@View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
+	public List<FormTemplate> findByGuid(String guid, boolean loadLayout) {
+		List<FormTemplate> formTemplates = queryView("by_guid", guid);
+		// invoke postLoad()
+		if (loadLayout) {
+			formTemplates.forEach(this::postLoad);
+		}
+
+		return formTemplates;
+	}
+
     @Override
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
     public List<FormTemplate> findBySpecialtyGuid(String specialityCode, String guid, boolean loadLayout) {

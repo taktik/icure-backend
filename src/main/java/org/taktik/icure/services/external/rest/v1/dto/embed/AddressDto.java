@@ -47,6 +47,7 @@ public class AddressDto implements Serializable, Location, Comparable<AddressDto
     protected String city;
     protected String country;
 	protected String encryptedSelf;
+	protected String note;
 
 	protected List<TelecomDtoEmbed> telecoms = new ArrayList<>();
 
@@ -175,7 +176,11 @@ public class AddressDto implements Serializable, Location, Comparable<AddressDto
 		}
 	}
 
-//	void sortTelecoms() {
+    public String getNote() { return note; }
+
+    public void setNote(String note) { this.note = note; }
+
+    //	void sortTelecoms() {
 //		Collections.sort(telecoms, new Comparator<TelecomDtoEmbed>() {
 //
 //            @Override

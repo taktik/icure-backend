@@ -50,18 +50,19 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 
 	Set<String> deleteContacts(Set<String> ids);
 
-	Contact modifyContact(Contact contact) throws MissingRequirementsException;
-
+	Contact modifyContact(Contact contact);
 
 	Service pimpServiceWithContactInformation(Service s, Contact c);
 
-	List<String> findServicesByTag(String hcPartyId, String patientSecretForeignKey, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+	List<String> findServicesByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
 
-    List<String> findServicesByCode(String hcPartyId, String patientSecretForeignKey, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+    List<String> findServicesByCode(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
 
     List<String> findByServices(Collection<String> services);
 
-	List<Contact> findContactsByHCPartyFormId(String hcPartyId, String formId);
+    List<String> findServicesBySecretForeignKeys(String hcPartyId, Set<String> patientSecretForeignKeys);
+
+    List<Contact> findContactsByHCPartyFormId(String hcPartyId, String formId);
 
 	List<LabelledOccurence> getServiceCodesOccurences(String hcPartyId, String codeType, long minOccurences);
 
@@ -73,6 +74,6 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 
 	PaginatedList<Contact> listContactsByOpeningDate(String hcPartyId, Long startOpeningDate, Long endOpeningDate, PaginationOffset offset);
 
-
 	void solveConflicts();
+
 }

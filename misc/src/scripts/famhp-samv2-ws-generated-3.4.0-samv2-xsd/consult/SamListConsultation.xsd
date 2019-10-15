@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:consultation:list" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:consult="urn:be:fgov:ehealth:samws:v2:consultation"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:consultation:list" elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:consultation" schemaLocation="SamConsultation.xsd"/>
+  <xs:element name="GetListOfVirtualMedicinalProductsRequest" type="ListConsultationRequestType"/>
+  <xs:element name="GetListOfVirtualMedicinalProductsResponse" type="GetListOfVirtualMedicinalProductsResponseType"/>
+  <xs:element name="GetListOfVmpGroupsRequest" type="ListConsultationRequestType"/>
+  <xs:element name="GetListOfVmpGroupsResponse" type="GetListOfVmpGroupsResponseType"/>
+  <xs:element name="GetListOfActualMedicinalProductsRequest" type="ListConsultationRequestType"/>
+  <xs:element name="GetListOfActualMedicinalProductsResponse" type="GetListOfActualMedicinalProductsResponseType"/>
+  <xs:element name="GetListOfActualMedicinalProductPackagesRequest" type="ListConsultationRequestType"/>
+  <xs:element name="GetListOfActualMedicinalProductPackagesResponse"
+              type="GetListOfActualMedicinalProductPackagesResponseType"/>
+  <xs:complexType name="ListConsultationRequestType">
+    <xs:attribute name="Delta" type="xs:dateTime">
+      <xs:annotation>
+        <xs:documentation>If attribute is not null, only those elements changed after the given date are returned by the
+          service.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="StartIndex" type="xs:int" default="0">
+      <xs:annotation>
+        <xs:documentation>Used for pagination. Returns the number of results defined in Limit, starting from the
+          specified StartIndex. The first result has index 0.
+          Default: 0
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Limit" type="xs:int" default="100">
+      <xs:annotation>
+        <xs:documentation>Used for pagination. Returns the number of results defined in Limit, starting from the
+          specified StartIndex. The first result has index 0.
+          Default: 100
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="ListConsultationResponseType">
+    <xs:attribute name="StartIndex">
+      <xs:annotation>
+        <xs:documentation>The StartIndex specified in the request</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Limit">
+      <xs:annotation>
+        <xs:documentation>The Limit specified in the request</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="Total">
+      <xs:annotation>
+        <xs:documentation>The total number of results in the query. If StartIndex plus Limit is less than Total, more
+          results can be retrieved.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="GetListOfVirtualMedicinalProductsResponseType">
+    <xs:complexContent>
+      <xs:extension base="ListConsultationResponseType">
+        <xs:sequence>
+          <xs:element name="Vmp" type="VmpType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="GetListOfVmpGroupsResponseType">
+    <xs:complexContent>
+      <xs:extension base="ListConsultationResponseType">
+        <xs:sequence>
+          <xs:element name="VmpGroup" type="VmpGroupType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="GetListOfActualMedicinalProductsResponseType">
+    <xs:complexContent>
+      <xs:extension base="ListConsultationResponseType">
+        <xs:sequence>
+          <xs:element name="Amp" type="AmpType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="GetListOfActualMedicinalProductPackagesResponseType">
+    <xs:complexContent>
+      <xs:extension base="ListConsultationResponseType">
+        <xs:sequence>
+          <xs:element name="Ampp" type="AmppType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VmpType">
+    <xs:sequence>
+      <xs:element name="Data" type="VmpDataType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="code" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="VmpDataType">
+    <xs:sequence>
+      <xs:element name="Abbreviation" type="consult:ConsultTextType"/>
+      <xs:element name="Name" type="consult:ConsultTextType"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="VmpGroupType">
+    <xs:sequence>
+      <xs:element name="Data" type="VmpGroupDataType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="code" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="VmpGroupDataType">
+    <xs:sequence>
+      <xs:element name="Name" type="consult:ConsultTextType"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="AmpType">
+    <xs:sequence>
+      <xs:element name="Data" type="AmpDataType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="AmpDataType">
+    <xs:sequence>
+      <xs:element name="OfficialName" type="core:String255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The AMP’s official name in the language mentioned on the marketing authorisation.
+            The name contains the strength of the medicinal product.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="consult:ConsultTextType">
+        <xs:annotation>
+          <xs:documentation>The translations of the AMP’s official name of the AMP in French, Dutch, German and
+            English.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescriptionName" type="consult:ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Standard name identifying a medicinal product for prescriptions, structured uniformly by
+            BCPI.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AbbreviatedName" type="consult:ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Abbreviation of the medicinal product name.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:complexType>
+  <xs:complexType name="AmppType">
+    <xs:sequence>
+      <xs:element name="Data" type="AmppDataType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="ctiExtended" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:complexType name="AmppDataType">
+    <xs:sequence>
+      <xs:element name="AtcCode" type="core:String7Type" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Code following the Anatomical Therapeutic Chemical classification system managed by the
+            WHO.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AbbreviatedName" type="consult:ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Abbreviated name of the medicinal product package.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrescriptionName" type="consult:ConsultTextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Structured and uniformly attributed name of the AMPP given by the BCPI as it is intended for
+            consultation by the medicine prescriber.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="core:actionPeriod"/>
+  </xs:complexType>
+</xs:schema>

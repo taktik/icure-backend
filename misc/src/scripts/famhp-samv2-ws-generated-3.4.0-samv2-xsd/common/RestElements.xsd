@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by SMALS 
+	(SMALS) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           xmlns:company="urn:be:fgov:ehealth:samws:v2:company:submit"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:core"
+           elementFormDefault="unqualified" attributeFormDefault="unqualified"
+           version="3.4">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+             schemaLocation="xml.xsd"/>
+  <!--SAM v2 Entities -->
+  <!--[ Definitions ] -->
+  <!--- MEDICINAL PRODUCT DEFINITION PART -->
+  <!---> Actual Medicine Part -->
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:company:submit"
+             schemaLocation="../company/SubmitCompany-Company.xsd"/>
+
+  <xs:include schemaLocation="./SamCommonItems.xsd"/>
+
+  <xs:element name="CompanyType" type="company:CompanyType"/>
+
+  <xs:element name="StandardResponseType" type="core:StandardResponseType"/>
+</xs:schema>

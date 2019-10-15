@@ -147,6 +147,11 @@ public class StdUserDependentCouchDbICureConnector implements CouchDbICureConnec
     }
 
     @Override
+    public void initSystemDesignDocument() {
+        this.getCurrentUserRealConnector().initSystemDesignDocument();
+    }
+
+    @Override
     public CouchDbICureConnector getCurrentUserRealConnector() {
         if (sessionLogic != null && sessionLogic.getCurrentSessionContext() != null) {
             User user = sessionLogic.getCurrentSessionContext().getUser();

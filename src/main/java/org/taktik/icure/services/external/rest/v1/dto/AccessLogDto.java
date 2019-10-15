@@ -18,12 +18,16 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-public class AccessLogDto extends StoredDto {
+import org.taktik.icure.entities.base.Encryptable;
+
+public class AccessLogDto extends IcureDto implements EncryptableDto {
 
 	protected String accessType;
 	protected Long date;
+	@Deprecated
 	protected String patientId;
 	protected String user;
+	protected String detail;
 
 	public String getAccessType() {
 		return accessType;
@@ -41,6 +45,7 @@ public class AccessLogDto extends StoredDto {
 		this.date = date;
 	}
 
+	@Deprecated
 	public String getPatientId() {
 		return patientId;
 	}
@@ -56,4 +61,24 @@ public class AccessLogDto extends StoredDto {
 	public void setUser(String user) {
 		this.user = user;
 	}
+
+	public String getDetail() {
+		return detail;
+	}
+
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+
+	private String encryptedSelf;
+	@Override
+	public String getEncryptedSelf() {
+		return encryptedSelf;
+	}
+
+	@Override
+	public void setEncryptedSelf(String encryptedSelf) {
+		this.encryptedSelf = encryptedSelf;
+	}
+
 }
