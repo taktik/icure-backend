@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableMap;
+import org.taktik.icure.entities.embed.Periodicity;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,8 +43,10 @@ public class Code extends StoredDocument implements CodeIdentification {
 
 	// id = type|code|version  => this must be unique
 
-	protected Set<String> regions; //ex: be,fr
+    protected String author;
 
+	protected Set<String> regions; //ex: be,fr
+    protected List<Periodicity> periodicity;
 	protected String type; //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
     protected String code; //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
     protected String version; //ex: 10. Must be lexicographically searchable
@@ -60,6 +64,12 @@ public class Code extends StoredDocument implements CodeIdentification {
 
 	protected String data;
 
+    protected String parent; //ID of the parent
+
+    protected Map<AppendixType, String> appendices;
+
+    protected boolean disabled;
+
 	public static Code dataCode(String typeAndCodeAndVersion, String data) {
 		Code c = new Code(typeAndCodeAndVersion);
 		c.data = data;
@@ -75,7 +85,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
 	public Code(String type, String code, String version) {
-		this(new HashSet<>(),type, code, version);
+		this(new HashSet<>(Arrays.asList("be","fr")),type, code, version);
 	}
 
 	public Code(Set<String> regions, String type, String code, String version) {
@@ -109,7 +119,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     @Deprecated
     public void setDescrFR(String descrFR) {
-        if (label == null) { label = new HashMap<String, String>(); }
+        if (label == null) { label = new HashMap<>(); }
         label.put("fr", descrFR);
     }
 
@@ -121,7 +131,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
     @Deprecated
     public void setDescrNL(String descrNL) {
-        if (label == null) { label = new HashMap<String, String>(); }
+        if (label == null) { label = new HashMap<>(); }
         label.put("nl", descrNL);
     }
 
@@ -130,6 +140,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
     public void setCode(String code) {
+        this.id = type+'|'+code+'|'+version;
         this.code = code;
     }
 
@@ -154,6 +165,7 @@ public class Code extends StoredDocument implements CodeIdentification {
     }
 
     public void setType(String type) {
+        this.id = type+'|'+code+'|'+version;
         this.type = type;
     }
 
@@ -170,6 +182,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 	}
 
 	public void setVersion(String version) {
+        this.id = type+'|'+code+'|'+version;
 		this.version = version;
 	}
 
@@ -213,7 +226,27 @@ public class Code extends StoredDocument implements CodeIdentification {
 		this.data = data;
 	}
 
-	@Override
+    public String getParent() { return parent; }
+
+    public void setParent(String parent) { this.parent = parent; }
+
+    public String getAuthor() { return author; }
+
+    public void setAuthor(String author) { this.author = author; }
+
+    public Map<AppendixType, String> getAppendices() { return appendices; }
+
+    public void setAppendices(Map<AppendixType, String> appendices) { this.appendices = appendices; }
+
+    public boolean isDisabled() { return disabled; }
+
+    public void setDisabled(boolean disabled) { this.disabled = disabled; }
+
+    public List<Periodicity> getPeriodicity() { return periodicity; }
+
+    public void setPeriodicity(List<Periodicity> periodicity) { this.periodicity = periodicity; }
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof Code)) return false;

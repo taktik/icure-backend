@@ -33,8 +33,7 @@ import org.taktik.icure.entities.HealthcareParty;
 import org.taktik.icure.entities.Patient;
 
 @org.springframework.stereotype.Service
-public class
-MultiFormatLogicImpl implements MultiFormatLogic {
+public class  MultiFormatLogicImpl implements MultiFormatLogic {
 	List<ResultFormatLogic> engines;
 
 	public MultiFormatLogicImpl(List<ResultFormatLogic> engines) {
@@ -73,4 +72,9 @@ MultiFormatLogicImpl implements MultiFormatLogic {
 	public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String text, OutputStream output) {
 		throw new UnsupportedOperationException();
 	}
+
+    @Override
+    public void doExport(HealthcareParty sender, HealthcareParty recipient, Patient patient, LocalDateTime date, String ref, String mimeType, byte[] content, OutputStream output) {
+        throw new UnsupportedOperationException();
+    }
 }

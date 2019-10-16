@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2014 rel. 2 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:reimbursementlaw:submit" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="../common/xml.xsd"/>
+  <xs:element name="SubmitReimbursementLawRequest" type="SubmitReimbursementLawRequestType">
+    <xs:annotation>
+      <xs:documentation>Comment describing your root element</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="SubmitReimbursementLawResponse" type="core:StandardResponseType">
+    <xs:annotation>
+      <xs:documentation>Comment describing your root element</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <!---> Legislation Text Content-->
+  <xs:complexType name="LegalBasisType">
+    <xs:complexContent>
+      <xs:extension base="LegalBasisKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="LegalBasisFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LegalBasisKeyType">
+    <xs:attribute name="key" type="ReimbursementLawKeyType" use="required"/>
+  </xs:complexType>
+  <xs:group name="LegalBasisFields">
+    <xs:sequence>
+      <xs:element name="Title" type="core:Text255Type"/>
+      <xs:element name="Type" type="LegalBasisTypeType"/>
+      <xs:element name="EffectiveOn" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="LegalReferenceType">
+    <xs:complexContent>
+      <xs:extension base="LegalReferenceKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="LegalReferenceFields"/>
+          <xs:group ref="LegalReferenceReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LegalReferenceKeyType">
+    <xs:attribute name="key" type="ReimbursementLawKeyType" use="required"/>
+  </xs:complexType>
+  <xs:group name="LegalReferenceFields">
+    <xs:sequence>
+      <xs:element name="Title" type="core:TextType"/>
+      <xs:element name="Type" type="LegalReferenceTypeType">
+        <xs:annotation>
+          <xs:documentation>ARTICLE, CHAPTER, PARAGRAPH, SECTION</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FirstPublishedOn" type="xs:date" minOccurs="0"/>
+      <xs:element name="LastModifiedOn" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="LegalReferenceReferences">
+    <xs:sequence>
+      <xs:element name="LegalReferenceTrace" type="LegalReferenceKeyType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Keys of the previous Legal Reference which are replaced by the current LegalReference. Not a
+            path - just a key: a replacement can only occur between references having the same parent node.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="LegalTextType">
+    <xs:complexContent>
+      <xs:extension base="LegalTextKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="LegalTextFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LegalTextKeyType">
+    <xs:attribute name="key" type="ReimbursementLawKeyType" use="required"/>
+  </xs:complexType>
+  <xs:group name="LegalTextFields">
+    <xs:sequence>
+      <xs:element name="Content" type="core:TextType"/>
+      <xs:element name="Type" type="LegalTextTypeType">
+        <xs:annotation>
+          <xs:documentation>ALINEA, POINT</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SequenceNr" type="core:PositiveShortType"/>
+      <xs:element name="LastModifiedOn" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <!---> Legislation Text Modelling-->
+  <xs:complexType name="AttachmentType">
+    <xs:complexContent>
+      <xs:extension base="AttachmentKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="AttachmentFields"/>
+          <xs:group ref="AttachmentReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AttachmentKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required">
+      <xs:annotation>
+        <xs:documentation>Sequence number used and set by NIHDI to distinguish different documents that have to be
+          attached to a reimbursement condition.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="AttachmentFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Name of the added document in attachment of the reimbursement condition.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TemplateUrl" type="core:String255Type">
+        <xs:annotation>
+          <xs:documentation>Location where to retrieve the document.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+			<xs:element name="Mandatory" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>Indicates whether this attachment has to be attached to an electronic request. If False, the
+            attachment must not be sent electronically but must be held by the requesting party at the disposal of the
+            insurance organisation.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="AttachmentReferences">
+    <xs:sequence>
+      <xs:element name="AppendixCode" type="core:String10Type"/>
+      <xs:element name="FormCategoryCode" type="core:String10Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="FormalInterpretationType">
+    <xs:complexContent>
+      <xs:extension base="FormalInterpretationKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="FormalInterpretationFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="FormalInterpretationKeyType">
+    <xs:attribute name="key" type="core:String15Type" use="required">
+      <xs:annotation>
+        <xs:documentation>Unique identifier set by NIHDI. This key designates a possible interpretation of a legal
+          reference.
+
+          The structure of this identifier has to be defined by NIHDI. It could be a string such as for example:
+          ‘FI00000001’, ‘FI00014372’.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:group name="FormalInterpretationFields">
+    <xs:sequence>
+      <xs:element name="Rule" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="ReimbursementConditionType">
+    <xs:complexContent>
+      <xs:extension base="ReimbursementConditionKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="ReimbursementConditionFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReimbursementConditionKeyType">
+    <xs:attribute name="legalTextRelativePath" type="LegalTextPathType" use="required">
+      <xs:annotation>
+        <xs:documentation>Path to the legal text concerning this reimbursement condition, evaluated from the legal
+          reference node for this condition. Path elements are separated by a '-'. For example, 'ALINEA1-POINT1'.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="key" type="core:String15Type" use="required"/>
+  </xs:complexType>
+  <xs:group name="ReimbursementConditionFields">
+    <xs:sequence>
+      <xs:element name="Expression" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="ReimbursementTermType">
+    <xs:complexContent>
+      <xs:extension base="ReimbursementTermKeyType">
+        <xs:sequence>
+          <xs:group ref="ReimbursementTermFields"/>
+          <xs:group ref="ReimbursementTermReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReimbursementTermKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required"/>
+  </xs:complexType>
+  <xs:group name="ReimbursementTermFields">
+    <xs:sequence>
+      <xs:element name="ValueUnit" type="ParameterValueType"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="ReimbursementTermReferences">
+    <xs:sequence>
+      <xs:element name="ParameterName" type="core:String100Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="ParameterValueType">
+    <xs:choice>
+      <xs:element name="Quantity" type="core:QuantityType"/>
+      <xs:element name="QuantityRange" type="core:RangeType"/>
+      <xs:element name="Strength" type="core:StrengthType"/>
+      <xs:element name="StrengthRange" type="core:StrengthRangeType"/>
+      <xs:element name="Code" type="core:String20Type"/>
+      <xs:element name="Boolean" type="xs:boolean"/>
+    </xs:choice>
+  </xs:complexType>
+  <!--[ Complex Types ]-->
+  <xs:complexType name="SubmitAttachmentType">
+    <xs:complexContent>
+      <xs:extension base="AttachmentType">
+        <xs:attributeGroup ref="core:addChangeRemoveMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitLegalBasisType">
+    <xs:complexContent>
+      <xs:extension base="LegalBasisType">
+        <xs:sequence>
+          <xs:element name="RecursiveLegalReference" type="SubmitRecursiveLegalReferenceType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitFormalInterpretationType">
+    <xs:complexContent>
+      <xs:extension base="FormalInterpretationType">
+        <xs:sequence>
+          <xs:element name="ReimbursementCondition" type="SubmitReimbursementConditionType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:element name="ReimbursementTerm" type="SubmitReimbursementTermType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitRecursiveLegalReferenceType">
+    <xs:complexContent>
+      <xs:extension base="LegalReferenceType">
+        <xs:choice>
+          <xs:element name="RecursiveLegalReference" type="SubmitRecursiveLegalReferenceType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+          <xs:sequence>
+            <xs:element name="FormalInterpretation" type="SubmitFormalInterpretationType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+            <xs:element name="RecursiveLegalText" type="SubmitRecursiveLegalTextType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:choice>
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitRecursiveLegalTextType">
+    <xs:complexContent>
+      <xs:extension base="LegalTextType">
+        <xs:sequence>
+          <xs:element name="RecursiveLegalText" type="SubmitRecursiveLegalTextType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitReimbursementConditionType">
+    <xs:complexContent>
+      <xs:extension base="ReimbursementConditionType">
+        <xs:sequence>
+          <xs:element name="Attachment" type="SubmitAttachmentType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SubmitReimbursementLawRequestType">
+    <xs:sequence>
+      <xs:element name="LegalBasis" type="SubmitLegalBasisType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SubmitReimbursementTermType">
+    <xs:complexContent>
+      <xs:extension base="ReimbursementTermType">
+        <xs:attributeGroup ref="core:allActionsMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--[ Enum restrictions ]-->
+  <xs:simpleType name="LegalBasisTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ROYAL_DECREE"/>
+      <xs:enumeration value="COORDINATED_LAW"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LegalReferenceTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ARTICLE"/>
+      <xs:enumeration value="CHAPTER"/>
+      <xs:enumeration value="PARAGRAPH"/>
+      <xs:enumeration value="SECTION"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LegalTextPathType">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="175"/>
+      <xs:pattern value="[A-Za-z0-9_]{1,15}(\-[A-Za-z0-9_]{1,15}){0,10}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LegalTextTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ALINEA"/>
+      <xs:enumeration value="POINT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ReimbursementLawKeyType">
+    <xs:annotation>
+      <xs:documentation>A string of 1 to 15 characters long without dashes (dashes are used as path separator)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="15"/>
+      <xs:pattern value="[A-Za-z0-9]([A-Za-z0-9_]{0,13}[A-Za-z0-9])?"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

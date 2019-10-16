@@ -1,0 +1,28 @@
+A1\0003628145\CHWAPI - Tournai\
+A2\0003628145\NOM\PRENOM\M\01011950\
+A3\0003628145\Rue factice 1\7060\SOIGNIES\
+A4\0003628145\Docteur Bidon\11032019\\C\
+L1\0003628145\ATB\Antibiogramme\\\\       1         \
+L1\0003628145\ATB\Ampicilline         \\\\R >=32                  \
+L1\0003628145\ATB\Amoxy/Clavulanate   \\\\S 8                     \
+L1\0003628145\ATB\Pipéracilline/Tazo  \\\\S <=4                   \
+L1\0003628145\ATB\Céfuroxime          \\\\S 4                     \
+L1\0003628145\ATB\Céfuroxime axéthyl  \\\\S 4                     \
+L1\0003628145\ATB\Céfotaxime          \\\\S <=0,2                 \
+L1\0003628145\ATB\Céftazidime         \\\\S <=0,1                 \
+L1\0003628145\ATB\Céfépime            \\\\S <=0,1                 \
+L1\0003628145\ATB\Témocilline         \\\\S <=4                   \
+L1\0003628145\ATB\Meropenem           \\\\S <=0,2                 \
+L1\0003628145\ATB\Ertapenem           \\\\S <=0,1                 \
+L1\0003628145\ATB\Amikacine           \\\\S <=2                   \
+L1\0003628145\ATB\Gentamycine         \\\\S <=1                   \
+L1\0003628145\ATB\Co-trimoxazole      \\\\S <=20                  \
+L1\0003628145\ATB\Ciprofloxacine      \\\\S <=0,2                 \
+L1\0003628145\ATB\Nitrofurantoïne     \\\\I 64                    \
+L1\0003628145\ATB\Colistine           \\\\S <=0,5                 \
+L1\0003628145\ATB\\\\\\
+L1\0003628145\ATB\Légende\\\\\
+L1\0003628145\ATB\1. Klebsiella oxytoca\\\\\
+L1\0003628145\ATB\S=sensible - R=résistant - I=intermédiaire       CMI (mg/l)\\\\\
+L1\0003628145\ATB\\\\\\
+

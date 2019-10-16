@@ -270,6 +270,30 @@ public class ContactFacade implements OpenApiFacade {
 		}
 	}
 
+    @ApiOperation(
+            value = "List contacts found By Healthcare Party and Patient foreign keys.",
+            response = ContactDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST"
+    )
+    @POST
+    @Path("/byHcPartyPatientForeignKeys")
+    public Response findByHCPartyPatientForeignKeys(@QueryParam("hcPartyId") String hcPartyId, ListOfIdsDto patientForeignKeys) {
+        if (hcPartyId == null || patientForeignKeys == null || patientForeignKeys.getIds().size() == 0) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<Contact> contactList = contactLogic.findByHCPartyPatient(hcPartyId, patientForeignKeys.getIds());
+
+        boolean succeed = (contactList != null);
+        if (succeed) {
+            List<ContactDto> contactDtoList = contactList.stream().map(contact -> mapper.map(contact, ContactDto.class)).collect(Collectors.toList());
+            return Response.ok().entity(contactDtoList).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting Contacts failed. Please try again or read the server log.").build();
+        }
+    }
+
 	@ApiOperation(
             value = "List contacts found By Healthcare Party and secret foreign keys.",
             response = ContactDto.class,
@@ -369,12 +393,7 @@ public class ContactFacade implements OpenApiFacade {
                 if (c.getClosingDate()==null) {
                     result.add(c);
                     c.setClosingDate(FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS));
-                    try {
-                        contactLogic.modifyContact(c);
-                    } catch (MissingRequirementsException e) {
-                        log.warn(e.getMessage(), e);
-                        return Response.status(400).type("text/plain").entity(e.getMessage()).build();
-                    }
+                    contactLogic.modifyContact(c);
                 }
             }
 
@@ -424,21 +443,16 @@ public class ContactFacade implements OpenApiFacade {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
 
-        try {
-			handleServiceIndexes(contactDto);
+        handleServiceIndexes(contactDto);
 
-            contactLogic.modifyContact(mapper.map(contactDto, Contact.class));
-            Contact modifiedContact = contactLogic.getContact(contactDto.getId());
+        contactLogic.modifyContact(mapper.map(contactDto, Contact.class));
+        Contact modifiedContact = contactLogic.getContact(contactDto.getId());
 
-            boolean succeed = (modifiedContact != null);
-            if (succeed) {
-                return Response.ok().entity(mapper.map(modifiedContact, ContactDto.class)).build();
-            } else {
-                return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
-            }
-        } catch (MissingRequirementsException e) {
-            log.warn(e.getMessage(), e);
-            return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+        boolean succeed = (modifiedContact != null);
+        if (succeed) {
+            return Response.ok().entity(mapper.map(modifiedContact, ContactDto.class)).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Contact modification failed.").build();
         }
     }
 

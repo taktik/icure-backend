@@ -67,7 +67,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	private static final PropertyUtilsBean pub = new PropertyUtilsBean();
 
-
 	private static final Duration CHECK_USERS_EXPIRATION_TIME_RANGE = Duration.ofDays(1);
 
 	private UserDAO userDAO;
@@ -130,8 +129,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 		return userDAO.findByHcpId(hcpartyId).parallelStream()
 				.filter(v -> v != null)
 				.map(v -> v.getId())
-//				.map(v -> new LabelledOccurence((String) v.getKey().getComponents().get(1), v.getValue()))
-//				.sorted(Comparator.comparing(LabelledOccurence::getOccurence).reversed())
 				.collect(Collectors.toList());
 	}
 
@@ -370,6 +367,15 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			return user.getExpirationDate() == null || !user.getExpirationDate().isBefore(Instant.now());
 		}
 
+		return false;
+	}
+
+	@Override
+	public boolean checkPassword(String password) {
+		User user = this.sessionLogic.getCurrentSessionContext().getUser();
+		if (user != null) {
+			return passwordEncoder.matches(password, user.getPasswordHash());
+		}
 		return false;
 	}
 

@@ -258,8 +258,8 @@ public class DocumentFacade implements OpenApiFacade{
 	@PUT
 	@Path("/{documentId}/attachment/multipart")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response setAttachmentMulti(@PathParam("documentId") String documentId, @QueryParam("enckeys") String enckeys, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
-		return setAttachment(documentId, enckeys, payload);
+    public Response setAttachmentMulti(@PathParam("documentId") String documentId, @QueryParam("enckeys") String enckeys, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
+	    return setAttachment(documentId, enckeys, payload);
 	}
 
 	@ApiOperation(response = DocumentDto.class, value = "Gets a document")

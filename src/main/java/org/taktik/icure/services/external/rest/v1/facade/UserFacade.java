@@ -18,15 +18,25 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Group;
@@ -36,7 +46,9 @@ import org.taktik.icure.logic.GroupLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.properties.TwilioProperties;
 import org.taktik.icure.security.database.DatabaseUserDetails;
+import org.taktik.icure.services.external.rest.v1.dto.EmailTemplateDto;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto;
@@ -47,6 +59,7 @@ import org.taktik.icure.utils.ResponseUtils;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -55,9 +68,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -68,10 +85,12 @@ import java.util.stream.Collectors;
 public class UserFacade implements OpenApiFacade{
 	private static final Logger logger = LoggerFactory.getLogger(UserFacade.class);
 
+	private UUIDGenerator idGenerator;
 	private MapperFacade mapper;
 	private UserLogic userLogic;
 	private GroupLogic groupLogic;
 	private ICureSessionLogic sessionLogic;
+	private TwilioProperties twilioProperties;
 
 	@ApiOperation(
 			value = "Get presently logged-in user.",
@@ -203,6 +222,62 @@ public class UserFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.").build();
 		}
 	}
+
+	@ApiOperation(
+			value = "Check the validity of the password for the logged user",
+			response = Boolean.class,
+			httpMethod = "GET",
+			notes = "General information about the user"
+	)
+	@GET
+	@Path("/checkPassword")
+	public Response checkPassword(@HeaderParam("password") String password) {
+		boolean succeed = userLogic.checkPassword(password);
+		return Response.ok().entity(userLogic.checkPassword(password)).build();
+	}
+
+	@ApiOperation(
+			value = "Send a forgotten email message to an user",
+			response = Boolean.class,
+			httpMethod = "PUT"
+	)
+	@PUT
+	@Path("/forgottenPassword/{email}")
+	public Response forgottenPassword(@PathParam("email") String email, @RequestBody EmailTemplateDto template) {
+		User user = userLogic.getUserByEmail(email);
+
+		if (!user.getApplicationTokens().containsKey("forgottenPassword")) {
+			user.getApplicationTokens().put("forgottenPassword", idGenerator.newGUID().toString());
+			userLogic.save(user);
+		}
+
+		Map<String, String> variables = new HashMap<>();
+		variables.put("name", user.getName());
+		variables.put("email", user.getEmail());
+		variables.put("token", user.getApplicationTokens().get("forgottenPassword"));
+
+		Mail mail = new Mail(
+				new Email(twilioProperties.getSendgridfrom()),
+				new StrSubstitutor(variables, "{{", "}}").replace(template.getSubject()),
+				new Email(email),
+				new Content("text/plain", new StrSubstitutor(variables, "{{", "}}").replace(template.getBody()))
+		);
+
+		SendGrid sg = new SendGrid(twilioProperties.getSendgridapikey());
+		Request request = new Request();
+		try {
+			request.setMethod(Method.POST);
+			request.setEndpoint("mail/send");
+			request.setBody(mail.build());
+
+			com.sendgrid.Response response = sg.api(request);
+		} catch (IOException ex) {
+			logger.error("Error while managing forgotten password", ex);
+		}
+
+		return Response.ok().build();
+	}
+
 
 	@ApiOperation(
 			value = "Get a user by his Email/Login",
@@ -353,6 +428,11 @@ public class UserFacade implements OpenApiFacade{
 	@Context
 	public void setSessionLogic(ICureSessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
+	}
+
+	@Context
+	public void setTwilioProperties(TwilioProperties twilioProperties) {
+		this.twilioProperties = twilioProperties;
 	}
 
 	@Context

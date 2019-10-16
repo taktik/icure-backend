@@ -22,6 +22,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.impl.ObjectMapperFactory;
 import org.ektorp.impl.StdCouchDbConnector;
+import org.ektorp.support.DesignDocument;
 
 /**
  * Created by emad7105 on 16/10/2014.
@@ -37,6 +38,15 @@ public class StdCouchDbICureConnector extends StdCouchDbConnector implements Cou
 	public StdCouchDbICureConnector(String databaseName, CouchDbInstance dbi, ObjectMapperFactory om) {
 		super(databaseName, dbi, om);
 		uuid = DigestUtils.sha256Hex(databaseName+':'+dbi.getUuid());
+	}
+
+	@Override
+	public void initSystemDesignDocument() {
+		if (!this.contains(DesignDocument.ID_PREFIX+"_System")) {
+			DesignDocument ddoc = new DesignDocument(DesignDocument.ID_PREFIX + "_System");
+			ddoc.addView("revs", new DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }"));
+			this.create(ddoc);
+		}
 	}
 
 	@Override

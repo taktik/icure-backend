@@ -4,7 +4,6 @@ import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
@@ -14,15 +13,12 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.services.external.rest.v1.dto.MedexInfoDto
 import java.io.OutputStreamWriter
-import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.LocalDateTime
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
-@Service()
+@Service
 class MedexLogicImpl : MedexLogic, KmehrExport() {
 
     internal override val log = LogFactory.getLog(MedexLogicImpl::class.java)
@@ -70,7 +66,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
 
                         this.headingsAndItemsAndTexts.add(ItemType().apply {
                             this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-                            this.cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = "incapacity"})
+                            this.cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity"})
 
                             this.beginmoment = Utils.makeMomentTypeFromFuzzyLong(beginDate);
                             this.endmoment = Utils.makeMomentTypeFromFuzzyLong(endDate);
@@ -92,7 +88,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
 
                         this.headingsAndItemsAndTexts.add(ItemType().apply {
                             this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 2.toString() })
-                            this.cds.add(CDITEM().apply { s = CDITEMschemes.CD_ITEM; sv = "1.6"; value = "diagnosis"})
+                            this.cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "diagnosis"})
 
                             this.contents.add(ContentType().apply {
                                 diagnosisICD?.let {

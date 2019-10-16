@@ -28,33 +28,40 @@ import org.taktik.icure.logic.impl.filter.Filter;
 import org.taktik.icure.logic.impl.filter.Filters;
 
 import javax.security.auth.login.LoginException;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+public class ServiceByHcPartyTagCodeDateFilter
+    implements Filter<String, Service, org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter> {
+  ContactLogic contactLogic;
+  ICureSessionLogic sessionLogic;
 
-public class ServiceByHcPartyTagCodeDateFilter implements Filter<String, Service, org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter> {
-	ContactLogic contactLogic;
-	ICureSessionLogic sessionLogic;
+  @Autowired
+  public void setContactLogic(ContactLogic contactLogic) {
+    this.contactLogic = contactLogic;
+  }
 
-	@Autowired
-	public void setContactLogic(ContactLogic contactLogic) {
-		this.contactLogic = contactLogic;
-	}
-	@Autowired
-	public void setSessionLogic(ICureSessionLogic sessionLogic) {
-		this.sessionLogic = sessionLogic;
-	}
+  @Autowired
+  public void setSessionLogic(ICureSessionLogic sessionLogic) {
+    this.sessionLogic = sessionLogic;
+  }
 
-	@Override
+  @Override
 	public Set<String> resolve(org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter filter, Filters context) {
 		try {
             String hcPartyId = filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId();
             HashSet<String> ids = null;
+
+            String patientSFK = filter.getPatientSecretForeignKey();
+            List<String> patientSFKList = patientSFK != null ? Arrays.asList(patientSFK) : null;
+
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        patientSFKList, filter.getTagType(),
                         filter.getTagCode(), filter.getStartValueDate(), filter.getEndValueDate()
                 ));
             }
@@ -62,7 +69,7 @@ public class ServiceByHcPartyTagCodeDateFilter implements Filter<String, Service
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.findServicesByCode(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getCodeType(),
+                        patientSFKList, filter.getCodeType(),
                         filter.getCodeCode(), filter.getStartValueDate(), filter.getEndValueDate()
                 );
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
@@ -74,11 +81,11 @@ public class ServiceByHcPartyTagCodeDateFilter implements Filter<String, Service
 		}
 	}
 
-	private String getLoggedHealthCarePartyId() throws LoginException {
-		User user = sessionLogic.getCurrentSessionContext().getUser();
-		if (user == null || user.getHealthcarePartyId() == null) {
-			throw new LoginException("You must be logged to perform this action. ");
-		}
-		return user.getHealthcarePartyId();
-	}
+  private String getLoggedHealthCarePartyId() throws LoginException {
+    User user = sessionLogic.getCurrentSessionContext().getUser();
+    if (user == null || user.getHealthcarePartyId() == null) {
+      throw new LoginException("You must be logged to perform this action. ");
+    }
+    return user.getHealthcarePartyId();
+  }
 }

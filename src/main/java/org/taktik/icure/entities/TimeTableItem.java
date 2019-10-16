@@ -36,6 +36,7 @@ public class TimeTableItem {
     @NotNull()
     private boolean homeVisit;
     private String placeId;
+    private boolean unavailable;
 
     public List<String> getDays() {
         return days;
@@ -83,5 +84,13 @@ public class TimeTableItem {
 
     public void setPlaceId(String placeId) {
         this.placeId = placeId;
+    }
+
+    public boolean isUnavailable() {
+        return unavailable;
+    }
+
+    public void setUnavailable(boolean unavailable) {
+        this.unavailable = unavailable;
     }
 }

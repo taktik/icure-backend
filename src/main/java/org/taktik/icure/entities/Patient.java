@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.Nullable;
-import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.CryptoActor;
 import org.taktik.icure.entities.base.Encryptable;
@@ -50,6 +49,8 @@ import java.util.TreeSet;
 public class Patient extends StoredICureDocument implements Person, Encryptable, CryptoActor {
     protected String mergeToPatientId;
 	protected Set<String> mergedIds = new HashSet<>();
+    protected Set<String> nonDuplicateIds = new HashSet<>();
+    protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
     protected String firstName;
     protected String lastName;  //Is usually either maidenName or spouseName
@@ -73,6 +74,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     protected String profession;
     protected String note;
 	protected String administrativeNote;
+	protected String comment;
 
     protected String warning;
 	protected String nationality;
@@ -95,7 +97,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     protected Map<String,List<String>> parameters = new HashMap<>();
 
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
-	protected java.util.List<CodeStub> patientProfessions = new java.util.ArrayList<>();
+	protected java.util.List<CodeStub> patientProfessions = new ArrayList<>();
 
     //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
     //For a pair of HcParties, this key is called the AES exchange key
@@ -105,6 +107,15 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     // the key encrypted using delegate's public key.
     protected Map<String, String[]> hcPartyKeys = new HashMap<String, String[]>();
     protected String publicKey;
+
+    protected CodeStub fatherBirthCountry;
+    protected CodeStub birthCountry;
+    protected CodeStub nativeCountry;
+    protected CodeStub socialStatus;
+    protected CodeStub mainSourceOfIncome;
+    protected List<SchoolingInfo> schoolingInfos = new ArrayList<>();
+    protected List<EmploymentInfo> employementInfos = new ArrayList<>();
+    private Set<Property> properties = new HashSet<>();
 
     public @Nullable
 	String getMergeToPatientId() {
@@ -121,6 +132,10 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     public void setMergeToPatientId(String mergeToPatientId) {
         this.mergeToPatientId = mergeToPatientId;
     }
+
+    public Set<String> getNonDuplicateIds() {  return nonDuplicateIds;  }
+
+    public void setNonDuplicateIds(Set<String> nonDuplicateIds) {  this.nonDuplicateIds = nonDuplicateIds; }
 
     public @Nullable String getFirstName() {
         return firstName;
@@ -496,6 +511,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 		if (this.nationality == null && other.nationality != null) { this.nationality = other.nationality; }
 		if (this.picture == null && other.picture != null) { this.picture = other.picture; }
 		if (this.externalId == null && other.externalId != null) { this.externalId = other.externalId; }
+        if (this.comment != null && other.comment != null) {this.comment = other.comment;}
 
         if (this.alias == null && other.alias != null) { this.alias = other.alias; }
         if ((this.administrativeNote == null) || (this.administrativeNote.trim().equals("")) && other.administrativeNote != null) { this.administrativeNote = other.administrativeNote; }
@@ -542,7 +558,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
         //medicalhousecontracts
         for(MedicalHouseContract fromMedicalHouseContract:other.medicalHouseContracts){
-            Optional<MedicalHouseContract> destMedicalHouseContract = this.getMedicalHouseContracts().stream().filter(medicalHouseContract -> medicalHouseContract.getMmNihii().equals(fromMedicalHouseContract.getMmNihii())).findAny();
+            Optional<MedicalHouseContract> destMedicalHouseContract = this.getMedicalHouseContracts().stream().filter(medicalHouseContract -> medicalHouseContract.getMmNihii()!=null && medicalHouseContract.getMmNihii().equals(fromMedicalHouseContract.getMmNihii())).findAny();
             if(!destMedicalHouseContract.isPresent()){
                 this.getMedicalHouseContracts().add(fromMedicalHouseContract);
             }
@@ -577,6 +593,19 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
             }
         }
 
+        for(SchoolingInfo fromSchoolingInfos:other.schoolingInfos){
+            Optional<SchoolingInfo> destSchoolingInfos = this.getSchoolingInfos().stream().filter(schoolingInfos -> schoolingInfos.getStartDate() == fromSchoolingInfos.getStartDate()).findAny();
+            if(!destSchoolingInfos.isPresent()){
+                this.getSchoolingInfos().add(fromSchoolingInfos);
+            }
+        }
+
+        for(EmploymentInfo fromEmploymentInfos:other.employementInfos){
+            Optional<EmploymentInfo> destEmploymentInfos = this.getEmployementInfos().stream().filter(employmentInfos -> employmentInfos.getStartDate() == fromEmploymentInfos.getStartDate()).findAny();
+            if(!destEmploymentInfos.isPresent()){
+                this.getEmployementInfos().add(fromEmploymentInfos);
+            }
+        }
 
 	}
 
@@ -600,6 +629,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 		if (other.nationality != null) { this.nationality = other.nationality; }
 		if (other.picture != null) { this.picture = other.picture; }
 		if (other.externalId != null) { this.externalId = other.externalId; }
+		if (other.comment != null) {this.comment = other.comment;}
 
 		this.forceMergeAddresses(other.getAddresses());
 	}
@@ -641,4 +671,48 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
     public void setDeactivationReason(DeactivationReason deactivationReason) {
         this.deactivationReason = deactivationReason;
     }
+
+    public Set<String> getEncryptedAdministrativesDocuments() {
+        return encryptedAdministrativesDocuments;
+    }
+
+    public void setEncryptedAdministrativesDocuments(Set<String> encryptedAdministrativesDocuments) {
+        this.encryptedAdministrativesDocuments = encryptedAdministrativesDocuments;
+    }
+
+    public String getComment() { return comment; }
+
+    public void setComment(String comment) { this.comment = comment; }
+
+    public CodeStub getFatherBirthCountry() { return fatherBirthCountry; }
+
+    public void setFatherBirthCountry(CodeStub fatherBirthCountry) { this.fatherBirthCountry = fatherBirthCountry; }
+
+    public CodeStub getBirthCountry() { return birthCountry; }
+
+    public void setBirthCountry(CodeStub birthCountry) { this.birthCountry = birthCountry; }
+
+    public CodeStub getNativeCountry() { return nativeCountry; }
+
+    public void setNativeCountry(CodeStub nativeCountry) { this.nativeCountry = nativeCountry; }
+
+    public CodeStub getSocialStatus() { return socialStatus; }
+
+    public void setSocialStatus(CodeStub socialStatus) { this.socialStatus = socialStatus; }
+
+    public CodeStub getMainSourceOfIncome() { return mainSourceOfIncome; }
+
+    public void setMainSourceOfIncome(CodeStub mainSourceOfIncome) { this.mainSourceOfIncome = mainSourceOfIncome; }
+
+    public List<SchoolingInfo> getSchoolingInfos() { return schoolingInfos; }
+
+    public void setSchoolingInfos(List<SchoolingInfo> schoolingInfos) { this.schoolingInfos = schoolingInfos; }
+
+    public List<EmploymentInfo> getEmployementInfos() { return employementInfos; }
+
+    public void setEmployementInfos(List<EmploymentInfo> employementInfos) { this.employementInfos = employementInfos; }
+
+    public Set<Property> getProperties() { return properties; }
+
+    public void setProperties(Set<Property> properties) { this.properties = properties; }
 }

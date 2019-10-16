@@ -25,9 +25,13 @@ import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.AccessLog;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface AccessLogDAO extends GenericDAO<AccessLog> {
 
-	PaginatedList<AccessLog> list(PaginationOffset paginationOffset);
+	PaginatedList<AccessLog> list(PaginationOffset paginationOffset, boolean descending);
 	PaginatedList<AccessLog> findByUserAfterDate(String userId, String accessType, Instant startDate, PaginationOffset pagination, boolean descending);
+	List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
+	List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys);
 }

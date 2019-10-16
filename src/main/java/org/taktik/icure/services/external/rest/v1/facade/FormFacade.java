@@ -59,7 +59,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -240,6 +242,30 @@ public class FormFacade implements OpenApiFacade {
 		} catch (MissingRequirementsException e) {
 			log.warn(e.getMessage(), e);
 			return Response.status(400).type("text/plain").entity(e.getMessage()).build();
+		}
+	}
+
+	@ApiOperation(
+			value = "Delete forms.",
+			response = String.class,
+			responseContainer = "Array",
+			httpMethod = "DELETE",
+			notes = "Response is a set containing the ID's of deleted forms."
+	)
+	@DELETE
+	@Path("/{formIds}")
+	public Response deleteForms(@PathParam("formIds") String ids) {
+		if (ids == null || ids.length() == 0) {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		Set<String> deletedIds = formLogic.deleteForms(new HashSet<>(Arrays.asList(ids.split(","))));
+
+		boolean succeed = (deletedIds != null);
+		if (succeed) {
+			return Response.ok().entity(deletedIds).build();
+		} else {
+			return Response.status(500).type("text/plain").entity("Contacts deletion failed.").build();
 		}
 	}
 
@@ -449,9 +475,9 @@ public class FormFacade implements OpenApiFacade {
 	@PUT
 	@Path("/template/{formTemplateId}/attachment/multipart")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
+    public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
 
-		if (payload == null || formTemplateId == null) {
+        if (payload == null || formTemplateId == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
 		}
 		FormTemplate formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId);

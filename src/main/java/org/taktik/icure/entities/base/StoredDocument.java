@@ -39,6 +39,14 @@ import java.util.TreeMap;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StoredDocument implements Versionable<String> {
+	private static final long serialVersionUID = 1L;
+
+	public StoredDocument() {
+	}
+
+	public StoredDocument(String id) {
+		this.id = id;
+	}
 
 	@JsonProperty("_attachments")
 	@Json(name = "_attachments")
@@ -198,7 +206,7 @@ public class StoredDocument implements Versionable<String> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(deletionDate, id, rev);
+		return Objects.hash(deletionDate, id);
 	}
 
 	protected void solveConflictsWith(StoredDocument other) {

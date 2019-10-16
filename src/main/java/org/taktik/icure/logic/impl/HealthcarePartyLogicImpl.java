@@ -192,5 +192,7 @@ public class HealthcarePartyLogicImpl extends GenericLogicImpl<HealthcareParty, 
 		return healthcarePartyDAO.findBySsinOrNihii(searchValue, paginationOffset, desc);
 	}
 
+	@Override
+	public  List<HealthcareParty> getHealthcarePartiesByParentId(String parentId){ return healthcarePartyDAO.findByParentId(parentId); }
 
 }

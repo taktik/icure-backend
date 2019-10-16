@@ -68,10 +68,10 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
     @GetMapping
-    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?): List<AccessLogDto> {
+    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) ascending: Boolean = false): List<AccessLogDto> {
         val paginationOffset = PaginationOffset(null, startDocumentId, null, if (limit != null) Integer.valueOf(limit) else null)
         val accessLogDtos = PaginatedList<AccessLogDto>()
-        val accessLogs = accessLogLogic.listAccessLogs(paginationOffset)
+        val accessLogs = accessLogLogic.listAccessLogs(paginationOffset, ascending)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog listing failed")
 
         mapper.map(accessLogs, accessLogDtos, object : TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {

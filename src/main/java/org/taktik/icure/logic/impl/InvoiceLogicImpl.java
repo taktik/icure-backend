@@ -26,10 +26,8 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
-import org.ektorp.ComplexKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,9 @@ import org.taktik.icure.dao.Option;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.dto.data.LabelledOccurence;
-import org.taktik.icure.entities.Form;
+import org.taktik.icure.dto.filter.chain.FilterChain;
+import org.taktik.icure.dto.filter.predicate.Predicate;
+import org.taktik.icure.entities.EntityReference;
 import org.taktik.icure.entities.Insurance;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.Patient;
@@ -49,15 +49,19 @@ import org.taktik.icure.entities.embed.InvoiceType;
 import org.taktik.icure.entities.embed.InvoicingCode;
 import org.taktik.icure.entities.embed.MediumType;
 import org.taktik.icure.exceptions.DeletionException;
+import org.taktik.icure.logic.EntityReferenceLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 
 @Service
 public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> implements InvoiceLogic {
 	private static final Logger log = LoggerFactory.getLogger(InvoiceLogicImpl.class);
+	private org.taktik.icure.logic.impl.filter.Filters filters;
 
 	private UserLogic userLogic;
+	private EntityReferenceLogic entityReferenceLogic;
 	private InvoiceDAO invoiceDAO;
 
 	@Override
@@ -179,8 +183,17 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 			String startScheme = refScheme.replaceAll("yyyy", "" + ldt.getYear()).replaceAll("MM", f.format(ldt.getMonthValue())).replaceAll("dd", "" + f.format(ldt.getDayOfMonth()));
 			String endScheme = refScheme.replaceAll("0", "9").replaceAll("yyyy", "" + ldt.getYear()).replaceAll("MM", "" + f.format(ldt.getMonthValue())).replaceAll("dd", "" + f.format(ldt.getDayOfMonth()));
 
-			List<Invoice> prevInvoices = invoiceDAO.listByHcPartyReferences(hcParty, endScheme, null, true, 1);
-			invoice.setInvoiceReference("" + (prevInvoices.size() > 0 && prevInvoices.get(0).getInvoiceReference() != null ? Math.max(Long.valueOf(prevInvoices.get(0).getInvoiceReference()) + 1L,Long.valueOf(startScheme) + 1L) : Long.valueOf(startScheme) + 1L));
+			String prefix = "invoice:" + invoice.getAuthor() + ":xxx:";
+			String fix = startScheme.replaceAll("0+$", "");
+
+			EntityReference reference = entityReferenceLogic.getLatest(prefix + fix);
+
+			if (reference == null || !reference.getId().startsWith(prefix)) {
+				List<Invoice> prevInvoices = invoiceDAO.listByHcPartyReferences(hcParty, endScheme, null, true, 1);
+				invoice.setInvoiceReference("" + (prevInvoices.size() > 0 && prevInvoices.get(0).getInvoiceReference() != null ? Math.max(Long.valueOf(prevInvoices.get(0).getInvoiceReference()) + 1L, Long.valueOf(startScheme) + 1L) : Long.valueOf(startScheme) + 1L));
+			} else {
+				invoice.setInvoiceReference(fix + (Integer.parseInt(reference.getId().substring(prefix.length() + fix.length())) + 1));
+			}
 		}
 		invoice.setSentDate(System.currentTimeMillis());
 		return modifyInvoice(invoice);
@@ -210,9 +223,12 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		for (InvoicingCode invoicingCode : new ArrayList<>(invoicingCodes)) {
 			LocalDateTime icDateTime = FuzzyValues.getDateTime(invoicingCode.getDateCode());
 
-			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : invoices.stream().filter(i ->
-					i.getInvoiceDate() != null && Math.abs(FuzzyValues.getDateTime(i.getInvoiceDate()).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
-			).findAny();
+			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : icDateTime != null ? invoices.stream().filter(i ->
+                    {
+                        LocalDateTime invoiceDate = FuzzyValues.getDateTime(i.getInvoiceDate());
+                        return invoiceDate != null && Math.abs(invoiceDate.withHour(0).withMinute(0).withSecond(0).withNano(0).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays;
+                    }
+			).findAny() : Optional.empty();
 
 			if (unsentInvoice.isPresent()) {
 				Invoice invoice = unsentInvoice.get();
@@ -233,6 +249,10 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				newInvoice.setResponsible(hcPartyId);
 				newInvoice.setCreated(System.currentTimeMillis());
 				newInvoice.setModified(newInvoice.getCreated());
+
+				newInvoice.setCareProviderType("persphysician");
+				newInvoice.setInvoicePeriod(0);
+				newInvoice.setThirdPartyPaymentJustification("0");
 
 				//The invoice must be completed with ids and delegations and created on the server
 				createdInvoices.add(newInvoice);
@@ -305,7 +325,26 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				.collect(Collectors.toList());
 	}
 
-	@Autowired
+	@Override
+	public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		return invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+	}
+
+	@Override
+	public List<String> listInvoiceIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		return invoiceDAO.listInvoiceIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+	}
+
+	@Override
+	public List<Invoice> filter(FilterChain<Invoice> filter) {
+		List<String> ids = new ArrayList<>(filters.resolve(filter.getFilter()));
+		List<Invoice> invoices = this.getInvoices(ids);
+
+		Predicate predicate = filter.getPredicate();
+		return new ArrayList<>(predicate != null ? invoices.stream().filter(predicate::apply).collect(Collectors.toList()) : invoices);
+	}
+
+    @Autowired
 	public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
 		this.invoiceDAO = invoiceDAO;
 	}
@@ -315,8 +354,18 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		this.userLogic = userLogic;
 	}
 
+	@Autowired
+	public void setEntityReferenceLogic(EntityReferenceLogic entityReferenceLogic) {
+		this.entityReferenceLogic = entityReferenceLogic;
+	}
+
 	@Override
 	protected InvoiceDAO getGenericDAO() {
 		return invoiceDAO;
+	}
+
+	@Autowired
+	public void setFilters(Filters filters) {
+		this.filters = filters;
 	}
 }

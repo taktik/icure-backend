@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:virtual:common" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" targetNamespace="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <!---> Virtual Medicine Part-->
+  <!--Commented Classification -->
+  <xs:complexType name="CommentedClassificationType">
+    <xs:complexContent>
+      <xs:extension base="CommentedClassificationKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="CommentedClassificationFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="CommentedClassificationKeyType">
+    <xs:attribute name="code" type="core:String10Type" use="required"/>
+  </xs:complexType>
+  <xs:group name="CommentedClassificationFields">
+    <xs:sequence>
+      <xs:element name="Title" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Title of the referenced classification level.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Content" type="core:TextType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Content of the referenced classification level.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PosologyNote" type="core:TextType">
+        <xs:annotation>
+          <xs:documentation>Any note about the posology for the referenced classification level.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Url" type="core:Text255Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>URL to relevant information from BCPI about the referenced classification level.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddCommentedClassificationType">
+    <xs:complexContent>
+      <xs:extension base="CommentedClassificationType">
+        <xs:sequence>
+          <xs:element name="CommentedClassification" type="AddCommentedClassificationType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeCommentedClassificationType">
+    <xs:complexContent>
+      <xs:extension base="CommentedClassificationType">
+        <xs:sequence>
+          <xs:element name="CommentedClassification" type="ChangeCommentedClassificationType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveCommentedClassificationType">
+    <xs:complexContent>
+      <xs:extension base="CommentedClassificationKeyType">
+        <xs:sequence>
+          <xs:element name="CommentedClassification" type="RemoveCommentedClassificationType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:removeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Virtual Ingredient -->
+  <xs:complexType name="VirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="VirtualIngredientKeyType">
+        <xs:sequence>
+          <xs:group ref="VirtualIngredientFields"/>
+          <xs:group ref="VirtualIngredientReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualIngredientKeyType">
+    <xs:attribute name="rank" type="core:PositiveShortType" use="required"/>
+  </xs:complexType>
+  <xs:group name="VirtualIngredientFields">
+    <xs:sequence>
+      <xs:element name="Type" type="core:IngredientTypeType">
+        <xs:annotation>
+          <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+            Substance).
+            Possible values :
+            - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+            - EXCIPIENT: not active substance used to make the medicinal product more attractive.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Strength" type="core:StrengthRangeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Strength of the specified substance. Some substance quantities cannot be specified exactly,
+            so a range is provided. If an exact quantity is known, minimum and maximum will have the same value.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VirtualIngredientReferences">
+    <xs:sequence>
+      <xs:element name="SubstanceCode" type="core:String10Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="VirtualIngredientType">
+        <xs:sequence>
+          <xs:element name="RealVirtualIngredient" type="AddRealVirtualIngredientType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="VirtualIngredientKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="VirtualIngredientFields"/>
+            <xs:group ref="VirtualIngredientReferences"/>
+          </xs:sequence>
+          <xs:element name="RealVirtualIngredient" type="ChangeRealVirtualIngredientType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--Real Virtual Ingredient -->
+  <xs:complexType name="RealVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="RealVirtualIngredientKeyType">
+        <xs:sequence>
+          <xs:group ref="RealVirtualIngredientFields"/>
+          <xs:group ref="RealVirtualIngredientReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RealVirtualIngredientKeyType">
+    <xs:attribute name="sequenceNr" type="core:PositiveShortType" use="required"/>
+  </xs:complexType>
+  <xs:group name="RealVirtualIngredientFields">
+    <xs:sequence>
+      <xs:element name="Type" type="core:IngredientTypeType">
+        <xs:annotation>
+          <xs:documentation>Type of use for the specified substance (given by the link to the reference entity
+            Substance).
+            Possible values :
+            - ACTIVE_SUBSTANCE: the substance participates in the medicinal product effect ;
+            - EXCIPIENT: not active substance used to make the medicinal product more attractive.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Strength" type="core:StrengthRangeType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Strength of the specified substance. Some substance quantities cannot be specified exactly,
+            so a range is provided. If an exact quantity is known, minimum and maximum will have the same value.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="RealVirtualIngredientReferences">
+    <xs:sequence>
+      <xs:element name="SubstanceCode" type="core:String10Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddRealVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="RealVirtualIngredientType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeRealVirtualIngredientType">
+    <xs:complexContent>
+      <xs:extension base="RealVirtualIngredientKeyType">
+        <xs:sequence minOccurs="0">
+          <xs:group ref="RealVirtualIngredientFields"/>
+          <xs:group ref="RealVirtualIngredientReferences"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--VMP -->
+  <xs:complexType name="VmpType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpKeyType">
+        <xs:sequence>
+          <xs:group ref="VmpFields"/>
+          <xs:group ref="VmpReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--VmpKeyType : in SamCommonItems because of use in AM domain-->
+  <xs:group name="VmpFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type"/>
+      <xs:element name="Abbreviation" type="core:Text255Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VmpReferences">
+    <xs:sequence>
+      <xs:element name="CommentedClassificationCode" type="core:String10Type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="VmpGroupCode" type="core:PositiveIntType"/>
+      <xs:element name="VtmCode" type="core:PositiveIntType" minOccurs="0"/>
+      <xs:element name="WadaCode" type="core:String10Type" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddVmpType">
+    <xs:complexContent>
+      <xs:extension base="VmpType">
+        <xs:sequence>
+          <xs:element name="VmpComponent" type="AddVmpComponentType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeVmpType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="VmpFields"/>
+            <xs:group ref="VmpReferences"/>
+          </xs:sequence>
+          <xs:element name="VmpComponent" type="ChangeVmpComponentType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveVmpType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--VMP Component -->
+  <xs:complexType name="VmpComponentType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpComponentKeyType">
+        <xs:sequence>
+          <xs:group ref="VmpComponentFields"/>
+          <xs:group ref="VmpComponentReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--VmpComponentKeyType : in SamCommonItems because of use in AM domain-->
+  <xs:group name="VmpComponentFields">
+    <xs:sequence>
+      <xs:element name="PhaseNumber" type="core:PositiveShortType" minOccurs="0"/>
+      <xs:element name="Name" type="core:Text255Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VmpComponentReferences">
+    <xs:sequence>
+      <xs:element name="VirtualFormCode" type="core:String10Type"/>
+      <xs:element name="RouteOfAdministrationCode" type="core:String10Type" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddVmpComponentType">
+    <xs:complexContent>
+      <xs:extension base="VmpComponentType">
+        <xs:sequence>
+          <xs:element name="VirtualIngredient" type="AddVirtualIngredientType" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeVmpComponentType">
+    <xs:complexContent>
+      <xs:extension base="core:VmpComponentKeyType">
+        <xs:sequence>
+          <xs:sequence minOccurs="0">
+            <xs:group ref="VmpComponentFields"/>
+            <xs:group ref="VmpComponentReferences"/>
+          </xs:sequence>
+          <xs:element name="VirtualIngredient" type="ChangeVirtualIngredientType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="core:changeNoChangeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--VMP Group -->
+  <xs:complexType name="VmpGroupType">
+    <xs:complexContent>
+      <xs:extension base="VmpGroupKeyType">
+        <xs:sequence>
+          <xs:group ref="VmpGroupFields"/>
+          <xs:group ref="VmpGroupReferences"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VmpGroupKeyType">
+    <xs:attribute name="code" type="core:PositiveIntType" use="required"/>
+  </xs:complexType>
+  <xs:group name="VmpGroupFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type">
+        <xs:annotation>
+          <xs:documentation>Name of this group.
+            This field is translated in French, Dutch, German and English.
+            French and Dutch versions are mandatory and others are optional.
+
+            Example: ‘amoxicilline 1g oraal’.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="VmpGroupReferences">
+    <xs:sequence>
+      <xs:element name="NoGenericPrescriptionReasonCode" type="core:String10Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicates the reason why this VMP Group can’t be generically prescribed.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NoSwitchReasonCode" type="core:String10Type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The generic prescription for VMP’s in this group cannot change. The code indicates the
+            reason.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddVmpGroupType">
+    <xs:complexContent>
+      <xs:extension base="VmpGroupType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeVmpGroupType">
+    <xs:complexContent>
+      <xs:extension base="VmpGroupType">
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveVmpGroupType">
+    <xs:complexContent>
+      <xs:extension base="VmpGroupKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <!--VTM -->
+  <xs:complexType name="VtmType">
+    <xs:complexContent>
+      <xs:extension base="VtmKeyType">
+        <xs:sequence>
+          <xs:group ref="VtmFields"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VtmKeyType">
+    <xs:attribute name="code" type="core:PositiveIntType" use="required"/>
+  </xs:complexType>
+  <xs:group name="VtmFields">
+    <xs:sequence>
+      <xs:element name="Name" type="core:Text255Type"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="AddVtmType">
+    <xs:complexContent>
+      <xs:extension base="VtmType">
+        <xs:attributeGroup ref="core:addMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChangeVtmType">
+    <xs:complexContent>
+      <xs:extension base="VtmType">
+        <xs:attributeGroup ref="core:changeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RemoveVtmType">
+    <xs:complexContent>
+      <xs:extension base="VtmKeyType">
+        <xs:attributeGroup ref="core:removeMetadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

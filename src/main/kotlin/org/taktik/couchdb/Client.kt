@@ -5,10 +5,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types.newParameterizedType
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import okio.Buffer
 import org.eclipse.jetty.client.HttpClient
@@ -24,7 +21,7 @@ import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
-import org.taktik.jetty.getResponseBytesFlow
+import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
@@ -66,7 +63,7 @@ abstract class ViewRow<out K, out V, out T> : ViewQueryResultEvent() {
 data class ViewRowWithDoc<K, V, T>(override val id: String, override val key: K?, override val value: V?, override val doc: T) : ViewRow<K, V, T>()
 data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, override val value: V?) : ViewRow<K, V, Nothing>() {
     override val doc: Nothing?
-        get() = throw IllegalStateException("Row has no doc")
+        get() = error("Row has no doc")
 }
 
 private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
@@ -75,41 +72,41 @@ data class BulkUpdateResult(val id: String, val rev: String?, val error: String?
 
 
 // Convenience inline methods with reified type params
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified K, reified V, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, V, T>> {
     require(query.isIncludeDocs) { "Query must have includeDocs=true" }
     return queryView(query, K::class.java, V::class.java, T::class.java).filterIsInstance()
 }
 
 // Convenience inline methods with reified type params
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified K, reified V> Client.queryView(query: ViewQuery): Flow<ViewRowNoDoc<K, V>> {
     require(!query.isIncludeDocs) { "Query must have includeDocs=false" }
     return queryView(query, K::class.java, V::class.java, Nothing::class.java).filterIsInstance()
 }
 
 // Convenience inline methods with reified type params
-@FlowPreview
+@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.get(id: String): T? = this.get(id, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.get(ids: List<String>): Flow<T> = this.get(ids, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.create(entity: T): T = this.create(entity, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.update(entity: T): T = this.update(entity, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.bulkUpdate(entities: List<T>): Flow<BulkUpdateResult> = this.bulkUpdate(entities, T::class.java)
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.subscribeForChanges(since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>> =
         this.subscribeForChanges(T::class.java, since, initialBackOffDelay, backOffFactor, maxDelay)
 
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 interface Client {
     // Check if db exists
     suspend fun exists(): Boolean
@@ -140,12 +137,12 @@ private const val TOTAL_ROWS_FIELD_NAME = "total_rows"
 private const val OFFSET_FIELD_NAME = "offset"
 private const val UPDATE_SEQUENCE_NAME = "update_seq"
 
-@FlowPreview
+@ExperimentalCoroutinesApi
 class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
                  private val password: String,
-                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()) : Client {
+                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).build()) : Client {
 
     private val log = LoggerFactory.getLogger(javaClass.name)
     // Create a copy and set to prototype to avoid unwanted mutation
@@ -169,6 +166,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private data class AllDocsViewValue(val rev: String)
 
+    @FlowPreview
     override fun <T : CouchDbDocument> get(ids: List<String>, clazz: Class<T>): Flow<T> {
         val viewQuery = ViewQuery()
                 .allDocs()
@@ -228,6 +226,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }.rev
     }
 
+    @FlowPreview
     override fun <T : CouchDbDocument> bulkUpdate(entities: List<T>, clazz: Class<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
             val requestType = newParameterizedType(BulkUpdateRequest::class.java, clazz)
@@ -240,7 +239,7 @@ class ClientImpl(private val httpClient: HttpClient,
             val request = newRequest(uri, requestAdapter.toJson(updateRequest))
 
             log.debug("Executing $request")
-            val jsonEvents = request.getResponseBytesFlow().toJsonEvents().produceIn(this)
+            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
             check(jsonEvents.receive() == StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
                 val nextValue = jsonEvents.nextValue()
@@ -256,19 +255,22 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent> = flow {
         coroutineScope {
-            // TODO Not sure why this is needed
-            val design = if (query.designDocId == null) "" else "/_design"
-            query.dbPath("$dbURI$design")
+            query.dbPath(dbURI.toString())
             val request = buildRequest(query)
             log.debug("Executing $request")
-            val jsonEvents = request.getResponseBytesFlow().toJsonEvents().produceIn(this)
+            /** Execute the request and get the response as a Flow of [JsonEvent] **/
+            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
 
+            // Get adapters to deserialize key, value and doc
             val keyAdapter = moshi.adapter(keyType)
             val valueAdapter = moshi.adapter(valueType)
             val docAdapter = if (query.isIncludeDocs) moshi.adapter(docType) else null
 
+            // Response should be a Json object
             check(jsonEvents.receive() == StartObject) { "Expected data to start with an Object" }
             resultLoop@ while (true) { // Loop through result object fields
                 when (val nextEvent = jsonEvents.receive()) {
@@ -276,6 +278,7 @@ class ClientImpl(private val httpClient: HttpClient,
                     is FieldName -> {
                         when (nextEvent.name) {
                             ROWS_FIELD_NAME -> { // We found the "rows" field
+                                // Rows field should be an array
                                 check(jsonEvents.receive() == StartArray) { "Expected rows field to be an array" }
                                 // At this point we are in the rows array, and StartArray event has been consumed
                                 // We iterate over the rows until we encounter the EndArray event
@@ -284,7 +287,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                         StartObject -> {
                                         } // Start of a new row
                                         EndArray -> break@rowsLoop  // End of rows array
-                                        else -> throw IllegalStateException("Expected Start of new row or end of row array")
+                                        else -> error("Expected Start of new row or end of row array")
                                     }
                                     // At this point we are in a row object, and StartObject event has been consumed.
                                     // We iterate over the field names and construct the ViewRowWithDoc or ViewRowNoDoc Object,
@@ -301,7 +304,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     // Parse doc id
                                                     ID_FIELD_NAME -> {
                                                         id = (jsonEvents.receive() as? StringValue)?.value
-                                                                ?: throw IllegalStateException("id field should be a string")
+                                                                ?: error("id field should be a string")
                                                     }
                                                     // Parse key
                                                     KEY_FIELD_NAME -> {
@@ -326,6 +329,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                         }
 
                                                     }
+                                                    // Error field
                                                     ERROR_FIELD_NAME -> {
                                                         val error = jsonEvents.nextSingleValueAs<StringValue>()
                                                         val errorMessage = error.value
@@ -338,7 +342,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     else -> jsonEvents.skipValue()
                                                 }
                                             }
-                                            else -> throw IllegalStateException("Expected EndObject or FieldName")
+                                            else -> error("Expected EndObject or FieldName")
                                         }
                                     }
                                     check(id != null) { "Doc Id shouldn't be null" }
@@ -365,18 +369,19 @@ class ClientImpl(private val httpClient: HttpClient,
                                 emit(UpdateSequence(offsetValue.toLong()))
                             }
                             ERROR_FIELD_NAME -> {
-                                throw IllegalStateException("Error executing request : ${jsonEvents.nextSingleValueAs<StringValue>().value}")
+                                error("Error executing request : ${jsonEvents.nextSingleValueAs<StringValue>().value}")
                             }
                             else -> jsonEvents.skipValue()
                         }
                     }
-                    else -> throw IllegalStateException("Expected EndObject or FieldName, found $nextEvent")
+                    else -> error("Expected EndObject or FieldName, found $nextEvent")
                 }
             }
             jsonEvents.cancel()
         }
     }
 
+    @FlowPreview
     override fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String, initialBackOffDelay: Long, backOffFactor: Int, maxDelay: Long): Flow<Change<T>> = flow {
         var lastSeq = since
         var delayMillis = initialBackOffDelay
@@ -401,6 +406,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
     private fun <T : CouchDbDocument> internalSubscribeForChanges(clazz: Class<T>, since: String): Flow<Change<T>> = flow {
         val changesURI = dbURI.append("_changes")
                 .param("feed", "continuous")
@@ -430,7 +436,7 @@ class ClientImpl(private val httpClient: HttpClient,
                 if (clazz.isAssignableFrom(changeClass)) {
                     val adapter = moshi.adapter(changeClass)
                     @Suppress("UNCHECKED_CAST")
-                    // Parse as actuel Change object with the correct class
+                    // Parse as actual Change object with the correct class
                     emit(Change(change.seq, change.id, change.changes, adapter.fromJsonValue(change.doc) as T, change.deleted))
                 }
             }

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareTeamMembershipDto;
 
 public class PlanOfActionDto implements Serializable {
 
@@ -36,6 +37,7 @@ public class PlanOfActionDto implements Serializable {
 
     protected Long openingDate;
     protected Long closingDate;
+    protected Long deadlineDate;
 
     protected String idOpeningContact;
     protected String idClosingContact;
@@ -49,6 +51,14 @@ public class PlanOfActionDto implements Serializable {
 
     protected List<CodeDto> codes = new java.util.ArrayList<CodeDto>();
     protected List<CodeDto> tags = new java.util.ArrayList<CodeDto>();
+
+    protected List<String> documentIds;
+    protected String prescriberId; //healthcarePartyId
+    protected Integer numberOfCares;
+    protected Integer status;
+
+    protected List<CareTeamMembershipDto> careTeamMemberships;
+
 
     public PlanOfActionDto() {
 	}
@@ -173,7 +183,23 @@ public class PlanOfActionDto implements Serializable {
         this.valueDate = valueDate;
     }
 
-	private String encryptedSelf;
+    public List<String> getDocumentIds() { return documentIds; }
+
+    public void setDocumentIds(List<String> documentIds) { this.documentIds = documentIds; }
+
+    public String getPrescriberId() { return prescriberId;}
+
+    public void setPrescriberId(String prescriberId) { this.prescriberId = prescriberId; }
+
+    public Integer getNumberOfCares() { return numberOfCares; }
+
+    public void setNumberOfCares(Integer numberOfCares) { this.numberOfCares = numberOfCares; }
+
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
+
+    private String encryptedSelf;
 	public String getEncryptedSelf() {
 		return encryptedSelf;
 	}
@@ -181,4 +207,12 @@ public class PlanOfActionDto implements Serializable {
 	public void setEncryptedSelf(String encryptedSelf) {
 		this.encryptedSelf = encryptedSelf;
 	}
+
+    public Long getDeadlineDate() { return deadlineDate; }
+
+    public void setDeadlineDate(Long deadlineDate) { this.deadlineDate = deadlineDate; }
+
+    public List<CareTeamMembershipDto> getCareTeamMemberships() { return careTeamMemberships; }
+
+    public void setCareTeamMemberships(List<CareTeamMembershipDto> careTeamMemberships) { this.careTeamMemberships = careTeamMemberships; }
 }

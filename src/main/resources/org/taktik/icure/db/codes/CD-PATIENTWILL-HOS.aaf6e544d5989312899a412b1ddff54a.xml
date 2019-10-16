@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2013-10-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Patient's will hos</NAME>
+    <VALUE>
+        <CODE>hos0</CODE>
+        <DESCRIPTION L='fr'>Pas de limitations concernant l'hospitalisation</DESCRIPTION>
+        <DESCRIPTION L='nl'>Geen beperking op hospitalisatie</DESCRIPTION>
+        <DESCRIPTION L='en'>No limitation on hospitalisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hos1</CODE>
+        <DESCRIPTION L='fr'>Pas d'hospitalisation</DESCRIPTION>
+        <DESCRIPTION L='nl'>Geen hospitalisatie</DESCRIPTION>
+        <DESCRIPTION L='en'>No hospitalisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hos2</CODE>
+        <DESCRIPTION L='fr'>Hospitalisation uniquement dans des situations spécifiques</DESCRIPTION>
+        <DESCRIPTION L='nl'>Hospitalisatie enkel in specifieke comfortsituaties</DESCRIPTION>
+        <DESCRIPTION L='en'>Hospitalisation only in specific situations</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

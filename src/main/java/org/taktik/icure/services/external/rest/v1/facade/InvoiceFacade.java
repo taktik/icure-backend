@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.db.PaginationOffset;
+import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.User;
@@ -53,6 +54,7 @@ import org.taktik.icure.services.external.rest.v1.dto.*;
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain;
 import org.taktik.icure.utils.ResponseUtils;
 
 @Component
@@ -487,6 +489,34 @@ public class InvoiceFacade implements OpenApiFacade{
 	@Path("/codes/{minOccurences}")
 	public Response getTarificationsCodesOccurences(@PathParam("minOccurences") Long minOccurences) {
 		return Response.ok().entity(invoiceLogic.getTarificationsCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId(), minOccurences)).build();
+	}
+
+	@ApiOperation(
+			value = "Filter invoices for the current user (HcParty)",
+			response = ArrayList.class,
+			httpMethod = "POST",
+			notes = "Returns a list of invoices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page."
+	)
+	@POST
+	@Path("/filter")
+	public Response filterBy(FilterChain filterChain) {
+		Response response;
+
+		List<Invoice> invoices;
+		if (filterChain != null) {
+			invoices = invoiceLogic.filter(new org.taktik.icure.dto.filter.chain.FilterChain(filterChain.getFilter(), mapper.map(filterChain.getPredicate(), Predicate.class)));
+		} else {
+			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+		}
+
+		if (invoices != null) {
+			List<InvoiceDto> invoiceDtoList = invoices.stream().map(element -> mapper.map(element, InvoiceDto.class)).collect(Collectors.toList());
+			response = ResponseUtils.ok(invoiceDtoList);
+		} else {
+			response = ResponseUtils.internalServerError("Listing and filtering of invoices failed.");
+		}
+
+		return response;
 	}
 
 	@Context

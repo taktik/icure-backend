@@ -39,6 +39,7 @@ import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Delegation;
+import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.entities.embed.PatientHealthCareParty;
 import org.taktik.icure.entities.embed.ReferralPeriod;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
@@ -129,14 +130,19 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
         return patientDAO.listIdsByHcPartyAndDateOfBirth(date, healthcarePartyId);
     }
 
-	@Override
+    @Override
+    public List<String> listByHcPartyGenderEducationProfessionIdsOnly(String healthcarePartyId, Gender gender, String education, String profession) {
+        return patientDAO.listIdsByHcPartyGenderEducationProfession(healthcarePartyId, gender, education, profession);
+    }
+
+    @Override
 	public List<String> listByHcPartyDateOfBirthIdsOnly(Integer startDate, Integer endDate, String healthcarePartyId) {
 		return patientDAO.listIdsByHcPartyAndDateOfBirth(startDate, endDate, healthcarePartyId);
 	}
 
 	@Override
     public List<String> listByHcPartyNameContainsFuzzyIdsOnly(String searchString, String healthcarePartyId) {
-        return patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId);
+        return patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, null);
     }
 
     @Override
@@ -182,11 +188,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	    } else {
 		    if (FuzzyValues.isSsin(searchString)) {
 			    patientsPaginatedList = patientDAO.findPatientsByHcPartyAndSsin(searchString, healthcarePartyId, offset, false);
-
 		    } else if (FuzzyValues.isDate(searchString)) {
-			    patientsPaginatedList = patientDAO.findPatientsByHcPartyDateOfBirth(FuzzyValues.toYYYYMMDD(searchString),
-						FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false);
-
+			    patientsPaginatedList = patientDAO.findPatientsByHcPartyDateOfBirth(FuzzyValues.toYYYYMMDD(searchString), FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false);
 		    } else {
 				patientsPaginatedList = findByHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending);
 		    }
@@ -314,7 +317,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
     public PaginatedList<Patient> findByHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, PaginationOffset offset, boolean descending) {
 		String sanSs = sanitizeString(searchString);
 
-		Set<String> ids = new HashSet<>(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId));
+        //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
+        //We will get partial results but at least we will not overload the servers
+        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.min(1000, offset.getLimit() * 10) : null;
+
+        Set<String> ids = new HashSet<>(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, limit));
 		List<Patient> patients = patientDAO.get(ids).stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList());
 
 		List<String> patientKeys = patients.stream().map(p -> sanitizeString(safeConcat(p.getLastName(), p.getFirstName()))).collect(Collectors.toList());
@@ -325,7 +332,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	public PaginatedList<Patient> findOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, PaginationOffset offset, boolean descending) {
 		String sanSs = sanitizeString(searchString);
 
-		Set<String> ids = new HashSet<>(patientDAO.listIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId));
+		//TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
+		//We will get partial results but at least we will not overload the servers
+        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.min(1000, offset.getLimit() * 10) : null;
+
+        Set<String> ids = new HashSet<>(patientDAO.listIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, limit));
 		List<Patient> patients = patientDAO.get(ids).stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList());
 
 		List<String> patientKeys = patients.stream().map(p -> sanitizeString(safeConcat(p.getLastName(), p.getFirstName()))).collect(Collectors.toList());
@@ -341,7 +352,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			}
 
 			if (idx<0) {
-				throw new IllegalArgumentException("Invalid start key");
+				//throw new IllegalArgumentException("Invalid start key");
+				return new PaginatedList<>(offset.getLimit(), patients.size(), new ArrayList<>(),  null);
 			}
 			while(idx>0 && safeKey.equals(patientKeys.get(idx-1))) {
 				idx--;
@@ -350,7 +362,8 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 				idx++;
 			}
 			if (offset.getStartDocumentId() != null && !offset.getStartDocumentId().equals(patients.get(idx).getId())) {
-				throw new IllegalArgumentException("Invalid document id");
+				//throw new IllegalArgumentException("Invalid document id");
+				return new PaginatedList<>(offset.getLimit(), patients.size(), new ArrayList<>(),  null);
 			}
 			int lastIdx = Math.min(patients.size(), idx + offset.getLimit());
 			return new PaginatedList<>(offset.getLimit(), patients.size(), patients.subList(idx, lastIdx), lastIdx < patients.size() ? new PaginatedDocumentKeyIdPair(Arrays.asList(healthcarePartyId, patientKeys.get(lastIdx)), patients.get(lastIdx).getId()) : null);
@@ -430,7 +443,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	public Patient modifyPatient(@Check @NotNull Patient patient) throws MissingRequirementsException {
 		log.debug("Modifying patient with id:"+patient.getId());
 		// checking requirements
-		if (patient.getFirstName() == null || patient.getLastName() == null) {
+		if ((patient.getFirstName() == null || patient.getLastName() == null) && patient.getEncryptedSelf() == null) {
 			throw new MissingRequirementsException("modifyPatient: Name, Last name  are required.");
 		}
 
@@ -552,6 +565,11 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			});
 			patientDAO.save(p);
 		});
+	}
+
+	@Override
+	public Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId) {
+		return patientDAO.getHcPartyKeysForDelegate(healthcarePartyId);
 	}
 
 	@Override

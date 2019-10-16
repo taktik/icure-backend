@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by ﻿SMALS (SMALS) -->
+<xs:schema xmlns="urn:be:fgov:ehealth:samws:v2:virtual:vmpgroup" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:core="urn:be:fgov:ehealth:samws:v2:core" xmlns:virtual="urn:be:fgov:ehealth:samws:v2:virtual:common"
+           targetNamespace="urn:be:fgov:ehealth:samws:v2:virtual:vmpgroup" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" version="3.4">
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:virtual:common" schemaLocation="SubmitVirtualMedicine-Common.xsd"/>
+  <xs:import namespace="urn:be:fgov:ehealth:samws:v2:core" schemaLocation="../common/SamCommonItems.xsd"/>
+  <xs:element name="AddVmpGroupRequest" type="AddVmpGroupRequestType"/>
+  <xs:element name="AddVmpGroupResponse" type="core:StandardResponseType"/>
+  <xs:element name="ChangeVmpGroupRequest" type="ChangeVmpGroupRequestType"/>
+  <xs:element name="ChangeVmpGroupResponse" type="core:StandardResponseType"/>
+  <xs:element name="RemoveVmpGroupRequest" type="RemoveVmpGroupRequestType"/>
+  <xs:element name="RemoveVmpGroupResponse" type="core:StandardResponseType"/>
+  <!--Complex Types-->
+  <xs:complexType name="AddVmpGroupRequestType">
+    <xs:sequence>
+      <xs:element name="VmpGroup" type="virtual:AddVmpGroupType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ChangeVmpGroupRequestType">
+    <xs:sequence>
+      <xs:element name="VmpGroup" type="virtual:ChangeVmpGroupType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RemoveVmpGroupRequestType">
+    <xs:sequence>
+      <xs:element name="VmpGroup" type="virtual:RemoveVmpGroupType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

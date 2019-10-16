@@ -53,6 +53,7 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
             .build())
 
     @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("$couchDbPrefix-config", couchdbInstance)
+    @Bean fun couchdbDrugs(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("$couchDbPrefix-drugs", couchdbInstance)
     @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-base", couchdbInstance, couchDbProperties, true)
     @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-patient", couchdbInstance, couchDbProperties, true)
     @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-healthdata", couchdbInstance, couchDbProperties, true)

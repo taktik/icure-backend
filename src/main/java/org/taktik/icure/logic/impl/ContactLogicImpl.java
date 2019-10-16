@@ -33,7 +33,6 @@ import org.taktik.icure.dto.data.LabelledOccurence;
 import org.taktik.icure.dto.filter.chain.FilterChain;
 import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.Contact;
-import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.entities.embed.SubContact;
@@ -48,7 +47,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
@@ -153,7 +151,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	}
 
 	@Override
-	public Contact modifyContact(@Check @NotNull Contact contact) throws MissingRequirementsException {
+	public Contact modifyContact(@Check @NotNull Contact contact) {
 		try {
 			return contactDAO.save(contact);
 		} catch (UpdateConflictException e) {
@@ -201,20 +199,23 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		s.setSubContactIds(subContacts.stream().map(SubContact::getId).collect(Collectors.toSet()));
 		s.setPlansOfActionIds(subContacts.stream().map(SubContact::getPlanOfActionId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setHealthElementsIds(subContacts.stream().map(SubContact::getHealthElementId).filter(Objects::nonNull).collect(Collectors.toSet()));
+        s.setFormIds(subContacts.stream().map(SubContact::getFormId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setDelegations(c.getDelegations());
 		s.setEncryptionKeys(c.getEncryptionKeys());
+		s.setAuthor(c.getAuthor());
+        s.setResponsible(c.getResponsible());
 
 		return s;
 	}
 
 	@Override
-	public List<String> findServicesByTag(String hcPartyId, String patientSecretForeignKey, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKey == null ? contactDAO.findServicesByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientTag(hcPartyId, patientSecretForeignKey, tagType, tagCode, startValueDate, endValueDate);
+	public List<String> findServicesByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
+		return patientSecretForeignKeys == null ? contactDAO.findServicesByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate);
 	}
 
 	@Override
-	public List<String> findServicesByCode(String hcPartyId, String patientSecretForeignKey, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKey == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientCode(hcPartyId, patientSecretForeignKey, codeType, codeCode, startValueDate, endValueDate);
+	public List<String> findServicesByCode(String hcPartyId, List<String> patientSecretForeignKeys, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
+		return patientSecretForeignKeys == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate);
 	}
 
 	@Override
@@ -222,7 +223,12 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		return contactDAO.findByServices(services);
 	}
 
-	@Override
+    @Override
+    public List<String> findServicesBySecretForeignKeys(String hcPartyId, Set<String> patientSecretForeignKeys) {
+        return contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys);
+    }
+
+    @Override
 	public List<Contact> findContactsByHCPartyFormId(String hcPartyId, String formId) {
 		return contactDAO.findByHcPartyFormId(hcPartyId, formId);
 	}
