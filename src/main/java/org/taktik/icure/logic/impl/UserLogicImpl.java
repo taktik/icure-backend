@@ -374,7 +374,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public boolean checkPassword(String password) {
 		User user = this.sessionLogic.getCurrentSessionContext().getUser();
 		if (user != null) {
-			return passwordEncoder.isPasswordValid(user.getPasswordHash(), password, null);
+			return passwordEncoder.matches(password, user.getPasswordHash());
 		}
 		return false;
 	}

@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.logic.AccessLogLogic
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogPaginatedList
@@ -36,7 +35,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import java.time.Instant
 
 @RestController
-@RequestMapping("/accesslog", produces = ["application/json"])
+@RequestMapping("/rest/v1/accesslog", produces = ["application/json"])
 @Api(tags = ["accesslog"])
 class AccessLogController(private val mapper: MapperFacade,
                           private val accessLogLogic: AccessLogLogic) {
@@ -52,7 +51,6 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
     @DeleteMapping("/{accessLogIds}")
-    @Throws(DeletionException::class)
     fun deleteAccessLog(@PathVariable accessLogIds: String) {
         accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog deletion failed")
@@ -69,10 +67,10 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
     @GetMapping
-    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?): List<AccessLogDto> {
+    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) ascending: Boolean = false): List<AccessLogDto> {
         val paginationOffset = PaginationOffset(null, startDocumentId, null, if (limit != null) Integer.valueOf(limit) else null)
         val accessLogDtos = PaginatedList<AccessLogDto>()
-        val accessLogs = accessLogLogic.listAccessLogs(paginationOffset)
+        val accessLogs = accessLogLogic.listAccessLogs(paginationOffset, ascending)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog listing failed")
 
         mapper.map(accessLogs, accessLogDtos, object : TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {
@@ -83,9 +81,9 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")
     @GetMapping("/byUser")
-    fun findByUserAfterDate(@ApiParam(value = "A User ID") @RequestParam userId: String,
-                            @ApiParam(value = "The type of access (COMPUTER or USER)", required = false) @RequestParam(required = false) accessType: String?,
-                            @ApiParam(value = "The start search epoch") @RequestParam startDate: Long,
+    fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
+                            @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+                            @ApiParam(value = "The start search epoch", required = true) @RequestParam startDate: Long,
                             @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,

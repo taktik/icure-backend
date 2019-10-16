@@ -193,9 +193,14 @@ dependencies {
 	compile group:'org.jboss.aerogear', name:'aerogear-otp-java', version:'1.0.0'
 
 	// Swagger
-	compile 'io.springfox:springfox-swagger2:2.9.2'
+	compile ('io.springfox:springfox-swagger2:2.9.2'){
+        // Temporary fix for the NumberFormatException bug (see https://github.com/springfox/springfox/issues/2265)
+        exclude module: 'swagger-annotations'
+        exclude module: 'swagger-models'
+    }
+    compile "io.swagger:swagger-annotations:1.5.21"
+    compile "io.swagger:swagger-models:1.5.21"
 	//compile 'io.springfox:springfox-swagger-ui:2.9.2' // TODO SH replace built-in swagger-ui by this?
-	compile group: 'io.swagger', name: 'swagger-jersey2-jaxrs', version: '1.5.16'
 
 	//Saxon
 	compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.6.0-6'

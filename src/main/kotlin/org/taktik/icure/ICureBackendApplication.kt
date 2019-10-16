@@ -28,6 +28,7 @@ import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration
+import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration
 import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
@@ -57,13 +58,11 @@ import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
-    "org.springframework.boot.autoconfigure.cache",
     "org.springframework.boot.autoconfigure.context",
     "org.springframework.boot.autoconfigure.dao",
     "org.springframework.boot.autoconfigure.jackson",
     "org.springframework.boot.autoconfigure.jdbc",
     "org.springframework.boot.autoconfigure.jersey",
-    "org.springframework.boot.autoconfigure.transaction",
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
     "org.taktik.icure.config",
@@ -109,8 +108,8 @@ class ICureBackendApplication {
         taskExecutor.execute {
             val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader);
             resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
-                val md5 = it.filename.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-                codeLogic.importCodesFromXml(md5, it.filename.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
+                val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+                codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
             }
         }
 
