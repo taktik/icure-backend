@@ -144,8 +144,17 @@ class SumehrExport : KmehrExport() {
 		addContactPeople(p, trn, config, excludedIds)
 		addPatientHealthcareParties(p, trn, config, excludedIds)
 
-        //patientwill
-		addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "intubationrefusal", "euthanasiarequest", "vaccinationrefusal", "organdonationconsent", "datareuseforclinicalresearchconsent", "datareuseforclinicaltrialsconsent", "clinicaltrialparticipationconsent"), excludedIds, includeIrrelevantInformation, decryptor)
+        //patientwill (not included: omissionofmedicaldata --> this is added automatically)
+		addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf(
+            "bloodtransfusionrefusal", "clinicaltrialparticipationconsent", "datareuseforclinicalresearchconsent",
+            "datareuseforclinicaltrialsconsent", "euthanasiarequest", "intubationrefusal",
+            "organdonationconsent", "vaccinationrefusal"), excludedIds, includeIrrelevantInformation, decryptor)
+
+        addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
+            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor)
+
+        addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
+            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor)
 
         //vac/med
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor)
@@ -396,6 +405,20 @@ class SumehrExport : KmehrExport() {
                 val svc = it
 				if(svc.content.any{it.value.stringValue!!.contains("|consent")}) {
                     createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
+                        assessment.headingsAndItemsAndTexts.add(it)
+                    }
+                }
+                if(svc.content.any{it.value.stringValue!!.contains("|hos")}) {
+                    var stringValue = svc.content.filter{it.value.stringValue!!.contains("|hos")}.values.first().stringValue
+                    var itmValue = stringValue!!.split("|")[1]
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }))?.let {
+                        assessment.headingsAndItemsAndTexts.add(it)
+                    }
+                }
+                if(svc.content.any{it.value.stringValue!!.contains("|dnr")}) {
+                    var stringValue = svc.content.filter{it.value.stringValue!!.contains("|dnr")}.values.first().stringValue
+                    var itmValue = stringValue!!.split("|")[1]
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }))?.let {
                         assessment.headingsAndItemsAndTexts.add(it)
                     }
                 }
@@ -675,6 +698,7 @@ class SumehrExport : KmehrExport() {
                         items.add(it)
                     }
 				}
+
 			}
 		} catch (e: Exception) {
 			log.error("Unexpected error", e)
