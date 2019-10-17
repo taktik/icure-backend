@@ -48,6 +48,10 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
     }
 
     override fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
-        medicationSchemeExport!!.exportMedicationScheme(os, patient, sfks, sender, language, version, decryptor, progressor)
+        medicationSchemeExport!!.exportMedicationScheme(os, patient, sfks, sender, language, version, null, decryptor, progressor)
 	}
+
+    override fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sender: HealthcareParty, language: String, version: Int, services: List<org.taktik.icure.entities.embed.Service>, progressor: AsyncProgress?) {
+        medicationSchemeExport!!.exportMedicationScheme(os, patient, listOf(), sender, language, version, services, null, progressor)
+    }
 }
