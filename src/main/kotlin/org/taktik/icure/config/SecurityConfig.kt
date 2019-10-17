@@ -19,6 +19,7 @@
 
 package org.taktik.icure.config
 
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -62,7 +63,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
                             private val httpFirewall: StrictHttpFirewall,
                             private val sessionLogic: ICureSessionLogic) {
 
-    val log = LoggerFactory.getLogger(SecurityConfigAdapter::class.java)
+    val log: Logger = LoggerFactory.getLogger(javaClass)
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -79,6 +80,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
                 .pathMatchers("/rest/*/replication/group/**").hasRole("BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
                 .pathMatchers("/*/api-docs").permitAll()
+
                 .pathMatchers("/rest/*/icure/v").permitAll()
                 .pathMatchers("/rest/*/icure/p").permitAll()
                 .pathMatchers("/rest/*/icure/check").permitAll()
