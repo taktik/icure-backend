@@ -93,7 +93,7 @@ public class Message extends StoredICureDocument implements Serializable {
 	/*
 		CHAP4:IN:   ${Mycarenet message ref}
 		CHAP4:OUT:  ${Mycarenet message ref}
-		EFACT:BATCH:${iCure batch ref}
+		EFACT:BATCH:${Mycarenet message ref}
 		EFACT:IN:   ${Mycarenet message ref}
 		EFACT:OUT:  ${Mycarenet message ref}
 		GMD:IN:     ${Mycarenet message ref}

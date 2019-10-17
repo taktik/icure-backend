@@ -178,7 +178,53 @@ public class CodeFacade implements OpenApiFacade {
 		return response;
 	}
 
-	private Serializable getStartKey(String startKeyRegion, String startKeyType, String startKeyCode, String startKeyVersion) {
+    @ApiOperation(
+            value = "Finding codes by code, type and version with pagination.",
+            response = CodePaginatedList.class,
+            httpMethod = "GET",
+            notes = "Returns a list of codes matched with given input."
+    )
+    @GET
+    @Path("link/{linkType}")
+    public Response findPaginatedCodesWithLink(
+            @ApiParam(value = "linkType") @PathParam("linkType") String linkType,
+            @ApiParam(value = "linkedId", required = false) @QueryParam("linkedId") String linkedId,
+            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " +
+                    "components to form the Complex Key's startKey") @QueryParam("startKey") String startKey,
+            @ApiParam(value = "A code document ID", required = false) @QueryParam("startDocumentId") String startDocumentId,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit) {
+
+        Response response;
+
+        List<String> startKeyElements = startKey == null ? null : new Gson().fromJson(startKey, List.class);
+        @SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null, limit);
+
+        PaginatedList<Code> codesList;
+        codesList = codeLogic.findCodesByQualifiedLinkId(linkType, linkedId, paginationOffset);
+
+        if (codesList != null) {
+            if (codesList.getRows() == null) {
+                codesList.setRows(new ArrayList<>());
+            }
+
+            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> codeDtoPaginatedList =
+                    new org.taktik.icure.services.external.rest.v1.dto.PaginatedList<>();
+            mapper.map(
+                    codesList,
+                    codeDtoPaginatedList,
+                    new TypeBuilder<PaginatedList<Code>>() {}.build(),
+                    new TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto>>() {}.build()
+            );
+            response = ResponseUtils.ok(codeDtoPaginatedList);
+
+        } else {
+            response = ResponseUtils.internalServerError("Cannot find linked codes");
+        }
+
+        return response;
+    }
+
+    private Serializable getStartKey(String startKeyRegion, String startKeyType, String startKeyCode, String startKeyVersion) {
 		if ((startKeyRegion != null) && (startKeyType != null) && (startKeyCode != null) && (startKeyVersion != null)) {
 			return ((Serializable) Arrays.<String>asList(startKeyRegion, startKeyType, startKeyCode, startKeyVersion));
 		} else {

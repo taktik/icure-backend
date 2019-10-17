@@ -36,6 +36,7 @@ import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
+import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.logic.CodeLogic
 import org.xml.sax.Attributes
@@ -128,6 +129,13 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
         return codeDAO.listCodeIdsByLabel(region, language, type, label)
     }
 
+    override fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> =
+            codeDAO.findCodesByQualifiedLinkId(linkType, linkedId, pagination)
+
+    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String> =
+            codeDAO.listCodeIdsByQualifiedLinkId(linkType, linkedId)
+
+
     override fun <T : Enum<*>> importCodesFromEnum(e: Class<T>) {
 		/* TODO: rewrite this */
         val version = "" + e.getAnnotation(EnumVersion::class.java).value
@@ -216,6 +224,7 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
                                 code = Code(type, null, version).apply { label = HashMap() }
                             }
                             "CODE" -> charsHandler = { code?.code = it }
+                            "PARENT" -> charsHandler = { code?.qualifiedLinks = mapOf(pair = Pair(LinkQualification.parent, listOf("$type|$it|$version"))) }
                             "DESCRIPTION" -> charsHandler = { code?.label?.put(attributes?.getValue("L"), it) }
                             else -> {
                                 charsHandler = null
