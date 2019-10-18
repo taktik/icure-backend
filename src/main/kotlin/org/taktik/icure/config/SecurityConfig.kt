@@ -71,7 +71,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
         return http
                 .csrf().disable()
                 .httpBasic().disable()
-                .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC) // TODO SH seems like basic filter is before cors filter !?
+                .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
                 .authenticationManager(authenticationManager()) // TODO SH should swap to an actually reactive version of CustomAuthenticationProvider
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
