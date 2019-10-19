@@ -239,9 +239,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 						hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
-						// forms
-
+						// Special code for specific forms
 						contact.subContacts.forEach{subcon ->
+                            //TODO: Please explain
 							if(subcon.healthElementId == null) { // discard form <-> he links
 								subcon.formId?.let {
 									formLogic!!.getForm(it)?.let {form ->
@@ -280,7 +280,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 									}
 								}
 							}
-
 						}
 
 						// services
