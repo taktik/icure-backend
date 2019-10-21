@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'git-version'
 group = 'org.taktik.icure'
-version = 'test-sh'
+version = gitVersion
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
