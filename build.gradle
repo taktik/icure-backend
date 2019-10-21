@@ -32,7 +32,6 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
 apply plugin: 'com.github.ben-manes.versions' // usage: ./gradlew dependencyUpdates
-apply plugin: 'maven-publish'
 
 configure(allprojects) {
     apply plugin: 'propdeps'
@@ -265,38 +264,4 @@ bootRun {
    if ( project.hasProperty('jvmArgs') ) {
         jvmArgs = (project.jvmArgs.split("\\s+") as List)
    }
-}
-
-// Write the full name of the dependency to the standard output
-project.tasks.withType(AbstractPublishToMaven) {
-	doFirst {
-		println "PublishToMaven: " + project.group + ":" + project.name + ":" + project.version
-	}
-}
-
-bootRepackage.classifier = 'exec'
-
-publish {
-	dependsOn bootRepackage
-}
-
-publishing {
-	publications {
-		maven(MavenPublication) {
-			from components.java
-			artifact(file("$buildDir/libs/$project.name-${project.version}-${bootRepackage.classifier}.jar")) {
-				classifier 'exec'
-			}
-		}
-	}
-
-	repositories {
-		maven {
-			url "https://maven.taktik.be/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
-			credentials {
-				username repoUsername
-				password repoPassword
-			}
-		}
-	}
 }
