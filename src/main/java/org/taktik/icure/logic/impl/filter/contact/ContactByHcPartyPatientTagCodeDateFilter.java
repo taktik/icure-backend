@@ -36,7 +36,7 @@ import java.util.Set;
 
 
 @Service
-public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact, org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter> {
+public class ContactByHcPartyPatientTagCodeDateFilter implements Filter<String, Contact, org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter> {
 	ContactLogic contactLogic;
 	ICureSessionLogic sessionLogic;
 
@@ -50,15 +50,25 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
 	}
 
 	@Override
-	public Set<String> resolve(org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter  filter, Filters context) {
+	public Set<String> resolve(org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter  filter, Filters context) {
 		try {
             String hcPartyId = filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId();
             HashSet<String> ids = null;
 
+            List<String> patientSecretForeignKeys = filter.getPatientSecretForeignKeys();
+
+            if (patientSecretForeignKeys == null) {
+                if (filter.getPatientSecretForeignKey() != null) {
+                    patientSecretForeignKeys = Arrays.asList(filter.getPatientSecretForeignKey());
+                } else {
+                    patientSecretForeignKeys = new ArrayList<>();
+                }
+            }
+
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
-                        null, filter.getTagType(),
+                        patientSecretForeignKeys, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate()));
             }
@@ -66,7 +76,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.findServicesByCode(
                         hcPartyId,
-                        null, filter.getTagType(),
+                        patientSecretForeignKeys, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }

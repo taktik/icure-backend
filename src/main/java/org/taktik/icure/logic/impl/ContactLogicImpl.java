@@ -202,6 +202,8 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
         s.setFormIds(subContacts.stream().map(SubContact::getFormId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setDelegations(c.getDelegations());
 		s.setEncryptionKeys(c.getEncryptionKeys());
+		s.setAuthor(c.getAuthor());
+        s.setResponsible(c.getResponsible());
 
 		return s;
 	}

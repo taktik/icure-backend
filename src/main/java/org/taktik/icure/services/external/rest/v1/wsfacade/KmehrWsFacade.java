@@ -161,7 +161,6 @@ public class KmehrWsFacade {
 	public void generateMedicationSchemeExport(@WebSocketParam("patientId") String patientId , @WebSocketParam("language") String language, @WebSocketParam("info") MedicationSchemeExportInfoDto info,  @WebSocketParam("version") Integer version, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			//fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
 			medicationSchemeLogic.createMedicationSchemeExport(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
 					language, version, operation, null);

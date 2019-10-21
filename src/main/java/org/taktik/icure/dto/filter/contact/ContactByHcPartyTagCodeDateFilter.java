@@ -16,8 +16,19 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.services.external.rest.v1.dto.embed;
+package org.taktik.icure.dto.filter.contact;
 
-public enum PersonalStatusDto {
-    single, in_couple, married, separated, divorced,  divorcing, widowed, widower, complicated, unknown, contract, other
+import org.taktik.icure.dto.filter.Filter;
+import org.taktik.icure.entities.Contact;
+
+import java.util.List;
+
+public interface ContactByHcPartyTagCodeDateFilter extends Filter<String,Contact> {
+	String getHealthcarePartyId();
+	String getTagType();
+	String getTagCode();
+	String getCodeType();
+	String getCodeCode();
+	Long getStartServiceValueDate();
+	Long getEndServiceValueDate();
 }

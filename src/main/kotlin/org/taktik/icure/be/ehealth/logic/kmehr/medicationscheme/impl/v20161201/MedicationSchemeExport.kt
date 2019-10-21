@@ -67,7 +67,8 @@ class MedicationSchemeExport : KmehrExport() {
 			sfks: List<String>,
 			sender: HealthcareParty,
 			language: String,
-            version: Int,
+            version: Int?,
+            services: List<Service>?,
 			decryptor: AsyncDecrypt?,
 			progressor: AsyncProgress?,
 			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
@@ -87,7 +88,7 @@ class MedicationSchemeExport : KmehrExport() {
 		})
 
 		// TODO split marshalling
-		message.folders.add(makePatientFolder(1, patient, sfks, version, sender, config, language, decryptor, progressor))
+		message.folders.add(makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), decryptor, progressor))
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
@@ -99,8 +100,9 @@ class MedicationSchemeExport : KmehrExport() {
 	}
 
 
-	private fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>, version: Int,
-								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
+	private fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
+                                  config: Config, language: String, medicationServices: List<Service>, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
+
 		//creation of Patient
         val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
@@ -108,7 +110,8 @@ class MedicationSchemeExport : KmehrExport() {
 		}
 
         var idkmehrIdx = 1
-		folder.transactions.add(TransactionType().apply {
+
+        folder.transactions.add(TransactionType().apply {
 			ids.add(idKmehr(idkmehrIdx))
             idkmehrIdx++
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationscheme" })
@@ -119,38 +122,28 @@ class MedicationSchemeExport : KmehrExport() {
 						?: healthcareParty.id)))
 			}
 
-            var _idOnSafeName : String?
-            _idOnSafeName = "vitalinkuri"
-            var _idOnSafe : String?
-            _idOnSafe = "/subject/72022102793/medication-scheme"
-            var _medicationSchemeSafeVersion : Int?
-            _medicationSchemeSafeVersion = 22
-
             //TODO: is there a way to quit the .map once we've found what we where looking for ? (or use something else ?)
-            getActiveServices(healthcareParty.id, sfks, listOf("medication"), decryptor).map { svc ->
-                svc.content.values.find{c -> c.medicationValue != null}?.let{cnt -> cnt.medicationValue?.let{m ->
-                    m.idOnSafes?.let{idOnSafe ->
-                        _idOnSafe = idOnSafe
-                        m.safeIdName?.let{idName ->
-                            _idOnSafeName = idName
-                        }
-                    }
-                    m.medicationSchemeSafeVersion?.let{safeVersion ->
-                        _medicationSchemeSafeVersion = safeVersion
-                    }
-                }}
-            }
-            _idOnSafeName?.let{idName ->
+            val (_idOnSafeName, _idOnSafe, _medicationSchemeSafeVersion) = medicationServices.flatMap { svc ->
+                svc.content.values.filter{c ->
+                            (c.medicationValue?.let { m ->
+                                m.idOnSafes != null && m.medicationSchemeSafeVersion != null
+                            } == true)
+                }.map{c -> c.medicationValue}
+            }.lastOrNull()?.let {
+                Triple("vitalinkuri", it.idOnSafes, it.medicationSchemeSafeVersion)
+            } ?: Triple("vitalinkuri", null, null)
+
+            _idOnSafe?.let{ idName ->
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = idName; sv = "1.0"; value = _idOnSafe})
             }
 			isIscomplete = true
 			isIsvalidated = true
 
             //TODO: decide what tho do with the Version On Safe
-            this.version = version.toString()
+            this.version = (version ?: (_medicationSchemeSafeVersion ?: 0)+1).toString()
 		})
 
-        folder.transactions.addAll(getActiveServices(healthcareParty.id, sfks, listOf("medication"), decryptor).map { svc ->
+        folder.transactions.addAll(medicationServices.map { svc ->
             svc.content.values.find { c -> c.medicationValue != null }?.let { cnt -> cnt.medicationValue?.let { m ->
             TransactionType().apply {
                 ids.add(idKmehr(idkmehrIdx))
