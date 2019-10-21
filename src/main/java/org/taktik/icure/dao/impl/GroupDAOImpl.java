@@ -34,7 +34,7 @@ public class GroupDAOImpl extends CachedDAOImpl<Group> implements GroupDAO {
 	@Autowired
 	public GroupDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(Group.class, couchdb, idGenerator, cacheManager);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

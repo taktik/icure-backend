@@ -54,7 +54,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
     @Autowired
     public ContactDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Contact.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

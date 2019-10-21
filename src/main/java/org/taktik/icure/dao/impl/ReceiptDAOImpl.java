@@ -18,7 +18,6 @@ import java.util.List;
 public class ReceiptDAOImpl extends GenericIcureDAOImpl<Receipt> implements ReceiptDAO {
 	public ReceiptDAOImpl(@Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
 		super(Receipt.class, db, idGenerator);
-		this.initStandardDesignDocument();
 	}
 
 	@Override

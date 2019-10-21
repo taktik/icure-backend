@@ -147,25 +147,9 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
     private suspend fun ensureGroupReplicationStarted(group: Group) {
         log.debug("Ensuring all replications started for group ${group.id}")
         coroutineScope {
-            ensureStandardDesignDocumentInitialized(group)
             ensureAllReplicatorsStarted(group)
         }
         log.debug("Done starting all replications for group ${group.id}")
-    }
-
-    private suspend fun ensureStandardDesignDocumentInitialized(group: Group) {
-        val groupReplicationStatus = groupReplicationStatus(group)
-        // Mutex access to groupReplicationStatus object
-        groupReplicationStatus.withLock {
-            if (!groupReplicationStatus.standardDocumentsInitialized) {
-                log.info("Initializing Standard docs for ${group.id}")
-                withContext(IO) { allDaos.forEach { dao ->
-                    dao.initStandardDesignDocument(group)
-                } }
-                groupReplicationStatus.standardDocumentsInitialized = true
-                log.info("Standard docs initialised for ${group.id}")
-            }
-        }
     }
 
     private suspend fun ensureAllReplicatorsStarted(group: Group) {

@@ -48,7 +48,7 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	@Autowired
 	public InvoiceDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
 		super(Invoice.class, db, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

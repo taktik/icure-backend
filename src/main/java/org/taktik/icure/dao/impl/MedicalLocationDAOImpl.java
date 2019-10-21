@@ -17,7 +17,7 @@ public class MedicalLocationDAOImpl  extends GenericDAOImpl<MedicalLocation> imp
     @Autowired
     public MedicalLocationDAOImpl(@Qualifier("couchdbBase") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(MedicalLocation.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

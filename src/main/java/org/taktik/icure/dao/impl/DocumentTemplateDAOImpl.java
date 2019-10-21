@@ -51,7 +51,7 @@ class DocumentTemplateDAOImpl extends CachedDAOImpl<DocumentTemplate> implements
 	@Autowired
 	public DocumentTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(DocumentTemplate.class, couchdb, idGenerator, cacheManager);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

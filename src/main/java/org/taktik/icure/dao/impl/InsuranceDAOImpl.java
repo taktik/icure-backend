@@ -41,7 +41,7 @@ public class InsuranceDAOImpl extends GenericDAOImpl<Insurance> implements Insur
 	@Autowired
 	public InsuranceDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector db, IDGenerator idGenerator) {
 		super(Insurance.class, db, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override
