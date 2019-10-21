@@ -10,7 +10,9 @@ import org.mockito.Matchers.anyString
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.Companion.makeXGC
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
+import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g.SoftwareMedicalFileExport
+import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g.SoftwareMedicalFileImport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport.Config
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
