@@ -24,7 +24,7 @@ buildscript {
 
 apply plugin: 'git-version'
 group = 'org.taktik.icure'
-version = gitVersion
+version = 'test-sh'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
@@ -265,19 +265,14 @@ project.tasks.withType(AbstractPublishToMaven) {
 	}
 }
 
-bootRepackage.classifier = 'exec'
-
 publish {
-	dependsOn bootRepackage
+	dependsOn assemble
 }
 
 publishing {
 	publications {
 		maven(MavenPublication) {
 			from components.java
-			artifact(file("$buildDir/libs/$project.name-${project.version}-${bootRepackage.classifier}.jar")) {
-				classifier 'exec'
-			}
 		}
 	}
 
