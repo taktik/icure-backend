@@ -8,13 +8,6 @@ import org.taktik.commons.uti.impl.SimpleUTIDetector
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeadingType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -40,7 +33,10 @@ import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
+import org.taktik.icure.entities.embed.AddressType
+import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.logic.*
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import javax.xml.bind.JAXBElement
 
 
@@ -97,7 +93,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     val ctc: Contact? = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
                         "contactreport" -> parseContactReport(trn, author, res, language, mymappings, state)
                         "clinicalsummary" -> parseClinicalSummary(trn, author, res, language, mymappings, state)
-                        "labresult", "result", "note", "prescription" -> {
+                        "labresult", "result", "note", "prescription", "report" -> {
                             parseDocumentInTransaction(trn, author, res, language, mymappings, state)?.let{
                                 state.docLinks.add(it)
                             }
@@ -603,23 +599,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
                 when (cdItem) {
                     "healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue" -> {
-                        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id)
-                        he?.let { notNullHe ->
-                            v.hes.add(healthElementLogic.createHealthElement(he))
-                            // register new version links
-                            val mfid = getItemMFID(item)
-                            state.heVersionLinks.add(
-                                    HeVersionType(
-                                            he = notNullHe,
-                                            mfId = mfid!!,
-                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
-                                                extractMFIDFromUrl(it.url)
-                                            },
-                                            versionId = null
-                                    )
-                            )
-                            state.hesByMFID[mfid] = notNullHe
-                        }
+                        parseAndLinkHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id, mapping, state)
                     }
                     "encountertype", "encounterdatetime", "encounterlocation" -> Unit // already added at contact level
                     "gmdmanager" -> Unit // not services
@@ -639,7 +619,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     else -> {
                         val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v)
                         this.services.add(service)
-                        if(isMedication(service)) {
+                        if(cdItem == "diagnostic") {
+                            // diagnostics are in MSOAP form but also create an HealthcareElement
+                            parseAndLinkHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id, mapping, state)
+                        }
+                        val procedures_items_types = listOf("vaccine", "acts") // vaccine have medication data but is not a medication
+                        if(procedures_items_types.contains(cdItem)) {
+                            service.label = "Actes"
+
+                        } else if(isMedication(service)) {
                             service.label = "Medication"
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
                             state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
@@ -656,7 +644,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     )
                             )
                         }
-                        item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR}.map {
+                        item.lnks.filter { it.type == CDLNKvalues.ISASERVICEFOR && it.url != null }.map {
                             extractMFIDFromUrl(it.url)
                         }.filterNotNull().map {
                             state.subcontactLinks.add(
@@ -677,10 +665,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, trnAuthorHcpId: String, language: String, v: ImportResult, state: InternalState) {
         PlanOfAction().apply {
             this.id = idGenerator.newGUID().toString()
-            descr = label
-            if(item.texts.isNotEmpty()) {
-                descr = "${descr}, ${ item.texts.map{ it.value }.joinToString ( " " )}"
-            }
+            descr = getItemDescription(item, label)
             this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.author = author.id
@@ -874,10 +859,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return HealthElement().apply {
             this.id = idGenerator.newGUID().toString()
             this.healthElementId = idGenerator.newGUID().toString()
-            descr = label
-            if(item.texts.isNotEmpty()) {
-                descr = "${descr}, ${ item.texts.map{ it.value }.joinToString ( " " )}"
-            }
+            descr = getItemDescription(item, label)
             this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
             this.author = author.id
@@ -893,6 +875,42 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
             this.status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" ||it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 } ?: 0) + if(item.isIsrelevant != true) 2 else 0)
         }
+    }
+
+    private fun parseAndLinkHealthcareElement(cdItem: String,
+                                              label: String,
+                                              item: ItemType,
+                                              author: User,
+                                              trnAuthorHcpId: String,
+                                              language: String,
+                                              v: ImportResult,
+                                              contactId: String,
+                                              mapping: ImportMapping?,
+                                              state: InternalState,
+                                              linkedService: Service? = null
+    ): HealthElement? {
+
+        val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnAuthorHcpId, language, v, contactId)
+        he?.let { notNullHe ->
+            v.hes.add(healthElementLogic.createHealthElement(he))
+            // register new version links
+            val mfid = getItemMFID(item)
+            state.heVersionLinks.add(
+                    HeVersionType(
+                            he = notNullHe,
+                            mfId = mfid!!,
+                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
+                                extractMFIDFromUrl(it.url)
+                            },
+                            versionId = null
+                    )
+            )
+            state.hesByMFID[mfid] = notNullHe
+            linkedService?.let {
+                notNullHe.idService = it.id
+            }
+        }
+        return he
     }
 
     private fun extractCodes(item: ItemType): Set<CodeStub> {
@@ -1038,6 +1056,16 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 Unit
             })
         }
+    }
+
+    private fun getItemDescription(item: ItemType, defaultValue: String): String {
+        val descr : String = ( item.texts.map{ it.value } + item.contents.map{ it.texts.map{ it.value }}.flatten() ).let {
+            it.filter{ it != null && it.trim() != "" }.joinToString(", ")
+        }
+        if(descr.trim() == "") {
+            return defaultValue
+        }
+        return descr
     }
 
     private fun ItemType.hasContentOfType(content: String?): Boolean {

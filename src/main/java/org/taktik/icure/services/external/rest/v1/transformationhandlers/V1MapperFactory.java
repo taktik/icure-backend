@@ -158,6 +158,7 @@ public class V1MapperFactory {
 				c.setAppendices(source.getAppendices());
 				c.setDisabled(source.isDisabled());
 				c.setQualifiedLinks(source.getQualifiedLinks());
+				c.setPeriodicity(source.getPeriodicity());
 
 				return c;
 			}

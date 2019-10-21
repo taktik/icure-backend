@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.taktik.icure.entities.base.AppendixType;
 import org.taktik.icure.entities.base.LinkQualification;
+import org.taktik.icure.entities.embed.Periodicity;
 import org.taktik.icure.services.external.rest.v1.dto.embed.CodeFlag;
 
 
@@ -53,6 +54,8 @@ public class CodeDto extends StoredDto {
 	protected String data;
 
 	protected Map<AppendixType, String> appendices;
+
+	protected List<Periodicity> periodicity;
 
 	protected boolean disabled;
 
@@ -220,4 +223,8 @@ public class CodeDto extends StoredDto {
 	public int hashCode() {
 		return Objects.hash(regions, type, code, version, level);
 	}
+
+	public List<Periodicity> getPeriodicity() { return periodicity; }
+
+	public void setPeriodicity(List<Periodicity> periodicity) { this.periodicity = periodicity; }
 }

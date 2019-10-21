@@ -33,7 +33,7 @@ import java.util.Set;
 		CodeByRegionTypeLabelLanguageFilter.class,
 		PatientByHcPartyFilter.class, PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthBetweenFilter.class, PatientByHcPartyAndSsinFilter.class,
 		PatientByHcPartyAndSsinsFilter.class,PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class,
-		ContactByHcPartyPatientTagCodeDateFilter.class, ServiceByHcPartyTagCodeDateFilter.class, PatientByHcPartyNameFilter.class, PatientByHcPartyAndActiveFilter.class})
+		ContactByHcPartyPatientTagCodeDateFilter.class, ServiceByHcPartyTagCodeDateFilter.class, PatientByHcPartyNameFilter.class, PatientByHcPartyAndActiveFilter.class, PatientByHcPartyGenderEducationProfession.class})
 public interface Filter<T extends Serializable, O extends Identifiable<T>> {
 	List<O> applyTo(List<O> items);
 	Set<O> applyTo(Set<O> items);

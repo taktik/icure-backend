@@ -18,9 +18,9 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import org.taktik.icure.services.external.rest.v1.dto.embed.CareMemberDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.EpisodeDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.CareTeamMemberDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PlanOfActionDto;
-import org.taktik.icure.validation.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class HealthElementDto extends IcureDto {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     String healthElementId; //The Unique UUID common to a group of HealthElements that form an history
 
@@ -49,9 +49,10 @@ public class HealthElementDto extends IcureDto {
 
 	protected String idService; //When a service is used to create the healthElement
 
-	protected List<PlanOfActionDto> plansOfAction;
+    protected List<PlanOfActionDto> plansOfAction;
+    protected List<EpisodeDto> episodes;
 
-    private List<CareMemberDto> careTeam = new java.util.ArrayList<>();
+    private List<CareTeamMemberDto> careTeam = new java.util.ArrayList<>();
 
     public HealthElementDto() {
 	}
@@ -77,20 +78,29 @@ public class HealthElementDto extends IcureDto {
     }
 
     public List<PlanOfActionDto> getPlansOfAction() {
-		if(plansOfAction==null ) plansOfAction= new ArrayList<>();
-		return plansOfAction;
-	}
+        if (plansOfAction == null) plansOfAction = new ArrayList<>();
+        return plansOfAction;
+    }
 
-	public void setPlansOfAction(List<PlanOfActionDto> plansOfAction) {
-		this.plansOfAction = plansOfAction;
-	}
+    public void setPlansOfAction(List<PlanOfActionDto> plansOfAction) {
+        this.plansOfAction = plansOfAction;
+    }
 
-    public List<CareMemberDto> getCareTeam() {
+    public List<EpisodeDto> getEpisodes() {
+	    if(episodes == null) episodes = new ArrayList<>();
+        return episodes;
+    }
+
+    public void setEpisodes(List<EpisodeDto> episodes) {
+        this.episodes = episodes;
+    }
+
+    public List<CareTeamMemberDto> getCareTeam() {
         if(careTeam==null ) careTeam= new ArrayList<>();
         return careTeam;
     }
 
-    public void setCareTeam(List<CareMemberDto> careTeam) {
+    public void setCareTeam(List<CareTeamMemberDto> careTeam) {
         this.careTeam = careTeam;
     }
 

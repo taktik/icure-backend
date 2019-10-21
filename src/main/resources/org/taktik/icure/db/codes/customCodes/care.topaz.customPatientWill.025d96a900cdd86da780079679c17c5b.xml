@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Custom patient will</NAME>
+    <VALUE>
+        <CODE>clinicaltrialparticipation</CODE>
+        <DESCRIPTION L="fr">Participation aux essais cliniques</DESCRIPTION>
+        <DESCRIPTION L="nl">Deelnemen aan klinische studies</DESCRIPTION>
+        <DESCRIPTION L="en">Clinical trial participation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bloodtransfusion</CODE>
+        <DESCRIPTION L="fr">Transfusion sanguine</DESCRIPTION>
+        <DESCRIPTION L="nl">Bloed transfusie</DESCRIPTION>
+        <DESCRIPTION L="en">Blood transfusion</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>datareuseforclinicalresearch</CODE>
+        <DESCRIPTION L="fr">Réutilisation des données pour la recherche</DESCRIPTION>
+        <DESCRIPTION L="nl">Hergebruik gegevens voor klinisch onderzoek</DESCRIPTION>
+        <DESCRIPTION L="en">Data reuse for clinical research</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>datareuseforclinicaltrials</CODE>
+        <DESCRIPTION L="fr">Réutilisation des données aux essais cliniques</DESCRIPTION>
+        <DESCRIPTION L="nl">Hergebruik gegevens voor klinische testen</DESCRIPTION>
+        <DESCRIPTION L="en">Data reuse for clinical trials</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>euthanasiarequest</CODE>
+        <DESCRIPTION L="fr">Demande d'euthanasie</DESCRIPTION>
+        <DESCRIPTION L="nl">Aanvraag euthanasie</DESCRIPTION>
+        <DESCRIPTION L="en">Euthanasia request</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>intubation</CODE>
+        <DESCRIPTION L="fr">Intubation</DESCRIPTION>
+        <DESCRIPTION L="nl">Intuberen</DESCRIPTION>
+        <DESCRIPTION L="en">Intubation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>omissionofmedicaldata</CODE>
+        <DESCRIPTION L="fr">Certaines données médicales n’ont pas été reprises dans cette transaction</DESCRIPTION>
+        <DESCRIPTION L="nl">Weglaten bepaalde medische gegevens</DESCRIPTION>
+        <DESCRIPTION L="en">Omission of medical data</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>organdonation</CODE>
+        <DESCRIPTION L="fr">Don d'organe</DESCRIPTION>
+        <DESCRIPTION L="nl">Orgaandonatie</DESCRIPTION>
+        <DESCRIPTION L="en">Organ donation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>vaccination</CODE>
+        <DESCRIPTION L="fr">Vaccination</DESCRIPTION>
+        <DESCRIPTION L="nl">Vaccinatie</DESCRIPTION>
+        <DESCRIPTION L="en">Vaccination</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>hospitalisation</CODE>
+        <DESCRIPTION L="fr">Hospitalisation</DESCRIPTION>
+        <DESCRIPTION L="nl">Ziekenhuisopname</DESCRIPTION>
+        <DESCRIPTION L="en">Hospitalisation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>resuscitation</CODE>
+        <DESCRIPTION L="fr">Réanimation</DESCRIPTION>
+        <DESCRIPTION L="nl">Reanimatie</DESCRIPTION>
+        <DESCRIPTION L="en">Resuscitation</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

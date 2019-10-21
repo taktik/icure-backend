@@ -2,9 +2,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 
 import com.fasterxml.jackson.core.type.TypeReference
-import org.taktik.commons.uti.UTI
-import org.taktik.commons.uti.impl.SimpleUTIDetector
-import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDINCAPACITY
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
@@ -46,6 +43,7 @@ import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
+import org.taktik.icure.db.StringUtils
 import javax.xml.bind.JAXBElement
 
 
@@ -297,18 +295,19 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                         he?.let { notNullHe ->
                             v.hes.add(healthElementLogic.createHealthElement(he))
                             // register new version links
-                            val mfid = getItemMFID(item)
-                            state.versionLinks.add(
-                                    HeVersionType(
-                                            he = notNullHe,
-                                            mfId = mfid!!,
-                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
-                                                extractMFIDFromUrl(it.url)
-                                            },
-                                            versionId = null
-                                    )
-                            )
-                            state.hesByMFID[mfid] = notNullHe
+                            getItemMFID(item)?.let { mfId ->
+                                state.versionLinks.add(
+                                        HeVersionType(
+                                                he = notNullHe,
+                                                mfId = mfId,
+                                                isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF }?.let {
+                                                    extractMFIDFromUrl(it.url)
+                                                },
+                                                versionId = null
+                                        )
+                                )
+                                state.hesByMFID[mfId] = notNullHe
+                            }
                         }
                     }
                     "encountertype", "encounterdatetime", "encounterlocation" -> Unit // already added at contact level
@@ -619,38 +618,40 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value)
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
-        val dbPatient: Patient? =
-                dest ?: niss?.let {
+        return dest ?: niss?.let {
                     patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
                             ?.let { patientLogic.getPatient(it) }
                 }
-                ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.healthcarePartyId).let {
-                    if (it.size > 0) patientLogic.getPatients(it).find {
-                        p.firstnames.any { fn -> org.taktik.icure.db.StringUtils.equals(it.firstName, fn) && org.taktik.icure.db.StringUtils.equals(it.lastName, p.familyname) }
+                ?: p.birthdate?.let { patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(it.date), author.healthcarePartyId).let { pats ->
+                    if (pats.size > 0) patientLogic.getPatients(pats).find {
+                        p.firstnames.any { fn -> StringUtils.equals(it.firstName, fn) && StringUtils.equals(it.lastName, p.familyname) }
                     } else null
-                }
-                ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
+                }}
+                ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
                     if (it.size > 0) patientLogic.getPatients(it).find {
                         it.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
                                 ?: false
                     } else null
                 }
-
-        return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
-            this.delegations = mapOf(author.healthcarePartyId to setOf())
-
-            copyFromPersonToPatient(p, this, true)
-        }) else dbPatient
+                ?: patientLogic.createPatient(Patient().apply {
+                    this.delegations = mapOf(author.healthcarePartyId to setOf())
+                    copyFromPersonToPatient(p, this, true)
+                })
     }
 
     protected fun copyFromPersonToPatient(p: PersonType, patient: Patient, force: Boolean) {
         patient.firstName = p.firstnames.firstOrNull()
         patient.lastName = p.familyname
-        patient.dateOfBirth = Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date)
+        p.birthdate?.let { patient.dateOfBirth = Utils.makeFuzzyIntFromXMLGregorianCalendar(it.date) }
 
         if (patient.ssin == null) {
             patient.ssin = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value ?:
                     p.ids.find { it.s == IDPATIENTschemes.INSS }?.value
+            patient.ssin?.let {
+                if (patient.dateOfBirth == null) {
+                    patient.dateOfBirth = if((it.substring(0,2).toInt())>20) (("19${it.substring(0, 6)}").toInt()) else (("20${it.substring(0, 6)}").toInt())
+                }
+            }
         }
 
         if (p.birthlocation != null && (force || patient.placeOfBirth == null)) {

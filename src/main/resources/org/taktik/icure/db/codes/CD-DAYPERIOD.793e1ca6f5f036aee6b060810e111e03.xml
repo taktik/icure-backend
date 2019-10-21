@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2012-04-01</DATE>
+  <STATUS>Published</STATUS>
+  <NAME>Dayperiod</NAME>
+  <VALUE>
+    <CODE>afterbreakfast</CODE>
+    <DESCRIPTION L='en'>after breakfast (from lat. post cibus matutinus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>afterdinner</CODE>
+    <DESCRIPTION L='en'>after dinner (from lat. post cibus vespertinus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>afterlunch</CODE>
+    <DESCRIPTION L='en'>after lunch (from lat. post cibus diurnus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>aftermeal</CODE>
+    <DESCRIPTION L='en'>after meal (from lat. post cibus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>afternoon</CODE>
+    <DESCRIPTION L='en'>afternoon</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>beforebreakfast</CODE>
+    <DESCRIPTION L='en'>before breakfast (from lat. ante cibus matutinus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>beforedinner</CODE>
+    <DESCRIPTION L='en'>before dinner (from lat. ante cibus vespertinus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>beforelunch</CODE>
+    <DESCRIPTION L='en'>before lunch (from lat. ante cibus diurnus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>betweenbreakfastandlunch</CODE>
+    <DESCRIPTION L='en'>between breakfast and lunch</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>betweendinnerandsleep</CODE>
+    <DESCRIPTION L='en'>between dinner and the hour of sleep</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>betweenlunchanddinner</CODE>
+    <DESCRIPTION L='en'>between lunch and dinner</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>betweenmeals</CODE>
+    <DESCRIPTION L='en'>between meals (from lat. inter cibus)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>duringbreakfast</CODE>
+    <DESCRIPTION L='en'>during breakfast</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>duringdinner</CODE>
+    <DESCRIPTION L='en'>during dinner</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>duringlunch</CODE>
+    <DESCRIPTION L='en'>during lunch</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>evening</CODE>
+    <DESCRIPTION L='en'>evening</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>morning</CODE>
+    <DESCRIPTION L='en'>morning</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>night</CODE>
+    <DESCRIPTION L='en'>night</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>thehourofsleep</CODE>
+    <DESCRIPTION L='en'>the hour of sleep (e.g., H18-22)</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

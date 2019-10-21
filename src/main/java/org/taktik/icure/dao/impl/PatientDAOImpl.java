@@ -35,6 +35,7 @@ import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.db.StringUtils;
 import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.embed.Gender;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,6 +121,15 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 		return db.queryView(viewQuery, String.class);
 	}
 
+    @Override
+    @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
+    public List<String> listIdsByHcPartyGenderEducationProfession(String healthcarePartyId, Gender gender, String education, String profession) {
+        ViewQuery viewQuery = createQuery("by_hcparty_gender_education_profession")
+                .startKey(ComplexKey.of(healthcarePartyId, gender == null ? null : gender.getName(), education, profession))
+                .endKey(ComplexKey.of(healthcarePartyId, gender == null ? ComplexKey.emptyObject() : gender.getName(), education == null ? ComplexKey.emptyObject() : education,  profession == null ? ComplexKey.emptyObject() : profession)).includeDocs(false);
+        return db.queryView(viewQuery, String.class);
+    }
+
 	@Override
 	public List<String> listIdsByHcPartyAndDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId) {
 		ViewQuery viewQuery = createQuery("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, startDate)).endKey(ComplexKey.of(healthcarePartyId, endDate)).includeDocs(false);
@@ -135,17 +145,17 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
 	@Override
 	@View(name = "by_hcparty_contains_name", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
-	public List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId) {
+	public List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit) {
 		String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
-		ViewQuery viewQuery = createQuery("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).includeDocs(false);
+		ViewQuery viewQuery = createQuery("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).limit(limit != null ? limit : 10000).includeDocs(false);
 		return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
 	}
 
 	@Override
 	@View(name = "of_hcparty_contains_name", map = "classpath:js/patient/Of_hcparty_contains_name_map.js")
-	public List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId) {
+	public List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit) {
 		String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
-		ViewQuery viewQuery = createQuery("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).includeDocs(false);
+		ViewQuery viewQuery = createQuery("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).limit(limit != null ? limit : 10000).includeDocs(false);
 		return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
 	}
 

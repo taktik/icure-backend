@@ -208,6 +208,31 @@ public class InvoiceDAOImpl extends GenericIcureDAOImpl<Invoice> implements Invo
 	}
 
 	@Override
+	public List<String> listInvoiceIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
+		if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
+		ComplexKey from = ComplexKey.of(
+				hcPartyId,
+				codeCode,
+				startValueDate
+		);
+		ComplexKey to = ComplexKey.of(
+				hcPartyId,
+				codeCode == null ? ComplexKey.emptyObject() : codeCode,
+				endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
+		);
+
+		ViewQuery viewQuery = createQuery("tarification_by_hcparty_code")
+				.startKey(from)
+				.endKey(to)
+				.reduce(false)
+				.includeDocs(false);
+
+		List<String> ids = db.queryViewWithKeys(viewQuery, String.class).stream().map(ckv -> ckv.getId()).collect(Collectors.toList());
+		return ids;
+	}
+
+	@Override
 	public List<CouchKeyValue<Long>> listTarificationsFrequencies(String hcPartyId) {
 		ComplexKey from = ComplexKey.of(
 				hcPartyId,

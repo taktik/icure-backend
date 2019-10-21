@@ -18,17 +18,16 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.contact;
 
-
 import com.google.common.base.Objects;
-import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
 
+import java.util.List;
+
 @JsonPolymorphismRoot(Filter.class)
-public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implements ContactByHcPartyPatientTagCodeDateFilter {
+public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implements org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter {
 	String healthcarePartyId;
-	String patientSecretForeignKey;
 	String tagType;
 	String tagCode;
 	String codeType;
@@ -39,9 +38,8 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 	public ContactByHcPartyTagCodeDateFilter() {
 	}
 
-	public ContactByHcPartyTagCodeDateFilter(String healthcarePartyId, String patientSecretForeignKey, String tagType, String tagCode, String codeType, String codeCode, Long startServiceValueDate, Long endServiceValueDate) {
+	public ContactByHcPartyTagCodeDateFilter(String healthcarePartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, String codeType, String codeCode, Long startServiceValueDate, Long endServiceValueDate) {
 		this.healthcarePartyId = healthcarePartyId;
-		this.patientSecretForeignKey = patientSecretForeignKey;
 		this.tagType = tagType;
 		this.tagCode = tagCode;
 		this.codeType = codeType;
@@ -59,16 +57,7 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 		this.healthcarePartyId = healthcarePartyId;
 	}
 
-	@Override
-	public String getPatientSecretForeignKey() {
-		return patientSecretForeignKey;
-	}
-
-	public void setPatientSecretForeignKey(String patientSecretForeignKey) {
-		this.patientSecretForeignKey = patientSecretForeignKey;
-	}
-
-	@Override
+    @Override
 	public String getTagType() {
 		return tagType;
 	}
@@ -134,13 +123,12 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 			return false;
 		}
 		final ContactByHcPartyTagCodeDateFilter other = (ContactByHcPartyTagCodeDateFilter) obj;
-		return Objects.equal(this.healthcarePartyId, other.healthcarePartyId) && Objects.equal(this.patientSecretForeignKey, other.patientSecretForeignKey) && Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeCode, other.codeCode) && Objects.equal(this.startServiceValueDate, other.startServiceValueDate) && Objects.equal(this.endServiceValueDate, other.endServiceValueDate);
+		return Objects.equal(this.healthcarePartyId, other.healthcarePartyId) && Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeCode, other.codeCode) && Objects.equal(this.startServiceValueDate, other.startServiceValueDate) && Objects.equal(this.endServiceValueDate, other.endServiceValueDate);
 	}
 
 	@Override
 	public boolean matches(Contact item) {
 		return (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
-				&& (patientSecretForeignKey == null || (item.getSecretForeignKeys() != null && item.getSecretForeignKeys().contains(patientSecretForeignKey)))
 				&& (tagType == null || item.getServices().stream().filter(s ->
 				(s.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent())
 						&& (codeType == null || (s.getCodes().stream().filter(c -> codeType.equals(c.getType()) && (codeCode == null || codeCode.equals(c.getCode()))).findAny().isPresent()))

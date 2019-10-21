@@ -24,6 +24,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import java.io.InputStream
 import javax.security.auth.login.LoginException
 
 
@@ -31,8 +32,8 @@ interface CodeLogic : EntityPersister<Code, String> {
 
 	fun getTagTypeCandidates(): List<String>
 
-    operator fun get(id: String): Code
-    operator fun get(type: String, code: String, version: String): Code
+    operator fun get(id: String): Code?
+    operator fun get(type: String, code: String, version: String): Code?
     operator fun get(ids: List<String>): List<Code>
 
     fun create(code: Code): Code
@@ -54,11 +55,14 @@ interface CodeLogic : EntityPersister<Code, String> {
 
     fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
 
-    fun getOrCreateCode(type: String, value: String): Code
+    fun getOrCreateCode(type: String, value: String, version: String = "1.0"): Code
 
 	fun ensureValid(code : Code, ofType : String? = null, orDefault : Code? = null) : Code
 	fun isValid(code: Code, ofType: String? = null): Boolean
 	fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
 	fun getRegions(): List<String>
     fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code>
+    fun importCodesFromXml(md5: String, type: String, stream: InputStream)
+    fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code>
+    fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String>
 }

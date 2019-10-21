@@ -20,7 +20,6 @@ package org.taktik.icure.logic.impl.filter.contact;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ContactLogic;
@@ -29,13 +28,15 @@ import org.taktik.icure.logic.impl.filter.Filter;
 import org.taktik.icure.logic.impl.filter.Filters;
 
 import javax.security.auth.login.LoginException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 
 @Service
-public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact, ContactByHcPartyPatientTagCodeDateFilter> {
+public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact, org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter> {
 	ContactLogic contactLogic;
 	ICureSessionLogic sessionLogic;
 
@@ -49,14 +50,15 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
 	}
 
 	@Override
-	public Set<String> resolve(ContactByHcPartyPatientTagCodeDateFilter filter, Filters context) {
+	public Set<String> resolve(org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter  filter, Filters context) {
 		try {
             String hcPartyId = filter.getHealthcarePartyId() != null ? filter.getHealthcarePartyId() : getLoggedHealthCarePartyId();
             HashSet<String> ids = null;
+
             if (filter.getTagType() != null && filter.getTagCode() != null) {
                 ids = new HashSet<>(contactLogic.findServicesByTag(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        null, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate()));
             }
@@ -64,7 +66,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.findServicesByCode(
                         hcPartyId,
-                        filter.getPatientSecretForeignKey(), filter.getTagType(),
+                        null, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }

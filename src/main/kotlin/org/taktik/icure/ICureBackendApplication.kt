@@ -31,6 +31,7 @@ import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfigurati
 import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -104,6 +105,15 @@ class ICureBackendApplication {
                    Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
                    PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach({ codeLogic.importCodesFromEnum(it) })
         }
+
+        taskExecutor.execute {
+            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader);
+            resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
+                val md5 = it.filename.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+                codeLogic.importCodesFromXml(md5, it.filename.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
+            }
+        }
+
 
         //Execute migrations sequentially
         taskExecutor.execute {

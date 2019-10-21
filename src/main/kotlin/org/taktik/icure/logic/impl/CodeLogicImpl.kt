@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.ObjectUtils
+import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -35,14 +36,23 @@ import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
+import org.taktik.icure.entities.base.LinkQualification
+import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.logic.CodeLogic
+import org.xml.sax.Attributes
+import org.xml.sax.helpers.DefaultHandler
+import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 import java.util.stream.Collectors
 import javax.security.auth.login.LoginException
+import javax.xml.parsers.SAXParserFactory
+import kotlin.collections.HashMap
 
 @Service
 class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
+    val log = LogFactory.getLog(this.javaClass)
+
     override fun getTagTypeCandidates(): List<String> {
         return Arrays.asList("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
     }
@@ -51,11 +61,11 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
         return Arrays.asList("fr", "be")
     }
 
-    override fun get(id: String): Code {
+    override fun get(id: String): Code? {
         return codeDAO[id]
     }
 
-    override fun get(@NotNull type: String, @NotNull code: String, @NotNull version: String): Code {
+    override fun get(@NotNull type: String, @NotNull code: String, @NotNull version: String): Code? {
         return codeDAO["$type|$code|$version"]
     }
 
@@ -84,7 +94,7 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
 
         updateEntities(setOf(code))
 
-        return this.get(code.id)
+        return this.get(code.id)!!
     }
 
     override fun findCodeTypes(type: String?): List<String> {
@@ -118,6 +128,13 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
     override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String> {
         return codeDAO.listCodeIdsByLabel(region, language, type, label)
     }
+
+    override fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> =
+            codeDAO.findCodesByQualifiedLinkId(linkType, linkedId, pagination)
+
+    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String> =
+            codeDAO.listCodeIdsByQualifiedLinkId(linkType, linkedId)
+
 
     override fun <T : Enum<*>> importCodesFromEnum(e: Class<T>) {
 		/* TODO: rewrite this */
@@ -153,6 +170,94 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
             throw IllegalStateException(ex)
         }
 
+    }
+
+    override fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
+        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id))
+
+        if (check.isEmpty()) {
+            val factory = SAXParserFactory.newInstance();
+            val saxParser = factory.newSAXParser();
+
+            val stack = LinkedList<Code>()
+
+            val batchSave : (Code?, Boolean?) -> Unit = { c, flush ->
+                c?.let { stack.add(it) }
+                if (stack.size == 100 || flush == true) {
+                    val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+                    try {
+                        codeDAO.save(stack.map { c ->
+                            val prev = existings[c.id]
+                            prev?.let { c.rev = it.rev }
+                            c
+                        })
+                    } catch (e:BulkUpdateConflictException) {
+                        log.error("${e.conflicts.size} conflicts for type $type")
+                    }
+                    stack.clear()
+                }
+            }
+
+            val handler = object : DefaultHandler() {
+                var initialized = false
+                var version: String? = null
+                var charsHandler: ((chars: String) -> Unit)? = null
+                var code: Code? = null
+                var characters: String = ""
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    ch?.let { characters += String(it, start, length) }
+                }
+
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    if (!initialized && qName != "kmehr-cd") {
+                        throw IllegalArgumentException("Not supported")
+                    }
+                    initialized = true
+                    characters = ""
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VERSION" -> charsHandler = {
+                                version = it
+                            }
+                            "VALUE" -> {
+                                code = Code(type, null, version).apply { label = HashMap() }
+                            }
+                            "CODE" -> charsHandler = { code?.code = it }
+                            "PARENT" -> charsHandler = { code?.qualifiedLinks = mapOf(pair = Pair(LinkQualification.parent, listOf("$type|$it|$version"))) }
+                            "DESCRIPTION" -> charsHandler = { code?.label?.put(attributes?.getValue("L"), it) }
+                            else -> {
+                                charsHandler = null
+                            }
+                        }
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    charsHandler?.let { it(characters) }
+                    qName?.let {
+                        when (it.toUpperCase()) {
+                            "VALUE" -> {
+                                batchSave(code, false)
+                            }
+                            else -> null
+                        }
+                    }
+
+                }
+            }
+            try {
+                saxParser.parse(stream, handler)
+                batchSave(null, true)
+                create(Code("ICURE-SYSTEM", md5, "1"))
+            } catch(e:IllegalArgumentException) {
+                //Skip
+            } finally {
+                stream.close()
+            }
+        } else {
+            stream.close()
+        }
     }
 
     override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
@@ -199,14 +304,14 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
     }
 
 
-    override fun getOrCreateCode(type: String, code: String): Code {
+    override fun getOrCreateCode(type: String, code: String, version: String): Code {
         val codes = findCodesBy(type, code, null)
 
         if (codes.isNotEmpty()) {
             return codes.stream().sorted { a, b -> b.version.compareTo(a.version) }.findFirst().get()
         }
 
-        return this.create(Code(type, code, "1.0"))
+        return this.create(Code(type, code, version))
     }
 
 	override fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code {

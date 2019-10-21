@@ -19,6 +19,7 @@
 
 package org.taktik.icure.dao
 
+import org.ektorp.support.View
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.Code
@@ -40,4 +41,6 @@ interface CodeDAO : GenericDAO<Code> {
 	fun ensureValid(code : Code, ofType : String? = null, orDefault : Code? = null) : Code
 	fun isValid(code: Code, ofType: String? = null): Boolean
 	fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
+    fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code>
+    fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String>
 }

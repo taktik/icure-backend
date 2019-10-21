@@ -26,10 +26,8 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
-import org.ektorp.ComplexKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +37,9 @@ import org.taktik.icure.dao.Option;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.dto.data.LabelledOccurence;
+import org.taktik.icure.dto.filter.chain.FilterChain;
+import org.taktik.icure.dto.filter.predicate.Predicate;
 import org.taktik.icure.entities.EntityReference;
-import org.taktik.icure.entities.Form;
 import org.taktik.icure.entities.Insurance;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.Patient;
@@ -53,11 +52,13 @@ import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.EntityReferenceLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
+import org.taktik.icure.logic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 
 @Service
 public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> implements InvoiceLogic {
 	private static final Logger log = LoggerFactory.getLogger(InvoiceLogicImpl.class);
+	private org.taktik.icure.logic.impl.filter.Filters filters;
 
 	private UserLogic userLogic;
 	private EntityReferenceLogic entityReferenceLogic;
@@ -222,9 +223,12 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 		for (InvoicingCode invoicingCode : new ArrayList<>(invoicingCodes)) {
 			LocalDateTime icDateTime = FuzzyValues.getDateTime(invoicingCode.getDateCode());
 
-			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : invoices.stream().filter(i ->
-					i.getInvoiceDate() != null && Math.abs(FuzzyValues.getDateTime(i.getInvoiceDate()).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
-			).findAny();
+			Optional<Invoice> unsentInvoice = selectedInvoice != null ? Optional.of(selectedInvoice) : icDateTime != null ? invoices.stream().filter(i ->
+                    {
+                        LocalDateTime invoiceDate = FuzzyValues.getDateTime(i.getInvoiceDate());
+                        return invoiceDate != null && Math.abs(invoiceDate.withHour(0).withMinute(0).withSecond(0).withNano(0).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays;
+                    }
+			).findAny() : Optional.empty();
 
 			if (unsentInvoice.isPresent()) {
 				Invoice invoice = unsentInvoice.get();
@@ -321,10 +325,24 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 				.collect(Collectors.toList());
 	}
 
-    @Override
-    public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
-        return invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
-    }
+	@Override
+	public List<String> listIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		return invoiceDAO.listIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+	}
+
+	@Override
+	public List<String> listInvoiceIdsByTarificationsByCode(String hcPartyId, String codeCode, Long startValueDate, Long endValueDate) {
+		return invoiceDAO.listInvoiceIdsByTarificationsByCode(hcPartyId, codeCode, startValueDate, endValueDate);
+	}
+
+	@Override
+	public List<Invoice> filter(FilterChain<Invoice> filter) {
+		List<String> ids = new ArrayList<>(filters.resolve(filter.getFilter()));
+		List<Invoice> invoices = this.getInvoices(ids);
+
+		Predicate predicate = filter.getPredicate();
+		return new ArrayList<>(predicate != null ? invoices.stream().filter(predicate::apply).collect(Collectors.toList()) : invoices);
+	}
 
     @Autowired
 	public void setInvoiceDAO(InvoiceDAO invoiceDAO) {
@@ -344,5 +362,10 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	@Override
 	protected InvoiceDAO getGenericDAO() {
 		return invoiceDAO;
+	}
+
+	@Autowired
+	public void setFilters(Filters filters) {
+		this.filters = filters;
 	}
 }

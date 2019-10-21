@@ -239,9 +239,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 						hesByContactId = hesByContactId.filterKeys { it != contact.id } // prevent re-using the same He for the next subcontact
 
-						// forms
-
+						// Special code for specific forms
 						contact.subContacts.forEach{subcon ->
+                            //TODO: Please explain
 							if(subcon.healthElementId == null) { // discard form <-> he links
 								subcon.formId?.let {
 									formLogic!!.getForm(it)?.let {form ->
@@ -280,7 +280,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 									}
 								}
 							}
-
 						}
 
 						// services
@@ -464,27 +463,42 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 		val content = ContentType().apply {
 			incapacity = IncapacityType().apply {
-				cds.add(
-						try {
-
-							CDINCAPACITY().apply {
-								s = "CD-INCAPACITY"
-								sv = "1.1"
-								value = CDINCAPACITYvalues.fromValue(getServiceFor("incapacité de", "work"))
-							}
-						} catch (ex: java.lang.IllegalArgumentException) {
-							CDINCAPACITY().apply {
-								s = "CD-INCAPACITY"
-								sv = "1.1"
-								value = CDINCAPACITYvalues.WORK
-							}
-						}
-				)
+                cds.add(
+                        CDINCAPACITY().apply {
+                            s = "CD-INCAPACITY"
+                            sv = "1.1"
+                            // the right way is to use the CodeStub, but the previous ITT form was free text and now it's the id of the code in
+                            // the free text
+                            var svcvalue : String = getServiceFor("incapacité de", "work")
+                            try {
+                                if(svcvalue.contains("|")) {
+                                    svcvalue = svcvalue.split("|")[1]
+                                }
+                                value = CDINCAPACITYvalues.fromValue(svcvalue)
+                            } catch(e : Exception) {
+                                // TODO: add a warning in the log
+                                svcvalue = "work"
+                                value = CDINCAPACITYvalues.fromValue(svcvalue)
+                            }
+                        }
+                )
 				incapacityreason = IncapacityreasonType().apply {
 					cd = CDINCAPACITYREASON().apply {
 						s = "CD-INCAPACITYREASON"
 						sv = "1.1"
-						value = CDINCAPACITYREASONvalues.fromValue(getServiceFor("pour cause de", "sickness"))
+                        // the right way is to use the CodeStub, but the previous ITT form was free text and now it's the id of the code in
+                        // the free text
+                        var svcvalue : String = getServiceFor("pour cause de", "sickness")
+                        try {
+                            if(svcvalue.contains("|")) {
+                                svcvalue = svcvalue.split("|")[1]
+                            }
+                            value = CDINCAPACITYREASONvalues.fromValue(svcvalue)
+                        } catch(e : Exception) {
+                            // TODO: add a warning in the log
+                            svcvalue = "sickness"
+                            value = CDINCAPACITYREASONvalues.fromValue(svcvalue)
+                        }
 					}
 				}
 				isOutofhomeallowed = servmap["Sortie"]?.content?.let {
