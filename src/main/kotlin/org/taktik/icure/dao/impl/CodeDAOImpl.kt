@@ -194,6 +194,28 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                              )
     }
 
+    @View(name = "by_qualifiedlink_id", map = "classpath:js/code/By_qualifiedlink_id.js")
+    override fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> {
+        val startKey = if (pagination == null || pagination.startKey == null) null else pagination.startKey as MutableList<Any?>
+        val from = startKey?.let { ComplexKey.of(*it.toTypedArray()) } ?:
+            ComplexKey.of(
+                    linkType,
+                    linkedId
+            )
+        val to = ComplexKey.of(
+                        linkType,
+                        linkedId ?: ComplexKey.emptyObject()
+            )
+
+        return pagedQueryView(
+                "by_qualifiedlink_id",
+                from,
+                to,
+                pagination,
+                false
+        )
+    }
+
     override fun listCodeIdsByLabel(region: String?, language: String?, label: String?): List<String> {
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
@@ -236,6 +258,22 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                                 .startKey(from)
                                 .endKey(to), String::class.java)?.mapNotNull { ckv -> ckv.id } ?: listOf()
 
+    }
+
+    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String> {
+        val from = ComplexKey.of(
+                linkType,
+                linkedId
+        )
+        val to = ComplexKey.of(
+                        linkType,
+                        linkedId ?: ComplexKey.emptyObject()
+        )
+
+        return db.queryView(createQuery("by_qualifiedlink_id")
+                .includeDocs(false)
+                .startKey(from)
+                .endKey(to), String::class.java)
     }
 
     override fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {
