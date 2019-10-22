@@ -324,11 +324,11 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
-            parent.setStatus(parent.getStatus() or Message.STATUS_ACCEPTED_FOR_TREATMENT)
+            parent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
             messageLogic.modifyMessage(parent)
-            if (parent.getParentId() != null) {
-                val parentParent = messageLogic.get(parent.getParentId())
-                parentParent.setStatus(parent.getStatus() or Message.STATUS_ACCEPTED_FOR_TREATMENT)
+            if (parent.parentId != null) {
+                val parentParent = messageLogic.get(parent.parentId)
+                parentParent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
                 messageLogic.modifyMessage(parentParent)
             }
         }
@@ -340,15 +340,15 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
-            parent.setStatus(parent.getStatus() or Message.STATUS_REJECTED)
-            parent.setStatus(parent.getStatus() or Message.STATUS_FULL_ERROR)
+            parent.status = parent.status or Message.STATUS_REJECTED
+            parent.status = parent.status or Message.STATUS_FULL_ERROR
             messageLogic.modifyMessage(parent)
-            if (parent.getParentId() != null) {
-                val parentParent = messageLogic.get(parent.getParentId())
-                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_REJECTED)
-                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_FULL_ERROR)
+            if (parent.parentId != null) {
+                val parentParent = messageLogic.get(parent.parentId)
+                parentParent.status = parentParent.status or Message.STATUS_REJECTED
+                parentParent.status = parentParent.status or Message.STATUS_FULL_ERROR
                 messageLogic.modifyMessage(parentParent)
-                val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.getInvoiceIds()).orElse(LinkedList()))
+                val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.invoiceIds).orElse(LinkedList()))
                 for (iv in invoices) {
                     for (ic in iv.invoicingCodes) {
                         val uuid = UUID.fromString(ic.id)
@@ -362,5 +362,4 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         }
         return LinkedList()
     }
-
 }

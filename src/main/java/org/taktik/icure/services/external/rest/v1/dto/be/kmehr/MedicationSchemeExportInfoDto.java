@@ -19,12 +19,14 @@
 package org.taktik.icure.services.external.rest.v1.dto.be.kmehr;
 
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class MedicationSchemeExportInfoDto implements Serializable {
 	List<String> secretForeignKeys;
+    List<ServiceDto> services;
 	HealthcarePartyDto recipient;
 	String comment;
 
@@ -51,4 +53,12 @@ public class MedicationSchemeExportInfoDto implements Serializable {
 	public void setRecipient(HealthcarePartyDto recipient) {
 		this.recipient = recipient;
 	}
+
+    public List<ServiceDto> getServices() {
+        return services;
+    }
+
+    public void setServices(List<ServiceDto> services) {
+        this.services = services;
+    }
 }
