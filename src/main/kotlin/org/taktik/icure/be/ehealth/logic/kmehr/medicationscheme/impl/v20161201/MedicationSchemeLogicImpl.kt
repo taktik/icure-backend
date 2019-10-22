@@ -39,12 +39,13 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
                                    val medicationSchemeImport: MedicationSchemeImport) : MedicationSchemeLogic {
 
     override fun importMedicationSchemeFile(inputStream: InputStream,
-                               author: User,
-                               language: String,
-                               dest: Patient?,
-                               mappings: Map<String, List<ImportMapping>>
-                              ) : List<ImportResult> {
-        return medicationSchemeImport!!.importMedicationSchemeFile(inputStream, author, language, mappings, dest)
+                                            author: User,
+                                            language: String,
+                                            dest: Patient?,
+                                            mappings: Map<String, List<ImportMapping>>,
+                                            saveToDatabase: Boolean
+    ) : List<ImportResult> {
+        return medicationSchemeImport!!.importMedicationSchemeFile(inputStream, author, language, mappings, saveToDatabase, dest)
     }
 
     override fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {

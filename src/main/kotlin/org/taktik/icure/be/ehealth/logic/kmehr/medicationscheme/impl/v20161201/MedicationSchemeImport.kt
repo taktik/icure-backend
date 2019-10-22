@@ -65,10 +65,11 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
     }
 
     fun importMedicationSchemeFile(inputStream: InputStream,
-                  author: User,
-                  language: String,
-                  mappings: Map<String, List<ImportMapping>>,
-                  dest: Patient? = null): List<ImportResult> {
+                                   author: User,
+                                   language: String,
+                                   mappings: Map<String, List<ImportMapping>>,
+                                   saveToDatabase: Boolean,
+                                   dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
         val unmarshaller = jc.createUnmarshaller()
@@ -92,7 +93,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
 
         //TODO Might want to have several implementations based on standards
         kmehrMessage.header.sender.hcparties?.forEach {
-            createOrProcessHcp(it)?.let {
+            createOrProcessHcp(it, saveToDatabase)?.let {
                 senderPhcp = PatientHealthCareParty().apply {
                     healthcarePartyId = it.id
                 }
@@ -101,17 +102,17 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
 
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
-            createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
+            createOrProcessPatient(folder.patient, author, res, saveToDatabase, dest)?.let { patient ->
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact? = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "medicationscheme" -> parseMedicationScheme(trn, author, res, language, mymappings, state)
-                        "medicationschemeelement" -> parseMedicationSchemeElement(trn, author, res, language, mymappings, state)
-                        "treatmentsuspension" -> parseTreatmentSuspension(trn, author, res, language, mymappings, state)
-                        else -> parseGenericTransaction(trn, author, res, language, mymappings, state)
+                        "medicationscheme" -> parseMedicationScheme(trn, author, res, language, mymappings, saveToDatabase, state)
+                        "medicationschemeelement" -> parseMedicationSchemeElement(trn, author, res, language, mymappings, saveToDatabase, state)
+                        "treatmentsuspension" -> parseTreatmentSuspension(trn, author, res, language, mymappings, saveToDatabase, state)
+                        else -> parseGenericTransaction(trn, author, res, language, mymappings, saveToDatabase, state)
                     }
                     ctc?.let{con ->
-                        contactLogic.createContact(con)
+                        if (saveToDatabase) { contactLogic.createContact(con) }
                         getTransactionMFID(trn)?.let {
                             state.contactsByMFID[it] = con
                         }
@@ -142,7 +143,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                 makeHeVersioning(state.versionLinks, state)
 
                 res.forms.forEach{
-                    formLogic.createForm(it)
+                    if (saveToDatabase) { formLogic.createForm(it) }
                 }
 
                 patient.patientHealthCareParties.addAll(res.hcps.map {
@@ -200,28 +201,28 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                       author: User,
                                       v: ImportResult,
                                       language: String,
-                                      mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact{
-        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
+                                      mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean, state: InternalState): Contact{
+        return parseGenericTransaction(trn, author, v, language, mappings, saveToDatabase, state).apply {
 
         }
     }
 
     private fun parseMedicationSchemeElement(trn: TransactionType,
-                                      author: User,
-                                      v: ImportResult,
-                                      language: String,
-                                      mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact{
-        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
+                                             author: User,
+                                             v: ImportResult,
+                                             language: String,
+                                             mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean, state: InternalState): Contact{
+        return parseGenericTransaction(trn, author, v, language, mappings, saveToDatabase, state).apply {
 
         }
     }
 
     private fun parseTreatmentSuspension(trn: TransactionType,
-                                             author: User,
-                                             v: ImportResult,
-                                             language: String,
-                                             mappings: Map<String, List<ImportMapping>>, state: InternalState): Contact{
-        return parseGenericTransaction(trn, author, v, language, mappings, state).apply {
+                                         author: User,
+                                         v: ImportResult,
+                                         language: String,
+                                         mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean, state: InternalState): Contact{
+        return parseGenericTransaction(trn, author, v, language, mappings, saveToDatabase, state).apply {
 
         }
     }
@@ -231,6 +232,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                         v: ImportResult,
                                         language: String,
                                         mappings: Map<String, List<ImportMapping>>,
+                                        saveToDatabase: Boolean,
                                         state: InternalState): Contact {
         return Contact().apply {
             val contact = this
@@ -239,7 +241,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
             this.author = author.id
 
             this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                createOrProcessHcp(it)?.let {
+                createOrProcessHcp(it, saveToDatabase)?.let {
                     v.hcps.add(it)
                     it
                 }
@@ -293,7 +295,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                     "healthcareelement" -> {
                         val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
                         he?.let { notNullHe ->
-                            v.hes.add(healthElementLogic.createHealthElement(he))
+                            v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(he) else he)
                             // register new version links
                             getItemMFID(item)?.let { mfId ->
                                 state.versionLinks.add(
@@ -560,16 +562,16 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                 content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
+    protected fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean): HealthcareParty? {
         val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
         val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
 
         return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
                 ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
-                ?: try { healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
+                ?: try { HealthcareParty().apply {
                     this.nihii = nihii; this.ssin = niss;
                     copyFromHcpToHcp(p, this)
-                }) } catch (e : MissingRequirementsException) { null })
+                }.let { if(saveToDatabase) healthcarePartyLogic.createHealthcareParty(it) else it } } catch (e : MissingRequirementsException) { null })
     }
 
     protected fun copyFromHcpToHcp(p: HcpartyType, hcp: HealthcareParty) {
@@ -614,6 +616,7 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
     protected fun createOrProcessPatient(p: PersonType,
                                          author: User,
                                          v: ImportResult,
+                                         saveToDatabase: Boolean,
                                          dest: Patient? = null): Patient? {
         val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value)
         v.notNull(niss, "Niss shouldn't be null for patient $p")
@@ -633,10 +636,10 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                 ?: false
                     } else null
                 }
-                ?: patientLogic.createPatient(Patient().apply {
-                    this.delegations = mapOf(author.healthcarePartyId to setOf())
-                    copyFromPersonToPatient(p, this, true)
-                })
+                ?: Patient().apply {
+            this.delegations = mapOf(author.healthcarePartyId to setOf())
+            copyFromPersonToPatient(p, this, true)
+        }.let { if (saveToDatabase) patientLogic.createPatient(it) else it }
     }
 
     protected fun copyFromPersonToPatient(p: PersonType, patient: Patient, force: Boolean) {
