@@ -302,7 +302,7 @@ class SumehrExport : KmehrExport() {
 		val cnks = HashSet(medications.filter { m -> m.codes.find { it.type == "CD-DRUG-CNK" } != null }.mapNotNull { m -> m.codes.find { it.type == "CD-DRUG-CNK" }?.code })
 
         //Prescriptions
-		return medications.filter{!excludedIds.contains(it.id)} + getActiveServices(hcPartyIds, sfks, listOf("treatment"), excludedIds, false, decryptor).filter {
+		return medications.filter{!excludedIds.contains(it.id)} + getActiveServices(hcPartyIds, sfks, listOf("treatment"), excludedIds, includeIrrelevantInformation, decryptor).filter {
 			val cnk = it.codes.find { it.type == "CD-DRUG-CNK" }?.code
             val res = (null == cnk || !cnks.contains(cnk)) &&
                     (
