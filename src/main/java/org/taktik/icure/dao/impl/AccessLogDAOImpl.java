@@ -43,7 +43,7 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
 	@Autowired
 	public AccessLogDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbPatient") CouchDbICureConnector db, IDGenerator idGenerator) {
 		super(AccessLog.class, db, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

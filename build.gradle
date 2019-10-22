@@ -267,7 +267,7 @@ configurations.all {
 }
 
 springBoot {
-	mainClass = "org.taktik.icure.ICureBackendApplicationKt"
+	mainClassName = "org.taktik.icure.ICureBackendApplicationKt"
 }
 
 bootRun {

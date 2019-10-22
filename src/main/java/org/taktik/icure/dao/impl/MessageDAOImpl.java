@@ -44,7 +44,7 @@ public class MessageDAOImpl extends GenericIcureDAOImpl<Message> implements Mess
 	@Autowired
 	public MessageDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchDb, IDGenerator idGenerator) {
 		super(Message.class, couchDb, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

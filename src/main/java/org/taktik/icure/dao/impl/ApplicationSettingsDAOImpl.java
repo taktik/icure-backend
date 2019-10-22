@@ -15,6 +15,6 @@ public class ApplicationSettingsDAOImpl extends GenericDAOImpl<ApplicationSettin
     @Autowired
     public ApplicationSettingsDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(ApplicationSettings.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 }

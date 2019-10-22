@@ -41,7 +41,7 @@ class ClassificationDAOImpl extends GenericIcureDAOImpl<Classification> implemen
     @Autowired
     public ClassificationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Classification.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

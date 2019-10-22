@@ -39,7 +39,7 @@ public class ArticleDAOImpl extends GenericDAOImpl<Article> implements ArticleDA
     @Autowired
     public ArticleDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(Article.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 
 }

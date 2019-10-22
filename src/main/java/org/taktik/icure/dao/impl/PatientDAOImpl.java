@@ -53,7 +53,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	@Autowired
     public PatientDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbPatient") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Patient.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
 	@Override

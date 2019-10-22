@@ -19,7 +19,7 @@ import java.util.List;
 public class EntityReferenceDAOImpl extends GenericDAOImpl<EntityReference> implements EntityReferenceDAO {
 	public EntityReferenceDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
 		super(EntityReference.class, couchdb, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

@@ -39,7 +39,7 @@ public class TimeTableDAOImpl extends GenericDAOImpl<TimeTable> implements TimeT
     @Autowired
     public TimeTableDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(TimeTable.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

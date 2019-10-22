@@ -37,7 +37,7 @@ public class PropertyTypeDAOImpl extends CachedDAOImpl<PropertyType> implements 
     @Autowired
     public PropertyTypeDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbConfig") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(PropertyType.class, couchdb, idGenerator, cacheManager);
-        initStandardDesignDocument();
+
     }
 
     @Override

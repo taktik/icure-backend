@@ -20,7 +20,7 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
     @Autowired
     public FrontEndMigrationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(FrontEndMigration.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

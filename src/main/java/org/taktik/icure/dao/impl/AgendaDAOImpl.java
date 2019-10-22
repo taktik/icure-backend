@@ -21,7 +21,7 @@ public class AgendaDAOImpl extends GenericDAOImpl<Agenda> implements AgendaDAO {
     @Autowired
     public AgendaDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(Agenda.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override
