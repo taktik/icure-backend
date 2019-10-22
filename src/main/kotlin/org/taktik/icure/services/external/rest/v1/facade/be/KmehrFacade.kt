@@ -296,33 +296,33 @@ class KmehrFacade(
 	@ApiOperation(value = "Import sumehr into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/sumehr/{documentId}/import")
-	fun importSumehr(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+	fun importSumehr(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @ApiParam(value = "Dry run : do not save in database", required = false) @QueryParam("dryRun") dryRun: Boolean?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
 		val document = documentLogic.get(documentId)
 
 		return ResponseUtils.ok(sumehrLogicV1.importSumehr(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
 		                                                               patientId?.let { patientLogic.getPatient(patientId) },
-		                                                               mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
+		                                                               mappings ?: HashMap(), dryRun != true).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 
 	@ApiOperation(value = "Import sumehr into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/sumehr/{documentId}/importbyitemid")
-	fun importSumehrByItemId(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("itemId") itemId: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+	fun importSumehrByItemId(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @ApiParam(value = "Dry run : do not save in database", required = false) @QueryParam("dryRun") dryRun: Boolean?, @QueryParam("itemId") itemId: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
 		val document = documentLogic.get(documentId)
 
 		return ResponseUtils.ok(sumehrLogicV2.importSumehrByItemId(documentLogic.readAttachment(documentId, document.attachmentId), itemId!!, user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
 				patientId?.let { patientLogic.getPatient(patientId) },
-				mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
+				mappings ?: HashMap(), dryRun != true).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 
 	@ApiOperation(value = "Import MedicationScheme into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/medicationscheme/{documentId}/import")
-	fun importMedicationScheme(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @ApiParam(value = "Do not save in database", required = false) @QueryParam("dryRun") dryRun: Boolean?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+	fun importMedicationScheme(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @ApiParam(value = "Dry run : do not save in database", required = false) @QueryParam("dryRun") dryRun: Boolean?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
 
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
