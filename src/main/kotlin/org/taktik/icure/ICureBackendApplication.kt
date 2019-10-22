@@ -106,13 +106,13 @@ class ICureBackendApplication {
                    PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach({ codeLogic.importCodesFromEnum(it) })
         }
 
-//        taskExecutor.execute {
-//            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader);
-//            resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
-//                val md5 = it.filename.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-//                codeLogic.importCodesFromXml(md5, it.filename.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
-//            }
-//        }
+        taskExecutor.execute {
+            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader);
+            resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
+                val md5 = it.filename.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+                codeLogic.importCodesFromXml(md5, it.filename.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
+            }
+        }
 
 
         //Execute migrations sequentially
