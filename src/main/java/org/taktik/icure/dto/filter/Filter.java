@@ -19,9 +19,9 @@
 package org.taktik.icure.dto.filter;
 
 import org.taktik.icure.dto.filter.code.CodeByRegionTypeLabelLanguageFilter;
-import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter;
+import org.taktik.icure.dto.filter.contact.*;
 import org.taktik.icure.dto.filter.patient.*;
-import org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter;
+import org.taktik.icure.dto.filter.service.*;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
 
@@ -33,7 +33,7 @@ import java.util.Set;
 		CodeByRegionTypeLabelLanguageFilter.class,
 		PatientByHcPartyFilter.class, PatientByHcPartyDateOfBirthFilter.class, PatientByHcPartyDateOfBirthBetweenFilter.class, PatientByHcPartyAndSsinFilter.class,
 		PatientByHcPartyAndSsinsFilter.class,PatientByHcPartyNameContainsFuzzyFilter.class,  PatientByHcPartyAndExternalIdFilter.class, PatientByIdsFilter.class,
-		ContactByHcPartyPatientTagCodeDateFilter.class, ServiceByHcPartyTagCodeDateFilter.class, PatientByHcPartyNameFilter.class, PatientByHcPartyAndActiveFilter.class, PatientByHcPartyGenderEducationProfession.class})
+        ContactByHcPartyTagCodeDateFilter.class, ContactByHcPartyPatientTagCodeDateFilter.class, ServiceByHcPartyTagCodeDateFilter.class, PatientByHcPartyNameFilter.class, PatientByHcPartyAndActiveFilter.class, PatientByHcPartyGenderEducationProfession.class})
 public interface Filter<T extends Serializable, O extends Identifiable<T>> {
 	List<O> applyTo(List<O> items);
 	Set<O> applyTo(Set<O> items);

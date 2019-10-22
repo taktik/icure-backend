@@ -83,7 +83,7 @@ class KmehrFacade(
     @Path("/diarynote/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateDiaryNote(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: DiaryNoteExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper!!.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null) })
+        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null) })
     }
 
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
@@ -91,7 +91,7 @@ class KmehrFacade(
     @Path("/sumehr/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateSumehr(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV1.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper!!.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false,  null) })
+        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV1.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false,  null) })
     }
 
 	@ApiOperation(value = "Validate sumehr", httpMethod = "POST", notes = "")
@@ -100,7 +100,7 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun validateSumehr(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto
 	): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV1.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper!!.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) } as StreamingOutput)
+        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV1.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) } as StreamingOutput)
     }
 
 	@ApiOperation(value = "Get sumehr elements", response = SumehrContentDto::class, httpMethod = "POST", notes = "")
@@ -109,8 +109,8 @@ class KmehrFacade(
 	fun getSumehrContent(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
 		val result = SumehrContentDto()
 
-		result.services = sumehrLogicV1.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false, null).stream().map { s -> mapper!!.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
-		result.healthElements = sumehrLogicV1.getHealthElements(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false).stream().map { h -> mapper!!.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
+		result.services = sumehrLogicV1.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false, null).stream().map { s -> mapper.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
+		result.healthElements = sumehrLogicV1.getHealthElements(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false).stream().map { h -> mapper.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
 
 		return ResponseUtils.ok(result)
 	}
@@ -134,7 +134,7 @@ class KmehrFacade(
     @Path("/sumehrv2/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateSumehrV2(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper!!.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) })
+        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) })
     }
 
     @ApiOperation(value = "Validate sumehr", httpMethod = "POST", notes = "")
@@ -142,7 +142,7 @@ class KmehrFacade(
     @Path("/sumehrv2/{patientId}/validate")
     @Produces("application/octet-stream")
     fun validateSumehrV2(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper!!.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) } as StreamingOutput)
+        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) } as StreamingOutput)
     }
 
     @ApiOperation(value = "Get sumehr elements", response = SumehrContentDto::class, httpMethod = "POST", notes = "")
@@ -151,10 +151,10 @@ class KmehrFacade(
     fun getSumehrV2Content(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
         val result = SumehrContentDto()
 
-        result.services = sumehrLogicV2.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false, null).stream().map { s -> mapper!!.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
-        result.healthElements = sumehrLogicV2.getHealthElements(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false).stream().map { h -> mapper!!.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
-		result.patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper!!.map<PatientHealthCareParty, PatientHealthCarePartyDto>(h, PatientHealthCarePartyDto::class.java)}.collect(Collectors.toList<PatientHealthCarePartyDto>())
-		result.partnerships = sumehrLogicV2.getContactPeople(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper!!.map<Partnership, PartnershipDto>(h, PartnershipDto::class.java)}.collect(Collectors.toList<PartnershipDto>())
+        result.services = sumehrLogicV2.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false, null).stream().map { s -> mapper.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
+        result.healthElements = sumehrLogicV2.getHealthElements(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false).stream().map { h -> mapper.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
+		result.patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper.map<PatientHealthCareParty, PatientHealthCarePartyDto>(h, PatientHealthCarePartyDto::class.java)}.collect(Collectors.toList<PatientHealthCarePartyDto>())
+		result.partnerships = sumehrLogicV2.getContactPeople(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, patientId).stream().map {h -> mapper.map<Partnership, PartnershipDto>(h, PartnershipDto::class.java)}.collect(Collectors.toList<PartnershipDto>())
         return ResponseUtils.ok(result)
     }
 
