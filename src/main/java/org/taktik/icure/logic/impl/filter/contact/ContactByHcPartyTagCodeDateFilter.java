@@ -28,8 +28,6 @@ import org.taktik.icure.logic.impl.filter.Filter;
 import org.taktik.icure.logic.impl.filter.Filters;
 
 import javax.security.auth.login.LoginException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +54,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             HashSet<String> ids = null;
 
             if (filter.getTagType() != null && filter.getTagCode() != null) {
-                ids = new HashSet<>(contactLogic.findServicesByTag(
+                ids = new HashSet<>(contactLogic.listServiceIdsByTag(
                         hcPartyId,
                         null, filter.getTagType(),
                         filter.getTagCode(),
@@ -64,12 +62,16 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             }
 
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
-                List<String> byCode = contactLogic.findServicesByCode(
+                List<String> byCode = contactLogic.listServiceIdsByCode(
                         hcPartyId,
                         null, filter.getTagType(),
                         filter.getTagCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
+            }
+
+            if (ids == null) {
+                return new HashSet<>(contactLogic.listContactIds(hcPartyId));
             }
 
             return ids != null ? new HashSet<>(contactLogic.findByServices(ids)) : new HashSet<>();
