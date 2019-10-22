@@ -80,7 +80,11 @@ open class KmehrExport {
 
 	fun createParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf()): HcpartyType {
         return HcpartyType().apply {
-            m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
+            m.nihii?.let { nihii ->
+                if(isNihiiValid(nihii)) {
+                    ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii })
+                }
+            }
             m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
 			cds?.let { this.cds.addAll(it) }
 			this.cds.addAll(if (m.specialityCodes?.size ?: 0 > 0)
@@ -112,14 +116,20 @@ open class KmehrExport {
 
 	fun makePerson(p : Patient, config: Config) : PersonType {
         return makePersonBase(p, config).apply {
-            p.dateOfDeath?.let { deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
+            p.dateOfDeath?.let {
+                if(it == 0) {
+                    deathdate = null
+                } else {
+                    deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong())
+                }
+            }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
             usuallanguage= p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
-            p.nationality?.let { nat -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = nat}}}
+            p.nationality?.let { nat -> mapToCountryCode(nat)?.let { natCode -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = natCode }}}}
         }
     }
 
@@ -132,7 +142,7 @@ open class KmehrExport {
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN}}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
-            recorddatetime = makeXGC(p.modified)
+            recorddatetime = makeXGC(p.modified, true)
         }
     }
 
@@ -155,7 +165,7 @@ open class KmehrExport {
             if(cdItem == "medication") {
                 svc.tags.find{ it.type == "CD-TEMPORALITY"}?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
@@ -214,11 +224,11 @@ open class KmehrExport {
             isIsrelevant = ((svc.status?: 0) and 2) == 0
             beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
             endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
-            recorddatetime = makeXGC(svc.modified)
+            recorddatetime = makeXGC(svc.modified, true)
         }
     }
 
-	private fun filterEmptyContent(contents: List<ContentType>) = contents.filter {
+	private fun filterEmptyContent(contents: List<ContentType>) = contents.filterNotNull().filter {
 		it.isBoolean != null || it.cds?.size ?: 0 > 0 || it.bacteriology != null || it.compoundprescription != null ||
 			it.location != null || it.lnks?.size ?: 0 > 0 || it.bacteriology != null || it.ecg != null || it.holter != null ||
 			it.medication != null || it.compoundprescription != null || it.substanceproduct != null || it.medicinalproduct != null ||
@@ -231,7 +241,8 @@ open class KmehrExport {
 	open fun createItemWithContent(he : HealthElement, idx : Int, cdItem : String, contents : List<ContentType>, localIdName: String = "iCure-HealthElement") : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
-            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = he.id })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = he.healthElementId })
+            ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = "icure-id"; sv = ICUREVERSION; value = he.id })
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
@@ -241,10 +252,17 @@ open class KmehrExport {
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
 			} }
-            isIsrelevant = ((he.status?: 0) and 2) == 0
+            isIsrelevant = ((he.status?: 0) and 2) == 0 // FIXME: two way to store the relevant status
+            //isIsrelevant = if(lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE) true else he.isRelevant // in *MF, all active elements are relevant
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
-            endmoment = he.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
-            recorddatetime = makeXGC(he.modified)
+            endmoment = he.closingDate?.let {
+                if(it == 0L) {
+                    null
+                } else {
+                    Utils.makeMomentTypeFromFuzzyLong(it)
+                }
+            }
+            recorddatetime = makeXGC(he.modified, true)
         }
     }
 
@@ -275,9 +293,14 @@ open class KmehrExport {
         } ?: emptyList()
     }
 
-    fun  makeXGC(date: Long?): XMLGregorianCalendar? {
+    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
         return date?.let {
-            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply { timezone = DatatypeConstants.FIELD_UNDEFINED }
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
+                timezone = DatatypeConstants.FIELD_UNDEFINED
+                if (unsetMillis) {
+                    millisecond = DatatypeConstants.FIELD_UNDEFINED
+                }
+            }
         }
     }
 
@@ -309,7 +332,14 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
-                    compoundprescription = CompoundprescriptionType().apply { this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply { l = language; value = content.medicationValue?.compoundPrescription } )) }
+                    if (it != "" ) {
+                        compoundprescription = CompoundprescriptionType().apply {
+                            this.content.add(ObjectFactory().createCompoundprescriptionTypeMagistraltext(TextType().apply {
+                                l = language;
+                                value = content.medicationValue?.compoundPrescription
+                            } ))
+                        }
+                    }
                 }
                 content.binaryValue?.let {
 					if (Arrays.equals(content.binaryValue.slice(0..4).toByteArray(), "{\\rtf".toByteArray())) {
@@ -451,7 +481,7 @@ open class KmehrExport {
                 author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = ICUREVERSION; value = ssc.id ?: dem.id ?: patient.id })
-                recorddatetime = makeXGC(ssc.created ?: ((dem.openingDate ?: dem.valueDate)?.let { FuzzyValues.getDateTime(it) } ?: LocalDateTime.now()).atZone(ZoneId.systemDefault()).toEpochSecond()*1000)
+                recorddatetime = makeXGC(ssc.created ?: ((dem.openingDate ?: dem.valueDate)?.let { FuzzyValues.getDateTime(it) } ?: LocalDateTime.now()).atZone(ZoneId.systemDefault()).toEpochSecond()*1000, true)
                 isIscomplete = true
                 isIsvalidated = true
 
@@ -481,10 +511,15 @@ open class KmehrExport {
 					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype } ; version = SMF_VERSION }
 				}
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
+                // FIXME: use config or use now ?
+                date = config.date
+                time = config.time
+                /*
                 makeXGC(Instant.now().toEpochMilli()).let {
                     date = it
                     time = it
                 }
+                 */
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
 					hcparties.add(HcpartyType().apply {

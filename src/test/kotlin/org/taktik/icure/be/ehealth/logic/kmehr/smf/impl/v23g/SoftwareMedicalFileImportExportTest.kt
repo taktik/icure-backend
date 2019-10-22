@@ -1,4 +1,4 @@
-package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v2_3g
+package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -9,17 +9,12 @@ import org.mockito.*
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
-import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
-import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g.SoftwareMedicalFileExport
-import org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g.SoftwareMedicalFileImport
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
-import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport.Config
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.*
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.logic.*
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -72,6 +67,15 @@ class SoftwareMedicalFileImportExportTest {
             clinicalSummaryType = "TODO",
             defaultLanguage = "en",
             exportAsPMF = false // no versioning in PMF
+    )
+
+    val config_PMF = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+            date = makeXGC(Instant.now().toEpochMilli())!!,
+            time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+            soft = KmehrExport.Config.Software(name = "iCure", version = "4.0.0"),
+            clinicalSummaryType = "TODO",
+            defaultLanguage = "en",
+            exportAsPMF = true // no versioning in PMF
     )
 
     @Before
@@ -138,6 +142,7 @@ class SoftwareMedicalFileImportExportTest {
         val res0 : ImportResult? = res.firstOrNull()
         Assert.assertNotNull("Patient must be assigned", res0?.patient)
         Assert.assertEquals("There is two HE", 2, res0?.hes?.size)
+        Assert.assertEquals("There is two contacts + clinicalsummary", 3, res0?.ctcs?.size)
         Assert.assertTrue("Hes are two versions of the same He", res0!!.hes[0].healthElementId == res0!!.hes[1].healthElementId)
 
         var out : OutputStream = FileOutputStream("out.xml")
@@ -155,6 +160,40 @@ class SoftwareMedicalFileImportExportTest {
         var reimportedRes0 : ImportResult? = reimportedRes.firstOrNull()
         Assert.assertNotNull("Patient must be assigned", reimportedRes0?.patient)
         Assert.assertEquals("There is two HE", 2, reimportedRes0?.hes?.size)
+        Assert.assertTrue("Hes are two versions of the same He", reimportedRes0!!.hes[0].healthElementId == reimportedRes0!!.hes[1].healthElementId)
+
+    }
+
+    @Test
+    fun heHistory_PMF() { // only last version in PMF
+        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+                .importSMF(
+                        this.javaClass.getResourceAsStream("he.history.xml"),
+                        testUser,
+                        "fr",
+                        mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
+                )
+        val res0 : ImportResult? = res.firstOrNull()
+        Assert.assertNotNull("Patient must be assigned", res0?.patient)
+        Assert.assertEquals("There is two HE", 2, res0?.hes?.size)
+        Assert.assertEquals("There is two contacts + clinicalsummary", 3, res0?.ctcs?.size)
+        Assert.assertTrue("Hes are two versions of the same He", res0!!.hes[0].healthElementId == res0!!.hes[1].healthElementId)
+
+        var out : OutputStream = FileOutputStream("out.xml")
+        softwareMedicalFileExport.exportSMF(out, res0.patient!!, emptyList(), testHcp, "fr", null, null, config_PMF)
+        out.close()
+        clearDb()
+
+        var reimportedRes = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+                .importSMF(
+                        FileInputStream("out.xml"),
+                        testUser,
+                        "fr",
+                        mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
+                )
+        var reimportedRes0 : ImportResult? = reimportedRes.firstOrNull()
+        Assert.assertNotNull("Patient must be assigned", reimportedRes0?.patient)
+        Assert.assertEquals("There is only the last version of HE", 1, reimportedRes0?.hes?.size)
         Assert.assertTrue("Hes are two versions of the same He", reimportedRes0!!.hes[0].healthElementId == reimportedRes0!!.hes[1].healthElementId)
 
     }
