@@ -34,10 +34,12 @@ class SwaggerConfig {
         return Docket(DocumentationType.SWAGGER_2)
                 .securitySchemes(auth)
                 .securityContexts(securityContexts)
-                /*.pathProvider(object: AbstractPathProvider() {
-                    override fun applicationPath() = "/rest/v1" // TODO SH map controllers to /rest/v1 and then uncomment this
+                .consumes(setOf("application/json"))
+                .produces(setOf("application/json"))
+                .pathProvider(object: AbstractPathProvider() {
+                    override fun applicationPath() = "/rest/v1"
                     override fun getDocumentationPath() = "/"
-                })*/
+                })
                 .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build()
     }
 }

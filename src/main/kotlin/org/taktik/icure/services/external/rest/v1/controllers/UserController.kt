@@ -40,10 +40,11 @@ import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
- * is not required by default and overrides it, so we have to make sure they always match! */
+ * is not required by default and overrides it, so we have to make sure they always match!
+ * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
-@RestController()
-@RequestMapping("/rest/v1/user", produces = ["application/json"])
+@RestController
+@RequestMapping("/user")
 @Api(tags = ["user"]) // otherwise would default to "user-controller"
 class UserController(private val mapper: MapperFacade,
                      private val userLogic: UserLogic,
@@ -65,7 +66,7 @@ class UserController(private val mapper: MapperFacade,
         return sessionLogic.orCreateSession.id
     }
 
-    @ApiOperation(value = "Get presently logged-in user.", notes = "Get current user.")
+    @ApiOperation(nickname = "getMatchingUsers", value = "Get presently logged-in user.", notes = "Get current user.")
     @GetMapping("/matches")
     fun getMatchingUsers(): List<UserGroupDto> {
         return (sessionLogic.currentSessionContext.userDetails as DatabaseUserDetails).groupIdUserIdMatching.map { ug ->
