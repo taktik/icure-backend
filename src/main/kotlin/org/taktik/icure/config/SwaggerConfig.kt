@@ -17,7 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
 @EnableSwagger2WebFlux
 class SwaggerConfig {
     @Bean
-    fun api(): Docket { // TODO SH customize Swagger if needed and then compare jsons with previous version to make sure API is backward-compatible
+    fun api(): Docket {
         val securityReference = SecurityReference.builder()
                 .reference("basicAuth")
                 .scopes(arrayOf<AuthorizationScope>())
@@ -29,6 +29,12 @@ class SwaggerConfig {
         return Docket(DocumentationType.SWAGGER_2)
                 .securitySchemes(auth)
                 .securityContexts(securityContexts)
+                .consumes(setOf("application/json"))
+                .produces(setOf("application/json"))
+                /*.pathProvider(object: AbstractPathProvider() { // doesn't work with WebFlux
+                    override fun applicationPath() = "/rest/v1"
+                    override fun getDocumentationPath() = "/"
+                })*/
                 .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build()
     }
 }

@@ -38,7 +38,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import java.time.Instant
 
 @RestController
-@RequestMapping("/rest/v1/accesslog", produces = ["application/json"])
+@RequestMapping("/accesslog")
 @Api(tags = ["accesslog"])
 class AccessLogController(private val mapper: MapperFacade,
                           private val accessLogLogic: AccessLogLogic) {
@@ -104,7 +104,7 @@ class AccessLogController(private val mapper: MapperFacade,
         return accessLogDtos
     }
 
-    @ApiOperation(value = "Modifies an access log")
+    @ApiOperation(nickname = "modifyAccessLog", value = "Modifies an access log")
     @PutMapping
     fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
         val accessLog = accessLogLogic.modifyAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
