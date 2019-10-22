@@ -174,9 +174,9 @@ open class KmehrExport {
                 }
 			} }
             if(cdItem == "medication") {
-                svc.tags.find { it.type == "CD-TEMPORALITY" }?.let {
+                svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
