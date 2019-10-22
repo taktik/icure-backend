@@ -50,7 +50,7 @@ public class DocumentDAOImpl extends GenericIcureDAOImpl<Document> implements Do
     @Autowired
     public DocumentDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(Document.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

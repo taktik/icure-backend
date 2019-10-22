@@ -37,7 +37,7 @@ class KeywordDAOImpl extends GenericIcureDAOImpl<Keyword> implements KeywordDAO 
     @Autowired
     public KeywordDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Keyword.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
 	@Override

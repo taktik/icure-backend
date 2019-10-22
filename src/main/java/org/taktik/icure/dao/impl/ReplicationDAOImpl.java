@@ -56,7 +56,7 @@ public class ReplicationDAOImpl extends GenericDAOImpl<Replication> implements R
 
         this.couchdbInstance = couchdbInstance;
 
-		initStandardDesignDocument();
+
     }
 
     @Override

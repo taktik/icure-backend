@@ -47,7 +47,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	@Autowired
 	public UserDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(User.class, couchdb, idGenerator, cacheManager);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

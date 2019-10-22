@@ -18,6 +18,6 @@ public class PlaceDAOImpl extends GenericDAOImpl<Place> implements PlaceDAO {
     @Autowired
     public PlaceDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(Place.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 }

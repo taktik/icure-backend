@@ -39,7 +39,7 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
     @Autowired
     public CalendarItemDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector db, IDGenerator idGenerator) {
         super(CalendarItem.class, db, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

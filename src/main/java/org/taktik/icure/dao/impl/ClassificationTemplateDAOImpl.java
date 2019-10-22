@@ -43,7 +43,7 @@ class ClassificationTemplateDAOImpl extends GenericIcureDAOImpl<ClassificationTe
     @Autowired
     public ClassificationTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(ClassificationTemplate.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
 	@Override

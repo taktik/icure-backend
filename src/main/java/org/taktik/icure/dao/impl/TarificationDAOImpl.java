@@ -39,7 +39,7 @@ public class TarificationDAOImpl extends GenericDAOImpl<Tarification> implements
 	@Autowired
 	public TarificationDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector db, IDGenerator idGenerator) {
 		super(Tarification.class, db, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override

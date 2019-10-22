@@ -46,7 +46,7 @@ class HealthcarePartyDAOImpl extends CachedDAOImpl<HealthcareParty> implements H
 	@Autowired
     public HealthcarePartyDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(HealthcareParty.class, couchdb, idGenerator, cacheManager);
-        initStandardDesignDocument();
+
     }
 
 	@Override

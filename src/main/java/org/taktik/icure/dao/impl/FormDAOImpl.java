@@ -44,7 +44,7 @@ class FormDAOImpl extends GenericIcureDAOImpl<Form> implements FormDAO {
     @Autowired
     public FormDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Form.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

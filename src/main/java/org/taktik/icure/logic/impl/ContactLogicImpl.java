@@ -209,16 +209,21 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	}
 
 	@Override
-	public List<String> findServicesByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKeys == null ? contactDAO.findServicesByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) : contactDAO.findServicesByPatientTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate);
+	public List<String> listServiceIdsByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
+		return patientSecretForeignKeys == null ? contactDAO.listServiceIdsByTag(hcPartyId, tagType, tagCode, startValueDate, endValueDate) : contactDAO.listServiceIdsByPatientTag(hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate);
 	}
 
 	@Override
-	public List<String> findServicesByCode(String hcPartyId, List<String> patientSecretForeignKeys, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
-		return patientSecretForeignKeys == null ? contactDAO.findServicesByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate);
+	public List<String> listServiceIdsByCode(String hcPartyId, List<String> patientSecretForeignKeys, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
+		return patientSecretForeignKeys == null ? contactDAO.listServiceIdsByCode(hcPartyId, codeType, codeCode, startValueDate, endValueDate) : contactDAO.findServicesByForeignKeys(hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate);
 	}
 
-	@Override
+    @Override
+    public List<String> listContactIds(String hcPartyId) {
+        return contactDAO.listContactIds(hcPartyId);
+    }
+
+    @Override
 	public List<String> findByServices(Collection<String> services) {
 		return contactDAO.findByServices(services);
 	}

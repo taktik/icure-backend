@@ -59,7 +59,7 @@ class FormTemplateDAOImpl extends GenericDAOImpl<FormTemplate> implements FormTe
 	@Autowired
     public FormTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbBase") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
         super(FormTemplate.class, couchdb, idGenerator);
-        initStandardDesignDocument();
+
     }
 
     @Override

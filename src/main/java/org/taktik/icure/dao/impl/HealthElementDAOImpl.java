@@ -45,7 +45,7 @@ class HealthElementDAOImpl extends GenericIcureDAOImpl<HealthElement> implements
 	@Autowired
 	public HealthElementDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
 		super(HealthElement.class, couchdb, idGenerator);
-		initStandardDesignDocument();
+
 	}
 
 	@Override
