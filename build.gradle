@@ -264,6 +264,10 @@ configurations.all {
     exclude group: 'org.apache.openejb', module: 'javaee-api'
 }
 
+springBoot {
+	mainClass = "org.taktik.icure.ICureBackendApplicationKt"
+}
+
 bootRun {
    if ( project.hasProperty('jvmArgs') ) {
         jvmArgs = (project.jvmArgs.split("\\s+") as List)
