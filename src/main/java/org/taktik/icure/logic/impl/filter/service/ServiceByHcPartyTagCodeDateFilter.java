@@ -23,7 +23,6 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.logic.ContactLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.impl.filter.Filter;
 import org.taktik.icure.logic.impl.filter.Filters;
 
@@ -59,7 +58,7 @@ public class ServiceByHcPartyTagCodeDateFilter
             List<String> patientSFKList = patientSFK != null ? Arrays.asList(patientSFK) : null;
 
             if (filter.getTagType() != null && filter.getTagCode() != null) {
-                ids = new HashSet<>(contactLogic.findServicesByTag(
+                ids = new HashSet<>(contactLogic.listServiceIdsByTag(
                         hcPartyId,
                         patientSFKList, filter.getTagType(),
                         filter.getTagCode(), filter.getStartValueDate(), filter.getEndValueDate()
@@ -67,7 +66,7 @@ public class ServiceByHcPartyTagCodeDateFilter
             }
 
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
-                List<String> byCode = contactLogic.findServicesByCode(
+                List<String> byCode = contactLogic.listServiceIdsByCode(
                         hcPartyId,
                         patientSFKList, filter.getCodeType(),
                         filter.getCodeCode(), filter.getStartValueDate(), filter.getEndValueDate()

@@ -34,13 +34,15 @@ public interface ContactDAO extends GenericDAO<Contact> {
 
     List<Contact> get(Collection<String> contactIds);
 
+    List<String> listContactIds(String hcPartyId);
+
     List<Contact> findByHcPartyPatient(String hcPartyId, List<String> secretPatientKeys);
 
-    List<String> findServicesByTag(String hcPartyId, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+    List<String> listServiceIdsByTag(String hcPartyId, String tagType, String tagCode, Long startValueDate, Long endValueDate);
 
-    List<String> findServicesByPatientTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+    List<String> listServiceIdsByPatientTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
 
-    List<String> findServicesByCode(String hcPartyId, String codeType, String codeCode, Long startValueDate, Long endValueDate);
+    List<String> listServiceIdsByCode(String hcPartyId, String codeType, String codeCode, Long startValueDate, Long endValueDate);
 
 	List<CouchKeyValue<Long>> listCodesFrequencies(String hcPartyId, String codeType);
 
