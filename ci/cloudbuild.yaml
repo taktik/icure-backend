@@ -1,0 +1,21 @@
+steps:
+    -   name: 'gcr.io/cloud-builders/git'
+        entrypoint: 'bash'
+        args: [ '-c', 'git fetch --unshallow --tags && git checkout ${BRANCH_NAME} && git submodule init && git submodule update' ]
+
+    -   name: 'gcr.io/cloud-builders/docker'
+        args: ['login', 'docker.taktik.be', '--username', '${_REPO_USERNAME}', '--password', '${_REPO_PASSWORD}']
+
+    -   name: 'gcr.io/cloud-builders/javac' # java + docker
+        entrypoint: 'bash'
+        args: [ '-c', './gradlew :dockerize -x test -PdockerPush && ./gradlew publish' ]
+        env:
+            - 'ORG_GRADLE_PROJECT_repoUsername=${_REPO_USERNAME}'
+            - 'ORG_GRADLE_PROJECT_repoPassword=${_REPO_PASSWORD}'
+            - 'ORG_GRADLE_PROJECT_mavenRepository=https://maven.taktik.be/content/groups/public'
+            - 'ORG_GRADLE_PROJECT_mavenReleasesRepository=https://maven.taktik.be/content/repositories/releases/'
+            - 'ORG_GRADLE_PROJECT_mavenSnapshotsRepository=https://maven.taktik.be/content/repositories/snapshots/'
+
+options:
+    machineType: 'N1_HIGHCPU_8'
+timeout: 2700s
