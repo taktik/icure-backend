@@ -189,7 +189,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 		return true;
 	}
 
-	protected void doAfterPropertiesSet() throws Exception {
+	protected void doAfterPropertiesSet() {
 	}
 
 	@Override

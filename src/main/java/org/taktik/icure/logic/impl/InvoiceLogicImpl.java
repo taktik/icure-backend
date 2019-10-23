@@ -95,7 +95,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 	}
 
 	@Override
-	public List<Invoice> updateInvoices(List<Invoice> invoices) {
+	public List<Invoice> updateInvoices(List<Invoice> invoices) throws org.taktik.icure.exceptions.PersistenceException {
 		return invoiceDAO.save(invoices);
 	}
 

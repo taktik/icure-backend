@@ -31,7 +31,7 @@ import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
 @RestController
 @RequestMapping("/calendarItemType")
 @Api(tags = ["calendarItemType"])
-class CalendarItemTypeFacade(private val calendarItemTypeLogic: CalendarItemTypeLogic,
+class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItemTypeLogic,
                              private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "getCalendarItemTypes", value = "Gets all calendarItemTypes")

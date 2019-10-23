@@ -20,9 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Entity;
 
-@Entity
 public class PropertyDto extends StoredDto implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 

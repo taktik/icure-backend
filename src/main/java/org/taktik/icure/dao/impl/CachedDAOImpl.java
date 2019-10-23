@@ -29,8 +29,8 @@ import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
+import org.taktik.icure.exceptions.PersistenceException;
 
-import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -265,19 +265,19 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     @Override
-    public void remove(T entity) {
+    public void remove(T entity) throws PersistenceException {
         super.removeByIds(Collections.singletonList(entity.getId()));
         evictFromCache(entity);
     }
 
     @Override
-    public void unremove(T entity) {
+    public void unremove(T entity) throws PersistenceException {
         super.unremoveByIds(Collections.singletonList(entity.getId()));
         evictFromCache(entity);
     }
 
     @Override
-    public void purge(T entity) {
+    public void purge(T entity) throws PersistenceException {
         super.purge(entity);
         evictFromCache(entity);
     }
@@ -312,7 +312,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     @Override
-    protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
+    protected <K extends Collection<T>> K save(Boolean newEntity, K entities) throws BulkUpdateConflictException {
         String fullId1 = getFullId(ALL_ENTITIES_CACHE_KEY);
         try {
             entities = super.save(newEntity, entities);

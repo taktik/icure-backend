@@ -23,7 +23,6 @@ package org.taktik.icure.logic.impl
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
 import org.apache.commons.beanutils.PropertyUtilsBean
-import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
@@ -44,8 +43,6 @@ import org.xml.sax.helpers.DefaultHandler
 import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
 import java.util.*
-import java.util.stream.Collectors
-import javax.security.auth.login.LoginException
 import javax.xml.parsers.SAXParserFactory
 import kotlin.collections.HashMap
 

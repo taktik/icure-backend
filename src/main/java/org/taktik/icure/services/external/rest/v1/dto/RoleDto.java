@@ -22,12 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.taktik.icure.constants.Roles;
 
-import javax.persistence.Entity;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
 public class RoleDto extends StoredDto implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 

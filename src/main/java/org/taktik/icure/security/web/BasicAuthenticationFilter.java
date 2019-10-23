@@ -39,7 +39,7 @@ public class BasicAuthenticationFilter extends org.springframework.security.web.
 	}
 
 	@Override
-	protected void onSuccessfulAuthentication(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Authentication authentication) throws IOException {
+	protected void onSuccessfulAuthentication(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Authentication authentication) {
 		sessionLogic.onAuthenticationSuccess(httpRequest, authentication);
 		super.onSuccessfulAuthentication(httpRequest, httpResponse, authentication);
 	}

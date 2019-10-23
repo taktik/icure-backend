@@ -36,6 +36,7 @@ import org.taktik.icure.db.PaginatedDocumentKeyIdPair;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.base.StoredDocument;
+import org.taktik.icure.exceptions.PersistenceException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,17 +57,17 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 	}
 
 	@Override
-	public void remove(T entity) {
+	public void remove(T entity) throws PersistenceException {
 		entity.setDeletionDate(System.currentTimeMillis());
 		this.update(entity);
 	}
 
-	public void unremove(T entity) {
+	public void unremove(T entity) throws PersistenceException {
 		entity.setDeletionDate(null);
 		this.update(entity);
 	}
 
-	public void purge(T entity) {
+	public void purge(T entity) throws PersistenceException {
 		super.remove(entity);
 	}
 

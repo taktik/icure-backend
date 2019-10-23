@@ -32,7 +32,7 @@ import javax.ws.rs.POST
 @RestController
 @RequestMapping("/calendarItem")
 @Api(tags = ["calendarItem"])
-class CalendarItemFacade(private val calendarItemLogic: CalendarItemLogic,
+class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                          private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "getCalendarItems", value = "Gets all calendarItems")
