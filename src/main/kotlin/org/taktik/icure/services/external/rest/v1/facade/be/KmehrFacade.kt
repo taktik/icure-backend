@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.facade.be
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
@@ -321,14 +322,15 @@ class KmehrFacade(
 	@ApiOperation(value = "Import MedicationScheme into patient(s) using existing document", response = ImportResultDto::class, responseContainer = "Array")
 	@POST
 	@Path("/medicationscheme/{documentId}/import")
-	fun importMedicationScheme(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
+	fun importMedicationScheme(@PathParam("documentId") documentId: String, @QueryParam("documentKey") documentKey: String?, @ApiParam(value = "Do not save in database", required = false) @QueryParam("dryRun") dryRun: Boolean?, @QueryParam("patientId") patientId: String?, @QueryParam("language") language: String?, mappings: HashMap<String,List<ImportMapping>>?) : Response {
 
 		val user = sessionLogic.currentSessionContext.user
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
 		val document = documentLogic.get(documentId)
 
 		return ResponseUtils.ok(medicationSchemeLogic.importMedicationSchemeFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
-				patientId?.let { patientLogic.getPatient(patientId) },
-				mappings ?: HashMap()).map {mapper.map(it, ImportResultDto::class.java)})
+                patientId?.let { patientLogic.getPatient(patientId) },
+                mappings ?: HashMap(),
+                dryRun != true).map {mapper.map(it, ImportResultDto::class.java)})
 	}
 }
