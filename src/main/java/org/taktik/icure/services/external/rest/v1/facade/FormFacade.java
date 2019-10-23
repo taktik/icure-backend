@@ -328,7 +328,7 @@ public class FormFacade implements OpenApiFacade {
 	}
 
     @ApiOperation(
-            value = "List helement stubs found By Healthcare Party and secret foreign keys.",
+            value = "List form stubs found By Healthcare Party and secret foreign keys.",
             response = IcureStubDto.class,
             responseContainer = "Array",
             httpMethod = "GET",
@@ -347,13 +347,13 @@ public class FormFacade implements OpenApiFacade {
     }
 
     @ApiOperation(
-            value = "Update delegations in healthElements.",
+            value = "Update delegations in form.",
             httpMethod = "POST",
             notes = "Keys must be delimited by coma"
     )
     @POST
     @Path("/delegations")
-    public Response setHealthElementsDelegations(List<IcureStubDto> stubs) throws Exception {
+    public Response setFormsDelegations(List<IcureStubDto> stubs) throws Exception {
         List<Form> forms = formLogic.getForms(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
         forms.forEach(form -> {
             stubs.stream().filter(s -> s.getId().equals(form.getId())).findFirst().ifPresent(stub -> {
