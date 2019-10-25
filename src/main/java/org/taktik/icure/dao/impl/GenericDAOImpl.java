@@ -41,8 +41,8 @@ import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyM
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.exceptions.BulkUpdateConflictException;
+import org.taktik.icure.exceptions.PersistenceException;
 
-import javax.persistence.PersistenceException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -279,7 +279,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public void remove(T entity) {
+	public void remove(T entity) throws PersistenceException {
 		if (entity != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".remove: " + entity);
@@ -294,7 +294,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public void unremove(T entity) {
+	public void unremove(T entity) throws PersistenceException {
 		if (entity != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".unremove: " + entity);
@@ -306,7 +306,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public void purge(T entity) {
+	public void purge(T entity) throws PersistenceException {
 		if (entity != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".remove: " + entity);
@@ -322,7 +322,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 
 
 	@Override
-	public void removeById(String id) {
+	public void removeById(String id) throws PersistenceException {
 		if (id != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".removeById: " + id);
@@ -335,7 +335,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public void unremoveById(String id) {
+	public void unremoveById(String id) throws PersistenceException {
 		if (id != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".unremoveById: " + id);
@@ -432,16 +432,16 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public <K extends Collection<T>> K create(K entities) {
+	public <K extends Collection<T>> K create(K entities) throws PersistenceException {
 		return save(true, entities);
 	}
 
 	@Override
-	public <K extends Collection<T>> K save(K entities) {
+	public <K extends Collection<T>> K save(K entities) throws PersistenceException {
 		return save(null, entities);
 	}
 
-	protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
+	protected <K extends Collection<T>> K save(Boolean newEntity, K entities) throws BulkUpdateConflictException {
 		if (entities != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".save: " + entities.stream().filter(Objects::nonNull).map(entity->entity.getId() + ":" + entity.getRev()).collect(Collectors.joining(",")));

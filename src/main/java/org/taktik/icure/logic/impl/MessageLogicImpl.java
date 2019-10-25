@@ -21,7 +21,6 @@ package org.taktik.icure.logic.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.DocumentDAO;
 import org.taktik.icure.dao.MessageDAO;
@@ -59,14 +58,14 @@ public class MessageLogicImpl extends GenericLogicImpl<Message, MessageDAO> impl
 	}
 
 	@Override
-	public List<Message> setStatus(List<String> messageIds, int status) {
+	public List<Message> setStatus(List<String> messageIds, int status) throws org.taktik.icure.exceptions.PersistenceException {
 		return messageDAO.save(messageDAO.getList(messageIds).stream().map(m -> {
 			m.setStatus(m.getStatus() != null ? (m.getStatus() | status) : status); return m;
 		}).collect(Collectors.toList()));
 	}
 
 	@Override
-	public List<Message> setReadStatus(List<String> messageIds, String userId, boolean status, Long time) {
+	public List<Message> setReadStatus(List<String> messageIds, String userId, boolean status, Long time) throws org.taktik.icure.exceptions.PersistenceException {
 		return messageDAO.save(messageDAO.getList(messageIds).stream().map(m -> {
 			Map<String, MessageReadStatus> readStatus = m.getReadStatus();
 

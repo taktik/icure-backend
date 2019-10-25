@@ -3,8 +3,8 @@ import java.text.SimpleDateFormat
 buildscript {
 	ext {
 		kotlinVersion = '1.3.50'
-		springBootVersion = '2.1.5.RELEASE'
-		springVersion = '5.1.7.RELEASE'
+		springBootVersion = '2.2.0.RELEASE'
+		springVersion = '5.2.0.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -141,10 +141,6 @@ dependencies {
         exclude group: 'org.taktik.commons', module: 'commons-cluster'
         exclude group: 'org.taktik.commons', module: 'commons-utils'
     }
-
-	//Hibernate
-	compile group:'org.hibernate', name: 'hibernate-core', version: '4.3.10.Final'
-	compile group:'com.h2database', name: 'h2', version: '1.4.187'
 
 	// Jersey
 	compile group: 'org.jboss.resteasy', name: 'jaxrs-api', version: '3.0.8.Final'

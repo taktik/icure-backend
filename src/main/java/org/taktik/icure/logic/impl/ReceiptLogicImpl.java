@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.taktik.icure.dao.ReceiptDAO;
 import org.taktik.icure.entities.Receipt;
 import org.taktik.icure.entities.embed.ReceiptBlobType;
+import org.taktik.icure.exceptions.PersistenceException;
 import org.taktik.icure.logic.ReceiptLogic;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +31,7 @@ public class ReceiptLogicImpl extends GenericLogicImpl<Receipt, ReceiptDAO> impl
 	}
 
 	@Override
-	public void addReceiptAttachment(Receipt receipt, ReceiptBlobType blobType, byte[] payload) {
+	public void addReceiptAttachment(Receipt receipt, ReceiptBlobType blobType, byte[] payload) throws PersistenceException {
 		String newAttachmentId = DigestUtils.sha256Hex(payload);
 
 		receipt.getAttachmentIds().put(blobType, newAttachmentId);

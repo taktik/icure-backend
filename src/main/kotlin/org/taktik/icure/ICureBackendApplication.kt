@@ -28,7 +28,6 @@ import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration
 import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
@@ -62,7 +61,6 @@ import org.taktik.icure.services.external.http.WebSocketServlet
     "org.springframework.boot.autoconfigure.context",
     "org.springframework.boot.autoconfigure.dao",
     "org.springframework.boot.autoconfigure.jackson",
-    "org.springframework.boot.autoconfigure.jdbc",
     "org.springframework.boot.autoconfigure.jersey",
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
@@ -70,7 +68,6 @@ import org.taktik.icure.services.external.http.WebSocketServlet
     "org.taktik.icure.dao",
     "org.taktik.icure.logic",
     "org.taktik.icure.be.ehealth.logic",
-    "org.taktik.icure.be.drugs.dao",
     "org.taktik.icure.be.drugs.logic",
     "org.taktik.icure.be.format.logic",
     "org.taktik.icure.be.samv2.logic",

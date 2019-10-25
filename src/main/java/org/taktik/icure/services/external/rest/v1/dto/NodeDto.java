@@ -18,13 +18,10 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-
-import javax.persistence.Entity;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
 public class NodeDto extends StoredDto implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 

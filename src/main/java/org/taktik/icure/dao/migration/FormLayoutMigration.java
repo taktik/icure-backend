@@ -68,7 +68,7 @@ public class FormLayoutMigration extends CouchDbRepositorySupport<MigrationStub>
 	}
 
 	@Override
-	public void apply() {
+	public void apply() throws org.taktik.icure.exceptions.PersistenceException {
 		List<FormTemplate> templates = formTemplateDAO.getAll();
 		Set<FormTemplate> modified = new HashSet<>();
 		templates.forEach(t-> {

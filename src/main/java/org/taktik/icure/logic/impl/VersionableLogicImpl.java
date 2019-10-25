@@ -18,7 +18,6 @@
 
 package org.taktik.icure.logic.impl;
 
-import org.ektorp.UpdateConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.taktik.icure.dao.GenericDAO;
@@ -42,7 +41,7 @@ public abstract class VersionableLogicImpl<V extends Versionable<String>, D exte
 	private static Logger logger = LoggerFactory.getLogger(VersionableLogicImpl.class);
 
 	@Override
-	public List<V> updateEntities(Collection<V> entities) {
+	public List<V> updateEntities(Collection<V> entities) throws org.taktik.icure.exceptions.PersistenceException {
 		try {
 			return new ArrayList<>(getGenericDAO().save(entities));
 		} catch (BulkUpdateConflictException e) {

@@ -18,8 +18,6 @@
 
 package org.taktik.icure.exceptions;
 
-import javax.persistence.PersistenceException;
-
 import org.taktik.icure.entities.base.StoredDocument;
 
 public class UpdateConflictException extends PersistenceException {

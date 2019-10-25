@@ -18,10 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import javax.persistence.Entity;
 import java.io.Serializable;
 
-@Entity
 public class LocaleDto extends StoredDto implements Cloneable, Serializable {
 	private static final long serialVersionUID = 1L;
 

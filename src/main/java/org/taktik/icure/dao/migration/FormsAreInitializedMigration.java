@@ -53,7 +53,7 @@ public class FormsAreInitializedMigration extends CouchDbRepositorySupport<Migra
 	}
 
 	@Override
-	public void apply() {
+	public void apply() throws org.taktik.icure.exceptions.PersistenceException {
 		PaginatedList<Form> page = formDAO.findAll(new PaginationOffset<>(100));
 		while (true) {
 			List<Form> changedForms = new LinkedList<>();

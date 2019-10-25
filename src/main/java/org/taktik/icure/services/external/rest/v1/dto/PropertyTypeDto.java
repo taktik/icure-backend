@@ -22,9 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import org.taktik.icure.constants.PropertyTypeScope;
 import org.taktik.icure.constants.TypedValuesType;
 
-import javax.persistence.Entity;
-
-@Entity
 public class PropertyTypeDto extends StoredDto implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
