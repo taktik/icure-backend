@@ -110,7 +110,7 @@ open class KmehrExport {
 		return makePerson(p, config).apply {
 			ids.clear()
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-			ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft.version; value= p.id})
+			ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft!!.version; value= p.id})
 		}
 	}
 
@@ -137,7 +137,7 @@ open class KmehrExport {
 		val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
         return PersonType().apply {
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft.version; sl = "${config.soft.name}-Person-Id"; value = id }) }
+            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft!!.version; sl = "${config.soft!!.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN}}
@@ -550,9 +550,9 @@ open class KmehrExport {
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
 					hcparties.add(HcpartyType().apply {
-						ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = config.soft.name; sv = config.soft.version; value = "${config.soft.name}-${config.soft.version}" })
+						ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = config.soft!!.name; sv = config.soft!!.version; value = "${config.soft!!.name}-${config.soft!!.version}" })
                         cds.add(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })
-						name = config.soft.name
+						name = config.soft!!.name
 					})
                 }
             }
@@ -734,8 +734,8 @@ open class KmehrExport {
 	fun localIdKmehr(itemType: String, id: String?, config: Config): IDKMEHR {
 		return IDKMEHR().apply {
 			s = IDKMEHRschemes.LOCAL
-			sv = config.soft.version
-			sl = "${config.soft.name}-$itemType-Id"
+			sv = config.soft!!.version
+			sl = "${config.soft!!.name}-$itemType-Id"
 			value = id
 		}
     }
@@ -752,7 +752,15 @@ open class KmehrExport {
 		const val SMF_VERSION = "2.3"
 	}
 
-	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String, val exportAsPMF: Boolean) {
+	data class Config(
+            var _kmehrId: String? = null,
+            var date: XMLGregorianCalendar? = null,
+            var time: XMLGregorianCalendar? = null,
+            var soft: Software? = null,
+            var clinicalSummaryType: String? = null,
+            var defaultLanguage: String? = null,
+            var exportAsPMF: Boolean = false
+    ) {
 		data class Software(val name : String, val version : String)
 	}
 }

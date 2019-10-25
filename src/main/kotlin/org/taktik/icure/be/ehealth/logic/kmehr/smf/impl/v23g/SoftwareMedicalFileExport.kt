@@ -92,14 +92,24 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			language: String,
 			decryptor: AsyncDecrypt?,
 			progressor: AsyncProgress?,
-			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
+			config: Config = Config(
+                    _kmehrId = System.currentTimeMillis().toString(),
 					date = makeXGC(Instant.now().toEpochMilli())!!,
 					time = makeXGC(Instant.now().toEpochMilli(), true)!!,
 					soft = Config.Software(name = "iCure", version = ICUREVERSION),
 					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
 					exportAsPMF = true
-			)) {
+			)
+    ) {
+
+        // fill missing config with default values
+        config._kmehrId = config._kmehrId ?: System.currentTimeMillis().toString()
+        config.date = config.date ?: makeXGC(Instant.now().toEpochMilli())!!
+        config.time = config.time ?: makeXGC(Instant.now().toEpochMilli(), true)!!
+        config.soft = config.soft ?: Config.Software(name = "iCure", version = ICUREVERSION)
+        config.defaultLanguage = config.defaultLanguage ?: "en"
+        config.exportAsPMF = config.exportAsPMF ?: true
 
 		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 

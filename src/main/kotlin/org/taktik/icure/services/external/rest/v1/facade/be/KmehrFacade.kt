@@ -178,7 +178,7 @@ class KmehrFacade(
 	@Produces("application/octet-stream")
 	fun generateSmfExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, smfExportParams: SoftwareMedicalFileExportDto) : Response {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
-		return ResponseUtils.ok(StreamingOutput { output -> softwareMedicalFileLogic.createSmfExport(output!!, patientLogic.getPatient(patientId), smfExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", null, null) })
+		return ResponseUtils.ok(StreamingOutput { output -> softwareMedicalFileLogic.createSmfExport(output!!, patientLogic.getPatient(patientId), smfExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", null, null, smfExportParams.exportAsPMF) })
 	}
 
 	@ApiOperation(value = "Get Medicationscheme export")
