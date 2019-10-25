@@ -204,8 +204,8 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "closeForHCPartyPatientSecretFKeys", value = "Close contacts for Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @PutMapping("/byHcPartySecretForeignKeys/close")
-    fun closeForHCPartyPatientSecretFKeys(@RequestParam("hcPartyId") hcPartyId: String,
-                                          @RequestParam("secretFKeys") secretFKeys: String): List<ContactDto> {
+    fun closeForHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+                                          @RequestParam secretFKeys: String): List<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactList = contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Contacts failed. Please try again or read the server log.")
@@ -324,9 +324,9 @@ class ContactController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/service/filter")
     fun filterServicesBy(
-            @ApiParam(value = "The start key for pagination, depends on the filters used. If multiple keys are used, the keys are delimited by coma") @RequestParam("startKey", required = false) startKey: String?,
-            @ApiParam(value = "A Contact document ID") @RequestParam("startDocumentId", required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam("limit", required = false) limit: Int?,
+            @ApiParam(value = "The start key for pagination, depends on the filters used. If multiple keys are used, the keys are delimited by coma") @RequestParam(required = false) startKey: String?,
+            @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
+            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody(required = false) filterChain: FilterChain?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto> {
 
         var startKeyList: ArrayList<*>? = null

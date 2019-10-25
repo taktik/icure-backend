@@ -61,7 +61,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
 
     @ApiOperation(nickname = "deleteCalendarItemType", value = "Deletes an calendarItemType")
     @DeleteMapping("/{calendarItemTypeIds}")
-    fun deleteCalendarItemType(@PathVariable("calendarItemTypeIds") calendarItemTypeIds: String): List<String> {
+    fun deleteCalendarItemType(@PathVariable calendarItemTypeIds: String): List<String> {
         return calendarItemTypeLogic.deleteCalendarItemTypes(calendarItemTypeIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType deletion failed")
     }

@@ -29,7 +29,7 @@ class ClusterController(private val sessionLogic: SessionLogic,
                     private val userLogic: UserLogic,
                     private val userReplicator: UserReplicator) {
 
-    @ApiOperation(value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(nickname = "groupSyncStatus", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/gsyncs")
     fun groupSyncStatus(): List<SyncStatusDto> {
         val id = sessionLogic.currentSessionContext.groupIdUserId

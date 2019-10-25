@@ -49,7 +49,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getDocumentTemplate", value = "Gets a document template")
     @GetMapping("/{documentTemplateId}")
-    fun getDocumentTemplate(@PathVariable("documentTemplateId") documentTemplateId: String): DocumentTemplateDto {
+    fun getDocumentTemplate(@PathVariable documentTemplateId: String): DocumentTemplateDto {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "DocumentTemplate fetching failed")
         return mapper.map(documentTemplate, DocumentTemplateDto::class.java)

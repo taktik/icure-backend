@@ -27,14 +27,14 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
     @DeleteMapping("/{articleIds}")
-    fun deleteArticle(@PathVariable("articleIds") articleIds: String) {
+    fun deleteArticle(@PathVariable articleIds: String) {
         articleLogic.deleteArticles(articleIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article deletion failed")
     }
 
     @ApiOperation(nickname = "getArticle", value = "Gets an article")
     @GetMapping("/{articleId}")
-    fun getArticle(@PathVariable("articleId") articleId: String): ArticleDto {
+    fun getArticle(@PathVariable articleId: String): ArticleDto {
         val article = articleLogic.getArticle(articleId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article fetching failed")
 

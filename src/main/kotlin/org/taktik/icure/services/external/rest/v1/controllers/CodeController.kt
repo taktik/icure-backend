@@ -129,10 +129,10 @@ class CodeController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "findCodes", value = "Finding codes by code, type and version", notes = "Returns a list of codes matched with given input.")
     @GetMapping("/byRegionTypeCode")
     fun findCodes(
-            @ApiParam(value = "Code region") @RequestParam("region") region: String?,
-            @ApiParam(value = "Code type") @RequestParam("type") type: String?,
-            @ApiParam(value = "Code code") @RequestParam("code") code: String?,
-            @ApiParam(value = "Code version") @RequestParam("version") version: String?): List<CodeDto> {
+            @ApiParam(value = "Code region") @RequestParam region: String?,
+            @ApiParam(value = "Code type") @RequestParam type: String?,
+            @ApiParam(value = "Code code") @RequestParam code: String?,
+            @ApiParam(value = "Code version") @RequestParam version: String?): List<CodeDto> {
 
         val codesList = codeLogic.findCodesBy(region, type, code, version)
         return codesList.map { c -> mapper.map(c, CodeDto::class.java) }

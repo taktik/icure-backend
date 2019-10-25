@@ -45,7 +45,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @ApiOperation(nickname = "createCalendarItem", value = "Creates a calendarItem")
-    @POST
+    @PostMapping
     fun createCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
         val calendarItem = calendarItemLogic.createCalendarItem(mapper.map(calendarItemDto, CalendarItem::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem creation failed")
@@ -55,14 +55,14 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "deleteCalendarItem", value = "Deletes an calendarItem")
     @DeleteMapping("/{calendarItemIds}")
-    fun deleteCalendarItem(@PathVariable("calendarItemIds") calendarItemIds: String): List<String> {
+    fun deleteCalendarItem(@PathVariable calendarItemIds: String): List<String> {
         return calendarItemLogic.deleteCalendarItems(calendarItemIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem deletion failed")
     }
 
     @ApiOperation(nickname = "getCalendarItem", value = "Gets an calendarItem")
     @GetMapping("/{calendarItemId}")
-    fun getCalendarItem(@PathVariable("calendarItemId") calendarItemId: String): CalendarItemDto {
+    fun getCalendarItem(@PathVariable calendarItemId: String): CalendarItemDto {
         val calendarItem = calendarItemLogic.getCalendarItem(calendarItemId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem fetching failed")
 
