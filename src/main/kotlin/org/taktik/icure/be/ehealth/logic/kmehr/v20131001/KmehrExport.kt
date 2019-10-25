@@ -202,7 +202,7 @@ open class KmehrExport {
                                                         value = drugUnit.code
                                                     }
                                                 }
-                    }
+                                            }
                                         })
                                     }
                                 }
@@ -217,13 +217,27 @@ open class KmehrExport {
                     }
                     med.drugRoute?.let { c ->
                         route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; value = c } }
+                    }
+                    this.beginmoment = med.beginMoment?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
+                    this.endmoment = med.endMoment?.let {
+                        if(it == 0L) {
+                            null
+                        } else {
+                            Utils.makeMomentTypeDateFromFuzzyLong(it)
+                        }
+                    }
                 }
-            }
             }
 
             isIsrelevant = ((svc.status?: 0) and 2) == 0
-            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
-            endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
+            beginmoment = beginmoment ?: (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
+            endmoment = endmoment ?: svc.closingDate?.let {
+                if(it == 0L) {
+                    null
+                } else {
+                    Utils.makeMomentTypeDateFromFuzzyLong(it)
+                }
+            }
             recorddatetime = makeXGC(svc.modified, true)
         }
     }
@@ -246,14 +260,21 @@ open class KmehrExport {
             cds.add(CDITEM().apply {s(CDITEMschemes.CD_ITEM); value = cdItem } )
 
             this.contents.addAll(filterEmptyContent(contents))
-            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (((he.status ?: 0) and 2) != 0 || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
-                CDLIFECYCLEvalues.INACTIVE
-                else
-                    he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
-			} }
-            isIsrelevant = ((he.status?: 0) and 2) == 0 // FIXME: two way to store the relevant status
-            //isIsrelevant = if(lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE) true else he.isRelevant // in *MF, all active elements are relevant
+            lifecycle = LifecycleType().apply {
+                cd = CDLIFECYCLE().apply {
+                    s = "CD-LIFECYCLE"
+                    // status: 0=00=relevant-active, 1=01=relevant-inactive, 2=10=irrelevant-active, 3=11=irrelevant-inactive (=archive)
+                    value = if( (((he.status ?: 0) and 1) == 1)  || (he.closingDate != null && he.closingDate != 0L && he.closingDate < FuzzyValues.getCurrentFuzzyDateTime()) ) {
+                        CDLIFECYCLEvalues.INACTIVE
+                    } else {
+                        he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
+                    }
+                }
+            }
+            isIsrelevant = ((he.status?: 0) and 2) == 0 || he.isRelevant  // FIXME: two way to store the relevant status
+            if(lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE) {
+                isIsrelevant = true // in *MF, all active elements are relevant
+            }
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let {
                 if(it == 0L) {

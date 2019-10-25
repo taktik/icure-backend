@@ -193,8 +193,8 @@ class SoftwareMedicalFileImportExportTest {
                 )
         var reimportedRes0 : ImportResult? = reimportedRes.firstOrNull()
         Assert.assertNotNull("Patient must be assigned", reimportedRes0?.patient)
-        Assert.assertEquals("There is only the last version of HE", 1, reimportedRes0?.hes?.size)
-        Assert.assertTrue("Hes are two versions of the same He", reimportedRes0!!.hes[0].healthElementId == reimportedRes0!!.hes[1].healthElementId)
+        Assert.assertEquals("There is only one HE", 1, reimportedRes0?.hes?.size)
+        Assert.assertEquals("There is only the last version of HE", "comcom2, Hypothermie", reimportedRes0?.hes?.first()?.descr)
 
     }
 
