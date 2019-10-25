@@ -101,8 +101,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
 
     @ApiOperation(nickname = "newDelegations", value = "Delegates a classification to a healthcare party", notes = "It delegates a classification to a healthcare party (By current healthcare party). Returns the element with new delegations.")
-    @POST
-    @Path("/{classificationId}/delegate")
+    @PostMapping("/{classificationId}/delegate")
     fun newDelegations(@PathVariable classificationId: String, @RequestBody ds: List<DelegationDto>): ClassificationDto {
         classificationLogic.addDelegations(classificationId, ds.map { mapper.map(it, Delegation::class.java) })
         val classificationWithDelegation = classificationLogic.getClassification(classificationId)

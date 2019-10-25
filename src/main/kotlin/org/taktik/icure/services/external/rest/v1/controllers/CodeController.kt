@@ -49,8 +49,7 @@ class CodeController(private val mapper: MapperFacade,
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
-    @GetMapping
-    @Path("/byLabel")
+    @GetMapping("/byLabel")
     fun findPaginatedCodesByLabel(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) types: String?,
@@ -164,8 +163,7 @@ class CodeController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "getCodes", value = "Get a list of codes by ids", notes = "Keys must be delimited by coma")
-    @GetMapping
-    @Path("/byIds/{codeIds}")
+    @GetMapping("/byIds/{codeIds}")
     fun getCodes(@PathVariable codeIds: String): List<CodeDto> {
         val codes = codeLogic[codeIds.split(',')]
         return codes.map { f -> mapper.map(f, CodeDto::class.java) }
@@ -180,8 +178,7 @@ class CodeController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "getCodeWithParts", value = "Get a code", notes = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
-    @GetMapping
-    @Path("/{type}/{code}/{version}")
+    @GetMapping("/{type}/{code}/{version}")
     fun getCodeWithParts(
             @ApiParam(value = "Code type") @PathVariable type: String,
             @ApiParam(value = "Code code") @PathVariable code: String,
