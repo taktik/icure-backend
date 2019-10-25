@@ -44,7 +44,7 @@ import kotlin.math.min
 @RestController
 @RequestMapping("/code")
 @Api(tags = ["code"])
-class CodeFacade(private val mapper: MapperFacade,
+class CodeController(private val mapper: MapperFacade,
                  private val codeLogic: CodeLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

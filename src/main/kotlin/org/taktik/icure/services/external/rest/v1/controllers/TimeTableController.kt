@@ -35,8 +35,8 @@ import java.util.*
 @RestController
 @RequestMapping("/timeTable")
 @Api(tags = ["timeTable"])
-class TimeTableFacade(private val timeTableLogic: TimeTableLogic,
-                      private val mapper: MapperFacade) {
+class TimeTableController(private val timeTableLogic: TimeTableLogic,
+                          private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "createTimeTable", value = "Creates a timeTable")
     @PostMapping

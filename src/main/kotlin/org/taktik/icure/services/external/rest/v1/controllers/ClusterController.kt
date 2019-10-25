@@ -25,7 +25,7 @@ import java.util.stream.Collectors
 @RestController
 @RequestMapping("/cluster")
 @Api(tags = ["cluster"])
-class ClusterFacade(private val sessionLogic: SessionLogic,
+class ClusterController(private val sessionLogic: SessionLogic,
                     private val userLogic: UserLogic,
                     private val userReplicator: UserReplicator) {
 

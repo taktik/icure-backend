@@ -34,7 +34,8 @@ import java.util.*
 @RestController
 @RequestMapping("/replication")
 @Api(tags = ["replication"])
-class ReplicationFacade(private val replicationLogic: ReplicationLogic, private val mapper: MapperFacade) {
+class ReplicationController(private val replicationLogic: ReplicationLogic,
+                            private val mapper: MapperFacade) {
 
 
     @ApiOperation(nickname = "createTemplateReplication", value = "Creates a replication for a speciality database")

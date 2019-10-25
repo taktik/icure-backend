@@ -54,7 +54,7 @@ import java.util.*
 @RestController
 @RequestMapping("/contact")
 @Api(tags = ["contact"])
-class ContactFacade(private val mapper: MapperFacade,
+class ContactController(private val mapper: MapperFacade,
                     private val filters: org.taktik.icure.logic.impl.filter.Filters,
                     private val contactLogic: ContactLogic,
                     private val sessionLogic: SessionLogic) {

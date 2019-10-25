@@ -39,8 +39,8 @@ import kotlin.streams.toList
 @RestController
 @RequestMapping("/tarification")
 @Api(tags = ["tarification"])
-class TarificationFacade(private val mapper: MapperFacade,
-                         private val tarificationLogic: TarificationLogic) {
+class TarificationController(private val mapper: MapperFacade,
+                             private val tarificationLogic: TarificationLogic) {
 
     @ApiOperation(nickname = "findPaginatedTarificationsByLabel", value = "Finding tarifications by tarification, type and version with pagination.", notes = "Returns a list of tarifications matched with given input.")
     @GetMapping("/byLabel")

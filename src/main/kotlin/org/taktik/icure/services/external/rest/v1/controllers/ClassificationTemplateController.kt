@@ -42,7 +42,7 @@ import javax.ws.rs.core.Response
 @RestController
 @RequestMapping("/classificationTemplate")
 @Api(tags = ["classificationTemplate"])
-class ClassificationTemplateFacade(private val mapper: MapperFacade,
+class ClassificationTemplateController(private val mapper: MapperFacade,
                                    private val classificationTemplateLogic: ClassificationTemplateLogic) {
 
     @ApiOperation(nickname = "createClassificationTemplate", value = "Create a classification Template with the current user", notes = "Returns an instance of created classification Template.")

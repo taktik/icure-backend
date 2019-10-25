@@ -36,7 +36,8 @@ import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
 @RestController
 @RequestMapping("/receipt")
 @Api(tags = ["receipt"])
-class ReceiptFacade(private val receiptLogic: ReceiptLogic, private val mapper: MapperFacade, private val sessionLogic: SessionLogic) {
+class ReceiptController(private val receiptLogic: ReceiptLogic,
+                        private val mapper: MapperFacade, private val sessionLogic: SessionLogic) {
 
     @ApiOperation(nickname = "createReceipt", value = "Creates a receipt")
     @PostMapping
@@ -119,6 +120,6 @@ class ReceiptFacade(private val receiptLogic: ReceiptLogic, private val mapper: 
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ReceiptFacade::class.java)
+        private val logger = LoggerFactory.getLogger(javaClass)
     }
 }
