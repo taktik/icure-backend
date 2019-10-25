@@ -1,5 +1,3 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-
 import java.text.SimpleDateFormat
 
 buildscript {
@@ -19,8 +17,8 @@ buildscript {
 		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 		classpath('com.taktik.gradle:gradle-plugin-docker-java:1.1.4')
 
-		classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.12')
-		classpath('com.github.ben-manes:gradle-versions-plugin:0.17.0') // version 0.18.0 is incompatible with Spring Boot (see https://github.com/spring-gradle-plugins/spring-build-conventions/issues/44)
+		classpath('com.taktik.gradle:gradle-plugin-git-version:1.0.13')
+		classpath('com.github.ben-manes:gradle-versions-plugin:0.21.0')
 	}
 }
 
@@ -34,6 +32,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
 apply plugin: 'com.github.ben-manes.versions' // usage: ./gradlew dependencyUpdates
+apply plugin: 'maven-publish'
 
 configure(allprojects) {
     apply plugin: 'propdeps'
@@ -257,4 +256,33 @@ bootRun {
    if ( project.hasProperty('jvmArgs') ) {
         jvmArgs = (project.jvmArgs.split("\\s+") as List)
    }
+}
+
+// Write the full name of the dependency to the standard output
+project.tasks.withType(AbstractPublishToMaven) {
+	doFirst {
+		println "PublishToMaven: " + project.group + ":" + project.name + ":" + project.version
+	}
+}
+
+publish {
+	dependsOn assemble
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+		maven {
+			url "https://maven.taktik.be/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
+			credentials {
+				username repoUsername
+				password repoPassword
+			}
+		}
+	}
 }

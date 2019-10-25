@@ -857,7 +857,7 @@ private fun initializeMocks() {
         }
     }
 
-    Mockito.`when`(contactLogic.findServicesByTag(any(), any(), any(), any(), any(), any())).thenAnswer {
+    Mockito.`when`(contactLogic.listServiceIdsByTag(any(), any(), any(), any(), any(), any())).thenAnswer {
         val tagType = it.getArgumentAt(2, String::class.java)
         val tagCode = it.getArgumentAt(3, String::class.java)
 
