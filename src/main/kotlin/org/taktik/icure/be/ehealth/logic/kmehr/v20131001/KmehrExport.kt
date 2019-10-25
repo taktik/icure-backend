@@ -329,7 +329,13 @@ open class KmehrExport {
         return (content.booleanValue ?: content.numberValue ?: content.stringValue ?: content.instantValue
                 ?: content.measureValue ?: content.medicationValue ?: content.binaryValue ?: content.documentId).let {
             ContentType().apply {
-				isBoolean = content.booleanValue
+                if(language == "isSurgical") { // trick used in frontend to specify surgical status of a procedure
+                    if(content.booleanValue == true) {
+                        this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.LOCAL); sl = "isSurgical"; value = content.booleanValue.toString() })
+                    }
+                } else {
+                    isBoolean = content.booleanValue
+                }
                 content.numberValue?.let { decimal = BigDecimal.valueOf(it) }
                 content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply { l = language; value = content.stringValue }) } }
 				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }

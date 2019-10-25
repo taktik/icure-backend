@@ -846,28 +846,41 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	fun excludesServiceForPMF(servlist: List<Service>, config: Config) : List<Service>{
 		// PMF = all active items + all relevant inactive items
 		return if(config.exportAsPMF) {
-			servlist.filter{
-                (it.endOfLife == null || it.endOfLife == 0L)  		                    // not deleted
+			servlist.filter{ svc ->
+                (svc.endOfLife == null || svc.endOfLife == 0L) // not deleted
                 && (
                     (
-                        it.tags.any {
+                        svc.tags.any { // is tagged active
                             it.type == "CD-LIFECYCLE" && (
-                                    it.code == "active"                             // is tagged active
-                                    || it.code == "administrated"                   // vaccines should be included
+                                    listOf("active", "pending").contains(it.code) // "administrated" because vaccines should be included
                             )
                         }
-                        || (((it.status ?: 0) and 0x01) == 0)                               // or is status active
+                        || ( // or administrated vaccine
+                            svc.tags.any({ it.type == "CD-ITEM" && listOf("vaccine").contains(it.code) }) // acts have always status=0, exclude them from this test
+                            && svc.tags.any { // is tagged active
+                                it.type == "CD-LIFECYCLE" && (
+                                    listOf("completed").contains(it.code) // "administrated" because vaccines should be included
+                                )
+                            }
+                        )
+                        || ( // or is status active
+                                svc.tags.none({ it.type == "CD-ITEM" && listOf("acts", "vaccine").contains(it.code) }) // acts have always status=0, exclude them from this test
+                                && ((svc.status ?: 0) and 0x01) == 0
+                        )
                     )
-                    || (((it.status ?: 0) and 0x10) == 0)						                // is status relevant
+                    || ( // is status relevant
+                            svc.tags.none({ it.type == "CD-ITEM" && listOf("acts", "vaccine").contains(it.code) }) // acts have always status=0, exclude them from this test
+                            && ((svc.status ?: 0) and 0x10) == 0
+                        )
                 )
-                && (                                                                            // no closingDate or closed in futur
-                        it.closingDate == null
-                        || it.closingDate == 0L
-                        || it.closingDate!!.toLong() > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
+                && ( // no closingDate or closed in futur
+                        svc.closingDate == null
+                        || svc.closingDate == 0L
+                        || svc.closingDate!!.toLong() > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
                 )
                 && (
                         // medication store end moment in content.medicationValue.endMoment instead of svc.closingDate
-                        it.content.values.find { content ->
+                        svc.content.values.find { content ->
                             content.medicationValue != null
                         }?.let { content ->
                             content.medicationValue!!.endMoment == null
@@ -877,7 +890,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                 )
                 && (
                         // is newest version: there is no history in PMF
-                        newestServicesById[it.id] == it
+                        newestServicesById[svc.id] == svc
                 )
 			}
 		} else {

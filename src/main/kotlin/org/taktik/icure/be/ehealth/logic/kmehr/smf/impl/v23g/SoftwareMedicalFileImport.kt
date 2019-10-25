@@ -1059,6 +1059,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
                 Unit
             })
+            if(item.contents.any { it.cds.any { it.s == CDCONTENTschemes.LOCAL && it.sl == "isSurgical" && it.value.trim().toLowerCase() == "true" } }) {
+                this.content["isSurgical"] = Content().apply{ booleanValue = true }
+            }
+
         }
     }
 
