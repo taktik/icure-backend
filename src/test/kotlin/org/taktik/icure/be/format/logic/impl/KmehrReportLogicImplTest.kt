@@ -27,16 +27,16 @@ class KmehrReportLogicImplTest {
     @Before
     fun setUp() {
         `when`(contactLogic.modifyContact(Matchers.any(Contact::class.java)))
-                .thenAnswer { it.getArgumentAt(0, Contact::class.java) }
+                .thenAnswer { it.getArgument(0, Contact::class.java) }
 
         `when`(documentLogic.modifyDocument(Matchers.any(Document::class.java)))
-                .thenAnswer { it.getArgumentAt(0, Document::class.java) }
+                .thenAnswer { it.getArgument(0, Document::class.java) }
 
         `when`(documentLogic.createDocument(Matchers.any(Document::class.java), Matchers.any(String::class.java)))
-                .thenAnswer { it.getArgumentAt(0, Document::class.java) }
+                .thenAnswer { it.getArgument(0, Document::class.java) }
 
         `when`(patientLogic.modifyPatient(Matchers.any(Patient::class.java)))
-                .thenAnswer { it.getArgumentAt(0, Patient::class.java) }
+                .thenAnswer { it.getArgument(0, Patient::class.java) }
 
         kmehrReportLogic.contactLogic = contactLogic;
         kmehrReportLogic.documentLogic = documentLogic;

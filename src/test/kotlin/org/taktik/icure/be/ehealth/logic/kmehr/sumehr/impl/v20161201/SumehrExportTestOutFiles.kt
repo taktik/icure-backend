@@ -43,6 +43,7 @@ import kotlin.reflect.full.memberProperties
 private const val DIR_PATH = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/out"
 
 private val sumehrExport = SumehrExport()
+private val includeIrrelevantInformation = false
 
 private val applicationContext = Mockito.mock(ApplicationContext::class.java)
 private val autowireCapableBeanFactory = Mockito.mock(AutowireCapableBeanFactory::class.java)
@@ -851,15 +852,15 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(contactLogic.getServices(any())).thenAnswer {
-        val ids = it.getArgumentAt(0, HashSet::class.java) as HashSet<String>
+        val ids = it.getArgument(0, HashSet::class.java) as HashSet<String>
         services.filter { service ->
             ids.contains(service.id)
         }
     }
 
     Mockito.`when`(contactLogic.listServiceIdsByTag(any(), any(), any(), any(), any(), any())).thenAnswer {
-        val tagType = it.getArgumentAt(2, String::class.java)
-        val tagCode = it.getArgumentAt(3, String::class.java)
+        val tagType = it.getArgument(2, String::class.java)
+        val tagCode = it.getArgument(3, String::class.java)
 
         services.filter { service ->
             service.tags.any { tag ->
@@ -872,7 +873,7 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(codeLogic.isValid(any() ?: Code(), any())).thenAnswer {
-        val code = it.getArgumentAt(0, Code::class.java) as Code
+        val code = it.getArgument(0, Code::class.java) as Code
         when (code.type) {
             "CD-FED-COUNTRY" -> when (code.code) {
                 "be", "belgium", "belgique" -> true
@@ -884,7 +885,7 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any())).thenAnswer {
-        (it.getArgumentAt(0, List::class.java) as List<String>).mapNotNull {
+        (it.getArgument(0, List::class.java) as List<String>).mapNotNull {
             if (hcparties.containsKey(it)) {
                 hcparties[it]
             } else {
@@ -894,7 +895,7 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(healthcarePartyLogic.getHealthcareParty(any())).thenAnswer {
-        hcparties[it.getArgumentAt(0, String::class.java) as String]
+        hcparties[it.getArgument(0, String::class.java) as String]
     }
 
     Mockito.`when`(healthElementLogic.findLatestByHCPartySecretPatientKeys(any(), any())).thenAnswer {
@@ -902,7 +903,7 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
-        (it.getArgumentAt(0, List::class.java) as List<String>).mapNotNull {
+        (it.getArgument(0, List::class.java) as List<String>).mapNotNull {
             if (patients.containsKey(it)) {
                 patients[it]
             } else {
@@ -912,7 +913,7 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(decryptor.decrypt<ServiceDto>(any(), any())).thenAnswer {
-        val encryptedServices = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<ServiceDto>
+        val encryptedServices = it.getArgument(0, ArrayList::class.java) as ArrayList<ServiceDto>
         object : Future<List<ServiceDto>> {
             private val decryptedServices = encryptedServices.map { it.decrypt() }
 
@@ -925,12 +926,12 @@ private fun initializeMocks() {
     }
 
     Mockito.`when`(mapper.map<Service, ServiceDto>(any(Service::class.java), eq(ServiceDto::class.java))).thenAnswer {
-        val service = it.getArgumentAt(0, ArrayList::class.java) as Service
+        val service = it.getArgument(0, ArrayList::class.java) as Service
         service.map()
     }
 
     Mockito.`when`(mapper.map<ServiceDto, Service>(any(ServiceDto::class.java), eq(Service::class.java))).thenAnswer {
-        val service = it.getArgumentAt(0, ArrayList::class.java) as ServiceDto
+        val service = it.getArgument(0, ArrayList::class.java) as ServiceDto
         service.map()
     }
 }
@@ -1797,7 +1798,7 @@ private fun CodeDto.map(): Code {
         this@apply.label = this@map.label?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.level = this@map.level
         this@apply.links = this@map.links?.toList()
-        this@apply.parent = this@map.parent
+        //this@apply.parent = this@map.parent // TODO AD no parent field?
         this@apply.qualifiedLinks = this@map.qualifiedLinks?.map { Pair(it.key, it.value?.toList()) }?.toMap()
         this@apply.regions = this@map.regions?.toSet()
         this@apply.searchTerms = this@map.searchTerms?.map { Pair(it.key, it.value?.toSet()) }?.toMap()
