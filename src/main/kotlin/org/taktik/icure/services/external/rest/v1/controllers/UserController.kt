@@ -44,7 +44,7 @@ import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
  * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/rest/v1/user")
 @Api(tags = ["user"]) // otherwise would default to "user-controller"
 class UserController(private val mapper: MapperFacade,
                      private val userLogic: UserLogic,

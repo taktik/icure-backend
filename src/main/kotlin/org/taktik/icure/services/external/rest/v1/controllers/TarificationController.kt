@@ -37,7 +37,7 @@ import java.io.Serializable
 import kotlin.streams.toList
 
 @RestController
-@RequestMapping("/tarification")
+@RequestMapping("/rest/v1/tarification")
 @Api(tags = ["tarification"])
 class TarificationController(private val mapper: MapperFacade,
                              private val tarificationLogic: TarificationLogic) {

@@ -11,7 +11,7 @@ import org.taktik.icure.logic.ArticleLogic
 import org.taktik.icure.services.external.rest.v1.dto.ArticleDto
 
 @RestController
-@RequestMapping("/article")
+@RequestMapping("/rest/v1/article")
 @Api(tags = ["article"])
 class ArticleController(private val mapper: MapperFacade,
                         private val articleLogic: ArticleLogic) {

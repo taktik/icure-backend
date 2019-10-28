@@ -32,7 +32,7 @@ import java.util.*
 
 
 @RestController
-@RequestMapping("/replication")
+@RequestMapping("/rest/v1/replication")
 @Api(tags = ["replication"])
 class ReplicationController(private val replicationLogic: ReplicationLogic,
                             private val mapper: MapperFacade) {

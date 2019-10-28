@@ -33,7 +33,7 @@ import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
 import java.util.*
 
 @RestController
-@RequestMapping("/timeTable")
+@RequestMapping("/rest/v1/timeTable")
 @Api(tags = ["timeTable"])
 class TimeTableController(private val timeTableLogic: TimeTableLogic,
                           private val mapper: MapperFacade) {

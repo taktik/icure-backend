@@ -23,7 +23,7 @@ import java.util.Comparator
 import java.util.stream.Collectors
 
 @RestController
-@RequestMapping("/cluster")
+@RequestMapping("/rest/v1/cluster")
 @Api(tags = ["cluster"])
 class ClusterController(private val sessionLogic: SessionLogic,
                     private val userLogic: UserLogic,

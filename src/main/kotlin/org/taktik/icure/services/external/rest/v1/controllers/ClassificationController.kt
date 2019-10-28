@@ -35,7 +35,7 @@ import javax.ws.rs.POST
 import javax.ws.rs.Path
 
 @RestController
-@RequestMapping("/classification")
+@RequestMapping("/rest/v1/classification")
 @Api(tags = ["classification"])
 class ClassificationController(private val mapper: MapperFacade,
                                private val classificationLogic: ClassificationLogic) {

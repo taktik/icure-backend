@@ -52,7 +52,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 @RestController
-@RequestMapping("/contact")
+@RequestMapping("/rest/v1/contact")
 @Api(tags = ["contact"])
 class ContactController(private val mapper: MapperFacade,
                     private val filters: org.taktik.icure.logic.impl.filter.Filters,

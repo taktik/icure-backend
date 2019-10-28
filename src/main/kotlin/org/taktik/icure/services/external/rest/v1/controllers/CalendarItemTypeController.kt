@@ -29,7 +29,7 @@ import org.taktik.icure.logic.CalendarItemTypeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
 
 @RestController
-@RequestMapping("/calendarItemType")
+@RequestMapping("/rest/v1/calendarItemType")
 @Api(tags = ["calendarItemType"])
 class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItemTypeLogic,
                              private val mapper: MapperFacade) {

@@ -41,7 +41,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
 
 @RestController
-@RequestMapping("/doctemplate")
+@RequestMapping("/rest/v1/doctemplate")
 @Api(tags = ["doctemplate"])
 class DocumentTemplateController(private val mapper: MapperFacade,
                                  private val documentTemplateLogic: DocumentTemplateLogic,

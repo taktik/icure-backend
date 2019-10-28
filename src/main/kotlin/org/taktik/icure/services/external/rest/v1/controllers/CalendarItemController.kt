@@ -30,7 +30,7 @@ import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
 import javax.ws.rs.POST
 
 @RestController
-@RequestMapping("/calendarItem")
+@RequestMapping("/rest/v1/calendarItem")
 @Api(tags = ["calendarItem"])
 class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                          private val mapper: MapperFacade) {

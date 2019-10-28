@@ -35,7 +35,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import java.time.Instant
 
 @RestController
-@RequestMapping("/accesslog")
+@RequestMapping("/rest/v1/accesslog")
 @Api(tags = ["accesslog"])
 class AccessLogController(private val mapper: MapperFacade,
                           private val accessLogLogic: AccessLogLogic) {

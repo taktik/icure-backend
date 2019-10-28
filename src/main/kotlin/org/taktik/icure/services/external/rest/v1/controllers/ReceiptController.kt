@@ -34,7 +34,7 @@ import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
 
 @RestController
-@RequestMapping("/receipt")
+@RequestMapping("/rest/v1/receipt")
 @Api(tags = ["receipt"])
 class ReceiptController(private val receiptLogic: ReceiptLogic,
                         private val mapper: MapperFacade, private val sessionLogic: SessionLogic) {
@@ -82,14 +82,14 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
             @RequestParam enckeys: String,
             @RequestBody payload: ByteArray): ReceiptDto {
 
-        var payload = payload
+        var encryptedPayload = payload
         if (enckeys.isNotEmpty()) {
-            payload = CryptoUtils.encryptAESWithAnyKey(payload, enckeys.split(',')[0])
+            encryptedPayload = CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])
         }
 
         val receipt = receiptLogic.getEntity(receiptId)
         if (receipt != null) {
-            receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), payload)
+            receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), encryptedPayload)
             return mapper.map(receipt, ReceiptDto::class.java)
         }
         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")

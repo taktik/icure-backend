@@ -30,7 +30,7 @@ import org.taktik.icure.logic.AgendaLogic
 import org.taktik.icure.services.external.rest.v1.dto.AgendaDto
 
 @RestController
-@RequestMapping("/agenda")
+@RequestMapping("/rest/v1/agenda")
 @Api(tags = ["agenda"])
 class AgendaController(private val agendaLogic: AgendaLogic,
                        private val mapper: MapperFacade) {

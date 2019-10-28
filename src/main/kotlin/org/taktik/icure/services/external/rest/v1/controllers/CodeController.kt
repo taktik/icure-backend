@@ -42,7 +42,7 @@ import javax.ws.rs.Path
 import kotlin.math.min
 
 @RestController
-@RequestMapping("/code")
+@RequestMapping("/rest/v1/code")
 @Api(tags = ["code"])
 class CodeController(private val mapper: MapperFacade,
                  private val codeLogic: CodeLogic) {

@@ -36,10 +36,6 @@ class SwaggerConfig {
                 .securityContexts(securityContexts)
                 .consumes(setOf("application/json"))
                 .produces(setOf("application/json"))
-                .pathProvider(object: AbstractPathProvider() {
-                    override fun applicationPath() = "/rest/v1"
-                    override fun getDocumentationPath() = "/"
-                })
                 .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build()
     }
 }

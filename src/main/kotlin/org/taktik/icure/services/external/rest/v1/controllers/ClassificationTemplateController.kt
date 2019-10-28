@@ -40,7 +40,7 @@ import javax.ws.rs.QueryParam
 import javax.ws.rs.core.Response
 
 @RestController
-@RequestMapping("/classificationTemplate")
+@RequestMapping("/rest/v1/classificationTemplate")
 @Api(tags = ["classificationTemplate"])
 class ClassificationTemplateController(private val mapper: MapperFacade,
                                    private val classificationTemplateLogic: ClassificationTemplateLogic) {

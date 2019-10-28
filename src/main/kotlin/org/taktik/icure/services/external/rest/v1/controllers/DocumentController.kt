@@ -41,7 +41,7 @@ import javax.ws.rs.Path
 import javax.ws.rs.core.MediaType
 
 @RestController
-@RequestMapping("/document")
+@RequestMapping("/rest/v1/document")
 @Api(tags = ["document"])
 class DocumentController(private val documentLogic: DocumentLogic,
                          private val mapper: MapperFacade,
