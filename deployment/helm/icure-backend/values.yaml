@@ -33,14 +33,3 @@ images:
             ICURE_MIKRONO_SUPERUSER: "icure"
             ICURE_MIKRONO_SUPERTOKEN: "" # config
             ICURE_MIKRONO_APPLICATIONTOKEN: "" # config
-    frontend:
-        repository: "docker.taktik.be/icure-frontend"
-        tag:
-        replicaCount: 1
-        memoryRequest: "64M"
-        memoryLimit: "512M"
-        cpuRequest: 50m
-        cpuLimit: 500m
-        servicePort: 80
-        virtualHosts: ["frontend.icure.dev", "ht.icure.dev"]
-        env: {}
