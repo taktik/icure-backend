@@ -37,7 +37,8 @@ import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
 @RequestMapping("/rest/v1/receipt")
 @Api(tags = ["receipt"])
 class ReceiptController(private val receiptLogic: ReceiptLogic,
-                        private val mapper: MapperFacade, private val sessionLogic: SessionLogic) {
+                        private val mapper: MapperFacade) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "createReceipt", value = "Creates a receipt")
     @PostMapping
@@ -117,9 +118,5 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
             logger.error("Cannot update receipt", e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
         }
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(javaClass)
     }
 }
