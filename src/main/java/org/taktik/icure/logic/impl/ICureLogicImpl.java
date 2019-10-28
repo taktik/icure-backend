@@ -66,7 +66,7 @@ public class ICureLogicImpl implements ICureLogic {
 		Manifest manifest = JarUtils.getManifest();
 		if (manifest != null) {
 			String version = manifest.getMainAttributes().getValue("Build-revision");
-			return version != null ? version.trim() : "";
+			return version != null ? version.trim() : ""; // TODO SH why is the version empty?
 		} else {
 			return propertyLogic.getSystemPropertyValue(PropertyTypes.System.VERSION.getIdentifier()).toString().trim();
 		}
