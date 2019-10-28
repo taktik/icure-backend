@@ -35,6 +35,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.firewall.HttpFirewall
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.web.filter.GenericFilterBean
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PermissionLogic
 import org.taktik.icure.logic.UserLogic
@@ -47,6 +48,10 @@ import org.taktik.icure.security.web.BasicAuthenticationFilter
 import org.taktik.icure.security.web.LoginUrlAuthenticationEntryPoint
 import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
 import javax.servlet.Filter
+import javax.servlet.FilterChain
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
+import javax.servlet.http.HttpServletResponse
 
 @Configuration
 class SecurityConfig {
@@ -58,6 +63,14 @@ class SecurityConfig {
 
     @Bean
     fun basicAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = BasicAuthenticationFilter(authenticationManager)
+
+    @Bean
+    fun sameSiteFilter() = object : GenericFilterBean() {
+        override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {
+            response?.let { (it as? HttpServletResponse)?.setHeader("Set-Cookie", "HttpOnly; SameSite=None; Secure") }
+            chain?.doFilter(request, response)
+        }
+    }
 
     @Bean
     fun usernamePasswordAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint, sessionLogic: ICureSessionLogic) = UsernamePasswordAuthenticationFilter().apply {
@@ -82,13 +95,14 @@ class SecurityConfig {
     @Bean
     fun securityConfigAdapter(
             daoAuthenticationProvider: CustomAuthenticationProvider,
+            sameSiteFilter: GenericFilterBean,
             basicAuthenticationFilter: BasicAuthenticationFilter,
             usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
             exceptionTranslationFilter: ExceptionTranslationFilter,
             remotingExceptionTranslationFilter: ExceptionTranslationFilter,
             httpFirewall: HttpFirewall
                              )
-        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
+        = SecurityConfigAdapter(daoAuthenticationProvider, sameSiteFilter, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
 
     @Bean
     fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
@@ -99,6 +113,7 @@ class SecurityConfig {
 
 @Configuration
 class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
+                            private val sameSiteFilter: Filter,
                             private val basicAuthenticationFilter: Filter,
                             private val usernamePasswordAuthenticationFilter: Filter,
                             private val exceptionTranslationFilter: Filter,
@@ -120,8 +135,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
         http!!.csrf().disable().addFilterBefore(
             FilterChainProxy(
                 listOf(
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter),
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), sameSiteFilter, basicAuthenticationFilter, remotingExceptionTranslationFilter),
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), sameSiteFilter, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
                       )
                 ).apply {
                     setFirewall(httpFirewall)
