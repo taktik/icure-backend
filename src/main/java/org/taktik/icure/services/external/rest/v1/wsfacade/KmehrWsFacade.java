@@ -158,12 +158,12 @@ public class KmehrWsFacade {
 
 	@Path("/generateMedicationScheme")
 	@WebSocketOperation(adapterClass = KmehrFileOperation.class)
-	public void generateMedicationSchemeExport(@WebSocketParam("patientId") String patientId , @WebSocketParam("language") String language, @WebSocketParam("info") MedicationSchemeExportInfoDto info,  @WebSocketParam("version") Integer version, KmehrFileOperation operation) throws IOException {
+	public void generateMedicationSchemeExport(@WebSocketParam("patientId") String patientId , @WebSocketParam("language") String language, @WebSocketParam("info") MedicationSchemeExportInfoDto info,  @WebSocketParam("version") String recipientSafe,  @WebSocketParam("version") Integer version, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
 			medicationSchemeLogic.createMedicationSchemeExport(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					language, version, operation, null);
+					language, recipientSafe, version, operation, null);
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
