@@ -126,7 +126,7 @@ class EntityTemplateFacade(private val mapper: MapperFacade,
         return if (succeed) {
             mapper.map(modifiedEntityTemplate, EntityTemplateDto::class.java)
         } else {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the entityTemplate failed. Read the server log.)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the entityTemplate failed. Read the server log.")
         }
     }
 }
