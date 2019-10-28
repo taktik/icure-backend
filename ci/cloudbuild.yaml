@@ -11,5 +11,5 @@ steps:
         args: [ '-c', './gradlew :dockerize -x test -PdockerPush' ]
 
 options:
-    machineType: 'N1_HIGHCPU_8'
+    machineType: 'N1_HIGHCPU_32' #'N1_HIGHCPU_8'
 timeout: 2700s
