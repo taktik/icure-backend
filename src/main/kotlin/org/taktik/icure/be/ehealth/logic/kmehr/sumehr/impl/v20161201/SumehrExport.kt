@@ -478,7 +478,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
-		val item = createItemWithContent(svc, itemIndex, "vaccine", svc.content.entries.mapNotNull {
+		var item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null
 			it.value.documentId = null
@@ -488,8 +488,9 @@ class SumehrExport : KmehrExport() {
 			it.value.stringValue = null
 
 			makeContent(it.key, it.value)
-		})
+		}.first()))
 
+        //item.contents = item.contents.distinctBy{it -> it.medicinalproduct.intendedname}
 		item?.let {
 			addServiceCodesAndTags(svc, it, true, listOf("CD-ATC", "CD-VACCINEINDICATION"), null, listOf("CD-TRANSACTION", "CD-TRANSACTION-TYPE"))
 		}
