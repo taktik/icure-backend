@@ -50,7 +50,7 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
     @GetMapping("/{frontEndMigrationId}")
     fun getFrontEndMigration(@PathVariable frontEndMigrationId: String): FrontEndMigrationDto {
         val migration = frontEndMigrationLogic.getFrontEndMigration(frontEndMigrationId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Frontend migration fetching failed")
         return mapper.map(migration, FrontEndMigrationDto::class.java)
     }
 

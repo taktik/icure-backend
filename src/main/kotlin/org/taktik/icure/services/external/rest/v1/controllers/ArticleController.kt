@@ -36,12 +36,12 @@ class ArticleController(private val mapper: MapperFacade,
     @GetMapping("/{articleId}")
     fun getArticle(@PathVariable articleId: String): ArticleDto {
         val article = articleLogic.getArticle(articleId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
 
         return mapper.map(article, ArticleDto::class.java)
     }
 
-    @ApiOperation(nickname = "modifyArticle", value = "Modifies an article")  // TODO nickname required?
+    @ApiOperation(nickname = "modifyArticle", value = "Modifies an article")
     @PutMapping
     fun modifyArticle(@RequestBody articleDto: ArticleDto): ArticleDto {
         val article = articleLogic.modifyArticle(mapper.map(articleDto, Article::class.java))

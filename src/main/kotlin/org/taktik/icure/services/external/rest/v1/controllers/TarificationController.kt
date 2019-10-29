@@ -146,7 +146,7 @@ class TarificationController(private val mapper: MapperFacade,
     @GetMapping("/{tarificationId}")
     fun getTarification(@ApiParam(value = "Tarification id") @PathVariable tarificationId: String) =
             tarificationLogic.get(tarificationId)?.let { mapper.map(it, TarificationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the tarification. Read the app logs.")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
     @ApiOperation(nickname = "getTarificationWithParts", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{type}/{tarification}/{version}")
@@ -155,7 +155,7 @@ class TarificationController(private val mapper: MapperFacade,
             @ApiParam(value = "Tarification tarification", required = true) @PathVariable tarification: String,
             @ApiParam(value = "Tarification version", required = true) @PathVariable version: String) =
             tarificationLogic.get(type, tarification, version)?.let { mapper.map(it, TarificationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the tarification. Read the app logs.")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
 
     @ApiOperation(nickname = "modifyTarification", value = "Modify a tarification", notes = "Modification of (type, tarification, version) is not allowed.")

@@ -105,7 +105,7 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
     @GetMapping("/{replicationId}")
     fun getReplication(@PathVariable replicationId: String): ReplicationDto {
         return replicationLogic.getEntity(replicationId)?.let { mapper.map(it, ReplicationDto::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Replication fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Replication fetching failed")
 
     }
 

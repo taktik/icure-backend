@@ -57,7 +57,7 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
     @GetMapping("/{classificationTemplateId}")
     fun getClassificationTemplate(@PathVariable classificationTemplateId: String): ClassificationTemplateDto {
         val element = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.")
         return mapper.map(element, ClassificationTemplateDto::class.java)
     }
 

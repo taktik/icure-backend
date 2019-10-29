@@ -80,7 +80,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 mapper.map(timeTable, TimeTableDto::class.java)
             } else {
                 timeTableLogic.getTimeTable(timeTableId).let { mapper.map(it, TimeTableDto::class.java) }
-                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable fetching failed")
+                        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "TimeTable fetching failed")
             }
 
     @ApiOperation(nickname = "modifyTimeTable", value = "Modifies an timeTable")
@@ -99,7 +99,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
         }
         timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId)?.let { return it.map { mapper.map(it, TimeTableDto::class.java) } }
                 ?: throw ResponseStatusException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        HttpStatus.NOT_FOUND,
                         "Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log."
                     )
     }

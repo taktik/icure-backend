@@ -56,7 +56,7 @@ class UserController(private val mapper: MapperFacade,
     @GetMapping(value = ["/current"])
     fun getCurrentUser(): UserDto {
         val user = userLogic.getUser(sessionLogic.currentSessionContext.user.id)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
         return mapper.map(user, UserDto::class.java)
     }
 
@@ -81,7 +81,6 @@ class UserController(private val mapper: MapperFacade,
             @ApiParam(value = "An user email") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: String?): UserPaginatedList {
-        logger.info("listUsers in controller")
 
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit?.toInt())
         val allUsers = userLogic.listUsers(paginationOffset)

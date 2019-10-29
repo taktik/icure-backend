@@ -73,7 +73,7 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
             @RequestParam enckeys: String?): ByteArray? =
             receiptLogic.getAttachment(receiptId, attachmentId)?.let {
                 if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Attachment not found")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a receipt's attachment")
     @PutMapping("/{receiptId}/attachment/{blobType}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -100,7 +100,7 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     @GetMapping("/{receiptId}")
     fun getReceipt(@PathVariable receiptId: String): ReceiptDto =
             receiptLogic.getEntity(receiptId)?.let {  mapper.map(it, ReceiptDto::class.java)}
-                    ?:throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt not found")
+                    ?:throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
 
     @ApiOperation(nickname = "listByReference", value = "Gets a receipt")
     @GetMapping("/byref/{ref}")

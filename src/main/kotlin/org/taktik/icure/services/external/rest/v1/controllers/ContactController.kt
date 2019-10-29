@@ -109,7 +109,7 @@ class ContactController(private val mapper: MapperFacade,
     @GetMapping("/{contactId}")
     fun getContact(@PathVariable contactId: String): ContactDto {
         val contact = contactLogic.getContact(contactId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
         return mapper.map(contact, ContactDto::class.java)
     }
 

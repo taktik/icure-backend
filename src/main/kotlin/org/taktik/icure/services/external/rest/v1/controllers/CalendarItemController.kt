@@ -64,7 +64,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @GetMapping("/{calendarItemId}")
     fun getCalendarItem(@PathVariable calendarItemId: String): CalendarItemDto {
         val calendarItem = calendarItemLogic.getCalendarItem(calendarItemId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItem fetching failed")
 
         return mapper.map(calendarItem, CalendarItemDto::class.java)
     }
@@ -102,7 +102,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
         return calendars.map { mapper.map(it, CalendarItemDto::class.java) }
     }
 }

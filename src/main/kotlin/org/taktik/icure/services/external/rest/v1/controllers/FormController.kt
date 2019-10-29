@@ -61,7 +61,7 @@ class FormController(private val mapper: MapperFacade,
     @GetMapping("/{formId}")
     fun getForm(@PathVariable formId: String): FormDto {
         val form = formLogic.getForm(formId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form fetching failed")
         return mapper.map(form, FormDto::class.java)
     }
 
@@ -163,7 +163,7 @@ class FormController(private val mapper: MapperFacade,
     @GetMapping("/template/{formTemplateId}")
     fun getFormTemplate(@PathVariable formTemplateId: String): FormTemplateDto {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "FormTemplate fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate fetching failed")
         return mapper.map(formTemplate, FormTemplateDto::class.java)
     }
 

@@ -173,7 +173,7 @@ class CodeController(private val mapper: MapperFacade,
     @GetMapping("/{codeId}")
     fun getCode(@ApiParam(value = "Code id") @PathVariable codeId: String): CodeDto {
         val c = codeLogic[codeId]
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the code. Read the app logs.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code. Read the app logs.")
         return mapper.map(c, CodeDto::class.java)
     }
 
@@ -185,7 +185,7 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "Code version") @PathVariable version: String): CodeDto {
 
         val c = codeLogic[type, code, version]
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the code with parts. Read the app logs.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code with parts. Read the app logs.")
         return mapper.map(c, CodeDto::class.java)
     }
 

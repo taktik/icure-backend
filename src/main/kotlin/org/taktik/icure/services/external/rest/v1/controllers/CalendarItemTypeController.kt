@@ -70,7 +70,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     @GetMapping("/{calendarItemTypeId}")
     fun getCalendarItemType(@PathVariable calendarItemTypeId: String): CalendarItemTypeDto {
         val calendarItemType = calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
 
         return mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
     }

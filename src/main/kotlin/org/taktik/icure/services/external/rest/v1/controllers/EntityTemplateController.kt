@@ -104,7 +104,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
     @GetMapping("/{entityTemplateId}")
     fun getEntityTemplate(@ApiParam(value = "EntityTemplate id", required = true) @PathVariable entityTemplateId: String): EntityTemplateDto {
         val c = entityTemplateLogic.getEntityTemplate(entityTemplateId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the entityTemplate. Read the app logs.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the entityTemplate. Read the app logs.")
 
         val et = mapper.map(c, EntityTemplateDto::class.java)
         et.entity = c.entity

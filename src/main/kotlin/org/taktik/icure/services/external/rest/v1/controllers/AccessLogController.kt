@@ -60,7 +60,7 @@ class AccessLogController(private val mapper: MapperFacade,
     @GetMapping("/{accessLogId}")
     fun getAccessLog(@PathVariable accessLogId: String): AccessLogDto {
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AccessLog fetching failed")
 
         return mapper.map(accessLog, AccessLogDto::class.java)
     }

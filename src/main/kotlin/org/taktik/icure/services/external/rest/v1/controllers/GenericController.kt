@@ -108,7 +108,7 @@ class GenericController(internal val mapper: MapperFacade,
             return if (succeed) {
                 mapper.map(r, dtoC)
             } else {
-                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "The document does not exist")
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "The document does not exist")
             }
         } catch (e: ClassNotFoundException) {
             throw IllegalArgumentException(e)

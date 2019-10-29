@@ -35,7 +35,7 @@ class EntityReferenceController(private val entityReferenceLogic: EntityReferenc
     @ApiOperation(value = "Find latest reference for a prefix ")
     @GetMapping("/latest/{prefix}")
     fun getLatest(@PathVariable prefix: String): EntityReference {
-        return entityReferenceLogic.getLatest(prefix)
+        return entityReferenceLogic.getLatest(prefix) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
     }
 
     @ApiOperation(value = "Create an entity reference")
