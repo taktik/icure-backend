@@ -64,6 +64,8 @@ public class Code extends StoredDocument implements CodeIdentification {
 
 	protected String data;
 
+    protected String parent; //ID of the parent
+
     protected Map<AppendixType, String> appendices;
 
     protected boolean disabled;
@@ -223,6 +225,10 @@ public class Code extends StoredDocument implements CodeIdentification {
 	public void setData(String data) {
 		this.data = data;
 	}
+
+    public String getParent() { return parent; }
+
+    public void setParent(String parent) { this.parent = parent; }
 
     public String getAuthor() { return author; }
 

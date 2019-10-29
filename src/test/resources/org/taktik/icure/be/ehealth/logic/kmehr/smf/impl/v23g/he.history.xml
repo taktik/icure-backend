@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--    Property : The Virtuous Circle   Author   : Yves De Bock      Demonstration material: XML message    -->
+<kmehrmessage xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ehealth.fgov.be/standards/kmehr/schema/v1 file:///D:/Data/Professional/TVC/Missions/MedOffice/LabelInfo2013/Kmehr/xsd-kmehr-1.7.0/ehealth-kmehr/XSD/kmehr_elements-1_7.xsd">
+  <header>
+    <standard>
+      <cd S="CD-STANDARD" SV="1.7">20131001</cd>
+      <specialisation>
+        <cd S="CD-MESSAGE" SV="1.0">gpsoftwaremigration</cd>
+        <version>2.3</version>
+      </specialisation>
+    </standard>
+    <id S="ID-KMEHR" SV="1.0">18422674004.20190529121814</id>
+    <date>2019-05-29</date>
+    <time>12:18:14</time>
+    <sender>
+      <hcparty>
+        <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+        <id S="INSS" SV="1.0">61080736682</id>
+        <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+        <firstname>Emmanuelle</firstname>
+        <familyname>Berquin</familyname>
+        <telecom>
+          <cd S="CD-ADDRESS" SV="1.0">work</cd>
+          <cd S="CD-TELECOM" SV="1.0">email</cd>
+          <telecomnumber>mm@mm.be</telecomnumber>
+        </telecom>
+      </hcparty>
+      <hcparty>
+        <id S="LOCAL" SV="6.7.4">Pricare 6.7.4</id>
+        <cd S="CD-HCPARTY" SV="1.0">application</cd>
+        <name>Pricare</name>
+      </hcparty>
+    </sender>
+    <recipient>
+      <hcparty>
+        <cd S="CD-HCPARTY" SV="1.0">application</cd>
+        <name>gp-software-migration</name>
+      </hcparty>
+    </recipient>
+  </header>
+  <folder>
+    <id S="ID-KMEHR" SV="1.0">1</id>
+    <patient>
+      <id S="LOCAL" SV="1.0" SL="MEDINOTE">f89f17b7-826c-4bf2-860b-d9409e58ca79</id>
+      <firstname>Test He</firstname>
+      <familyname>HISTORIQUE</familyname>
+      <birthdate>
+        <date>2001-05-29</date>
+      </birthdate>
+      <sex>
+        <cd S="CD-SEX" SV="1.0">unknown</cd>
+      </sex>
+      <recorddatetime>2019-05-29T12:15:50</recorddatetime>
+    </patient>
+    <transaction>
+      <id S="LOCAL" SL="MF-ID" SV="1.0">4300670d-cd66-42be-a951-4c81b36b4214</id>
+      <id S="ID-KMEHR" SV="1.0">1</id>
+      <cd S="CD-TRANSACTION" SV="1.1">clinicalsummary</cd>
+      <date>2019-05-29</date>
+      <time>12:18:14</time>
+      <author>
+        <hcparty>
+          <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+          <id S="INSS" SV="1.0">61080736682</id>
+          <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+          <firstname>Emmanuelle</firstname>
+          <familyname>Berquin</familyname>
+          <telecom>
+            <cd S="CD-ADDRESS" SV="1.0">work</cd>
+            <cd S="CD-TELECOM" SV="1.0">email</cd>
+            <telecomnumber>mm@mm.be</telecomnumber>
+          </telecom>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">6eb4a27b-ec2b-45dc-9055-5b1c45a29954</id>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.1">gmdmanager</cd>
+        <content>
+          <hcparty>
+            <id S="ID-HCPARTY" SV="1.0"></id>
+            <cd S="CD-HCPARTY" SV="1.0">orgprimaryhealthcarecenter</cd>
+            <name>figac MM</name>
+            <telecom>
+              <cd S="CD-ADDRESS" SV="1.0">work</cd>
+              <cd S="CD-TELECOM" SV="1.0">email</cd>
+              <telecomnumber>mm@mm.be</telecomnumber>
+            </telecom>
+          </hcparty>
+        </content>
+        <content>
+          <date>2019-01-01</date>
+          <time>00:00:00</time>
+        </content>
+        <beginmoment>
+          <date>2019-06-01</date>
+        </beginmoment>
+      </item>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">210eb92d-60cd-4e04-9c6f-b7fee2014213</id>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <cd S="CD-ITEM" SV="1.1">insurancystatus</cd>
+        <content>
+          <insurance>
+            <id S="ID-INSURANCE" SV="1.0">000</id>
+            <membership>5555545445454</membership>
+            <cg1>100</cg1>
+            <cg2>000</cg2>
+          </insurance>
+        </content>
+      </item>
+      <text L="en"></text>
+    </transaction>
+    <transaction>
+      <id S="LOCAL" SL="MF-ID" SV="1.0">c45c13b5-8f6f-4485-9552-04c535896386</id>
+      <id S="ID-KMEHR" SV="1.0">2</id>
+      <cd S="CD-TRANSACTION" SV="1.1">contactreport</cd>
+      <date>2019-05-28</date>
+      <time>12:16:22</time>
+      <author>
+        <hcparty>
+          <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+          <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+          <firstname>Emmanuelle</firstname>
+          <familyname>Berquin</familyname>
+          <telecom>
+            <cd S="CD-ADDRESS" SV="1.0">work</cd>
+            <cd S="CD-TELECOM" SV="1.0">email</cd>
+            <telecomnumber>mm@mm.be</telecomnumber>
+          </telecom>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.1">encounterdatetime</cd>
+        <content>
+          <date>2019-05-28</date>
+          <time>12:16:22</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <cd S="CD-ITEM" SV="1.1">encountertype</cd>
+        <content>
+          <cd S="CD-ENCOUNTER" SV="1.0">consultation</cd>
+        </content>
+      </item>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">1a2b05c4-083c-4f67-87dd-5b3df3b81bd1</id>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <cd S="CD-ITEM" SV="1.1">healthcareelement</cd>
+        <content>
+          <cd S="ICPC" SV="2">A88</cd>
+          <cd S="LOCAL" SL="MEDINOTE.MEDICALCODEID" SV="1.0" DN="Hypothermie" L="fr">icpc2icd10;locas1.A88.022;icpc2.A88</cd>
+        </content>
+        <content>
+          <text L="fr">Hypothermie</text>
+        </content>
+        <text L="en">comcom</text>
+        <beginmoment>
+          <date>2019-05-28</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <certainty>
+          <cd S="CD-CERTAINTY" SV="1.0">probable</cd>
+        </certainty>
+        <recorddatetime>2019-05-29T12:17:12</recorddatetime>
+      </item>
+      <recorddatetime>2019-05-29T12:17:12</recorddatetime>
+    </transaction>
+    <transaction>
+      <id S="LOCAL" SL="MF-ID" SV="1.0">2d4d29df-71d8-4977-80b4-ae28d2cb4c14</id>
+      <id S="ID-KMEHR" SV="1.0">3</id>
+      <cd S="CD-TRANSACTION" SV="1.1">contactreport</cd>
+      <date>2019-05-29</date>
+      <time>12:17:21</time>
+      <author>
+        <hcparty>
+          <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+          <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+          <firstname>Emmanuelle</firstname>
+          <familyname>Berquin</familyname>
+          <telecom>
+            <cd S="CD-ADDRESS" SV="1.0">work</cd>
+            <cd S="CD-TELECOM" SV="1.0">email</cd>
+            <telecomnumber>mm@mm.be</telecomnumber>
+          </telecom>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.1">encounterdatetime</cd>
+        <content>
+          <date>2019-05-29</date>
+          <time>12:17:21</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <cd S="CD-ITEM" SV="1.1">encountertype</cd>
+        <content>
+          <cd S="CD-ENCOUNTER" SV="1.0">consultation</cd>
+        </content>
+      </item>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">1a2b05c4-083c-4f67-87dd-5b3df3b81bd1</id>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <cd S="CD-ITEM" SV="1.1">healthcareelement</cd>
+        <content>
+          <cd S="ICPC" SV="2">A88</cd>
+          <cd S="LOCAL" SL="MEDINOTE.MEDICALCODEID" SV="1.0" DN="Hypothermie" L="fr">icpc2icd10;locas1.A88.022;icpc2.A88</cd>
+        </content>
+        <content>
+          <text L="fr">Hypothermie</text>
+        </content>
+        <text L="en">comcom2</text>
+        <beginmoment>
+          <date>2019-05-20</date>
+        </beginmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <certainty>
+          <cd S="CD-CERTAINTY" SV="1.0">probable</cd>
+        </certainty>
+        <recorddatetime>2019-05-29T12:18:01</recorddatetime>
+        <lnk TYPE="isanewversionof" URL="//item[id[@SL=&quot;MF-ID&quot; and .=&quot;1a2b05c4-083c-4f67-87dd-5b3df3b81bd1&quot;]]" />
+      </item>
+      <recorddatetime>2019-05-29T12:18:00</recorddatetime>
+    </transaction>
+  </folder>
+</kmehrmessage>
