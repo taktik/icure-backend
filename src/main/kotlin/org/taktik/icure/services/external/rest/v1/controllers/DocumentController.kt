@@ -149,8 +149,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     }
 
     @ApiOperation(nickname = "setAttachmentMulti", value = "Creates a document's attachment")
-    @PutMapping("/{documentId}/attachment/multipart")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA])
     fun setAttachmentMulti(@PathVariable documentId: String,
                            @RequestParam(required = false) enckeys: String?,
                            @RequestPart("attachment") payload: ByteArray): DocumentDto {
