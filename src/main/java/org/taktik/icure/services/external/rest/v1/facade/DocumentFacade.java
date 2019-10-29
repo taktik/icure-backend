@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.taktik.commons.uti.UTI;
 import org.taktik.icure.entities.Document;
-import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.entities.embed.DocumentType;
 import org.taktik.icure.exceptions.CreationException;
@@ -40,17 +39,12 @@ import org.taktik.icure.logic.DocumentLogic;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.security.CryptoUtils;
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
-import org.taktik.icure.services.external.rest.v1.dto.EMailDocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
-import org.taktik.icure.services.external.rest.v1.dto.be.GenericResult;
 import org.taktik.icure.utils.FormUtils;
 import org.taktik.icure.utils.ResponseUtils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.security.auth.login.LoginException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -73,9 +67,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -160,29 +151,29 @@ public class DocumentFacade implements OpenApiFacade{
 				byte[] finalAttachment = attachment;
 				UTI uti = UTI.get(document.getMainUti());
 
-				String mimeType = uti != null && uti.getMimeTypes().size()>0 ? uti.getMimeTypes().get(0) : "application/octet-stream";
+				String mimeType = uti != null && uti.getMimeTypes().size() > 0 ? uti.getMimeTypes().get(0) : "application/octet-stream";
 
 				response = Response.ok()
 						.header("Content-Type", mimeType)
-						.header("Content-Disposition",  "attachment; filename=\""+(fileName != null ? fileName : document.getName())+"\"")
+						.header("Content-Disposition", "attachment; filename=\"" + (fileName != null ? fileName : document.getName()) + "\"")
 						.entity((StreamingOutput) output -> {
-					if (StringUtils.equals(document.getMainUti(),"org.taktik.icure.report")) {
-						String styleSheet = "DocumentTemplateLegacyToNew.xml";
+							if (StringUtils.equals(document.getMainUti(), "org.taktik.icure.report")) {
+								String styleSheet = "DocumentTemplateLegacyToNew.xml";
 
-						final Source xmlSource = new StreamSource(new ByteArrayInputStream(finalAttachment));
-						Source xsltSource = new StreamSource(FormUtils.class.getResourceAsStream(styleSheet));
-						final Result result = new javax.xml.transform.stream.StreamResult(output);
-						TransformerFactory transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-						try {
-							final Transformer trans = transFact.newTransformer(xsltSource);
-							trans.transform(xmlSource, result);
-						} catch (TransformerException e) {
-							throw new IllegalStateException("Could not convert legacy document");
-						}
-					} else {
-						IOUtils.write(finalAttachment, output);
-					}
-				}).build();
+								final Source xmlSource = new StreamSource(new ByteArrayInputStream(finalAttachment));
+								Source xsltSource = new StreamSource(FormUtils.class.getResourceAsStream(styleSheet));
+								final Result result = new javax.xml.transform.stream.StreamResult(output);
+								TransformerFactory transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+								try {
+									final Transformer trans = transFact.newTransformer(xsltSource);
+									trans.transform(xmlSource, result);
+								} catch (TransformerException e) {
+									throw new IllegalStateException("Could not convert legacy document");
+								}
+							} else {
+								IOUtils.write(finalAttachment, output);
+							}
+						}).build();
 			} else {
 				response = ResponseUtils.notFound("AttachmentDto not found");
 			}

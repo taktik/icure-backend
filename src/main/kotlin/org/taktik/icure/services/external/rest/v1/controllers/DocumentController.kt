@@ -21,11 +21,14 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.commons.uti.UTI
+import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.DocumentType
@@ -35,8 +38,14 @@ import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.utils.FormUtils
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.*
+import javax.servlet.http.HttpServletResponse
+import javax.xml.transform.TransformerException
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamSource
 
 @RestController
 @RequestMapping("/rest/v1/document")
@@ -66,14 +75,13 @@ class DocumentController(private val documentLogic: DocumentLogic,
         }
     }
 
-    // TODO SH do this endpoint
-    /*@ApiOperation(nickname = "getAttachment", value = "Creates a document")
+    @ApiOperation(nickname = "getAttachment", value = "Creates a document")
     @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun getAttachment(@PathVariable documentId: String,
                       @PathVariable attachmentId: String,
                       @RequestParam(required = false) enckeys: String?,
-                      @RequestParam(required = false) fileName: String?): Response {
+                      @RequestParam(required = false) fileName: String?,
+                      response: HttpServletResponse) {
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         val attachment = document.decryptAttachment(if (enckeys.isNullOrBlank()) null else enckeys.split(','))
@@ -81,30 +89,26 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val uti = UTI.get(document.mainUti)
         val mimeType = if (uti != null && uti.mimeTypes.size > 0) uti.mimeTypes[0] else "application/octet-stream"
 
-        return Response.ok()
-                .header("Content-Type", mimeType)
-                .header("Content-Disposition", "attachment; filename=\"" + (fileName ?: document.name) + "\"")
-                .entity({ output: StreamingOutput ->
-                    if (StringUtils.equals(document.mainUti, "org.taktik.icure.report")) {
-                        val styleSheet = "DocumentTemplateLegacyToNew.xml"
+        response.setHeader("Content-Type", mimeType)
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + (fileName ?: document.name) + "\"")
+        if (StringUtils.equals(document.mainUti, "org.taktik.icure.report")) {
+            val styleSheet = "DocumentTemplateLegacyToNew.xml"
 
-                        val xmlSource = StreamSource(ByteArrayInputStream(attachment))
-                        val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream(styleSheet))
-                        val result = javax.xml.transform.stream.StreamResult(output)
-                        val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
-                        try {
-                            val trans = transFact.newTransformer(xsltSource)
-                            trans.transform(xmlSource, result)
-                        } catch (e: TransformerException) {
-                            throw IllegalStateException("Could not convert legacy document")
-                        }
+            val xmlSource = StreamSource(ByteArrayInputStream(attachment))
+            val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream(styleSheet))
+            val result = javax.xml.transform.stream.StreamResult(response.outputStream)
+            val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
+            try {
+                val trans = transFact.newTransformer(xsltSource)
+                trans.transform(xmlSource, result)
+            } catch (e: TransformerException) {
+                throw IllegalStateException("Could not convert legacy document")
+            }
 
-                    } else {
-                        IOUtils.write(attachment, output)
-                    }
-                } as StreamingOutput).build()
-
-    }*/
+        } else {
+            IOUtils.write(attachment, response.outputStream)
+        }
+    }
 
     @ApiOperation(nickname = "deleteAttachment", value = "Deletes a document's attachment")
     @DeleteMapping("/{documentId}/attachment")
