@@ -29,7 +29,7 @@ class CrossOriginConfiguration {
     }
 
     @Bean
-    fun registerCorsFilter(filter: CorsFilter): FilterRegistrationBean<CorsFilter> { // TODO SH why did i need .cors()? this doesn't work?
+    fun registerCorsFilter(filter: CorsFilter): FilterRegistrationBean<CorsFilter> {
         val reg = FilterRegistrationBean(filter)
         reg.order = 4
         return reg

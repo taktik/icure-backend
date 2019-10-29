@@ -41,8 +41,8 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
     @ApiOperation(nickname = "deleteFrontEndMigration", value = "Deletes a front end migration")
     @DeleteMapping("/{frontEndMigrationId}")
-    fun deleteFrontEndMigration(@PathVariable frontEndMigrationId: String) {
-        frontEndMigrationLogic.deleteFrontEndMigration(frontEndMigrationId)
+    fun deleteFrontEndMigration(@PathVariable frontEndMigrationId: String): String {
+        return frontEndMigrationLogic.deleteFrontEndMigration(frontEndMigrationId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration deletion failed")
     }
 

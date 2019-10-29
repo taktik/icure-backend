@@ -27,8 +27,8 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
     @DeleteMapping("/{articleIds}")
-    fun deleteArticle(@PathVariable articleIds: String) {
-        articleLogic.deleteArticles(articleIds.split(','))
+    fun deleteArticle(@PathVariable articleIds: String): List<String> {
+        return articleLogic.deleteArticles(articleIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article deletion failed")
     }
 

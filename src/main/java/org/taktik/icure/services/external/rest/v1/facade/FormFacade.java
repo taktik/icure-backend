@@ -475,7 +475,7 @@ public class FormFacade implements OpenApiFacade {
 	@PUT
 	@Path("/template/{formTemplateId}/attachment/multipart")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, byte[] payload) { // TODO SH @FormDataParam("attachment") payload
+    public Response setAttachmentMulti(@PathParam("formTemplateId") String formTemplateId, byte[] payload) {
 
         if (payload == null || formTemplateId == null) {
 			return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();

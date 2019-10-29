@@ -51,8 +51,8 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
     @DeleteMapping("/{accessLogIds}")
-    fun deleteAccessLog(@PathVariable accessLogIds: String) {
-        accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
+    fun deleteAccessLog(@PathVariable accessLogIds: String): List<String> {
+        return accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog deletion failed")
     }
 

@@ -59,7 +59,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "deleteDocument", value = "Deletes a document")
     @DeleteMapping("/{documentIds}")
-    fun deleteDocument(@PathVariable documentIds: String) { // TODO SH return ids of deleted documents
+    fun deleteDocument(@PathVariable documentIds: String) { // TODO SH return deleted ids
         val documentIdsList = documentIds.split(',')
         try {
             documentLogic.deleteEntities(documentIdsList)
