@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
-import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.constants.PropertyTypes
@@ -30,10 +29,6 @@ import org.taktik.icure.logic.impl.ICureLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.UserStubDto
-import java.util.*
-import java.util.stream.Collectors
-import javax.ws.rs.Produces
-import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/icure")
@@ -51,64 +46,64 @@ class ICureController(private val replicationLogic: ReplicationLogic,
                       private val sessionLogic: ICureSessionLogic,
                       private val mapper: MapperFacade) {
 
-        @ApiOperation(nickname = "getVersion", value = "Get version")
-        @GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
-        fun getVersion(): String = iCureLogic.version
+    @ApiOperation(nickname = "getVersion", value = "Get version")
+    @GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
+    fun getVersion(): String = iCureLogic.version
 
-        @ApiOperation(nickname = "isReady", value = "Check if a user exists")
-        @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
-        fun isReady() = if (userLogic.hasEntities()) "true" else "false"
+    @ApiOperation(nickname = "isReady", value = "Check if a user exists")
+    @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
+    fun isReady() = if (userLogic.hasEntities()) "true" else "false"
 
-        @ApiOperation(nickname = "isPatientReady", value = "Check if a patient exists")
-        @GetMapping("/pok", produces = [MediaType.TEXT_PLAIN_VALUE])
-        fun isPatientReady(): String = if (patientLogic.hasEntities()) "true" else "false"
+    @ApiOperation(nickname = "isPatientReady", value = "Check if a patient exists")
+    @GetMapping("/pok", produces = [MediaType.TEXT_PLAIN_VALUE])
+    fun isPatientReady(): String = if (patientLogic.hasEntities()) "true" else "false"
 
-        @ApiOperation(nickname = "getUsers", value = "Get users stubs")
-        @GetMapping("/u")
-        fun getUsers(): List<UserStubDto> =
+    @ApiOperation(nickname = "getUsers", value = "Get users stubs")
+    @GetMapping("/u")
+    fun getUsers(): List<UserStubDto> =
             userLogic.allEntities.map { u -> mapper.map(u, UserStubDto::class.java) }
 
-        @ApiOperation(nickname = "getProcessInfo", value = "Get process info")
-        @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
-        fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
+    @ApiOperation(nickname = "getProcessInfo", value = "Get process info")
+    @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
+    fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
 
-        @ApiOperation(nickname = "getReplicationInfo", value = "Get replication info")
-        @GetMapping("/r")
-        fun getReplicationInfo(): ReplicationInfoDto {
-            val ri = ReplicationInfoDto()
+    @ApiOperation(nickname = "getReplicationInfo", value = "Get replication info")
+    @GetMapping("/r")
+    fun getReplicationInfo(): ReplicationInfoDto {
+        val ri = ReplicationInfoDto()
 
-            ri.pendingFrom = 0
-            ri.pendingTo = 0
+        ri.pendingFrom = 0
+        ri.pendingTo = 0
 
-            ri.active = replicationLogic.hasEntities()
-            if (ri.active) {
-                val pendingChanges = replicationLogic.pendingChanges
-                ri.running = pendingChanges.isNotEmpty()
-                for ((key, value) in pendingChanges) {
-                    val src = key.source
-                    if (src.contains("127.0.0.1") || src.contains("localhost")) {
-                        if (value != null) {
-                            ri.pendingFrom = if (ri.pendingFrom != null) ri.pendingFrom + value.toInt() else value.toInt()
-                        } else {
-                            ri.pendingFrom = null
-                        }
+        ri.active = replicationLogic.hasEntities()
+        if (ri.active) {
+            val pendingChanges = replicationLogic.pendingChanges
+            ri.running = pendingChanges.isNotEmpty()
+            for ((key, value) in pendingChanges) {
+                val src = key.source
+                if (src.contains("127.0.0.1") || src.contains("localhost")) {
+                    if (value != null) {
+                        ri.pendingFrom = if (ri.pendingFrom != null) ri.pendingFrom + value.toInt() else value.toInt()
                     } else {
-                        if (value != null) {
-                            ri.pendingTo = if (ri.pendingTo != null) ri.pendingTo + value.toInt() else value.toInt()
-                        } else {
-                            ri.pendingTo = null
-                        }
+                        ri.pendingFrom = null
+                    }
+                } else {
+                    if (value != null) {
+                        ri.pendingTo = if (ri.pendingTo != null) ri.pendingTo + value.toInt() else value.toInt()
+                    } else {
+                        ri.pendingTo = null
                     }
                 }
             }
-            return ri
         }
+        return ri
+    }
 
 
-        @ApiOperation(nickname = "getIndexingInfo", value = "Get index info")
-        @GetMapping("/i")
-        fun getIndexingInfo(): IndexingInfoDto =
-           IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.currentSessionContext.groupId))
+    @ApiOperation(nickname = "getIndexingInfo", value = "Get index info")
+    @GetMapping("/i")
+    fun getIndexingInfo(): IndexingInfoDto =
+            IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.currentSessionContext.groupId))
 
     @ApiOperation(value = "Get property types")
     @GetMapping("/propertytypes/{type}")

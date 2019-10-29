@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Document
@@ -36,9 +37,6 @@ import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import java.nio.ByteBuffer
 import java.util.*
-import javax.ws.rs.Consumes
-import javax.ws.rs.Path
-import javax.ws.rs.core.MediaType
 
 @RestController
 @RequestMapping("/rest/v1/document")
@@ -70,7 +68,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     // TODO SH do this endpoint
     /*@ApiOperation(nickname = "getAttachment", value = "Creates a document")
-    @GetMapping("/{documentId}/attachment/{attachmentId}")
+    @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun getAttachment(@PathVariable documentId: String,
                       @PathVariable attachmentId: String,
@@ -121,8 +119,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     }
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a document's attachment")
-    @PutMapping("/{documentId}/attachment")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun setAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestBody payload: ByteArray): DocumentDto {
@@ -149,7 +146,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     }
 
     @ApiOperation(nickname = "setAttachmentMulti", value = "Creates a document's attachment")
-    @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA])
+    @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun setAttachmentMulti(@PathVariable documentId: String,
                            @RequestParam(required = false) enckeys: String?,
                            @RequestPart("attachment") payload: ByteArray): DocumentDto {

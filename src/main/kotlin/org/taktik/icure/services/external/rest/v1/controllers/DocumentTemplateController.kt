@@ -153,7 +153,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     }*/
 
     @ApiOperation(nickname = "getAttachmentText", value = "Download a the document template attachment")
-    @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]) // TODO SH do the same for all controllers
+    @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String): ByteArray {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
