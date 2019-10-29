@@ -32,8 +32,8 @@ import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
 @RestController
 @RequestMapping("/entitytemplate")
 @Api(tags = ["entitytemplate"])
-class EntityTemplateFacade(private val mapper: MapperFacade,
-                           private val entityTemplateLogic: EntityTemplateLogic) {
+class EntityTemplateController(private val mapper: MapperFacade,
+                               private val entityTemplateLogic: EntityTemplateLogic) {
 
     @ApiOperation(nickname = "findEntityTemplates", value = "Finding entityTemplates by userId, entityTemplate, type and version with pagination.", notes = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}")
