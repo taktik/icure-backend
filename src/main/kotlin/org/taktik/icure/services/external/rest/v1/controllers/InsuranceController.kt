@@ -33,7 +33,7 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/insurance")
 @Api(tags = ["insurance"])
-class InsuranceFacade(private val insuranceLogic: InsuranceLogic,
+class InsuranceController(private val insuranceLogic: InsuranceLogic,
                       private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "createInsurance", value = "Creates an insurance")

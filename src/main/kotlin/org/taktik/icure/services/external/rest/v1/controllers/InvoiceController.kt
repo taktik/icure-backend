@@ -49,12 +49,12 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/invoice")
 @Api(tags = ["invoice"])
-class InvoiceFacade(private val invoiceLogic: InvoiceLogic,
-                    private val mapper: MapperFacade,
-                    private val sessionLogic: SessionLogic,
-                    private val insuranceLogic: InsuranceLogic,
-                    private val userLogic: UserLogic,
-                    private val uuidGenerator: UUIDGenerator) {
+class InvoiceController(private val invoiceLogic: InvoiceLogic,
+                        private val mapper: MapperFacade,
+                        private val sessionLogic: SessionLogic,
+                        private val insuranceLogic: InsuranceLogic,
+                        private val userLogic: UserLogic,
+                        private val uuidGenerator: UUIDGenerator) {
 
     @ApiOperation(nickname = "createInvoice", value = "Creates an invoice")
     @PostMapping
