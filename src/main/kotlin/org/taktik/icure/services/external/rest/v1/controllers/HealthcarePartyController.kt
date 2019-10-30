@@ -48,7 +48,7 @@ import java.util.*
 import javax.ws.rs.PUT
 
 @RestController
-@RequestMapping("/hcparty")
+@RequestMapping("/rest/v1/hcparty")
 @Api(tags = ["hcparty"])
 class HealthcarePartyController(private val mapper: MapperFacade,
                                 private val userLogic: UserLogic,
@@ -270,7 +270,8 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @PUT
     fun modifyHealthcareParty(@RequestBody healthcarePartyDto: HealthcarePartyDto): HealthcarePartyDto {
         try {
-            val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(mapper.map(healthcarePartyDto, HealthcareParty::class.java))
+            healthcarePartyLogic.modifyHealthcareParty(mapper.map(healthcarePartyDto, HealthcareParty::class.java))
+            val modifiedHealthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyDto.id)
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
             return mapper.map(modifiedHealthcareParty, HealthcarePartyDto::class.java)
         } catch (e: MissingRequirementsException) {

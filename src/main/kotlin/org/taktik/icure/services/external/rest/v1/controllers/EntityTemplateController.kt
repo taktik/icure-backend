@@ -30,7 +30,7 @@ import org.taktik.icure.logic.EntityTemplateLogic
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
 
 @RestController
-@RequestMapping("/entitytemplate")
+@RequestMapping("/rest/v1/entitytemplate")
 @Api(tags = ["entitytemplate"])
 class EntityTemplateController(private val mapper: MapperFacade,
                                private val entityTemplateLogic: EntityTemplateLogic) {

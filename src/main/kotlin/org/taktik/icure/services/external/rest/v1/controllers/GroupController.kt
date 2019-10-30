@@ -13,7 +13,7 @@ import org.taktik.icure.services.external.rest.v1.dto.GroupDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
 
 @RestController
-@RequestMapping("/group")
+@RequestMapping("/rest/v1/group")
 @Api(tags = ["group"])
 class GroupController(private val groupLogic: GroupLogic,
                       private val mapper: MapperFacade) {

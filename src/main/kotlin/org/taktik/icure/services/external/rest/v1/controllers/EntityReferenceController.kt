@@ -28,7 +28,7 @@ import org.taktik.icure.logic.EntityReferenceLogic
 import java.util.*
 
 @RestController
-@RequestMapping("/entityref")
+@RequestMapping("/rest/v1/entityref")
 @Api(tags = ["entityref"])
 class EntityReferenceController(private val entityReferenceLogic: EntityReferenceLogic) {
 

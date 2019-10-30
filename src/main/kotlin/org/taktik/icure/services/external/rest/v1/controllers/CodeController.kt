@@ -217,7 +217,6 @@ class CodeController(private val mapper: MapperFacade,
         var codes: PaginatedList<Code>? = null
         val timing = System.currentTimeMillis()
         if (filterChain != null) {
-            // TODO SH cast correct?
             codes = codeLogic.listCodes(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as Filter<String, Patient>, mapper.map(filterChain.predicate, Predicate::class.java)), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")

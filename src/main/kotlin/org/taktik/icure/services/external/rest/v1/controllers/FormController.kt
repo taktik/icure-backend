@@ -49,7 +49,7 @@ import javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM
 import javax.xml.transform.TransformerException
 
 @RestController
-@RequestMapping("/form")
+@RequestMapping("/rest/v1/form")
 @Api(tags = ["form"])
 class FormController(private val mapper: MapperFacade,
                      private val formTemplateLogic: FormTemplateLogic,
