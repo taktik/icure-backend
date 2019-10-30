@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -48,6 +49,9 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
             @PathVariable specialtyCode: String) =
             replicationLogic.createBaseTemplateReplication(protocol, replicationHost, port, language, specialtyCode).let { mapper.map(it, ReplicationDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Replication creation failed")
+                            .also { logger.error(it.message) }
+
+
 
     @ApiOperation(nickname = "createGroupReplication", value = "Creates a replication")
     @PostMapping("/group/{replicationHost}/{groupId}/{password}")
@@ -60,6 +64,8 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
             replicationLogic.createGroupReplication(protocol, replicationHost, port, groupId, password)
                     ?.let { mapper.map(it, ReplicationDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Replication creation failed")
+                            .also { logger.error(it.message) }
+
 
 
     @ApiOperation(nickname = "createReplication", value = "Creates a replication")
@@ -70,6 +76,8 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
 
         return createdEntities[0].let { mapper.map(it, ReplicationDto::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Replication creation failed")
+                        .also { logger.error(it.message) }
+
     }
 
     @ApiOperation(nickname = "createStandardReplication", value = "Creates a standard replication")
@@ -77,6 +85,8 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
     fun createStandardReplication(@PathVariable replicationHost: String): ReplicationDto =
             if (!replicationHost.matches("https?://[a-zA-Z0-9-_.]+:[0-9]+".toRegex())) {
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create replication: supplied replicationHost is null")
+                        .also { logger.error(it.message) }
+
             } else {
                 with(ReplicationDto()) {
                     name = replicationHost
@@ -98,7 +108,12 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
     @DeleteMapping("/{replicationId}")
     @Throws(Exception::class)
     fun deleteReplication(@PathVariable replicationId: String) { //TODO MB return id of deleted replication
-        replicationLogic.deleteEntities(setOf(replicationId))
+        try {
+            replicationLogic.deleteEntities(setOf(replicationId))
+        } catch (e: Exception) {
+            logger.error(e.message)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot modify replication: supplied replicationDto is null")
+        }
     }
 
     @ApiOperation(nickname = "getReplication", value = "Gets a replication")
@@ -112,7 +127,7 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
     @ApiOperation(nickname = "listReplications", value = "Gets a replication")
     @GetMapping
     fun listReplications() = replicationLogic.allEntities?.map { i -> mapper.map(i, ReplicationDto::class.java) }
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing replications failed")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Listing replications failed")
 
     @ApiOperation(nickname = "modifyReplication", value = "Modifies a replication")
     @PutMapping
@@ -124,5 +139,9 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
                 }
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot modify replication: supplied replicationDto is null")
             }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+    }
 
 }

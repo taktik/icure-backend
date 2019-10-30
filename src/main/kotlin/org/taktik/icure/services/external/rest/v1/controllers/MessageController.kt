@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -51,19 +52,23 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun createMessage(@RequestBody messageDto: MessageDto) =
             mapper.map(messageDto, Message::class.java)?.let { messageLogic.createMessage(it) }?.let { mapper.map(it, MessageDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message creation failed")
+                            .also { logger.error(it.message) }
 
     @ApiOperation(nickname = "deleteDelegation", value = "Deletes a message delegation")
     @DeleteMapping("/{messageId}/delegate/{delegateId}")
     fun deleteDelegation(
             @PathVariable messageId: String,
-            @PathVariable delegateId: String
-    ): MessageDto {
+            @PathVariable delegateId: String ): MessageDto {
         val message = messageLogic.get(messageId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message with ID: $messageId not found")
+                        .also { logger.error(it.message) }
+
 
         message.delegations.remove(delegateId)
         return messageLogic.updateEntities(listOf(message))?.takeIf { it.size == 1 }?.let { mapper.map(it[0], MessageDto::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message delegation deletion failed")
+                        .also { logger.error(it.message) }
+
     }
 
     @ApiOperation(nickname = "deleteMessages", value = "Deletes multiple messages")
@@ -76,9 +81,13 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                         return
                     } catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
+                                .also { logger.error(it.message) }
+
                     }
                 }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Messages deletion failed")
+                        .also { logger.error(it.message) }
+
     }
 
     @ApiOperation(nickname = "deleteMessagesBatch", value = "Deletes multiple messages")
@@ -91,6 +100,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                         return
                     } catch (e: Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
+                                .also { logger.error(it.message) }
                     }
                 }
     }
@@ -99,14 +109,18 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @GetMapping("/{messageId}")
     fun getMessage(@PathVariable messageId: String) =
             messageLogic.get(messageId)?.let { mapper.map(it, MessageDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message not found")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message not found")
+                            .also { logger.error(it.message) }
+
 
     @ApiOperation(nickname = "findByHCPartyPatientSecretFKeys", value = "List messages found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findByHCPartyPatientSecretFKeys(@RequestParam secretFKeys: String): List<MessageDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return messageLogic.listMessagesByHCPartySecretPatientKeys(ArrayList(secretPatientKeys))?.let { it.map { contact -> mapper.map(contact, MessageDto::class.java) } }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Messages failed. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Messages failed. Please try again or read the server log.")
+                        .also { logger.error(it.message) }
+
     }
 
     @ApiOperation(nickname = "findMessages", value = "Get all messages (paginated) for current HC Party")
@@ -118,13 +132,17 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, limit)
 
         return messageLogic.findForCurrentHcParty(paginationOffset)?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message listing failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
+                        .also { logger.error(it.message) }
+
     }
 
     @ApiOperation(nickname = "getChildren", value = "Get children messages of provided message")
     @GetMapping("/{messageId}/children")
     fun getChildren(@PathVariable messageId: String) =
-            messageLogic.getChildren(messageId).map { mapper.map(it, MessageDto::class.java) }
+            messageLogic.getChildren(messageId)?.map { mapper.map(it, MessageDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
+
 
     @ApiOperation(nickname = "getChildrenOfList", value = "Get children messages of provided message")
     @PostMapping("/children/batch")
@@ -151,7 +169,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val messages = received?.takeIf { it }?.let { messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
                 ?: messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset)
         return messages?.let { mapper.map(messages, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message listing failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
     @ApiOperation(nickname = "findMessagesByTransportGuidSentDate", value = "Get all messages starting by a prefix between two date", httpMethod = "GET")
@@ -173,7 +191,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                 toDate,
                 paginationOffset
         )?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message listing failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
 
@@ -190,7 +208,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, limit)
         val hcpId = hcpId ?: sessionLogic.currentSessionContext.user.healthcarePartyId
         return messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse)?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message listing failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
     @ApiOperation(value = "Get all messages (paginated) for current HC Party and provided from address", httpMethod = "GET")
@@ -205,7 +223,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, limit)
         val hcpId = hcpId ?: sessionLogic.currentSessionContext.user.healthcarePartyId
         return messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset)?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message listing failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
     @ApiOperation(nickname = "modifyMessage", value = "Updates a message")
@@ -213,6 +231,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun modifyMessage(messageDto: MessageDto): MessageDto {
         if (messageDto.id == null) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
+                    .also { logger.error(it.message) }
         }
         return mapper.map(messageDto, Message::class.java)
                 ?.let {
@@ -220,6 +239,8 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                     mapper.map(it, MessageDto::class.java)
                 }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
+                        .also { logger.error(it.message) }
+
     }
 
     @ApiOperation(nickname = "setMessagesStatusBits", value = "Set status bits for given list of messages")
@@ -241,4 +262,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
             messageLogic.addDelegations(messageId, ds.map { mapper.map(it, Delegation::class.java) })?.takeIf { it.delegations.isNotEmpty() }?.let { mapper.map(it, MessageDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
 
+    companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+    }
 }

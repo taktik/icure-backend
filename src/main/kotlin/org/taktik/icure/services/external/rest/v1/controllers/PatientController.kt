@@ -264,7 +264,7 @@ class PatientController(
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(filter: Filter<*>): List<String> = ArrayList(filters.resolve(filter))
+    fun matchBy(@RequestBody filter: Filter<*>): List<String> = filters.resolve(filter).toList()
 
     @ApiOperation(value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
     @GetMapping("/fuzzy")
@@ -326,7 +326,7 @@ class PatientController(
         val paginationOffset = PaginationOffset<Long>(startDate, startDocumentId, null, limit) // TODO works with descending=true?
         return patientLogic.findDeletedPatientsByDeleteDate(startDate, endDate, desc ?: false, paginationOffset)
                 ?.let { buildPaginatedListResponse(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing deleted patients failed.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Listing deleted patients failed.")
     }
 
     @ApiOperation(nickname = "listDeletedPatientsByName", value = "Find deleted patients", notes = "Returns a list of deleted patients, by name and/or firstname prefix, if any.")
@@ -387,7 +387,7 @@ class PatientController(
     @GetMapping("/{patientId}")
     fun getPatient(@PathVariable patientId: String) =
             patientLogic.getPatient(patientId)?.let { mapper.map(it, PatientDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
 
     @ApiOperation(nickname = "bulkUpdatePatients", value = "Modify a patient", notes = "Returns the id and _rev of created patients")
     @PostMapping("/bulk")
@@ -412,10 +412,9 @@ class PatientController(
                               @ApiParam(value = "Optional value for start of referral") @RequestParam(required = false) start: Long?,
                               @ApiParam(value = "Optional value for end of referral") @RequestParam(required = false) end: Long?) {
         patientLogic.getPatient(patientId).let {
-            mapper.map(patientLogic.modifyPatientReferral(it, if (referralId == "none") null else referralId, if (start == null) null else Instant.ofEpochMilli(start), if (end == null) null else Instant.ofEpochMilli(end)),
-                    PatientDto::class.java)
-        }
+            mapper.map(patientLogic.modifyPatientReferral(it, if (referralId == "none") null else referralId, if (start == null) null else Instant.ofEpochMilli(start), if (end == null) null else Instant.ofEpochMilli(end)), PatientDto::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find patient with ID $patientId in the database")
+                        .also { log.error(it.message) }
     }
 
     @ApiOperation(nickname = "mergeInto", value = "Merge a series of patients into another patient")
@@ -424,11 +423,12 @@ class PatientController(
             with(patientLogic.getPatient(patientId)) {
                 fromIds?.split(',')?.map { patientLogic.getPatient(it) }.also { patientLogic.mergePatient(this, it) }.let { mapper.map(it, PatientDto::class.java) }
                         ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find patient with ID $patientId in the database")
+                                .also { log.error(it.message) }
 
             }
 
     companion object {
-        private val log = LoggerFactory.getLogger(PatientFacade::class.java)
+        private val log = LoggerFactory.getLogger(javaClass)
     }
 
 }

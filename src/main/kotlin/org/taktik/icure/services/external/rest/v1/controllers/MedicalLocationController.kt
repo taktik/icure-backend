@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -44,21 +45,27 @@ class MedicalLocationController(private val medicalLocationLogic: MedicalLocatio
     fun deleteMedicalLocation(@PathVariable locationIds: String) =
             medicalLocationLogic.deleteMedicalLocation(locationIds.split(','))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location deletion failed.")
+                            .also { logger.error(it.message) }
+
 
     @ApiOperation(nickname = "getMedicalLocation", response = MedicalLocationDto::class, value = "Gets a medical location")
     @GetMapping("/{locationId}")
     fun getMedicalLocation(@PathVariable locationId: String) =
             medicalLocationLogic.getMedicalLocation(locationId)?.let { mapper.map(it, MedicalLocationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location fetching failed")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
 
     @ApiOperation(nickname = "getMedicalLocations", value = "Gets all medical locations")
     @GetMapping
     fun getMedicalLocations() = medicalLocationLogic.allEntities?.let { it.map { c -> mapper.map(c, MedicalLocationDto::class.java) } }
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical locations fetching failed")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical locations fetching failed")
 
     @ApiOperation(nickname = "modifyMedicalLocation", value = "Modifies a medical location")
     @PutMapping
     fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) =
             medicalLocationLogic.modifyMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+    }
 }

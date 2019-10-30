@@ -77,7 +77,7 @@ class TarificationController(private val mapper: MapperFacade,
                 )
                 return this
             }
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Finding tarifications failed")
+        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Finding tarifications failed")
     }
 
     @ApiOperation(nickname = "findPaginatedTarifications", value = "Finding tarifications by tarification, type and version with pagination.", notes = "Returns a list of tarifications matched with given input.")

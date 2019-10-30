@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -43,23 +44,28 @@ class PlaceController(private val placeLogic: PlaceLogic, private val mapper: Ma
     @DeleteMapping("/{placeIds}")
     fun deletePlace(@PathVariable placeIds: String): List<String> = placeLogic.deletePlace(placeIds.split(','))
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place deletion failed.")
+                    .also { logger.error(it.message) }
 
     @ApiOperation(nickname = "getPlace", value = "Gets an place")
     @GetMapping("/{placeId}")
     fun getPlace(@PathVariable placeId: String) =
             placeLogic.getPlace(placeId).let { mapper.map(it, PlaceDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place fetching failed")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
 
     @ApiOperation(value = "Gets all places", nickname = "getPlaces", notes = "")
     @GetMapping
     fun getPlaces(): List<PlaceDto> =
             placeLogic.allEntities?.let { it.map { c -> mapper.map(c, PlaceDto::class.java) } }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Places fetching failed")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Places fetching failed")
 
     @ApiOperation(nickname = "modifyPlace", value = "Modifies an place")
     @PutMapping
     fun modifyPlace(@RequestBody placeDto: PlaceDto) =
             placeLogic.modifyPlace(mapper.map(placeDto, Place::class.java)).let { mapper.map(it, PlaceDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+    }
 
 }

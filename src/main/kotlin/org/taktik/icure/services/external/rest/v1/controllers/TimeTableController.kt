@@ -22,6 +22,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -51,30 +52,35 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
     fun deleteTimeTable(@PathVariable timeTableIds: String): List<String> =
             timeTableLogic.deleteTimeTables(timeTableIds.split(','))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable deletion failed")
+                            .also { logger.error(it.message) }
 
     @ApiOperation(nickname = "getTimeTable", value = "Gets a timeTable")
     @GetMapping("/{timeTableId}")
     fun getTimeTable(@PathVariable timeTableId: String): TimeTableDto =
             if (timeTableId.equals("new", ignoreCase = true)) {
                 //Create an hourItem
-                val timeTableHour = TimeTableHour()
-                timeTableHour.startHour = java.lang.Long.parseLong("0800")
-                timeTableHour.startHour = java.lang.Long.parseLong("0900")
+                val timeTableHour = TimeTableHour().apply {
+                    startHour = java.lang.Long.parseLong("0800")
+                    startHour = java.lang.Long.parseLong("0900")
+                }
+
                 //Create a timeTableItem
-                val timeTableItem = TimeTableItem()
-                timeTableItem.calendarItemTypeId = "consult"
-                timeTableItem.days = ArrayList()
-                timeTableItem.days.add("monday")
-                timeTableItem.recurrenceTypes = ArrayList()
-                timeTableItem.hours = ArrayList()
-                timeTableItem.hours.add(timeTableHour)
+                val timeTableItem = TimeTableItem().apply {
+                    calendarItemTypeId = "consult"
+                    days = ArrayList()
+                    days.add("monday")
+                    recurrenceTypes = ArrayList()
+                    hours = ArrayList()
+                    hours.add(timeTableHour)
+                }
                 //Create the timeTable
-                val timeTable = TimeTable()
-                timeTable.startTime = java.lang.Long.parseLong("20180601000")
-                timeTable.endTime = java.lang.Long.parseLong("20180801000")
-                timeTable.name = "myPeriod"
-                timeTable.items = ArrayList()
-                timeTable.items.add(timeTableItem)
+                val timeTable = TimeTable().apply {
+                    startTime = java.lang.Long.parseLong("20180601000")
+                    endTime = java.lang.Long.parseLong("20180801000")
+                    name = "myPeriod"
+                    items = ArrayList()
+                    items.add(timeTableItem)
+                }
 
                 //Return it
                 mapper.map(timeTable, TimeTableDto::class.java)
@@ -115,4 +121,9 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
 
     }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(javaClass)
+    }
+
 }

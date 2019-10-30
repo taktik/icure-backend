@@ -44,20 +44,20 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
     @GetMapping("/{keywordId}")
     fun getKeyword(@PathVariable keywordId: String) =
             keywordLogic.getKeyword(keywordId)?.let { mapper.map(it, KeywordDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
 
 
     @ApiOperation(nickname = "getKeywordsByUser", value = "Get keywords by user", notes = "")
     @GetMapping("/byUser/{userId}")
     fun getKeywordsByUser(@PathVariable userId: String) =
             keywordLogic.getKeywordsByUser(userId)?.let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keywords fetching failed")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Keywords fetching failed")
 
     @ApiOperation(nickname = "getKeywords", value = "Gets all keywords", notes = "")
     @GetMapping
     fun getKeywords(): List<KeywordDto> {
         return keywordLogic.allEntities?.let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keywords fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Keywords fetching failed")
     }
 
     @ApiOperation(nickname = "deleteKeywords", value = "Delete keywords.", notes = "Response is a set containing the ID's of deleted keywords.")
