@@ -87,7 +87,7 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 			dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDateTime(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
 			sex = f.patient.sex?.cd?.value?.value() ?:"unknown"
 			documentId = doc.id
-			protocol = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
+			protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
 			complete = t.isIscomplete
 			labo = getAuthorDescription(t)
 			demandDate = demandEpochMillis(t)
