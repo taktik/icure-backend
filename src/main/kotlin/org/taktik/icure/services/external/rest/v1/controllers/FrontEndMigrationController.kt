@@ -12,7 +12,7 @@ import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto
 
 @RestController
-@RequestMapping("/frontendmigration")
+@RequestMapping("/rest/v1/frontendmigration")
 @Api(tags = ["frontendmigration"])
 class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMigrationLogic,
                                   private var mapper: MapperFacade,

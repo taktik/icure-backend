@@ -32,7 +32,7 @@ import java.util.stream.Collectors
 import javax.ws.rs.core.Response
 
 @RestController
-@RequestMapping("/generic")
+@RequestMapping("/rest/v1/generic")
 @Api(tags = ["generic"])
 class GenericController(internal val mapper: MapperFacade,
                         internal val mainLogic: MainLogic) : OpenApiDefinitionTags() {
