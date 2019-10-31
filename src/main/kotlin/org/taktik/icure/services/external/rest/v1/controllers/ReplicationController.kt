@@ -104,7 +104,6 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
 
     @ApiOperation(nickname = "deleteReplication", value = "Deletes a replication")
     @DeleteMapping("/{replicationId}")
-    @Throws(Exception::class)
     fun deleteReplication(@PathVariable replicationId: String) { //TODO MB return id of deleted replication
         try {
             replicationLogic.deleteEntities(setOf(replicationId))

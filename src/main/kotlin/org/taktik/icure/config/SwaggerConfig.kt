@@ -2,6 +2,7 @@ package org.taktik.icure.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.MediaType
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.service.AuthorizationScope
@@ -30,8 +31,8 @@ class SwaggerConfig {
         return Docket(DocumentationType.SWAGGER_2)
                 .securitySchemes(auth)
                 .securityContexts(securityContexts)
-                .consumes(setOf("application/json"))
-                .produces(setOf("application/json"))
+                .consumes(setOf(MediaType.APPLICATION_JSON_VALUE))
+                .produces(setOf(MediaType.APPLICATION_JSON_VALUE))
                 .tags(
                         Tag("accesslog", "Access logs base API"),
                         Tag("code", "Codes CRUD and advanced API"),
