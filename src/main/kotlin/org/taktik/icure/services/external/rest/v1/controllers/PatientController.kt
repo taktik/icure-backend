@@ -118,7 +118,7 @@ class PatientController(
 
     @ApiOperation(nickname = "listOfMergesAfter", value = "List patients that have been merged towards another patient ", notes = "Returns a list of patients that have been merged after the provided date")
     @GetMapping("/merges/{date}")
-    fun listOfMergesAfter(@PathVariable("date") date: Long?) =
+    fun listOfMergesAfter(@PathVariable date: Long?) =
             patientLogic.listOfMergesAfter(date).map { p -> mapper.map(p, PatientDto::class.java) }
 
     @ApiOperation(nickname = "listOfPatientsModifiedAfter", value = "List patients that have been modified after the provided date", notes = "Returns a list of patients that have been modified after the provided date")
@@ -150,7 +150,7 @@ class PatientController(
     fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable(required = false) hcPartyId: String?) =
             ResponseUtils.ok(ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId)))
 
-    @ApiOperation(value = "List patients for a specific HcParty", response = org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList::class, httpMethod = "GetMapping", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
+    @ApiOperation(nickname = "listPatients", value = "List patients for a specific HcParty", response = org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList::class, httpMethod = "GetMapping", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping
     fun listPatients(@ApiParam(value = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
                      @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
@@ -249,7 +249,8 @@ class PatientController(
             //(Filter<String,O> filter, Predicate predicate)
             val patients = filterChain?.let {
                 patientLogic.listPatients(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain<Patient>(it.filter as org.taktik.icure.dto.filter.Filter<String, Patient>, mapper.map(it.predicate, Predicate::class.java)), sort, desc)
-            } ?: patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(null, paginationOffset, null, Sorting(null, "asc"))
+            }
+                    ?: patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(null, paginationOffset, null, Sorting(null, "asc"))
 
             log.info("Filter patients in " + (System.currentTimeMillis() - System.currentTimeMillis()) + " ms.")
 
@@ -266,7 +267,7 @@ class PatientController(
     @PostMapping("/match")
     fun matchBy(@RequestBody filter: Filter<*>): List<String> = filters.resolve(filter).toList()
 
-    @ApiOperation(value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
+    @ApiOperation(nickname = "fuzzySearch", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
     @GetMapping("/fuzzy")
     fun fuzzySearch(
             @ApiParam(value = "The first name") @RequestParam(required = false) firstName: String,
@@ -412,7 +413,8 @@ class PatientController(
                               @ApiParam(value = "Optional value for start of referral") @RequestParam(required = false) start: Long?,
                               @ApiParam(value = "Optional value for end of referral") @RequestParam(required = false) end: Long?) {
         patientLogic.getPatient(patientId).let {
-            mapper.map(patientLogic.modifyPatientReferral(it, if (referralId == "none") null else referralId, if (start == null) null else Instant.ofEpochMilli(start), if (end == null) null else Instant.ofEpochMilli(end)), PatientDto::class.java) }
+            mapper.map(patientLogic.modifyPatientReferral(it, if (referralId == "none") null else referralId, if (start == null) null else Instant.ofEpochMilli(start), if (end == null) null else Instant.ofEpochMilli(end)), PatientDto::class.java)
+        }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find patient with ID $patientId in the database")
                         .also { log.error(it.message) }
     }

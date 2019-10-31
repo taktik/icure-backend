@@ -32,13 +32,14 @@ import java.util.*
 @Api(tags = ["entityref"])
 class EntityReferenceController(private val entityReferenceLogic: EntityReferenceLogic) {
 
-    @ApiOperation(value = "Find latest reference for a prefix ")
+    @ApiOperation(nickname = "getLatest", value = "Find latest reference for a prefix ")
     @GetMapping("/latest/{prefix}")
     fun getLatest(@PathVariable prefix: String): EntityReference {
-        return entityReferenceLogic.getLatest(prefix) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
+        return entityReferenceLogic.getLatest(prefix)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
     }
 
-    @ApiOperation(value = "Create an entity reference")
+    @ApiOperation(nickname = "createEntityReference", value = "Create an entity reference")
     @PostMapping
     fun createEntityReference(@RequestBody er: EntityReference): EntityReference {
         val created = ArrayList<EntityReference>()

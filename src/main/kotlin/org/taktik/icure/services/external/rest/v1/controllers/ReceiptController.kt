@@ -29,7 +29,6 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Receipt
 import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.logic.ReceiptLogic
-import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
 
@@ -71,7 +70,8 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
             @PathVariable attachmentId: String?,
             @RequestParam enckeys: String?): ByteArray? =
             receiptLogic.getAttachment(receiptId, attachmentId)?.let {
-                if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it }
+                if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it
+            }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
                             .also { logger.error(it.message) }
 
@@ -99,14 +99,14 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     @ApiOperation(nickname = "getReceipt", value = "Gets a receipt")
     @GetMapping("/{receiptId}")
     fun getReceipt(@PathVariable receiptId: String): ReceiptDto =
-            receiptLogic.getEntity(receiptId)?.let {  mapper.map(it, ReceiptDto::class.java)}
-                    ?:throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
+            receiptLogic.getEntity(receiptId)?.let { mapper.map(it, ReceiptDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
 
     @ApiOperation(nickname = "listByReference", value = "Gets a receipt")
     @GetMapping("/byref/{ref}")
     fun listByReference(@PathVariable ref: String): List<ReceiptDto> =
-            receiptLogic.listByReference(ref)?.map {  mapper.map(it, ReceiptDto::class.java) }
-                    ?:throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
+            receiptLogic.listByReference(ref)?.map { mapper.map(it, ReceiptDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
 
     @ApiOperation(nickname = "modifyReceipt", value = "Updates a receipt")
     @PutMapping

@@ -52,7 +52,7 @@ class PlaceController(private val placeLogic: PlaceLogic, private val mapper: Ma
             placeLogic.getPlace(placeId).let { mapper.map(it, PlaceDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
 
-    @ApiOperation(value = "Gets all places", nickname = "getPlaces", notes = "")
+    @ApiOperation(nickname = "getPlaces", value = "Gets all places", nickname = "getPlaces")
     @GetMapping
     fun getPlaces(): List<PlaceDto> =
             placeLogic.allEntities?.let { it.map { c -> mapper.map(c, PlaceDto::class.java) } }

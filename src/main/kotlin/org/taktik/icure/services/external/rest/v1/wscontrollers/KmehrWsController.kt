@@ -16,22 +16,15 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.services.external .rest.v1.wscontrollers
-
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.nio.ByteBuffer
-
-import javax.ws.rs.Path
+package org.taktik.icure.services.external.rest.v1.wscontrollers
 
 import ma.glasnost.orika.MapperFacade
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
-import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
@@ -40,24 +33,25 @@ import org.taktik.icure.services.external.http.websocket.KmehrFileOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketParam
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
-import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.DiaryNoteExportInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeExportInfoDto
-
+import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
+import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 @RestController("/ws/be_kmehr")
 class KmehrWsController(private var mapper: MapperFacade,
-    private val sessionLogic: SessionLogic,
-    private val sumehrLogicV1: SumehrLogic,
-    private val sumehrLogicV2: SumehrLogic,
-    private val diaryNoteLogic: DiaryNoteLogic,
-    private val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
-    private val medicationSchemeLogic: MedicationSchemeLogic,
-    private val healthcarePartyLogic: HealthcarePartyLogic,
-    private val patientLogic: PatientLogic) {
+                        private val sessionLogic: SessionLogic,
+                        private val sumehrLogicV1: SumehrLogic,
+                        private val sumehrLogicV2: SumehrLogic,
+                        private val diaryNoteLogic: DiaryNoteLogic,
+                        private val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
+                        private val medicationSchemeLogic: MedicationSchemeLogic,
+                        private val healthcarePartyLogic: HealthcarePartyLogic,
+                        private val patientLogic: PatientLogic) {
 
-    @Path("/generateDiaryNote")
+    @RequestMapping("/generateDiaryNote")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun generateDiaryNote(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: DiaryNoteExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -72,7 +66,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/generateSumehr")
+    @RequestMapping("/generateSumehr")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun generateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -87,7 +81,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/validateSumehr")
+    @RequestMapping("/validateSumehr")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun validateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -100,7 +94,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/generateSumehrV2")
+    @RequestMapping("/generateSumehrV2")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun generateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -115,7 +109,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/generateSumehrV2JSON")
+    @RequestMapping("/generateSumehrV2JSON")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun generateSumehrV2JSON(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, @WebSocketParam("asJson") asJson: Boolean?, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -130,7 +124,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/validateSumehrV2")
+    @RequestMapping("/validateSumehrV2")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun validateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -143,7 +137,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/generateSmf")
+    @RequestMapping("/generateSmf")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun generateSmfExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SoftwareMedicalFileExportDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
@@ -156,7 +150,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         }
     }
 
-    @Path("/generateMedicationScheme")
+    @RequestMapping("/generateMedicationScheme")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     fun generateMedicationSchemeExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: MedicationSchemeExportInfoDto, @WebSocketParam("version") version: Int, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)

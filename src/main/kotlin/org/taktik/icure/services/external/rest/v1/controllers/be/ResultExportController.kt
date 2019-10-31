@@ -33,11 +33,11 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 @RequestMapping("/be_result_export")
 @Api(tags = ["be_result_export"])
-class ResultExportFacade(private var healthOneLogic: HealthOneLogic,
-                         private val medidocLogic: MedidocLogic,
-                         private val kmehrReportLogic: KmehrReportLogic,
-                         private val patientLogic: PatientLogic,
-                         private val healthcarePartyLogic: HealthcarePartyLogic) {
+class ResultExportController(private var healthOneLogic: HealthOneLogic,
+                             private val medidocLogic: MedidocLogic,
+                             private val kmehrReportLogic: KmehrReportLogic,
+                             private val patientLogic: PatientLogic,
+                             private val healthcarePartyLogic: HealthcarePartyLogic) {
 
     @ApiOperation(nickname = "exportMedidoc", value = "Export data")
     @PostMapping("/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])

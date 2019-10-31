@@ -337,12 +337,12 @@ class KmehrController(
 
     @ApiOperation(nickname = "importSumehrByItemId", value = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/importbyitemid")
-    fun importSumehrByItemId(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @RequestParam(required = false) itemId: String?, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+    fun importSumehrByItemId(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @RequestParam itemId: String, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
         val user = sessionLogic.currentSessionContext.user
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
         val document = documentLogic.get(documentId)
 
-        return sumehrLogicV2.importSumehrByItemId(documentLogic.readAttachment(documentId, document.attachmentId), itemId!!, user, language
+        return sumehrLogicV2.importSumehrByItemId(documentLogic.readAttachment(documentId, document.attachmentId), itemId, user, language
                 ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
                 patientId?.let { patientLogic.getPatient(patientId) },
                 mappings ?: HashMap()).map { mapper.map(it, ImportResultDto::class.java) }

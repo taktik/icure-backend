@@ -27,13 +27,12 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.logic.CalendarItemLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
-import javax.ws.rs.POST
 
 @RestController
 @RequestMapping("/rest/v1/calendarItem")
 @Api(tags = ["calendarItem"])
 class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
-                         private val mapper: MapperFacade) {
+                             private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "getCalendarItems", value = "Gets all calendarItems")
     @GetMapping

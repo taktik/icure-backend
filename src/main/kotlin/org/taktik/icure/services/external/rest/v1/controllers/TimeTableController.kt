@@ -42,9 +42,8 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
     @ApiOperation(nickname = "createTimeTable", value = "Creates a timeTable")
     @PostMapping
     fun createTimeTable(@RequestBody timeTableDto: TimeTableDto?) =
-        timeTableLogic.createTimeTable(mapper.map(timeTableDto, TimeTable::class.java)).let { mapper.map(it, TimeTableDto::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
-
+            timeTableLogic.createTimeTable(mapper.map(timeTableDto, TimeTable::class.java)).let { mapper.map(it, TimeTableDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
 
 
     @ApiOperation(nickname = "deleteTimeTable", value = "Deletes an timeTable")
@@ -107,7 +106,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 ?: throw ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log."
-                    )
+                )
     }
 
     @ApiOperation(nickname = "getTimeTablesByAgendaId", value = "Get TimeTables by AgendaId")

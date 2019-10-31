@@ -103,8 +103,8 @@ class TarificationController(private val mapper: MapperFacade,
                 PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, limit)
         )
 
-        tarificationsList?.let{
-            it.rows = it.rows?: emptyList()
+        tarificationsList?.let {
+            it.rows = it.rows ?: emptyList()
             with(TarificationPaginatedList()) {
                 mapper.map(
                         tarificationsList,

@@ -34,16 +34,12 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplatePaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import java.util.*
-import java.util.stream.Collectors
-import javax.ws.rs.PathParam
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/classificationTemplate")
 @Api(tags = ["classificationTemplate"])
 class ClassificationTemplateController(private val mapper: MapperFacade,
-                                   private val classificationTemplateLogic: ClassificationTemplateLogic) {
+                                       private val classificationTemplateLogic: ClassificationTemplateLogic) {
 
     @ApiOperation(nickname = "createClassificationTemplate", value = "Create a classification Template with the current user", notes = "Returns an instance of created classification Template.")
     @PostMapping

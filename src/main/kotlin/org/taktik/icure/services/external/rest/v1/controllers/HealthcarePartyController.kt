@@ -45,7 +45,6 @@ import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
 import org.taktik.icure.services.external.rest.v1.dto.SignUpDto
 import java.util.*
-import javax.ws.rs.PUT
 
 @RestController
 @RequestMapping("/rest/v1/hcparty")
@@ -267,7 +266,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "modifyHealthcareParty", value = "Modify a Healthcare Party.", notes = "No particular return value. It's just a message.")
-    @PUT
+    @PutMapping
     fun modifyHealthcareParty(@RequestBody healthcarePartyDto: HealthcarePartyDto): HealthcarePartyDto {
         try {
             healthcarePartyLogic.modifyHealthcareParty(mapper.map(healthcarePartyDto, HealthcareParty::class.java))

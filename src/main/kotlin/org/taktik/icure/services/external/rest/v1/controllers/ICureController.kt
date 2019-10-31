@@ -105,49 +105,56 @@ class ICureController(private val replicationLogic: ReplicationLogic,
     fun getIndexingInfo(): IndexingInfoDto =
             IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.currentSessionContext.groupId))
 
-    @ApiOperation(value = "Get property types")
+    @ApiOperation(nickname = "getPropertyTypes", value = "Get property types")
     @GetMapping("/propertytypes/{type}")
     fun getPropertyTypes(@PathVariable type: String): List<String> {
         return if (type == "system") PropertyTypes.System.identifiers() else PropertyTypes.User.identifiers()
     }
 
-    @ApiOperation(value = "Force update design doc")
+    @ApiOperation(nickname = "updateDesignDoc", value = "Force update design doc")
     @GetMapping("/dd/{entityName}")
     fun updateDesignDoc(@PathVariable entityName: String): Boolean {
         iCureLogic.updateDesignDoc(sessionLogic.currentSessionContext.groupId, entityName)
         return true
     }
 
+    @ApiOperation(nickname = "resolvePatientsConflicts")
     @PostMapping("/conflicts/patient")
     fun resolvePatientsConflicts() {
         patientLogic.solveConflicts()
     }
 
+    @ApiOperation(nickname = "resolveContactsConflicts")
     @PostMapping("/conflicts/contact")
     fun resolveContactsConflicts() {
         contactLogic.solveConflicts()
     }
 
+    @ApiOperation(nickname = "resolveFormsConflicts")
     @PostMapping("/conflicts/form")
     fun resolveFormsConflicts() {
         formLogic.solveConflicts()
     }
 
+    @ApiOperation(nickname = "resolveHealthElementsConflicts")
     @PostMapping("/conflicts/healthelement")
     fun resolveHealthElementsConflicts() {
         healthElementLogic.solveConflicts()
     }
 
+    @ApiOperation(nickname = "resolveInvoicesConflicts")
     @PostMapping("/conflicts/invoice")
     fun resolveInvoicesConflicts() {
         invoiceLogic.solveConflicts()
     }
 
+    @ApiOperation(nickname = "resolveMessagesConflicts")
     @PostMapping("/conflicts/message")
     fun resolveMessagesConflicts() {
         messageLogic.solveConflicts()
     }
 
+    @ApiOperation(nickname = "resolveDocumentsConflicts")
     @PostMapping("/conflicts/document")
     fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) {
         documentLogic.solveConflicts(ids?.split(','))

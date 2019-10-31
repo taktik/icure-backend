@@ -55,9 +55,9 @@ import java.util.*
 @RequestMapping("/rest/v1/contact")
 @Api(tags = ["contact"])
 class ContactController(private val mapper: MapperFacade,
-                    private val filters: org.taktik.icure.logic.impl.filter.Filters,
-                    private val contactLogic: ContactLogic,
-                    private val sessionLogic: SessionLogic) {
+                        private val filters: org.taktik.icure.logic.impl.filter.Filters,
+                        private val contactLogic: ContactLogic,
+                        private val sessionLogic: SessionLogic) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "getEmptyContent", value = "Get an empty content")

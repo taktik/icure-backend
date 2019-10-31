@@ -31,8 +31,6 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import java.util.*
-import javax.ws.rs.POST
-import javax.ws.rs.Path
 
 @RestController
 @RequestMapping("/rest/v1/classification")

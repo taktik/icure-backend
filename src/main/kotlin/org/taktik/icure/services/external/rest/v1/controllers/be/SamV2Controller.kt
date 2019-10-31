@@ -13,7 +13,9 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.*
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpDto
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpDto
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpGroupDto
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import java.util.*
 
@@ -161,7 +163,7 @@ class SamV2Controller(val mapper: MapperFacade,
                 object : TypeBuilder<PaginatedList<Amp>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto>>() {}.build()
         )
-       return ampDtosPaginatedList
+        return ampDtosPaginatedList
     }
 
     @ApiOperation(nickname = "findPaginatedAmpsByGroupId", value = "Finding AMPs by group with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")

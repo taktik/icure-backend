@@ -24,6 +24,7 @@ import ma.glasnost.orika.MapperFacade
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Form
@@ -43,9 +44,6 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.util.*
-import javax.ws.rs.PUT
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM
 import javax.xml.transform.TransformerException
 
 @RestController
@@ -110,7 +108,7 @@ class FormController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "modifyForm", value = "Modify a form", notes = "Returns the modified form.")
-    @PUT
+    @PutMapping
     fun modifyForm(@RequestBody formDto: FormDto): FormDto {
         return try {
             formLogic.modifyForm(mapper.map(formDto, Form::class.java))
@@ -220,7 +218,7 @@ class FormController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "setAttachmentMulti", value = "Update a form template's layout")
-    @PutMapping("/template/{formTemplateId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA])
+    @PutMapping("/template/{formTemplateId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun setAttachmentMulti(@PathVariable formTemplateId: String,
                            @RequestPart("attachment") payload: ByteArray): String {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
@@ -229,7 +227,7 @@ class FormController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "convertLegacyFormTemplates", value = "Convert legacy format layouts to a list of FormLayout", notes = "Returns the converted layouts.")
-    @PutMapping("/template/legacy", consumes = [APPLICATION_OCTET_STREAM])
+    @PutMapping("/template/legacy", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun convertLegacyFormTemplates(@RequestBody data: ByteArray): List<FormLayout> {
         return try {
             FormUtils().parseLegacyXml(InputStreamReader(ByteArrayInputStream(data), "UTF8"))?.map { mapper.map(it, FormLayout::class.java) }

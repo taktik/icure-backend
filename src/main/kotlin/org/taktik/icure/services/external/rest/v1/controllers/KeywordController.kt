@@ -40,20 +40,20 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
             keywordLogic.createKeyword(mapper.map(c, Keyword::class.java))?.let { mapper.map(it, KeywordDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword creation failed.")
 
-    @ApiOperation(nickname = "getKeyword", value = "Get a keyword", notes = "")
+    @ApiOperation(nickname = "getKeyword", value = "Get a keyword")
     @GetMapping("/{keywordId}")
     fun getKeyword(@PathVariable keywordId: String) =
             keywordLogic.getKeyword(keywordId)?.let { mapper.map(it, KeywordDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
 
 
-    @ApiOperation(nickname = "getKeywordsByUser", value = "Get keywords by user", notes = "")
+    @ApiOperation(nickname = "getKeywordsByUser", value = "Get keywords by user")
     @GetMapping("/byUser/{userId}")
     fun getKeywordsByUser(@PathVariable userId: String) =
             keywordLogic.getKeywordsByUser(userId)?.let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Keywords fetching failed")
 
-    @ApiOperation(nickname = "getKeywords", value = "Gets all keywords", notes = "")
+    @ApiOperation(nickname = "getKeywords", value = "Gets all keywords")
     @GetMapping
     fun getKeywords(): List<KeywordDto> {
         return keywordLogic.allEntities?.let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }

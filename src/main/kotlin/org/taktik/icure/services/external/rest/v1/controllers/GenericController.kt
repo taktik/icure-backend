@@ -28,8 +28,6 @@ import org.taktik.icure.logic.MainLogic
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiDefinitionTags
 import java.io.Serializable
 import java.lang.reflect.InvocationTargetException
-import java.util.stream.Collectors
-import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/generic")

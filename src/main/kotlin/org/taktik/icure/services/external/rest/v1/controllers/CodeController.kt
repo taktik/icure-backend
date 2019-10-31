@@ -38,14 +38,13 @@ import org.taktik.icure.logic.CodeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import java.io.Serializable
-import javax.ws.rs.Path
 import kotlin.math.min
 
 @RestController
 @RequestMapping("/rest/v1/code")
 @Api(tags = ["code"])
 class CodeController(private val mapper: MapperFacade,
-                 private val codeLogic: CodeLogic) {
+                     private val codeLogic: CodeLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")

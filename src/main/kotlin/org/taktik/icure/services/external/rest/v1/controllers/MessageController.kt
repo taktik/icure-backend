@@ -58,7 +58,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @DeleteMapping("/{messageId}/delegate/{delegateId}")
     fun deleteDelegation(
             @PathVariable messageId: String,
-            @PathVariable delegateId: String ): MessageDto {
+            @PathVariable delegateId: String): MessageDto {
         val message = messageLogic.get(messageId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message with ID: $messageId not found")
                         .also { logger.error(it.message) }
@@ -211,7 +211,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
-    @ApiOperation(value = "Get all messages (paginated) for current HC Party and provided from address", httpMethod = "GET")
+    @ApiOperation(nickname = "findMessagesByFromAddress", value = "Get all messages (paginated) for current HC Party and provided from address", httpMethod = "GET")
     @GetMapping("/byFromAddress")
     fun findMessagesByFromAddress(
             @RequestParam(required = false) fromAddress: String?,

@@ -52,7 +52,6 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
                             .also { logger.error(it.message) }
 
 
-
     @ApiOperation(nickname = "createGroupReplication", value = "Creates a replication")
     @PostMapping("/group/{replicationHost}/{groupId}/{password}")
     fun createGroupReplication(
@@ -65,7 +64,6 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
                     ?.let { mapper.map(it, ReplicationDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Replication creation failed")
                             .also { logger.error(it.message) }
-
 
 
     @ApiOperation(nickname = "createReplication", value = "Creates a replication")

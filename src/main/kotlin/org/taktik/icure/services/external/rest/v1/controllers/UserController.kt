@@ -120,7 +120,7 @@ class UserController(private val mapper: MapperFacade,
         return mapper.map(user, UserDto::class.java)
     }
 
-    @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id", notes = "")
+    @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
     fun findByHcpartyId(@PathVariable(required = false) id: String?): List<String> {
         return userLogic.findByHcpartyId(id)
@@ -170,7 +170,8 @@ class UserController(private val mapper: MapperFacade,
     @PutMapping("/{userId}/properties")
     fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyDto>?): UserDto {
         val user = userLogic.getUser(userId)
-        val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) } ?: listOf())
+        val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) }
+                ?: listOf())
         if (modifiedUser == null) {
             logger.error("Modify a User property failed.")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
