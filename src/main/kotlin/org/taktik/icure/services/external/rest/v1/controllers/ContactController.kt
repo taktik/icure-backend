@@ -291,7 +291,6 @@ class ContactController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(startKeyList, startDocumentId, null, limit)
 
         val contacts = if (filterChain != null) {
-            // TODO SH cast correct?
             contactLogic.filterContacts(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Contact>, mapper.map(filterChain.predicate, Predicate::class.java)))
         } else {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")

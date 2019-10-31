@@ -56,7 +56,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteDocumentTemplate", value = "Deletes a document template")
     @DeleteMapping("/{documentTemplateIds}")
-    fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String) { // TODO SH return deleted ids
+    fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String) {
         val documentTemplateIdsList = documentTemplateIds.split(',')
         try {
             documentTemplateLogic.deleteEntities(documentTemplateIdsList)
