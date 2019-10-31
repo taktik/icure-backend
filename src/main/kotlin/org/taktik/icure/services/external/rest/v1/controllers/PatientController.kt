@@ -239,7 +239,7 @@ class PatientController(
             @ApiParam(value = "Skip rows") @RequestParam(required = false) skip: Int?,
             @ApiParam(value = "Sort key") @RequestParam(required = false) sort: String,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
-            @RequestBody filterChain: FilterChain?): PatientPaginatedList {
+            @RequestBody(required = false) filterChain: FilterChain?): PatientPaginatedList {
 
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { ArrayList(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it)) }
         val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, limit)
