@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.annotation.WebServlet;
 import javax.ws.rs.Path;
 
 import com.google.gson.Gson;
@@ -35,12 +34,12 @@ import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.services.external.http.websocket.Operation;
 import org.taktik.icure.services.external.http.websocket.WebSocket;
 import org.taktik.icure.services.external.http.websocket.WebSocketOperation;
-import org.taktik.icure.services.external.rest.v1.wsfacade.KmehrWsFacade;
+import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController;
 
 @Component
 public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSocketServlet {
 	public static final int MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-	private KmehrWsFacade kmehrWsFacade;
+	private KmehrWsController kmehrWsController;
 	private Gson gsonMapper;
 	private String prefix;
 	private SessionLogic sessionLogic;
@@ -58,7 +57,7 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
 		factory.getPolicy().setMaxBinaryMessageBufferSize(MAX_MESSAGE_SIZE);
 
 		Map<String,WebSocketInvocation> methods = new HashMap<>();
-		scanBeanMethods(this.kmehrWsFacade, methods);
+		scanBeanMethods(this.kmehrWsController, methods);
 		factory.setCreator((req, resp) ->
 				new WebSocket(sessionLogic.getCurrentSessionContext(), prefix, gsonMapper, sessionLogic, wsExecutor, methods));
 	}
@@ -100,8 +99,8 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
 	}
 
 	@Autowired
-	public void setKmehrWsFacade(KmehrWsFacade kmehrWsFacade) {
-		this.kmehrWsFacade = kmehrWsFacade;
+	public void setKmehrWsController(KmehrWsController kmehrWsController) {
+		this.kmehrWsController = kmehrWsController;
 	}
 
 	@Autowired
