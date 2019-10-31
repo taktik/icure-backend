@@ -56,7 +56,7 @@ import javax.security.auth.login.LoginException
 import kotlin.streams.toList
 
 @RestController
-@RequestMapping("/patient")
+@RequestMapping("/rest/v1/patient")
 @Api(tags = ["patient"])
 class PatientController(
         private val sessionLogic: ICureSessionLogic,

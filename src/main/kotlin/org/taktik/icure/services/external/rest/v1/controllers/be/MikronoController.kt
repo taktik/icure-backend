@@ -42,7 +42,7 @@ import java.io.IOException
 import java.util.function.Supplier
 
 @RestController
-@RequestMapping("/be_mikrono")
+@RequestMapping("/rest/v1/be_mikrono")
 @Api(tags = ["be_mikrono"])
 class MikronoController(private val mapper: MapperFacade,
                         private val mikronoLogic: MikronoLogic,
