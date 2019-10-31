@@ -152,12 +152,12 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/generateMedicationScheme")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun generateMedicationSchemeExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: MedicationSchemeExportInfoDto, @WebSocketParam("version") version: Int, operation: KmehrFileOperation) {
+    fun generateMedicationSchemeExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: MedicationSchemeExportInfoDto, @WebSocketParam("recipientSafe") recipientSafe: String, @WebSocketParam("version") version: Int, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             medicationSchemeLogic.createMedicationSchemeExport(bos, patientLogic.getPatient(patientId), info.secretForeignKeys,
                     healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId),
-                    language, version, operation, null)
+                    language, recipientSafe, version, operation, null)
             operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
             bos.close()
         } catch (e: Exception) {

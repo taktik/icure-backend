@@ -118,43 +118,43 @@ class ICureController(private val replicationLogic: ReplicationLogic,
         return true
     }
 
-    @ApiOperation(nickname = "resolvePatientsConflicts")
+    @ApiOperation(nickname = "resolvePatientsConflicts", value = "Resolve patients conflicts")
     @PostMapping("/conflicts/patient")
     fun resolvePatientsConflicts() {
         patientLogic.solveConflicts()
     }
 
-    @ApiOperation(nickname = "resolveContactsConflicts")
+    @ApiOperation(nickname = "resolveContactsConflicts", value = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")
     fun resolveContactsConflicts() {
         contactLogic.solveConflicts()
     }
 
-    @ApiOperation(nickname = "resolveFormsConflicts")
+    @ApiOperation(nickname = "resolveFormsConflicts", value = "resolve forms conflicts")
     @PostMapping("/conflicts/form")
     fun resolveFormsConflicts() {
         formLogic.solveConflicts()
     }
 
-    @ApiOperation(nickname = "resolveHealthElementsConflicts")
+    @ApiOperation(nickname = "resolveHealthElementsConflicts", value = "resolve health elements conflicts")
     @PostMapping("/conflicts/healthelement")
     fun resolveHealthElementsConflicts() {
         healthElementLogic.solveConflicts()
     }
 
-    @ApiOperation(nickname = "resolveInvoicesConflicts")
+    @ApiOperation(nickname = "resolveInvoicesConflicts", value = "resolve invoices conflicts")
     @PostMapping("/conflicts/invoice")
     fun resolveInvoicesConflicts() {
         invoiceLogic.solveConflicts()
     }
 
-    @ApiOperation(nickname = "resolveMessagesConflicts")
+    @ApiOperation(nickname = "resolveMessagesConflicts", value = "resolve messages conflicts")
     @PostMapping("/conflicts/message")
     fun resolveMessagesConflicts() {
         messageLogic.solveConflicts()
     }
 
-    @ApiOperation(nickname = "resolveDocumentsConflicts")
+    @ApiOperation(nickname = "resolveDocumentsConflicts", value = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
     fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) {
         documentLogic.solveConflicts(ids?.split(','))

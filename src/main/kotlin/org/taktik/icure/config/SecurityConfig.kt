@@ -34,7 +34,10 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.taktik.icure.logic.*
+import org.taktik.icure.logic.GroupLogic
+import org.taktik.icure.logic.ICureSessionLogic
+import org.taktik.icure.logic.PermissionLogic
+import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.security.AuthenticationFailureHandler
 import org.taktik.icure.security.AuthenticationSuccessHandler
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
@@ -47,6 +50,7 @@ import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
 
 @Configuration
 class SecurityConfig {
+
     @Bean
     fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder("SHA-256")
 
@@ -78,14 +82,14 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
                 .csrf().disable()
                 .cors().and() // adds the Spring-provided CorsFilter to the application context which in turn bypasses the authorization checks for OPTIONS requests.
                 .addFilterBefore(
-            FilterChainProxy(
-                listOf(
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter(), remotingExceptionTranslationFilter()),
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter(), usernamePasswordAuthenticationFilter(), exceptionTranslationFilter())
-                      )
-                ).apply {
-                    setFirewall(httpFirewall)
-                }, FilterSecurityInterceptor::class.java)
+                        FilterChainProxy(
+                                listOf(
+                                        DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), /* sameSiteFilter, */ basicAuthenticationFilter(), remotingExceptionTranslationFilter()),
+                                        DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), /* sameSiteFilter, */ basicAuthenticationFilter(), usernamePasswordAuthenticationFilter(), exceptionTranslationFilter())
+                                )
+                        ).apply {
+                            setFirewall(httpFirewall)
+                        }, FilterSecurityInterceptor::class.java)
                 .authorizeRequests()
                 .antMatchers("/rest/v1/swagger.json").permitAll()
                 .antMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")

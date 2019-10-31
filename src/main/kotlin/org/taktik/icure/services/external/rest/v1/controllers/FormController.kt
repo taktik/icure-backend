@@ -36,6 +36,7 @@ import org.taktik.icure.logic.FormTemplateLogic
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.FormDto
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
@@ -155,6 +156,28 @@ class FormController(private val mapper: MapperFacade,
         val formsList = formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), healthElementId, planOfActionId, formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Forms failed. Please try again or read the server log.")
         return formsList.map { contact -> mapper.map(contact, FormDto::class.java) }
+    }
+
+    @ApiOperation(nickname = "findDelegationsStubsByHCPartyPatientSecretFKeys", value = "List form stubs found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
+    @GetMapping("/byHcPartySecretForeignKeys/delegations")
+    fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+                                                        @RequestParam secretFKeys: String): List<IcureStubDto> {
+        val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
+        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { contact -> mapper.map(contact, IcureStubDto::class.java) }
+    }
+
+    @ApiOperation(value = "Update delegations in form.", notes = "Keys must be delimited by coma")
+    @PostMapping("/delegations")
+    fun setFormsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+        val forms = formLogic.getForms(stubs.map { it.id })
+        forms.forEach { form ->
+            stubs.find { s -> s.id == form.id }?.let { stub ->
+                stub.delegations.forEach { (s, delegationDtos) -> form.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> form.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> form.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+            }
+        }
+        formLogic.updateEntities(forms)
     }
 
     @ApiOperation(nickname = "getFormTemplate", value = "Gets a form template by guid")

@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
@@ -193,6 +194,7 @@ class KmehrController(
     @PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateMedicationSchemeExport(@PathVariable patientId: String,
                                        @RequestParam(required = false) language: String?,
+                                       @RequestParam recipientSafe: String,
                                        @RequestParam version: Int,
                                        @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto,
                                        response: HttpServletResponse) {
@@ -200,10 +202,10 @@ class KmehrController(
 
         return if (medicationSchemeExportParams.services?.isEmpty() == true)
             medicationSchemeLogic.createMedicationSchemeExport(response.outputStream, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language
-                    ?: "fr", version, null, null)
+                    ?: "fr", recipientSafe, version, null, null)
         else
             medicationSchemeLogic.createMedicationSchemeExport(response.outputStream, patientLogic.getPatient(patientId), userHealthCareParty, language
-                    ?: "fr", version, medicationSchemeExportParams.services!!.map { s ->
+                    ?: "fr", recipientSafe, version, medicationSchemeExportParams.services!!.map { s ->
                 mapper.map(s, Service::class.java) as Service
             }, null)
     }
@@ -324,7 +326,7 @@ class KmehrController(
 
     @ApiOperation(nickname = "importSumehr", value = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/import")
-    fun importSumehr(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+    fun importSumehr(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @ApiParam(value = "Dry run: do not save in database") @RequestParam(required = false) dryRun: Boolean?, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
         val user = sessionLogic.currentSessionContext.user
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
         val document = documentLogic.get(documentId)
@@ -332,12 +334,12 @@ class KmehrController(
         return sumehrLogicV1.importSumehr(documentLogic.readAttachment(documentId, document.attachmentId), user, language
                 ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
                 patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap()).map { mapper.map(it, ImportResultDto::class.java) }
+                mappings ?: HashMap(), dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
     }
 
     @ApiOperation(nickname = "importSumehrByItemId", value = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/importbyitemid")
-    fun importSumehrByItemId(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @RequestParam itemId: String, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+    fun importSumehrByItemId(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @ApiParam(value = "Dry run: do not save in database") @RequestParam(required = false) dryRun: Boolean?, @RequestParam itemId: String, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
         val user = sessionLogic.currentSessionContext.user
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
         val document = documentLogic.get(documentId)
@@ -345,12 +347,12 @@ class KmehrController(
         return sumehrLogicV2.importSumehrByItemId(documentLogic.readAttachment(documentId, document.attachmentId), itemId, user, language
                 ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
                 patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap()).map { mapper.map(it, ImportResultDto::class.java) }
+                mappings ?: HashMap(), dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
     }
 
     @ApiOperation(nickname = "importMedicationScheme", value = "Import MedicationScheme into patient(s) using existing document")
     @PostMapping("/medicationscheme/{documentId}/import")
-    fun importMedicationScheme(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+    fun importMedicationScheme(@PathVariable documentId: String, @RequestParam(required = false) documentKey: String?, @ApiParam(value = "Dry run: do not save in database") @RequestParam(required = false) dryRun: Boolean?, @RequestParam(required = false) patientId: String?, @RequestParam(required = false) language: String?, mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
 
         val user = sessionLogic.currentSessionContext.user
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(user.healthcarePartyId)
@@ -359,6 +361,7 @@ class KmehrController(
         return medicationSchemeLogic.importMedicationSchemeFile(documentLogic.readAttachment(documentId, document.attachmentId), user, language
                 ?: userHealthCareParty.languages?.firstOrNull() ?: "fr",
                 patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap()).map { mapper.map(it, ImportResultDto::class.java) }
+                mappings ?: HashMap(),
+                dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
     }
 }

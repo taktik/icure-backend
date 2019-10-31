@@ -49,7 +49,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filter
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
-import org.taktik.icure.services.external.rest.v1.facade.PatientFacade
 import org.taktik.icure.utils.ResponseUtils
 import java.time.Instant
 import java.util.*
