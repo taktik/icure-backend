@@ -577,12 +577,12 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 		return patientDAO.listOfPatientsModifiedAfter(date, new PaginationOffset<>(startKey, startDocumentId, 0, limit == null ? 1000 : limit ));
 	}
 
-    @Override
-    public List<Patient> getDuplicatePatients(List<String> healthcarePartyIds) {
-        return this.patientDAO.getDuplicatePatients(healthcarePartyIds);
-    }
-
-    @Override
+  @Override
+  public List<Patient> getDuplicatePatients(List<String> healthcarePartyIds) {
+    return this.patientDAO.getDuplicatePatients(healthcarePartyIds);
+  }
+  
+	@Override
 	public List<Patient> fuzzySearchPatients(String healthcarePartyId, String firstName, String lastName, Integer dateOfBirth) {
 		if (dateOfBirth != null) {
 			//Patients with the right date of birth

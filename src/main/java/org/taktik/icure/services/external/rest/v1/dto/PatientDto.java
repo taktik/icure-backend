@@ -541,4 +541,3 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setProperties(Set<Property> properties) { this.properties = properties; }
 }
-

@@ -86,5 +86,5 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	@View(name = "by_hcparty_delegate_keys", map = "classpath:js/healthcareparty/By_hcparty_delegate_keys_map.js")
 	Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
 
-    List<Patient> getDuplicatePatients(List<String> healthcarePartyIds);
+  List<Patient> getDuplicatePatients(List<String> healthcarePartyIds);
 }

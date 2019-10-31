@@ -56,11 +56,11 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
         initStandardDesignDocument();
     }
 
-    @Override
-    @View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js", reduce = "_count")
-    public List<String> listIdsByHcPartyAndName(String name, String healthcarePartyId) {
-        return listIdsForName(name, healthcarePartyId, "by_hcparty_name");
-    }
+	@Override
+	@View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js", reduce = "_count")
+	public List<String> listIdsByHcPartyAndName(String name, String healthcarePartyId) {
+		return listIdsForName(name, healthcarePartyId, "by_hcparty_name");
+	}
 
 	@Override
 	@View(name = "of_hcparty_name", map = "classpath:js/patient/Of_hcparty_name_map.js")
@@ -173,7 +173,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 			endKey = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject());
 		}
 
-		ViewQuery viewQuery = createQuery(viewName).startKey(startKey).endKey(endKey).includeDocs(false);
+		ViewQuery viewQuery = createQuery(viewName).startKey(startKey).endKey(endKey).reduce(false).includeDocs(false);
 
 		return db.queryView(viewQuery, String.class);
 	}
@@ -454,8 +454,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
 		return resultMap;
 	}
-
-    @Override
+@Override
     public List<Patient> getDuplicatePatients(List<String> healthcarePartyIds) {
         List<Patient> duplicatePatients = new ArrayList<>();
         duplicatePatients.addAll(this.getDuplicatesFromView("by_hcparty_ssin", healthcarePartyIds));
