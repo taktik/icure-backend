@@ -77,8 +77,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // hasAnyRole coming in Spring 5.2: https://github.com/spring-projects/spring-security/pull/6310
-                .pathMatchers("/**").permitAll() // TODO SH remove once base path AND swagger path are fixed
-                .pathMatchers("/rest/v1/swagger.json").permitAll()
+                .pathMatchers("/v2/api-docs").permitAll()
                 .pathMatchers("/rest/*/replication/group/**").hasRole("USER")
                 .pathMatchers("/rest/*/replication/group/**").hasRole("BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
