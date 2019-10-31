@@ -41,7 +41,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @ApiOperation(nickname = "createTimeTable", value = "Creates a timeTable")
     @PostMapping
-    fun createTimeTable(@RequestBody timeTableDto: TimeTableDto?) =
+    fun createTimeTable(@RequestBody timeTableDto: TimeTableDto) =
             timeTableLogic.createTimeTable(mapper.map(timeTableDto, TimeTable::class.java)).let { mapper.map(it, TimeTableDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
 
@@ -90,7 +90,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @ApiOperation(nickname = "modifyTimeTable", value = "Modifies an timeTable")
     @PutMapping
-    fun modifyTimeTable(@RequestBody timeTableDto: TimeTableDto?) =
+    fun modifyTimeTable(@RequestBody timeTableDto: TimeTableDto) =
             timeTableLogic.modifyTimeTable(mapper.map(timeTableDto, TimeTable::class.java))?.let { mapper.map(it, TimeTableDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable modification failed")
 

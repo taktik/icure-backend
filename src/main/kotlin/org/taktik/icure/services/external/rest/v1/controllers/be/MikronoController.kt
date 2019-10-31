@@ -101,53 +101,50 @@ class MikronoController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "register", value = "Set credentials for provided user")
     @PutMapping("/user/{userId}/register")
     fun register(@PathVariable userId: String,
-                 @RequestBody credentials: MikronoCredentialsDto?) {
+                 @RequestBody credentials: MikronoCredentialsDto) {
 
-        if (credentials == null) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials")
+        val u = userLogic.getUser(userId)
+        if (u == null) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid user")
         } else {
-            val u = userLogic.getUser(userId)
-            if (u == null) {
-                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid user")
+            val token = uuidGenerator.newGUID().toString()
+            u.applicationTokens["MIKRONO"] = token
+            userLogic.save(u)
+
+            val mikronoServerUrl = mikronoLogic.getMikronoServer(credentials.serverUrl)
+            var mikronoToken: String? = mikronoLogic.register(mikronoServerUrl, u.id, token)
+                    ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot obtain mikrono token")
+
+            mikronoToken = mikronoLogic.getPassword(mikronoToken)
+
+            val mikronoServer = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.url" == prop.type.identifier }.findAny()
+            val user = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.user" == prop.type.identifier }.findAny()
+            val password = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.password" == prop.type.identifier }.findAny()
+
+            if (mikronoServer.isPresent) {
+                mikronoServer.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, mikronoServerUrl)
             } else {
-                val token = uuidGenerator.newGUID().toString()
-                u.applicationTokens["MIKRONO"] = token
-                userLogic.save(u)
-
-                val mikronoServerUrl = mikronoLogic.getMikronoServer(credentials.serverUrl)
-                var mikronoToken: String? = mikronoLogic.register(mikronoServerUrl, u.id, token)
-                        ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot obtain mikrono token")
-
-                mikronoToken = mikronoLogic.getPassword(mikronoToken)
-
-                val mikronoServer = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.url" == prop.type.identifier }.findAny()
-                val user = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.user" == prop.type.identifier }.findAny()
-                val password = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.password" == prop.type.identifier }.findAny()
-
-                if (mikronoServer.isPresent) {
-                    mikronoServer.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, mikronoServerUrl)
-                } else {
-                    val p = Property(PropertyType(TypedValuesType.STRING, "org.taktik.icure.be.plugins.mikrono.url"), TypedValue(TypedValuesType.STRING, mikronoServerUrl))
-                    u.properties.add(p)
-                }
-
-                if (user.isPresent) {
-                    user.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, u.id)
-                } else {
-                    val p = Property(PropertyType(TypedValuesType.STRING, "org.taktik.icure.be.plugins.mikrono.user"), TypedValue(TypedValuesType.STRING, u.id))
-                    u.properties.add(p)
-                }
-
-                if (password.isPresent) {
-                    password.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, mikronoToken)
-                } else {
-                    val p = Property(PropertyType(TypedValuesType.STRING, "org.taktik.icure.be.plugins.mikrono.password"), TypedValue(TypedValuesType.STRING, mikronoToken))
-                    u.properties.add(p)
-                }
-
-                userLogic.save(u)
+                val p = Property(PropertyType(TypedValuesType.STRING, "org.taktik.icure.be.plugins.mikrono.url"), TypedValue(TypedValuesType.STRING, mikronoServerUrl))
+                u.properties.add(p)
             }
+
+            if (user.isPresent) {
+                user.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, u.id)
+            } else {
+                val p = Property(PropertyType(TypedValuesType.STRING, "org.taktik.icure.be.plugins.mikrono.user"), TypedValue(TypedValuesType.STRING, u.id))
+                u.properties.add(p)
+            }
+
+            if (password.isPresent) {
+                password.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, mikronoToken)
+            } else {
+                val p = Property(PropertyType(TypedValuesType.STRING, "org.taktik.icure.be.plugins.mikrono.password"), TypedValue(TypedValuesType.STRING, mikronoToken))
+                u.properties.add(p)
+            }
+
+            userLogic.save(u)
         }
+
     }
 
     @ApiOperation(nickname = "sendMessage", value = "Send message using mikrono from logged user")
@@ -174,7 +171,7 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "appointmentsByDate", value = "Get appointments for patient")
     @GetMapping("/appointments/byDate/{calendarDate}")
-    fun appointmentsByDate(@PathVariable(required = false) calendarDate: Long?): List<AppointmentDto> {
+    fun appointmentsByDate(@PathVariable calendarDate: Long): List<AppointmentDto> {
         val loggedUser = sessionLogic.currentSessionContext.user
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
@@ -188,8 +185,8 @@ class MikronoController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "appointmentsByPatient", value = "Get appointments for patient")
     @GetMapping("/appointments/byPatient/{patientId}")
     fun appointmentsByPatient(@PathVariable patientId: String,
-                              @RequestParam from: Long?,
-                              @RequestParam to: Long?): List<AppointmentDto> {
+                              @RequestParam(required = false) from: Long?,
+                              @RequestParam(required = false) to: Long?): List<AppointmentDto> {
         val loggedUser = sessionLogic.currentSessionContext.user
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
