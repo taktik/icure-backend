@@ -1254,6 +1254,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         if (p.profession != null && (force || patient.profession == null)) {
             patient.setProfession(p.profession.text.value)
         }
+        val patref = p.ids.filter { i -> i.s == IDPATIENTschemes.LOCAL && i.sl == "PatientReference" }.firstOrNull()?.value
+        if (patref != null && patref.trim() != "" && (force || patient.externalId == null)) {
+            patient.setExternalId(patref)
+        }
         p.addresses?.let { addresses ->
             patient.addresses.addAll(addresses.map {
                 Address().apply {
