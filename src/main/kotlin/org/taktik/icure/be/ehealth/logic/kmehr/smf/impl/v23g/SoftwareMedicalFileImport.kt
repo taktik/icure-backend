@@ -671,10 +671,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.author = author.id
             this.responsible = trnAuthorHcpId
             this.codes = extractCodes(item).toMutableSet()
-            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromMomentType(it) }
                     ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
-            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
             //this.idOpeningContact = contactId
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
@@ -779,10 +779,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             )
                         },
                 "du" to  Content().apply{
-                    item.beginmoment?.let { fuzzyDateValue = Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                    item.beginmoment?.let { fuzzyDateValue = Utils.makeFuzzyLongFromMomentType(it) }
                 },
                 "au" to  Content().apply {
-                    item.endmoment?.let { fuzzyDateValue = Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                    item.endmoment?.let { fuzzyDateValue = Utils.makeFuzzyLongFromMomentType(it) }
                 },
                 "inclus/exclus" to  Content().apply{ stringValue = "inclus" }, // no kmehr equivalent
                 "pour cause de" to
@@ -821,7 +821,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     this.author = author.id
                     created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
                     modified = this.created
-                    valueDate = item.beginmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                    valueDate = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
 
                     if(it is Pair<*, *>) {
                         content = mapOf(
@@ -865,10 +865,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             this.author = author.id
             this.responsible = trnAuthorHcpId
             this.codes = extractCodes(item).toMutableSet()
-            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            //this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromMomentType(it) }
+            this.valueDate = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
                     ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
-            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
             this.idOpeningContact = contactId
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
@@ -964,10 +965,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             }
             this.responsible = trnAuthorHcpId
             this.author = author.id
-            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromMomentType(it) }
                     ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
             this.openingDate = this.valueDate
-            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
             this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
             this.modified = this.created
             item.lifecycle?.let { this.tags.add(CodeStub( "CD-LIFECYCLE", it.cd.value.value(), "1")) }
@@ -1026,8 +1027,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             numberOfPackages = item.quantity?.decimal?.toInt()
                             item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }.joinToString(", ").let {if (it.isNotBlank()) instructionForPatient = (instructionForPatient ?: "") + it }
                             batch = item.batch
-                            beginMoment = item.beginmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                            endMoment = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                            beginMoment = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
+                            endMoment = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
                         }
                     }
                     ( item.contents.any { it.decimal != null } ) -> item.contents.filter { it.decimal != null }.firstOrNull()?.let {
