@@ -30,7 +30,7 @@ import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto
 
 @RestController
-@RequestMapping("/be_result_import")
+@RequestMapping("/rest/v1/be_result_import")
 @Api(tags = ["be_result_import"])
 class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                              private val documentLogic: DocumentLogic,

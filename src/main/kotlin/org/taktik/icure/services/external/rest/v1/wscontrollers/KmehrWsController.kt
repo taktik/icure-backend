@@ -40,7 +40,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoD
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
-@RestController("/ws/be_kmehr")
+@RestController("/rest/v1/ws/be_kmehr")
 class KmehrWsController(private var mapper: MapperFacade,
                         private val sessionLogic: SessionLogic,
                         private val sumehrLogicV1: SumehrLogic,
