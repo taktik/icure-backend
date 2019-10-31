@@ -23,13 +23,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.Path;
-
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.services.external.http.websocket.Operation;
 import org.taktik.icure.services.external.http.websocket.WebSocket;
@@ -64,12 +63,12 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
 
 	private void scanBeanMethods(Object bean, Map<String, WebSocketInvocation> methods) {
 		Class clazz = bean.getClass();
-		Path annotation = (Path) clazz.getAnnotation(Path.class);
+		RequestMapping annotation = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
 
-		if (annotation!=null) {
-			String basePath = annotation.value();
-			Arrays.stream(clazz.getMethods()).filter(m -> m.getAnnotation(WebSocketOperation.class) != null).forEach(m ->
-					methods.put((basePath + "/" + m.getAnnotation(Path.class).value()).replaceAll("//", "/"), new WebSocketInvocation(m.getAnnotation(WebSocketOperation.class).adapterClass(), bean, m))
+		if (annotation!=null && annotation.path().length > 0) {
+			String basePath = annotation.path()[0];
+			Arrays.stream(clazz.getMethods()).filter(m -> m.getAnnotation(WebSocketOperation.class) != null && m.getAnnotation(RequestMapping.class).path().length > 0).forEach(m ->
+					methods.put((basePath + "/" + m.getAnnotation(RequestMapping.class).path()[0]).replaceAll("//", "/"), new WebSocketInvocation(m.getAnnotation(WebSocketOperation.class).adapterClass(), bean, m))
 			);
 		}
 	}
