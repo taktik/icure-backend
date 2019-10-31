@@ -67,8 +67,6 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-
-
     @Throws(IOException::class)
 	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
@@ -107,8 +105,8 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		msg?.folders?.forEach { f ->
-			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.ID_KMEHR && protocolIds.contains(it.value) } }.forEach { t ->
-				val protocolId = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
+			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds.contains(it.value) } }.forEach { t ->
+				val protocolId = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
 				val demandTimestamp = demandEpochMillis(t)
 
                 var s: Service? = null;
