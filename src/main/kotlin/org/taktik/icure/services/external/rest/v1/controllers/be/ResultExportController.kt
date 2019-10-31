@@ -31,7 +31,7 @@ import org.taktik.icure.utils.FuzzyValues
 import javax.servlet.http.HttpServletResponse
 
 @RestController
-@RequestMapping("/be_result_export")
+@RequestMapping("/rest/v1/be_result_export")
 @Api(tags = ["be_result_export"])
 class ResultExportController(private var healthOneLogic: HealthOneLogic,
                              private val medidocLogic: MedidocLogic,

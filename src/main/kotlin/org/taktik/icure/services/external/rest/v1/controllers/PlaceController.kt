@@ -30,7 +30,7 @@ import org.taktik.icure.logic.PlaceLogic
 import org.taktik.icure.services.external.rest.v1.dto.PlaceDto
 
 @RestController
-@RequestMapping("/place")
+@RequestMapping("/rest/v1/place")
 @Api(tags = ["place"])
 class PlaceController(private val placeLogic: PlaceLogic, private val mapper: MapperFacade) {
 
