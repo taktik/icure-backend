@@ -1,4 +1,4 @@
-package org.taktik.icure.services.external.rest.v1.facade.be
+package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation

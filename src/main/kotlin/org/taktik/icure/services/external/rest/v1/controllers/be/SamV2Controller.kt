@@ -1,4 +1,4 @@
-package org.taktik.icure.services.external.rest.v1.facade.be
+package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import com.google.gson.Gson
 import io.swagger.annotations.Api
@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
 import ma.glasnost.orika.metadata.TypeBuilder
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.be.samv2.logic.SamV2Logic
 import org.taktik.icure.db.PaginatedList
@@ -16,10 +15,7 @@ import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.*
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
-import org.taktik.icure.utils.ResponseUtils
 import java.util.*
-import javax.ws.rs.*
-import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/be_samv2")

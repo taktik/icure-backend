@@ -17,7 +17,7 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.services.external.rest.v1.facade.be
+package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
