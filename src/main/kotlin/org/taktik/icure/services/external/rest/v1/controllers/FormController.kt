@@ -75,7 +75,7 @@ class FormController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "getChildren", value = "Get a list of forms by ids", notes = "Keys must be delimited by coma")
     @GetMapping("/childrenOf/{formId}/{hcPartyId}")
     fun getChildren(@PathVariable formId: String,
-                    @PathVariable(required = false) hcPartyId: String?): List<FormDto> {
+                    @PathVariable hcPartyId: String): List<FormDto> {
         val forms = formLogic.findByHcPartyParentId(hcPartyId, formId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form fetching failed")
         return forms.map { mapper.map(it, FormDto::class.java) }

@@ -56,7 +56,7 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
     @ApiOperation(nickname = "getFrontEndMigrationByName", value = "Gets an front end migration")
     @GetMapping("/byName/{frontEndMigrationName}")
-    fun getFrontEndMigrationByName(@PathVariable(required = false) frontEndMigrationName: String?): List<FrontEndMigrationDto> {
+    fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): List<FrontEndMigrationDto> {
         val userId = sessionLogic.currentSessionContext.groupIdUserId
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Not authorized")
 

@@ -102,7 +102,7 @@ class PatientController(
 
     @ApiOperation(nickname = "listPatientsOfHcParty", value = "List patients of a specific HcParty or of the current HcParty ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/ofHcParty/{hcPartyId}")
-    fun listPatientsOfHcParty(@PathVariable hcPartyId: String?,
+    fun listPatientsOfHcParty(@PathVariable hcPartyId: String,
                               @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
                               @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                               @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
@@ -117,12 +117,12 @@ class PatientController(
 
     @ApiOperation(nickname = "listOfMergesAfter", value = "List patients that have been merged towards another patient ", notes = "Returns a list of patients that have been merged after the provided date")
     @GetMapping("/merges/{date}")
-    fun listOfMergesAfter(@PathVariable date: Long?) =
+    fun listOfMergesAfter(@PathVariable date: Long) =
             patientLogic.listOfMergesAfter(date).map { p -> mapper.map(p, PatientDto::class.java) }
 
     @ApiOperation(nickname = "listOfPatientsModifiedAfter", value = "List patients that have been modified after the provided date", notes = "Returns a list of patients that have been modified after the provided date")
     @GetMapping("/modifiedAfter/{date}")
-    fun listOfPatientsModifiedAfter(@PathVariable date: Long?,
+    fun listOfPatientsModifiedAfter(@PathVariable date: Long,
                                     @ApiParam(value = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) =
@@ -130,7 +130,7 @@ class PatientController(
 
     @ApiOperation(nickname = "listPatientsByHcParty", value = "List patients for a specific HcParty or for the current HcParty ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/hcParty/{hcPartyId}")
-    fun listPatientsByHcParty(@PathVariable(required = false) hcPartyId: String,
+    fun listPatientsByHcParty(@PathVariable hcPartyId: String,
                               @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
                               @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
                               @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
@@ -146,7 +146,7 @@ class PatientController(
 
     @ApiOperation(nickname = "countOfPatients", value = "Get count of patients for a specific HcParty or for the current HcParty ", response = ContentDto::class, httpMethod = "GetMapping", notes = "Returns the count of patients")
     @GetMapping("/hcParty/{hcPartyId}/count")
-    fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable(required = false) hcPartyId: String?) =
+    fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable hcPartyId: String) =
             ResponseUtils.ok(ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId)))
 
     @ApiOperation(nickname = "listPatients", value = "List patients for a specific HcParty", response = org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList::class, httpMethod = "GetMapping", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -239,7 +239,7 @@ class PatientController(
             @ApiParam(value = "Skip rows") @RequestParam(required = false) skip: Int?,
             @ApiParam(value = "Sort key") @RequestParam(required = false) sort: String,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
-            @RequestBody filterChain: FilterChain?): PatientPaginatedList {
+            @RequestBody(required = false) filterChain: FilterChain?): PatientPaginatedList {
 
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { ArrayList(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it)) }
         val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, limit)
@@ -248,8 +248,7 @@ class PatientController(
             //(Filter<String,O> filter, Predicate predicate)
             val patients = filterChain?.let {
                 patientLogic.listPatients(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain<Patient>(it.filter as org.taktik.icure.dto.filter.Filter<String, Patient>, mapper.map(it.predicate, Predicate::class.java)), sort, desc)
-            }
-                    ?: patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(null, paginationOffset, null, Sorting(null, "asc"))
+            } ?: patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(null, paginationOffset, null, Sorting(null, "asc"))
 
             log.info("Filter patients in " + (System.currentTimeMillis() - System.currentTimeMillis()) + " ms.")
 
@@ -420,7 +419,7 @@ class PatientController(
 
     @ApiOperation(nickname = "mergeInto", value = "Merge a series of patients into another patient")
     @PutMapping("/mergeInto/{toId}/from/{fromIds}")
-    fun mergeInto(@PathVariable("toId") patientId: String?, @PathVariable fromIds: String?) =
+    fun mergeInto(@PathVariable("toId") patientId: String?, @PathVariable fromIds: String) =
             with(patientLogic.getPatient(patientId)) {
                 fromIds?.split(',')?.map { patientLogic.getPatient(it) }.also { patientLogic.mergePatient(this, it) }.let { mapper.map(it, PatientDto::class.java) }
                         ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find patient with ID $patientId in the database")
