@@ -16,14 +16,13 @@ import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpDto
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpDto
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpGroupDto
-import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import java.util.*
 
 @RestController
 @RequestMapping("/be_samv2")
 @Api(tags = ["be_samv2"])
 class SamV2Controller(val mapper: MapperFacade,
-                      val samV2Logic: SamV2Logic) : OpenApiFacade {
+                      val samV2Logic: SamV2Logic) {
 
     @ApiOperation(nickname = "findPaginatedAmpsByLabel", value = "Finding AMPs by label with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp")

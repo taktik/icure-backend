@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.logic.MainLogic
-import org.taktik.icure.services.external.rest.v1.facade.OpenApiDefinitionTags
 import java.io.Serializable
 import java.lang.reflect.InvocationTargetException
 
@@ -33,7 +32,7 @@ import java.lang.reflect.InvocationTargetException
 @RequestMapping("/rest/v1/generic")
 @Api(tags = ["generic"])
 class GenericController(internal val mapper: MapperFacade,
-                        internal val mainLogic: MainLogic) : OpenApiDefinitionTags() {
+                        internal val mainLogic: MainLogic) {
 
     @ApiOperation(nickname = "listEnum", value = "List enum values")
     @GetMapping("/enum/{className}")
