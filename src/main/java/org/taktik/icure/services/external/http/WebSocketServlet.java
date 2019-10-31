@@ -23,24 +23,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.annotation.WebServlet;
-import javax.ws.rs.Path;
-
 import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.services.external.http.websocket.Operation;
 import org.taktik.icure.services.external.http.websocket.WebSocket;
 import org.taktik.icure.services.external.http.websocket.WebSocketOperation;
-import org.taktik.icure.services.external.rest.v1.wsfacade.KmehrWsFacade;
+import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController;
 
 @Component
 public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSocketServlet {
 	public static final int MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-	private KmehrWsFacade kmehrWsFacade;
+	private KmehrWsController kmehrWsController;
 	private Gson gsonMapper;
 	private String prefix;
 	private SessionLogic sessionLogic;
@@ -58,19 +56,19 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
 		factory.getPolicy().setMaxBinaryMessageBufferSize(MAX_MESSAGE_SIZE);
 
 		Map<String,WebSocketInvocation> methods = new HashMap<>();
-		scanBeanMethods(this.kmehrWsFacade, methods);
+		scanBeanMethods(this.kmehrWsController, methods);
 		factory.setCreator((req, resp) ->
 				new WebSocket(sessionLogic.getCurrentSessionContext(), prefix, gsonMapper, sessionLogic, wsExecutor, methods));
 	}
 
 	private void scanBeanMethods(Object bean, Map<String, WebSocketInvocation> methods) {
 		Class clazz = bean.getClass();
-		Path annotation = (Path) clazz.getAnnotation(Path.class);
+		RequestMapping annotation = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
 
-		if (annotation!=null) {
-			String basePath = annotation.value();
-			Arrays.stream(clazz.getMethods()).filter(m -> m.getAnnotation(WebSocketOperation.class) != null).forEach(m ->
-					methods.put((basePath + "/" + m.getAnnotation(Path.class).value()).replaceAll("//", "/"), new WebSocketInvocation(m.getAnnotation(WebSocketOperation.class).adapterClass(), bean, m))
+		if (annotation!=null && annotation.path().length > 0) {
+			String basePath = annotation.path()[0];
+			Arrays.stream(clazz.getMethods()).filter(m -> m.getAnnotation(WebSocketOperation.class) != null && m.getAnnotation(RequestMapping.class).path().length > 0).forEach(m ->
+					methods.put((basePath + "/" + m.getAnnotation(RequestMapping.class).path()[0]).replaceAll("//", "/"), new WebSocketInvocation(m.getAnnotation(WebSocketOperation.class).adapterClass(), bean, m))
 			);
 		}
 	}
@@ -100,8 +98,8 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSoc
 	}
 
 	@Autowired
-	public void setKmehrWsFacade(KmehrWsFacade kmehrWsFacade) {
-		this.kmehrWsFacade = kmehrWsFacade;
+	public void setKmehrWsController(KmehrWsController kmehrWsController) {
+		this.kmehrWsController = kmehrWsController;
 	}
 
 	@Autowired

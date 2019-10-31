@@ -29,15 +29,14 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Receipt
 import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.logic.ReceiptLogic
-import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
 
 @RestController
-@RequestMapping("/receipt")
+@RequestMapping("/rest/v1/receipt")
 @Api(tags = ["receipt"])
 class ReceiptController(private val receiptLogic: ReceiptLogic,
-                        private val mapper: MapperFacade, private val sessionLogic: SessionLogic) {
+                        private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "createReceipt", value = "Creates a receipt")
     @PostMapping
@@ -71,8 +70,10 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
             @PathVariable attachmentId: String?,
             @RequestParam enckeys: String?): ByteArray? =
             receiptLogic.getAttachment(receiptId, attachmentId)?.let {
-                if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Attachment not found")
+                if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it
+            }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
+                            .also { logger.error(it.message) }
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a receipt's attachment")
     @PutMapping("/{receiptId}/attachment/{blobType}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
@@ -82,14 +83,14 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
             @RequestParam enckeys: String,
             @RequestBody payload: ByteArray): ReceiptDto {
 
-        var payload = payload
+        var encryptedPayload = payload
         if (enckeys.isNotEmpty()) {
-            payload = CryptoUtils.encryptAESWithAnyKey(payload, enckeys.split(',')[0])
+            encryptedPayload = CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])
         }
 
         val receipt = receiptLogic.getEntity(receiptId)
         if (receipt != null) {
-            receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), payload)
+            receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), encryptedPayload)
             return mapper.map(receipt, ReceiptDto::class.java)
         }
         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
@@ -98,13 +99,14 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     @ApiOperation(nickname = "getReceipt", value = "Gets a receipt")
     @GetMapping("/{receiptId}")
     fun getReceipt(@PathVariable receiptId: String): ReceiptDto =
-            receiptLogic.getEntity(receiptId)?.let {  mapper.map(it, ReceiptDto::class.java)}
-                    ?:throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt not found")
+            receiptLogic.getEntity(receiptId)?.let { mapper.map(it, ReceiptDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
 
     @ApiOperation(nickname = "listByReference", value = "Gets a receipt")
     @GetMapping("/byref/{ref}")
     fun listByReference(@PathVariable ref: String): List<ReceiptDto> =
-            receiptLogic.listByReference(ref).map {  mapper.map(it, ReceiptDto::class.java) }
+            receiptLogic.listByReference(ref)?.map { mapper.map(it, ReceiptDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
 
     @ApiOperation(nickname = "modifyReceipt", value = "Updates a receipt")
     @PutMapping
@@ -122,4 +124,5 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     companion object {
         private val logger = LoggerFactory.getLogger(javaClass)
     }
+
 }

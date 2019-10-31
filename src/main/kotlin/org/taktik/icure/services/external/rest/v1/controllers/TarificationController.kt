@@ -37,7 +37,7 @@ import java.io.Serializable
 import kotlin.streams.toList
 
 @RestController
-@RequestMapping("/tarification")
+@RequestMapping("/rest/v1/tarification")
 @Api(tags = ["tarification"])
 class TarificationController(private val mapper: MapperFacade,
                              private val tarificationLogic: TarificationLogic) {
@@ -77,7 +77,7 @@ class TarificationController(private val mapper: MapperFacade,
                 )
                 return this
             }
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Finding tarifications failed")
+        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Finding tarifications failed")
     }
 
     @ApiOperation(nickname = "findPaginatedTarifications", value = "Finding tarifications by tarification, type and version with pagination.", notes = "Returns a list of tarifications matched with given input.")
@@ -103,8 +103,8 @@ class TarificationController(private val mapper: MapperFacade,
                 PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, limit)
         )
 
-        tarificationsList?.let{
-            it.rows = it.rows?: emptyList()
+        tarificationsList?.let {
+            it.rows = it.rows ?: emptyList()
             with(TarificationPaginatedList()) {
                 mapper.map(
                         tarificationsList,
@@ -146,7 +146,7 @@ class TarificationController(private val mapper: MapperFacade,
     @GetMapping("/{tarificationId}")
     fun getTarification(@ApiParam(value = "Tarification id") @PathVariable tarificationId: String) =
             tarificationLogic.get(tarificationId)?.let { mapper.map(it, TarificationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the tarification. Read the app logs.")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
     @ApiOperation(nickname = "getTarificationWithParts", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{type}/{tarification}/{version}")
@@ -155,7 +155,7 @@ class TarificationController(private val mapper: MapperFacade,
             @ApiParam(value = "Tarification tarification", required = true) @PathVariable tarification: String,
             @ApiParam(value = "Tarification version", required = true) @PathVariable version: String) =
             tarificationLogic.get(type, tarification, version)?.let { mapper.map(it, TarificationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the tarification. Read the app logs.")
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
 
     @ApiOperation(nickname = "modifyTarification", value = "Modify a tarification", notes = "Modification of (type, tarification, version) is not allowed.")

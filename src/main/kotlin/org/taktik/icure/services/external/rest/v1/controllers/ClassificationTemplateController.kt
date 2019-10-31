@@ -34,16 +34,12 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplatePaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import java.util.*
-import java.util.stream.Collectors
-import javax.ws.rs.PathParam
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.Response
 
 @RestController
-@RequestMapping("/classificationTemplate")
+@RequestMapping("/rest/v1/classificationTemplate")
 @Api(tags = ["classificationTemplate"])
 class ClassificationTemplateController(private val mapper: MapperFacade,
-                                   private val classificationTemplateLogic: ClassificationTemplateLogic) {
+                                       private val classificationTemplateLogic: ClassificationTemplateLogic) {
 
     @ApiOperation(nickname = "createClassificationTemplate", value = "Create a classification Template with the current user", notes = "Returns an instance of created classification Template.")
     @PostMapping
@@ -57,7 +53,7 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
     @GetMapping("/{classificationTemplateId}")
     fun getClassificationTemplate(@PathVariable classificationTemplateId: String): ClassificationTemplateDto {
         val element = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.")
         return mapper.map(element, ClassificationTemplateDto::class.java)
     }
 

@@ -11,7 +11,7 @@ import org.taktik.icure.logic.ArticleLogic
 import org.taktik.icure.services.external.rest.v1.dto.ArticleDto
 
 @RestController
-@RequestMapping("/article")
+@RequestMapping("/rest/v1/article")
 @Api(tags = ["article"])
 class ArticleController(private val mapper: MapperFacade,
                         private val articleLogic: ArticleLogic) {
@@ -27,8 +27,8 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
     @DeleteMapping("/{articleIds}")
-    fun deleteArticle(@PathVariable articleIds: String) {
-        articleLogic.deleteArticles(articleIds.split(','))
+    fun deleteArticle(@PathVariable articleIds: String): List<String> {
+        return articleLogic.deleteArticles(articleIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article deletion failed")
     }
 
@@ -36,12 +36,12 @@ class ArticleController(private val mapper: MapperFacade,
     @GetMapping("/{articleId}")
     fun getArticle(@PathVariable articleId: String): ArticleDto {
         val article = articleLogic.getArticle(articleId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
 
         return mapper.map(article, ArticleDto::class.java)
     }
 
-    @ApiOperation(nickname = "modifyArticle", value = "Modifies an article")  // TODO nickname required?
+    @ApiOperation(nickname = "modifyArticle", value = "Modifies an article")
     @PutMapping
     fun modifyArticle(@RequestBody articleDto: ArticleDto): ArticleDto {
         val article = articleLogic.modifyArticle(mapper.map(articleDto, Article::class.java))

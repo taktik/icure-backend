@@ -29,10 +29,10 @@ import org.taktik.icure.logic.CalendarItemTypeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
 
 @RestController
-@RequestMapping("/calendarItemType")
+@RequestMapping("/rest/v1/calendarItemType")
 @Api(tags = ["calendarItemType"])
 class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItemTypeLogic,
-                             private val mapper: MapperFacade) {
+                                 private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "getCalendarItemTypes", value = "Gets all calendarItemTypes")
     @GetMapping
@@ -70,7 +70,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     @GetMapping("/{calendarItemTypeId}")
     fun getCalendarItemType(@PathVariable calendarItemTypeId: String): CalendarItemTypeDto {
         val calendarItemType = calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
 
         return mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
     }

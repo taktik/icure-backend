@@ -33,15 +33,14 @@ import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.DocumentTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto
 import org.taktik.icure.utils.FormUtils
-import org.taktik.icure.utils.ResponseUtils
 import java.io.ByteArrayInputStream
-import javax.ws.rs.core.StreamingOutput
+import javax.servlet.http.HttpServletResponse
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
 
 @RestController
-@RequestMapping("/doctemplate")
+@RequestMapping("/rest/v1/doctemplate")
 @Api(tags = ["doctemplate"])
 class DocumentTemplateController(private val mapper: MapperFacade,
                                  private val documentTemplateLogic: DocumentTemplateLogic,
@@ -51,13 +50,13 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     @GetMapping("/{documentTemplateId}")
     fun getDocumentTemplate(@PathVariable documentTemplateId: String): DocumentTemplateDto {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "DocumentTemplate fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "DocumentTemplate fetching failed")
         return mapper.map(documentTemplate, DocumentTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteDocumentTemplate", value = "Deletes a document template")
     @DeleteMapping("/{documentTemplateIds}")
-    fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String) { // TODO SH return deleted ids
+    fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String) {
         val documentTemplateIdsList = documentTemplateIds.split(',')
         try {
             documentTemplateLogic.deleteEntities(documentTemplateIdsList)
@@ -124,36 +123,35 @@ class DocumentTemplateController(private val mapper: MapperFacade,
         return mapper.map(documentTemplate, DocumentTemplateDto::class.java)
     }
 
-    /*@ApiOperation(nickname = "getAttachment", value = "Download a the document template attachment") // TODO SH
+    @ApiOperation(nickname = "getAttachment", value = "Download a the document template attachment")
     @GetMapping("/{documentTemplateId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachment(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String): ByteArray {
+    fun getAttachment(@PathVariable documentTemplateId: String,
+                      @PathVariable attachmentId: String,
+                      response: HttpServletResponse) {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         if (document.attachment != null) {
-            val ret = ResponseUtils.ok({ output: StreamingOutput ->
-                if (document.version == null) {
-                    val xmlSource = StreamSource(ByteArrayInputStream(document.attachment))
-                    val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream("DocumentTemplateLegacyToNew.xml"))
-                    val result = javax.xml.transform.stream.StreamResult(output)
-                    val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
-                    try {
-                        val trans = transFact.newTransformer(xsltSource)
-                        trans.transform(xmlSource, result)
-                    } catch (e: TransformerException) {
-                        throw IllegalStateException("Could not convert legacy document")
-                    }
-
-                } else {
-                    IOUtils.write(document.attachment, output)
+            if (document.version == null) {
+                val xmlSource = StreamSource(ByteArrayInputStream(document.attachment))
+                val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream("DocumentTemplateLegacyToNew.xml"))
+                val result = javax.xml.transform.stream.StreamResult(response.outputStream)
+                val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
+                try {
+                    val trans = transFact.newTransformer(xsltSource)
+                    trans.transform(xmlSource, result)
+                } catch (e: TransformerException) {
+                    throw IllegalStateException("Could not convert legacy document")
                 }
-            } as StreamingOutput)
+            } else {
+                IOUtils.write(document.attachment, response.outputStream)
+            }
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
         }
-    }*/
+    }
 
     @ApiOperation(nickname = "getAttachmentText", value = "Download a the document template attachment")
-    @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]) // TODO SH do the same for all controllers
+    @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String): ByteArray {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")

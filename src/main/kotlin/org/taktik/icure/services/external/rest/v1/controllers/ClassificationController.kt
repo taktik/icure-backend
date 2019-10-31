@@ -31,11 +31,9 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import java.util.*
-import javax.ws.rs.POST
-import javax.ws.rs.Path
 
 @RestController
-@RequestMapping("/classification")
+@RequestMapping("/rest/v1/classification")
 @Api(tags = ["classification"])
 class ClassificationController(private val mapper: MapperFacade,
                                private val classificationLogic: ClassificationLogic) {
@@ -53,7 +51,7 @@ class ClassificationController(private val mapper: MapperFacade,
     @GetMapping("/{classificationId}")
     fun getClassification(@PathVariable classificationId: String): ClassificationDto {
         val element = classificationLogic.getClassification(classificationId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
 
         return mapper.map(element, ClassificationDto::class.java)
     }
@@ -62,7 +60,7 @@ class ClassificationController(private val mapper: MapperFacade,
     @GetMapping("/byIds/{ids}")
     fun getClassificationByHcPartyId(@PathVariable ids: String): List<ClassificationDto> {
         val elements = classificationLogic.getClassificationByIds(ids.split(','))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
 
         return elements.map { mapper.map(it, ClassificationDto::class.java) }
     }

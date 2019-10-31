@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -30,7 +29,7 @@ import org.taktik.icure.logic.AgendaLogic
 import org.taktik.icure.services.external.rest.v1.dto.AgendaDto
 
 @RestController
-@RequestMapping("/agenda")
+@RequestMapping("/rest/v1/agenda")
 @Api(tags = ["agenda"])
 class AgendaController(private val agendaLogic: AgendaLogic,
                        private val mapper: MapperFacade) {
@@ -63,7 +62,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     @GetMapping("/{agendaId}")
     fun getAgenda(@PathVariable agendaId: String): AgendaDto {
         val agenda = agendaLogic.getAgenda(agendaId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda fetching failed") // TODO SH should just return a no-content response ??
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
         return mapper.map(agenda, AgendaDto::class.java)
     }
 
@@ -74,7 +73,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
         if (agendas != null && agendas.size > 0) {
             return mapper.map(agendas[0], AgendaDto::class.java)
         } else {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agendas fetching failed") // TODO SH should just return a no-content response if non-null response ??
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
         }
     }
 
@@ -82,7 +81,7 @@ class AgendaController(private val agendaLogic: AgendaLogic,
     @GetMapping("/readableForUser")
     fun getReadableAgendasForUser(@RequestParam userId: String): List<AgendaDto> {
         val agendas = agendaLogic.getReadableAgendaForUser(userId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Readable agendas fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Readable agendas fetching failed")
         return agendas.map { mapper.map(it, AgendaDto::class.java) }
     }
 

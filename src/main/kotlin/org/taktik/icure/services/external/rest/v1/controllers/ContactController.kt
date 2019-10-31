@@ -52,12 +52,12 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 @RestController
-@RequestMapping("/contact")
+@RequestMapping("/rest/v1/contact")
 @Api(tags = ["contact"])
 class ContactController(private val mapper: MapperFacade,
-                    private val filters: org.taktik.icure.logic.impl.filter.Filters,
-                    private val contactLogic: ContactLogic,
-                    private val sessionLogic: SessionLogic) {
+                        private val filters: org.taktik.icure.logic.impl.filter.Filters,
+                        private val contactLogic: ContactLogic,
+                        private val sessionLogic: SessionLogic) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "getEmptyContent", value = "Get an empty content")
@@ -109,7 +109,7 @@ class ContactController(private val mapper: MapperFacade,
     @GetMapping("/{contactId}")
     fun getContact(@PathVariable contactId: String): ContactDto {
         val contact = contactLogic.getContact(contactId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
         return mapper.map(contact, ContactDto::class.java)
     }
 
@@ -291,7 +291,6 @@ class ContactController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(startKeyList, startDocumentId, null, limit)
 
         val contacts = if (filterChain != null) {
-            // TODO SH cast correct?
             contactLogic.filterContacts(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Contact>, mapper.map(filterChain.predicate, Predicate::class.java)))
         } else {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")

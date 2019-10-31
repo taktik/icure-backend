@@ -2,32 +2,19 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.taktik.icure.dao.replicator.UserReplicator
 import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.logic.UserLogic
 import org.taktik.icure.logic.impl.GroupLogicImpl
-import org.taktik.icure.services.external.rest.v1.dto.CodePaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.SyncStatusDto
 
-import javax.ws.rs.Consumes
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import java.util.Collections
-import java.util.Comparator
-import java.util.stream.Collectors
-
 @RestController
-@RequestMapping("/cluster")
+@RequestMapping("/rest/v1/cluster")
 @Api(tags = ["cluster"])
 class ClusterController(private val sessionLogic: SessionLogic,
-                    private val userLogic: UserLogic,
-                    private val userReplicator: UserReplicator) {
+                        private val userLogic: UserLogic) {
 
     @ApiOperation(nickname = "groupSyncStatus", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/gsyncs")

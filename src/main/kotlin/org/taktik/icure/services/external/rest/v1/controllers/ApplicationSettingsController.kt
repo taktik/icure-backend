@@ -12,7 +12,7 @@ import org.taktik.icure.logic.ApplicationSettingsLogic
 import org.taktik.icure.services.external.rest.v1.dto.ApplicationSettingsDto
 
 @RestController
-@RequestMapping("/appsettings")
+@RequestMapping("/rest/v1/appsettings")
 @Api(tags = ["application-settings"])
 class ApplicationSettingsController(private val applicationSettingsLogic: ApplicationSettingsLogic,
                                     private val mapper: MapperFacade) {

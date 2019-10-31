@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers
 
+import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
@@ -37,8 +38,9 @@ import org.taktik.icure.services.external.rest.v1.dto.AccessLogPaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import java.time.Instant
 
+
 @RestController
-@RequestMapping("/accesslog")
+@RequestMapping("/rest/v1/accesslog")
 @Api(tags = ["accesslog"])
 class AccessLogController(private val mapper: MapperFacade,
                           private val accessLogLogic: AccessLogLogic) {
@@ -54,8 +56,8 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
     @DeleteMapping("/{accessLogIds}")
-    fun deleteAccessLog(@PathVariable accessLogIds: String) {
-        accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
+    fun deleteAccessLog(@PathVariable accessLogIds: String): List<String> {
+        return accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog deletion failed")
     }
 
@@ -63,7 +65,7 @@ class AccessLogController(private val mapper: MapperFacade,
     @GetMapping("/{accessLogId}")
     fun getAccessLog(@PathVariable accessLogId: String): AccessLogDto {
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog fetching failed")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AccessLog fetching failed")
 
         return mapper.map(accessLog, AccessLogDto::class.java)
     }
@@ -86,14 +88,14 @@ class AccessLogController(private val mapper: MapperFacade,
     @GetMapping("/byUser")
     fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
                             @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-                            @ApiParam(value = "The start search epoch", required = true) @RequestParam startDate: Long,
+                            @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
                             @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
                             @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?): AccessLogPaginatedList {
-
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
-        val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, Instant.ofEpochMilli(startDate), paginationOffset, descending
+        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, if (startDate != null) Instant.ofEpochMilli(startDate) else null, paginationOffset, descending
                 ?: false)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog listing failed")
 

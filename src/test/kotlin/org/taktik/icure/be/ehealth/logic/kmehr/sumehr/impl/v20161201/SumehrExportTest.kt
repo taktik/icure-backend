@@ -46,6 +46,7 @@ class SumehrExportTest {
 
     //The method tested needs a SumehrExport Class to run
     private val sumehrExport = SumehrExport()
+    private val includeIrrelevantInformation = false
 
     private val decryptor = Mockito.mock(AsyncDecrypt::class.java)
     private val mapper = Mockito.mock(MapperFacade::class.java)
@@ -148,7 +149,7 @@ class SumehrExportTest {
 
     @Before
     fun setUp() {
-        Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java))).thenAnswer { it.getArgumentAt(0, Contact::class.java) }
+        Mockito.`when`(contactLogic.modifyContact(any(Contact::class.java))).thenAnswer { it.getArgument(0, Contact::class.java) }
 
         Mockito.`when`(contactLogic.getServices(any())).thenAnswer {
             if (services.isEmpty())
@@ -173,8 +174,8 @@ class SumehrExportTest {
                         override fun isDone(): Boolean = true
                         override fun cancel(mayInterruptIfRunning: Boolean): Boolean = false
                         override fun isCancelled(): Boolean = false
-                        override fun get(): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
-                        override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+                        override fun get(): List<HealthElementDto> = it.getArgument(0, ArrayList::class.java) as ArrayList<HealthElementDto>
+                        override fun get(timeout: Long, unit: TimeUnit): List<HealthElementDto> = it.getArgument(0, ArrayList::class.java) as ArrayList<HealthElementDto>
                     }
                 }
 
@@ -185,7 +186,7 @@ class SumehrExportTest {
                 .thenAnswer { HealthcareParty() }
 
         Mockito.`when`(healthcarePartyLogic.getHealthcareParties(any()))
-                .thenAnswer { healthcareParties.filter { hcp -> (it.getArgumentAt(0, List::class.java) as List<String>).contains(hcp.id) } }
+                .thenAnswer { healthcareParties.filter { hcp -> (it.getArgument(0, List::class.java) as List<String>).contains(hcp.id) } }
 
         Mockito.`when`(mapper.map<Service, ServiceDto>(any(), eq(ServiceDto::class.java)))
                 .thenAnswer { decryptedServiceDto }
@@ -195,30 +196,30 @@ class SumehrExportTest {
 
         Mockito.`when`(mapper.map<HealthElement, HealthElementDto>(any(), eq(HealthElementDto::class.java))).thenAnswer {
             HealthElementDto().apply {
-                healthElementId = (it.getArgumentAt(0, HealthElement::class.java) as HealthElement).healthElementId
-                descr = (it.getArgumentAt(0, HealthElement::class.java) as HealthElement).descr
-                encryptedSelf = (it.getArgumentAt(0, HealthElement::class.java) as HealthElement).encryptedSelf
-                status = (it.getArgumentAt(0, HealthElement::class.java) as HealthElement).status
-                closingDate = (it.getArgumentAt(0, HealthElement::class.java) as HealthElement).closingDate
-                it.getArgumentAt(0, HealthElement::class.java).tags.forEach { c -> tags.add(CodeDto(c.type, c.code)); }
-                it.getArgumentAt(0, HealthElement::class.java).codes.forEach { c -> codes.add(CodeDto(c.type, c.code)); }
+                healthElementId = (it.getArgument(0, HealthElement::class.java) as HealthElement).healthElementId
+                descr = (it.getArgument(0, HealthElement::class.java) as HealthElement).descr
+                encryptedSelf = (it.getArgument(0, HealthElement::class.java) as HealthElement).encryptedSelf
+                status = (it.getArgument(0, HealthElement::class.java) as HealthElement).status
+                closingDate = (it.getArgument(0, HealthElement::class.java) as HealthElement).closingDate
+                it.getArgument(0, HealthElement::class.java).tags.forEach { c -> tags.add(CodeDto(c.type, c.code)); }
+                it.getArgument(0, HealthElement::class.java).codes.forEach { c -> codes.add(CodeDto(c.type, c.code)); }
             }
         }
 
         Mockito.`when`(mapper.map<HealthElementDto, HealthElement>(any(), eq(HealthElement::class.java))).thenAnswer {
             HealthElement().apply {
-                healthElementId = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).healthElementId
-                descr = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).descr
-                encryptedSelf = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).encryptedSelf
-                status = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).status
-                closingDate = (it.getArgumentAt(0, HealthElementDto::class.java) as HealthElementDto).closingDate
-                it.getArgumentAt(0, HealthElementDto::class.java).tags.forEach { c -> tags.add(CodeStub(c.type, c.code, c.version)); }
-                it.getArgumentAt(0, HealthElementDto::class.java).codes.forEach { c -> codes.add(CodeStub(c.type, c.code, c.version)); }
+                healthElementId = (it.getArgument(0, HealthElementDto::class.java) as HealthElementDto).healthElementId
+                descr = (it.getArgument(0, HealthElementDto::class.java) as HealthElementDto).descr
+                encryptedSelf = (it.getArgument(0, HealthElementDto::class.java) as HealthElementDto).encryptedSelf
+                status = (it.getArgument(0, HealthElementDto::class.java) as HealthElementDto).status
+                closingDate = (it.getArgument(0, HealthElementDto::class.java) as HealthElementDto).closingDate
+                it.getArgument(0, HealthElementDto::class.java).tags.forEach { c -> tags.add(CodeStub(c.type, c.code, c.version)); }
+                it.getArgument(0, HealthElementDto::class.java).codes.forEach { c -> codes.add(CodeStub(c.type, c.code, c.version)); }
             }
         }
 
         Mockito.`when`(patientLogic.getPatients(any())).thenAnswer {
-            val arg = it.getArgumentAt(0, ArrayList::class.java) as ArrayList<String>
+            val arg = it.getArgument(0, ArrayList::class.java) as ArrayList<String>
             patients.filter { patient ->
                 arg.contains(patient.id)
             }
@@ -396,7 +397,7 @@ class SumehrExportTest {
         this.services.add(listOf(vaccineService, inactiveService))
 
         // Execute
-        val services = sumehrExport.getAllServices(hcPartyId, sfks, excludedIds, decryptor)
+        val services = sumehrExport.getAllServices(setOf(hcPartyId), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
         // Tests
         assertNotNull(services)
@@ -417,7 +418,7 @@ class SumehrExportTest {
         this.services.add(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         // Execute
-        val services = sumehrExport.getAllServicesPlusPlus(hcPartyId, sfks, excludedIds, decryptor).groupBy { it.id }
+        val services = sumehrExport.getAllServicesPlusPlus(setOf(hcPartyId), sfks, excludedIds, includeIrrelevantInformation, decryptor).groupBy { it.id }
 
         // Tests
         assertNotNull(services)
@@ -437,7 +438,7 @@ class SumehrExportTest {
         this.services.add(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         //Execution
-        val services = sumehrExport.getActiveServices(hcPartyId, sfks, cdItems, excludedIds, false, decryptor)
+        val services = sumehrExport.getActiveServices(setOf(hcPartyId), sfks, cdItems, excludedIds, false, decryptor)
 
         //Tests
         ///All services
@@ -653,7 +654,7 @@ class SumehrExportTest {
         val excludedIds = listOf("excluded")
 
         // Execute
-        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds, false, mutableListOf())
+        val res1 = sumehrExport.getHealthElements(setOf(hcPartyId), sfks, excludedIds, false, mutableSetOf())
 
         // Tests
         val size = healthElementLogic.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks).size
@@ -673,7 +674,7 @@ class SumehrExportTest {
         this.services.add(listOf(validService, encryptedService, oldService, closedService, medicationService, treatmentService))
 
         //Execute
-        val medications = sumehrExport.getMedications(hcPartyId, sfks, excludedIds, decryptor)
+        val medications = sumehrExport.getMedications(setOf(hcPartyId), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
         //Tests
         assertNotNull(medications)
@@ -700,8 +701,8 @@ class SumehrExportTest {
 
         // Execution
         val cdItems = listOf("vaccine")
-        val services1 = sumehrExport.getActiveServices(hcPartyId, sfks, cdItems, excludedIds, false, decryptor)
-        val services2 = sumehrExport.getVaccines(hcPartyId, sfks, excludedIds, decryptor)
+        val services1 = sumehrExport.getActiveServices(setOf(hcPartyId), sfks, cdItems, excludedIds, false, decryptor)
+        val services2 = sumehrExport.getVaccines(setOf(hcPartyId), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
         // Tests
         val filteredService1 = services1.filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }
@@ -770,7 +771,7 @@ class SumehrExportTest {
         ))
 
         // Execute
-        sumehrExport.addActiveServicesAsCD(hcPartyId, sfks, transaction, cdItem, type, values, excludedIds, false, decryptor)
+        sumehrExport.addActiveServicesAsCD(setOf(hcPartyId), sfks, transaction, cdItem, type, values, excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(transaction)
@@ -1088,7 +1089,7 @@ class SumehrExportTest {
         this.services.add(listOf(validService, encryptedService, lifeEndedService, oldService))
 
         // Execute
-        sumehrExport.addMedications(hcPartyId, sfks, transaction, excludedIds, decryptor)
+        sumehrExport.addMedications(setOf(hcPartyId), sfks, transaction, excludedIds, includeIrrelevantInformation, decryptor)
 
         // Tests
         assertNotNull(transaction)
@@ -1136,8 +1137,8 @@ class SumehrExportTest {
         val decryptor1 = decryptor
 
         // Execution
-        sumehrExport.addVaccines(hcPartyId, sfks, trn1, excludedIds, decryptor1)
-        //sumehrExport.addVaccines(hcPartyId, sfks, trn2, excludedIds, decryptor2)
+        sumehrExport.addVaccines(setOf(hcPartyId), sfks, trn1, excludedIds, includeIrrelevantInformation, decryptor1)
+        //sumehrExport.addVaccines(setOf(hcPartyId), sfks, trn2, excludedIds, decryptor2)
 
         // Tests
         assertEquals(trn1.headingsAndItemsAndTexts.size, 1)
@@ -1169,8 +1170,8 @@ class SumehrExportTest {
         val decryptor2 = decryptor
 
         // Execution
-        sumehrExport.addHealthCareElements(hcPartyId, sfks, trn1, excludedIds, decryptor1)
-        sumehrExport.addHealthCareElements(hcPartyId, sfks, trn2, excludedIds, decryptor2)
+        sumehrExport.addHealthCareElements(setOf(hcPartyId), sfks, trn1, excludedIds, includeIrrelevantInformation, decryptor1)
+        sumehrExport.addHealthCareElements(setOf(hcPartyId), sfks, trn2, excludedIds, includeIrrelevantInformation, decryptor2)
 
         // Tests
         assertNotNull(trn1.headingsAndItemsAndTexts)

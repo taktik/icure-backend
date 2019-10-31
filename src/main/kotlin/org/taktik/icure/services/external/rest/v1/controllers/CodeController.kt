@@ -38,14 +38,13 @@ import org.taktik.icure.logic.CodeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import java.io.Serializable
-import javax.ws.rs.Path
 import kotlin.math.min
 
 @RestController
-@RequestMapping("/code")
+@RequestMapping("/rest/v1/code")
 @Api(tags = ["code"])
 class CodeController(private val mapper: MapperFacade,
-                 private val codeLogic: CodeLogic) {
+                     private val codeLogic: CodeLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
@@ -173,7 +172,7 @@ class CodeController(private val mapper: MapperFacade,
     @GetMapping("/{codeId}")
     fun getCode(@ApiParam(value = "Code id") @PathVariable codeId: String): CodeDto {
         val c = codeLogic[codeId]
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the code. Read the app logs.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code. Read the app logs.")
         return mapper.map(c, CodeDto::class.java)
     }
 
@@ -185,7 +184,7 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "Code version") @PathVariable version: String): CodeDto {
 
         val c = codeLogic[type, code, version]
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching the code with parts. Read the app logs.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code with parts. Read the app logs.")
         return mapper.map(c, CodeDto::class.java)
     }
 
@@ -217,7 +216,6 @@ class CodeController(private val mapper: MapperFacade,
         var codes: PaginatedList<Code>? = null
         val timing = System.currentTimeMillis()
         if (filterChain != null) {
-            // TODO SH cast correct?
             codes = codeLogic.listCodes(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as Filter<String, Patient>, mapper.map(filterChain.predicate, Predicate::class.java)), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")

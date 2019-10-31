@@ -44,7 +44,7 @@ import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
  * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/rest/v1/user")
 @Api(tags = ["user"]) // otherwise would default to "user-controller"
 class UserController(private val mapper: MapperFacade,
                      private val userLogic: UserLogic,
@@ -56,7 +56,7 @@ class UserController(private val mapper: MapperFacade,
     @GetMapping(value = ["/current"])
     fun getCurrentUser(): UserDto {
         val user = userLogic.getUser(sessionLogic.currentSessionContext.user.id)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
         return mapper.map(user, UserDto::class.java)
     }
 
@@ -81,7 +81,6 @@ class UserController(private val mapper: MapperFacade,
             @ApiParam(value = "An user email") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: String?): UserPaginatedList {
-        logger.info("listUsers in controller")
 
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit?.toInt())
         val allUsers = userLogic.listUsers(paginationOffset)
@@ -121,7 +120,7 @@ class UserController(private val mapper: MapperFacade,
         return mapper.map(user, UserDto::class.java)
     }
 
-    @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id", notes = "")
+    @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
     fun findByHcpartyId(@PathVariable(required = false) id: String?): List<String> {
         return userLogic.findByHcpartyId(id)
@@ -171,7 +170,8 @@ class UserController(private val mapper: MapperFacade,
     @PutMapping("/{userId}/properties")
     fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyDto>?): UserDto {
         val user = userLogic.getUser(userId)
-        val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) } ?: listOf())
+        val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) }
+                ?: listOf())
         if (modifiedUser == null) {
             logger.error("Modify a User property failed.")
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
