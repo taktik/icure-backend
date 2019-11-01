@@ -47,7 +47,7 @@ import java.util.function.Function;
  */
 @SuppressWarnings("SpringJavaAutowiringInspection")
 class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRepositorySupport<T> {
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	protected static final ObjectMapper MAPPER = new ObjectMapper();
 	public static final int DEFAULT_LIMIT = 1000;
 
 	@SuppressWarnings("unchecked")

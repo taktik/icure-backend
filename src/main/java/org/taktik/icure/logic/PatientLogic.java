@@ -18,6 +18,7 @@
 
 package org.taktik.icure.logic;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.Sorting;
 import org.taktik.icure.dto.filter.chain.FilterChain;
@@ -125,5 +126,8 @@ public interface PatientLogic extends EntityPersister<Patient, String> {
 	Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
 
 	PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, Long startKey, String startDocumentId, Integer limit);
-  List<Patient> getDuplicatePatients(List<String> healthcarePartyIds);
+
+	PaginatedList<Patient> getDuplicatePatientsBySsin(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException;
+
+	PaginatedList<Patient> getDuplicatePatientsByName(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException;
 }

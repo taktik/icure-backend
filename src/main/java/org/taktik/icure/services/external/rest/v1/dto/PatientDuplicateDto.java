@@ -1,9 +1,10 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PatientDuplicateDto {
+public class PatientDuplicateDto implements Serializable {
     protected String id;
     protected String firstName;
     protected String lastName;
