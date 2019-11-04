@@ -74,7 +74,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
                 .httpBasic().disable()
                 //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO necessary?)
                 .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
-                .authenticationManager(authenticationManager()) // TODO SH should swap to an actually reactive version of CustomAuthenticationProvider
+                .authenticationManager(authenticationManager())
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .pathMatchers("/v2/api-docs").permitAll()
@@ -103,6 +103,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
 
     @Bean
     fun authenticationManager(): ReactiveAuthenticationManager {
+        // TODO SH should swap to an actually reactive version of CustomAuthenticationProvider
         return ReactiveAuthenticationManagerAdapter(ProviderManager(listOf(daoAuthenticationProvider)))
     }
 
