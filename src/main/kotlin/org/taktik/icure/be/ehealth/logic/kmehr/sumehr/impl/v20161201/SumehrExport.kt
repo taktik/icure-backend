@@ -93,7 +93,8 @@ class SumehrExport : KmehrExport() {
                     time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
                     soft = Config.Software(name = "iCure", version = ICUREVERSION),
                     clinicalSummaryType = "",
-                    defaultLanguage = "en"
+                    defaultLanguage = "en",
+                    formatType = "sumehr"
             )
     ) {
 		val message = initializeMessage(sender, config)

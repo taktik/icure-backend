@@ -85,7 +85,8 @@ class DiaryNoteExport : KmehrExport() {
             time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
             soft = Config.Software(name = "iCure", version = ICUREVERSION),
             clinicalSummaryType = "",
-            defaultLanguage = "en"
+            defaultLanguage = "en",
+            formatType = "diarynote"
         )
     ) {
         val message = initializeMessage(sender, config)

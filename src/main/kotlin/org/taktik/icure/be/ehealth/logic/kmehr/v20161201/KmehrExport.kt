@@ -551,12 +551,14 @@ open class KmehrExport {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                val filetype = if(config.exportAsPMF) {
-                    CDMESSAGEvalues.GPPATIENTMIGRATION
-                } else {
-                    CDMESSAGEvalues.GPSOFTWAREMIGRATION
-                }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype } ; version = SMF_VERSION }
+                    if(config.formatType == "PMF" || config.formatType == "SMF") {
+                        val filetype = if (config.formatType == "PMF") {
+                            CDMESSAGEvalues.GPPATIENTMIGRATION
+                        } else {
+                            CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                        }
+                        specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
+                    }
                 }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
                 makeXGC(Instant.now().toEpochMilli()).let {
@@ -773,7 +775,7 @@ open class KmehrExport {
 		const val SMF_VERSION = "2.3"
 	}
 
-	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String, val exportAsPMF: Boolean = false) {
+	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String, val formatType: String = "SMF") {
         data class Software(val name : String, val version : String)
     }
 
