@@ -76,10 +76,4 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
 
         return result;
     }
-
-
-    @Override
-    public List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
-        return null;
-    }
 }
