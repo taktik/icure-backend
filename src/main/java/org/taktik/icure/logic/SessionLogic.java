@@ -32,9 +32,6 @@ import java.util.concurrent.Callable;
 
 public interface SessionLogic {
 
-	/* Generic */
-	Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication);
-
 	SessionContext login(String username, String password);
 
 	void logout();

@@ -171,11 +171,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	}
 
 	@Override
-	public Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication) {
-		return Mono.empty();
-	}
-
-	@Override
 	public SessionContext login(String username, String password) {
 		try {
 			// Try to authenticate using given username and password
@@ -196,7 +191,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 					ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
 					httpRequest = servletRequestAttributes.getRequest();
 				}
-				//onAuthenticationSuccess(httpRequest, authentication); // TODO SH use ServerWebExchange and ReactiveAuthenticationManager or remove this call
 			}
 			return getSessionContext(authentication);
 		} catch (AuthenticationException e) {

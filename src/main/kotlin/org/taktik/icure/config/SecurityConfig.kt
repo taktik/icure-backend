@@ -35,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.taktik.icure.logic.GroupLogic
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PermissionLogic
@@ -72,7 +73,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
         return http
                 .csrf().disable()
                 .httpBasic().disable()
-                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO necessary?)
+                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH necessary?)
                 .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
                 .authenticationManager(authenticationManager())
                 .authorizeExchange()
@@ -80,7 +81,6 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
                 .pathMatchers("/v2/api-docs").permitAll()
                 .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
-
                 .pathMatchers("/rest/*/icure/v").permitAll()
                 .pathMatchers("/rest/*/icure/p").permitAll()
                 .pathMatchers("/rest/*/icure/check").permitAll()
@@ -88,15 +88,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
                 .pathMatchers("/rest/*/icure/ok").permitAll()
                 .pathMatchers("/rest/*/icure/pok").permitAll()
                 .pathMatchers("/rest/**").hasRole("USER")
-
-                .pathMatchers("/api/login.html").permitAll()
-                .pathMatchers("/api/css/**").permitAll()
-                .pathMatchers("/api/**").hasRole("USER")
-
                 .pathMatchers("/").permitAll()
-
                 .pathMatchers("/ping.json").permitAll()
-
                 .pathMatchers("/**").hasRole("USER")
                 .and().build()
     }
@@ -108,12 +101,12 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
     }
 
     @Bean
+    // TODO SH this method might not be necessary anymore
     fun basicAuthenticationWebFilter(): AuthenticationWebFilter {
         val basicFilter = AuthenticationWebFilter(authenticationManager())
-        basicFilter.setAuthenticationSuccessHandler { webFilterExchange, authentication ->
+        basicFilter.setAuthenticationSuccessHandler { webFilterExchange, _ ->
             val exchange = webFilterExchange.exchange
-            val result = sessionLogic.onAuthenticationSuccess(exchange, authentication)
-            webFilterExchange.chain.filter(exchange).and(result)
+            webFilterExchange.chain.filter(exchange)
         }
         return basicFilter
     }
