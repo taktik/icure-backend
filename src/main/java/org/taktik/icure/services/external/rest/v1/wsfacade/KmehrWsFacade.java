@@ -148,7 +148,7 @@ public class KmehrWsFacade {
 	public void generateSmfExport(@WebSocketParam("patientId") String patientId , @WebSocketParam("language") String language, @WebSocketParam("info") SoftwareMedicalFileExportDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			softwareMedicalFileLogic.createSmfExport(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), language, operation, operation);
+			softwareMedicalFileLogic.createSmfExport(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), language, operation, operation, info.getExportAsPMF());
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {

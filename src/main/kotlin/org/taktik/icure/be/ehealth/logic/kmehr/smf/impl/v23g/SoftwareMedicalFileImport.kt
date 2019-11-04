@@ -413,8 +413,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val servlist = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map {item ->
             val cdItem = "medication"
             val service = parseGenericItem( cdItem, "Prescription", item, author, trnhcpid, language, v)
-            // in topaz, CD-ITEM/treatment is a prescription, CD-ITEM/medication is a medication (chronic)
-            // parseGenericItem add a medication tag, remove it because it's a prescription
+            // in topaz, CD-ITEM/treatment is a prescription, CD-ITEM/medication is a medication
+            // parseGenericItem added a medication tag, remove it because it's a prescription
             service.tags.removeIf { it.type == "CD-ITEM" && it.code == "medication"}
             service.tags.addAll(
                     listOf(
@@ -924,7 +924,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 CDCONTENTschemes.CD_ATC,
                                 CDCONTENTschemes.CD_PATIENTWILL,
                                 CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
-                    }.map { CodeStub(it.s.value(), it.value, it.sv) }
+                    }.map { CodeStub(it.s.value(), it.value, it.sv) } + it.cds.filter {
+                        (it.s == CDCONTENTschemes.LOCAL && it.sl == "BE-THESAURUS-PROCEDURES")
+                    }.map { CodeStub(it.sl, it.value, it.sv) }
                 }).toSet()
     }
 
@@ -1024,6 +1026,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             numberOfPackages = item.quantity?.decimal?.toInt()
                             item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }.joinToString(", ").let {if (it.isNotBlank()) instructionForPatient = (instructionForPatient ?: "") + it }
                             batch = item.batch
+                            beginMoment = item.beginmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                            endMoment = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
                         }
                     }
                     ( item.contents.any { it.decimal != null } ) -> item.contents.filter { it.decimal != null }.firstOrNull()?.let {
@@ -1055,6 +1059,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 }
                 Unit
             })
+            if(item.contents.any { it.cds.any { it.s == CDCONTENTschemes.LOCAL && it.sl == "isSurgical" && it.value.trim().toLowerCase() == "true" } }) {
+                this.content["isSurgical"] = Content().apply{ booleanValue = true }
+            }
+
         }
     }
 
