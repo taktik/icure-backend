@@ -172,55 +172,38 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 	@Override
 	public Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication) {
-		log.info("Auth success");
-		// Get UserDetails //  TODO SH cleanup
-//		UserDetails userDetails = extractUserDetails(authentication);
-//		if (userDetails != null) {
-//			// Get user if any
-//			PermissionSetIdentifier permissionSetIdentifier = userDetails.getPermissionSetIdentifier();
-//			String userId = (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
-//			User user = (userId != null && ((DatabaseUserDetails) userDetails).getGroupId() != null) ? userLogic.getUserOnUserDb(userId, ((DatabaseUserDetails) userDetails).getGroupId(), ((DatabaseUserDetails) userDetails).getDbInstanceUrl()) : null;
-//			if (user != null) {
-//				// Retrieve the locale from the authentication userdetails if any
-//				String authLocale = userDetails.getLocale();
-//
-//				// Determine locale and save it
-//				String locale = determineLocale(user);
-//				return exchange.getSession().doOnSuccess(session -> session.getAttributes().put(SESSION_LOCALE_ATTRIBUTE, locale)).then();
-//			}
-//		}
 		return Mono.empty();
 	}
 
-//	@Override
-//	public SessionContext login(String username, String password) {
-//		try {
-//			// Try to authenticate using given username and password
-//			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-//			Authentication authentication = authenticationManager.authenticate(token);
-//
-//			// Clear any previous session context
-//			setCurrentSessionContext(null);
-//
-//			// Set current authentication
-//			setCurrentAuthentication(authentication);
-//
-//			// Check if authentication succeeded
-//			if (authentication != null && authentication.isAuthenticated()) {
-//				HttpServletRequest httpRequest = null;
-//				RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-//				if (requestAttributes instanceof ServletRequestAttributes) {
-//					ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
-//					httpRequest = servletRequestAttributes.getRequest();
-//				}
-//				onAuthenticationSuccess(httpRequest, authentication);
-//			}
-//			return getSessionContext(authentication);
-//		} catch (AuthenticationException e) {
-//			// Ignore
-//		}
-//		return null;
-//	}
+	@Override
+	public SessionContext login(String username, String password) {
+		try {
+			// Try to authenticate using given username and password
+			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+			Authentication authentication = authenticationManager.authenticate(token);
+
+			// Clear any previous session context
+			setCurrentSessionContext(null);
+
+			// Set current authentication
+			setCurrentAuthentication(authentication);
+
+			// Check if authentication succeeded
+			if (authentication != null && authentication.isAuthenticated()) {
+				HttpServletRequest httpRequest = null;
+				RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+				if (requestAttributes instanceof ServletRequestAttributes) {
+					ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+					httpRequest = servletRequestAttributes.getRequest();
+				}
+				//onAuthenticationSuccess(httpRequest, authentication); // TODO SH use ServerWebExchange and ReactiveAuthenticationManager or remove this call
+			}
+			return getSessionContext(authentication);
+		} catch (AuthenticationException e) {
+			// Ignore
+		}
+		return null;
+	}
 
 	@Override
 	public void logout() {

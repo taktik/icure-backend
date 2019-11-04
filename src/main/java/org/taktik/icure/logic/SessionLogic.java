@@ -20,7 +20,6 @@ package org.taktik.icure.logic;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.socket.WebSocketSession;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.security.UserDetails;
 import reactor.core.publisher.Mono;
@@ -36,7 +35,7 @@ public interface SessionLogic {
 	/* Generic */
 	Mono<Void> onAuthenticationSuccess(ServerWebExchange exchange, Authentication authentication);
 
-	//SessionContext login(String username, String password);
+	SessionContext login(String username, String password);
 
 	void logout();
 

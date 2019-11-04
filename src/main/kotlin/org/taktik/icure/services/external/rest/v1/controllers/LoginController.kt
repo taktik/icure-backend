@@ -32,18 +32,18 @@ import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
 @Api(tags = ["auth"])
 class LoginController(private val mapper: MapperFacade, private val sessionLogic: ICureSessionLogic, private val healthcarePartyLogic: HealthcarePartyLogic) {
 
-//    @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
-//    @PostMapping("/login")
-//    fun login(@RequestBody loginInfo: LoginCredentials): AuthenticationResponse {
-//        val response = AuthenticationResponse()
-//        val sessionContext = sessionLogic.login(loginInfo.username, loginInfo.password)
-//        response.isSuccessful = sessionContext != null && sessionContext.isAuthenticated
-//        if (response.isSuccessful) {
-//            response.healthcarePartyId = sessionLogic.currentHealthcarePartyId
-//            response.username = loginInfo.username
-//        }
-//        return mapper.map(response, AuthenticationResponse::class.java)
-//    }
+    @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
+    @PostMapping("/login")
+    fun login(@RequestBody loginInfo: LoginCredentials): AuthenticationResponse {
+        val response = AuthenticationResponse()
+        val sessionContext = sessionLogic.login(loginInfo.username, loginInfo.password)
+        response.isSuccessful = sessionContext != null && sessionContext.isAuthenticated
+        if (response.isSuccessful) {
+            response.healthcarePartyId = sessionLogic.currentHealthcarePartyId
+            response.username = loginInfo.username
+        }
+        return mapper.map(response, AuthenticationResponse::class.java)
+    }
 
     @ApiOperation(nickname = "logout", value = "logout", notes = "Logout")
     @GetMapping("/logout")

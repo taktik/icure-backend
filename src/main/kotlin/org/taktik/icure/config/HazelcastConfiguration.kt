@@ -34,6 +34,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+// TODO SH cleanup if ok
 @Suppress("UsePropertyAccessSyntax")
 @Configuration
 //@EnableHazelcastHttpSession

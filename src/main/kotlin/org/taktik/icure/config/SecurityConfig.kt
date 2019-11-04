@@ -68,18 +68,17 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthentica
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation TODO SH do we want this?
+
         return http
                 .csrf().disable()
                 .httpBasic().disable()
+                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO necessary?)
                 .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
                 .authenticationManager(authenticationManager()) // TODO SH should swap to an actually reactive version of CustomAuthenticationProvider
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // hasAnyRole coming in Spring 5.2: https://github.com/spring-projects/spring-security/pull/6310
                 .pathMatchers("/v2/api-docs").permitAll()
-                .pathMatchers("/rest/*/replication/group/**").hasRole("USER")
-                .pathMatchers("/rest/*/replication/group/**").hasRole("BOOTSTRAP")
+                .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
 
                 .pathMatchers("/rest/*/icure/v").permitAll()
