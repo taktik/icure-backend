@@ -60,7 +60,7 @@ class SecurityConfig {
 
 @Configuration
 @EnableWebFluxSecurity
-class SecurityConfigAdapter(private val daoAuthenticationProvider: DaoAuthenticationProvider,
+class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
                             private val httpFirewall: StrictHttpFirewall,
                             private val sessionLogic: ICureSessionLogic) {
 
