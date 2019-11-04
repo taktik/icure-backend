@@ -35,6 +35,7 @@ public class AccessLog extends StoredICureDocument implements Encryptable  {
 
 	public static final String USER_ACCESS = "USER_ACCESS";
 	public static final String COMPUTER_ACCESS = "COMPUTER_ACCESS";
+    public static final String LOGIN_ACCESS = "LOGIN_ACCESS";
 
     @Deprecated
     protected String patientId;
