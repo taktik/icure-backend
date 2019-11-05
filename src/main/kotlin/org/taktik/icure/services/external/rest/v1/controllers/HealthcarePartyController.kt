@@ -134,7 +134,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "listByName", value = "Find healthcare parties by name with(out) pagination", notes = "Returns a list of healthcare parties.")
     @GetMapping("/byNameStrict/{name}")
     fun listByName(@ApiParam(value = "The Last name search value")
-                   @PathVariable(required = false) name: String?): List<HealthcarePartyDto> {
+                   @PathVariable name: String): List<HealthcarePartyDto> {
 
         val healthcareParties = healthcarePartyLogic.listByName(name)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing healthcare parties failed")

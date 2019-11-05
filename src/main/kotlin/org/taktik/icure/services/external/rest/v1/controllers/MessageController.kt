@@ -92,8 +92,8 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @ApiOperation(nickname = "deleteMessagesBatch", value = "Deletes multiple messages")
     @PostMapping("/delete/byIds")
-    fun deleteMessagesBatch(@RequestBody messagesIds: ListOfIdsDto?) {
-        messagesIds?.ids?.takeIf { it.isNotEmpty() }
+    fun deleteMessagesBatch(@RequestBody messagesIds: ListOfIdsDto) {
+        messagesIds.ids?.takeIf { it.isNotEmpty() }
                 ?.let {
                     try {
                         messageLogic.deleteEntities(it)

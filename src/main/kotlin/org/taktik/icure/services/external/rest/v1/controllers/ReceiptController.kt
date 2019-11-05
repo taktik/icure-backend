@@ -66,9 +66,9 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     @ApiOperation(nickname = "getAttachment", value = "Get an attachment")
     @GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun getAttachment(
-            @PathVariable receiptId: String?,
-            @PathVariable attachmentId: String?,
-            @RequestParam enckeys: String?): ByteArray? =
+            @PathVariable receiptId: String,
+            @PathVariable attachmentId: String,
+            @RequestParam enckeys: String): ByteArray? =
             receiptLogic.getAttachment(receiptId, attachmentId)?.let {
                 if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it
             }

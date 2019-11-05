@@ -122,7 +122,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable(required = false) id: String?): List<String> {
+    fun findByHcpartyId(@PathVariable id: String): List<String> {
         return userLogic.findByHcpartyId(id)
     }
 
