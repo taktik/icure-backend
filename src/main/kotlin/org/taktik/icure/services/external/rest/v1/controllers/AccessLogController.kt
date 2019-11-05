@@ -71,7 +71,7 @@ class AccessLogController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
-    @GetMapping
+    @GetMapping // TODO SH Flow returns {} instead of []
     fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) ascending: Boolean = false): Flow<AccessLogDto> {
         val paginationOffset = PaginationOffset(null, startDocumentId, null, if (limit != null) Integer.valueOf(limit) else null)
         val accessLogDtos = PaginatedList<AccessLogDto>()

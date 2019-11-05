@@ -45,10 +45,6 @@ public interface SessionLogic {
 	@NotNull
     SessionContext getCurrentSessionContext();
 
-	void resetCurrentSessionContext();
-
-	void setCurrentSessionContext(SessionContext sessionContext);
-
 	<T> T doInSessionContext(SessionContext sessionContext, Callable<T> callable) throws Exception;
 
 	interface SessionContext {
@@ -67,12 +63,6 @@ public interface SessionLogic {
 		String getGroupIdUserId();
 
 		String getGroupId();
-
-		String getLocale();
-
-		void setLocale(String locale);
-
-		String[] getLocaleIdentifiers();
 
 	}
 }
