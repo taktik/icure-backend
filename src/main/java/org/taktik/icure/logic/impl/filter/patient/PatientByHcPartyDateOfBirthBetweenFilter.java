@@ -33,8 +33,8 @@ import org.taktik.icure.logic.impl.filter.Filters;
 
 @Service
 public class PatientByHcPartyDateOfBirthBetweenFilter implements Filter<String, Patient, org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter> {
-    PatientLogic patientLogic;
-    ICureSessionLogic sessionLogic;
+    private PatientLogic patientLogic;
+    private ICureSessionLogic sessionLogic;
 
     @Autowired
     public void setPatientLogic(PatientLogic patientLogic) {
