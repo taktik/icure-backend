@@ -52,6 +52,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val insuranceLogic: InsuranceLogic,
                                 val idGenerator: UUIDGenerator) {
 
+    val heItemTypes : List<String> = listOf("healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue")
+
     fun importSMF(inputStream: InputStream,
                   author: User,
                   language: String,
@@ -574,7 +576,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }?.firstOrNull()
                     } ?: Code("CD-ENCOUNTER", "consultation", "1.0")
 
-            trn.findItems().forEach { item ->
+
+            var trnItems = trn.findItems()
+
+            // the spec says that you can export a risk as both a CD-ITEM/risk and CD-ITEM/healthelement, need to remove duplicates at import
+            trnItems = trnItems.filter { item ->
+                var cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
+                if(cdItem == "healthcareelement") {
+                    trnItems.none { checkItem ->
+                        var checkCdItem = checkItem.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
+                        checkCdItem != "healthcareelement" && heItemTypes.contains(checkCdItem) && isHealthElementTypeEqual(item, checkItem)
+                    }
+                } else {
+                    true
+                }
+            }
+
+            trnItems.forEach { item ->
                 val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
                 val mapping =
                         mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
@@ -598,7 +616,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     label = "Observation"
                 }
                 when (cdItem) {
-                    "healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue" -> {
+                    in heItemTypes -> {
                         parseAndLinkHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id, mapping, state)
                     }
                     "encountertype", "encounterdatetime", "encounterlocation" -> Unit // already added at contact level
@@ -660,6 +678,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 Unit
             }
         }
+    }
+
+    private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) : Boolean {
+        val user = User()
+        val hcpid = "bla"
+        val res = ImportResult()
+        val conid = "bla"
+        val obj1 = parseHealthcareElement("risk", "bla", item, user, hcpid, "", res, conid)
+        val obj2 = parseHealthcareElement("risk", "bla", checkItem, user, hcpid, "", res, conid)
+        obj1!!.id = null
+        obj1!!.healthElementId = null
+        obj1!!.rev = null
+
+        obj2!!.id = null
+        obj2!!.healthElementId = null
+        obj2!!.rev = null
+        return obj1 == obj2
     }
 
     private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, trnAuthorHcpId: String, language: String, v: ImportResult, state: InternalState) {
@@ -856,6 +891,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                        v: ImportResult,
                                        contactId: String
                                     ): HealthElement? {
+        // this method is used for comparison so should not have side effects
         return HealthElement().apply {
             this.id = idGenerator.newGUID().toString()
             this.healthElementId = idGenerator.newGUID().toString()

@@ -9,6 +9,7 @@ import org.mockito.*
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.taktik.icure.be.ehealth.dto.kmehr.v20100601.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -161,6 +162,22 @@ class SoftwareMedicalFileImportExportTest {
         Assert.assertNotNull("Patient must be assigned", reimportedRes0?.patient)
         Assert.assertEquals("There is two HE", 2, reimportedRes0?.hes?.size)
         Assert.assertTrue("Hes are two versions of the same He", reimportedRes0!!.hes[0].healthElementId == reimportedRes0!!.hes[1].healthElementId)
+
+    }
+
+    @Test
+    fun heDuplicates() {
+        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+                .importSMF(
+                        this.javaClass.getResourceAsStream("he.duplicates.xml"),
+                        testUser,
+                        "fr",
+                        mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
+                )
+        val res0 : ImportResult? = res.firstOrNull()
+        Assert.assertNotNull("Patient must be assigned", res0?.patient)
+        Assert.assertEquals("There is only one HE", 1, res0?.hes?.size)
+        Assert.assertEquals("He is a risk", "risk", res0!!.hes[0].tags.find { it.type == "CD-ITEM" }?.code)
 
     }
 
