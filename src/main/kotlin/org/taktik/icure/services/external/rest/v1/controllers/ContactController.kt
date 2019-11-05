@@ -314,10 +314,10 @@ class ContactController(private val mapper: MapperFacade,
         }
     }
 
-    @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ", httpMethod = "POST")
+    @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(filter: Filter<*>): List<String> {
-        return ArrayList(filters.resolve(filter))
+    fun matchBy(@RequestBody filter: Filter<*>): List<String> {
+        return filters.resolve(filter).toList()
     }
 
     @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

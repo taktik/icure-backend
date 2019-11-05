@@ -70,7 +70,7 @@ class HealthElementController(private val mapper: MapperFacade,
         return elementList.map { element -> mapper.map(element, HealthElementDto::class.java) }
     }
 
-    @ApiOperation(nickname = "findDelegationsStubsByHCPartyPatientSecretFKeys", value = "List helement stubs found By Healthcare Party and secret foreign keys.", httpMethod = "GET", notes = "Keys must be delimited by coma")
+    @ApiOperation(nickname = "findDelegationsStubsByHCPartyPatientSecretFKeys", value = "List helement stubs found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
     fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): List<IcureStubDto> {

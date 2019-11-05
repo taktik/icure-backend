@@ -172,7 +172,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
-    @ApiOperation(nickname = "findMessagesByTransportGuidSentDate", value = "Get all messages starting by a prefix between two date", httpMethod = "GET")
+    @ApiOperation(nickname = "findMessagesByTransportGuidSentDate", value = "Get all messages starting by a prefix between two date")
     @GetMapping("/byTransportGuidSentDate")
     fun findMessagesByTransportGuidSentDate(
             @RequestParam(required = false) transportGuid: String?,
@@ -211,7 +211,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
     }
 
-    @ApiOperation(nickname = "findMessagesByFromAddress", value = "Get all messages (paginated) for current HC Party and provided from address", httpMethod = "GET")
+    @ApiOperation(nickname = "findMessagesByFromAddress", value = "Get all messages (paginated) for current HC Party and provided from address")
     @GetMapping("/byFromAddress")
     fun findMessagesByFromAddress(
             @RequestParam(required = false) fromAddress: String?,
