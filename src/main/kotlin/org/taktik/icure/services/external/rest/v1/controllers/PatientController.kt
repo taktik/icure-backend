@@ -144,12 +144,12 @@ class PatientController(
             patientLogic.getHcPartyKeysForDelegate(healthcarePartyId)
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching keys. Read the app logs.")
 
-    @ApiOperation(nickname = "countOfPatients", value = "Get count of patients for a specific HcParty or for the current HcParty ", response = ContentDto::class, httpMethod = "GetMapping", notes = "Returns the count of patients")
+    @ApiOperation(nickname = "countOfPatients", value = "Get count of patients for a specific HcParty or for the current HcParty ", notes = "Returns the count of patients")
     @GetMapping("/hcParty/{hcPartyId}/count")
     fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable hcPartyId: String) =
-            ResponseUtils.ok(ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId)))
+            ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId))
 
-    @ApiOperation(nickname = "listPatients", value = "List patients for a specific HcParty", response = org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList::class, httpMethod = "GetMapping", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
+    @ApiOperation(nickname = "listPatients", value = "List patients for a specific HcParty", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping
     fun listPatients(@ApiParam(value = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
                      @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
@@ -427,8 +427,9 @@ class PatientController(
 
             }
 
+    // TODO MB add missing methods like findDuplicatesBySsin or findDuplicatesByName
+
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)
     }
-
 }
