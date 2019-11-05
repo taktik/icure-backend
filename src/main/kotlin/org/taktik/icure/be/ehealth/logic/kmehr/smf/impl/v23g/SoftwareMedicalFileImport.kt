@@ -635,14 +635,34 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         v.forms.add(form)
                     }
                     else -> {
+                        if(cdItem == "treatment") {
+                            // pricare use CD-ITEM/treatment for procedure while topaz use "acts" and keep "treatment" for prescriptions
+                            if(item.contents.any{ it.cds.any{ it.s == CDCONTENTschemes.LOCAL && it.sl == "MEDINOTE.MEDICALCODEID"}}) {
+                                cdItem = "acts"
+                            }
+                        }
+
                         val service = parseGenericItem(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v)
                         this.services.add(service)
+
                         if(cdItem == "diagnostic") {
                             // diagnostics are in MSOAP form but also create an HealthcareElement
                             parseAndLinkHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, trnauthorhcpid, language, v, contact.id, mapping, state)
                         }
                         val procedures_items_types = listOf("vaccine", "acts") // vaccine have medication data but is not a medication
                         if(procedures_items_types.contains(cdItem)) {
+                            val mfid = getItemMFID(item)
+                            state.serviceVersionLinks.add(
+                                    // need to add the link even if there is no link in xml to know the original version
+                                    ServiceVersionType(
+                                            service = service,
+                                            mfId = mfid!!,
+                                            isANewVersionOfId = item.lnks.find { it.type == CDLNKvalues.ISANEWVERSIONOF}?.let {
+                                                extractMFIDFromUrl(it.url)
+                                            },
+                                            versionId = null
+                                    )
+                            )
                             service.label = "Actes"
 
                         } else if(isMedication(service)) {
@@ -652,6 +672,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
                             val mfid = getItemMFID(item)
                             state.serviceVersionLinks.add(
+                                    // need to add the link even if there is no link in xml to know the original version
                                     ServiceVersionType(
                                             service = service,
                                             mfId = mfid!!,
