@@ -593,7 +593,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             }
 
             trnItems.forEach { item ->
-                val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
+                var cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
                 val mapping =
                         mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
                 var label =
