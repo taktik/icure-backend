@@ -199,7 +199,7 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createAppointments", value = "Create appointments for owner")
     @PostMapping("/appointments")
-    fun createAppointments(appointments: List<AppointmentImportDto>): List<String> {
+    fun createAppointments(@RequestBody appointments: List<AppointmentImportDto>): List<String> {
         val loggedUser = sessionLogic.currentSessionContext.user
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
