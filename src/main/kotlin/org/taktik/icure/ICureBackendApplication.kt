@@ -80,8 +80,6 @@ import org.taktik.icure.services.external.http.WebSocketServlet
     JndiDataSourceAutoConfiguration::class
 ])
 @PropertySource("classpath:icure-default.properties")
-@EnableWebFlux
-@EnableWebFluxSecurity
 class ICureBackendApplication {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
