@@ -284,7 +284,7 @@ class KmehrController(
                              @RequestParam recipientFirstName: String,
                              @RequestParam recipientLastName: String,
                              @RequestParam mimeType: String,
-                             @RequestBody(required = false) document: ByteArray?,
+                             @RequestBody document: ByteArray,
                              response: HttpServletResponse) {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
         kmehrNoteLogic.createNote(response.outputStream, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "report", mimeType, document)
@@ -300,7 +300,7 @@ class KmehrController(
                               @RequestParam recipientFirstName: String,
                               @RequestParam recipientLastName: String,
                               @RequestParam mimeType: String,
-                              @RequestBody(required = false) document: ByteArray?,
+                              @RequestBody document: ByteArray,
                               response: HttpServletResponse) {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
         kmehrNoteLogic.createNote(response.outputStream, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "request", mimeType, document)
@@ -316,7 +316,7 @@ class KmehrController(
                              @RequestParam recipientFirstName: String,
                              @RequestParam recipientLastName: String,
                              @RequestParam mimeType: String,
-                             @RequestBody(required = false) document: ByteArray?,
+                             @RequestBody document: ByteArray,
                              response: HttpServletResponse) {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
         kmehrNoteLogic.createNote(response.outputStream, id, userHealthCareParty, date, recipientNihii, recipientFirstName, recipientLastName, patientLogic.getPatient(patientId), language, "result", mimeType, document)
