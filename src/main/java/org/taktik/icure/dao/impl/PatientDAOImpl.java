@@ -18,6 +18,8 @@
 
 package org.taktik.icure.dao.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ektorp.ComplexKey;
 import org.ektorp.ViewQuery;
@@ -31,10 +33,12 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.PatientDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
+import org.taktik.icure.db.PaginatedDocumentKeyIdPair;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.db.StringUtils;
 import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.embed.Gender;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,11 +59,11 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
         initStandardDesignDocument();
     }
 
-	@Override
-	@View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js")
-	public List<String> listIdsByHcPartyAndName(String name, String healthcarePartyId) {
-		return listIdsForName(name, healthcarePartyId, "by_hcparty_name");
-	}
+    @Override
+    @View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js", reduce = "_count")
+    public List<String> listIdsByHcPartyAndName(String name, String healthcarePartyId) {
+        return listIdsForName(name, healthcarePartyId, "by_hcparty_name");
+    }
 
 	@Override
 	@View(name = "of_hcparty_name", map = "classpath:js/patient/Of_hcparty_name_map.js")
@@ -119,6 +123,15 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 		ViewQuery viewQuery = createQuery("by_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false);
 		return db.queryView(viewQuery, String.class);
 	}
+
+    @Override
+    @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
+    public List<String> listIdsByHcPartyGenderEducationProfession(String healthcarePartyId, Gender gender, String education, String profession) {
+        ViewQuery viewQuery = createQuery("by_hcparty_gender_education_profession")
+                .startKey(ComplexKey.of(healthcarePartyId, gender == null ? null : gender.getName(), education, profession))
+                .endKey(ComplexKey.of(healthcarePartyId, gender == null ? ComplexKey.emptyObject() : gender.getName(), education == null ? ComplexKey.emptyObject() : education,  profession == null ? ComplexKey.emptyObject() : profession)).includeDocs(false);
+        return db.queryView(viewQuery, String.class);
+    }
 
 	@Override
 	public List<String> listIdsByHcPartyAndDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId) {
@@ -443,6 +456,54 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 		}
 
 		return resultMap;
+	}
+
+  @Override
+	public PaginatedList<Patient> getDuplicatePatientsBySsin(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
+		return this.getDuplicatesFromView("by_hcparty_ssin", healthcarePartyId, paginationOffset);
+	}
+
+	@Override
+	public PaginatedList<Patient> getDuplicatePatientsByName(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
+		return this.getDuplicatesFromView("by_hcparty_name", healthcarePartyId, paginationOffset);
+	}
+
+	private PaginatedList<Patient> getDuplicatesFromView(String viewName, String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
+		ArrayList<JsonNode> keysWithDuplicates = new ArrayList<>();
+		ComplexKey from = paginationOffset.getStartKey()==null ? ComplexKey.of(healthcarePartyId, ""):ComplexKey.of((Object[])paginationOffset.getStartKey());
+		ComplexKey to = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject());
+		ViewQuery viewQuery = createQuery(viewName)
+				.startKey(from)
+				.endKey(to)
+				.reduce(true)
+				.group(true);
+		ViewResult viewResult = db.queryView(viewQuery);
+
+		PaginatedDocumentKeyIdPair nextKey = null;
+		for (ViewResult.Row row : viewResult.getRows()) {
+			if (keysWithDuplicates.size() >= paginationOffset.getLimit()) {
+				nextKey = new PaginatedDocumentKeyIdPair(MAPPER.treeToValue(row.getKeyAsNode(), List.class), row.getKey());
+				break;
+			}
+
+			if (row.getValueAsInt() > 1) {
+				keysWithDuplicates.add(row.getKeyAsNode());
+			}
+		}
+
+		List<Patient> duplicatePatients = db.queryView(createQuery(viewName).keys(keysWithDuplicates).reduce(false).includeDocs(true), Patient.class)
+				.stream()
+				.filter(patient -> patient.getActive()==true)
+				.distinct()
+				.collect(Collectors.toList());
+		PaginatedList<Patient> paginatedList = new PaginatedList<>(
+				paginationOffset.getLimit(),
+				0,
+				duplicatePatients,
+				nextKey);
+
+
+		return paginatedList;
 	}
 
 }

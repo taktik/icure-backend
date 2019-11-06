@@ -2,9 +2,10 @@ package org.taktik.icure.entities.embed;
 
 import org.taktik.icure.entities.base.CodeStub;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class EmploymentInfo {
+public class EmploymentInfo implements Serializable {
     private Long startDate;
     private Long endDate;
     private CodeStub professionType;

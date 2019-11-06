@@ -1,0 +1,1921 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <DATE>2019-09-13</DATE>
+    <STATUS>Published</STATUS>
+    <NAME>Country</NAME>
+    <VALUE>
+        <CODE>101.0</CODE>
+        <DESCRIPTION L="fr">République d'Albanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Albanië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Albania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>102.0</CODE>
+        <DESCRIPTION L="fr">Principauté d'Andorre</DESCRIPTION>
+        <DESCRIPTION L="nl">Vorstendom Andorra</DESCRIPTION>
+        <DESCRIPTION L="en">Principality of Andorra</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>103.0</CODE>
+        <DESCRIPTION L="fr">République fédérale d'Allemagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Bondsrepubliek Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Republic of Germany</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>103.1</CODE>
+        <DESCRIPTION L="fr">République fédérale d'Allemagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Bondsrepubliek Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Republic of Germany</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>104.0</CODE>
+        <DESCRIPTION L="fr">République Démocratique Allemande</DESCRIPTION>
+        <DESCRIPTION L="nl">Duitse Democratische Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">German Democratic Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>105.0</CODE>
+        <DESCRIPTION L="fr">République d'Autriche</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Oostenrijk</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Austria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>106.0</CODE>
+        <DESCRIPTION L="fr">République de Bulgarie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Bulgarije</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Bulgaria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>107.0</CODE>
+        <DESCRIPTION L="fr">République de Chypre</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Cyprus</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Cyprus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>108.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Danemark</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Denemarken</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Denmark</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>109.0</CODE>
+        <DESCRIPTION L="fr">Royaume d'Espagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Spanje</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Spain</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>110.0</CODE>
+        <DESCRIPTION L="fr">République de Finlande</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Finland</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Finland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>111.0</CODE>
+        <DESCRIPTION L="fr">République française</DESCRIPTION>
+        <DESCRIPTION L="nl">Franse Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">French Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>112.0</CODE>
+        <DESCRIPTION L="fr"> Royaume-Uni de Grande-Bretagne et d'Irlande du Nord</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigd Koninkrijk van Groot-Brittannië en Noord-Ierland</DESCRIPTION>
+        <DESCRIPTION L="en">United Kingdom of Great Britain and Northern Ireland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>113.0</CODE>
+        <DESCRIPTION L="fr">Grand Duché de Luxembourg</DESCRIPTION>
+        <DESCRIPTION L="nl">Groothertogdom Luxemburg</DESCRIPTION>
+        <DESCRIPTION L="en">Grand Duchy of Luxembourg</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>114.0</CODE>
+        <DESCRIPTION L="fr">République hellénique</DESCRIPTION>
+        <DESCRIPTION L="nl">Helleense Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Hellenic Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>115.0</CODE>
+        <DESCRIPTION L="fr">République de Hongrie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Hongarije</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Hungary</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>116.0</CODE>
+        <DESCRIPTION L="fr">Irlande</DESCRIPTION>
+        <DESCRIPTION L="nl">Ierland</DESCRIPTION>
+        <DESCRIPTION L="en">Ireland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>117.0</CODE>
+        <DESCRIPTION L="fr">République d'Islande</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Ijsland</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Iceland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>118.0</CODE>
+        <DESCRIPTION L="fr">Principauté du Liechtenstein</DESCRIPTION>
+        <DESCRIPTION L="nl">Vorstendom Lichtenstein</DESCRIPTION>
+        <DESCRIPTION L="en">Principality of Liechtenstein</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>119.0</CODE>
+        <DESCRIPTION L="fr">République de Malte</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Malta</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Malta</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>120.0</CODE>
+        <DESCRIPTION L="fr">Principauté de Monaco</DESCRIPTION>
+        <DESCRIPTION L="nl">Vorstendom Monaco</DESCRIPTION>
+        <DESCRIPTION L="en">Principality of Monaco</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>121.0</CODE>
+        <DESCRIPTION L="fr">Royaume de Norvège</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Noorwegen</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Norway</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>122.0</CODE>
+        <DESCRIPTION L="fr">République de Pologne</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Polen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Poland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>123.0</CODE>
+        <DESCRIPTION L="fr">République portugaise</DESCRIPTION>
+        <DESCRIPTION L="nl">Portugese Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Portuguese Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>124.0</CODE>
+        <DESCRIPTION L="fr">Roumanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Roemenië</DESCRIPTION>
+        <DESCRIPTION L="en">Romania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>125.0</CODE>
+        <DESCRIPTION L="fr">République de Saint-Marin</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek San Marino</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of San Marino</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>126.0</CODE>
+        <DESCRIPTION L="fr">Royaume de Suède</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Zweden</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Sweden</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>127.0</CODE>
+        <DESCRIPTION L="fr">Confédération suisse</DESCRIPTION>
+        <DESCRIPTION L="nl">Zwitserse Bondsstaat</DESCRIPTION>
+        <DESCRIPTION L="en">Swiss Confederation</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>128.0</CODE>
+        <DESCRIPTION L="fr">République italienne</DESCRIPTION>
+        <DESCRIPTION L="nl">Italiaanse Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Italy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>129.0</CODE>
+        <DESCRIPTION L="fr">Royaume des Pays-Bas</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk der Nederlanden</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of the Netherlands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>130.0</CODE>
+        <DESCRIPTION L="fr">Tchécoslovaquie</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjecho-Slowakije</DESCRIPTION>
+        <DESCRIPTION L="en">Czechoslovak Socialist Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>131.0</CODE>
+        <DESCRIPTION L="fr">Union des républiques socialistes soviétiques (URSS)</DESCRIPTION>
+        <DESCRIPTION L="nl">Unie van Socialistische Sovjetrepublieken</DESCRIPTION>
+        <DESCRIPTION L="en">Union of Soviet Socialist Republics</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>132.0</CODE>
+        <DESCRIPTION L="fr">Fédération de Yougoslavie</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale republiek Joegoslavië</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Republic Yugoslavia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>132.1</CODE>
+        <DESCRIPTION L="fr">Serbie-et-Monténégro</DESCRIPTION>
+        <DESCRIPTION L="nl">Servië en Montenegro</DESCRIPTION>
+        <DESCRIPTION L="en">Serbia and Montenegro</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>133.0</CODE>
+        <DESCRIPTION L="fr">Saint-Siege</DESCRIPTION>
+        <DESCRIPTION L="nl">Heilige stoel</DESCRIPTION>
+        <DESCRIPTION L="en">Holy See</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>133.1</CODE>
+        <DESCRIPTION L="fr">Etat de la Cité du Vatican</DESCRIPTION>
+        <DESCRIPTION L="nl">Vaticaanstad</DESCRIPTION>
+        <DESCRIPTION L="en">Vatican City State</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>134.0</CODE>
+        <DESCRIPTION L="fr">République fédérale d'Allemagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Bondsrepubliek Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Republic of Germany</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>135.0</CODE>
+        <DESCRIPTION L="fr">République de Lettonie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Letland</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Latvia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>136.0</CODE>
+        <DESCRIPTION L="fr">République d'Estonie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Estland</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Estonia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>137.0</CODE>
+        <DESCRIPTION L="fr">République de Lituanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Litouwen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Lithuania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>138.0</CODE>
+        <DESCRIPTION L="fr">République de Hongrie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Hongarije</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Hungary</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>139.0</CODE>
+        <DESCRIPTION L="fr">République de Pologne</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Polen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Poland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>140.0</CODE>
+        <DESCRIPTION L="fr">République Tcheque</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjechische Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Czech Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>141.0</CODE>
+        <DESCRIPTION L="fr">République slovaque</DESCRIPTION>
+        <DESCRIPTION L="nl">Slovaakse Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Slovak Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>142.0</CODE>
+        <DESCRIPTION L="fr">République du Bélarus</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Belarus</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Belarus</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>143.0</CODE>
+        <DESCRIPTION L="fr">République socialiste soviétique d'Ukraine</DESCRIPTION>
+        <DESCRIPTION L="nl">Oekraïense Socialistische Sovjetrepubliek</DESCRIPTION>
+        <DESCRIPTION L="en">Ukrainian Soviet Socialist Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>144.0</CODE>
+        <DESCRIPTION L="fr">République de Moldova</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Moldavië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Moldova</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>145.0</CODE>
+        <DESCRIPTION L="fr">Féderation de Russie</DESCRIPTION>
+        <DESCRIPTION L="nl">Federatie Rusland</DESCRIPTION>
+        <DESCRIPTION L="en">Federation Russia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>146.0</CODE>
+        <DESCRIPTION L="fr">République de Croatie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kroatië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Croatia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>147.0</CODE>
+        <DESCRIPTION L="fr">République de Slovénie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Slovenië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Slovenia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>148.0</CODE>
+        <DESCRIPTION L="fr">République de Macédoine</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Macedonië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Macedonia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>149.0</CODE>
+        <DESCRIPTION L="fr">Bosnie-Herzégovine</DESCRIPTION>
+        <DESCRIPTION L="nl">Bosnië en Herzegovina</DESCRIPTION>
+        <DESCRIPTION L="en">Bosnia and Herzegovina</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>150.0</CODE>
+        <DESCRIPTION L="fr">Royaume de Belgique</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk België</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Belgium</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>151.0</CODE>
+        <DESCRIPTION L="fr">Monténégro</DESCRIPTION>
+        <DESCRIPTION L="nl">Montenegro</DESCRIPTION>
+        <DESCRIPTION L="en">Montenegro</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>152.0</CODE>
+        <DESCRIPTION L="fr">République de Serbie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Servië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Serbia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>153.0</CODE>
+        <DESCRIPTION L="fr">Kosovo</DESCRIPTION>
+        <DESCRIPTION L="nl">Kosovo</DESCRIPTION>
+        <DESCRIPTION L="en">Kosovo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>169.0</CODE>
+        <DESCRIPTION L="fr">République fédérative socialiste de Yougoslavie</DESCRIPTION>
+        <DESCRIPTION L="nl">Socialistische Federale Republiek Joegoslavië</DESCRIPTION>
+        <DESCRIPTION L="en">Socialist Federal Republic of Yugoslavia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>170.0</CODE>
+        <DESCRIPTION L="fr">République Démocratique Allemande</DESCRIPTION>
+        <DESCRIPTION L="nl">Duitse Democratische Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">German Democratic Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>171.0</CODE>
+        <DESCRIPTION L="fr">Tchécoslovaquie</DESCRIPTION>
+        <DESCRIPTION L="nl">Tsjecho-Slowakije</DESCRIPTION>
+        <DESCRIPTION L="en">Czechoslovak Socialist Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>172.0</CODE>
+        <DESCRIPTION L="fr">Union des républiques socialistes soviétiques (URSS)</DESCRIPTION>
+        <DESCRIPTION L="nl">Unie van Socialistische Sovjetrepublieken</DESCRIPTION>
+        <DESCRIPTION L="en">Union of Soviet Socialist Republics</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>173.0</CODE>
+        <DESCRIPTION L="fr">Allemagne</DESCRIPTION>
+        <DESCRIPTION L="nl">Duitsland</DESCRIPTION>
+        <DESCRIPTION L="en">Germany</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>180.0</CODE>
+        <DESCRIPTION L="fr">Gibraltar</DESCRIPTION>
+        <DESCRIPTION L="nl">Gibraltar</DESCRIPTION>
+        <DESCRIPTION L="en">Gibraltar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>201.0</CODE>
+        <DESCRIPTION L="fr">Union du Myanmar</DESCRIPTION>
+        <DESCRIPTION L="nl">Unie van Myanmar</DESCRIPTION>
+        <DESCRIPTION L="en">Union of Myanmar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>202.0</CODE>
+        <DESCRIPTION L="fr">Kampuchea</DESCRIPTION>
+        <DESCRIPTION L="nl">Kampuchea</DESCRIPTION>
+        <DESCRIPTION L="en">Kampuchea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>202.1</CODE>
+        <DESCRIPTION L="fr">Rép. Khmer du Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Khmerische Rep. Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Khmer Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>202.2</CODE>
+        <DESCRIPTION L="fr">Royaume du Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Cambodia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>203.0</CODE>
+        <DESCRIPTION L="fr">République socialiste démocratique du Sri Lanka</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Socialistische Republiek Sri Lanka</DESCRIPTION>
+        <DESCRIPTION L="en">Democratic Socialist Republic of Sri Lanka</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>204.0</CODE>
+        <DESCRIPTION L="fr">Taiwan, Province de Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">Taiwan, Chinese provincie</DESCRIPTION>
+        <DESCRIPTION L="en">Taiwan, Province Of China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>205.0</CODE>
+        <DESCRIPTION L="fr">République de Singapour</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Singapore</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Singapore</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>206.0</CODE>
+        <DESCRIPTION L="fr">République de Corée</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Korea</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Korea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>207.0</CODE>
+        <DESCRIPTION L="fr">République de l'Inde</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek India</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of India</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>208.0</CODE>
+        <DESCRIPTION L="fr">République d'Indonésie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Indonesië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Indonesia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>209.0</CODE>
+        <DESCRIPTION L="fr">Japon</DESCRIPTION>
+        <DESCRIPTION L="nl">Japan</DESCRIPTION>
+        <DESCRIPTION L="en">Japan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>210.0</CODE>
+        <DESCRIPTION L="fr">République Démocratique Populaire Lao</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Volksrepubliek Laos</DESCRIPTION>
+        <DESCRIPTION L="en">People's Democratic Republic Lao</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>211.0</CODE>
+        <DESCRIPTION L="fr">Kampuchea</DESCRIPTION>
+        <DESCRIPTION L="nl">Kampuchea</DESCRIPTION>
+        <DESCRIPTION L="en">Kampuchea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>211.1</CODE>
+        <DESCRIPTION L="fr">Rép. Khmer du Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Khmerische Rep. Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Khmer Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>211.2</CODE>
+        <DESCRIPTION L="fr">Royaume du Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Cambodia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>212.0</CODE>
+        <DESCRIPTION L="fr">Malaisie</DESCRIPTION>
+        <DESCRIPTION L="nl">Maleisië</DESCRIPTION>
+        <DESCRIPTION L="en">Malaysia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>213.0</CODE>
+        <DESCRIPTION L="fr">République fédérale démocratique du Népal</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Democratische Republiek Nepal</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Democratic Republic of Nepal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>214.0</CODE>
+        <DESCRIPTION L="fr">République des Philippines</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek der Filipijnen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of the Philippines</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>215.0</CODE>
+        <DESCRIPTION L="fr">République démocratique du Timor-Leste</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Republiek Timor-Leste</DESCRIPTION>
+        <DESCRIPTION L="en">Democratic Republic of Timor-Leste</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>216.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Cambodge</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Cambodja</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Cambodia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>217.0</CODE>
+        <DESCRIPTION L="fr">République du Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">Republic Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>218.0</CODE>
+        <DESCRIPTION L="fr">République populaire de Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">Volksrepubliek China</DESCRIPTION>
+        <DESCRIPTION L="en">People's Republic of China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>219.0</CODE>
+        <DESCRIPTION L="fr">Corée, République Populaire Démocratique de</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Volksrepubliek Korea</DESCRIPTION>
+        <DESCRIPTION L="en">Democratic People's Republic of Korea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>220.0</CODE>
+        <DESCRIPTION L="fr">République socialiste du Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Socialistische Republiek Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">Socialist Republic of Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>221.0</CODE>
+        <DESCRIPTION L="fr">Mongolie</DESCRIPTION>
+        <DESCRIPTION L="nl">Mongolië</DESCRIPTION>
+        <DESCRIPTION L="en">Mongolia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>222.0</CODE>
+        <DESCRIPTION L="fr">République des Maldives</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek der Maldiven</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Maldives</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>223.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Bhoutan</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Bhutan</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Bhutan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>224.0</CODE>
+        <DESCRIPTION L="fr">Brunéi Darussalam</DESCRIPTION>
+        <DESCRIPTION L="nl">Brunei Darussalam</DESCRIPTION>
+        <DESCRIPTION L="en">Brunei Darussalam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>225.0</CODE>
+        <DESCRIPTION L="fr">République du Kazakhstan</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kazachstan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Kazakhstan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>226.0</CODE>
+        <DESCRIPTION L="fr">République kirghize</DESCRIPTION>
+        <DESCRIPTION L="nl">Kirgizische Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Kyrgyz Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>227.0</CODE>
+        <DESCRIPTION L="fr">République d'Ouzbékistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Oezbekistan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Uzbekistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>228.0</CODE>
+        <DESCRIPTION L="fr">République du Tadjikistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Tadzjikistan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Tajikistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>229.0</CODE>
+        <DESCRIPTION L="fr">Turkménistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Turkmenistan</DESCRIPTION>
+        <DESCRIPTION L="en">Turkmenistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>230.0</CODE>
+        <DESCRIPTION L="fr">Chine(Hong-Kong SAR)</DESCRIPTION>
+        <DESCRIPTION L="nl">China(Hong Kong SAR)</DESCRIPTION>
+        <DESCRIPTION L="en">China(Hong Kong SAR)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>231.0</CODE>
+        <DESCRIPTION L="fr">Macao, Région administrative spéciale de Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">Macao, Speciale Administratieve Regio van China</DESCRIPTION>
+        <DESCRIPTION L="en">Macao Special Administrative Region of China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>232.0</CODE>
+        <DESCRIPTION L="fr">Birma</DESCRIPTION>
+        <DESCRIPTION L="nl">Birma</DESCRIPTION>
+        <DESCRIPTION L="en">Burma</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>233.0</CODE>
+        <DESCRIPTION L="fr">République Islamique d'Iran</DESCRIPTION>
+        <DESCRIPTION L="nl">Islamitische Republiek Iran</DESCRIPTION>
+        <DESCRIPTION L="en">Islamic Republic of Iran</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>234.0</CODE>
+        <DESCRIPTION L="fr">Hong Kong, Région administrative spéciale de Chine </DESCRIPTION>
+        <DESCRIPTION L="nl">Speciale Administratieve Regio Hongkong van de Volksrepubliek China</DESCRIPTION>
+        <DESCRIPTION L="en">Hong Kong Special Administrative Region of China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>235.0</CODE>
+        <DESCRIPTION L="fr">Royaume de Thaïlande</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Thailand</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Thailand</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>237.0</CODE>
+        <DESCRIPTION L="fr">République populaire du Bangladesh</DESCRIPTION>
+        <DESCRIPTION L="nl">Volksrepubliek Bangladesh</DESCRIPTION>
+        <DESCRIPTION L="en">People's Republic of Bangladesh</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>238.0</CODE>
+        <DESCRIPTION L="fr">République populaire de Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">Volksrepubliek China</DESCRIPTION>
+        <DESCRIPTION L="en">People's Republic of China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>249.0</CODE>
+        <DESCRIPTION L="fr">République d'Arménie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Armenië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Armenia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>250.0</CODE>
+        <DESCRIPTION L="fr">République d'Azerbaïdjan</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Azerbeidzjan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Azerbaijan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>251.0</CODE>
+        <DESCRIPTION L="fr">République islamique d'Afghanistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Islamitische Republiek Afghanistan</DESCRIPTION>
+        <DESCRIPTION L="en">Islamic Republic of  Afghanistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>252.0</CODE>
+        <DESCRIPTION L="fr">Royaume d'Arabie Saoudite</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Saoedi-Arabië</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Saudi Arabia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>253.0</CODE>
+        <DESCRIPTION L="fr">Géorgie</DESCRIPTION>
+        <DESCRIPTION L="nl">Georgië</DESCRIPTION>
+        <DESCRIPTION L="en">Georgia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>254.0</CODE>
+        <DESCRIPTION L="fr">République d'Iraq</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Irak</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Iraq</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>255.0</CODE>
+        <DESCRIPTION L="fr">République Islamique d'Iran</DESCRIPTION>
+        <DESCRIPTION L="nl">Islamitische Republiek Iran</DESCRIPTION>
+        <DESCRIPTION L="en">Islamic Republic of Iran</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>256.0</CODE>
+        <DESCRIPTION L="fr">État d'Israël</DESCRIPTION>
+        <DESCRIPTION L="nl">Staat Israël</DESCRIPTION>
+        <DESCRIPTION L="en">State of Israel</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>257.0</CODE>
+        <DESCRIPTION L="fr">Royaume hachémite de Jordanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Hasjemitisch Koninkrijk Jordanië</DESCRIPTION>
+        <DESCRIPTION L="en">Hashemite Kingdom of Jordan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>258.0</CODE>
+        <DESCRIPTION L="fr">République libanaise</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Libanon</DESCRIPTION>
+        <DESCRIPTION L="en">Lebanese Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>259.0</CODE>
+        <DESCRIPTION L="fr">République islamique du Pakistan</DESCRIPTION>
+        <DESCRIPTION L="nl">Islamitische Republiek Pakistan</DESCRIPTION>
+        <DESCRIPTION L="en">Islamic Republic of Pakistan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>260.0</CODE>
+        <DESCRIPTION L="fr">Emirats Arabes Unis</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigde Arabische Emiraten</DESCRIPTION>
+        <DESCRIPTION L="en">United Arab Emirates</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>261.0</CODE>
+        <DESCRIPTION L="fr">République Arabe Syrienne</DESCRIPTION>
+        <DESCRIPTION L="nl">Arabische Republiek Syrië</DESCRIPTION>
+        <DESCRIPTION L="en">Syrian Arab Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>262.0</CODE>
+        <DESCRIPTION L="fr">République turque</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Turkije</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Turkey</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>263.0</CODE>
+        <DESCRIPTION L="fr">République arabe du Yémen</DESCRIPTION>
+        <DESCRIPTION L="nl">Arabische Republiek Jemen</DESCRIPTION>
+        <DESCRIPTION L="en">Yemen Arabic Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>264.0</CODE>
+        <DESCRIPTION L="fr">État du Koweït</DESCRIPTION>
+        <DESCRIPTION L="nl">Staat Koeweit</DESCRIPTION>
+        <DESCRIPTION L="en">State of Kuwait</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>265.0</CODE>
+        <DESCRIPTION L="fr">République populaire démocratique du Yémen</DESCRIPTION>
+        <DESCRIPTION L="nl">Demokratische Volksrepbliek Jemen</DESCRIPTION>
+        <DESCRIPTION L="en">Democratic People's Republic of Yemen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>266.0</CODE>
+        <DESCRIPTION L="fr">Sultanat d'Oman</DESCRIPTION>
+        <DESCRIPTION L="nl">Sultanaat Oman</DESCRIPTION>
+        <DESCRIPTION L="en">Sultanate of Oman</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>267.0</CODE>
+        <DESCRIPTION L="fr">État du Qatar</DESCRIPTION>
+        <DESCRIPTION L="nl">Staat Qatar</DESCRIPTION>
+        <DESCRIPTION L="en">State of Qatar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>268.0</CODE>
+        <DESCRIPTION L="fr">Royaume de Bahreïn</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Bahrein</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Bahrain</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>269.0</CODE>
+        <DESCRIPTION L="fr">Abu Dhabi</DESCRIPTION>
+        <DESCRIPTION L="nl">Abu Dhabi</DESCRIPTION>
+        <DESCRIPTION L="en">Abu Dhabi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>270.0</CODE>
+        <DESCRIPTION L="fr">République du Yémen</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Jemen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Yemen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>271.0</CODE>
+        <DESCRIPTION L="fr">Territoire Palestinien Occupé</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezette Palestijnse gebieden</DESCRIPTION>
+        <DESCRIPTION L="en">Occupied Palestinian Territory</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>272.0</CODE>
+        <DESCRIPTION L="fr">Jérusalem</DESCRIPTION>
+        <DESCRIPTION L="nl">Jeruzalem</DESCRIPTION>
+        <DESCRIPTION L="en">Jerusalem</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>273.0</CODE>
+        <DESCRIPTION L="fr">Territoire Palestinien Occupé</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezette Palestijnse gebieden</DESCRIPTION>
+        <DESCRIPTION L="en">Occupied Palestinian Territory</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>279.0</CODE>
+        <DESCRIPTION L="fr">République du Vietnam</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Vietnam</DESCRIPTION>
+        <DESCRIPTION L="en">Republic Vietnam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>280.0</CODE>
+        <DESCRIPTION L="fr">Hong-Kong(Royaume-Uni)</DESCRIPTION>
+        <DESCRIPTION L="nl">Hongkong(Verenigd Koninkrijk)</DESCRIPTION>
+        <DESCRIPTION L="en">Hong Kong (UK)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>281.0</CODE>
+        <DESCRIPTION L="fr">Macao, Région administrative spéciale de Chine</DESCRIPTION>
+        <DESCRIPTION L="nl">Macao, Speciale Administratieve Regio van China</DESCRIPTION>
+        <DESCRIPTION L="en">Macao Special Administrative Region of China</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>282.0</CODE>
+        <DESCRIPTION L="fr">Timor portugais</DESCRIPTION>
+        <DESCRIPTION L="nl">Portugees Timor</DESCRIPTION>
+        <DESCRIPTION L="en">Portuguese Timor</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>283.0</CODE>
+        <DESCRIPTION L="fr">Territoire Palestinien Occupé</DESCRIPTION>
+        <DESCRIPTION L="nl">Bezette Palestijnse gebieden</DESCRIPTION>
+        <DESCRIPTION L="en">Occupied Palestinian Territory</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>301.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Lesotho</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Lesotho</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Lesotho</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>302.0</CODE>
+        <DESCRIPTION L="fr">République du Botswana</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Botswana</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Botswana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>303.0</CODE>
+        <DESCRIPTION L="fr">République du Burundi</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Burundi</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Burundi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>304.0</CODE>
+        <DESCRIPTION L="fr">République du Cameroun</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kameroen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Cameroon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>305.0</CODE>
+        <DESCRIPTION L="fr">République Centrafricaine</DESCRIPTION>
+        <DESCRIPTION L="nl">Centraal-Afrikaanse Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Central African Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>306.0</CODE>
+        <DESCRIPTION L="fr">La République Démocratique du Congo</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Republiek Congo</DESCRIPTION>
+        <DESCRIPTION L="en">Congo, Democratic Republic Of</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>307.0</CODE>
+        <DESCRIPTION L="fr">République du Congo</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Congo</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of the Congo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>308.0</CODE>
+        <DESCRIPTION L="fr">Burkina Faso</DESCRIPTION>
+        <DESCRIPTION L="nl">Burkina Faso</DESCRIPTION>
+        <DESCRIPTION L="en">Burkina Faso</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>309.0</CODE>
+        <DESCRIPTION L="fr">République de Côte d'Ivoire</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Ivoorkust</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Côte d'Ivoire</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>310.0</CODE>
+        <DESCRIPTION L="fr">Dahomey</DESCRIPTION>
+        <DESCRIPTION L="nl">Dahomey</DESCRIPTION>
+        <DESCRIPTION L="en">Dahomey</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>310.1</CODE>
+        <DESCRIPTION L="fr">République du Bénin</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Benin</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Benin</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>311.0</CODE>
+        <DESCRIPTION L="fr">République fédérale démocratique d'Ethiopie</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Democratische Republiek Ethiopië</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Democratic Republic of Ethiopia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>311.1</CODE>
+        <DESCRIPTION L="fr">République fédérale démocratique d'Ethiopie</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Democratische Republiek Ethiopië</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Democratic Republic of Ethiopia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>312.0</CODE>
+        <DESCRIPTION L="fr">République gabonaise</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Gabon</DESCRIPTION>
+        <DESCRIPTION L="en">Gabonese Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>313.0</CODE>
+        <DESCRIPTION L="fr">République de Gambie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Gambia</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of The Gambia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>314.0</CODE>
+        <DESCRIPTION L="fr">République du Ghana</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Ghana</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Ghana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>315.0</CODE>
+        <DESCRIPTION L="fr">République de Guinée</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Guinea</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Guinea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>316.0</CODE>
+        <DESCRIPTION L="fr">Haute-Volta</DESCRIPTION>
+        <DESCRIPTION L="nl">Opper-Volta</DESCRIPTION>
+        <DESCRIPTION L="en">Upper Volta</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>317.0</CODE>
+        <DESCRIPTION L="fr">République de Maurice</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Mauritius</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Mauritius</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>318.0</CODE>
+        <DESCRIPTION L="fr">République du Libéria</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Liberia</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Liberia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>319.0</CODE>
+        <DESCRIPTION L="fr">République du Mali</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Mali</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Mali</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>320.0</CODE>
+        <DESCRIPTION L="fr">République du Sénégal</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Senegal</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Senegal</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>321.0</CODE>
+        <DESCRIPTION L="fr">République du Niger</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Niger</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of the Niger</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>322.0</CODE>
+        <DESCRIPTION L="fr">République fédérale du Nigéria</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Republiek Nigeria</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Republic of Nigeria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>323.0</CODE>
+        <DESCRIPTION L="fr">République d'Ouganda</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Oeganda</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Uganda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>324.0</CODE>
+        <DESCRIPTION L="fr">République de Madagascar</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Madagascar</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Madagascar</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>325.0</CODE>
+        <DESCRIPTION L="fr">République sud-africaine</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Zuid-Afrika</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of South Africa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>326.0</CODE>
+        <DESCRIPTION L="fr">Rhodésie du sud</DESCRIPTION>
+        <DESCRIPTION L="nl">Zuid-Rhodesië</DESCRIPTION>
+        <DESCRIPTION L="en">Southern Rhodesia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>327.0</CODE>
+        <DESCRIPTION L="fr">République du Rwanda</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Rwanda</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Rwanda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>328.0</CODE>
+        <DESCRIPTION L="fr">République de Sierra Leone</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Sierra Leone</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Sierra Leone</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>329.0</CODE>
+        <DESCRIPTION L="fr">République fédérale de Somalie[</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Republiek Somalië</DESCRIPTION>
+        <DESCRIPTION L="en">Federal Republic of Somalia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>331.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Swaziland</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Swaziland</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Swaziland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>332.0</CODE>
+        <DESCRIPTION L="fr">République-Unie de Tanzanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigde Republiek Tanzania</DESCRIPTION>
+        <DESCRIPTION L="en">United Republic of Tanzania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>333.0</CODE>
+        <DESCRIPTION L="fr">République du Tchad</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Tsjaad</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Chad</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>334.0</CODE>
+        <DESCRIPTION L="fr">République togolaise</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Togo</DESCRIPTION>
+        <DESCRIPTION L="en">Togolese Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>335.0</CODE>
+        <DESCRIPTION L="fr">République de Zambie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Zambia</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Zambia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>336.0</CODE>
+        <DESCRIPTION L="fr">République du Kenya</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kenia</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Kenya</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>337.0</CODE>
+        <DESCRIPTION L="fr">République de Guinée équatoriale</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Equatoriaal-Guinea</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Equatorial Guinea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>338.0</CODE>
+        <DESCRIPTION L="fr">République de Guinée-Bissau</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Guinee-Bissau</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Guinea-Bissau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>339.0</CODE>
+        <DESCRIPTION L="fr">République du Cap-Vert</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kaapverdië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Cape Verde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>340.0</CODE>
+        <DESCRIPTION L="fr">République du Mozambique</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Mozambique</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Mozambique</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>341.0</CODE>
+        <DESCRIPTION L="fr">République d'Angola</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Angola</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Angola</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>342.0</CODE>
+        <DESCRIPTION L="fr">République des Seychelles</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek der Seychellen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Seychelles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>343.0</CODE>
+        <DESCRIPTION L="fr">Union des Comores</DESCRIPTION>
+        <DESCRIPTION L="nl">Unie der Comoren</DESCRIPTION>
+        <DESCRIPTION L="en">Union of the Comoros</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>344.0</CODE>
+        <DESCRIPTION L="fr">République du Zimbabwe</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Zimbabwe</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Zimbabwe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>345.0</CODE>
+        <DESCRIPTION L="fr">République de Djibouti</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Djibouti</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Djibouti</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>346.0</CODE>
+        <DESCRIPTION L="fr">République démocratique de Sao Tome-et-Principe</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische republiek São Tomé en Príncipe</DESCRIPTION>
+        <DESCRIPTION L="en">Democratic Republic of São Tome and Principe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>347.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Swaziland</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Swaziland</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Swaziland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>348.0</CODE>
+        <DESCRIPTION L="fr">Sénégambie</DESCRIPTION>
+        <DESCRIPTION L="nl">Senegambia</DESCRIPTION>
+        <DESCRIPTION L="en">Senegambia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>349.0</CODE>
+        <DESCRIPTION L="fr">Erythrée</DESCRIPTION>
+        <DESCRIPTION L="nl">Eritrea</DESCRIPTION>
+        <DESCRIPTION L="en">Eritrea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>351.0</CODE>
+        <DESCRIPTION L="fr">République algérienne démocratique et populaire</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische Volksrepubliek Algerije</DESCRIPTION>
+        <DESCRIPTION L="en">People's Democratic Republic of Algeria</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>352.0</CODE>
+        <DESCRIPTION L="fr">République arabe d'Egypte</DESCRIPTION>
+        <DESCRIPTION L="nl">Arabische Republiek Egypte</DESCRIPTION>
+        <DESCRIPTION L="en">Arab Republic of Egypt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>353.0</CODE>
+        <DESCRIPTION L="fr">Grande Jamahiriya arabe libyenne populaire et socialiste</DESCRIPTION>
+        <DESCRIPTION L="nl">Grote Libisch-Arabische Socialistische Volksjamahiriyah</DESCRIPTION>
+        <DESCRIPTION L="en">Socialist People's Libyan Arab Jamahiriya</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>354.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Maroc</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Marokko</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Morocco</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>355.0</CODE>
+        <DESCRIPTION L="fr">République islamique de Mauritanie</DESCRIPTION>
+        <DESCRIPTION L="nl">Islamitische Republiek Mauritanië</DESCRIPTION>
+        <DESCRIPTION L="en">Islamic Republic of Mauritania</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>356.0</CODE>
+        <DESCRIPTION L="fr">République du Soudan</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Soedan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Sudan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>356.1</CODE>
+        <DESCRIPTION L="fr">République du Soudan</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Soedan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Sudan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>357.0</CODE>
+        <DESCRIPTION L="fr">République tunisienne</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Tunesië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Tunisia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>358.0</CODE>
+        <DESCRIPTION L="fr">République du Malawi</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Malawi</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Malawi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>359.0</CODE>
+        <DESCRIPTION L="fr">Congo Belge</DESCRIPTION>
+        <DESCRIPTION L="nl">Belgisch Congo</DESCRIPTION>
+        <DESCRIPTION L="en">Belgian Congo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>360.0</CODE>
+        <DESCRIPTION L="fr">République du Rwanda</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Rwanda</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Rwanda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>361.0</CODE>
+        <DESCRIPTION L="fr">République du Burundi</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Burundi</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Burundi</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>362.0</CODE>
+        <DESCRIPTION L="fr">République de Congo</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kongo</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Congo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>364.0</CODE>
+        <DESCRIPTION L="fr">République du Zaïre</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Zaire</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Zaire</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>365.0</CODE>
+        <DESCRIPTION L="fr">République du Soudan du Sud</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Zuid-Soedan</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of South Sudan</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>380.0</CODE>
+        <DESCRIPTION L="fr">Afars et Issas</DESCRIPTION>
+        <DESCRIPTION L="nl">Afars en Issas</DESCRIPTION>
+        <DESCRIPTION L="en">Afars and Issas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>381.0</CODE>
+        <DESCRIPTION L="fr">République d'Angola</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Angola</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Angola</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>382.0</CODE>
+        <DESCRIPTION L="fr">Cabinda</DESCRIPTION>
+        <DESCRIPTION L="nl">Cabinda</DESCRIPTION>
+        <DESCRIPTION L="en">Cabinda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>383.0</CODE>
+        <DESCRIPTION L="fr">République du Mozambique</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Mozambique</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Mozambique</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>384.0</CODE>
+        <DESCRIPTION L="fr">République de Namibie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Namibië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Namibia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>385.0</CODE>
+        <DESCRIPTION L="fr">République du Cap-Vert</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kaapverdië</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Cape Verde</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>386.0</CODE>
+        <DESCRIPTION L="fr">Union des Comores</DESCRIPTION>
+        <DESCRIPTION L="nl">Unie der Comoren</DESCRIPTION>
+        <DESCRIPTION L="en">Union of the Comoros</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>387.0</CODE>
+        <DESCRIPTION L="fr">la Réunion</DESCRIPTION>
+        <DESCRIPTION L="nl">Réunion</DESCRIPTION>
+        <DESCRIPTION L="en">Réunion</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>388.0</CODE>
+        <DESCRIPTION L="fr">Sahara occidental</DESCRIPTION>
+        <DESCRIPTION L="nl">Westelijke Sahara</DESCRIPTION>
+        <DESCRIPTION L="en">Western Sahara</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>389.0</CODE>
+        <DESCRIPTION L="fr">Sainte-Hélène, Ascension et Tristan da Cunha</DESCRIPTION>
+        <DESCRIPTION L="nl">Sint Helena, Ascension en Tristan da Cunha</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Helena, Ascension and Tristan da Cunha</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>390.0</CODE>
+        <DESCRIPTION L="fr">République des Seychelles</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek der Seychellen</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Seychelles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>391.0</CODE>
+        <DESCRIPTION L="fr">République de Guinée-Bissau</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Guinee-Bissau</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Guinea-Bissau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>392.0</CODE>
+        <DESCRIPTION L="fr">Fernando Poo</DESCRIPTION>
+        <DESCRIPTION L="nl">Fernando Poo</DESCRIPTION>
+        <DESCRIPTION L="en">Fernando Poo</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>393.0</CODE>
+        <DESCRIPTION L="fr">République démocratique de Sao Tome-et-Principe</DESCRIPTION>
+        <DESCRIPTION L="nl">Democratische republiek São Tomé en Príncipe</DESCRIPTION>
+        <DESCRIPTION L="en">Democratic Republic of São Tome and Principe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>395.0</CODE>
+        <DESCRIPTION L="fr">Royaume du Swaziland</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Swaziland</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Swaziland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>396.0</CODE>
+        <DESCRIPTION L="fr">Transkei</DESCRIPTION>
+        <DESCRIPTION L="nl">Transkei</DESCRIPTION>
+        <DESCRIPTION L="en">Transkei</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>397.0</CODE>
+        <DESCRIPTION L="fr">Bophutatswana</DESCRIPTION>
+        <DESCRIPTION L="nl">Bophutatswana</DESCRIPTION>
+        <DESCRIPTION L="en">Bophutatswana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>398.0</CODE>
+        <DESCRIPTION L="fr">Îles Canaries</DESCRIPTION>
+        <DESCRIPTION L="nl">Canarische Eilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Canary Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>399.0</CODE>
+        <DESCRIPTION L="fr">Madère (Portugal)</DESCRIPTION>
+        <DESCRIPTION L="nl">Madeira (Portugal)</DESCRIPTION>
+        <DESCRIPTION L="en">Madeira (Portugal)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>401.0</CODE>
+        <DESCRIPTION L="fr">Canada</DESCRIPTION>
+        <DESCRIPTION L="nl">Canada</DESCRIPTION>
+        <DESCRIPTION L="en">Canada</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>402.0</CODE>
+        <DESCRIPTION L="fr">Etats-Unis d'Amérique</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigde Staten van Amerika</DESCRIPTION>
+        <DESCRIPTION L="en">United States of America</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>403.0</CODE>
+        <DESCRIPTION L="fr">Antigua et Barbuda</DESCRIPTION>
+        <DESCRIPTION L="nl">Antigua en Barbuda</DESCRIPTION>
+        <DESCRIPTION L="en">Antigua and Barbuda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>411.0</CODE>
+        <DESCRIPTION L="fr">République du Costa Rica</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Costa Rica</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Costa Rica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>412.0</CODE>
+        <DESCRIPTION L="fr">République de Cuba</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Cuba</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Cuba</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>413.0</CODE>
+        <DESCRIPTION L="fr">République du Guatemala</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Guatemala</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Guatemala</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>414.0</CODE>
+        <DESCRIPTION L="fr">République du Honduras</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Honduras</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Honduras</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>415.0</CODE>
+        <DESCRIPTION L="fr">Jamaïque</DESCRIPTION>
+        <DESCRIPTION L="nl">Jamaica</DESCRIPTION>
+        <DESCRIPTION L="en">Jamaica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>416.0</CODE>
+        <DESCRIPTION L="fr">États-Unis du Mexique</DESCRIPTION>
+        <DESCRIPTION L="nl">Verenigde Mexicaanse Staten</DESCRIPTION>
+        <DESCRIPTION L="en">United Mexican States</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>417.0</CODE>
+        <DESCRIPTION L="fr">République du Nicaragua</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Nicaragua</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Nicaragua</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>418.0</CODE>
+        <DESCRIPTION L="fr">Panama</DESCRIPTION>
+        <DESCRIPTION L="nl">Panama</DESCRIPTION>
+        <DESCRIPTION L="en">Panama</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>418.1</CODE>
+        <DESCRIPTION L="fr">République du Panama</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Panama</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Panama</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>418.2</CODE>
+        <DESCRIPTION L="fr">Zone du canal de Panama</DESCRIPTION>
+        <DESCRIPTION L="nl">Panamakanaalzone</DESCRIPTION>
+        <DESCRIPTION L="en">Panama Canal Zone</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>419.0</CODE>
+        <DESCRIPTION L="fr">République d'Haïti</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Haïti</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Haiti</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>420.0</CODE>
+        <DESCRIPTION L="fr">République Dominicaine</DESCRIPTION>
+        <DESCRIPTION L="nl">Dominicaanse Republiek</DESCRIPTION>
+        <DESCRIPTION L="en">Dominican Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>421.0</CODE>
+        <DESCRIPTION L="fr">République d'El Salvador</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek El Salvador</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of El Salvador</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>422.0</CODE>
+        <DESCRIPTION L="fr">République de Trinité-et-Tobago</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Trinidad en Tobago</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Trinidad and Tobago</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>423.0</CODE>
+        <DESCRIPTION L="fr">Barbade</DESCRIPTION>
+        <DESCRIPTION L="nl">Barbados</DESCRIPTION>
+        <DESCRIPTION L="en">Barbados</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>424.0</CODE>
+        <DESCRIPTION L="fr">Antilles britanniques</DESCRIPTION>
+        <DESCRIPTION L="nl">Britse Antillen</DESCRIPTION>
+        <DESCRIPTION L="en">British Antilles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>425.0</CODE>
+        <DESCRIPTION L="fr">Commonwealth des Bahamas</DESCRIPTION>
+        <DESCRIPTION L="nl">Gemenebest van de Bahamas</DESCRIPTION>
+        <DESCRIPTION L="en">Commonwealth of the Bahamas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>426.0</CODE>
+        <DESCRIPTION L="fr">Grenade</DESCRIPTION>
+        <DESCRIPTION L="nl">Grenada</DESCRIPTION>
+        <DESCRIPTION L="en">Grenada</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>427.0</CODE>
+        <DESCRIPTION L="fr">Commonwealth de Dominique</DESCRIPTION>
+        <DESCRIPTION L="nl">Gemenebest Dominica</DESCRIPTION>
+        <DESCRIPTION L="en">Commonwealth of Dominica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>428.0</CODE>
+        <DESCRIPTION L="fr">Sainte-Lucie</DESCRIPTION>
+        <DESCRIPTION L="nl">Sint Lucia</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Lucia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>429.0</CODE>
+        <DESCRIPTION L="fr">Saint-Vincent-et-les Grenadines</DESCRIPTION>
+        <DESCRIPTION L="nl">Saint Vincent en de Grenadines</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Vincent and the Grenadines</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>430.0</CODE>
+        <DESCRIPTION L="fr">Belize</DESCRIPTION>
+        <DESCRIPTION L="nl">Belize</DESCRIPTION>
+        <DESCRIPTION L="en">Belize</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>431.0</CODE>
+        <DESCRIPTION L="fr">Fédération de Saint Kitts et Nevis</DESCRIPTION>
+        <DESCRIPTION L="nl">Federatie van Saint Kitts en Nevis</DESCRIPTION>
+        <DESCRIPTION L="en">Federation of Saint Kitts and Nevis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>478.0</CODE>
+        <DESCRIPTION L="fr">Îles Vierges des Etats-Unis</DESCRIPTION>
+        <DESCRIPTION L="nl">Amerikaanse Maagdeneilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Virgin Islands of the United States</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>479.0</CODE>
+        <DESCRIPTION L="fr">Îles Vierges britanniques</DESCRIPTION>
+        <DESCRIPTION L="nl">Britse Maagdeneilanden</DESCRIPTION>
+        <DESCRIPTION L="en">British Virgin Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>480.0</CODE>
+        <DESCRIPTION L="fr">Commonwealth de Dominique</DESCRIPTION>
+        <DESCRIPTION L="nl">Gemenebest Dominica</DESCRIPTION>
+        <DESCRIPTION L="en">Commonwealth of Dominica</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>481.0</CODE>
+        <DESCRIPTION L="fr">Antilles françaises</DESCRIPTION>
+        <DESCRIPTION L="nl">Franse Antillen</DESCRIPTION>
+        <DESCRIPTION L="en">French Antilles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>482.0</CODE>
+        <DESCRIPTION L="fr">Les Antilles Néerlandaises</DESCRIPTION>
+        <DESCRIPTION L="nl">Nederlandse Antillen</DESCRIPTION>
+        <DESCRIPTION L="en">The Netherlands Antilles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>483.0</CODE>
+        <DESCRIPTION L="fr">Antilles américaines</DESCRIPTION>
+        <DESCRIPTION L="nl">Amerikaanse Antillen</DESCRIPTION>
+        <DESCRIPTION L="en">American Antilles</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>484.0</CODE>
+        <DESCRIPTION L="fr">Commonwealth des Bahamas</DESCRIPTION>
+        <DESCRIPTION L="nl">Gemenebest van de Bahamas</DESCRIPTION>
+        <DESCRIPTION L="en">Commonwealth of the Bahamas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>485.0</CODE>
+        <DESCRIPTION L="fr">Bermudes</DESCRIPTION>
+        <DESCRIPTION L="nl">Bermuda</DESCRIPTION>
+        <DESCRIPTION L="en">Bermuda</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>486.0</CODE>
+        <DESCRIPTION L="fr">Iles Vierges</DESCRIPTION>
+        <DESCRIPTION L="nl">Maagdeneilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Virgin Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>487.0</CODE>
+        <DESCRIPTION L="fr">Porto Rico</DESCRIPTION>
+        <DESCRIPTION L="nl">Puerto Rico</DESCRIPTION>
+        <DESCRIPTION L="en">Puerto Rico</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>488.0</CODE>
+        <DESCRIPTION L="fr">Turques-et-Caïques, Îles</DESCRIPTION>
+        <DESCRIPTION L="nl">Turks- en Caicoseilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Turks and Caicos Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>489.0</CODE>
+        <DESCRIPTION L="fr">British Honduras</DESCRIPTION>
+        <DESCRIPTION L="nl">British Honduras</DESCRIPTION>
+        <DESCRIPTION L="en">British Honduras</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>490.0</CODE>
+        <DESCRIPTION L="fr">Anguilla</DESCRIPTION>
+        <DESCRIPTION L="nl">Anguilla</DESCRIPTION>
+        <DESCRIPTION L="en">Anguilla</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>491.0</CODE>
+        <DESCRIPTION L="fr">Antigua(R.U.)</DESCRIPTION>
+        <DESCRIPTION L="nl">Antigua(V.K.)</DESCRIPTION>
+        <DESCRIPTION L="en">Antigua</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>492.0</CODE>
+        <DESCRIPTION L="fr">Caïmanes,Îles</DESCRIPTION>
+        <DESCRIPTION L="nl">Caymaneilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Cayman Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>493.0</CODE>
+        <DESCRIPTION L="fr">Montserrat</DESCRIPTION>
+        <DESCRIPTION L="nl">Montserrat</DESCRIPTION>
+        <DESCRIPTION L="en">Montserrat</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>494.0</CODE>
+        <DESCRIPTION L="fr">Sankt Kitts, Nevis et Anguilla</DESCRIPTION>
+        <DESCRIPTION L="nl">Sankt Kitts, Nevis en Anguilla</DESCRIPTION>
+        <DESCRIPTION L="en">Sankt Kitts, Nevis and Anguilla</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>495.0</CODE>
+        <DESCRIPTION L="fr">Saint-Pierre-et-Miquelon</DESCRIPTION>
+        <DESCRIPTION L="nl">Saint-Pierre en Miquelon</DESCRIPTION>
+        <DESCRIPTION L="en">Saint Pierre and Miquelon</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>496.0</CODE>
+        <DESCRIPTION L="fr">Guadeloupe</DESCRIPTION>
+        <DESCRIPTION L="nl">Guadeloupe</DESCRIPTION>
+        <DESCRIPTION L="en">Guadeloupe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>497.0</CODE>
+        <DESCRIPTION L="fr">Martinique</DESCRIPTION>
+        <DESCRIPTION L="nl">Martinique</DESCRIPTION>
+        <DESCRIPTION L="en">Martinique</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>498.0</CODE>
+        <DESCRIPTION L="fr">Groenland</DESCRIPTION>
+        <DESCRIPTION L="nl">Groenland</DESCRIPTION>
+        <DESCRIPTION L="en">Greenland</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>499.0</CODE>
+        <DESCRIPTION L="fr">Saint-Barthélemy</DESCRIPTION>
+        <DESCRIPTION L="nl">Saint-Barthélemy</DESCRIPTION>
+        <DESCRIPTION L="en">Saint-Barthélemy</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>511.0</CODE>
+        <DESCRIPTION L="fr">République Argentine</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Argentinië</DESCRIPTION>
+        <DESCRIPTION L="en">Argentine Republic</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>512.0</CODE>
+        <DESCRIPTION L="fr">État plurinational de Bolivie</DESCRIPTION>
+        <DESCRIPTION L="nl">Plurinationale Staat Bolivië</DESCRIPTION>
+        <DESCRIPTION L="en">Plurinational State of Bolivia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>513.0</CODE>
+        <DESCRIPTION L="fr">République fédérative du Brésil</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Republiek Brazilië</DESCRIPTION>
+        <DESCRIPTION L="en">Federative Republic of Brazil</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>514.0</CODE>
+        <DESCRIPTION L="fr">République du Chili</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Chili</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Chile</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>515.0</CODE>
+        <DESCRIPTION L="fr">République de Colombie</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Colombia</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Colombia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>516.0</CODE>
+        <DESCRIPTION L="fr">République d'Equateur</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Ecuador</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Ecuador</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>517.0</CODE>
+        <DESCRIPTION L="fr">République du Paraguay</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Paraguay</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Paraguay</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>518.0</CODE>
+        <DESCRIPTION L="fr">République du Pérou</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Peru</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Peru</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>519.0</CODE>
+        <DESCRIPTION L="fr">République orientale de l'Uruguay</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek ten oosten van de Uruguay</DESCRIPTION>
+        <DESCRIPTION L="en">Eastern Republic of Uruguay</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>520.0</CODE>
+        <DESCRIPTION L="fr">République Bolivarienne du Venezuela</DESCRIPTION>
+        <DESCRIPTION L="nl">Bolivariaanse Republiek Venezuela</DESCRIPTION>
+        <DESCRIPTION L="en">Bolivarian Republic of Venezuela</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>521.0</CODE>
+        <DESCRIPTION L="fr">République coopérative du Guyana</DESCRIPTION>
+        <DESCRIPTION L="nl">Coöperatieve Republiek Guyana</DESCRIPTION>
+        <DESCRIPTION L="en">Co-operative Republic of Guyana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>522.0</CODE>
+        <DESCRIPTION L="fr">République du Suriname</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Suriname</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Suriname</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>580.0</CODE>
+        <DESCRIPTION L="fr">Falkland, Iles (Malvinas)</DESCRIPTION>
+        <DESCRIPTION L="nl">Falklandeilanden (Malvinas)</DESCRIPTION>
+        <DESCRIPTION L="en">Falkland Islands (Malvinas)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>581.0</CODE>
+        <DESCRIPTION L="fr">Guyane Francaise</DESCRIPTION>
+        <DESCRIPTION L="nl">Frans-Guyana</DESCRIPTION>
+        <DESCRIPTION L="en">French Guiana</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>582.0</CODE>
+        <DESCRIPTION L="fr">British Honduras</DESCRIPTION>
+        <DESCRIPTION L="nl">British Honduras</DESCRIPTION>
+        <DESCRIPTION L="en">British Honduras</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>583.0</CODE>
+        <DESCRIPTION L="fr">République du Suriname</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Suriname</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Suriname</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>602.0</CODE>
+        <DESCRIPTION L="fr">Etats fédérés de Micronésie</DESCRIPTION>
+        <DESCRIPTION L="nl">Federale Staten Micronesië</DESCRIPTION>
+        <DESCRIPTION L="en">Micronesia, Federated States of</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>603.0</CODE>
+        <DESCRIPTION L="fr">République des Iles Marshal</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek der Marshalleilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of the Marshall Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>604.0</CODE>
+        <DESCRIPTION L="fr">République de Niue</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Niue</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Niue</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>605.0</CODE>
+        <DESCRIPTION L="fr">Iles Cook</DESCRIPTION>
+        <DESCRIPTION L="nl">Cookeilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Cook Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>606.0</CODE>
+        <DESCRIPTION L="fr">État indépendant du Samoa</DESCRIPTION>
+        <DESCRIPTION L="nl">Onafhankelijke Staat Samoa</DESCRIPTION>
+        <DESCRIPTION L="en">Independent State of Samoa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>607.0</CODE>
+        <DESCRIPTION L="fr">Kiribati</DESCRIPTION>
+        <DESCRIPTION L="nl">Kiribati</DESCRIPTION>
+        <DESCRIPTION L="en">Kiribati</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>607.1</CODE>
+        <DESCRIPTION L="fr">République de Kiribati</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Kiribati</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Kiribati</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>607.2</CODE>
+        <DESCRIPTION L="fr">Îles Canton et Enderbury</DESCRIPTION>
+        <DESCRIPTION L="nl">Canton en Enderbury Eilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Canton and Enderbury Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>611.0</CODE>
+        <DESCRIPTION L="fr">Australie</DESCRIPTION>
+        <DESCRIPTION L="nl">Australië</DESCRIPTION>
+        <DESCRIPTION L="en">Australia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>613.0</CODE>
+        <DESCRIPTION L="fr">Nouvelle-Zélande</DESCRIPTION>
+        <DESCRIPTION L="nl">Nieuw-Zeeland</DESCRIPTION>
+        <DESCRIPTION L="en">New Zealand</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>614.0</CODE>
+        <DESCRIPTION L="fr">État indépendant du Samoa</DESCRIPTION>
+        <DESCRIPTION L="nl">Onafhankelijke Staat Samoa</DESCRIPTION>
+        <DESCRIPTION L="en">Independent State of Samoa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>615.0</CODE>
+        <DESCRIPTION L="fr">République de Nauru</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Nauru</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Nauru</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>616.0</CODE>
+        <DESCRIPTION L="fr">Royaume des Tonga</DESCRIPTION>
+        <DESCRIPTION L="nl">Koninkrijk Tonga</DESCRIPTION>
+        <DESCRIPTION L="en">Kingdom of Tonga</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>617.0</CODE>
+        <DESCRIPTION L="fr">République des Îles Fidji</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Fiji</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of the Fiji Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>618.0</CODE>
+        <DESCRIPTION L="fr">Condominium des Nouvelles-Hébrides</DESCRIPTION>
+        <DESCRIPTION L="nl">Condominium van de Nieuwe Hebriden</DESCRIPTION>
+        <DESCRIPTION L="en">New Hebrides Condominium</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>619.0</CODE>
+        <DESCRIPTION L="fr">Papouasie-Nouvelle-Guinée</DESCRIPTION>
+        <DESCRIPTION L="nl">Papoea-Nieuw-Guinea</DESCRIPTION>
+        <DESCRIPTION L="en">Papua New Guinea</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>620.0</CODE>
+        <DESCRIPTION L="fr">Îles Du Pacifique (Territoire Sous Tutelle)</DESCRIPTION>
+        <DESCRIPTION L="nl">Trustgebied van de Pacifische Eilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Pacific Islands (Trust Territory)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>621.0</CODE>
+        <DESCRIPTION L="fr">Tuvalu</DESCRIPTION>
+        <DESCRIPTION L="nl">Tuvalu</DESCRIPTION>
+        <DESCRIPTION L="en">Tuvalu</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>622.0</CODE>
+        <DESCRIPTION L="fr">Îles Gilbert</DESCRIPTION>
+        <DESCRIPTION L="nl">Gilberteilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Gilbert Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>623.0</CODE>
+        <DESCRIPTION L="fr">Iles de Salomon</DESCRIPTION>
+        <DESCRIPTION L="nl">Salomonseilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Solomon Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>624.0</CODE>
+        <DESCRIPTION L="fr">République du Vanuatu</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Vanuatu</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Vanuatu</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>679.0</CODE>
+        <DESCRIPTION L="fr">République des Palaos</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Palau</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Palau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>680.0</CODE>
+        <DESCRIPTION L="fr">Archipel des Carolines</DESCRIPTION>
+        <DESCRIPTION L="nl">Archipel der Carolinen</DESCRIPTION>
+        <DESCRIPTION L="en">Archipelago of the Carolinas</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>681.0</CODE>
+        <DESCRIPTION L="fr">Guam</DESCRIPTION>
+        <DESCRIPTION L="nl">Guam</DESCRIPTION>
+        <DESCRIPTION L="en">Guam</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>682.0</CODE>
+        <DESCRIPTION L="fr">Hawaï</DESCRIPTION>
+        <DESCRIPTION L="nl">Hawaï</DESCRIPTION>
+        <DESCRIPTION L="en">Hawai</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>683.0</CODE>
+        <DESCRIPTION L="fr">Nouvelle-Calédonie</DESCRIPTION>
+        <DESCRIPTION L="nl">Nieuw-Caledonië</DESCRIPTION>
+        <DESCRIPTION L="en">New Caledonia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>684.0</CODE>
+        <DESCRIPTION L="fr">Polynesie Francaise</DESCRIPTION>
+        <DESCRIPTION L="nl">Frans-Polynesië</DESCRIPTION>
+        <DESCRIPTION L="en">French Polynesia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>685.0</CODE>
+        <DESCRIPTION L="fr">République de Niue</DESCRIPTION>
+        <DESCRIPTION L="nl">Republiek Niue</DESCRIPTION>
+        <DESCRIPTION L="en">Republic of Niue</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>686.0</CODE>
+        <DESCRIPTION L="fr">Tokelau</DESCRIPTION>
+        <DESCRIPTION L="nl">Tokelau</DESCRIPTION>
+        <DESCRIPTION L="en">Tokelau</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>687.0</CODE>
+        <DESCRIPTION L="fr">Iles Cook</DESCRIPTION>
+        <DESCRIPTION L="nl">Cookeilanden</DESCRIPTION>
+        <DESCRIPTION L="en">Cook Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>688.0</CODE>
+        <DESCRIPTION L="fr">Tahiti</DESCRIPTION>
+        <DESCRIPTION L="nl">Tahiti</DESCRIPTION>
+        <DESCRIPTION L="en">Tahiti</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>689.0</CODE>
+        <DESCRIPTION L="fr">Îles Wallis-et-Futuna</DESCRIPTION>
+        <DESCRIPTION L="nl">Wallis en Futuna</DESCRIPTION>
+        <DESCRIPTION L="en">Wallis and Futuna Islands</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>690.0</CODE>
+        <DESCRIPTION L="fr">Samoa Americaines</DESCRIPTION>
+        <DESCRIPTION L="nl">Amerikaans-Samoa</DESCRIPTION>
+        <DESCRIPTION L="en">American Samoa</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>691.0</CODE>
+        <DESCRIPTION L="fr">Territ sous tutelle américaine</DESCRIPTION>
+        <DESCRIPTION L="nl">Grondgeb.onder Amerik.voogdij</DESCRIPTION>
+        <DESCRIPTION L="en">territory under guardianship US</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>692.0</CODE>
+        <DESCRIPTION L="fr">Pitcairn</DESCRIPTION>
+        <DESCRIPTION L="nl">Pitcairn</DESCRIPTION>
+        <DESCRIPTION L="en">Pitcairn</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>693.0</CODE>
+        <DESCRIPTION L="fr">Territ.dép.de l'Australie</DESCRIPTION>
+        <DESCRIPTION L="nl">Grondgeb.afh.van Australië</DESCRIPTION>
+        <DESCRIPTION L="en">territory under guardianship Australia</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>694.0</CODE>
+        <DESCRIPTION L="fr">Territ.dép.de la Nelle Zélande</DESCRIPTION>
+        <DESCRIPTION L="nl">Grondgeb.afh. van Nieuw-Zeeland</DESCRIPTION>
+        <DESCRIPTION L="en">territory under guardianship New Zealand</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>999.0</CODE>
+        <DESCRIPTION L="fr">Inconnu</DESCRIPTION>
+        <DESCRIPTION L="nl">Onbekend</DESCRIPTION>
+        <DESCRIPTION L="en">Unknown</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

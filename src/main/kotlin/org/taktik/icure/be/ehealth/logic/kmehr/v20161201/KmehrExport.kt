@@ -166,7 +166,7 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 0 <= FuzzyValues.getCurrentFuzzyDate())) {
+                value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
                 } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
@@ -174,9 +174,9 @@ open class KmehrExport {
                 }
 			} }
             if(cdItem == "medication") {
-                svc.tags.find { it.type == "CD-TEMPORALITY" }?.let {
+                svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
@@ -272,7 +272,7 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (ServiceStatus.isIrrelevant(he.status) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
+                value = if (ServiceStatus.isIrrelevant(he.status) || (!ServiceStatus.isActive(he.status)) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
 					CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE

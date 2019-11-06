@@ -1,0 +1,959 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Allergen</NAME>
+    <VALUE>
+        <CODE>90260006</CODE>
+        <DESCRIPTION L="en">allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406465008</CODE>
+        <DESCRIPTION L="en">food allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène alimentaire</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406473004</CODE>
+        <DESCRIPTION L="en">contact allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène de contact</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>410980008</CODE>
+        <DESCRIPTION L="en">dust allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène de poussière</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406470001</CODE>
+        <DESCRIPTION L="en">insect allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène d'insecte</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406468005</CODE>
+        <DESCRIPTION L="en">microorganism allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène de microorganisme</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406467000</CODE>
+        <DESCRIPTION L="en">mite allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène de mite</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406469002</CODE>
+        <DESCRIPTION L="en">occupational allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène professionnel</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>410981007</CODE>
+        <DESCRIPTION L="en">plant extract and epidermal allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène d'extrait de plante et d'épiderme</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406464007</CODE>
+        <DESCRIPTION L="en">pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène pollinique</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256443002</CODE>
+        <DESCRIPTION L="en">egg white</DESCRIPTION>
+        <DESCRIPTION L="fr">blanc d'œuf</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f1</IMUNOCAP>
+        <LOINC>6106-9</LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>3718001</CODE>
+        <DESCRIPTION L="en">cow's milk</DESCRIPTION>
+        <DESCRIPTION L="fr">lait de vache</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f2</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>102698008</CODE>
+        <DESCRIPTION L="en">alpha-Lactalbumin</DESCRIPTION>
+        <DESCRIPTION L="fr">alpha-lactalbumine</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f76</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>50593009</CODE>
+        <DESCRIPTION L="en">casein</DESCRIPTION>
+        <DESCRIPTION L="fr">caséine</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f78</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411637005</CODE>
+        <DESCRIPTION L="en">beta-lactoglobulin extract</DESCRIPTION>
+        <DESCRIPTION L="fr">beta-lactoglobuline</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f77</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>product</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>226818000</CODE>
+        <DESCRIPTION L="en">hard cheese</DESCRIPTION>
+        <DESCRIPTION L="fr">fromage à pâte dure</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f81</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>102264005</CODE>
+        <DESCRIPTION L="en">cheese</DESCRIPTION>
+        <DESCRIPTION L="fr">fromage</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256442007</CODE>
+        <DESCRIPTION L="en">egg yolk</DESCRIPTION>
+        <DESCRIPTION L="fr">jaune d'œuf</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f75</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>230024006</CODE>
+        <DESCRIPTION L="en">cod - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">cabillaud</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP>f3</IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>230027004</CODE>
+        <DESCRIPTION L="en">salmon - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">saumon</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>227144008</CODE>
+        <DESCRIPTION L="en">tuna fish</DESCRIPTION>
+        <DESCRIPTION L="fr">thon</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>230029001</CODE>
+        <DESCRIPTION L="en">crab - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">crabe</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>227151004</CODE>
+        <DESCRIPTION L="en">prawns</DESCRIPTION>
+        <DESCRIPTION L="fr">crevette</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>230031005</CODE>
+        <DESCRIPTION L="en">lobster - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">homard</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>230032003</CODE>
+        <DESCRIPTION L="en">oyster - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">huître</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>227150003</CODE>
+        <DESCRIPTION L="en">mussels</DESCRIPTION>
+        <DESCRIPTION L="fr">moule</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>226934003</CODE>
+        <DESCRIPTION L="en">pork</DESCRIPTION>
+        <DESCRIPTION L="fr">viande de porc</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>226916002</CODE>
+        <DESCRIPTION L="en">beef</DESCRIPTION>
+        <DESCRIPTION L="fr">viande de bœuf</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>226942002</CODE>
+        <DESCRIPTION L="en">lamb - meat</DESCRIPTION>
+        <DESCRIPTION L="fr">viande de mouton</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>226955001</CODE>
+        <DESCRIPTION L="en">chicken - meat</DESCRIPTION>
+        <DESCRIPTION L="fr">viande de poulet</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>412071004</CODE>
+        <DESCRIPTION L="en">wheat</DESCRIPTION>
+        <DESCRIPTION L="fr">froment</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>412068007</CODE>
+        <DESCRIPTION L="en">rye</DESCRIPTION>
+        <DESCRIPTION L="fr">seigle</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>278839003</CODE>
+        <DESCRIPTION L="en">barley - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">orge</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>418504009</CODE>
+        <DESCRIPTION L="en">oats</DESCRIPTION>
+        <DESCRIPTION L="fr">avoine</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>89811004</CODE>
+        <DESCRIPTION L="en">gluten</DESCRIPTION>
+        <DESCRIPTION L="fr">gluten</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>412357001</CODE>
+        <DESCRIPTION L="en">corn</DESCRIPTION>
+        <DESCRIPTION L="fr">maïs</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>67324005</CODE>
+        <DESCRIPTION L="en">rice</DESCRIPTION>
+        <DESCRIPTION L="fr">riz</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260167008</CODE>
+        <DESCRIPTION L="en">sesame seed</DESCRIPTION>
+        <DESCRIPTION L="fr">sésame</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>226723006</CODE>
+        <DESCRIPTION L="en">buckwheat - cereal</DESCRIPTION>
+        <DESCRIPTION L="fr">sarrasin</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260184002</CODE>
+        <DESCRIPTION L="en">peas</DESCRIPTION>
+        <DESCRIPTION L="fr">pois</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256349002</CODE>
+        <DESCRIPTION L="en">peanut - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">arachide</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256355007</CODE>
+        <DESCRIPTION L="en">soya bean</DESCRIPTION>
+        <DESCRIPTION L="fr">soja</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260168003</CODE>
+        <DESCRIPTION L="en">white bean</DESCRIPTION>
+        <DESCRIPTION L="fr">haricot blanc</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256353000</CODE>
+        <DESCRIPTION L="en">hazelnut</DESCRIPTION>
+        <DESCRIPTION L="fr">noisette</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256350002</CODE>
+        <DESCRIPTION L="en">almond</DESCRIPTION>
+        <DESCRIPTION L="fr">amande</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256352005</CODE>
+        <DESCRIPTION L="en">walnut - nut</DESCRIPTION>
+        <DESCRIPTION L="fr">noix</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260171006</CODE>
+        <DESCRIPTION L="en">coconut - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">noix de coco</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256310000</CODE>
+        <DESCRIPTION L="en">cherry - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">cerise</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256306003</CODE>
+        <DESCRIPTION L="en">orange - fruit</DESCRIPTION>
+        <DESCRIPTION L="fr">orange</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256311001</CODE>
+        <DESCRIPTION L="en">apple - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">pomme</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>102261002</CODE>
+        <DESCRIPTION L="en">strawberry</DESCRIPTION>
+        <DESCRIPTION L="fr">fraise</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260176001</CODE>
+        <DESCRIPTION L="en">kiwi fruit</DESCRIPTION>
+        <DESCRIPTION L="fr">kiwi</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260177005</CODE>
+        <DESCRIPTION L="en">melon</DESCRIPTION>
+        <DESCRIPTION L="fr">melon</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260179008</CODE>
+        <DESCRIPTION L="en">mango fruit</DESCRIPTION>
+        <DESCRIPTION L="fr">mangue</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256307007</CODE>
+        <DESCRIPTION L="en">banana</DESCRIPTION>
+        <DESCRIPTION L="fr">banane</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256314009</CODE>
+        <DESCRIPTION L="en">pear - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">poire</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256309005</CODE>
+        <DESCRIPTION L="en">peach - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">pêche</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260190003</CODE>
+        <DESCRIPTION L="en">avocado - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">avocat</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256308002</CODE>
+        <DESCRIPTION L="en">lemon - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">citron</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256315005</CODE>
+        <DESCRIPTION L="en">grapefruit</DESCRIPTION>
+        <DESCRIPTION L="fr">pamplemousse</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>102262009</CODE>
+        <DESCRIPTION L="en">chocolate</DESCRIPTION>
+        <DESCRIPTION L="fr">chocolat</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256327008</CODE>
+        <DESCRIPTION L="en">tomato - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">tomate</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256319004</CODE>
+        <DESCRIPTION L="en">carrot</DESCRIPTION>
+        <DESCRIPTION L="fr">carotte</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260170007</CODE>
+        <DESCRIPTION L="en">potato - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">pomme de terre</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>58296003</CODE>
+        <DESCRIPTION L="en">Saccharomyces cerevisiae</DESCRIPTION>
+        <DESCRIPTION L="fr">levure de bière</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>organism</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260172004</CODE>
+        <DESCRIPTION L="en">garlic - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">ail</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256323007</CODE>
+        <DESCRIPTION L="en">onion - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">oignon</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>227252000</CODE>
+        <DESCRIPTION L="en">mushroom - dietary</DESCRIPTION>
+        <DESCRIPTION L="fr">champignons</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260152009</CODE>
+        <DESCRIPTION L="en">cat dander</DESCRIPTION>
+        <DESCRIPTION L="fr">squames de chat</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256409006</CODE>
+        <DESCRIPTION L="en">cat epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de chat</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256411002</CODE>
+        <DESCRIPTION L="en">dog epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de chien</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256417003</CODE>
+        <DESCRIPTION L="en">horse dander</DESCRIPTION>
+        <DESCRIPTION L="fr">squames de cheval</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260153004</CODE>
+        <DESCRIPTION L="en">cow dander</DESCRIPTION>
+        <DESCRIPTION L="fr">squames de vache</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260154005</CODE>
+        <DESCRIPTION L="en">dog dander</DESCRIPTION>
+        <DESCRIPTION L="fr">squames de chien</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256415006</CODE>
+        <DESCRIPTION L="en">guinea-pig epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de cobaye</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256422003</CODE>
+        <DESCRIPTION L="en">rat epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de rat</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256413004</CODE>
+        <DESCRIPTION L="en">goat epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de chèvre</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260162002</CODE>
+        <DESCRIPTION L="en">sheep epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de mouton</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260164001</CODE>
+        <DESCRIPTION L="en">hamster epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de hamster</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256421005</CODE>
+        <DESCRIPTION L="en">rabbit epithelium</DESCRIPTION>
+        <DESCRIPTION L="fr">épithélium de lapin</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260156007</CODE>
+        <DESCRIPTION L="en">mouse urine proteins</DESCRIPTION>
+        <DESCRIPTION L="fr">protéine urinaire de souris</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260155006</CODE>
+        <DESCRIPTION L="en">pigeon droppings</DESCRIPTION>
+        <DESCRIPTION L="fr">excréments de pigeon</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>260160005</CODE>
+        <DESCRIPTION L="en">budgerigar droppings</DESCRIPTION>
+        <DESCRIPTION L="fr">excréments de perruche</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256414005</CODE>
+        <DESCRIPTION L="en">goose feathers</DESCRIPTION>
+        <DESCRIPTION L="fr">plumes d'oie</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256416007</CODE>
+        <DESCRIPTION L="en">Hen feathers</DESCRIPTION>
+        <DESCRIPTION L="fr">plumes de poule</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256412009</CODE>
+        <DESCRIPTION L="en">duck feathers</DESCRIPTION>
+        <DESCRIPTION L="fr">plumes de canard</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411569006</CODE>
+        <DESCRIPTION L="en">canary feathers extract (product)</DESCRIPTION>
+        <DESCRIPTION L="fr">plumes de canari</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>product</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>406472009</CODE>
+        <DESCRIPTION L="en">animal protein and epidermal allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">allergène de protéine animale et d'épiderme</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256277009</CODE>
+        <DESCRIPTION L="en">grass pollen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de graminée</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411040006</CODE>
+        <DESCRIPTION L="en">sweet vernal pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de flouve odorante</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411027001</CODE>
+        <DESCRIPTION L="en">couch grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de chiendent</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256278004</CODE>
+        <DESCRIPTION L="en">orchard grass pollen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de dactyle pelotonné</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256279007</CODE>
+        <DESCRIPTION L="en">meadow fescue pollen</DESCRIPTION>
+        <DESCRIPTION L="fr">fétuque des prés</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256280005</CODE>
+        <DESCRIPTION L="en">rye grass pollen</DESCRIPTION>
+        <DESCRIPTION L="fr">ray-grass anglais</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>256281009</CODE>
+        <DESCRIPTION L="en">Timothy grass pollen</DESCRIPTION>
+        <DESCRIPTION L="fr">fléole des prés</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411026005</CODE>
+        <DESCRIPTION L="en">common reed pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">roseau</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+     <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411034004</CODE>
+        <DESCRIPTION L="en">Kentucky blue grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de pâturin des prés</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411021000</CODE>
+        <DESCRIPTION L="en">bent grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen d'agrostide</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411032000</CODE>
+        <DESCRIPTION L="en">Johnson grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de sorgho d'Alep</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411023002</CODE>
+        <DESCRIPTION L="en">brome grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de brome</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411029003</CODE>
+        <DESCRIPTION L="en">cultivated rye pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de seigle</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411042003</CODE>
+        <DESCRIPTION L="en">velvet grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de houlque laineuse</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411028006</CODE>
+        <DESCRIPTION L="en">cultivated oat pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen d'avoine</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411030008</CODE>
+        <DESCRIPTION L="en">cultivated wheat pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de froment</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411036002</CODE>
+        <DESCRIPTION L="en">meadow foxtail pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen de vulpin des prés</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+    <VALUE>
+        <CODE>411020004</CODE>
+        <DESCRIPTION L="en">Bahia grass pollen allergen</DESCRIPTION>
+        <DESCRIPTION L="fr">pollen d'herbe de Bahia</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <IMUNOCAP></IMUNOCAP>
+        <LOINC></LOINC>
+        <ALLERGEN-TYPE>substance</ALLERGEN-TYPE>
+    </VALUE>
+</kmehr-cd>

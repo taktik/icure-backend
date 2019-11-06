@@ -10,7 +10,6 @@ import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDPATIENTWILLvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
@@ -248,7 +247,7 @@ class SumehrExportTest {
         val excludedIds = listOf("")
 
         //Execution
-        val md5 = sumehrExport.getMd5(hcPartyId, patient, sfks, excludedIds)
+        val md5 = sumehrExport.getMd5(hcPartyId, patient, sfks, excludedIds, false)
 
         //Tests
         assertNotNull(md5)
@@ -308,7 +307,7 @@ class SumehrExportTest {
         val excludedIds = listOf("excludedId")
 
         // Execution
-        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, decryptor)
+        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(file1)
@@ -340,7 +339,7 @@ class SumehrExportTest {
         this.services.add(listOf(Service().apply { id = "healthcareelement"; endOfLife = null; status = 0; tags = validTags; label = medicationLabel; content = validContent; openingDate = oneWeekAgo; closingDate = today }))
 
         // Execute
-        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, "fr", config, "comment", excludedIds, decryptor)
+        sumehrExport.fillPatientFolder(folder, patient, sfks, sender, "fr", config, "comment", excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(folder)
@@ -438,7 +437,7 @@ class SumehrExportTest {
         this.services.add(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
 
         //Execution
-        val services = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
+        val services = sumehrExport.getActiveServices(hcPartyId, sfks, cdItems, excludedIds, false, decryptor)
 
         //Tests
         ///All services
@@ -654,7 +653,7 @@ class SumehrExportTest {
         val excludedIds = listOf("excluded")
 
         // Execute
-        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds)
+        val res1 = sumehrExport.getHealthElements(hcPartyId, sfks, excludedIds, false, mutableListOf())
 
         // Tests
         val size = healthElementLogic.findLatestByHCPartySecretPatientKeys(hcPartyId, sfks).size
@@ -701,7 +700,7 @@ class SumehrExportTest {
 
         // Execution
         val cdItems = listOf("vaccine")
-        val services1 = sumehrExport.getNonPassiveIrrelevantServices(hcPartyId, sfks, cdItems, excludedIds, decryptor)
+        val services1 = sumehrExport.getActiveServices(hcPartyId, sfks, cdItems, excludedIds, false, decryptor)
         val services2 = sumehrExport.getVaccines(hcPartyId, sfks, excludedIds, decryptor)
 
         // Tests
@@ -771,7 +770,7 @@ class SumehrExportTest {
         ))
 
         // Execute
-        sumehrExport.addNonPassiveIrrelevantServicesAsCD(hcPartyId, sfks, transaction, cdItem, type, values, excludedIds, decryptor)
+        sumehrExport.addActiveServicesAsCD(hcPartyId, sfks, transaction, cdItem, type, values, excludedIds, false, decryptor)
 
         // Tests
         assertNotNull(transaction)

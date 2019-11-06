@@ -2,7 +2,9 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 import org.taktik.icure.entities.base.CodeStub;
 
-public class SchoolingInfoDto {
+import java.io.Serializable;
+
+public class SchoolingInfoDto implements Serializable {
     private Long startDate;
     private Long endDate;
     private String school;

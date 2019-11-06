@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Patient will response</NAME>
+    <VALUE>
+        <CODE>consent</CODE>
+        <DESCRIPTION L="fr">Consentement</DESCRIPTION>
+        <DESCRIPTION L="nl">Toestemming</DESCRIPTION>
+        <DESCRIPTION L="en">Consent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>noconsent</CODE>
+        <DESCRIPTION L="fr">Pas de consentement</DESCRIPTION>
+        <DESCRIPTION L="nl">Geen toestemming</DESCRIPTION>
+        <DESCRIPTION L="en">No consent</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>notasked</CODE>
+        <DESCRIPTION L="fr">Pas demandé</DESCRIPTION>
+        <DESCRIPTION L="nl">Niet gevraagd</DESCRIPTION>
+        <DESCRIPTION L="en">Not asked</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

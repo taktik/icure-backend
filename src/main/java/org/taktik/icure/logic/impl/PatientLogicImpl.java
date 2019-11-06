@@ -18,6 +18,7 @@
 
 package org.taktik.icure.logic.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import ma.glasnost.orika.MapperFacade;
@@ -39,6 +40,7 @@ import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Delegation;
+import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.entities.embed.PatientHealthCareParty;
 import org.taktik.icure.entities.embed.ReferralPeriod;
 import org.taktik.icure.exceptions.DocumentNotFoundException;
@@ -129,7 +131,12 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
         return patientDAO.listIdsByHcPartyAndDateOfBirth(date, healthcarePartyId);
     }
 
-	@Override
+    @Override
+    public List<String> listByHcPartyGenderEducationProfessionIdsOnly(String healthcarePartyId, Gender gender, String education, String profession) {
+        return patientDAO.listIdsByHcPartyGenderEducationProfession(healthcarePartyId, gender, education, profession);
+    }
+
+    @Override
 	public List<String> listByHcPartyDateOfBirthIdsOnly(Integer startDate, Integer endDate, String healthcarePartyId) {
 		return patientDAO.listIdsByHcPartyAndDateOfBirth(startDate, endDate, healthcarePartyId);
 	}
@@ -569,6 +576,16 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	@Override
 	public PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, Long startKey, String startDocumentId, Integer limit) {
 		return patientDAO.listOfPatientsModifiedAfter(date, new PaginationOffset<>(startKey, startDocumentId, 0, limit == null ? 1000 : limit ));
+	}
+
+	@Override
+	public PaginatedList<Patient> getDuplicatePatientsBySsin(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
+    	return this.patientDAO.getDuplicatePatientsBySsin(healthcarePartyId, paginationOffset);
+  	}
+
+  	@Override
+	public PaginatedList<Patient> getDuplicatePatientsByName(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
+		return this.patientDAO.getDuplicatePatientsByName(healthcarePartyId, paginationOffset);
 	}
 
 	@Override

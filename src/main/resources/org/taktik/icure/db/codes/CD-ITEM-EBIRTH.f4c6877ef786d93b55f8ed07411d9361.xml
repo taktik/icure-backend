@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2009-08-04</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>eBirth Item Type</NAME>
+  <VALUE>
+    <CODE>HIVdiagnose</CODE>
+    <DESCRIPTION L='de'>HIV</DESCRIPTION>
+    <DESCRIPTION L='fr'>HIV</DESCRIPTION>
+    <DESCRIPTION L='en'>HIV</DESCRIPTION>
+    <DESCRIPTION L='nl'>VIH</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>apgarscore1</CODE>
+    <DESCRIPTION L='de'>Apgar-Index: nach 1 Minute</DESCRIPTION>
+    <DESCRIPTION L='fr'>Apgar-score: na 1 min</DESCRIPTION>
+    <DESCRIPTION L='en'>Apgar score: after 1 min</DESCRIPTION>
+    <DESCRIPTION L='nl'>indice d'Apgar: après 1 min</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>apgarscore5</CODE>
+    <DESCRIPTION L='de'>Apgar-Index: nach 5 Minuten</DESCRIPTION>
+    <DESCRIPTION L='fr'>Apgar-score: na 5 min</DESCRIPTION>
+    <DESCRIPTION L='en'>Apgar score: after 5 min</DESCRIPTION>
+    <DESCRIPTION L='nl'>indice d'Apgar: après 5 min</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>artificialrespiration</CODE>
+    <DESCRIPTION L='de'>Künstliche Beatmung des Neugeborenen (unmittelbare Behandlung)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Beademing van pasgeborene (onmiddelijke zorgen) </DESCRIPTION>
+    <DESCRIPTION L='en'>Artificial respiration to the newborn baby (immediate care)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Ventilation du nouveau-né (soins immédiats)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>atbirthweight</CODE>
+    <DESCRIPTION L='de'>Gewicht bei der Geburt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Geboortegewicht</DESCRIPTION>
+    <DESCRIPTION L='en'>Weight at birth</DESCRIPTION>
+    <DESCRIPTION L='nl'>Poids à la naissance</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>atdeliveryweight</CODE>
+    <DESCRIPTION L='de'>Gewicht der Mutter bei ihrem Eingang im Entbindungsaal</DESCRIPTION>
+    <DESCRIPTION L='fr'>Gewicht van de moeder bij aankomst in het verloskwartier</DESCRIPTION>
+    <DESCRIPTION L='en'>Weight of the mother at her entrance in the delivery room </DESCRIPTION>
+    <DESCRIPTION L='nl'>Poids de la mère à l'entrée en la salle d'accouchement</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>beforepregnancyweight</CODE>
+    <DESCRIPTION L='de'>Gewicht der Mutter vor der Schwangerschaft</DESCRIPTION>
+    <DESCRIPTION L='fr'>Gewicht van de moeder voor de zwangerschap</DESCRIPTION>
+    <DESCRIPTION L='en'>Weight of the mother before the current pregnancy </DESCRIPTION>
+    <DESCRIPTION L='nl'>Poids de la mère avant la grossesse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>birthplace</CODE>
+    <DESCRIPTION L='en'>place of birth</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>birthrank</CODE>
+    <DESCRIPTION L='en'>baby birth rank</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>breastfeeding</CODE>
+    <DESCRIPTION L='de'>Kind zu stillen</DESCRIPTION>
+    <DESCRIPTION L='fr'>Borstvoeding  </DESCRIPTION>
+    <DESCRIPTION L='en'>Baby breast-feed</DESCRIPTION>
+    <DESCRIPTION L='nl'>Allaitement de l'enfant</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>caesareanindication</CODE>
+    <DESCRIPTION L='de'>Indikation des Kaiserschnitts</DESCRIPTION>
+    <DESCRIPTION L='fr'>Indicatie(s) voor sectio</DESCRIPTION>
+    <DESCRIPTION L='en'>Indication(s) for caesarean section</DESCRIPTION>
+    <DESCRIPTION L='nl'>indication(s) de la césarienne</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>childposition</CODE>
+    <DESCRIPTION L='de'>Lage des Kindes vor der Geburt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ligging van het kind bij de geboorte</DESCRIPTION>
+    <DESCRIPTION L='en'>Position of the child at birth</DESCRIPTION>
+    <DESCRIPTION L='nl'>Présentation de l’enfant à la naissance</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>congenitalmalformation</CODE>
+    <DESCRIPTION L='de'>Schwere Geburtsfehler</DESCRIPTION>
+    <DESCRIPTION L='fr'>Majeure misvormingen (gedetecteerd bij de geboorte)</DESCRIPTION>
+    <DESCRIPTION L='en'>Major congenital malformation (detected at birth)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Malformations congénitales majeures (lors de la naissance)</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>deliveryway</CODE>
+    <DESCRIPTION L='de'>Methode der Entbindung</DESCRIPTION>
+    <DESCRIPTION L='fr'>Wijze van verlossing</DESCRIPTION>
+    <DESCRIPTION L='en'>Way of delivery</DESCRIPTION>
+    <DESCRIPTION L='nl'>Mode d'accouchement</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>diabetesdiagnose</CODE>
+    <DESCRIPTION L='de'>Diabetes</DESCRIPTION>
+    <DESCRIPTION L='fr'>Diabetes</DESCRIPTION>
+    <DESCRIPTION L='en'>Diabetes</DESCRIPTION>
+    <DESCRIPTION L='nl'>Diabète</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>epiduralanalgesia</CODE>
+    <DESCRIPTION L='de'>Periduralanästhesie </DESCRIPTION>
+    <DESCRIPTION L='fr'>Epidurale analgesie </DESCRIPTION>
+    <DESCRIPTION L='en'>Epidural analgesia</DESCRIPTION>
+    <DESCRIPTION L='nl'>Analgésie péridurale </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>episiotomy</CODE>
+    <DESCRIPTION L='de'>(Dammschnitt) Episiotomie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Episiotomie</DESCRIPTION>
+    <DESCRIPTION L='en'>Episiotomy</DESCRIPTION>
+    <DESCRIPTION L='nl'>Episiotomie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>foetalmonitoring</CODE>
+    <DESCRIPTION L='de'>Fötusüberwachung während der Beschäftigungszeit</DESCRIPTION>
+    <DESCRIPTION L='fr'>Foetale bewaking</DESCRIPTION>
+    <DESCRIPTION L='en'>Monitoring (control) foetal</DESCRIPTION>
+    <DESCRIPTION L='nl'>Surveillance fœtale pendant le travail</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>height</CODE>
+    <DESCRIPTION L='de'>Größe der Mutter </DESCRIPTION>
+    <DESCRIPTION L='fr'>Lengte van de moeder</DESCRIPTION>
+    <DESCRIPTION L='en'>Height of the mother</DESCRIPTION>
+    <DESCRIPTION L='nl'>Taille de la mère</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>hypertensiondiagnose</CODE>
+    <DESCRIPTION L='de'>Hypertonie ((&gt;= 140 / &gt;= 90 mm Hg) während dieser Schwangerschaft</DESCRIPTION>
+    <DESCRIPTION L='fr'>Hypertensie (&gt;= 140 / &gt;= 90 mm Hg) in deze zwangerschap</DESCRIPTION>
+    <DESCRIPTION L='en'>Hypertension ((&gt;= 140 / &gt;= 90 mm Hg)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Hypertension ((&gt;= 140 / &gt;= 90 mm Hg) durant cette grossesse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>inductiondelivery</CODE>
+    <DESCRIPTION L='de'>Geburtseinleitung </DESCRIPTION>
+    <DESCRIPTION L='fr'>Inductie van de baring</DESCRIPTION>
+    <DESCRIPTION L='en'>Induction of the delivery</DESCRIPTION>
+    <DESCRIPTION L='nl'>Induction de l'accouchement</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>intermediatestillborndelivery</CODE>
+    <DESCRIPTION L='en'>intermediate delivery of a stillborn baby</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>intrapartalsbgprophylaxis</CODE>
+    <DESCRIPTION L='de'>Intrapartale Antibiotikaprophylaxe</DESCRIPTION>
+    <DESCRIPTION L='fr'>Intrapartale toediening van GBS profylaxe (peni, ampi)</DESCRIPTION>
+    <DESCRIPTION L='en'>Intrapartal operation of SBG prophylaxis (peni, ampi)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Antibioprophylaxie intrapartale du streptocoque B</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>lastbabybirthdate</CODE>
+    <DESCRIPTION L='de'>Geburtsdatum des zuletzt lebendgeborenen Kindes</DESCRIPTION>
+    <DESCRIPTION L='fr'>Geboortedatum van het laatste levendgeboren kindje</DESCRIPTION>
+    <DESCRIPTION L='en'>Date of birth of the last baby born alive</DESCRIPTION>
+    <DESCRIPTION L='nl'>Date de naissance du dernier enfant né vivant </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>multiparity</CODE>
+    <DESCRIPTION L='de'>Zwillinge, Drillinge, Mehrlinge</DESCRIPTION>
+    <DESCRIPTION L='fr'>Meerlingzwangerschap</DESCRIPTION>
+    <DESCRIPTION L='en'>Multiple pregnancy</DESCRIPTION>
+    <DESCRIPTION L='nl'>Grossesse multiple</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>neonataldept</CODE>
+    <DESCRIPTION L='de'>Transfer zur postnatalen Station</DESCRIPTION>
+    <DESCRIPTION L='fr'>Transfer naar neonatale afdeling</DESCRIPTION>
+    <DESCRIPTION L='en'>Transfer to neonatal department </DESCRIPTION>
+    <DESCRIPTION L='nl'>Transfert vers un département néonatal</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>parity</CODE>
+    <DESCRIPTION L='de'>Parität (diese Schwangerschaft inbegriffen)</DESCRIPTION>
+    <DESCRIPTION L='fr'>Pariteit (deze bevalling inbegrepen)</DESCRIPTION>
+    <DESCRIPTION L='en'>Parity (this delivery included)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Parité (cet accouchement inclus) </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>partusnumber</CODE>
+    <DESCRIPTION L='de'>Klassifikation der Geburt </DESCRIPTION>
+    <DESCRIPTION L='fr'>Partusnummer</DESCRIPTION>
+    <DESCRIPTION L='en'>Partus number </DESCRIPTION>
+    <DESCRIPTION L='nl'>Classification de l'accouchement </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pregnancyduration</CODE>
+    <DESCRIPTION L='de'>Anzahl der Schwangerschaftswochen bis zur Geburt</DESCRIPTION>
+    <DESCRIPTION L='fr'>Zwangerschapsduur bij de bevalling </DESCRIPTION>
+    <DESCRIPTION L='en'>Duration of the pregnancy till the delivery</DESCRIPTION>
+    <DESCRIPTION L='nl'>Durée de la grossesse jusqu'à l'accouchement </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>pregnancyorigin</CODE>
+    <DESCRIPTION L='de'>Entstehung der Schwangerschaft</DESCRIPTION>
+    <DESCRIPTION L='fr'>Ontstaan zwangerschap</DESCRIPTION>
+    <DESCRIPTION L='en'>Origin of the pregnancy</DESCRIPTION>
+    <DESCRIPTION L='nl'>Conception de la grossesse </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>previousbornalive</CODE>
+    <DESCRIPTION L='de'>Summe der lebendgeborenen Kinder</DESCRIPTION>
+    <DESCRIPTION L='fr'>Aantal levendgeboren kinderen</DESCRIPTION>
+    <DESCRIPTION L='en'>Total number of born-alive baby(s)</DESCRIPTION>
+    <DESCRIPTION L='nl'>Nombre total d’enfants nés vivants</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>previouscaesarean</CODE>
+    <DESCRIPTION L='de'>Kaiserschnitt bei früheren Schwangerschaften  </DESCRIPTION>
+    <DESCRIPTION L='fr'>Keizersnede bij een vorige zwangerschap</DESCRIPTION>
+    <DESCRIPTION L='en'>Caesarean section during a previous delivery</DESCRIPTION>
+    <DESCRIPTION L='nl'>Césarienne pour une précédente grossesse </DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>previouschildbirth</CODE>
+    <DESCRIPTION L='de'>Entbindungen vor dieser Schwangerschaft </DESCRIPTION>
+    <DESCRIPTION L='fr'>Geboorten vóór deze zwangerschap</DESCRIPTION>
+    <DESCRIPTION L='en'>Childbirth(s) before this pregnancy</DESCRIPTION>
+    <DESCRIPTION L='nl'>Naissance(s) avant cette grossesse</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>rachianalagesia</CODE>
+    <DESCRIPTION L='de'>Spinalanästhesie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Rachi analgesie</DESCRIPTION>
+    <DESCRIPTION L='en'>Rachi analgesia</DESCRIPTION>
+    <DESCRIPTION L='nl'>Rachianesthésie</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>samesex</CODE>
+    <DESCRIPTION L='en'>Structure by sex of the multiple pregnancy</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>stillborn</CODE>
+    <DESCRIPTION L='en'>number of stillborn babies</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>streptococcusbcolonization</CODE>
+    <DESCRIPTION L='de'>B-Streptokokken Kolonisation</DESCRIPTION>
+    <DESCRIPTION L='fr'>Groep B streptococcen kolonisatie</DESCRIPTION>
+    <DESCRIPTION L='en'>Colonization of streptococcus of B group</DESCRIPTION>
+    <DESCRIPTION L='nl'>Colonisation par le streptocoque du groupe B</DESCRIPTION>
+  </VALUE>
+</kmehr-cd>

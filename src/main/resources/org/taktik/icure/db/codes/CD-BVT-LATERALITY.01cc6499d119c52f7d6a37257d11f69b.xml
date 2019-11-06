@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+  <VERSION>1</VERSION>
+  <DATE>2011-07-01</DATE>
+  <STATUS>Draft</STATUS>
+  <NAME>BVT Sample Laterality</NAME>
+  <VALUE>
+    <CODE>left</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>odd</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>right</CODE>
+  </VALUE>
+  <VALUE>
+    <CODE>unknown</CODE>
+  </VALUE>
+</kmehr-cd>

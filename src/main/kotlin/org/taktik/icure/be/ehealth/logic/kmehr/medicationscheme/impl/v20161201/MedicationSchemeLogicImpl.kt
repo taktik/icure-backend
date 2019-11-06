@@ -39,15 +39,39 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
                                    val medicationSchemeImport: MedicationSchemeImport) : MedicationSchemeLogic {
 
     override fun importMedicationSchemeFile(inputStream: InputStream,
-                               author: User,
-                               language: String,
-                               dest: Patient?,
-                               mappings: Map<String, List<ImportMapping>>
-                              ) : List<ImportResult> {
-        return medicationSchemeImport!!.importMedicationSchemeFile(inputStream, author, language, mappings, dest)
+                                            author: User,
+                                            language: String,
+                                            dest: Patient?,
+                                            mappings: Map<String, List<ImportMapping>>,
+                                            saveToDatabase: Boolean
+    ) : List<ImportResult> {
+        return medicationSchemeImport!!.importMedicationSchemeFile(inputStream, author, language, mappings, saveToDatabase, dest)
     }
 
-    override fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
-        medicationSchemeExport!!.exportMedicationScheme(os, patient, sfks, sender, language, version, decryptor, progressor)
+    override fun createMedicationSchemeExport(
+            os: OutputStream,
+            patient: Patient,
+            sfks: List<String>,
+            sender: HealthcareParty,
+            language: String,
+            recipientSafe: String,
+            version: Int,
+            decryptor: AsyncDecrypt?,
+            progressor: AsyncProgress?
+    ) {
+        medicationSchemeExport!!.exportMedicationScheme(os, patient, sfks, sender, language, recipientSafe, version, null, decryptor, progressor)
 	}
+
+    override fun createMedicationSchemeExport(
+            os: OutputStream,
+            patient: Patient,
+            sender: HealthcareParty,
+            language: String,
+            recipientSafe: String,
+            version: Int,
+            services: List<org.taktik.icure.entities.embed.Service>,
+            progressor: AsyncProgress?
+    ) {
+        medicationSchemeExport!!.exportMedicationScheme(os, patient, listOf(), sender, language, recipientSafe, version, services, null, progressor)
+    }
 }

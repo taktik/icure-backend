@@ -46,6 +46,7 @@ import java.util.LinkedList
 import java.util.Optional
 import java.util.UUID
 import javax.security.auth.login.LoginException
+import kotlin.math.roundToLong
 
 @Service
 class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
@@ -63,6 +64,14 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return uuid
     }
 
+    private fun encodeShortRefFromUUID(uuid: UUID): String {
+        val bb = java.nio.ByteBuffer.wrap(ByteArray(16))
+        bb.putLong(uuid.mostSignificantBits)
+        bb.putLong(uuid.leastSignificantBits)
+
+        return BigInteger(1, bb.array().sliceArray(0 until 8)).toString(36).padStart(13, '0')
+    }
+
     private fun encodeRefFromUUID(uuid: UUID): String {
         val bb = java.nio.ByteBuffer.wrap(ByteArray(16))
         bb.putLong(uuid.mostSignificantBits)
@@ -71,6 +80,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return BigInteger(1, bb.array()).toString(36)
     }
 
+
     protected fun encodeNumberFromUUID(uuid: UUID): Long? {
         val bb = java.nio.ByteBuffer.wrap(ByteArray(16))
         bb.putLong(uuid.mostSignificantBits)
@@ -78,15 +88,19 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return BigInteger(1, Arrays.copyOfRange(bb.array(), 0, 4)).toLong()
     }
 
-    private fun createBatch(sendNumber: Int, batchRef: String, `is`: Insurance, ivs: Map<String, List<org.taktik.icure.entities.Invoice>>, hcp: HealthcareParty): InvoicesBatch {
+    private fun createBatch(sendNumber: Int, messageId: String, `is`: Insurance, ivs: Map<String, List<org.taktik.icure.entities.Invoice>>, hcp: HealthcareParty): InvoicesBatch {
         val invBatch = InvoicesBatch()
 
         val calendar = Calendar.getInstance()
 
+        val longRef = encodeRefFromUUID(UUID.fromString(messageId));
+        val shortRef = encodeShortRefFromUUID(UUID.fromString(messageId));
+
         invBatch.invoicingYear = calendar.get(Calendar.YEAR)
         invBatch.invoicingMonth = calendar.get(Calendar.MONTH) + 1
         invBatch.uniqueSendNumber = sendNumber.toLong()
-        invBatch.batchRef = "" + batchRef
+        invBatch.batchRef = "" + longRef
+        invBatch.fileRef = "" + shortRef
         invBatch.ioFederationCode = `is`.code
 
         invBatch.numericalRef = invBatch.invoicingYear.toLong() * 1000000 + (invBatch.ioFederationCode!!).toLong() * 1000 + sendNumber;
@@ -105,6 +119,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
         invBatch.sender = InvoiceSender().apply{
             this.nihii = java.lang.Long.valueOf(hcp.nihii!!.replace("[^0-9]".toRegex(), ""))
+            this.ssin = hcp.ssin!!.replace("[^0-9]".toRegex(), "")
             this.bic = bic
             this.iban = iban
             this.firstName = hcp.firstName
@@ -160,9 +175,9 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
                         hcp,
                         encodeRefFromUUID(UUID.fromString(ivc.id)),
                         java.lang.Long.valueOf(if (ivc.code != null) ivc.code else ivc.tarificationId.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]),
-                        Math.round(reimbursement * 100),
-                        Math.round(patientIntervention * 100),
-                        Math.round(doctorSupplement * 100),
+                            (reimbursement * 100).roundToLong(),
+                            (patientIntervention * 100).roundToLong(),
+                            (doctorSupplement * 100).roundToLong(),
                         ivc.contract,
                         ivc.dateCode,
                         ivc.eidReadingHour,
@@ -241,7 +256,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return invoiceItem
     }
 
-    override fun prepareBatch(batchRef: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch? {
+    override fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch? {
         synchronized(this) {
             var zonedDateTime = ZonedDateTime.now().minusDays(1)
             for (invoice in invoices.values.flatten()) {
@@ -257,7 +272,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
             val entityRefs = mutableListOf<EntityReference>()
             entityReferenceLogic.createEntities(listOf(EntityReference().apply {
                 id = entityRefId
-                docId =  batchRef
+                docId =  messageId
             }), entityRefs)
 
             return entityRefs.firstOrNull()?.let { ref ->
@@ -265,7 +280,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 val mm = org.taktik.icure.entities.Message()
 
-                mm.id = batchRef
+                mm.id = messageId
                 mm.invoiceIds = invoices.values.flatMap { it.map { it.id } }
                 mm.subject = "Facture tiers payant"
                 mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
@@ -279,7 +294,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 mm.externalRef = ("" + shortSendNumber).padStart(3, '0')
 
-                val invBatch = createBatch(shortSendNumber, encodeRefFromUUID(UUID.fromString(batchRef)).substring(0, 13), insurance, invoices, hcp)
+                val invBatch = createBatch(shortSendNumber, messageId, insurance, invoices, hcp)
 
                 mm.metas = mapOf(
                         "ioFederationCode" to (invBatch.ioFederationCode  ?: ""),
@@ -309,11 +324,11 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
-            parent.setStatus(parent.getStatus() or Message.STATUS_ACCEPTED_FOR_TREATMENT)
+            parent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
             messageLogic.modifyMessage(parent)
-            if (parent.getParentId() != null) {
-                val parentParent = messageLogic.get(parent.getParentId())
-                parentParent.setStatus(parent.getStatus() or Message.STATUS_ACCEPTED_FOR_TREATMENT)
+            if (parent.parentId != null) {
+                val parentParent = messageLogic.get(parent.parentId)
+                parentParent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
                 messageLogic.modifyMessage(parentParent)
             }
         }
@@ -325,15 +340,15 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
-            parent.setStatus(parent.getStatus() or Message.STATUS_REJECTED)
-            parent.setStatus(parent.getStatus() or Message.STATUS_FULL_ERROR)
+            parent.status = parent.status or Message.STATUS_REJECTED
+            parent.status = parent.status or Message.STATUS_FULL_ERROR
             messageLogic.modifyMessage(parent)
-            if (parent.getParentId() != null) {
-                val parentParent = messageLogic.get(parent.getParentId())
-                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_REJECTED)
-                parentParent.setStatus(parentParent.getStatus() or Message.STATUS_FULL_ERROR)
+            if (parent.parentId != null) {
+                val parentParent = messageLogic.get(parent.parentId)
+                parentParent.status = parentParent.status or Message.STATUS_REJECTED
+                parentParent.status = parentParent.status or Message.STATUS_FULL_ERROR
                 messageLogic.modifyMessage(parentParent)
-                val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.getInvoiceIds()).orElse(LinkedList()))
+                val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.invoiceIds).orElse(LinkedList()))
                 for (iv in invoices) {
                     for (ic in iv.invoicingCodes) {
                         val uuid = UUID.fromString(ic.id)
@@ -347,5 +362,4 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         }
         return LinkedList()
     }
-
 }

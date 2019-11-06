@@ -18,10 +18,12 @@
 
 package org.taktik.icure.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
 import org.taktik.icure.entities.Patient;
+import org.taktik.icure.entities.embed.Gender;
 
 import java.util.Collection;
 import java.util.List;
@@ -44,7 +46,8 @@ public interface PatientDAO extends GenericDAO<Patient> {
 	List<String> listIdsByHcParty(String healthcarePartyId);
 	List<String> listIdsByHcPartyAndDateOfBirth(Integer date, String healthcarePartyId);
 	List<String> listIdsByHcPartyAndDateOfBirth(Integer startDate, Integer endDate, String healthcarePartyId);
-	List<String> listIdsForHcPartyDateOfBirth(Integer date, String healthcarePartyId);
+    List<String> listIdsByHcPartyGenderEducationProfession(String healthcarePartyId, Gender gender, String education, String profession);
+    List<String> listIdsForHcPartyDateOfBirth(Integer date, String healthcarePartyId);
 	List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit);
 	List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit);
 
@@ -83,4 +86,8 @@ public interface PatientDAO extends GenericDAO<Patient> {
 
 	@View(name = "by_hcparty_delegate_keys", map = "classpath:js/healthcareparty/By_hcparty_delegate_keys_map.js")
 	Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
+
+	PaginatedList<Patient> getDuplicatePatientsBySsin(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException;
+
+	PaginatedList<Patient> getDuplicatePatientsByName(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException;
 }
