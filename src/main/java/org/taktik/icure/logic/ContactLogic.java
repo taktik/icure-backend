@@ -54,9 +54,11 @@ public interface ContactLogic extends EntityPersister<Contact, String> {
 
 	Service pimpServiceWithContactInformation(Service s, Contact c);
 
-	List<String> findServicesByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+	List<String> listServiceIdsByTag(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
 
-    List<String> findServicesByCode(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+    List<String> listServiceIdsByCode(String hcPartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, Long startValueDate, Long endValueDate);
+
+    List<String> listContactIds(String hcPartyId);
 
     List<String> findByServices(Collection<String> services);
 

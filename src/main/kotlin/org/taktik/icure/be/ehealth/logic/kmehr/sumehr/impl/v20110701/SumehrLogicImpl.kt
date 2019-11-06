@@ -50,7 +50,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
 
     override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
-        sumehrServiceIds.addAll(contactLogic!!.findServicesByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null))
+        sumehrServiceIds.addAll(contactLogic!!.listServiceIdsByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null))
 
         if (sumehrServiceIds.isEmpty()) {
             return SumehrStatus.absent
@@ -71,12 +71,12 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
 	override fun getSumehrMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean) =
 		sumehrExport.getMd5(hcPartyId, patient, patientSecretForeignKeys, excludedIds, includeIrrelevantInformation)
 
-    override fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
-        return sumehrImport.importSumehr(inputStream, author, language, mappings, dest)
+    override fun importSumehr(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult> {
+        return sumehrImport.importSumehr(inputStream, author, language, mappings, saveToDatabase, dest)
     }
 
-    override fun importSumehrByItemId(inputStream: InputStream, itemId: String, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
-        return sumehrImport.importSumehrByItemId(inputStream, itemId, author, language, mappings, dest)
+    override fun importSumehrByItemId(inputStream: InputStream, itemId: String, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult> {
+        return sumehrImport.importSumehrByItemId(inputStream, itemId, author, language, mappings, saveToDatabase, dest)
     }
 
     override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)

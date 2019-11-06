@@ -16,21 +16,19 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao;
+package org.taktik.icure.dto.filter.contact;
 
+import org.taktik.icure.dto.filter.Filter;
+import org.taktik.icure.entities.Contact;
 
-import org.ektorp.support.View;
-import org.taktik.icure.db.PaginatedList;
-import org.taktik.icure.db.PaginationOffset;
-import org.taktik.icure.entities.AccessLog;
-
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
-public interface AccessLogDAO extends GenericDAO<AccessLog> {
-
-	PaginatedList<AccessLog> list(PaginationOffset paginationOffset, boolean descending);
-	PaginatedList<AccessLog> findByUserAfterDate(String userId, String accessType, Instant startDate, PaginationOffset<List<Object>> pagination, boolean descending);
-	List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
+public interface ContactByHcPartyTagCodeDateFilter extends Filter<String,Contact> {
+	String getHealthcarePartyId();
+	String getTagType();
+	String getTagCode();
+	String getCodeType();
+	String getCodeCode();
+	Long getStartServiceValueDate();
+	Long getEndServiceValueDate();
 }
