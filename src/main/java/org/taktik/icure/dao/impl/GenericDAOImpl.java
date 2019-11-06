@@ -441,7 +441,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		return save(null, entities);
 	}
 
-	protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
+	protected <K extends Collection<T>> List<T> save(Boolean newEntity, K entities) {
 		if (entities != null) {
 			if (log.isDebugEnabled()) {
 				log.debug(entityClass.getSimpleName() + ".save: " + entities.stream().filter(Objects::nonNull).map(entity->entity.getId() + ":" + entity.getRev()).collect(Collectors.joining(",")));
