@@ -46,10 +46,11 @@ class SumehrImport(val patientLogic: PatientLogic,
                                 val idGenerator: UUIDGenerator) {
 
     fun importSumehr(inputStream: InputStream,
-                  author: User,
-                  language: String,
-                  mappings: Map<String, List<ImportMapping>>,
-                  dest: Patient? = null): List<ImportResult> {
+                     author: User,
+                     language: String,
+                     mappings: Map<String, List<ImportMapping>>,
+                     saveToDatabase: Boolean,
+                     dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
         val unmarshaller = jc.createUnmarshaller()
@@ -60,17 +61,17 @@ class SumehrImport(val patientLogic: PatientLogic,
         val standard = kmehrMessage.header.standard.cd.value
 
         //TODO Might want to have several implementations babsed on standards
-        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
+        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it, saveToDatabase) }
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
-            createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
+            createOrProcessPatient(folder.patient, author, res, saveToDatabase, dest)?.let { patient ->
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "sumehr" -> parseSumehr(trn, author, res, language, mappings)
-                        else -> parseGenericTransaction(trn, author, res, language, mappings)
+                        "sumehr" -> parseSumehr(trn, author, res, language, mappings, saveToDatabase)
+                        else -> parseGenericTransaction(trn, author, res, language, mappings, saveToDatabase)
                     }
-                    contactLogic.createContact(ctc)
+                    if (saveToDatabase) { contactLogic.createContact(ctc) }
                     res.ctcs.add(ctc)
                 }
             }
@@ -83,6 +84,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                      author: User,
                      language: String,
                      mappings: Map<String, List<ImportMapping>>,
+                             saveToDatabase: Boolean,
                      dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
@@ -94,15 +96,15 @@ class SumehrImport(val patientLogic: PatientLogic,
         val standard = kmehrMessage.header.standard.cd.value
 
         //TODO Might want to have several implementations babsed on standards
-        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it) }
+        kmehrMessage.header.sender.hcparties?.forEach { createOrProcessHcp(it, saveToDatabase) }
         kmehrMessage.folders.forEach { folder ->
             val res = ImportResult().apply { allRes.add(this) }
-            createOrProcessPatient(folder.patient, author, res, dest)?.let { patient ->
+            createOrProcessPatient(folder.patient, author, res, saveToDatabase, dest)?.let { patient ->
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "sumehr" -> parseSumehr(trn, author, res, language, mappings, itemId)
-                        else -> parseGenericTransaction(trn, author, res, language, mappings, itemId)
+                        "sumehr" -> parseSumehr(trn, author, res, language, mappings, saveToDatabase, itemId)
+                        else -> parseGenericTransaction(trn, author, res, language, mappings, saveToDatabase, itemId)
                     }
                     contactLogic.createContact(ctc)
                     res.ctcs.add(ctc)
@@ -116,8 +118,9 @@ class SumehrImport(val patientLogic: PatientLogic,
                                    author: User,
                                    v: ImportResult,
                                    language: String,
-                                   mappings: Map<String, List<ImportMapping>>, itemId: String? = null): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings, itemId).apply {
+                                   mappings: Map<String, List<ImportMapping>>,
+                            saveToDatabase: Boolean, itemId: String? = null): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, saveToDatabase, itemId).apply {
 
         }
     }
@@ -126,13 +129,14 @@ class SumehrImport(val patientLogic: PatientLogic,
                                         author: User,
                                         v: ImportResult,
                                         language: String,
-                                        mappings: Map<String, List<ImportMapping>>, itemId: String? = null): Contact {
+                                        mappings: Map<String, List<ImportMapping>>,
+                                        saveToDatabase: Boolean, itemId: String? = null): Contact {
         return Contact().apply {
             val contact = this
             this.id = idGenerator.newGUID().toString()
             this.author = author.id
 
-            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it) }?.firstOrNull()?.id ?:
+            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull { createOrProcessHcp(it, saveToDatabase) }?.firstOrNull()?.id ?:
                 author.healthcarePartyId
             this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                 trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -192,7 +196,7 @@ class SumehrImport(val patientLogic: PatientLogic,
 
                 if(listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").contains(cdItem)){
                     val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
-                    v.hes.add(healthElementLogic.createHealthElement(he))
+                    he?.let { v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(it) else it) }
                 }else{
                     when (cdItem) {
                         //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
@@ -358,16 +362,16 @@ class SumehrImport(val patientLogic: PatientLogic,
             content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected fun createOrProcessHcp(p: HcpartyType): HealthcareParty? {
+    protected fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean): HealthcareParty? {
         val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
         val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
 
         return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
             ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
-            ?: try { healthcarePartyLogic.createHealthcareParty(HealthcareParty().apply {
-                this.nihii = nihii; this.ssin = niss;
-	            copyFromHcpToHcp(p, this)
-            }) } catch (e : MissingRequirementsException) { null })
+            ?: try { HealthcareParty().apply {
+                this.nihii = nihii; this.ssin = niss
+                copyFromHcpToHcp(p, this)
+            }.let { if (saveToDatabase) healthcarePartyLogic.createHealthcareParty(it) else it }} catch (e : MissingRequirementsException) { null })
     }
 
     protected fun copyFromHcpToHcp(p: HcpartyType, hcp: HealthcareParty) {
@@ -412,6 +416,7 @@ class SumehrImport(val patientLogic: PatientLogic,
     protected fun createOrProcessPatient(p: PersonType,
                                          author: User,
                                          v: ImportResult,
+                                         saveToDatabase: Boolean,
                                          dest: Patient? = null): Patient? {
         val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
         v.notNull(niss, "Niss shouldn't be null for patient $p")
@@ -433,11 +438,11 @@ class SumehrImport(val patientLogic: PatientLogic,
                 } else null
             }
 
-        return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
+        return if (dbPatient == null) Patient().apply {
             this.delegations = mapOf(author.healthcarePartyId to setOf())
 
 	        copyFromPersonToPatient(p, this, true)
-        }) else dbPatient
+        }.let { if (saveToDatabase) patientLogic.createPatient(it) else it } else dbPatient
     }
 
     protected fun copyFromPersonToPatient(p: PersonType, patient: Patient, force: Boolean) {
