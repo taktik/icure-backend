@@ -160,7 +160,7 @@ class SumehrImport(val patientLogic: PatientLogic,
 
             var items = trn.findItems()
             if(itemId?.isNotBlank() == true && itemId.isNotEmpty()){
-                //itemId = "[headingId].[itemId]" OR "[itemId]"
+                //itemId = "[headingId]/[itemId]" OR "[itemId]"
                 val idList = itemId.split("/")
                 if(idList.count() > 1){
                     //headings and items
