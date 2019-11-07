@@ -75,6 +75,8 @@ public class MedicationDto implements Serializable {
 
 	String prescriptionRID;
 
+	Integer status;
+
 	public Map<String, ContentDto> getOptions() {
 		return options;
 	}
@@ -278,4 +280,8 @@ public class MedicationDto implements Serializable {
 	public String getPrescriptionRID() { return prescriptionRID; }
 
 	public void setPrescriptionRID(String prescriptionRID) { this.prescriptionRID = prescriptionRID; }
+
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
 }

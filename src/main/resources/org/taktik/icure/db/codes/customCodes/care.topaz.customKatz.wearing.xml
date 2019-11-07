@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Katz wearing</NAME>
+    <VALUE>
+        <CODE>withouthelp</CODE>
+        <DESCRIPTION L="fr">Est capable de s'habiller et se déshabiller complètement sans aucune aide</DESCRIPTION>
+        <DESCRIPTION L="nl">Kan zich helemaal aan- en uitkleden zonder enige hulp</DESCRIPTION>
+        <DESCRIPTION L="en">Is able to dress and undress completely without any help</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>helpaboveorbelow</CODE>
+        <DESCRIPTION L="fr">A besoin d'une aide partielle pour s'habiller au dessus ou en dessous de la ceinture (sans tenir compte des lacets)</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft gedeeltelijke hulp nodig om zich te kleden boven of onder de gordel (zonder rekening te houden met de veters)</DESCRIPTION>
+        <DESCRIPTION L="en">Needs partial help to dress above or below the waist (not including laces)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>helpaboveandbelow</CODE>
+        <DESCRIPTION L="fr">A besoin d'une aide partielle pour s'habiller tant au-dessus qu'en--dessous de la ceinture</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft gedeeltelijke hulp nodig om zich te kleden zowel boven als onder de gordel</DESCRIPTION>
+        <DESCRIPTION L="en">Needs partial help to dress both above and below the waist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>fullyassisted</CODE>
+        <DESCRIPTION L="fr">Doit être entièrement aidé pour s'habiller tant au-dessus qu'en-dessous de la ceinture</DESCRIPTION>
+        <DESCRIPTION L="nl">Moet volledig worden geholpen om zich te kleden zowel boven als onder de gordel</DESCRIPTION>
+        <DESCRIPTION L="en">Must be fully assisted to dress both above and below the waist</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
