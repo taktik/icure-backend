@@ -18,10 +18,11 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import org.taktik.icure.dao.impl.GenericDAOImpl
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
+import org.springframework.beans.factory.annotation.Qualifier
+import org.taktik.icure.asyncdao.impl.GenericDAOImpl
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredICureDocument
+import java.net.URI
 
 import javax.persistence.PersistenceException
 import java.util.Objects
@@ -29,9 +30,9 @@ import java.util.Objects
 /**
  * @author Bernard Paulus - 07/03/2017
  */
-class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, db: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<T>(entityClass, db, idGenerator) {
+open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<T>(entityClass, couchDbDispatcher, idGenerator) {
 
-    override fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): List<T> =
+    override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, newEntity: Boolean?, entities: K): List<T> =
             super.save(entities.filterNotNull().map { it.apply { setTimestamps(this) } })
 
     override fun save(newEntity: Boolean?, entity: T?): T? {
@@ -42,13 +43,13 @@ class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, db: Co
     }
 
     @Throws(PersistenceException::class)
-    override fun unremove(entities: Collection<T>) {
+    override fun unremove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
         entities.stream().filter(Predicate<T> { Objects.nonNull(it) })
                 .forEach(Consumer<T> { setTimestamps(it) })
         super.unremove(entities)
     }
 
-    override fun unremove(entity: T) {
+    override fun unremove(dbInstanceUrl:URI, groupId:String, entity: T) {
         if (entity != null) {
             setTimestamps(entity)
         }

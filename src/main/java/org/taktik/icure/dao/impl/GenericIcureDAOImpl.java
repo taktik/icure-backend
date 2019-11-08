@@ -34,6 +34,9 @@ public class GenericIcureDAOImpl<T extends StoredICureDocument> extends GenericD
         super(entityClass, db, idGenerator);
     }
 
+
+
+
     @Override
     protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
         entities.stream().filter(Objects::nonNull)

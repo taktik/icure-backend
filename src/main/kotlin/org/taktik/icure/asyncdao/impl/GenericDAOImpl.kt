@@ -18,70 +18,72 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
-import org.ektorp.AttachmentInputStream
-import org.ektorp.BulkDeleteDocument
-import org.ektorp.CouchDbConnector
-import org.ektorp.DocumentNotFoundException
-import org.ektorp.DocumentOperationResult
-import org.ektorp.Options
-import org.ektorp.UpdateConflictException
-import org.ektorp.ViewQuery
+import org.ektorp.*
+import org.ektorp.impl.NameConventions
 import org.ektorp.support.DesignDocument
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
-import org.taktik.icure.dao.GenericDAO
+import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.couchdb.get
+import org.taktik.couchdb.queryView
+import org.taktik.couchdb.queryViewIncludeDocs
+import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.CouchDbICureRepositorySupport
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.dao.impl.keymanagers.KeyManager
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
-
-import javax.persistence.PersistenceException
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashSet
-import java.util.Objects
+import java.net.URI
+import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
+import javax.persistence.PersistenceException
 
-abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val db: CouchDbDispatcher, validGenerator: IDGenerator) : GenericDAO<T> {
-    protected val keyManager: KeyManager<T, String>
-    init {
-        this.keyManager = UniversallyUniquelyIdentifiableKeyManager(idGenerator)
-    }
+abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
+    private val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
 
-    override fun contains(groupId:String, id: String): Boolean {
+    /**
+     * Creates a ViewQuery pre-configured with correct dbPath, design document id and view name.
+     * @param viewName
+     * @return
+     */
+    protected fun createQuery(viewName: String): ViewQuery = ViewQuery()
+            .designDocId(NameConventions.designDocName(entityClass))
+            .viewName(viewName)
+
+    override suspend fun contains(dbInstanceUrl:URI, groupId:String, id: String): Boolean {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".contains: " + id)
         }
-        return db.getClient(groupId).contains(id)
+        return client.get(id, entityClass) != null
     }
 
-    override fun hasAny(): Boolean {
-        return designDocContainsAllView() && db.queryView(createQuery("all").limit(1)).size > 0
+    override suspend fun hasAny(dbInstanceUrl:URI, groupId:String): Boolean {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return designDocContainsAllView(dbInstanceUrl, groupId) && client.queryView<String, String>(createQuery("all").limit(1)).count() > 0
     }
 
-    override fun getAll(): List<T> {
+    private suspend fun designDocContainsAllView(dbInstanceUrl:URI, groupId:String): Boolean {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.get<org.taktik.couchdb.DesignDocument>(NameConventions.designDocName(entityClass))?.views?.containsKey("all") ?: false
+    }
+
+    override fun getAll(dbInstanceUrl:URI, groupId:String): Flow<T> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAll")
         }
-        val result = super.getAll()
-
-        result.forEach(Consumer<T> { this.postLoad(it) })
-
-        return result
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.queryView(createQuery("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
     }
 
-    override fun getAttachment(documentId: String, attachmentId: String): String {
+    override suspend fun getAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String): String {
         val attachmentInputStream = db.getAttachment(documentId, attachmentId)
         val reader = BufferedReader(InputStreamReader(attachmentInputStream))
 
@@ -90,21 +92,21 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return sb.toString()
     }
 
-    override fun getAttachmentInputStream(documentId: String, attachmentId: String, rev: String?): AttachmentInputStream {
+    override suspend fun getAttachmentInputStream(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String?): AttachmentInputStream {
         return if (rev != null) db.getAttachment(documentId, attachmentId, rev) else db.getAttachment(documentId, attachmentId)
     }
 
-    override fun createAttachment(documentId: String, rev: String, data: AttachmentInputStream): String {
+    override suspend fun createAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, data: AttachmentInputStream): String {
         // return Document Revision
         return db.createAttachment(documentId, rev, data)
     }
 
-    override fun deleteAttachment(documentId: String, rev: String, attachmentId: String): String {
+    override suspend fun deleteAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, attachmentId: String): String {
         // return Document Revision
         return db.deleteAttachment(documentId, rev, attachmentId)
     }
 
-    override fun get(id: String, vararg options: Option): T? {
+    override suspend fun get(dbInstanceUrl:URI, groupId:String, id: String, vararg options: Option): T? {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
         }
@@ -121,7 +123,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return null
     }
 
-    override fun get(id: String, rev: String): T? {
+    override suspend fun get(dbInstanceUrl:URI, groupId:String, id: String, rev: String): T? {
         try {
             val result = super.get(id, rev)
 
@@ -150,7 +152,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
 
-    fun find(id: String, vararg options: Option): T? {
+    fun find(dbInstanceUrl:URI, groupId:String, id: String, vararg options: Option): T? {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
         }
@@ -162,14 +164,14 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return result
     }
 
-    override fun getSet(ids: Collection<String>): Set<T> {
+    override suspend fun getSet(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Set<T> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
         return HashSet(getList(ids))
     }
 
-    override fun getList(ids: Collection<String>): List<T> {
+    override suspend fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): List<T> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
@@ -185,7 +187,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return result
     }
 
-    override fun newInstance(): T {
+    override suspend fun newInstance(): T {
         // Instantiate new entity
         val entity: T
         try {
@@ -202,11 +204,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return entity
     }
 
-    override fun create(entity: T): T? {
+    override suspend fun create(dbInstanceUrl:URI, groupId:String, entity: T): T? {
         return save(true, entity)
     }
 
-    override fun save(entity: T): T? {
+    override suspend fun save(dbInstanceUrl:URI, groupId:String, entity: T): T? {
         return save(null, entity)
     }
 
@@ -247,11 +249,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return entity
     }
 
-    protected fun beforeSave(entity: T) {}
+    protected fun beforeSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
-    protected fun afterSave(entity: T) {}
+    protected fun afterSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
-    override fun remove(entity: T) {
+    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T) {
         if (entity != null) {
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".remove: " + entity)
@@ -265,7 +267,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         }
     }
 
-    override fun unremove(entity: T) {
+    override suspend fun unremove(dbInstanceUrl:URI, groupId:String, entity: T) {
         if (entity != null) {
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".unremove: " + entity)
@@ -276,7 +278,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         }
     }
 
-    override fun purge(entity: T?) {
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entity: T?) {
         if (entity != null) {
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".remove: " + entity)
@@ -291,7 +293,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
 
-    override fun removeById(id: String?) {
+    override suspend fun removeById(dbInstanceUrl:URI, groupId:String, id: String?) {
         if (id != null) {
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".removeById: " + id)
@@ -303,7 +305,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         }
     }
 
-    override fun unremoveById(id: String?) {
+    override suspend fun unremoveById(dbInstanceUrl:URI, groupId:String, id: String?) {
         if (id != null) {
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".unremoveById: " + id)
@@ -316,7 +318,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
     @Throws(PersistenceException::class)
-    override fun purgeById(id: String?) {
+    override suspend fun purgeById(dbInstanceUrl:URI, groupId:String, id: String?) {
         if (id != null) {
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".removeById: " + id)
@@ -329,7 +331,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
     @Throws(PersistenceException::class)
-    override fun remove(entities: Collection<T>) {
+    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
         }
@@ -349,7 +351,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
     @Throws(PersistenceException::class)
-    override fun unremove(entities: Collection<T>) {
+    override suspend fun unremove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
         if (log.isDebugEnabled) {
             log.debug("unremove $entities")
         }
@@ -369,7 +371,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
     @Throws(PersistenceException::class)
-    override fun purge(entities: Collection<T>) {
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
         }
@@ -388,29 +390,29 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
     @Throws(PersistenceException::class)
-    override fun purgeByIds(ids: Collection<String>) {
+    override suspend fun purgeByIds(dbInstanceUrl:URI, groupId:String, ids: Collection<String>) {
         purge(getList(ids))
     }
 
     @Throws(PersistenceException::class)
-    override fun removeByIds(ids: Collection<String>) {
+    override suspend fun removeByIds(dbInstanceUrl:URI, groupId:String, ids: Collection<String>) {
         remove(getList(ids))
     }
 
     @Throws(PersistenceException::class)
-    override fun unremoveByIds(ids: Collection<String>) {
+    override suspend fun unremoveByIds(dbInstanceUrl:URI, groupId:String, ids: Collection<String>) {
         unremove(getList(ids))
     }
 
-    override fun <K : Collection<T>> create(entities: K): K? {
+    override suspend fun <K : Collection<T>> create(dbInstanceUrl:URI, groupId:String, entities: K): K? {
         return save(true, entities)
     }
 
-    override fun <K : Collection<T>> save(entities: K): K? {
+    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): K {
         return save(null, entities)
     }
 
-    protected fun <K : Collection<T>> save(newEntity: Boolean?, entities: K?): List<T>? {
+    protected fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T>? {
         var newEntity = newEntity
         if (entities != null) {
             if (log.isDebugEnabled) {
@@ -461,7 +463,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
     }
 
     @Throws(PersistenceException::class)
-    override fun visitAll(callback: Function<T, Boolean>) {
+    override suspend fun visitAll(callback: Function<T, Boolean>) {
         log.debug("visitAll")
         try {
             val q = ViewQuery()
@@ -488,7 +490,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
 
     protected fun doFetchRelationship(`object`: T) {}
 
-    override fun refreshIndex() {
+    override suspend fun refreshIndex() {
         try {
             this.hasAny()
         } catch (ignored: Exception) {
@@ -496,7 +498,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
 
     }
 
-    override fun getAllIds(): List<String> {
+    override suspend fun getAllIds(): List<String> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAllIds")
         }
@@ -514,7 +516,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         return ektorpOptions
     }
 
-    override fun initStandardDesignDocument(group: Group?) {
+    override suspend fun initStandardDesignDocument(group: Group?) {
         if (group == null || db !is CouchDbICureConnector) {
             this.initStandardDesignDocument()
         } else {
@@ -522,7 +524,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val
         }
     }
 
-    override fun forceInitStandardDesignDocument(group: Group) {
+    override suspend fun forceInitStandardDesignDocument(group: Group) {
         if (group.id == null || db !is CouchDbICureConnector) {
             this.forceInitStandardDesignDocument()
         } else {

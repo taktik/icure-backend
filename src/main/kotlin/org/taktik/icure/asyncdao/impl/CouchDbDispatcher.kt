@@ -15,7 +15,6 @@ import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-@ExperimentalCoroutinesApi
 class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: String, private val dbFamily: String, private val username: String, private val password: String) {
     private val connectors = CacheBuilder.newBuilder()
             .maximumSize(10000)

@@ -30,8 +30,38 @@ import kotlin.coroutines.suspendCoroutine
 
 typealias CouchDbDocument = Versionable<String>
 
-class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
+class DesignDocument(
+        private var _id: String,
+        private var _rev: String?,
+        private val _revHistory: Map<String, String>,
+        val views: Map<String, View>,
+        val lists: Map<String, String>,
+        val shows: Map<String, String>,
+        val updateHandlers: Map<String, String>,
+        val filters: Map<String, String>
+) : CouchDbDocument {
+    @Json(name = "rev_history")
+    override fun getRevHistory(): Map<String, String> = _revHistory
 
+    @Json(name = "_rev")
+    override fun setRev(rev: String?) {
+        _rev = rev
+    }
+
+    @Json(name = "_id")
+    override fun getId(): String = _id
+
+    @Json(name = "_id")
+    override fun setId(id: String) {
+        _id = id
+    }
+
+    @Json(name = "_rev")
+    override fun getRev(): String? = _rev
+}
+
+class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
+data class View(val map: String, val reduce: String)
 
 /**
  * An event in the [Flow] returned by [Client.queryView]
@@ -72,47 +102,39 @@ data class BulkUpdateResult(val id: String, val rev: String?, val error: String?
 
 
 // Convenience inline methods with reified type params
-@ExperimentalCoroutinesApi
 inline fun <reified K, reified V, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, V, T>> {
     require(query.isIncludeDocs) { "Query must have includeDocs=true" }
     return queryView(query, K::class.java, V::class.java, T::class.java).filterIsInstance()
 }
 
 // Convenience inline methods with reified type params
-@ExperimentalCoroutinesApi
 inline fun <reified K, reified V> Client.queryView(query: ViewQuery): Flow<ViewRowNoDoc<K, V>> {
     require(!query.isIncludeDocs) { "Query must have includeDocs=false" }
     return queryView(query, K::class.java, V::class.java, Nothing::class.java).filterIsInstance()
 }
 
 // Convenience inline methods with reified type params
-@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.get(id: String): T? = this.get(id, T::class.java)
 
-@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.get(ids: List<String>): Flow<T> = this.get(ids, T::class.java)
 
-@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.create(entity: T): T = this.create(entity, T::class.java)
 
-@ExperimentalCoroutinesApi
 suspend inline fun <reified T : CouchDbDocument> Client.update(entity: T): T = this.update(entity, T::class.java)
 
-@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.bulkUpdate(entities: List<T>): Flow<BulkUpdateResult> = this.bulkUpdate(entities, T::class.java)
 
-@ExperimentalCoroutinesApi
 inline fun <reified T : CouchDbDocument> Client.subscribeForChanges(since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>> =
         this.subscribeForChanges(T::class.java, since, initialBackOffDelay, backOffFactor, maxDelay)
 
 
-@ExperimentalCoroutinesApi
 interface Client {
     // Check if db exists
     suspend fun exists(): Boolean
 
     // CRUD methods
     suspend fun <T : CouchDbDocument> get(id: String, clazz: Class<T>): T?
+
     fun <T : CouchDbDocument> get(ids: List<String>, clazz: Class<T>): Flow<T>
     suspend fun <T : CouchDbDocument> create(entity: T, clazz: Class<T>): T
     suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T
@@ -137,7 +159,6 @@ private const val TOTAL_ROWS_FIELD_NAME = "total_rows"
 private const val OFFSET_FIELD_NAME = "offset"
 private const val UPDATE_SEQUENCE_NAME = "update_seq"
 
-@ExperimentalCoroutinesApi
 class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
@@ -256,7 +277,6 @@ class ClientImpl(private val httpClient: HttpClient,
     }
 
     @FlowPreview
-    @ExperimentalCoroutinesApi
     override fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent> = flow {
         coroutineScope {
             query.dbPath(dbURI.toString())
