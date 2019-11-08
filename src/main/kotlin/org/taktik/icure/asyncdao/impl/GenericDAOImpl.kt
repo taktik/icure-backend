@@ -35,9 +35,8 @@ import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyM
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.URI
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.function.Function
 import java.util.stream.Collectors
@@ -45,6 +44,7 @@ import javax.persistence.PersistenceException
 
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
     private val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     /**
      * Creates a ViewQuery pre-configured with correct dbPath, design document id and view name.
@@ -74,6 +74,16 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return client.get<org.taktik.couchdb.DesignDocument>(NameConventions.designDocName(entityClass))?.views?.containsKey("all") ?: false
     }
 
+    override fun getAllIds(dbInstanceUrl:URI, groupId:String): Flow<String> = flow {
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".getAllIds")
+        }
+        if (designDocContainsAllView(dbInstanceUrl, groupId)) {
+            val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+            client.queryView<String, String>(createQuery("all")).onEach { emit(it.id) }.collect()
+        }
+    }
+
     override fun getAll(dbInstanceUrl:URI, groupId:String): Flow<T> {
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".getAll")
@@ -82,39 +92,30 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return client.queryView(createQuery("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
     }
 
-    override suspend fun getAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String): String {
-        val attachmentInputStream = db.getAttachment(documentId, attachmentId)
-        val reader = BufferedReader(InputStreamReader(attachmentInputStream))
-
-        val sb = StringBuilder()
-        reader.lines().forEach(Consumer<String> { sb.append(it) })
-        return sb.toString()
+    override fun getAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.getAttachment(documentId, attachmentId, rev)
     }
 
-    override suspend fun getAttachmentInputStream(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String?): AttachmentInputStream {
-        return if (rev != null) db.getAttachment(documentId, attachmentId, rev) else db.getAttachment(documentId, attachmentId)
-    }
-
-    override suspend fun createAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, data: AttachmentInputStream): String {
-        // return Document Revision
-        return db.createAttachment(documentId, rev, data)
+    override suspend fun createAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.createAttachment(documentId, attachmentId, rev, contentType, data)
     }
 
     override suspend fun deleteAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, attachmentId: String): String {
-        // return Document Revision
-        return db.deleteAttachment(documentId, rev, attachmentId)
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.deleteAttachment(documentId, attachmentId, rev)
     }
 
-    override suspend fun get(dbInstanceUrl:URI, groupId:String, id: String, vararg options: Option): T? {
+    override suspend fun get(dbInstanceUrl:URI, groupId:String, id: String, vararg options: Option): T? = get(dbInstanceUrl, groupId, id, null, *options)
+
+    override suspend fun get(dbInstanceUrl:URI, groupId:String, id: String, rev: String?, vararg options: Option): T? {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
         }
         try {
-            val result = super.get(id, asEktorpOptions(*options))
-
-            postLoad(result)
-
-            return result
+            return rev?.let{ client.get(id, entityClass, *options) } ?: client.get(id, entityClass, *options) ?.apply { postLoad(dbInstanceUrl, groupId, this) }
         } catch (e: DocumentNotFoundException) {
             log.warn("Document not found", e)
         }
@@ -122,71 +123,15 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return null
     }
 
-    override suspend fun get(dbInstanceUrl:URI, groupId:String, id: String, rev: String): T? {
-        try {
-            val result = super.get(id, rev)
-
-            postLoad(result)
-
-            return result
-        } catch (e: DocumentNotFoundException) {
-            log.warn("Document not found", e)
-        }
-
-        return null
-    }
-
-    override operator fun get(id: String): T? {
-        try {
-            val result = super.get(id)
-
-            postLoad(result)
-
-            return result
-        } catch (e: DocumentNotFoundException) {
-            log.warn("Document not found", e)
-        }
-
-        return null
-    }
-
-
-    fun find(dbInstanceUrl:URI, groupId:String, id: String, vararg options: Option): T? {
-        if (log.isDebugEnabled) {
-            log.debug(entityClass.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
-        }
-
-        val result = db.find(type, id, asEktorpOptions(*options))
-        if (result != null) {
-            postLoad(result)
-        }
-        return result
-    }
-
-    override suspend fun getSet(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Set<T> {
+    override fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Flow<T> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return HashSet(getList(ids))
+        return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it); it }
     }
 
-    override suspend fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): List<T> {
-        if (log.isDebugEnabled) {
-            log.debug(entityClass.simpleName + ".get: " + ids)
-        }
-        val q = ViewQuery()
-                .allDocs()
-                .includeDocs(true)
-                .keys(ids)
-        q.isIgnoreNotFound = true
-        val result = queryResults(q)
-
-        result.forEach(Consumer<T> { this.postLoad(it) })
-
-        return result
-    }
-
-    override suspend fun newInstance(): T {
+    override fun newInstance(): T {
         // Instantiate new entity
         val entity: T
         try {
@@ -204,22 +149,22 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
     }
 
     override suspend fun create(dbInstanceUrl:URI, groupId:String, entity: T): T? {
-        return save(true, entity)
+        return save(dbInstanceUrl, groupId, true, entity)
     }
 
     override suspend fun save(dbInstanceUrl:URI, groupId:String, entity: T): T? {
-        return save(null, entity)
+        return save(dbInstanceUrl, groupId, null, entity)
     }
 
-    protected fun save(newEntity: Boolean?, entity: T?): T? {
-        var newEntity = newEntity
+    protected suspend fun save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entity: T?): T? {
         if (entity != null) {
+            var newEntity = newEntity
+            val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
             if (log.isDebugEnabled) {
                 log.debug(entityClass.simpleName + ".save: " + entity.id + ":" + entity.rev)
             }
 
-            // Before save
-            beforeSave(entity)
+            beforeSave(dbInstanceUrl, groupId, entity)
 
             // Check if key is missing and if this is a new entity
             val missingKey = entity.id == null
@@ -234,15 +179,13 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 }
             }
 
-            if (!newEntity) {
+            if (newEntity) {
+                client.create(entity, entityClass)
+            } else {
+                client.update(entity, entityClass)
                 //saveRevHistory(entity, null);
             }
-
-            // Save entity
-            super.update(entity)
-
-            // After save
-            afterSave(entity)
+            afterSave(dbInstanceUrl, groupId, entity)
         }
 
         return entity
@@ -252,96 +195,48 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     protected fun afterSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
+    protected fun beforeDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
+
+    protected fun afterDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
+
+    protected fun beforeUnDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
+
+    protected fun afterUnDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
+
+    fun postLoad(dbInstanceUrl:URI, groupId:String, entity: T) {
+        doFetchRelationship(dbInstanceUrl, groupId, entity)
+    }
+
+    protected fun doFetchRelationship(dbInstanceUrl:URI, groupId:String, entity: T) {}
+
+
     override suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T) {
-        if (entity != null) {
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".remove: " + entity)
-            }
-            // Before remove
-            beforeDelete(entity)
-            // Delete
-            super.remove(entity)
-            // After remove
-            afterDelete(entity)
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".remove: " + entity)
         }
-    }
-
-    override suspend fun unremove(dbInstanceUrl:URI, groupId:String, entity: T) {
-        if (entity != null) {
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".unremove: " + entity)
-            }
-            beforeUnDelete(entity)
-            super.unremove(entity)
-            afterUnDelete(entity)
-        }
-    }
-
-    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entity: T?) {
-        if (entity != null) {
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".remove: " + entity)
-            }
-            // Before remove
-            beforeDelete(entity)
-            // Delete
-            super.purge(entity)
-            // After remove
-            afterDelete(entity)
-        }
-    }
-
-
-    override suspend fun removeById(dbInstanceUrl:URI, groupId:String, id: String?) {
-        if (id != null) {
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".removeById: " + id)
-            }
-            // Get entity by id
-            val entity = get(id)
-            // Delete entity
-            remove(entity!!)
-        }
-    }
-
-    override suspend fun unremoveById(dbInstanceUrl:URI, groupId:String, id: String?) {
-        if (id != null) {
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".unremoveById: " + id)
-            }
-            // Get entity by id
-            val entity = get(id)
-            // Delete entity
-            unremove(entity!!)
-        }
-    }
-
-    @Throws(PersistenceException::class)
-    override suspend fun purgeById(dbInstanceUrl:URI, groupId:String, id: String?) {
-        if (id != null) {
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".removeById: " + id)
-            }
-            // Get entity by id
-            val entity = get(id)
-            // Purge entity
-            purge(entity)
-        }
+        // Before remove
+        beforeDelete(dbInstanceUrl, groupId, entity)
+        // Delete
+        client.delete(entity)
+        // After remove
+        afterDelete(dbInstanceUrl, groupId, entity)
     }
 
     @Throws(PersistenceException::class)
     override suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
         }
         try {
             for (entity in entities) {
-                beforeDelete(entity)
+                beforeDelete(dbInstanceUrl, groupId, entity)
                 entity.deletionDate = System.currentTimeMillis()
             }
-            db.executeBulk(entities)
+            client.bulkDelete(entities)
             for (entity in entities) {
-                afterDelete(entity)
+                afterDelete(dbInstanceUrl, groupId, entity)
             }
         } catch (e: Exception) {
             throw PersistenceException("failed to remove entities ", e)
@@ -349,80 +244,27 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     }
 
-    @Throws(PersistenceException::class)
-    override suspend fun unremove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
-        if (log.isDebugEnabled) {
-            log.debug("unremove $entities")
-        }
-        try {
-            for (entity in entities) {
-                beforeUnDelete(entity)
-                entity.deletionDate = null
-            }
-            db.executeBulk(entities)
-            for (entity in entities) {
-                afterUnDelete(entity)
-            }
-        } catch (e: Exception) {
-            throw PersistenceException("failed to unremove entities ", e)
-        }
-
+    override suspend fun <K : Collection<T>> create(dbInstanceUrl:URI, groupId:String, entities: K): List<T> {
+        return save(dbInstanceUrl, groupId, true, entities)
     }
 
-    @Throws(PersistenceException::class)
-    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
-        if (log.isDebugEnabled) {
-            log.debug("remove $entities")
-        }
-        try {
-            for (entity in entities) {
-                beforeDelete(entity)
-            }
-            db.executeBulk(entities.stream().map { BulkDeleteDocument.of(it) }.collect<List<BulkDeleteDocument>, Any>(Collectors.toList()))
-            for (entity in entities) {
-                afterDelete(entity)
-            }
-        } catch (e: Exception) {
-            throw PersistenceException("failed to remove entities ", e)
-        }
-
+    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): List<T> {
+        return save(dbInstanceUrl, groupId, false, entities)
     }
 
-    @Throws(PersistenceException::class)
-    override suspend fun purgeByIds(dbInstanceUrl:URI, groupId:String, ids: Collection<String>) {
-        purge(getList(ids))
-    }
-
-    @Throws(PersistenceException::class)
-    override suspend fun removeByIds(dbInstanceUrl:URI, groupId:String, ids: Collection<String>) {
-        remove(getList(ids))
-    }
-
-    @Throws(PersistenceException::class)
-    override suspend fun unremoveByIds(dbInstanceUrl:URI, groupId:String, ids: Collection<String>) {
-        unremove(getList(ids))
-    }
-
-    override suspend fun <K : Collection<T>> create(dbInstanceUrl:URI, groupId:String, entities: K): K? {
-        return save(true, entities)
-    }
-
-    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): K {
-        return save(null, entities)
-    }
-
-    protected fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T>? {
+    protected suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T> {
         var newEntity = newEntity
         if (entities != null) {
+            val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
             if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".save: " + entities.stream().filter(Predicate<T> { Objects.nonNull(it) }).map { entity -> entity.id + ":" + entity.rev }.collect<String, *>(Collectors.joining(",")))
+                log.debug(entityClass.simpleName + ".save: " + entities.mapNotNull { entity -> entity.id + ":" + entity.rev })
             }
 
             val updatedEntities = ArrayList<T>()
 
             // Before save
             for (entity in entities) {
-                beforeSave(entity)
+                beforeSave(dbInstanceUrl, groupId, entity)
 
                 // Check if key is missing and if this is a new entity
                 val missingKey = entity.id == null
@@ -438,13 +280,9 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 }
             }
 
-            //final Map<String,T> previousEntities = getList(updatedEntities.stream().map(T::getId).collect(Collectors.toList())).stream().collect(Collectors.toMap(T::getId,Function.<T>identity()));
-            //updatedEntities.forEach((e)->saveRevHistory(e,previousEntities.get(e.getId())));
-
             // Save entity
             val orderedEntities = ArrayList(entities)
-            val results = db.executeBulk(orderedEntities)
-
+            val results = client.bulkUpdate(orderedEntities, entityClass).toList()
             val conflicts = ArrayList<org.taktik.icure.exceptions.UpdateConflictException>()
             for (r in results) {
                 if (r.error != null && r.error == "conflict") {
@@ -455,120 +293,10 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 throw BulkUpdateConflictException(conflicts, orderedEntities)
             }
 
-            orderedEntities.stream().filter { e -> e.rev != null }.forEach(Consumer<T> { this.afterSave(it) })
+            orderedEntities.filter { e -> e.rev != null }.forEach { this.afterSave(dbInstanceUrl, groupId, it) }
+            return updatedEntities
         }
 
-        return entities
-    }
-
-    @Throws(PersistenceException::class)
-    override suspend fun visitAll(callback: Function<T, Boolean>) {
-        log.debug("visitAll")
-        try {
-            val q = ViewQuery()
-                    .allDocs()
-                    .includeDocs(true)
-            db.queryView(q, entityClass).stream().forEach { t -> callback.apply(refresh(t)) }
-        } catch (e: Exception) {
-            throw PersistenceException("Failed to fetch all entites", e)
-        }
-
-    }
-
-    protected fun beforeDelete(entity: T) {}
-
-    protected fun afterDelete(entity: T) {}
-
-    protected fun beforeUnDelete(entity: T) {}
-
-    protected fun afterUnDelete(entity: T) {}
-
-    fun postLoad(entity: T) {
-        doFetchRelationship(entity)
-    }
-
-    protected fun doFetchRelationship(`object`: T) {}
-
-    override suspend fun refreshIndex() {
-        try {
-            this.hasAny()
-        } catch (ignored: Exception) {
-        }
-
-    }
-
-    override suspend fun getAllIds(): List<String> {
-        if (log.isDebugEnabled) {
-            log.debug(entityClass.simpleName + ".getAllIds")
-        }
-        return if (designDocContainsAllView()) {
-            db.queryView(createQuery("all").includeDocs(false), String::class.java)
-        } else ArrayList()
-
-    }
-
-    private fun asEktorpOptions(vararg options: Option): Options {
-        val ektorpOptions = Options()
-        for (option in options) {
-            ektorpOptions.param(option.paramName(), "true")
-        }
-        return ektorpOptions
-    }
-
-    override suspend fun initStandardDesignDocument(group: Group?) {
-        if (group == null || db !is CouchDbICureConnector) {
-            this.initStandardDesignDocument()
-        } else {
-            (if (group.servers != null && group.servers.size > 0) group.servers else listOf<String>(null as String?)).forEach { db -> initDesignDocInternal(group.id, db, 0, false) }
-        }
-    }
-
-    override suspend fun forceInitStandardDesignDocument(group: Group) {
-        if (group.id == null || db !is CouchDbICureConnector) {
-            this.forceInitStandardDesignDocument()
-        } else {
-            (if (group.servers != null && group.servers.size > 0) group.servers else listOf<String>(null as String?)).forEach { db -> initDesignDocInternal(group.id, db, 0, true) }
-        }
-    }
-
-    private fun initDesignDocInternal(groupId: String, dbInstanceUrl: String, invocations: Int, forceUpdate: Boolean) {
-        val cdb = if (db is CouchDbICureConnector) db.getCouchDbICureConnector(groupId, dbInstanceUrl, true) else db
-        if (cdb is CouchDbICureConnector) {
-            cdb.initSystemDesignDocument()
-        }
-
-        val designDoc: DesignDocument
-        if (cdb.contains(stdDesignDocumentId)) {
-            designDoc = getDesignDocumentFactory().getFromDatabase(cdb, stdDesignDocumentId)
-        } else {
-            designDoc = getDesignDocumentFactory().newDesignDocumentInstance()
-            designDoc.id = stdDesignDocumentId
-        }
-        log.debug("Generating DesignDocument for {}", type)
-        val generated = getDesignDocumentFactory().generateFrom(this)
-        val changed = designDoc.mergeWith(generated, forceUpdate)
-        if (log.isDebugEnabled) {
-            debugDesignDoc(designDoc)
-        }
-        if (changed) {
-            log.debug("DesignDocument changed or new. Updating database")
-            try {
-                cdb.update(designDoc)
-            } catch (e: UpdateConflictException) {
-                log.warn("Update conflict occurred when trying to update design document: {}", designDoc.id)
-                if (invocations == 0) {
-                    backOff()
-                    log.info("retrying initStandardDesignDocument for design document: {}", designDoc.id)
-                    initDesignDocInternal(groupId, dbInstanceUrl, 1, forceUpdate)
-                }
-            }
-
-        } else {
-            log.debug("DesignDocument was unchanged. Database was not updated.")
-        }
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(GenericDAOImpl<*>::class.java)
+        return listOf()
     }
 }

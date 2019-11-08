@@ -157,7 +157,6 @@ fun Request.getResponseTextFlow(charset: Charset = StandardCharsets.UTF_8, buffe
     awaitClose()
 }.buffer(buffer)
 
-@ExperimentalCoroutinesApi
 private  fun <T> ProducerScope<T>.tryOffer(value: T) {
     if (!offer(value)) {
         cancel(CancellationException("Buffer full, consumer is too slow"))
