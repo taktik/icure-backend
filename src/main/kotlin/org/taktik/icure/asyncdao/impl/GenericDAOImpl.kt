@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.get
 import org.taktik.couchdb.queryView
-import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
