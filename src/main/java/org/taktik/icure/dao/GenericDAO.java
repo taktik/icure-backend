@@ -51,9 +51,9 @@ public interface GenericDAO<T extends Identifiable<String>> extends LookupDAO<T>
 
     List<T> getList(Collection<String> ids);
 
-    <K extends Collection<T>> K create(K entities) throws PersistenceException;
+    <K extends Collection<T>> List<T> create(K entities) throws PersistenceException;
 
-    <K extends Collection<T>> K save(K entities) throws PersistenceException;
+    <K extends Collection<T>> List<T> save(K entities) throws PersistenceException;
 
     void remove(T entity) throws PersistenceException;
 

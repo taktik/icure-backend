@@ -432,12 +432,12 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 	}
 
 	@Override
-	public <K extends Collection<T>> K create(K entities) {
+	public <K extends Collection<T>> List<T> create(K entities) {
 		return save(true, entities);
 	}
 
 	@Override
-	public <K extends Collection<T>> K save(K entities) {
+	public <K extends Collection<T>> List<T> save(K entities) {
 		return save(null, entities);
 	}
 
@@ -485,9 +485,10 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 			}
 
 			orderedEntities.stream().filter(e -> e.getRev() != null).forEach(this::afterSave);
+            return updatedEntities;
 		}
 
-		return entities;
+		return new ArrayList<>();
 	}
 
 	@Override

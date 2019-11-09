@@ -156,7 +156,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return save(dbInstanceUrl, groupId, null, entity)
     }
 
-    protected suspend fun save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entity: T?): T? {
+    protected open suspend fun save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entity: T?): T? {
         if (entity != null) {
             var newEntity = newEntity
             val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
@@ -217,13 +217,40 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
         // Before remove
         beforeDelete(dbInstanceUrl, groupId, entity)
+        // Mark soft deleted
+        entity.deletionDate = System.currentTimeMillis()
+        client.update(entity, entityClass)
+        // After remove
+        afterDelete(dbInstanceUrl, groupId, entity)
+    }
+
+    override suspend fun unRemove(dbInstanceUrl:URI, groupId:String, entity: T) {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".remove: " + entity)
+        }
+        // Before remove
+        beforeUnDelete(dbInstanceUrl, groupId, entity)
+        // Mark soft deleted
+        entity.deletionDate = null
+        client.update(entity, entityClass)
+        // After remove
+        afterUnDelete(dbInstanceUrl, groupId, entity)
+    }
+
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entity: T) {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".remove: " + entity)
+        }
+        // Before remove
+        beforeDelete(dbInstanceUrl, groupId, entity)
         // Delete
         client.delete(entity)
         // After remove
         afterDelete(dbInstanceUrl, groupId, entity)
     }
 
-    @Throws(PersistenceException::class)
     override suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
@@ -234,14 +261,50 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 beforeDelete(dbInstanceUrl, groupId, entity)
                 entity.deletionDate = System.currentTimeMillis()
             }
-            client.bulkDelete(entities)
+            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList()
             for (entity in entities) {
                 afterDelete(dbInstanceUrl, groupId, entity)
             }
         } catch (e: Exception) {
             throw PersistenceException("failed to remove entities ", e)
         }
+    }
 
+    override suspend fun unRemove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug("remove $entities")
+        }
+        try {
+            for (entity in entities) {
+                beforeUnDelete(dbInstanceUrl, groupId, entity)
+                entity.deletionDate = null
+            }
+            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList()
+            for (entity in entities) {
+                afterUnDelete(dbInstanceUrl, groupId, entity)
+            }
+        } catch (e: Exception) {
+            throw PersistenceException("failed to remove entities ", e)
+        }
+    }
+
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug("remove $entities")
+        }
+        try {
+            for (entity in entities) {
+                beforeDelete(dbInstanceUrl, groupId, entity)
+            }
+            val bulkDeleteResults = client.bulkDelete(entities).toList()
+            for (entity in entities) {
+                afterDelete(dbInstanceUrl, groupId, entity)
+            }
+        } catch (e: Exception) {
+            throw PersistenceException("failed to remove entities ", e)
+        }
     }
 
     override suspend fun <K : Collection<T>> create(dbInstanceUrl:URI, groupId:String, entities: K): List<T> {
@@ -252,7 +315,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return save(dbInstanceUrl, groupId, false, entities)
     }
 
-    protected suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T> {
+    protected open suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T> {
         var newEntity = newEntity
         if (entities != null) {
             val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
