@@ -19,7 +19,9 @@
 package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.dao.Option
+import org.ektorp.ViewQuery
+import org.taktik.couchdb.Client
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.Identifiable
 import java.net.URI
 import java.nio.ByteBuffer
@@ -46,4 +48,6 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun purge(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T)
+
+    fun<P> pagedViewQuery(client: Client, viewName: String, startKey: P, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery
 }

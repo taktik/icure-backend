@@ -20,26 +20,24 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
-import org.ektorp.*
+import org.ektorp.DocumentNotFoundException
+import org.ektorp.ViewQuery
 import org.ektorp.impl.NameConventions
-import org.ektorp.support.DesignDocument
 import org.slf4j.LoggerFactory
+import org.taktik.couchdb.Client
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.get
 import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
-import org.taktik.icure.entities.Group
+import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
-import java.util.function.Function
-import java.util.stream.Collectors
 import javax.persistence.PersistenceException
 
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
@@ -313,6 +311,24 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): List<T> {
         return save(dbInstanceUrl, groupId, false, entities)
+    }
+
+    override fun<P> pagedViewQuery(client: Client, viewName: String, startKey: P, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery {
+        val DEFAULT_LIMIT = 1000
+        val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
+
+        var viewQuery = createQuery(viewName)
+                .startKey(startKey)
+                .includeDocs(true)
+                .startDocId(pagination.startDocumentId)
+                .limit(limit)
+                .descending(descending)
+
+        if (endKey != null) {
+            viewQuery = viewQuery.endKey(endKey)
+        }
+
+        return viewQuery
     }
 
     protected open suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T> {

@@ -30,21 +30,5 @@ class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: 
         return connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString(), groupId))
     }
 
-    private inner class CouchDbConnectorReference(internal val dbInstanceUrl: String, internal val groupId: String) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is CouchDbConnectorReference) return false
-
-            if (dbInstanceUrl != other.dbInstanceUrl) return false
-            if (groupId != other.groupId) return false
-
-            return true
-        }
-        override fun hashCode(): Int {
-            var result = dbInstanceUrl.hashCode()
-            result = 31 * result + groupId.hashCode()
-            return result
-        }
-    }
-
+    private data class CouchDbConnectorReference(internal val dbInstanceUrl: String, internal val groupId: String)
 }
