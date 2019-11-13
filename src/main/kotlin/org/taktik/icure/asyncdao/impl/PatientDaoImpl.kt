@@ -489,18 +489,16 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return resultMap
     }
 
-    override suspend fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): List<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         return this.getDuplicatesFromView(dbInstanceUrl, groupId, "by_hcparty_ssin", healthcarePartyId, paginationOffset)
     }
 
-    override suspend fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): List<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         return this.getDuplicatesFromView(dbInstanceUrl, groupId, "by_hcparty_name", healthcarePartyId, paginationOffset)
     }
 
-    private suspend fun getDuplicatesFromView(dbInstanceUrl: URI, groupId: String, viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): List<ViewQueryResultEvent> {
+    private fun getDuplicatesFromView(dbInstanceUrl: URI, groupId: String, viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
-        val keysWithDuplicates = ArrayList<ComplexKey?>()
 
         val from = if (paginationOffset.startKey == null) ComplexKey.of(healthcarePartyId, "") else ComplexKey.of(*paginationOffset.startKey as Array<Any>)
         val to = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())
@@ -512,30 +510,13 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
         val viewResult = client.queryView<ComplexKey, String>(viewQuery).toList()
 
-        //val keysWithDuplicates = viewResult.filter { it.value?.toIntOrNull()?.let { it > 1 } == true }.map { it.key }.toList()
-
-        var nextKey: PaginatedDocumentKeyIdPair? = null
-        for (row in viewResult) {
-//            if (keysWithDuplicates.size >= paginationOffset.limit) {
-//                nextKey = PaginatedDocumentKeyIdPair(MAPPER.treeToValue(row.keyAsNode, List<*>::class.java), row.key)
-//                break
-//            }
-
-            if (row.value?.toInt()?.let { it > 1 } == true) {
-                keysWithDuplicates.add(row.key)
-            }
-        }
+        val keysWithDuplicates = viewResult.filter { it.value?.toIntOrNull()?.let { it > 1 } == true }.map { it.key }.toList()
 
         val duplicatePatients = client.queryViewIncludeDocs<ComplexKey, String, Patient>(createQuery(viewName).keys(keysWithDuplicates).reduce(false).includeDocs(true))
-                .filter { it.doc.active == true }
+                .filter { it.doc.active }
                 .distinct()
 
-        return duplicatePatients.toList() // TODO SH nextKey, no flow...
-//        return PaginatedList<Patient?>(
-//                paginationOffset.limit!!,
-//                0,
-//                duplicatePatients,
-//                nextKey)
+        duplicatePatients.onEach { emit(it) }.collect()
     }
 }
 
