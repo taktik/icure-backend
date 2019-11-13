@@ -508,7 +508,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
                 .reduce(true)
                 .group(true)
 
-        val viewResult = client.queryView<ComplexKey, String>(viewQuery).toList()
+        val viewResult = client.queryView<ComplexKey, String>(viewQuery)
 
         val keysWithDuplicates = viewResult.filter { it.value?.toIntOrNull()?.let { it > 1 } == true }.map { it.key }.toList()
 
