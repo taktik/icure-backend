@@ -40,7 +40,9 @@ class CalendarItemTypeDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbD
         val viewQuery = createQuery("all_and_deleted").includeDocs(true)
 
         val result = client.queryViewIncludeDocsNoValue<String, CalendarItemType>(viewQuery).map { it.doc }
-        result.onEach { this.postLoad(dbInstanceUrl, groupId, it) } // TODO SH correct?
-        return result
+        return result.map {
+            this.postLoad(dbInstanceUrl, groupId, it)
+            it
+        }
     }
 }
