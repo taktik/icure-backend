@@ -18,22 +18,17 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.flow.*
-import ma.glasnost.orika.util.Ordering.MAPPER
-import org.apache.commons.math3.complex.Complex
 import org.ektorp.ComplexKey
-import org.ektorp.ViewQuery
 import org.ektorp.support.View
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.*
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.queryView
+import org.taktik.couchdb.queryViewIncludeDocs
+import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.PatientDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.db.PaginatedDocumentKeyIdPair
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
@@ -41,10 +36,6 @@ import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.utils.distinct
 import java.net.URI
 import java.util.*
-import java.util.stream.Collectors
-import kotlin.collections.Collection
-import kotlin.collections.List
-import kotlin.collections.Map
 import kotlin.collections.set
 
 @Repository("patientDAO")

@@ -49,6 +49,6 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T)
 
-    fun<P> pagedViewQuery(client: Client, viewName: String, startKey: P, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery
-    fun<P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P, endKey: P?, pagination: PaginationOffset<P>): ViewQuery
+    fun<P> pagedViewQuery(client: Client, viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery
+    fun<P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery
 }
