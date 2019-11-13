@@ -312,12 +312,13 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     @Override
-    protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
+    protected <K extends Collection<T>> List<T> save(Boolean newEntity, K entities) {
         String fullId1 = getFullId(ALL_ENTITIES_CACHE_KEY);
+        List<T> savedEntities = new ArrayList<>();
         try {
-            entities = super.save(newEntity, entities);
+            savedEntities = super.save(newEntity, savedEntities);
         } catch (UpdateConflictException | BulkUpdateConflictException e) {
-            for (T entity:entities) {
+            for (T entity:savedEntities) {
                 String fullId = getFullId(keyManager.getKey(entity));
                 log.debug("Cache EVICT= {}", fullId);
                 cache.evict(fullId);
@@ -328,12 +329,12 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
 
             throw e;
         }
-        for (T entity:entities) {
+        for (T entity:savedEntities) {
 			putInCache(keyManager.getKey(entity), entity);
         }
         cache.evict(fullId1);
         log.debug("Cache EVICT= {}", fullId1);
 
-        return entities;
+        return savedEntities;
     }
 }

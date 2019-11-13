@@ -24,6 +24,7 @@ import org.taktik.icure.entities.base.StoredICureDocument;
 
 import javax.persistence.PersistenceException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,7 +39,7 @@ public class GenericIcureDAOImpl<T extends StoredICureDocument> extends GenericD
 
 
     @Override
-    protected <K extends Collection<T>> K save(Boolean newEntity, K entities) {
+    protected <K extends Collection<T>> List<T> save(Boolean newEntity, K entities) {
         entities.stream().filter(Objects::nonNull)
                 .forEach(GenericIcureDAOImpl::setTimestamps);
         return super.save(newEntity, entities);

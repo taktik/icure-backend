@@ -320,9 +320,27 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         var viewQuery = createQuery(viewName)
                 .startKey(startKey)
                 .includeDocs(true)
+                .reduce(false)
                 .startDocId(pagination.startDocumentId)
                 .limit(limit)
                 .descending(descending)
+
+        if (endKey != null) {
+            viewQuery = viewQuery.endKey(endKey)
+        }
+
+        return viewQuery
+    }
+
+    override fun<P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P, endKey: P?, pagination: PaginationOffset<P>): ViewQuery {
+        val DEFAULT_LIMIT = 1000
+        val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
+
+        var viewQuery = createQuery(viewName)
+                .startKey(startKey)
+                .includeDocs(false)
+                .reduce(false)
+                .limit(limit)
 
         if (endKey != null) {
             viewQuery = viewQuery.endKey(endKey)

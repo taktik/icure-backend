@@ -27,7 +27,6 @@ import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.queryViewIncludeDocs
-import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.ClassificationDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Classification
@@ -44,7 +43,7 @@ internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") c
     override fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<Classification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery("all").includeDocs(true).key(patientId)
-        return client.queryViewIncludeDocsNoValue<String, Classification>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc }
     }
 
     override suspend fun getClassification(dbInstanceUrl: URI, groupId: String, classificationId: String): Classification? {
