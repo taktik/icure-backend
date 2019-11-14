@@ -45,7 +45,7 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
     override fun list(dbInstanceUrl: URI, groupId: String, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = pagedViewQuery(client, "all_by_date", paginationOffset.startKey, null, paginationOffset, descending)
+        val viewQuery = pagedViewQuery("all_by_date", paginationOffset.startKey, null, paginationOffset, descending)
 
         return client.queryView(viewQuery, Long::class.java, String::class.java, AccessLog::class.java)
     }
@@ -56,11 +56,11 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
 
         val viewQuery = if (startDate == null) {
             val key = if (pagination.startKey == null) ComplexKey.of(userId, accessType, 0L) else ComplexKey.of(listOf(pagination.startKey))
-            pagedViewQuery(client, "all_by_user_date", key, null, pagination, descending)
+            pagedViewQuery("all_by_user_date", key, null, pagination, descending)
         } else {
             val startKey = if (pagination.startKey == null) ComplexKey.of(userId, accessType, startDate.toEpochMilli()) else pagination.startKey as ComplexKey
             val endKey = ComplexKey.of(userId, accessType, java.lang.Long.MAX_VALUE)
-            pagedViewQuery(client, "all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
+            pagedViewQuery("all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
         }
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, AccessLog::class.java)
     }

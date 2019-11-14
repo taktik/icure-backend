@@ -58,7 +58,7 @@ internal class ClassificationTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher")
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey = if (paginationOffset.startKey != null) paginationOffset.startKey.toString() else "\u0000"
         val endKey = "\ufff0"
-        val viewQuery = pagedViewQuery(client, "all", startKey, endKey, paginationOffset, false)
+        val viewQuery = pagedViewQuery("all", startKey, endKey, paginationOffset, false)
         return client.queryView(viewQuery, String::class.java, String::class.java, ClassificationTemplate::class.java)
     }
 }
