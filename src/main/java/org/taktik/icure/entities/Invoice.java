@@ -103,6 +103,10 @@ public class Invoice extends StoredICureDocument {
 
 	private IdentityDocumentReader idDocument;
 
+    //eattest cancel
+    protected String cancelReason;
+    protected Long cancelDate;
+
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
 
@@ -619,4 +623,20 @@ public class Invoice extends StoredICureDocument {
 	public void setIdDocument(IdentityDocumentReader idDocument) {
 		this.idDocument = idDocument;
 	}
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public Long getCancelDate() {
+        return cancelDate;
+    }
+
+    public void setCancelDate(Long cancelDate) {
+        this.cancelDate = cancelDate;
+    }
 }
