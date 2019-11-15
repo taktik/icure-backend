@@ -194,7 +194,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
-    @ApiOperation(value = "Finding AMPs by dmpp code", responseContainer = "Array", response = Amp::class, httpMethod = "GET", notes = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by dmpp code", responseContainer = "Array", response = AmpDto::class, httpMethod = "GET", notes = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
     @GET
     @Path("/amp/byDmppCode/{dmppCode}")
     fun findAmpsByDmppCode(
