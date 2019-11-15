@@ -91,8 +91,11 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
+	//eattest cancel
+    protected String cancelReason;
+    protected Long cancelDate;
 
-	protected Map<String,String> receipts = new HashMap<>();
+    protected Map<String,String> receipts = new HashMap<>();
 
 	protected IdentityDocumentReader idDocument;
 
@@ -399,5 +402,21 @@ public class InvoiceDto extends IcureDto {
 	public void setIdDocument(IdentityDocumentReader idDocument) {
 		this.idDocument = idDocument;
 	}
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public Long getCancelDate() {
+        return cancelDate;
+    }
+
+    public void setCancelDate(Long cancelDate) {
+        this.cancelDate = cancelDate;
+    }
 
 }
