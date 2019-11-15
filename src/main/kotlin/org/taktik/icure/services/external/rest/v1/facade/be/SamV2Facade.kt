@@ -194,6 +194,13 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
+    @ApiOperation(value = "Finding AMPs by dmpp code", responseContainer = "Array", response = Amp::class, httpMethod = "GET", notes = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
+    @GET
+    @Path("/amp/byDmppCode/{dmppCode}")
+    fun findAmpsByDmppCode(
+            @ApiParam(value = "dmppCode", required = true) @PathParam("dmppCode") dmppCode: String
+    ): Response = ResponseUtils.ok(samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) })
+
     @ApiOperation(value = "Finding AMPs by group with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
     @Path("/amp/byGroupId/{vmpgId}")
