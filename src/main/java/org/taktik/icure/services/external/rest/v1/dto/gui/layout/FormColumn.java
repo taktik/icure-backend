@@ -36,9 +36,10 @@ public class FormColumn implements Serializable {
 
     @XStreamAsAttribute
     String columns;
-    public String getColumns() {
-        return columns;
-    }
+
+    @XStreamAsAttribute
+    Boolean shouldDisplay;
+
 
 	public FormColumn() {
 	}
@@ -62,6 +63,18 @@ public class FormColumn implements Serializable {
 
     public void addFormData(FormLayoutData fd) {
         formDataList.add(fd);
+    }
+
+    public Boolean getShouldDisplay() {
+        return shouldDisplay;
+    }
+
+    public void setShouldDisplay(Boolean shouldDisplay) {
+        this.shouldDisplay = shouldDisplay;
+    }
+
+    public String getColumns() {
+        return columns;
     }
 
 }
