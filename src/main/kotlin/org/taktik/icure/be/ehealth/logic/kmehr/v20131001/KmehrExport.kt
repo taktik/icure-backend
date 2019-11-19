@@ -111,6 +111,11 @@ open class KmehrExport {
 			ids.clear()
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
 			ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft!!.version; value= p.id})
+            p.externalId?.let {
+                if(it.trim() != "") {
+                    ids.add(IDPATIENT().apply { s= IDPATIENTschemes.LOCAL; sl = "PatientReference"; value = p.externalId })
+                }
+            }
 		}
 	}
 

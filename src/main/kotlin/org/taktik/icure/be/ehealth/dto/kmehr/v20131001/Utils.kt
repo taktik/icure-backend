@@ -137,7 +137,7 @@ object Utils {
 
     fun makeFuzzyIntFromXMLGregorianCalendar(cal: XMLGregorianCalendar?): Int? {
         return cal?.let {
-            it.year * 10000 + it.month * 100 + it.day
+            it.year * 10000 + (if(it.month != FIELD_UNDEFINED) it.month * 100 else 0) + (if(it.day != FIELD_UNDEFINED) it.day else 0)
         }
     }
 
@@ -200,5 +200,16 @@ object Utils {
             } ?: d.toLong()
         }
     }
+
+    fun makeFuzzyLongFromMomentType(moment: org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType): Long? {
+        if(moment.year != null) {
+            return Utils.makeFuzzyLongFromDateAndTime(moment.year, moment.time)
+        } else if(moment.yearmonth != null) {
+            return Utils.makeFuzzyLongFromDateAndTime(moment.yearmonth, moment.time)
+        } else {
+            return Utils.makeFuzzyLongFromDateAndTime(moment.date, moment.time)
+        }
+    }
+
 
 }

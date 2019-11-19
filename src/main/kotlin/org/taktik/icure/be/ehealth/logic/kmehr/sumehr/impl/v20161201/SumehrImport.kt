@@ -465,7 +465,13 @@ class SumehrImport(val patientLogic: PatientLogic,
             patient.setPlaceOfDeath(p.deathlocation.getFullAddress())
         }
         if (p.sex != null && (force || patient.gender == null)) {
-            patient.gender = Gender.fromCode(p.sex.cd.value.value())
+            patient.gender = when(p.sex.cd.value) {
+                CDSEXvalues.FEMALE -> Gender.female
+                CDSEXvalues.MALE -> Gender.male
+                CDSEXvalues.UNKNOWN -> Gender.unknown
+                CDSEXvalues.CHANGED -> Gender.changed
+                else -> Gender.unknown
+            }
         }
         if (p.profession != null && (force || patient.profession == null)) {
             patient.setProfession(p.profession.text.value)
