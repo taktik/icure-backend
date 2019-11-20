@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Katz continent</NAME>
+    <VALUE>
+        <CODE>continent</CODE>
+        <DESCRIPTION L="fr">Est continent pour les urines et les selles</DESCRIPTION>
+        <DESCRIPTION L="nl">Is continent voor urine en faeces</DESCRIPTION>
+        <DESCRIPTION L="en">Is continent for urine and stool</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>accidentallyincontient</CODE>
+        <DESCRIPTION L="fr">Est accidentellement incontinent pour les urines ou les selles (sonde vésicale ou anus artificiel compris)</DESCRIPTION>
+        <DESCRIPTION L="nl">Is accidentieel incontinent voor urine of faeces (inclusief blaassonde of kunstaars)</DESCRIPTION>
+        <DESCRIPTION L="en">Is accidentally incontinent for urine or stool (bladder catheter or artificial anus included)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>partiallyincontient</CODE>
+        <DESCRIPTION L="fr">Est incontinent pour les urines (y compris exercices de miction) ou les selles</DESCRIPTION>
+        <DESCRIPTION L="nl">Is incontinent voor urine (inclusief mictietraining) of voor faeces </DESCRIPTION>
+        <DESCRIPTION L="en">Is incontinent for urine (including urination exercises) or stool</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>totallyincontinent</CODE>
+        <DESCRIPTION L="fr">Est incontinent pour les urines et les selles </DESCRIPTION>
+        <DESCRIPTION L="nl">Is incontinent voor urine en faeces </DESCRIPTION>
+        <DESCRIPTION L="en">Is incontinent for urine and stool</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

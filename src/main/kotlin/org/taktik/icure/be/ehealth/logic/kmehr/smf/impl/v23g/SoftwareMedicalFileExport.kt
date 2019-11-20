@@ -186,7 +186,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty.id, sfks, config)).groupBy {
 			it.healthElementId
 		}.mapValues {
-			it.value.sortedBy { it.modified } // FIXME: not sure if .modified is the right sorting key
+			it.value.sortedWith(compareBy({ it.created },{ it.modified })) // created is the key, but use modified for backward compat
 			// oldest He is first in list
 		}
 		oldestHeByHeId = hesByHeIdSortedByDate.mapValues {
