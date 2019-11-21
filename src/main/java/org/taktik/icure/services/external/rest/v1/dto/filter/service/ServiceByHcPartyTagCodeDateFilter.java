@@ -138,8 +138,7 @@ public class ServiceByHcPartyTagCodeDateFilter extends Filter<Service> implement
 
 	@Override
 	public boolean matches(Service item) {
-		return item.getEndOfLife() == null
-                && (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
+		return (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
 				&& (patientSecretForeignKey == null || (item.getSecretForeignKeys() != null && item.getSecretForeignKeys().contains(patientSecretForeignKey)))
 				&& (tagType == null || item.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent())
 				&& (codeType == null || (item.getCodes().stream().filter(c -> codeType.equals(c.getType()) && (codeCode == null || codeCode.equals(c.getCode()))).findAny().isPresent()))

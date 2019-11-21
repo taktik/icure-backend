@@ -67,7 +67,6 @@ class MedicationSchemeExport : KmehrExport() {
 			sfks: List<String>,
 			sender: HealthcareParty,
 			language: String,
-            recipientSafe: String?,
             version: Int?,
             services: List<Service>?,
 			decryptor: AsyncDecrypt?,
@@ -84,7 +83,7 @@ class MedicationSchemeExport : KmehrExport() {
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
 				cds.add(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })
-				name = recipientSafe
+				name = "VITALINK" //TODO: should change based on selected hub
 			})
 		})
 

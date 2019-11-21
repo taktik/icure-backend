@@ -37,8 +37,6 @@ import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.FormDto;
 import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto;
-import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
-import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
@@ -327,48 +325,8 @@ public class FormFacade implements OpenApiFacade {
 		}
 	}
 
-    @ApiOperation(
-            value = "List form stubs found By Healthcare Party and secret foreign keys.",
-            response = IcureStubDto.class,
-            responseContainer = "Array",
-            httpMethod = "GET",
-            notes = "Keys must be delimited by coma"
-    )
-    @GET
-    @Path("/byHcPartySecretForeignKeys/delegations")
-    public Response findDelegationsStubsByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId,
-                                                                    @QueryParam("secretFKeys") String secretFKeys) {
-        if (hcPartyId == null || secretFKeys == null) {
-            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
-        }
 
-        Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
-        return Response.ok().entity(formLogic.findByHCPartyPatient(hcPartyId, new ArrayList<>(secretPatientKeys), null, null, null).stream().map(contact -> mapper.map(contact, IcureStubDto.class)).collect(Collectors.toList())).build();
-    }
-
-    @ApiOperation(
-            value = "Update delegations in form.",
-            httpMethod = "POST",
-            notes = "Keys must be delimited by coma"
-    )
-    @POST
-    @Path("/delegations")
-    public Response setFormsDelegations(List<IcureStubDto> stubs) throws Exception {
-        List<Form> forms = formLogic.getForms(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
-        forms.forEach(form -> {
-            stubs.stream().filter(s -> s.getId().equals(form.getId())).findFirst().ifPresent(stub -> {
-                stub.getDelegations().forEach((s, delegationDtos) -> form.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-                stub.getEncryptionKeys().forEach((s, delegationDtos) -> form.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-                stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> form.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
-            });
-        });
-        formLogic.updateEntities(forms);
-        return Response.ok().build();
-    }
-
-
-
-    @ApiOperation(response = FormTemplateDto.class, value = "Gets a form template by guid")
+	@ApiOperation(response = FormTemplateDto.class, value = "Gets a form template by guid")
 	@GET
 	@Path("/template/{formTemplateId}")
 	public Response getFormTemplate(@PathParam("formTemplateId") String formTemplateId) {

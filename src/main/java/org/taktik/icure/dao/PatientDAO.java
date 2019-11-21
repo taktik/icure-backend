@@ -18,7 +18,6 @@
 
 package org.taktik.icure.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ektorp.support.View;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
@@ -86,8 +85,4 @@ public interface PatientDAO extends GenericDAO<Patient> {
 
 	@View(name = "by_hcparty_delegate_keys", map = "classpath:js/healthcareparty/By_hcparty_delegate_keys_map.js")
 	Map<String, String> getHcPartyKeysForDelegate(String healthcarePartyId);
-
-	PaginatedList<Patient> getDuplicatePatientsBySsin(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException;
-
-	PaginatedList<Patient> getDuplicatePatientsByName(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException;
 }

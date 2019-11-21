@@ -20,7 +20,6 @@
 package org.taktik.icure.config
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -51,7 +50,6 @@ import javax.servlet.Filter
 
 @Configuration
 class SecurityConfig {
-
     @Bean
     fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder(256)
 
@@ -60,14 +58,6 @@ class SecurityConfig {
 
     @Bean
     fun basicAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = BasicAuthenticationFilter(authenticationManager)
-
-    /*@Bean
-    fun sameSiteFilter() = object : GenericFilterBean() {
-        override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {
-            response?.let { (it as? HttpServletResponse)?.setHeader("Set-Cookie", "HttpOnly; SameSite=None; Secure") }
-            chain?.doFilter(request, response)
-        }
-    }*/
 
     @Bean
     fun usernamePasswordAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint, sessionLogic: ICureSessionLogic) = UsernamePasswordAuthenticationFilter().apply {
@@ -92,14 +82,13 @@ class SecurityConfig {
     @Bean
     fun securityConfigAdapter(
             daoAuthenticationProvider: CustomAuthenticationProvider,
-            //sameSiteFilter: GenericFilterBean,
             basicAuthenticationFilter: BasicAuthenticationFilter,
             usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
             exceptionTranslationFilter: ExceptionTranslationFilter,
             remotingExceptionTranslationFilter: ExceptionTranslationFilter,
             httpFirewall: HttpFirewall
                              )
-        = SecurityConfigAdapter(daoAuthenticationProvider, /*sameSiteFilter, */ basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
+        = SecurityConfigAdapter(daoAuthenticationProvider, basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
 
     @Bean
     fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
@@ -110,7 +99,6 @@ class SecurityConfig {
 
 @Configuration
 class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
-                            //private val sameSiteFilter: Filter,
                             private val basicAuthenticationFilter: Filter,
                             private val usernamePasswordAuthenticationFilter: Filter,
                             private val exceptionTranslationFilter: Filter,
@@ -132,8 +120,8 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
         http!!.csrf().disable().addFilterBefore(
             FilterChainProxy(
                 listOf(
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), /* sameSiteFilter, */ basicAuthenticationFilter, remotingExceptionTranslationFilter),
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), /* sameSiteFilter, */ basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), basicAuthenticationFilter, remotingExceptionTranslationFilter),
+                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
                       )
                 ).apply {
                     setFirewall(httpFirewall)
