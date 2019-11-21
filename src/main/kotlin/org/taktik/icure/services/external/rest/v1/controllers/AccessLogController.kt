@@ -22,6 +22,9 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import ma.glasnost.orika.MapperFacade
 import ma.glasnost.orika.metadata.TypeBuilder
 import org.springframework.http.HttpStatus
@@ -44,10 +47,10 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createAccessLog", value = "Creates an access log")
     @PostMapping
-    fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
+    @FlowPreview // TODO is this needed?
+    suspend fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto { // TODO add '?' or not?
         val accessLog = accessLogLogic.createAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog creation failed")
-
         return mapper.map(accessLog, AccessLogDto::class.java)
     }
 
@@ -68,8 +71,8 @@ class AccessLogController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
-    @GetMapping
-    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) ascending: Boolean = false): List<AccessLogDto> {
+    @GetMapping // TODO SH Flow returns {} instead of []
+    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) ascending: Boolean = false): Flow<AccessLogDto> {
         val paginationOffset = PaginationOffset(null, startDocumentId, null, if (limit != null) Integer.valueOf(limit) else null)
         val accessLogDtos = PaginatedList<AccessLogDto>()
         val accessLogs = accessLogLogic.listAccessLogs(paginationOffset, ascending)
@@ -78,7 +81,7 @@ class AccessLogController(private val mapper: MapperFacade,
         mapper.map(accessLogs, accessLogDtos, object : TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {
         }.build(), object : TypeBuilder<PaginatedList<AccessLogDto>>() {
         }.build())
-        return accessLogDtos.rows
+        return accessLogDtos.rows.asFlow()
     }
 
     @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")

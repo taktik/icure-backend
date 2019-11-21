@@ -19,9 +19,10 @@
 package org.taktik.icure.logic;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.server.ServerWebExchange;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.security.UserDetails;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,9 +31,6 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 public interface SessionLogic {
-
-	/* Generic */
-	void onAuthenticationSuccess(HttpServletRequest httpRequest, Authentication authentication);
 
 	SessionContext login(String username, String password);
 
@@ -46,10 +44,6 @@ public interface SessionLogic {
 
 	@NotNull
     SessionContext getCurrentSessionContext();
-
-	void resetCurrentSessionContext();
-
-	void setCurrentSessionContext(SessionContext sessionContext);
 
 	<T> T doInSessionContext(SessionContext sessionContext, Callable<T> callable) throws Exception;
 
@@ -69,12 +63,6 @@ public interface SessionLogic {
 		String getGroupIdUserId();
 
 		String getGroupId();
-
-		String getLocale();
-
-		void setLocale(String locale);
-
-		String[] getLocaleIdentifiers();
 
 	}
 }

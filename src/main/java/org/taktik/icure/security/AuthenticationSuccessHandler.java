@@ -36,7 +36,6 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Authentication authentication) throws ServletException, IOException {
-		sessionLogic.onAuthenticationSuccess(httpRequest, authentication);
 		super.onAuthenticationSuccess(httpRequest, httpResponse, authentication);
 	}
 

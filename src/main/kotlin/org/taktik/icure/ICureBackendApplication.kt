@@ -34,7 +34,8 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.web.reactive.config.EnableWebFlux
 import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.dao.migration.DbMigration
 import org.taktik.icure.entities.embed.AddressType
@@ -78,7 +79,6 @@ import org.taktik.icure.services.external.http.WebSocketServlet
     DataSourceAutoConfiguration::class,
     JndiDataSourceAutoConfiguration::class
 ])
-@EnableWebSecurity
 @PropertySource("classpath:icure-default.properties")
 class ICureBackendApplication {
     private val log = LoggerFactory.getLogger(this.javaClass)

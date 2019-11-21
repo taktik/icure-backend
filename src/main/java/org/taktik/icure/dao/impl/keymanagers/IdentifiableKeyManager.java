@@ -19,11 +19,9 @@
 package org.taktik.icure.dao.impl.keymanagers;
 
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.base.Identifiable;
 
-import javax.inject.Inject;
 
 public class IdentifiableKeyManager<T extends Identifiable<Integer>> implements KeyManager<T, Integer> {
 	private final IDGenerator idGenerator;

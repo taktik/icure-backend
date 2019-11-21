@@ -22,20 +22,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.taktik.icure.constants.PropertyTypes;
-import org.taktik.icure.constants.TypedValuesType;
-import org.taktik.icure.entities.Property;
-import org.taktik.icure.entities.PropertyType;
 import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.PropertyLogic;
@@ -49,9 +46,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 @Transactional
@@ -59,36 +53,18 @@ import java.util.concurrent.Callable;
 public class SessionLogicImpl implements ICureSessionLogic {
 	private static final Logger log = LoggerFactory.getLogger(SessionLogicImpl.class);
 
-	public static final String SESSION_LOCALE_ATTRIBUTE = "locale";
-	public static final String SELECTED_LOCALE_REQUEST_PARAMETER_NAME = "locale";
-
-	private AuthenticationManager authenticationManager;
+	private ReactiveAuthenticationManager authenticationManager;
 
 	private UserLogic userLogic;
 	private PropertyLogic propertyLogic;
-
-	private InheritableThreadLocal<SessionContext> currentSessionContext = new InheritableThreadLocal<>();
 
 	public SessionLogicImpl() {
 	}
 
 	/* Static methods */
 
-	private static HttpSession getCurrentHttpSession() {
-		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		if (requestAttributes instanceof ServletRequestAttributes) {
-			ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
-			HttpServletRequest httpRequest = servletRequestAttributes.getRequest();
-			if (httpRequest != null) {
-				return httpRequest.getSession();
-			}
-		}
-
-		return null;
-	}
-
 	private static Authentication getCurrentAuthentication() {
-		SecurityContext context = SecurityContextHolder.getContext();
+		SecurityContext context = ReactiveSecurityContextHolder.getContext().block(); // TODO SH no block
 		if (context != null) {
 			return context.getAuthentication();
 		}
@@ -97,7 +73,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	}
 
 	private static void setCurrentAuthentication(Authentication authentication) {
-		SecurityContext context = SecurityContextHolder.getContext();
+		SecurityContext context = ReactiveSecurityContextHolder.getContext().block(); // TODO SH no block
 		if (context != null) {
 			context.setAuthentication(authentication);
 		}
@@ -116,76 +92,16 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 	/* Generic */
 
-	private String determineLocale(User user, HttpServletRequest httpRequest, String authLocale) {
-
-		// Retrieve the preferred locale of the user if any
-		Set<Property> properties = user.getProperties();
-		PropertyType propertyTypeLocale = new PropertyType(TypedValuesType.STRING, PropertyTypes.Preference.LOCALE.getIdentifier());
-		String preferredLocale = null;
-		if (properties != null && propertyTypeLocale != null) {
-			for (Property property : properties) {
-				if (property.getType() != null && property.getType().getIdentifier() != null && property.getType().getIdentifier().equals(propertyTypeLocale.getIdentifier())) {
-
-					preferredLocale = property.getValue();
-					break;
-				}
-			}
-		}
-
-		// Retrieve the locale from inherited roles of the user if any
-		String heritedLocale = null;
-		Set<Property> heritedProperties = userLogic.getProperties(user.getId(), false, true, true);
-		if (heritedProperties != null && propertyTypeLocale != null) {
-			for (Property property : heritedProperties) {
-				if (property.getType().getIdentifier().equals(propertyTypeLocale.getIdentifier())) {
-					heritedLocale = property.getValue();
-					break;
-				}
-			}
-		}
-
-		// If locale selectable
-		List<String> localeIdentifiers = new ArrayList<>();
-			localeIdentifiers.add(preferredLocale);
-			localeIdentifiers.add(heritedLocale);
-
-		// Determine the best locale to use
-		List<String> validLocaleIdentifiers = null;
-		return (validLocaleIdentifiers != null && !validLocaleIdentifiers.isEmpty()) ? validLocaleIdentifiers.get(0) : null;
-	}
-
 	@Override
 	public HttpSession getOrCreateSession() {
 		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 		if (requestAttributes instanceof ServletRequestAttributes) {
 			ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
 			HttpServletRequest httpRequest = servletRequestAttributes.getRequest();
-			if (httpRequest != null) {
-				return httpRequest.getSession(true);
-			}
+			return httpRequest.getSession(true);
 		}
 
 		return null;
-	}
-
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest httpRequest, Authentication authentication) {
-		// Get UserDetails
-		UserDetails userDetails = extractUserDetails(authentication);
-		if (userDetails != null) {
-			// Get user if any
-			PermissionSetIdentifier permissionSetIdentifier = userDetails.getPermissionSetIdentifier();
-			String userId = (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
-			User user = (userId != null && ((DatabaseUserDetails) userDetails).getGroupId() != null) ? userLogic.getUserOnUserDb(userId, ((DatabaseUserDetails) userDetails).getGroupId(), ((DatabaseUserDetails) userDetails).getDbInstanceUrl()) : null;
-			if (user != null) {
-				// Retrieve the locale from the authentication userdetails if any
-				String authLocale = userDetails.getLocale();
-
-				// Determine locale and save it
-				String locale = determineLocale(user, httpRequest, authLocale);
-				httpRequest.getSession().setAttribute(SESSION_LOCALE_ATTRIBUTE, locale);
-			}
-		}
 	}
 
 	@Override
@@ -193,10 +109,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 		try {
 			// Try to authenticate using given username and password
 			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-			Authentication authentication = authenticationManager.authenticate(token);
-
-			// Clear any previous session context
-			setCurrentSessionContext(null);
+			Authentication authentication = authenticationManager.authenticate(token).block(); // TODO SH no block
 
 			// Set current authentication
 			setCurrentAuthentication(authentication);
@@ -209,7 +122,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 					ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
 					httpRequest = servletRequestAttributes.getRequest();
 				}
-				onAuthenticationSuccess(httpRequest, authentication);
 			}
 			return getSessionContext(authentication);
 		} catch (AuthenticationException e) {
@@ -221,7 +133,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	@Override
 	public void logout() {
 		// Remove current session context
-		setCurrentSessionContext(null);
+		setCurrentAuthentication(null);
 	}
 
 	@Override
@@ -270,49 +182,30 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	@Override
 	public @NotNull
 	SessionContext getCurrentSessionContext() {
-		SessionContext sessionContext = currentSessionContext.get();
-		if (sessionContext != null) {
-			return sessionContext;
-		}
-
 		Authentication authentication = getCurrentAuthentication();
 		return new SessionContextImpl(authentication);
 	}
 
 	@Override
-	public void resetCurrentSessionContext() {
-		setCurrentSessionContext(null);
-	}
-
-	@Override
-	public void setCurrentSessionContext(SessionContext sessionContext) {
-		// Set the current sessionContext
-		currentSessionContext.set(sessionContext);
-
-		// Set current authentication
-		setCurrentAuthentication((sessionContext != null) ? sessionContext.getAuthentication() : null);
-	}
-
-	@Override
 	public <T> T doInSessionContext(SessionContext sessionContext, Callable<T> callable) throws Exception {
 		// Backup current sessionContext and authentication if any
-		SessionContext previousSessionContext = currentSessionContext.get();
 		Authentication previousAuthentication = getCurrentAuthentication();
 
-		// Set new sessionContext
-		setCurrentSessionContext(sessionContext);
+		// Set new authentication
+		setCurrentAuthentication((sessionContext != null) ? sessionContext.getAuthentication() : null);
 
 		// Prepare result
 		T result = null;
 
 		// Call callable
-		if (callable != null) {
-			result = callable.call();
+		try {
+			if (callable != null) {
+				result = callable.call();
+			}
+		} finally {
+			// Restore previous sessionContext and authentication
+			setCurrentAuthentication(previousAuthentication);
 		}
-
-		// Restore previous sessionContext and authentication
-		currentSessionContext.set(previousSessionContext);
-		setCurrentAuthentication(previousAuthentication);
 
 		return result;
 	}
@@ -360,7 +253,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 		@Override
 		public User getUser() {
-
 			if (userDetails != null) {
 				String userId = getUserId();
 				String groupId = getGroupId();
@@ -372,10 +264,10 @@ public class SessionLogicImpl implements ICureSessionLogic {
 			}
 
 			String userId = getGroupIdUserId();
-
 			if (userId != null) {
 				return userLogic.getUserOnFallbackDb(userId);
 			}
+
 			return null;
 		}
 
@@ -392,7 +284,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 			}
 
 			String groupId = getGroupId();
-			return groupId != null ? groupId +  ":" + userId : userId;
+			return groupId != null ? groupId + ":" + userId : userId;
 		}
 
 		@Override
@@ -403,37 +295,10 @@ public class SessionLogicImpl implements ICureSessionLogic {
 		public String getUserId() {
 			return (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
 		}
-
-
-		@Override
-		public String getLocale() {
-			HttpSession httpSession = getCurrentHttpSession();
-			if (httpSession != null) {
-				Object sessionLocaleAttribute = httpSession.getAttribute(SESSION_LOCALE_ATTRIBUTE);
-				if (sessionLocaleAttribute instanceof String) {
-					return (String) sessionLocaleAttribute;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public void setLocale(String locale) {
-			HttpSession httpSession = getCurrentHttpSession();
-			if (httpSession != null) {
-				httpSession.setAttribute(SESSION_LOCALE_ATTRIBUTE, locale);
-			}
-		}
-
-		@Override
-		public String[] getLocaleIdentifiers() {
-			return new String[]{getLocale(), null};
-		}
-
 	}
 
 	@Autowired
-	public void setAuthenticationManager(@Lazy AuthenticationManager authenticationManager) {
+	public void setAuthenticationManager(@Lazy ReactiveAuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
 
