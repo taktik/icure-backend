@@ -55,9 +55,9 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
 
     @Override
     @View(name = "all_by_user_date", map = "classpath:js/accesslog/all_by_user_type_and_date_map.js")
-    public PaginatedList<AccessLog> findByUserAfterDate(String userId, String accessType, Instant startDate, PaginationOffset pagination, boolean descending) {
+    public PaginatedList<AccessLog> findByUserAfterDate(String userId, String accessType, Instant startDate, PaginationOffset<List<Object>> pagination, boolean descending) {
         if (startDate == null) {
-            ComplexKey key = pagination.getStartKey() == null ? ComplexKey.of(userId, accessType, 0l) : (ComplexKey) pagination.getStartKey();
+            ComplexKey key = pagination.getStartKey() == null ? ComplexKey.of(userId, accessType, 0l) : ComplexKey.of(pagination.getStartKey().toArray());
             return pagedQueryView("all_by_user_date", key, null, pagination, descending);
         } else {
             ComplexKey startKey = pagination.getStartKey() == null ? ComplexKey.of(userId, accessType, startDate.toEpochMilli()) : (ComplexKey) pagination.getStartKey();
@@ -75,11 +75,5 @@ public class AccessLogDAOImpl extends GenericDAOImpl<AccessLog> implements Acces
         queryView("by_hcparty_patient", keys).forEach((e)->{if (result.isEmpty() || !e.getId().equals(result.get(result.size()-1).getId())) {result.add(e); }});
 
         return result;
-    }
-
-
-    @Override
-    public List<AccessLog> findByHCPartySecretPatientKeys(String hcPartyId, ArrayList<String> secretForeignKeys) {
-        return null;
     }
 }

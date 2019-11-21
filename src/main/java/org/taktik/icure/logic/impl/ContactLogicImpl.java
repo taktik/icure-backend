@@ -195,7 +195,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 		s.setContactId(c.getId());
 		s.setSecretForeignKeys(c.getSecretForeignKeys());
 		s.setCryptedForeignKeys(c.getCryptedForeignKeys());
-		List<SubContact> subContacts = c.getSubContacts().stream().filter(sc -> sc.getServices().stream().anyMatch(sl -> sl.getServiceId().equals(s.getId()))).collect(Collectors.toList());
+		List<SubContact> subContacts = c.getSubContacts().stream().filter(sc -> sc.getServices().stream().filter(sc2 -> sc2.getServiceId() != null).anyMatch(sl -> sl.getServiceId().equals(s.getId()))).collect(Collectors.toList());
 		s.setSubContactIds(subContacts.stream().map(SubContact::getId).collect(Collectors.toSet()));
 		s.setPlansOfActionIds(subContacts.stream().map(SubContact::getPlanOfActionId).filter(Objects::nonNull).collect(Collectors.toSet()));
 		s.setHealthElementsIds(subContacts.stream().map(SubContact::getHealthElementId).filter(Objects::nonNull).collect(Collectors.toSet()));
