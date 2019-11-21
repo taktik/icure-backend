@@ -28,12 +28,10 @@ interface CalendarItemDAO : GenericDAO<CalendarItem> {
 
     fun listCalendarItemByStartDateAndHcPartyId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem>
 
-    @View(name = "by_agenda_and_startdate", map = "classpath:js/calendarItem/by_agenda_and_startdate.js")
     fun listCalendarItemByStartDateAndAgendaId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, agendaId: String): Flow<CalendarItem>
 
     fun listCalendarItemByEndDateAndHcPartyId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem>
 
-    @View(name = "by_agenda_and_enddate", map = "classpath:js/calendarItem/by_agenda_and_enddate.js")
     fun listCalendarItemByEndDateAndAgendaId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, agenda: String): Flow<CalendarItem>
 
     fun listCalendarItemByPeriodAndHcPartyId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem>

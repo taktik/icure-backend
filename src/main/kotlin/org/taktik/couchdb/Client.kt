@@ -120,13 +120,16 @@ inline fun <reified K, reified T> Client.queryViewIncludeDocsNoValue(query: View
     return queryView(query, K::class.java, Nothing::class.java, T::class.java).filterIsInstance()
 }
 
-// Convenience inline methods with reified type params
+inline fun <reified V, reified T> Client.queryViewIncludeDocsNoKey(query: ViewQuery): Flow<ViewRowWithDoc<Nothing, V, T>> {
+    require(query.isIncludeDocs) { "Query must have includeDocs=true" }
+    return queryView(query, Nothing::class.java, V::class.java, T::class.java).filterIsInstance()
+}
+
 inline fun <reified K, reified V> Client.queryView(query: ViewQuery): Flow<ViewRowNoDoc<K, V>> {
     require(!query.isIncludeDocs) { "Query must have includeDocs=false" }
     return queryView(query, K::class.java, V::class.java, Nothing::class.java).filterIsInstance()
 }
 
-// Convenience inline methods with reified type params
 suspend inline fun <reified T : CouchDbDocument> Client.get(id: String): T? = this.get(id, T::class.java)
 
 inline fun <reified T : CouchDbDocument> Client.get(ids: List<String>): Flow<T> = this.get(ids, T::class.java)

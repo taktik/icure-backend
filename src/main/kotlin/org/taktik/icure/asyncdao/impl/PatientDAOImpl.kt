@@ -34,6 +34,7 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.utils.distinct
+import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.util.*
 import kotlin.collections.set
@@ -43,27 +44,27 @@ import kotlin.collections.set
 class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Patient>(Patient::class.java, couchDbDispatcher, idGenerator), PatientDAO {
 
     @View(name = "by_hcparty_name", map = "classpath:js/patient/By_hcparty_name_map.js", reduce = "_count")
-    override fun listIdsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String> {
         return listIdsForName(dbInstanceUrl, groupId, name, healthcarePartyId, "by_hcparty_name")
     }
 
     @View(name = "of_hcparty_name", map = "classpath:js/patient/Of_hcparty_name_map.js")
-    override fun listIdsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String> {
         return listIdsForName(dbInstanceUrl, groupId, name, healthcarePartyId, "of_hcparty_name")
     }
 
     @View(name = "by_hcparty_ssin", map = "classpath:js/patient/By_hcparty_ssin_map.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun listIdsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String> {
         return listIdsForSsin(dbInstanceUrl, groupId, ssin, healthcarePartyId, "by_hcparty_ssin")
     }
 
     @View(name = "of_hcparty_ssin", map = "classpath:js/patient/Of_hcparty_ssin_map.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun listIdsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String> {
         return listIdsForSsin(dbInstanceUrl, groupId, ssin, healthcarePartyId, "of_hcparty_ssin")
     }
 
     @View(name = "by_hcparty_active", map = "classpath:js/patient/By_hcparty_active.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun listIdsByActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String): Flow<String> {
         return listIdsForActive(dbInstanceUrl, groupId, active, healthcarePartyId, "by_hcparty_active")
     }
 
@@ -94,62 +95,62 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         }
     }
 
-    override fun listIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
 
     @View(name = "by_hcparty_date_of_birth", map = "classpath:js/patient/By_hcparty_date_of_birth_map.js")
-    override fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery("by_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
-    override fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, startDate)).endKey(ComplexKey.of(healthcarePartyId, endDate)).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_gender_education_profession", map = "classpath:js/patient/By_hcparty_gender_education_profession_map.js")
-    override fun listIdsByHcPartyGenderEducationProfession(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String?> {
+    override fun listIdsByHcPartyGenderEducationProfession(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery("by_hcparty_gender_education_profession")
                 .startKey(ComplexKey.of(healthcarePartyId, gender?.getName(), education, profession))
                 .endKey(ComplexKey.of(healthcarePartyId, if (gender == null) ComplexKey.emptyObject() else gender.getName(), education
                         ?: ComplexKey.emptyObject(), profession ?: ComplexKey.emptyObject())).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "of_hcparty_date_of_birth", map = "classpath:js/patient/Of_hcparty_date_of_birth_map.js")
-    override fun listIdsForHcPartyDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsForHcPartyDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery("of_hcparty_date_of_birth").key(ComplexKey.of(healthcarePartyId, date)).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_contains_name", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
-    override fun listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String?> {
+    override fun listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).limit(limit
                 ?: 10000).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }.distinct()
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 
     @View(name = "of_hcparty_contains_name", map = "classpath:js/patient/Of_hcparty_contains_name_map.js")
-    override fun listIdsOfHcPartyNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String?> {
+    override fun listIdsOfHcPartyNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).limit(limit
                 ?: 10000).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }.distinct()
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 
-    private fun listIdsForName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, viewName: String): Flow<String?> {
+    private fun listIdsForName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, viewName: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         var name = name
         val startKey: ComplexKey
@@ -167,10 +168,10 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
         val viewQuery = createQuery(viewName).startKey(startKey).endKey(endKey).includeDocs(false)
 
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
-    private fun listIdsForSsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, viewName: String): Flow<String?> {
+    private fun listIdsForSsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, viewName: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey: ComplexKey
         val endKey: ComplexKey
@@ -186,7 +187,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
         val viewQuery = createQuery(viewName).reduce(false).startKey(startKey).endKey(endKey).includeDocs(false)
 
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     private fun listIdsForSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String, viewName: String): Flow<String?> {
@@ -195,15 +196,15 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
     }
 
-    private fun listIdsForActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String, viewName: String): Flow<String?> {
+    private fun listIdsForActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String, viewName: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val onlyKey = ComplexKey.of(healthcarePartyId, if (active) 1 else 0)
         val viewQuery = createQuery(viewName).reduce(false).startKey(onlyKey).endKey(onlyKey).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_externalid", map = "classpath:js/patient/By_hcparty_externalid_map.js")
-    override fun listIdsByHcPartyAndExternalId(dbInstanceUrl: URI, groupId: String, externalId: String?, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcPartyAndExternalId(dbInstanceUrl: URI, groupId: String, externalId: String?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey: ComplexKey
         val endKey: ComplexKey
@@ -220,7 +221,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
         val viewQuery = createQuery("by_hcparty_externalid").startKey(startKey).endKey(endKey).includeDocs(false)
 
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     override fun findIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
@@ -372,7 +373,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val queryView = createQuery("by_user_id").includeDocs(true).key(id)
-        return client.queryViewIncludeDocs<String, String, Patient>(queryView).singleOrNull()?.doc // TODO SH here and next: if 2 elements, throws exception, otherwise create custom firstOrNull()
+        return client.queryViewIncludeDocs<String, String, Patient>(queryView).firstOrNull()?.doc
     }
 
     override fun get(dbInstanceUrl: URI, groupId: String, patIds: Collection<String>): Flow<Patient> {
@@ -384,7 +385,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val queryView = createQuery("by_external_id").includeDocs(true).key(externalId)
-        return client.queryViewIncludeDocs<String, String, Patient>(queryView).singleOrNull()?.doc
+        return client.queryViewIncludeDocs<String, String, Patient>(queryView).firstOrNull()?.doc
     }
 
     @View(name = "deleted_by_delete_date", map = "function(doc) {\n" +
@@ -453,14 +454,14 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     }
 
     @View(name = "by_hcparty_contains_name_delegate", map = "classpath:js/patient/By_hcparty_contains_name_delegate.js")
-    override fun listByHcPartyName(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String): Flow<String?> {
+    override fun listByHcPartyName(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery("by_hcparty_contains_name_delegate")
                 .startKey(ComplexKey.of(healthcarePartyId, name))
                 .endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_delegate_keys", map = "classpath:js/patient/By_hcparty_delegate_keys_map.js")

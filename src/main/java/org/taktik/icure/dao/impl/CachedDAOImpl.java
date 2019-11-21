@@ -54,7 +54,7 @@ public abstract class CachedDAOImpl<T extends StoredDocument> extends GenericDAO
     }
 
     private String getFullId(String id) {
-        return ((CouchDbICureConnector) this.db).getCurrentUserRealConnector().getUuid()+":"+id;
+        return ((CouchDbICureConnector) this.db).getCurrentUserRealConnector().getUuid()+":"+id; // TODO rework: use "FALLBACK" + make it unique among instanceUrl, groupId (or rather databaseName for the -base etc?) and object id
     }
 
     @Override

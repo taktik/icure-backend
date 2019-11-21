@@ -41,7 +41,7 @@ import java.util.*
 import javax.persistence.PersistenceException
 
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
-    private val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
+    protected val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -189,9 +189,9 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return entity
     }
 
-    protected fun beforeSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
+    protected open suspend fun beforeSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
-    protected fun afterSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
+    protected open suspend fun afterSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
     protected fun beforeDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
@@ -201,11 +201,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     protected fun afterUnDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
-    fun postLoad(dbInstanceUrl:URI, groupId:String, entity: T) {
+    open suspend fun postLoad(dbInstanceUrl:URI, groupId:String, entity: T?) {
         doFetchRelationship(dbInstanceUrl, groupId, entity)
     }
 
-    protected fun doFetchRelationship(dbInstanceUrl:URI, groupId:String, entity: T) {}
+    protected fun doFetchRelationship(dbInstanceUrl:URI, groupId:String, entity: T?) {}
 
 
     override suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T) {
