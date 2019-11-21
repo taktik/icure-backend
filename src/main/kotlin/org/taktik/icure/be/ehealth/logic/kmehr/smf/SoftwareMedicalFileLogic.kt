@@ -34,7 +34,7 @@ import java.io.OutputStream
  * @author Bernard Paulus on 24/05/17.
  */
 interface SoftwareMedicalFileLogic {
-	fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
+	fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, exportAsPMF: Boolean?)
     fun importSmfFile(inputStream: InputStream,
                       author: User,
                       language: String,

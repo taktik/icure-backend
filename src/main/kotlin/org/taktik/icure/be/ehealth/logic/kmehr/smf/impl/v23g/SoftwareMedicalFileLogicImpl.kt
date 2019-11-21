@@ -20,7 +20,9 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import org.springframework.stereotype.Service
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.dto.result.ImportResult
@@ -31,6 +33,7 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import java.io.InputStream
 import java.io.OutputStream
+import java.time.Instant
 
 /**
  * @author Bernard Paulus on 24/05/17.
@@ -58,7 +61,13 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
         return softwareMedicalFileImport.checkIfSMFPatientsExists(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
-		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor)
+    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, exportAsPMF : Boolean?) {
+		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor,
+                KmehrExport.Config(
+                        clinicalSummaryType = null,
+                        defaultLanguage = null,
+                        exportAsPMF = exportAsPMF ?: false
+                )
+        )
 	}
 }
