@@ -57,20 +57,16 @@ import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
-    "org.springframework.boot.autoconfigure.cache",
     "org.springframework.boot.autoconfigure.context",
     "org.springframework.boot.autoconfigure.dao",
     "org.springframework.boot.autoconfigure.jackson",
-    "org.springframework.boot.autoconfigure.jdbc",
     "org.springframework.boot.autoconfigure.jersey",
-    "org.springframework.boot.autoconfigure.transaction",
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
     "org.taktik.icure.config",
     "org.taktik.icure.dao",
     "org.taktik.icure.logic",
     "org.taktik.icure.be.ehealth.logic",
-    "org.taktik.icure.be.drugs.dao",
     "org.taktik.icure.be.drugs.logic",
     "org.taktik.icure.be.format.logic",
     "org.taktik.icure.be.samv2.logic",
@@ -109,8 +105,8 @@ class ICureBackendApplication {
         taskExecutor.execute {
             val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader);
             resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
-                val md5 = it.filename.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-                codeLogic.importCodesFromXml(md5, it.filename.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
+                val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
+                codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
             }
         }
 

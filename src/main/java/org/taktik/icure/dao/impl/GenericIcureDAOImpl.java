@@ -21,8 +21,9 @@ package org.taktik.icure.dao.impl;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
 import org.taktik.icure.entities.base.StoredICureDocument;
+import org.taktik.icure.exceptions.BulkUpdateConflictException;
+import org.taktik.icure.exceptions.PersistenceException;
 
-import javax.persistence.PersistenceException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +40,7 @@ public class GenericIcureDAOImpl<T extends StoredICureDocument> extends GenericD
 
 
     @Override
-    protected <K extends Collection<T>> List<T> save(Boolean newEntity, K entities) {
+    protected <K extends Collection<T>> List<T> save(Boolean newEntity, K entities) throws BulkUpdateConflictException {
         entities.stream().filter(Objects::nonNull)
                 .forEach(GenericIcureDAOImpl::setTimestamps);
         return super.save(newEntity, entities);
@@ -61,7 +62,7 @@ public class GenericIcureDAOImpl<T extends StoredICureDocument> extends GenericD
     }
 
     @Override
-    public void unremove(T entity) {
+    public void unremove(T entity) throws PersistenceException {
         if (entity != null) {
             setTimestamps(entity);
         }

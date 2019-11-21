@@ -18,18 +18,15 @@
 
 package org.taktik.icure.security.database;
 
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 
-public class ShaAndVerificationCodePasswordEncoder extends ShaPasswordEncoder {
-	public ShaAndVerificationCodePasswordEncoder() {
-		super();
+@SuppressWarnings("deprecation")
+public class ShaAndVerificationCodePasswordEncoder extends MessageDigestPasswordEncoder {
+	public ShaAndVerificationCodePasswordEncoder(String algorithm) {
+		super(algorithm);
 	}
 
-	public ShaAndVerificationCodePasswordEncoder(int strength) {
-		super(strength);
-	}
-
-	public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-		return super.isPasswordValid(encPass, rawPass, salt) || super.isPasswordValid(encPass, rawPass.split("\\|")[0], salt);
+	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+		return super.matches(rawPassword, encodedPassword) || super.matches(rawPassword.toString().split("\\|")[0], encodedPassword);
 	}
 }

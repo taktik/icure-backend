@@ -23,7 +23,6 @@ import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
-import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
@@ -57,7 +56,6 @@ import javax.xml.datatype.XMLGregorianCalendar
 open class KmehrExport {
     @Autowired var patientLogic: PatientLogic? = null
     @Autowired var codeLogic: CodeLogic? = null
-    @Autowired var drugsLogic: DrugsLogic? = null
     @Autowired var healthElementLogic: HealthElementLogic? = null
     @Autowired var healthcarePartyLogic: HealthcarePartyLogic? = null
     @Autowired var contactLogic: ContactLogic? = null

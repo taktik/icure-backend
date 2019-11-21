@@ -19,32 +19,28 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.Validate
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import java.net.URI
 import java.util.*
-import java.util.function.Function
-import javax.persistence.PersistenceException
 
 abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, cacheManager: CacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
-    private val cache: Cache = cacheManager.getCache(entityClass.name)
+    private val cache: Cache = cacheManager.getCache(entityClass.name) ?: throw UnsupportedOperationException("No cache found for: $entityClass")
 
     init {
         log.debug("Cache impl = {}", this.cache.nativeCache)
-        Validate.notNull(cache, "No cache found for: $entityClass")
     }
 
     private fun getFullId(dbInstanceUrl: URI, groupId: String?, id: String): String {
-        return dbInstanceUrl.toString() + (groupId ?: "FALLBACK") +":$id" // TODO SH correct? no need to use DigestUtils.sha256Hex? is groupId enough or do we need the full database name to handle -base etc.?
+        return dbInstanceUrl.toString() + (groupId
+                ?: "FALLBACK") + ":$id" // TODO SH correct? no need to use DigestUtils.sha256Hex? is groupId enough or do we need the full database name to handle -base etc.?
     }
 
     override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>): Flow<T> {

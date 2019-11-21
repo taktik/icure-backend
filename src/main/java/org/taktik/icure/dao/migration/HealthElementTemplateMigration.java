@@ -55,7 +55,7 @@ public class HealthElementTemplateMigration extends CouchDbRepositorySupport<Mig
 	}
 
 	@Override
-	public void apply() {
+	public void apply() throws org.taktik.icure.exceptions.PersistenceException {
 		List<EntityTemplate> templates = entityTemplateDAO.getAll();
 		Set<EntityTemplate> modified = new HashSet<>();
 		templates.forEach(t-> {

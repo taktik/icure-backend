@@ -24,7 +24,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.constants.TypedValuesType;
@@ -75,7 +75,6 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	private PropertyLogic propertyLogic;
 	private SessionLogic sessionLogic;
 
-	//	private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 	private PasswordEncoder passwordEncoder;
 
 
@@ -375,7 +374,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 	public boolean checkPassword(String password) {
 		User user = this.sessionLogic.getCurrentSessionContext().getUser();
 		if (user != null) {
-			return passwordEncoder.isPasswordValid(user.getPasswordHash(), password, null);
+			return passwordEncoder.matches(password, user.getPasswordHash());
 		}
 		return false;
 	}
@@ -807,7 +806,7 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 
 	@Override
 	public String encodePassword(String password) {
-		return passwordEncoder.encodePassword(password, null);
+		return passwordEncoder.encode(password);
 	}
 
 	@Autowired

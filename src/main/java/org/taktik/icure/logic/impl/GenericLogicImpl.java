@@ -20,6 +20,7 @@ package org.taktik.icure.logic.impl;
 
 import org.taktik.icure.dao.GenericDAO;
 import org.taktik.icure.entities.base.Identifiable;
+import org.taktik.icure.exceptions.PersistenceException;
 import org.taktik.icure.logic.EntityPersister;
 
 import java.util.ArrayList;
@@ -34,17 +35,17 @@ public abstract class GenericLogicImpl<E extends Identifiable<String>, D extends
 	}
 
 	@Override
-	public List<E> updateEntities(Collection<E> entities) {
+	public List<E> updateEntities(Collection<E> entities) throws PersistenceException {
 		return new ArrayList<>(getGenericDAO().save(entities));
 	}
 
 	@Override
-	public void deleteEntities(Collection<String> identifiers) {
+	public void deleteEntities(Collection<String> identifiers) throws PersistenceException {
 		getGenericDAO().removeByIds(identifiers);
 	}
 
 	@Override
-	public void undeleteEntities(Collection<String> identifiers) {
+	public void undeleteEntities(Collection<String> identifiers) throws PersistenceException {
 		getGenericDAO().unremoveByIds(identifiers);
 	}
 

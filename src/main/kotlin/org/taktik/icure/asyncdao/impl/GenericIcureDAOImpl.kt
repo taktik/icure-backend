@@ -22,9 +22,6 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredICureDocument
 import java.net.URI
 
-import javax.persistence.PersistenceException
-import java.util.Objects
-
 /**
  * @author Antoine Duchâteau
  *

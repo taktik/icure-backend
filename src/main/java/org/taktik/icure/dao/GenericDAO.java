@@ -21,8 +21,8 @@ package org.taktik.icure.dao;
 import org.ektorp.AttachmentInputStream;
 import org.taktik.icure.entities.Group;
 import org.taktik.icure.entities.base.Identifiable;
+import org.taktik.icure.exceptions.PersistenceException;
 
-import javax.persistence.PersistenceException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;

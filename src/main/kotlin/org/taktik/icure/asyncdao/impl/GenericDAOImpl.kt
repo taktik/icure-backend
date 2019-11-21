@@ -35,10 +35,10 @@ import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyM
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
+import org.taktik.icure.exceptions.PersistenceException
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
-import javax.persistence.PersistenceException
 
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
     protected val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
