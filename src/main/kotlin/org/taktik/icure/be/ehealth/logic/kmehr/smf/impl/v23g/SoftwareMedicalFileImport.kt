@@ -55,6 +55,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     fun importSMF(inputStream: InputStream,
                   author: User,
                   language: String,
+                  dryRun: Boolean,
                   mappings: Map<String, List<ImportMapping>>,
                   dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
@@ -62,7 +63,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
-        val mymappings = if(!mappings.isEmpty()) mappings else {
+        val mymappings = if(mappings.isNotEmpty()) mappings else {
             val mapper = ObjectMapper()
             val txt = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")
                     .readBytes().toString(Charsets.UTF_8)

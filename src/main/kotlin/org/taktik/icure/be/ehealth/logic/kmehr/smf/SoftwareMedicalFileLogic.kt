@@ -38,6 +38,7 @@ interface SoftwareMedicalFileLogic {
     fun importSmfFile(inputStream: InputStream,
                       author: User,
                       language: String,
+                      dryRun: Boolean,
                       dest: Patient? = null,
                       mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
 
