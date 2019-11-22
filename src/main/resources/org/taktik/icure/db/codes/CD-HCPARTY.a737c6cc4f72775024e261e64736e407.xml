@@ -806,4 +806,11 @@
     <DESCRIPTION L='nl'>nephrologist</DESCRIPTION>
     <DESCRIPTION L='en'>nephrologist</DESCRIPTION>
   </VALUE>
+   <VALUE>
+       <CODE>persdiabetologist</CODE>
+       <DESCRIPTION L='fr'>Diabétologue</DESCRIPTION>
+       <DESCRIPTION L='nl'>Diabetologist</DESCRIPTION>
+       <DESCRIPTION L='en'>Diabetologist</DESCRIPTION>
+   </VALUE>
+
 </kmehr-cd>

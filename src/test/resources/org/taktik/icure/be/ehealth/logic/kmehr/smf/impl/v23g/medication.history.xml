@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--    Property : The Virtuous Circle   Author   : Yves De Bock      Demonstration material: XML message    -->
+<kmehrmessage xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ehealth.fgov.be/standards/kmehr/schema/v1 file:///D:/Data/Professional/TVC/Missions/MedOffice/LabelInfo2013/Kmehr/xsd-kmehr-1.7.0/ehealth-kmehr/XSD/kmehr_elements-1_7.xsd">
+  <header>
+    <standard>
+      <cd S="CD-STANDARD" SV="1.7">20131001</cd>
+      <specialisation>
+        <cd S="CD-MESSAGE" SV="1.0">gpsoftwaremigration</cd>
+        <version>2.3</version>
+      </specialisation>
+    </standard>
+    <id S="ID-KMEHR" SV="1.0">18422674004.20190603124917</id>
+    <date>2019-06-03</date>
+    <time>12:49:17</time>
+    <sender>
+      <hcparty>
+        <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+        <id S="INSS" SV="1.0">61080736682</id>
+        <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+        <firstname>Emmanuelle</firstname>
+        <familyname>Berquin</familyname>
+        <telecom>
+          <cd S="CD-ADDRESS" SV="1.0">work</cd>
+          <cd S="CD-TELECOM" SV="1.0">email</cd>
+          <telecomnumber>mm@mm.be</telecomnumber>
+        </telecom>
+      </hcparty>
+      <hcparty>
+        <id S="LOCAL" SV="6.7.4">Pricare 6.7.4</id>
+        <cd S="CD-HCPARTY" SV="1.0">application</cd>
+        <name>Pricare</name>
+      </hcparty>
+    </sender>
+    <recipient>
+      <hcparty>
+        <cd S="CD-HCPARTY" SV="1.0">application</cd>
+        <name>gp-software-migration</name>
+      </hcparty>
+    </recipient>
+  </header>
+  <folder>
+    <id S="ID-KMEHR" SV="1.0">1</id>
+    <patient>
+      <id S="LOCAL" SV="1.0" SL="MEDINOTE">3468f345-96e3-40cf-948c-a4cc2b7f922c</id>
+      <firstname>Test Med History</firstname>
+      <familyname>TEST MED HISTORY</familyname>
+      <birthdate>
+        <date>2000-06-03</date>
+      </birthdate>
+      <sex>
+        <cd S="CD-SEX" SV="1.0">unknown</cd>
+      </sex>
+      <recorddatetime>2019-06-03T12:47:11</recorddatetime>
+    </patient>
+    <transaction>
+      <id S="LOCAL" SL="MF-ID" SV="1.0">5551db36-95ef-423b-a48d-1e43ab5081a6</id>
+      <id S="ID-KMEHR" SV="1.0">1</id>
+      <cd S="CD-TRANSACTION" SV="1.1">clinicalsummary</cd>
+      <date>2019-06-03</date>
+      <time>12:49:17</time>
+      <author>
+        <hcparty>
+          <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+          <id S="INSS" SV="1.0">61080736682</id>
+          <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+          <firstname>Emmanuelle</firstname>
+          <familyname>Berquin</familyname>
+          <telecom>
+            <cd S="CD-ADDRESS" SV="1.0">work</cd>
+            <cd S="CD-TELECOM" SV="1.0">email</cd>
+            <telecomnumber>mm@mm.be</telecomnumber>
+          </telecom>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">4ce140b8-b604-450c-a52d-404b51a48f4f</id>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.1">gmdmanager</cd>
+        <content>
+          <hcparty>
+            <id S="ID-HCPARTY" SV="1.0"></id>
+            <cd S="CD-HCPARTY" SV="1.0">orgprimaryhealthcarecenter</cd>
+            <name>figac MM</name>
+            <telecom>
+              <cd S="CD-ADDRESS" SV="1.0">work</cd>
+              <cd S="CD-TELECOM" SV="1.0">email</cd>
+              <telecomnumber>mm@mm.be</telecomnumber>
+            </telecom>
+          </hcparty>
+        </content>
+        <content>
+          <date>2019-01-01</date>
+          <time>00:00:00</time>
+        </content>
+        <beginmoment>
+          <date>2019-07-01</date>
+        </beginmoment>
+      </item>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">90b5a8f3-c19f-4c23-a325-09ed6cc0f744</id>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <cd S="CD-ITEM" SV="1.1">insurancystatus</cd>
+        <content>
+          <insurance>
+            <id S="ID-INSURANCE" SV="1.0">001</id>
+            <membership>5465465465465</membership>
+            <cg1>100</cg1>
+            <cg2>000</cg2>
+          </insurance>
+        </content>
+      </item>
+      <text L="en"></text>
+    </transaction>
+    <transaction>
+      <id S="LOCAL" SL="MF-ID" SV="1.0">97e2a083-2a98-4740-98c5-151f43eb7b08</id>
+      <id S="ID-KMEHR" SV="1.0">2</id>
+      <cd S="CD-TRANSACTION" SV="1.1">contactreport</cd>
+      <date>2019-06-02</date>
+      <time>12:47:35</time>
+      <author>
+        <hcparty>
+          <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+          <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+          <firstname>Emmanuelle</firstname>
+          <familyname>Berquin</familyname>
+          <telecom>
+            <cd S="CD-ADDRESS" SV="1.0">work</cd>
+            <cd S="CD-TELECOM" SV="1.0">email</cd>
+            <telecomnumber>mm@mm.be</telecomnumber>
+          </telecom>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.1">encounterdatetime</cd>
+        <content>
+          <date>2019-06-02</date>
+          <time>12:47:35</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <cd S="CD-ITEM" SV="1.1">encountertype</cd>
+        <content>
+          <cd S="CD-ENCOUNTER" SV="1.0">consultation</cd>
+        </content>
+      </item>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">96161f84-4e8b-47a9-8127-65e0c1428af8</id>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <cd S="CD-ITEM" SV="1.1">medication</cd>
+        <content>
+          <medicinalproduct>
+            <intendedcd S="CD-DRUG-CNK" SV="201801.20180131.02">1181775</intendedcd>
+            <intendedname>Caverject sol. inj. (pdr+solv.) i.cavern. (flac.+ser. préremplie) 1x 20µg</intendedname>
+          </medicinalproduct>
+        </content>
+        <content>
+          <cd S="CD-ATC" SV="1.0">G04BE01</cd>
+        </content>
+        <content>
+          <text L="en">Caverject sol. inj. (pdr+solv.) i.cavern. (flac.+ser. préremplie) 1x 20µg</text>
+        </content>
+        <beginmoment>
+          <date>2019-06-02</date>
+        </beginmoment>
+        <endmoment>
+          <date>2019-06-09</date>
+        </endmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <temporality>
+          <cd S="CD-TEMPORALITY" SV="1.0">acute</cd>
+        </temporality>
+        <posology>
+          <text L="en">1 injection(s) 1x/jour(s)</text>
+        </posology>
+        <recorddatetime>2019-06-03T12:48:37</recorddatetime>
+      </item>
+      <recorddatetime>2019-06-03T12:48:36</recorddatetime>
+    </transaction>
+    <transaction>
+      <id S="LOCAL" SL="MF-ID" SV="1.0">6e65e218-5b24-40fe-a4ca-cf7c5634f79b</id>
+      <id S="ID-KMEHR" SV="1.0">3</id>
+      <cd S="CD-TRANSACTION" SV="1.1">contactreport</cd>
+      <date>2019-06-03</date>
+      <time>12:48:39</time>
+      <author>
+        <hcparty>
+          <id S="ID-HCPARTY" SV="1.0">18422674004</id>
+          <cd S="CD-HCPARTY" SV="1.0">persphysician</cd>
+          <firstname>Emmanuelle</firstname>
+          <familyname>Berquin</familyname>
+          <telecom>
+            <cd S="CD-ADDRESS" SV="1.0">work</cd>
+            <cd S="CD-TELECOM" SV="1.0">email</cd>
+            <telecomnumber>mm@mm.be</telecomnumber>
+          </telecom>
+        </hcparty>
+      </author>
+      <iscomplete>true</iscomplete>
+      <isvalidated>true</isvalidated>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">1</id>
+        <cd S="CD-ITEM" SV="1.1">encounterdatetime</cd>
+        <content>
+          <date>2019-06-03</date>
+          <time>12:48:39</time>
+        </content>
+      </item>
+      <item>
+        <id S="ID-KMEHR" SV="1.0">2</id>
+        <cd S="CD-ITEM" SV="1.1">encountertype</cd>
+        <content>
+          <cd S="CD-ENCOUNTER" SV="1.0">consultation</cd>
+        </content>
+      </item>
+      <item>
+        <id S="LOCAL" SL="MF-ID" SV="1.0">96161f84-4e8b-47a9-8127-65e0c1428af8</id>
+        <id S="ID-KMEHR" SV="1.0">3</id>
+        <cd S="CD-ITEM" SV="1.1">medication</cd>
+        <content>
+          <medicinalproduct>
+            <intendedcd S="CD-DRUG-CNK" SV="201801.20180131.02">1181775</intendedcd>
+            <intendedname>Caverject sol. inj. (pdr+solv.) i.cavern. (flac.+ser. préremplie) 1x 20µg</intendedname>
+          </medicinalproduct>
+        </content>
+        <content>
+          <cd S="CD-ATC" SV="1.0">G04BE01</cd>
+        </content>
+        <content>
+          <text L="en">Caverject sol. inj. (pdr+solv.) i.cavern. (flac.+ser. préremplie) 1x 20µg</text>
+        </content>
+        <beginmoment>
+          <date>2019-06-02</date>
+        </beginmoment>
+        <endmoment>
+          <date>2019-06-09</date>
+        </endmoment>
+        <lifecycle>
+          <cd S="CD-LIFECYCLE" SV="1.0">active</cd>
+        </lifecycle>
+        <isrelevant>true</isrelevant>
+        <temporality>
+          <cd S="CD-TEMPORALITY" SV="1.0">acute</cd>
+        </temporality>
+        <posology>
+          <text L="en">2 injection(s) 2x/jour(s) Lu, Ma, Me, Je, Ve, Di pendant 3 jour(s)</text>
+        </posology>
+        <recorddatetime>2019-06-03T12:49:06</recorddatetime>
+        <lnk TYPE="isanewversionof" URL="//item[id[@SL=&quot;MF-ID&quot; and .=&quot;96161f84-4e8b-47a9-8127-65e0c1428af8&quot;]]" />
+      </item>
+      <recorddatetime>2019-06-03T12:49:05</recorddatetime>
+    </transaction>
+  </folder>
+</kmehrmessage>

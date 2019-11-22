@@ -23,5 +23,6 @@ import java.io.Serializable
 
 data class SoftwareMedicalFileExportDto(
 	var secretForeignKeys: List<String>,
-	var comment: String
+	var comment: String,
+    var exportAsPMF: Boolean
 ) : Serializable
