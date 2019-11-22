@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2018 Taktik SA
+ *
+ * This file is part of iCureBackend.
+ *
+ * iCureBackend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
+ *
+ * iCureBackend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.taktik.icure.asynclogic.impl
+
+import org.springframework.stereotype.Service
+import org.taktik.icure.asyncdao.ArticleDAO
+import org.taktik.icure.asynclogic.EntityPersister
+import org.taktik.icure.entities.Article
+import org.taktik.icure.exceptions.DeletionException
+import org.taktik.icure.logic.SessionLogic
+
+interface ArticleLogic: EntityPersister<Article, String> {
+    suspend fun createArticle(article: Article): Article?
+    suspend fun deleteArticles(ids: List<String>): List<String>
+
+    suspend fun getArticle(articleId: String): Article?
+
+    suspend fun modifyArticle(article: Article): Article?
+}
+
+@Service
+class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLogic: SessionLogic) : GenericLogicImpl<Article, ArticleDAO>(sessionLogic), ArticleLogic {
+
+    override suspend fun createArticle(article: Article): Article? {
+        return articleDAO.create(sessionLogic.currentSessionContext.dbInstanceUri, sessionLogic.currentSessionContext.groupId, article)
+    }
+
+    override suspend fun deleteArticles(ids: List<String>): List<String> {
+        try {
+            deleteByIds(ids)
+            return ids
+        } catch (e: Exception) {
+            throw DeletionException(e.message, e)
+        }
+    }
+
+    override suspend fun getArticle(articleId: String): Article? {
+        val sessionContext = sessionLogic.currentSessionContext
+        return articleDAO.get(sessionContext.dbInstanceUri, sessionContext.groupId, articleId)
+    }
+
+    override suspend fun modifyArticle(article: Article): Article? {
+        val sessionContext = sessionLogic.currentSessionContext
+        return articleDAO.save(sessionContext.dbInstanceUri, sessionContext.groupId, article)
+    }
+
+    override fun getGenericDAO() = articleDAO
+}

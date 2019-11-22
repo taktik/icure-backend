@@ -46,6 +46,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 @Transactional
@@ -274,6 +276,11 @@ public class SessionLogicImpl implements ICureSessionLogic {
 		@Override
 		public String getDbInstanceUrl() {
 			return userDetails == null ? null : ((DatabaseUserDetails) userDetails).getDbInstanceUrl();
+		}
+
+		@Override
+		public URI getDbInstanceUri() throws URISyntaxException {
+			return userDetails == null ? null : new URI(((DatabaseUserDetails) userDetails).getDbInstanceUrl());
 		}
 
 		@Override

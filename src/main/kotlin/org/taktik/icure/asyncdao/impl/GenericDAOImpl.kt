@@ -259,7 +259,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 beforeDelete(dbInstanceUrl, groupId, entity)
                 entity.deletionDate = System.currentTimeMillis()
             }
-            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList()
+            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList() // TODO SH why suspend here?
             for (entity in entities) {
                 afterDelete(dbInstanceUrl, groupId, entity)
             }

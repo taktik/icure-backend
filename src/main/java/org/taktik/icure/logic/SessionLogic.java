@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 public interface SessionLogic {
@@ -59,6 +61,8 @@ public interface SessionLogic {
 		User getUser();
 
 		String getDbInstanceUrl();
+
+		URI getDbInstanceUri() throws URISyntaxException;
 
 		String getGroupIdUserId();
 
