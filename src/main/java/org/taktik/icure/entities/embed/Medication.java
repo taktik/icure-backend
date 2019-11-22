@@ -36,6 +36,13 @@ import java.util.stream.Collectors;
 public class Medication implements Serializable {
 	public static final String REIMBURSED = "REIMBURSED";
 
+    public final static int STATUS_NOT_SENT	    = 1 << 0; //not send by recip-e
+    public final static int STATUS_SENT	        = 1 << 1; //sent by recip-e
+
+    public final static int STATUS_PENDING	    = 1 << 2; //not delivered to patient
+    public final static int STATUS_DELIVERED	= 1 << 3; //delivered to patient
+    public final static int STATUS_REVOKED	    = 1 << 4; //revoked by physician
+
 	protected String compoundPrescription;
 	protected Substanceproduct substanceProduct;
 	protected Medicinalproduct medicinalProduct;
@@ -83,6 +90,7 @@ public class Medication implements Serializable {
 	private Boolean posologyChanged;
 
 	private String prescriptionRID;
+	private Integer status;
 
 	public Map<String, Content> getOptions() {
 		return options;
@@ -288,7 +296,11 @@ public class Medication implements Serializable {
 
 	public void setRenewal(Renewal renewal) { this.renewal = renewal; }
 
-	public String toString() {
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
+
+    public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());
 		if (this.numberOfPackages != null && this.numberOfPackages>0) {
 			result = String.format("%s packages of %s",this.numberOfPackages,result);
