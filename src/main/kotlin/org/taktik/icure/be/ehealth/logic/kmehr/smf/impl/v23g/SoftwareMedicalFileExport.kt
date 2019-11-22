@@ -166,12 +166,12 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			makeInsurancyStatus(headingsAndItemsAndTexts.size + 1, config, patient.insurabilities.find { it.endDate == null || it.endDate > Instant.now().toEpochMilli() })?.let { headingsAndItemsAndTexts.add(it) }
 		})
 
-		val contacts = contactLogic!!.findByHCPartyPatient(healthcareParty.id, sfks.toList()).sortedBy {
+		val contacts = getAllContacts(healthcareParty, sfks.toList()).sortedBy {
 			it.openingDate
 		}
 		val startIndex = folder.transactions.size
 
-		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty.id, sfks, config)).groupBy {
+		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
 			it.idOpeningContact
 		}
 
@@ -183,7 +183,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
             }
         }.toMap()
 
-		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty.id, sfks, config)).groupBy {
+		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
 			it.healthElementId
 		}.mapValues {
 			it.value.sortedWith(compareBy({ it.created },{ it.modified })) // created is the key, but use modified for backward compat
@@ -203,7 +203,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		hesByContactId[null].orEmpty().map { he -> addHealthCareElement(folder.transactions.first(), he, 0, config) }
 		hesByContactId = hesByContactId.filterKeys { it != null }
 
-		val heById = getNonConfidentialItems(getHealthElements(healthcareParty.id, sfks, config)).groupBy {
+		val heById = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
 			// retrive the healthElementId property of an HE by his couchdb id
 			it.id
 		}
@@ -827,9 +827,15 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return mutItemIndex
 	}
 
-	fun getHealthElements(hcPartyId: String, sfks: List<String>, config: Config): List<HealthElement> {
-		return excludeHealthElementsForPMF(
-				healthElementLogic?.findByHCPartySecretPatientKeys(hcPartyId, sfks)?.filterNot {
+	fun getHealthElements(hcp: HealthcareParty, sfks: List<String>, config: Config): List<HealthElement> {
+        var res : List<HealthElement> = emptyList()
+        if(hcp.parentId != null) {
+            res = res + (healthElementLogic?.findByHCPartySecretPatientKeys(hcp.parentId, sfks) ?: emptyList())
+        }
+        res = res + (healthElementLogic?.findByHCPartySecretPatientKeys(hcp.id, sfks) ?: emptyList())
+        res = res.distinctBy { it.id }
+        return excludeHealthElementsForPMF(
+				res?.filterNot {
 					it.descr?.matches("INBOX|Etat général.*|Algemeen toestand.*".toRegex()) ?: false
 				} ?: emptyList()
 		, config)
@@ -908,6 +914,14 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 	}
 
+    private fun getAllContacts(hcp : HealthcareParty, sfks: List<String>) : List<Contact> {
+        var res : List<Contact> = emptyList()
+        if(hcp.parentId != null) {
+            res = contactLogic!!.findByHCPartyPatient(hcp.parentId, sfks.toList())
+        }
+        res = res + contactLogic!!.findByHCPartyPatient(hcp.id, sfks.toList())
+        return res.distinctBy { it.id }
+    }
 
 	private fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {
 		return items.filter { s ->
@@ -1091,6 +1105,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	////// unused (was probably copied from sumehr export code)
 
+    /*
 	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, comment: String?, decryptor: AsyncDecrypt?, config: Config): FolderType {
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "sumehr" })
@@ -1181,6 +1196,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 		return mutItemIndex
 	}
+
 
 	fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, decryptor: AsyncDecrypt?): Int {
 		val mutItemIndex = itemIndex
@@ -1311,5 +1327,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 	data class ServiceAndMainIssue(val service: Service, val cdItemCode: String, val mainIssueThesaurus: Code?, val linkedCodes: Set<Code>)
+     */
 }
 
