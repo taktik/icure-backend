@@ -30,6 +30,7 @@ interface AmpDAO : GenericDAO<Amp> {
     fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
+    fun findAmpsByDmppCode(dmppCode: String): List<Amp>
 
     fun listAmpIdsByLabel(language: String?, label: String?): List<String>
     fun listAmpIdsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): List<String>
