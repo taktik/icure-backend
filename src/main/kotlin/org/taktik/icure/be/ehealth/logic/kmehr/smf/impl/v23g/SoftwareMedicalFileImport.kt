@@ -43,6 +43,7 @@ import javax.xml.bind.JAXBElement
 
 @org.springframework.stereotype.Service
 class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
+                                val userLogic: UserLogic,
                                 val healthcarePartyLogic: HealthcarePartyLogic,
                                 val healthElementLogic: HealthElementLogic,
                                 val contactLogic: ContactLogic,
@@ -1241,12 +1242,40 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         res.firstName = p.firstnames.first()
         res.lastName = p.familyname
 
-        val dbPatient : Patient? = getExistingPatient(p, author, v, dest)
+        val dbPatient : Patient? = getExistingPatientWithHcpHierarchy(p, author, v, dest)
 
         res.exists = (dbPatient != null)
         res.existingPatientId = dbPatient?.id
         return res
     }
+
+    protected fun getExistingPatientWithHcpHierarchy(p: PersonType,
+                                     author: User,
+                                     v: ImportResult,
+                                     dest: Patient? = null): Patient? {
+
+
+        val hcp = healthcarePartyLogic.getHealthcareParty(author.healthcarePartyId)
+        val parentAuthorId : String?
+        val parentAuthor : User?
+        var parentPatient : Patient? = null
+        if(hcp != null && hcp.parentId != null) {
+            parentAuthorId = userLogic.findByHcpartyId(hcp.parentId)?.let { it.firstOrNull() }
+            if(parentAuthorId != null) {
+                parentAuthor = userLogic.getUser(parentAuthorId)
+                if(parentAuthor != null) {
+                    parentPatient = getExistingPatient(p, parentAuthor, v, dest)
+                }
+            }
+        }
+        if(parentPatient != null) {
+            return parentPatient
+        } else {
+            return getExistingPatient(p, author, v, dest)
+        }
+
+    }
+
 
     protected fun getExistingPatient(p: PersonType,
                                      author: User,
@@ -1279,7 +1308,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                          author: User,
                                          v: ImportResult,
                                          dest: Patient? = null): Patient? {
-        val dbPatient : Patient? = getExistingPatient(p, author, v, dest)
+        val dbPatient : Patient? = getExistingPatientWithHcpHierarchy(p, author, v, dest)
 
         return if (dbPatient == null) patientLogic.createPatient(Patient().apply {
             this.delegations = mapOf(author.healthcarePartyId to setOf())
