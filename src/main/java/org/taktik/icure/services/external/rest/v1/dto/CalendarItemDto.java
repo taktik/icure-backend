@@ -32,6 +32,8 @@ public class CalendarItemDto extends IcureDto {
 
     protected Long endTime;
 
+    protected Long confirmTime;
+
     protected Long duration;
 
     protected Boolean allDay;
@@ -193,4 +195,12 @@ public class CalendarItemDto extends IcureDto {
     public Boolean getWasMigrated() { return wasMigrated; }
 
     public void setWasMigrated(Boolean wasMigrated) { this.wasMigrated = wasMigrated; }
+
+    public Long getConfirmTime() {
+        return confirmTime;
+    }
+
+    public void setConfirmTime(Long confirmTime) {
+        this.confirmTime = confirmTime;
+    }
 }

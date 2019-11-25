@@ -57,6 +57,8 @@ public class CalendarItem extends StoredICureDocument {
     @NotNull(autoFix = AutoFix.FUZZYNOW)
     protected Long endTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
 
+    protected Long confirmTime; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+
     protected Long duration;
 
     protected Boolean allDay;
@@ -228,7 +230,11 @@ public class CalendarItem extends StoredICureDocument {
 
     public void setWasMigrated(Boolean wasMigrated) { this.wasMigrated = wasMigrated; }
 
+    public Long getConfirmTime() {
+        return confirmTime;
+    }
 
-
-
+    public void setConfirmTime(Long confirmTime) {
+        this.confirmTime = confirmTime;
+    }
 }
