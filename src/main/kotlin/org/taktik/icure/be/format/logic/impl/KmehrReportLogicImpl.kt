@@ -93,7 +93,7 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 			ssin = f.patient.ids.find { it.s == IDPATIENTschemes.INSS }?.value
 			lastName = f.patient.familyname
 			firstName = f.patient.firstnames.firstOrNull()
-			dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDateTime(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
+			dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDate(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
 			sex = f.patient.sex?.cd?.value?.value() ?:"unknown"
 			documentId = doc.id
 			protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
