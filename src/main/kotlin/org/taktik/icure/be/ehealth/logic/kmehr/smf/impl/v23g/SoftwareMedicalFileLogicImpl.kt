@@ -45,10 +45,11 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
     override fun importSmfFile(inputStream: InputStream,
                                author: User,
                                language: String,
+                               dryRun: Boolean,
                                dest: Patient?,
                                mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> {
-        return softwareMedicalFileImport.importSMF(inputStream, author, language, mappings, dest)
+        return softwareMedicalFileImport.importSMF(inputStream, author, language, !dryRun, mappings, dest)
     }
 
     override fun checkIfSMFPatientsExists(inputStream: InputStream,
