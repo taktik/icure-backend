@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Gold BPCO</NAME>
+    <VALUE>
+        <CODE>atrisk</CODE>
+        <DESCRIPTION L="fr">Spirométrie Normale, symptômes Chroniques (toux, expectoration)</DESCRIPTION>
+        <DESCRIPTION L="nl">Spirometrie normaal, chronische symptomen (hoest, sputum)</DESCRIPTION>
+        <DESCRIPTION L="en">Spirometry Normal, Chronic symptoms (cough, sputum)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>starting</CODE>
+        <DESCRIPTION L="fr">FEV1/FVC plus petit que 70% et FEV1 > ou égale à 80% des valeurs prédites</DESCRIPTION>
+        <DESCRIPTION L="nl">FEV1/FVC kleiner dan 70% en FEV1 > of gelijk aan 80% van de voorspelde waarden</DESCRIPTION>
+        <DESCRIPTION L="en">FEV1/FVC smaller than 70% and FEV1 > or equal to 80% of predicted values</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>moderate</CODE>
+        <DESCRIPTION L="fr">FEV1/FVC plus petit que 70% et FEV1 entre 50% et 80% des valeurs prédites avec ou sans symptômes chroniques (toux, expectoration)</DESCRIPTION>
+        <DESCRIPTION L="nl">FEV1/ FVC minder dan 70% en FEV1 tussen 50% en 80% van de voorspelde waarden met of zonder chronische symptomen (hoesten, sputum)</DESCRIPTION>
+        <DESCRIPTION L="en">FEV1/FVC less than 70% and FEV1 between 50% and 80% predicted values ​​with or without chronic symptoms (cough, sputum)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>severe</CODE>
+        <DESCRIPTION L="fr">FEV1/FVC plus petit que 70% et FEV1 entre 30% et 50% des valeurs prédites avec ou sans symptômes chroniques (toux, expectoration)</DESCRIPTION>
+        <DESCRIPTION L="nl">FEV1/FVC minder dan 70% en FEV1 tussen 30% en 50% van de voorspelde waarden met of zonder chronische symptomen (hoesten, sputum)</DESCRIPTION>
+        <DESCRIPTION L="en">FEV1/FVC less than 70% and FEV1 between 30% and 50% of predicted values ​​with or without chronic symptoms (cough, sputum)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>verysevere</CODE>
+        <DESCRIPTION L="fr">FEV1/FVC plus petit que 70% et  FEV1 plus petite que 30% des valeurs prédites ou FEV1 plus petit que 50% des valeurs prédites et insuffisance respiratoire</DESCRIPTION>
+        <DESCRIPTION L="nl">FEV1/FVC kleiner dan 70% en FEV1 kleiner dan 30% van de voorspelde waarden of FEV1 kleiner dan 50% van de voorspelde waarden en ademhalingsfalen</DESCRIPTION>
+        <DESCRIPTION L="en">FEV1/FVC smaller than 70% and FEV1 smaller than 30% of predicted values ​​or FEV1 smaller than 50% of predicted values ​​and respiratory failure</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

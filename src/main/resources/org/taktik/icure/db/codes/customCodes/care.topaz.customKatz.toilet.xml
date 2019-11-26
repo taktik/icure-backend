@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Katz toilet</NAME>
+    <VALUE>
+        <CODE>noitem</CODE>
+        <DESCRIPTION L="fr">Est capable d’aller seul à la toilette, de s’habiller ou de s’essuyer</DESCRIPTION>
+        <DESCRIPTION L="nl">Kan alleen naar het toilet gaan, zich kleden en zich reinigen</DESCRIPTION>
+        <DESCRIPTION L="en">Is able to go alone to the bathroom, get dressed or wipe</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>oneofthreeitems</CODE>
+        <DESCRIPTION L="fr">A besoin d'aide pour un des trois items : se déplacer ou s’habiller ou s'essuyer</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft hulp nodig voor één van de drie items: zich verplaatsen of zich kleden of zich reinigen </DESCRIPTION>
+        <DESCRIPTION L="en">Needs help with one of three items: getting around or getting dressed or wiping</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>twoofthreeitems</CODE>
+        <DESCRIPTION L="fr">A besoin d’aide pour deux des trois items : se déplacer et/ou s’habiller et/ou s'essuyer</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft hulp nodig voor twee van de drie items: zich verplaatsen en/of zich kleden en/of zich reinigen </DESCRIPTION>
+        <DESCRIPTION L="en">Needs help with two of the three items: getting around and / or getting dressed and / or wiping</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>allofitems</CODE>
+        <DESCRIPTION L="fr">A besoin d’aide pour les trois items : se déplacer et s’habiller et s’essuyer</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft hulp nodig voor de drie items: zich verplaatsen en zich kleden en zich reinigen</DESCRIPTION>
+        <DESCRIPTION L="en">Needs help with all three items: getting around and getting dressed and wiping</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

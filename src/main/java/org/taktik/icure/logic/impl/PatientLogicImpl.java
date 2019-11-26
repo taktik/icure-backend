@@ -18,7 +18,6 @@
 
 package org.taktik.icure.logic.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import ma.glasnost.orika.MapperFacade;
@@ -576,16 +575,6 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	@Override
 	public PaginatedList<Patient> listOfPatientsModifiedAfter(Long date, Long startKey, String startDocumentId, Integer limit) {
 		return patientDAO.listOfPatientsModifiedAfter(date, new PaginationOffset<>(startKey, startDocumentId, 0, limit == null ? 1000 : limit ));
-	}
-
-	@Override
-	public PaginatedList<Patient> getDuplicatePatientsBySsin(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
-    	return this.patientDAO.getDuplicatePatientsBySsin(healthcarePartyId, paginationOffset);
-  	}
-
-  	@Override
-	public PaginatedList<Patient> getDuplicatePatientsByName(String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
-		return this.patientDAO.getDuplicatePatientsByName(healthcarePartyId, paginationOffset);
 	}
 
 	@Override

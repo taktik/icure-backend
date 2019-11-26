@@ -68,6 +68,8 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+
+
     @Throws(IOException::class)
 	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
@@ -96,7 +98,7 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 			dateOfBirth = f.patient.birthdate.date?. let { FuzzyValues.getFuzzyDateTime(LocalDateTime.of(it.year, it.month, it.day, 0, 0), ChronoUnit.DAYS) }
 			sex = f.patient.sex?.cd?.value?.value() ?:"unknown"
 			documentId = doc.id
-			protocol = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
+			protocol = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
 			complete = t.isIscomplete
 			labo = getAuthorDescription(t)
 			demandDate = demandEpochMillis(t)
@@ -116,8 +118,8 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		msg?.folders?.forEach { f ->
-			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds.contains(it.value) } }.forEach { t ->
-				val protocolId = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
+			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.ID_KMEHR && protocolIds.contains(it.value) } }.forEach { t ->
+				val protocolId = t.ids.find { it.s == IDKMEHRschemes.ID_KMEHR }?.value
 				val demandTimestamp = demandEpochMillis(t)
 
                 var s: Service? = null;

@@ -58,7 +58,6 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
                 this.transactions.add(
                     TransactionType().apply {
                         this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
-                        this.ids.add(localIdKmehr(transactionType, id, config))
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType})
                         this.date = makeXGC(date)
                         this.author = AuthorType().apply {

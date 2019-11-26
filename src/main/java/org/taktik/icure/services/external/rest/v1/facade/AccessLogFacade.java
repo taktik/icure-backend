@@ -19,7 +19,6 @@
 package org.taktik.icure.services.external.rest.v1.facade;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -156,9 +155,8 @@ public class AccessLogFacade implements OpenApiFacade{
                                         @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit,
 										@ApiParam(value = "Descending order", required = false) @QueryParam("descending") Boolean descending) {
 
-        List<String> startKeyElements = startKey == null ? null : new Gson().fromJson(startKey, List.class);
-        PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null, limit);
-        org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate != null ? Instant.ofEpochMilli(startDate) : null, paginationOffset, descending!=null?descending:false);
+        PaginationOffset paginationOffset = new PaginationOffset(startKey, startDocumentId, null, limit);
+        org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, Instant.ofEpochMilli(startDate), paginationOffset, descending!=null?descending:false);
 
         if (accessLogs != null) {
             AccessLogPaginatedList accessLogDtos = new AccessLogPaginatedList();
