@@ -52,7 +52,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeE
 @Path("/ws/be_kmehr")
 public class KmehrWsFacade {
 
-    @Value("${icure.version}")
+    @Value("4.0.0")
     private String ICUREVERSION;
 
 	private MapperFacade mapper;
