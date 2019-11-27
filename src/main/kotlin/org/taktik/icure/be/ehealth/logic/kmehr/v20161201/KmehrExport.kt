@@ -22,6 +22,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.v20161201
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
@@ -30,6 +31,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
@@ -130,7 +132,7 @@ open class KmehrExport {
 
     fun makePerson(p : Patient, config: Config) : PersonType {
         return makePersonBase(p, config).apply {
-            p.dateOfDeath?.let { deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
+            p.dateOfDeath?.let { if(it != 0) deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
@@ -230,13 +232,12 @@ open class KmehrExport {
                     med.drugRoute?.let { c ->
                         route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; value = c } }
                     }
-
                 }
             }
 
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
-            beginmoment = (svc.valueDate ?: svc.openingDate).let { Utils.makeMomentTypeDateFromFuzzyLong(it) }
-            endmoment = svc.closingDate?.let { Utils.makeMomentTypeDateFromFuzzyLong(it)}
+            beginmoment = (svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            endmoment = svc.closingDate?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             recorddatetime = makeXGC(svc.modified)
         }
     }
@@ -284,8 +285,8 @@ open class KmehrExport {
                 }
             }
             isIsrelevant = ServiceStatus.isRelevant(he.status)
-            beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
-            endmoment = he.closingDate?.let { Utils.makeMomentTypeFromFuzzyLong(it)}
+            beginmoment = (he.valueDate ?: he.openingDate).let { if(it != 0L) Utils.makeMomentTypeFromFuzzyLong(it) else null }
+            endmoment = he.closingDate?.let { if(it != 0L) Utils.makeMomentTypeFromFuzzyLong(it) else null}
             recorddatetime = makeXGC(he.modified)
         }
     }
