@@ -14,6 +14,25 @@ import java.io.OutputStream
 interface MedicationSchemeLogic {
 
     fun importMedicationSchemeFile(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult>
-    fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, version: Int, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
-    fun createMedicationSchemeExport(os: OutputStream, patient: Patient, sender: HealthcareParty, language: String, version: Int, services: List<Service>, progressor: AsyncProgress?)
+    fun createMedicationSchemeExport(
+            os: OutputStream,
+            patient: Patient,
+            sfks: List<String>,
+            sender: HealthcareParty,
+            language: String,
+            recipientSafe: String,
+            version: Int,
+            decryptor: AsyncDecrypt?,
+            progressor: AsyncProgress?
+    )
+    fun createMedicationSchemeExport(
+            os: OutputStream,
+            patient: Patient,
+            sender: HealthcareParty,
+            language: String,
+            recipientSafe: String,
+            version: Int,
+            services: List<Service>,
+            progressor: AsyncProgress?
+    )
 }
