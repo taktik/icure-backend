@@ -8,5 +8,5 @@ package org.taktik.icure.entities.base;
 //Favour parent over child as it is better (for conflicts) to change 5 different documents once instead of changing 5 times the same document
 
 public enum LinkQualification {
-	exact, narrower, broader, approximate, sequence, parent, child, linkedPackage, relatedCode
+	exact, narrower, broader, approximate, sequence, parent, child, relatedCode, linkedPackage
 }
