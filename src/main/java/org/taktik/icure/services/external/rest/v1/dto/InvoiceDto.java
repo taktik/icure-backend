@@ -54,6 +54,7 @@ public class InvoiceDto extends IcureDto {
 
 	private String thirdPartyPaymentJustification;
 	protected String thirdPartyPaymentReason;
+	protected String reason;
 
 	protected String gnotionNihii;
 	protected String gnotionSsin;
@@ -90,8 +91,11 @@ public class InvoiceDto extends IcureDto {
 	protected String encounterLocationNihii;
 	protected Integer encounterLocationNorm;
 
+	//eattest cancel
+    protected String cancelReason;
+    protected Long cancelDate;
 
-	protected Map<String,String> receipts = new HashMap<>();
+    protected Map<String,String> receipts = new HashMap<>();
 
 	protected IdentityDocumentReader idDocument;
 
@@ -367,6 +371,14 @@ public class InvoiceDto extends IcureDto {
 		this.thirdPartyPaymentReason = thirdPartyPaymentReason;
 	}
 
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
 	public PaymentType getPaymentType() {
 		return paymentType;
 	}
@@ -390,5 +402,21 @@ public class InvoiceDto extends IcureDto {
 	public void setIdDocument(IdentityDocumentReader idDocument) {
 		this.idDocument = idDocument;
 	}
-	
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public Long getCancelDate() {
+        return cancelDate;
+    }
+
+    public void setCancelDate(Long cancelDate) {
+        this.cancelDate = cancelDate;
+    }
+
 }

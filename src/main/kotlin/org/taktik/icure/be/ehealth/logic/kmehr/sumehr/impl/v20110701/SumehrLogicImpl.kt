@@ -29,7 +29,9 @@ import java.io.OutputStreamWriter
 import be.fgov.ehealth.ehvalidator.core.EhValidator
 import org.springframework.beans.factory.annotation.Qualifier
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.v20110701.KmehrExport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthElement
@@ -79,14 +81,14 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
         return sumehrImport.importSumehrByItemId(inputStream, itemId, author, language, mappings, saveToDatabase, dest)
     }
 
-    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, config: Config) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, config)
 
     @Throws(IOException::class)
-    override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) {
+    override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, config: Config) {
         val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
 
         val sos = BufferedOutputStream(FileOutputStream(temp))
-        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, config)
         sos.close()
 
         try {

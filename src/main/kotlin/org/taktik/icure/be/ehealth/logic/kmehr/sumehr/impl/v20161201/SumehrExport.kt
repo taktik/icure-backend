@@ -21,13 +21,12 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDPATIENTWILLvalues
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.HealthElement
@@ -88,13 +87,7 @@ class SumehrExport : KmehrExport() {
             excludedIds: List<String>,
             includeIrrelevantInformation: Boolean,
             decryptor: AsyncDecrypt?,
-            config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-                    date = makeXGC(Instant.now().toEpochMilli())!!,
-                    time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                    soft = Config.Software(name = "iCure", version = ICUREVERSION),
-                    clinicalSummaryType = "",
-                    defaultLanguage = "en"
-            )
+            config: Config
     ) {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
@@ -114,7 +107,8 @@ class SumehrExport : KmehrExport() {
 		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
 	}
 
-	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {
+    // was set from private to public for unit tests
+	public fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {
         val hcpartyIds = getHcpHierarchyIds(sender)
         val treatedServiceIds = HashSet<String>()
         //Create transaction
