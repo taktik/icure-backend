@@ -1242,7 +1242,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                          dest: Patient? = null): Patient? {
         val dbPatient : Patient? = getExistingPatientWithHcpHierarchy(p, author, v, dest)
 
-        return getExistingPatient(p, author, v, dest)
+        return getExistingPatientWithHcpHierarchy(p, author, v, dest)
                 ?: Patient().apply {
                     this.delegations = mapOf(author.healthcarePartyId to setOf())
 
