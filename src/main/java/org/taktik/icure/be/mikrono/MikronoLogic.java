@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.taktik.icure.dto.message.EmailOrSmsMessage;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto;
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,4 +42,6 @@ public interface MikronoLogic {
 	List<AppointmentDto> getAppointmentsByPatient(String serverUrl, String username, String userToken, String ownerId, String patientId, Long startTime, Long EndTime);
 
 	List<String> createAppointments(String serverUrl, String username, String userToken, List<AppointmentImportDto> appointments) throws IOException;
+
+    List<MikronoAppointmentTypeRestDto> createAppointmentTypes(String serverUrl, String username, String userToken, List<MikronoAppointmentTypeRestDto> appointmentTypes) throws IOException;
 }
