@@ -74,8 +74,9 @@ open class KmehrExport {
     val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20161201"
-    internal val ICUREVERSION = "4.0.0"
-    internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
+    @Value("\${icure.version}")
+    internal lateinit var ICUREVERSION: String
+internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
     fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType {
@@ -126,7 +127,7 @@ open class KmehrExport {
         return makePerson(p, config).apply {
             ids.clear()
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-            ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft.version; value= p.id})
+            ids.add(IDPATIENT().apply {s= IDPATIENTschemes.LOCAL; sl= "MF-ID"; sv= config.soft?.version; value= p.id})
         }
     }
 
@@ -150,7 +151,7 @@ open class KmehrExport {
 
         return PersonType().apply {
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft.version; sl = "${config.soft.name}-Person-Id"; value = id }) }
+            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
             sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN }}
@@ -552,7 +553,7 @@ open class KmehrExport {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                val filetype = if(config.exportAsPMF) {
+                val filetype = if(config.format == Config.Format.PMF) {
                     CDMESSAGEvalues.GPPATIENTMIGRATION
                 } else {
                     CDMESSAGEvalues.GPSOFTWAREMIGRATION
@@ -567,9 +568,9 @@ open class KmehrExport {
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(sender, emptyList()))
                     hcparties.add(HcpartyType().apply {
-						ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = config.soft.name; sv = config.soft.version; value = "${config.soft.name}-${config.soft.version}" })
+						ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = config.soft?.name; sv = config.soft?.version; value = "${config.soft?.name}-${config.soft?.version}" })
 						cds.add(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })
-						name = config.soft.name
+						name = config.soft?.name
 					})
                 }
             }
@@ -756,8 +757,8 @@ open class KmehrExport {
 	fun localIdKmehr(itemType: String, id: String?, config: Config): IDKMEHR {
 		return IDKMEHR().apply {
 			s = IDKMEHRschemes.LOCAL
-			sv = config.soft.version
-			sl = "${config.soft.name}-$itemType-Id"
+			sv = config.soft?.version
+			sl = "${config.soft?.name}-$itemType-Id"
 			value = id
 		}
     }
@@ -773,10 +774,5 @@ open class KmehrExport {
 	companion object {
 		const val SMF_VERSION = "2.3"
 	}
-
-	data class Config(val _kmehrId: String, val date: XMLGregorianCalendar, val time: XMLGregorianCalendar, val soft: Software, var clinicalSummaryType: String, val defaultLanguage: String, val exportAsPMF: Boolean = false) {
-        data class Software(val name : String, val version : String)
-    }
-
 
 }

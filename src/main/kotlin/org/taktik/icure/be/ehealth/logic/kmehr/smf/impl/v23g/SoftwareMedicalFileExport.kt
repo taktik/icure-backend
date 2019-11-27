@@ -22,13 +22,17 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
-import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXMLGregorianCalendarFromFuzzyLong
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXmlGregorianCalendar
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.*
@@ -39,23 +43,13 @@ import org.taktik.icure.entities.embed.Insurability
 import org.taktik.icure.entities.embed.ReferralPeriod
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.SubContact
-import org.taktik.icure.services.external.api.AsyncDecrypt
-import org.taktik.icure.services.external.http.websocket.AsyncProgress
-import org.taktik.icure.services.external.rest.v1.dto.ContactDto
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCE
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDINSURANCEschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.logic.FormLogic
 import org.taktik.icure.logic.FormTemplateLogic
 import org.taktik.icure.logic.InsuranceLogic
+import org.taktik.icure.services.external.api.AsyncDecrypt
+import org.taktik.icure.services.external.http.websocket.AsyncProgress
+import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
-import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -99,7 +93,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					soft = Config.Software(name = "iCure", version = ICUREVERSION),
 					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
-					exportAsPMF = true
+					format = Config.Format.SMF
 			)
     ) {
 
@@ -109,7 +103,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
         config.time = config.time ?: makeXGC(Instant.now().toEpochMilli(), true)!!
         config.soft = config.soft ?: Config.Software(name = "iCure", version = ICUREVERSION)
         config.defaultLanguage = config.defaultLanguage ?: "en"
-        config.exportAsPMF = config.exportAsPMF ?: true
+        config.format = config.format ?: Config.Format.SMF
 
 		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 
@@ -117,7 +111,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		message.header.recipients.add(RecipientType().apply {
 			hcparties.add(HcpartyType().apply {
 				cds.add(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; value = "application" })
-				name = if(config.exportAsPMF) {
+				name = if(config.format == Config.Format.PMF) {
 					"gp-patient-migration"
 				} else {
 					"gp-software-migration"
@@ -193,7 +187,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			it.value.first()
 		}
 
-        if(config.exportAsPMF) { // only last version in PMF
+        if(config.format == Config.Format.PMF) { // only last version in PMF
             hesByContactId = hesByContactId.map { entry ->
                 entry.key to entry.value.filter({ he : HealthElement  -> hesByHeIdSortedByDate[he.healthElementId]?.last()?.id == he.id })
             }.toMap()
@@ -395,7 +389,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 												this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
 											}
 										}
-                                        if(itemByServiceId[svc.id!!] != null && !config.exportAsPMF) {
+                                        if(itemByServiceId[svc.id!!] != null && config.format != Config.Format.PMF) {
                                             // this is a new version of and older service, add a link
                                             // no history in PMF
                                             lnks.add(
@@ -807,14 +801,14 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			)
 			val itemtype = eds.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "healthcareelement"
 			createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")?.let {
-				if(isHeANewVersionOf(eds) && !config.exportAsPMF) { // no versioning in PMF
+				if(isHeANewVersionOf(eds) && config.format != Config.Format.PMF) { // no versioning in PMF
 					it.lnks.add(
 							LnkType().apply {
 								type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(eds.healthElementId)
 							}
 					)
 				}
-                if(!(config.exportAsPMF && !it.isIsrelevant && it.lifecycle.cd.value == CDLIFECYCLEvalues.INACTIVE)) {
+                if(!(config.format == Config.Format.PMF && !it.isIsrelevant && it.lifecycle.cd.value == CDLIFECYCLEvalues.INACTIVE)) {
                     // inactive irrelevant items should not be exported in PMF
                     trn.headingsAndItemsAndTexts.add(it)
                 }
@@ -843,7 +837,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	fun excludeHealthElementsForPMF(helist: List<HealthElement>, config: Config) : List<HealthElement>{
 		// PMF = all active items + all relevant inactive items
-		return if(config.exportAsPMF) {
+		return if(config.format == Config.Format.PMF) {
 			helist.filter{
                 (it.endOfLife == null || it.endOfLife == 0L)  		                        // not deleted
                 && (
@@ -861,7 +855,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	fun excludesServiceForPMF(servlist: List<Service>, config: Config) : List<Service>{
 		// PMF = all active items + all relevant inactive items
-		return if(config.exportAsPMF) {
+		return if(config.format == Config.Format.PMF) {
 			servlist.filter{ svc ->
                 (svc.endOfLife == null || svc.endOfLife == 0L) // not deleted
                 && (

@@ -31,6 +31,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
@@ -44,7 +45,6 @@ import java.io.OutputStream
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -539,7 +539,7 @@ open class KmehrExport {
             header = HeaderType().apply {
                 standard = StandardType().apply {
 					cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                    val filetype = if(config.exportAsPMF) {
+                    val filetype = if(config.format == Config.Format.PMF) {
                         CDMESSAGEvalues.GPPATIENTMIGRATION
                     } else {
                         CDMESSAGEvalues.GPSOFTWAREMIGRATION
@@ -761,15 +761,4 @@ open class KmehrExport {
 		const val SMF_VERSION = "2.3"
 	}
 
-	data class Config(
-            var _kmehrId: String? = null,
-            var date: XMLGregorianCalendar? = null,
-            var time: XMLGregorianCalendar? = null,
-            var soft: Software? = null,
-            var clinicalSummaryType: String? = null,
-            var defaultLanguage: String? = null,
-            var exportAsPMF: Boolean = false
-    ) {
-		data class Software(val name : String, val version : String)
-	}
 }

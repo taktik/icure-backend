@@ -21,12 +21,16 @@ package org.taktik.icure.services.external.rest.v1.wsfacade;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 import javax.ws.rs.Path;
 
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils;
+import org.taktik.icure.be.ehealth.logic.kmehr.Config;
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic;
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic;
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic;
@@ -47,6 +51,10 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeE
 @Component
 @Path("/ws/be_kmehr")
 public class KmehrWsFacade {
+
+    @Value("${icure.version}")
+    private String ICUREVERSION;
+
 	private MapperFacade mapper;
 	private SessionLogic sessionLogic;
 	private SumehrLogic sumehrLogicV1;
@@ -64,7 +72,17 @@ public class KmehrWsFacade {
         try {
             diaryNoteLogic.createDiaryNote(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
                 healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-                mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getNote(), info.getTags(), info.getContexts(), info.getPsy(), info.getDocumentId(), info.getAttachmentId(), operation);
+                mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getNote(), info.getTags(), info.getContexts(), info.getPsy(), info.getDocumentId(), info.getAttachmentId(), operation,
+                    new Config(
+                            ""+System.currentTimeMillis(),
+                            Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            new Config.Software("iCure", ICUREVERSION),
+                            "",
+                            "en",
+                            Config.Format.KMEHR
+                        )
+                    );
             operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
             bos.close();
         } catch (Exception e) {
@@ -79,7 +97,17 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV1.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+                    new Config(
+                            ""+System.currentTimeMillis(),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            new Config.Software("iCure", ICUREVERSION),
+                            "",
+                            "en",
+                            Config.Format.SUMEHR
+                    )
+            );
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -92,7 +120,16 @@ public class KmehrWsFacade {
 	public void validateSumehr(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogicV1.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation);
+			sumehrLogicV1.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+                    new Config(
+                            ""+System.currentTimeMillis(),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            new Config.Software("iCure", ICUREVERSION),
+                            "",
+                            "en",
+                            Config.Format.SUMEHR
+                    ));
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -107,7 +144,16 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+                    new Config(
+                            ""+System.currentTimeMillis(),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            new Config.Software("iCure", ICUREVERSION),
+                            "",
+                            "en",
+                            Config.Format.SUMEHR
+                    ));
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -122,7 +168,16 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation);
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+                    new Config(
+                            ""+System.currentTimeMillis(),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            new Config.Software("iCure", ICUREVERSION),
+                            "",
+                            "en",
+                            Config.Format.SUMEHR
+                    ));
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
@@ -135,7 +190,16 @@ public class KmehrWsFacade {
 	public void validateSumehrV2(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogicV2.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation);
+			sumehrLogicV2.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+                    new Config(
+                            ""+System.currentTimeMillis(),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
+                            new Config.Software("iCure", ICUREVERSION),
+                            "",
+                            "en",
+                            Config.Format.SUMEHR
+                    ));
 			operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()));
 			bos.close();
 		} catch (Exception e) {
