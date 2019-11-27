@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.v20131001
 
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.taktik.commons.uti.UTI
@@ -342,7 +343,10 @@ open class KmehrExport {
                     isBoolean = content.booleanValue
                 }
                 content.numberValue?.let { decimal = BigDecimal.valueOf(it) }
-                content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply { l = language; value = content.stringValue }) } }
+                content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply {
+                    l = language;
+                    value = StringEscapeUtils.escapeXml10(content.stringValue) // escaped because imported epicure data has EOT chars in it
+                }) } }
 				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->
                     mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode -> if (unitCode.isNotEmpty()) {unit = UnitType().apply { cd = CDUNIT().apply { s(CDUNITschemes.CD_UNIT); value = unitCode } } } }
