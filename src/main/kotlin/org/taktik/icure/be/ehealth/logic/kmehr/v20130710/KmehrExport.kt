@@ -113,7 +113,7 @@ open class KmehrExport {
 
     fun makePerson(p : Patient, config: Config) : PersonType {
         return makePersonBase(p, config).apply {
-            p.dateOfDeath?.let { if(it != 0) deathdate = deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
+            p.dateOfDeath?.let { if(it != 0) deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
