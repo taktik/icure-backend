@@ -76,6 +76,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
     protected Integer override3rdPayerCode;
     protected String override3rdPayerReason;
 
+    protected Integer transplantationCode;
 	protected Integer prescriberNorm;
 	protected Integer percentNorm;
     protected String prescriberNihii;
@@ -129,6 +130,7 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 		this.contract = this.contract == null ? other.contract : this.contract;
 		this.units = this.units == null ? other.units : this.units;
 		this.side = this.side == null ? other.side : this.side;
+		this.transplantationCode = this.transplantationCode == null ? other.transplantationCode : this.transplantationCode;
 		this.timeOfDay = this.timeOfDay == null ? other.timeOfDay : this.timeOfDay;
 		this.eidReadingHour = this.eidReadingHour == null ? other.eidReadingHour : this.eidReadingHour;
 		this.eidReadingValue = this.eidReadingValue == null ? other.eidReadingValue : this.eidReadingValue;
@@ -301,6 +303,14 @@ public class InvoicingCode implements Identifiable<String>, Comparable<Invoicing
 
     public void setSide(Integer side) {
         this.side = side;
+    }
+
+    public Integer getTransplantationCode() {
+        return transplantationCode;
+    }
+
+    public void setTransplantationCode(Integer transplantationCode) {
+        this.transplantationCode = transplantationCode;
     }
 
     public Integer getTimeOfDay() {

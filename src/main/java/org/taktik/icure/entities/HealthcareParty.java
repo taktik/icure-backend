@@ -59,6 +59,7 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
 	protected String proxyBic;
 	protected String invoiceHeader;
 	protected String cbe;
+    protected String ehp;
 
 	protected String userId;
 
@@ -226,7 +227,15 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
 		this.cbe = cbe;
 	}
 
-	public @Nullable String getInvoiceHeader() {
+    public String getEhp() {
+        return ehp;
+    }
+
+    public void setEhp(String ehp) {
+        this.ehp = ehp;
+    }
+
+    public @Nullable String getInvoiceHeader() {
         return invoiceHeader;
     }
 
@@ -428,14 +437,42 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     }
 
     public void mergeFrom(HealthcareParty other) {
+        if (this.name == null && other.name != null) { this.name = other.name; }
         if (this.firstName == null && other.firstName != null) { this.firstName = other.firstName; }
         if (this.lastName == null && other.lastName != null) { this.lastName = other.lastName; }
         if (this.ssin == null && other.ssin != null) { this.ssin = other.ssin; }
         if (this.civility == null && other.civility != null) { this.civility = other.civility; }
         if (this.gender == null && other.gender != null && other.gender != Gender.unknown) { this.gender = other.gender; }
         if (this.publicKey == null && other.publicKey != null) { this.publicKey = other.publicKey; }
+        if (this.picture == null && other.picture != null) { this.picture = other.picture; }
+        if (this.notes == null && other.notes != null) { this.notes = other.notes; }
+
         this.hcPartyKeys = MergeUtil.mergeMapsOfArraysDistinct(this.hcPartyKeys, other.hcPartyKeys, String::equals, (a, b)->a);
         this.languages = MergeUtil.mergeListsDistinct(this.languages,other.languages,String::equalsIgnoreCase,(a, b)->a);
+
+        if (this.speciality == null && other.speciality != null) { this.speciality = other.speciality; }
+        if (this.companyName == null && other.companyName != null) { this.companyName = other.companyName; }
+        if (this.bankAccount == null && other.bankAccount != null) { this.bankAccount = other.bankAccount; }
+        if (this.bic == null && other.bic != null) { this.bic = other.bic; }
+        if (this.proxyBankAccount == null && other.proxyBankAccount != null) { this.proxyBankAccount = other.proxyBankAccount; }
+        if (this.proxyBic == null && other.proxyBic != null) { this.proxyBic = other.proxyBic; }
+        if (this.invoiceHeader == null && other.invoiceHeader != null) { this.invoiceHeader = other.invoiceHeader; }
+        if (this.cbe == null && other.cbe != null) { this.cbe = other.cbe; }
+        if (this.ehp == null && other.ehp != null) { this.ehp = other.ehp; }
+
+        if (this.userId == null && other.userId != null) { this.userId = other.userId; }
+        if (this.parentId == null && other.parentId != null) { this.parentId = other.parentId; }
+        if (this.convention == null && other.convention != null) { this.convention = other.convention; }
+        if (this.supervisorId == null && other.supervisorId != null) { this.supervisorId = other.supervisorId; }
+        if (this.nihii == null && other.nihii != null) { this.nihii = other.nihii; }
+        if (this.nihiiSpecCode == null && other.nihiiSpecCode != null) { this.nihiiSpecCode = other.nihiiSpecCode; }
+
+        if (this.billingType == null && other.billingType != null) { this.billingType = other.billingType; }
+        if (this.type == null && other.type != null) { this.type = other.type; }
+        if (this.contactPerson == null && other.contactPerson != null) { this.contactPerson = other.contactPerson; }
+        if (this.contactPersonHcpId == null && other.contactPersonHcpId != null) { this.contactPersonHcpId = other.contactPersonHcpId; }
+
+        this.statuses = MergeUtil.mergeListsDistinct(this.statuses, other.statuses, HealthcarePartyStatus::equals, (a, b)->a);
 
         for (Address fromAddress:other.addresses) {
             Optional<Address> destAddress = this.getAddresses().stream().filter(address -> address.getAddressType() == fromAddress.getAddressType()).findAny();
@@ -443,13 +480,6 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
                 destAddress.orElseThrow(IllegalStateException::new).mergeFrom(fromAddress);
             } else {
                 this.getAddresses().add(fromAddress);
-            }
-        }
-
-        for (String fromLanguage:other.languages) {
-            Optional<String> destLanguage = this.getLanguages().stream().filter(language -> language == fromLanguage).findAny();
-            if (!destLanguage.isPresent()) {
-                this.getLanguages().add(fromLanguage);
             }
         }
 
