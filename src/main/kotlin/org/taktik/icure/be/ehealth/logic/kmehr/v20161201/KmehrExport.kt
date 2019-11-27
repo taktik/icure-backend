@@ -74,9 +74,8 @@ open class KmehrExport {
     val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20161201"
-    @Value("\${icure.version}")
-    internal lateinit var ICUREVERSION: String
-internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
+    internal var ICUREVERSION: String = "4.0.0"
+    internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
     fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType {
