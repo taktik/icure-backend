@@ -281,7 +281,7 @@ open class KmehrExport {
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
 			} }
 
-            certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" }?.let {
+            certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" && !t.code.isNullOrBlank()}?.let {
                 CertaintyType().apply {
                     cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
                 }
