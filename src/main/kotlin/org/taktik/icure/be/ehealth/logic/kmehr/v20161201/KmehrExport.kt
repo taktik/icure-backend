@@ -532,7 +532,7 @@ open class KmehrExport {
                 cds.add(CDTRANSACTION().apply { s(transactionType);  value = cdTransaction })
                 author = AuthorType().apply { hcparties.add(createParty(sender, emptyList())) }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = ICUREVERSION; value = ssc.id ?: dem.id ?: patient.id })
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = config.soft?.version ?: "1.0"; value = ssc.id ?: dem.id ?: patient.id })
                 recorddatetime = makeXGC(ssc.created ?: ((dem.openingDate ?: dem.valueDate)?.let { FuzzyValues.getDateTime(it) } ?: LocalDateTime.now()).atZone(ZoneId.systemDefault()).toEpochSecond()*1000)
                 isIscomplete = true
                 isIsvalidated = true
@@ -554,12 +554,14 @@ open class KmehrExport {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                val filetype = if(config.format == Config.Format.PMF) {
-                    CDMESSAGEvalues.GPPATIENTMIGRATION
-                } else {
-                    CDMESSAGEvalues.GPSOFTWAREMIGRATION
-                }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype } ; version = SMF_VERSION }
+                    val filetype = if (config.format == Config.Format.PMF) {
+                        CDMESSAGEvalues.GPPATIENTMIGRATION
+                    } else if(config.format == Config.Format.SMF) {
+                        CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                    } else { null }
+                    filetype?.let {
+                        specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
+                    }
                 }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
                 makeXGC(Instant.now().toEpochMilli()).let {
