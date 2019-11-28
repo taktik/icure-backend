@@ -112,7 +112,7 @@ class DiaryNoteExport : KmehrExport() {
             isIsvalidated = true
         }
         folder.transactions.add(trn)
-        if(documentId != "" && attachmentId != "") {
+        if(documentId != "") {
             val document = documentLogic?.get(documentId)
             val attachment = document?.decryptAttachment(sfks)
             if(attachment != null){
