@@ -18,6 +18,18 @@ import org.taktik.icure.entities.samv2.Amp
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
 class AmpDAOImpl @Autowired
 constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
+    @View(name = "by_dmppcode", map = "classpath:js/amp/By_dmppcode.js")
+    override fun findAmpsByDmppCode(dmppCode: String): List<Amp> {
+        val from = dmppCode
+        val to = dmppCode
+
+        return db.queryView(createQuery(
+                "by_dmppcode")
+                .includeDocs(true)
+                .startKey(from)
+                .endKey(to), Amp::class.java)
+    }
+
     @View(name = "by_groupcode", map = "classpath:js/amp/By_groupcode.js")
     override fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
         val from = vmpgCode
