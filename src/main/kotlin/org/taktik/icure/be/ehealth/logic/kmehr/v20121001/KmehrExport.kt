@@ -383,9 +383,7 @@ open class KmehrExport {
             header = HeaderType().apply {
                 standard = StandardType().apply {
                     cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                    val filetype = if (config.format == Config.Format.PMF) {
-                        CDMESSAGEvalues.GPPATIENTMIGRATION
-                    } else if (config.format == Config.Format.SMF) {
+                    val filetype = if (config.format == Config.Format.PMF || config.format == Config.Format.SMF) {
                         CDMESSAGEvalues.GPSOFTWAREMIGRATION
                     } else {
                         null
