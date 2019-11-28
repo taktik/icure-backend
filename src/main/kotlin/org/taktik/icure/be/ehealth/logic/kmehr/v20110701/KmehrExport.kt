@@ -73,8 +73,8 @@ open class KmehrExport {
 
     internal val STANDARD = "20110701"
 
-    @Value("4.0.0")
-    internal var ICUREVERSION: String = "4.0.0"
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
 
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)

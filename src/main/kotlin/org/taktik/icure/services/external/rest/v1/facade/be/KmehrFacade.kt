@@ -85,8 +85,8 @@ class KmehrFacade(
         val documentLogic: DocumentLogic
 ) : OpenApiFacade {
 
-    @Value("4.0.0")
-    internal var ICUREVERSION: String = "4.0.0"
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
 
 
     @ApiOperation(value = "Generate diarynote", httpMethod = "POST", notes = "")
