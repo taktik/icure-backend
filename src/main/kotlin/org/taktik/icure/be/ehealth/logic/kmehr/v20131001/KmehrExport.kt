@@ -23,6 +23,7 @@ import ma.glasnost.orika.MapperFacade
 import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
@@ -71,7 +72,9 @@ open class KmehrExport {
 	val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20131001"
-    internal val ICUREVERSION = "4.0.0" // TODO fetch actual version here or delete and fetch elsewhere
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
+
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
@@ -538,14 +541,18 @@ open class KmehrExport {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply {
-					cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                    val filetype = if(config.format == Config.Format.PMF) {
+                    cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
+                    val filetype = if (config.format == Config.Format.PMF) {
                         CDMESSAGEvalues.GPPATIENTMIGRATION
-                    } else {
+                    } else if (config.format == Config.Format.SMF) {
                         CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                    } else {
+                        null
                     }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype } ; version = SMF_VERSION }
-				}
+                    filetype?.let {
+                        specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
+                    }
+                }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
                 // FIXME: use config or use now ?
                 date = config.date

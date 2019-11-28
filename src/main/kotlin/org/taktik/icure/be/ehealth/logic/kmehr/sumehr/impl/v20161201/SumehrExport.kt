@@ -91,7 +91,7 @@ class SumehrExport : KmehrExport() {
     ) {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
-			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
+			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "sumehr"))
 		})
 
 		val folder = FolderType()

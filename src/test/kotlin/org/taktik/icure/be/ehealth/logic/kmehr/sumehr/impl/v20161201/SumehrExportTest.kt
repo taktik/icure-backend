@@ -260,7 +260,7 @@ class SumehrExportTest {
     fun createSumehr() {
         // Arrange
         /// First parameter
-        val path1 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr1.xml"
+        val path1 = "/tmp/outCreateSumehr1.xml"
         val file1 = File(path1)
         val os1 = file1.outputStream()
 
