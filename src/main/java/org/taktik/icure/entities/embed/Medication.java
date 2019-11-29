@@ -62,6 +62,9 @@ public class Medication implements Serializable {
 	private Long beginMoment;
 	private Long endMoment;
 
+	private Long deliveryMoment;
+	private Long endExecutionMoment;
+
 	private Duration duration;
 	private Renewal renewal;
 
@@ -171,6 +174,22 @@ public class Medication implements Serializable {
 	public void setEndMoment(Long endMoment) {
 		this.endMoment = endMoment;
 	}
+
+    public @Nullable Long getDeliveryMoment() {
+        return deliveryMoment;
+    }
+
+    public void setDeliveryMoment(Long deliveryMoment) {
+        this.deliveryMoment = deliveryMoment;
+    }
+
+    public @Nullable Long getEndExecutionMoment() {
+        return endExecutionMoment;
+    }
+
+    public void setEndExecutionMoment(Long endExecutionMoment) {
+        this.endExecutionMoment = endExecutionMoment;
+    }
 
 	public List<RegimenItem> getRegimen() {
 		return regimen;
