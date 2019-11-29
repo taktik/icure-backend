@@ -21,13 +21,12 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDPATIENTWILLvalues
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.HealthElement
@@ -88,17 +87,11 @@ class SumehrExport : KmehrExport() {
             excludedIds: List<String>,
             includeIrrelevantInformation: Boolean,
             decryptor: AsyncDecrypt?,
-            config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
-                    date = makeXGC(Instant.now().toEpochMilli())!!,
-                    time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                    soft = Config.Software(name = "iCure", version = ICUREVERSION),
-                    clinicalSummaryType = "",
-                    defaultLanguage = "en"
-            )
+            config: Config
     ) {
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
-			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
+			hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "sumehr"))
 		})
 
 		val folder = FolderType()
@@ -114,7 +107,8 @@ class SumehrExport : KmehrExport() {
 		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
 	}
 
-	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {
+    // was set from private to public for unit tests
+	public fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {
         val hcpartyIds = getHcpHierarchyIds(sender)
         val treatedServiceIds = HashSet<String>()
         //Create transaction
@@ -144,8 +138,17 @@ class SumehrExport : KmehrExport() {
 		addContactPeople(p, trn, config, excludedIds)
 		addPatientHealthcareParties(p, trn, config, excludedIds)
 
-        //patientwill
-		addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf("ntbr", "bloodtransfusionrefusal", "intubationrefusal", "euthanasiarequest", "vaccinationrefusal", "organdonationconsent", "datareuseforclinicalresearchconsent", "datareuseforclinicaltrialsconsent", "clinicaltrialparticipationconsent"), excludedIds, includeIrrelevantInformation, decryptor)
+        //patientwill (not included: omissionofmedicaldata --> this is added automatically)
+		addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf(
+            "bloodtransfusionrefusal", "clinicaltrialparticipationconsent", "datareuseforclinicalresearchconsent",
+            "datareuseforclinicaltrialsconsent", "euthanasiarequest", "intubationrefusal",
+            "organdonationconsent", "vaccinationrefusal"), excludedIds, includeIrrelevantInformation, decryptor)
+
+        addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
+            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor)
+
+        addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
+            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor)
 
         //vac/med
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor)
@@ -154,11 +157,13 @@ class SumehrExport : KmehrExport() {
         addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, treatedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
         addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, treatedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
 
+        addNoContentItemIfNeeded(trn, "problem")
+        addNoContentItemIfNeeded(trn, "treatment")
+
         //global comment
 		if (comment?.length ?: 0 > 0) {
 			trn.headingsAndItemsAndTexts.add(TextType().apply { l = sender.languages.firstOrNull() ?: "fr"; value = comment })
 		}
-
 		//Remove empty headings
 		val iterator = folder.transactions[0].headingsAndItemsAndTexts.iterator()
 		while (iterator.hasNext()) {
@@ -171,6 +176,38 @@ class SumehrExport : KmehrExport() {
 		}
 		return folder
 	}
+
+    fun addNoContentItemIfNeeded(trn: TransactionType, type: String){
+        //TODO: implementation can sure be shorter ...
+        val history = getHistory(trn).headingsAndItemsAndTexts
+        val assessment = getAssessment(trn).headingsAndItemsAndTexts
+
+        val hasHistoryItem = history.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .any { item ->
+                    item.cds.filterNotNull().any { cd ->
+                        cd.value == type
+                    }
+            }
+
+        val hasAssessmentItem = assessment.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+            .any { item ->
+                item.cds.filterNotNull().any { cd ->
+                    cd.value == type
+                }
+            }
+        if(!(hasHistoryItem || hasAssessmentItem)){
+            trn.headingsAndItemsAndTexts.add(ItemType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
+                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); nullFlavor = "NA"; value = type })
+                lifecycle =  LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
+                    value = CDLIFECYCLEvalues.INACTIVE } }
+            })
+        }
+
+
+    }
 
     fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String> {
         val hcpartyIds = HashSet<String>()
@@ -358,10 +395,27 @@ class SumehrExport : KmehrExport() {
 		addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
 
 		values.forEach { value ->
-			nonConfidentialItems.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
-				createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
-					assessment.headingsAndItemsAndTexts.add(it)
-				}
+			nonConfidentialItems.filter { s -> null != s.codes.find { it.type.replace("-", "") == type.value().replace("-", "") && value == it.code } }.forEach {
+                val svc = it
+				if(svc.content.any{it.value.stringValue!!.contains("|consent")}) {
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
+                        assessment.headingsAndItemsAndTexts.add(it)
+                    }
+                }
+                if(svc.content.any{it.value.stringValue!!.contains("|hos")}) {
+                    var stringValue = svc.content.filter{it.value.stringValue!!.contains("|hos")}.values.first().stringValue
+                    var itmValue = stringValue!!.split("|")[1]
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }))?.let {
+                        assessment.headingsAndItemsAndTexts.add(it)
+                    }
+                }
+                if(svc.content.any{it.value.stringValue!!.contains("|dnr")}) {
+                    var stringValue = svc.content.filter{it.value.stringValue!!.contains("|dnr")}.values.first().stringValue
+                    var itmValue = stringValue!!.split("|")[1]
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }))?.let {
+                        assessment.headingsAndItemsAndTexts.add(it)
+                    }
+                }
 			}
 		}
 	}
@@ -418,7 +472,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
-		val item = createItemWithContent(svc, itemIndex, "vaccine", svc.content.entries.mapNotNull {
+		var item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null
 			it.value.documentId = null
@@ -428,8 +482,9 @@ class SumehrExport : KmehrExport() {
 			it.value.stringValue = null
 
 			makeContent(it.key, it.value)
-		})
+		}.first()))
 
+        //item.contents = item.contents.distinctBy{it -> it.medicinalproduct.intendedname}
 		item?.let {
 			addServiceCodesAndTags(svc, it, true, listOf("CD-ATC", "CD-VACCINEINDICATION"), null, listOf("CD-TRANSACTION", "CD-TRANSACTION-TYPE"))
 		}
@@ -638,6 +693,7 @@ class SumehrExport : KmehrExport() {
                         items.add(it)
                     }
 				}
+
 			}
 		} catch (e: Exception) {
 			log.error("Unexpected error", e)

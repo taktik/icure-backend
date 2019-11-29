@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Katz eating</NAME>
+    <VALUE>
+        <CODE>nohelp</CODE>
+        <DESCRIPTION L="fr">Est capable de manger et de boire seul</DESCRIPTION>
+        <DESCRIPTION L="nl">kan alleen eten en drinken</DESCRIPTION>
+        <DESCRIPTION L="en">Is able to eat and drink alone</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>needsprevioushelp</CODE>
+        <DESCRIPTION L="fr">A besoin d'une aide préalable pour manger ou boire</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft vooraf hulp nodig om te eten of te drinken</DESCRIPTION>
+        <DESCRIPTION L="en">Needs previous help to eat or drink</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>needspartialhelp</CODE>
+        <DESCRIPTION L="fr">A besoin d'une aide partielle pendant qu'il mange ou boit</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft gedeeltelijke hulp nodig tijdens het eten of drinken</DESCRIPTION>
+        <DESCRIPTION L="en">Needs partial help while eating or drinking</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>totallydependent</CODE>
+        <DESCRIPTION L="fr">Le patient est totalement dépendant pour manger et boire</DESCRIPTION>
+        <DESCRIPTION L="nl">De patiënt is volledig afhankelijk om te eten of te drinken</DESCRIPTION>
+        <DESCRIPTION L="en">The patient is totally dependent on eating and drinking</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

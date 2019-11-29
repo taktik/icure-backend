@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Gold mMrc</NAME>
+    <VALUE>
+        <CODE>grade0</CODE>
+        <DESCRIPTION L="fr">Patient avec dyspnée lors d'un exercice intense. </DESCRIPTION>
+        <DESCRIPTION L="nl">Patiënt met dyspneu tijdens intensieve training.</DESCRIPTION>
+        <DESCRIPTION L="en">I only get breathless with sternuous exercise</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>grade1</CODE>
+        <DESCRIPTION L="fr">Dyspnée lors d'une marche rapide sur terrain plat ou en montant une pente légère. </DESCRIPTION>
+        <DESCRIPTION L="nl">Dyspneu tijdens een snelle wandeling op vlakke grond of tijdens het beklimmen van een lichte helling.</DESCRIPTION>
+        <DESCRIPTION L="en">I get short of breath when hurrying on the level or walking up a slight hill</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>grade2</CODE>
+        <DESCRIPTION L="fr">Marche plus lentement que les personnes de son âge sur terrain plat, ou doit s'arrêter pour respirer lorsqu'il marche à son propre rythme sur terrain plat. </DESCRIPTION>
+        <DESCRIPTION L="nl">Loopt langzamer dan mensen van zijn leeftijd op vlakke grond, of moet stoppen om te ademen wanneer hij in zijn eigen tempo op vlakke grond loopt.</DESCRIPTION>
+        <DESCRIPTION L="en">I walk slower than people of the same age on the level because of breathlessness, or i have to stop for breath when walking on my own pace on the level</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>grade3</CODE>
+        <DESCRIPTION L="fr">Doit s'arrêter pour respirer après une marche d'environ 100 mètres. </DESCRIPTION>
+        <DESCRIPTION L="nl">Moet stoppen om te ademen na een wandeling van ongeveer 100 meter.</DESCRIPTION>
+        <DESCRIPTION L="en">I stop for breath after walking about 100 meters or after a few minutes on the level</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>grade4</CODE>
+        <DESCRIPTION L="fr">Trop essoufflé(e) pour quitter la maison, ou dyspnée lors de l'habillement.</DESCRIPTION>
+        <DESCRIPTION L="nl">Te kortademig om het huis te verlaten, of kortademigheid tijdens het aankleden.</DESCRIPTION>
+        <DESCRIPTION L="en">I'm too breathless to leave the house or i am breathless when dressing or undressing</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

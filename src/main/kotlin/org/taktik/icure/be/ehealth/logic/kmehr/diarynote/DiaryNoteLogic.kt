@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.diarynote
 
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthElement
@@ -34,7 +35,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 interface DiaryNoteLogic {
-    fun createDiaryNote(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?)
+    fun createDiaryNote(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?, config: Config)
     //fun getDiaryNoteMd5(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>): String
     fun importDiaryNote(inputStream: InputStream, author: User, language: String, dest: Patient? = null, mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
 }

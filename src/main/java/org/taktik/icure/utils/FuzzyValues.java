@@ -133,11 +133,11 @@ public class FuzzyValues {
 	}
 
 	public static long getCurrentFuzzyDateTime(TemporalUnit precision) {
-		return getFuzzyDate(LocalDateTime.now(), precision);
+		return getFuzzyDateTime(LocalDateTime.now(), precision);
 	}
 
 	public static long getCurrentFuzzyDate() {
-		return getCurrentFuzzyDateTime(ChronoUnit.DAYS);
+		return getFuzzyDate(LocalDateTime.now(), ChronoUnit.DAYS);
 	}
 
 	public static long getCurrentFuzzyDateTime() {

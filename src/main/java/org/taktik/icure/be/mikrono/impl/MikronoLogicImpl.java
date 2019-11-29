@@ -36,6 +36,7 @@ import org.taktik.icure.be.mikrono.MikronoLogic;
 import org.taktik.icure.dto.message.EmailOrSmsMessage;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto;
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentsDto;
 
 import java.io.IOException;
@@ -186,5 +187,23 @@ public class MikronoLogicImpl implements MikronoLogic {
 			}
 		}).collect(Collectors.toList());
 	}
+
+    @Override
+    public List<MikronoAppointmentTypeRestDto> createAppointmentTypes(String serverUrl, String username, String userToken, List<MikronoAppointmentTypeRestDto> appointmentTypes) throws IOException {
+        String finalServerUrl = getMikronoServer(serverUrl);
+        return appointmentTypes.stream().map(a -> {
+            try {
+                return restTemplate.exchange(StringUtils.chomp(finalServerUrl, "/") + "/rest/appointmentTypeResource", HttpMethod.PUT, new HttpEntity<>(a, getUserHttpHeaders(finalServerUrl, username, userToken)), MikronoAppointmentTypeRestDto.class).getBody();
+            } catch (HttpClientErrorException e) {
+                if (e.getStatusCode().equals(HttpStatus.FAILED_DEPENDENCY)) {
+                    log.error("Error when creating appointment type: FAILED_DEPENDENCY: " + e.getMessage());
+                } else {
+                    log.error(e.getMessage());
+                }
+                //return e.getStatusCode()+":"+e.getMessage();
+                return null;
+            }
+        }).collect(Collectors.toList());
+    }
 
 }
