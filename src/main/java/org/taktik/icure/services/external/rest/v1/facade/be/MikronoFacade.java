@@ -37,6 +37,7 @@ import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto;
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto;
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade;
 import org.taktik.icure.utils.ResponseUtils;
@@ -280,6 +281,20 @@ public class MikronoFacade implements OpenApiFacade {
 		}
 		return ResponseUtils.ok("Missing Mikrono username/password for user");
 	}
+
+    @Path("/appointmentTypes")
+    @POST
+    public Response createAppointmentTypes(List<MikronoAppointmentTypeRestDto> appointmentTypes) throws IOException {
+        User loggedUser = sessionLogic.getCurrentSessionContext().getUser();
+
+        String loggedMikronoUser = loggedUser.getProperties().stream().filter(p->p.getType().getIdentifier().equals("org.taktik.icure.be.plugins.mikrono.user")).findFirst().map(p->p.getTypedValue().getStringValue()).orElse(null);
+        String loggedMikronoPassword = loggedUser.getProperties().stream().filter(p->p.getType().getIdentifier().equals("org.taktik.icure.be.plugins.mikrono.password")).findFirst().map(p->p.getTypedValue().getStringValue()).orElse(null);
+
+        if (loggedMikronoUser!=null&&loggedMikronoPassword!=null) {
+            return ResponseUtils.ok(mikronoLogic.createAppointmentTypes(null, loggedMikronoUser, loggedMikronoPassword, appointmentTypes));
+        }
+        return ResponseUtils.ok("Missing Mikrono username/password for user");
+    }
 
 	@Context
 	public void setMikronoLogic(MikronoLogic mikronoLogic) {

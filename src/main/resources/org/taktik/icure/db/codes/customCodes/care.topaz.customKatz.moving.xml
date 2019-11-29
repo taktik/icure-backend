@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Katz moving</NAME>
+    <VALUE>
+        <CODE>completelyindependent</CODE>
+        <DESCRIPTION L="fr">Est autonome pour le transfert et se déplace de façon entièrement indépendante, sans auxiliaire(s) mécanique(s), ni aide de tiers</DESCRIPTION>
+        <DESCRIPTION L="nl">Is zelfstandig voor de transfer en kan zich volledig zelfstandig verplaatsen zonder mechanisch(e) hulpmiddel(en) of hulp van derden</DESCRIPTION>
+        <DESCRIPTION L="en">Is autonomous for the transfer and moves in a completely independent way, without mechanical auxiliary (s), nor help of third</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>useofmechanicalauxiliary</CODE>
+        <DESCRIPTION L="fr">Est autonome pour le transfert et ses déplacements moyennant l’utilisation d’auxiliaire(s) mécanique(s) (béquille(s), chaise roulante, …)</DESCRIPTION>
+        <DESCRIPTION L="nl">Is zelfstandig voor de transfer en voor zijn verplaatsingen, mits het gebruik van mechanisch(e) hulp-middel(en) (kruk(ken), rolstoel, …) </DESCRIPTION>
+        <DESCRIPTION L="en">Is autonomous for the transfer and its displacements by the use of mechanical auxiliary (s) (crutch (s), wheelchair, ...)</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>thirdparties</CODE>
+        <DESCRIPTION L="fr">A absolument besoin de l'aide de tiers pour au moins un des transferts et/ou ses déplacements</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft volstrekte hulp van derden nodig voor minstens één van de transfers en/of zijn verplaat-singen</DESCRIPTION>
+        <DESCRIPTION L="en">Absolutely needs help from third parties for at least one of the transfers and / or his displacements</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>bedridden</CODE>
+        <DESCRIPTION L="fr">Est grabataire ou en chaise roulante et dépend entièrement des autres pour se déplacer</DESCRIPTION>
+        <DESCRIPTION L="nl">Is bedlegerig of zit in een rolstoel en is volledig afhankelijk van anderen om zich te verplaatsen </DESCRIPTION>
+        <DESCRIPTION L="en">Is bedridden or in a wheelchair and depends entirely on others to get around</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
