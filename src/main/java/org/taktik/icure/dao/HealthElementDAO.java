@@ -38,9 +38,9 @@ public interface HealthElementDAO  extends GenericDAO<HealthElement>  {
 
 	List<HealthElement> listConflicts();
 
-	List<String> findByHCPartyAndCodes(String healthCarePartyId, String codeType, String codeNumber);
+	List<String> findByHCPartyAndCodes(String healthcarePartyId, String codeType, String codeNumber);
 
-	List<String> findByHCPartyAndTags(String healthCarePartyId, String tagType, String tagCode);
+	List<String> findByHCPartyAndTags(String healthcarePartyId, String tagType, String tagCode);
 
-	List<String> findByHCPartyAndStatus(String healthCarePartyId, Integer status);
+	List<String> findByHCPartyAndStatus(String healthcarePartyId, Integer status);
 }
