@@ -85,8 +85,8 @@ class KmehrFacade(
         val documentLogic: DocumentLogic
 ) : OpenApiFacade {
 
-    @Value("4.0.0")
-    internal var ICUREVERSION: String = "4.0.0"
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
 
 
     @ApiOperation(value = "Generate diarynote", httpMethod = "POST", notes = "")
@@ -97,7 +97,7 @@ class KmehrFacade(
         return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null, Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli())!!,
                 time = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                soft = Config.Software(name = "iCure", version = ICUREVERSION),
+                soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
                 clinicalSummaryType = "",
                 defaultLanguage = "en"
         )) })
@@ -114,7 +114,7 @@ class KmehrFacade(
                     Config(_kmehrId = System.currentTimeMillis().toString(),
                             date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                             time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                            soft = Config.Software(name = "iCure", version = ICUREVERSION),
+                            soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
                             clinicalSummaryType = "",
                             defaultLanguage = "en",
                             format = Config.Format.SUMEHR
@@ -134,7 +134,7 @@ class KmehrFacade(
                     Config(_kmehrId = System.currentTimeMillis().toString(),
                             date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                             time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                            soft = Config.Software(name = "iCure", version = ICUREVERSION),
+                            soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
                             clinicalSummaryType = "",
                             defaultLanguage = "en",
                             format = Config.Format.SUMEHR
@@ -177,7 +177,7 @@ class KmehrFacade(
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                         date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                         time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
+                        soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
                         clinicalSummaryType = "",
                         defaultLanguage = "en",
                         format = Config.Format.SUMEHR
@@ -193,7 +193,7 @@ class KmehrFacade(
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                         date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                         time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
-                        soft = Config.Software(name = "iCure", version = ICUREVERSION),
+                        soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
                         clinicalSummaryType = "",
                         defaultLanguage = "en",
                         format = Config.Format.SUMEHR

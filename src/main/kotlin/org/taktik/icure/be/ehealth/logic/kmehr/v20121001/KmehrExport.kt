@@ -381,8 +381,16 @@ open class KmehrExport {
     fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
-                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = CDMESSAGEvalues.GPSOFTWAREMIGRATION } ; version = SMF_VERSION }
+                standard = StandardType().apply {
+                    cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
+                    val filetype = if (config.format == Config.Format.PMF || config.format == Config.Format.SMF) {
+                        CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                    } else {
+                        null
+                    }
+                    filetype?.let {
+                        specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
+                    }
                 }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
                 makeXGC(Instant.now().toEpochMilli()).let {

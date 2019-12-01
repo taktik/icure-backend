@@ -52,7 +52,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeE
 @Path("/ws/be_kmehr")
 public class KmehrWsFacade {
 
-    @Value("4.0.0")
+    @Value("${icure.version}")
     private String ICUREVERSION;
 
 	private MapperFacade mapper;
@@ -77,7 +77,7 @@ public class KmehrWsFacade {
                             ""+System.currentTimeMillis(),
                             Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
                             Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
-                            new Config.Software("iCure", ICUREVERSION),
+                            new Config.Software(info.getSoftwareName() != null ? info.getSoftwareName() : "iCure", info.getSoftwareVersion() != null ? info.getSoftwareVersion() : ICUREVERSION),
                             "",
                             "en",
                             Config.Format.KMEHR
@@ -102,7 +102,7 @@ public class KmehrWsFacade {
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
-                            new Config.Software("iCure", ICUREVERSION),
+                            new Config.Software(info.getSoftwareName() != null ? info.getSoftwareName() : "iCure", info.getSoftwareVersion() != null ? info.getSoftwareVersion() : ICUREVERSION),
                             "",
                             "en",
                             Config.Format.SUMEHR
@@ -125,7 +125,7 @@ public class KmehrWsFacade {
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
-                            new Config.Software("iCure", ICUREVERSION),
+                            new Config.Software(info.getSoftwareName() != null ? info.getSoftwareName() : "iCure", info.getSoftwareVersion() != null ? info.getSoftwareVersion() : ICUREVERSION),
                             "",
                             "en",
                             Config.Format.SUMEHR
@@ -149,7 +149,7 @@ public class KmehrWsFacade {
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
-                            new Config.Software("iCure", ICUREVERSION),
+                            new Config.Software(info.getSoftwareName() != null ? info.getSoftwareName() : "iCure", info.getSoftwareVersion() != null ? info.getSoftwareVersion() : ICUREVERSION),
                             "",
                             "en",
                             Config.Format.SUMEHR
@@ -173,7 +173,7 @@ public class KmehrWsFacade {
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
-                            new Config.Software("iCure", ICUREVERSION),
+                            new Config.Software(info.getSoftwareName() != null ? info.getSoftwareName() : "iCure", info.getSoftwareVersion() != null ? info.getSoftwareVersion() : ICUREVERSION),
                             "",
                             "en",
                             Config.Format.SUMEHR
@@ -195,7 +195,7 @@ public class KmehrWsFacade {
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
-                            new Config.Software("iCure", ICUREVERSION),
+                            new Config.Software(info.getSoftwareName() != null ? info.getSoftwareName() : "iCure", info.getSoftwareVersion() != null ? info.getSoftwareVersion() : ICUREVERSION),
                             "",
                             "en",
                             Config.Format.SUMEHR
