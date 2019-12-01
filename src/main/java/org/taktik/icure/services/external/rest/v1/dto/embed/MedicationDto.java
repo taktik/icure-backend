@@ -44,6 +44,9 @@ public class MedicationDto implements Serializable {
 	Long beginMoment;
 	Long endMoment;
 
+	Long deliveryMoment;
+	Long endExecutionMoment;
+
 	Boolean knownUsage;
 
 	CodeDto frequency;
@@ -164,6 +167,22 @@ public class MedicationDto implements Serializable {
 	public void setEndMoment(Long endMoment) {
 		this.endMoment = endMoment;
 	}
+
+    public Long getDeliveryMoment() {
+        return deliveryMoment;
+    }
+
+    public void setDeliveryMoment(Long deliveryMoment) {
+        this.deliveryMoment = deliveryMoment;
+    }
+
+    public Long getEndExecutionMoment() {
+        return endExecutionMoment;
+    }
+
+    public void setEndExecutionMoment(Long endExecutionMoment) {
+        this.endExecutionMoment = endExecutionMoment;
+    }
 
 	public List<RegimenItemDto> getRegimen() {
 		return regimen;
