@@ -27,9 +27,12 @@ import org.springframework.stereotype.Repository;
 import org.taktik.icure.dao.CalendarItemDAO;
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector;
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
+import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.CalendarItem;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Repository("calendarItemDAO")
@@ -179,4 +182,16 @@ public class CalendarItemDAOImpl extends GenericDAOImpl<CalendarItem> implements
         }
         return calendarItems;
     }
+
+    @Override
+    @View(name = "by_hcparty_patient", map = "classpath:js/calendarItem/By_hcparty_patient_map.js")
+    public List<CalendarItem> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
+        ComplexKey[] keys = secretPatientKeys.stream().map(fk -> ComplexKey.of(hcPartyId, fk)).collect(Collectors.toList()).toArray(new ComplexKey[secretPatientKeys.size()]);
+
+        List<CalendarItem> result = new ArrayList<>();
+        queryView("by_hcparty_patient", keys).forEach((e)->{if (result.isEmpty() || !e.getId().equals(result.get(result.size()-1).getId())) {result.add(e); }});
+
+        return result;
+    }
+
 }

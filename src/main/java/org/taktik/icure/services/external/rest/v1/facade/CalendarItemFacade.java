@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
@@ -25,17 +26,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.taktik.icure.entities.AccessLog;
 import org.taktik.icure.entities.CalendarItem;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
+import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -181,6 +186,33 @@ public class CalendarItemFacade implements OpenApiFacade {
             return Response.ok().entity(calendars.stream().map(c -> mapper.map(c, CalendarItemDto.class)).collect(Collectors.toList())).build();
         } else {
             return Response.status(500).type("text/plain").entity("Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
+        }
+    }
+
+    @ApiOperation(
+            value = "Find CalendarItems by hcparty and patient",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
+    @GET
+    @Path("/byHcPartySecretForeignKeys")
+    public Response findByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId, @QueryParam("secretFKeys") String secretFKeys) {
+        if (hcPartyId == null || secretFKeys == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+        List<CalendarItem> calendarItemsList = calendarItemLogic.findByHCPartySecretPatientKeys(hcPartyId, new ArrayList<>(secretPatientKeys));
+
+        boolean succeed = (calendarItemsList != null);
+        if (succeed) {
+            // mapping to Dto
+            List<CalendarItemDto> elementDtoList = calendarItemsList.stream().map(element -> mapper.map(element, CalendarItemDto.class)).collect(Collectors.toList());
+            return Response.ok().entity(elementDtoList).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting the CalendarItems failed. Please try again or read the server log.").build();
         }
     }
 
