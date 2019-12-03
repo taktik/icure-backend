@@ -149,16 +149,4 @@ public class Form extends StoredICureDocument {
     public void setHasBeenInitialized(Boolean hasBeenInitialized) {
         this.hasBeenInitialized = hasBeenInitialized;
     }
-
-
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
 }

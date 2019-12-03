@@ -172,15 +172,6 @@ public class HealthElementDto extends IcureDto {
         this.status = status;
     }
 
-	private String encryptedSelf;
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
 	public String getIdService() {
 		return idService;
 	}

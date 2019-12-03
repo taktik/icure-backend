@@ -95,15 +95,4 @@ public class AccessLog extends StoredICureDocument implements Encryptable  {
         this.detail = detail;
     }
 
-    private String encryptedSelf;
-    @Override
-    public String getEncryptedSelf() {
-        return encryptedSelf;
-    }
-
-    @Override
-    public void setEncryptedSelf(String encryptedSelf) {
-        this.encryptedSelf = encryptedSelf;
-    }
-
 }
