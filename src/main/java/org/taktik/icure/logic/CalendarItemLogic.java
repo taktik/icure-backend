@@ -36,6 +36,8 @@ public interface CalendarItemLogic extends EntityPersister<CalendarItem, String>
 
     List<CalendarItem> getCalendarItemByPeriodAndAgendaId(Long startDate, Long endDate, String agendaId);
 
+    List<CalendarItem> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys);
+
     CalendarItem modifyCalendarItem(CalendarItem CalendarItem);
 
     List<String> deleteCalendarItems(List<String> ids) throws DeletionException;

@@ -64,7 +64,12 @@ public class CalendarItemLogicImpl extends GenericLogicImpl<CalendarItem, Calend
         return calendarItemDAO.listCalendarItemByPeriodAndAgendaId(startDate,endDate,agendaId);
     }
 
-	@Override
+    @Override
+    public List<CalendarItem> findByHCPartySecretPatientKeys(String hcPartyId, List<String> secretPatientKeys) {
+	    return calendarItemDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys);
+    }
+
+    @Override
 	public CalendarItem modifyCalendarItem(CalendarItem calendarItem) {
 		return calendarItemDAO.save(calendarItem);
 	}
