@@ -78,7 +78,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
 
     @ApiOperation(nickname = "modifyCalendarItemType", value = "Modifies an calendarItemType")
     @PutMapping
-    fun modifyCalendarItemType(calendarItemTypeDto: CalendarItemTypeDto?): CalendarItemTypeDto {
+    fun modifyCalendarItemType(calendarItemTypeDto: CalendarItemTypeDto?): CalendarItemTypeDto { // TODO SH no RequestBody? do a global ctrl+F
         val calendarItemType = calendarItemTypeLogic.modifyCalendarTypeItem(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType modification failed")
 

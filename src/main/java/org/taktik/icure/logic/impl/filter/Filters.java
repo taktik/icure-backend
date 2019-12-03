@@ -23,6 +23,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.taktik.icure.entities.base.Identifiable;
+import org.taktik.icure.exceptions.NoSuperSetException;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -98,6 +99,7 @@ public final class Filters implements ApplicationContextAware {
     public static class ComplementFilter<T extends Serializable, O extends Identifiable<T>> implements Filter<T,O,org.taktik.icure.dto.filter.Filters.ComplementFilter<T,O>> {
         @Override
         public Set<T> resolve(org.taktik.icure.dto.filter.Filters.ComplementFilter<T,O> filter, Filters context) {
+            if (filter.getSuperSet() == null) throw new NoSuperSetException();
             Set<T> result = context.resolve(filter.getSuperSet());
             result.removeAll(context.resolve(filter.getSubSet()));
 

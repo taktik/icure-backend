@@ -67,9 +67,9 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
     @ConditionalOnProperty("icure.sync.global.databases", havingValue = "true", matchIfMissing = true)
     @Bean fun replicationManager(hazelcastInstance: HazelcastInstance, sslContextFactory: SslContextFactory, groupDAO: GroupDAO, replicators: List<Replicator>, allDaos : List<GenericDAO<*>>) = ReplicationManager(hazelcastInstance, sslContextFactory, groupDAO, replicators, allDaos)
 
-    @Bean fun httpClient() = HttpClient()
-    @Bean fun patientCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, couchDbPrefix!!, "patient", couchDbProperties.username!!, couchDbProperties.password!!)
-    @Bean fun healthdataCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, couchDbPrefix!!, "healthdata", couchDbProperties.username!!, couchDbProperties.password!!)
-    @Bean fun baseCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, couchDbPrefix!!, "base", couchDbProperties.username!!, couchDbProperties.password!!)
-    @Bean fun configCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, couchDbPrefix!!, "config", couchDbProperties.username!!, couchDbProperties.password!!)
+    @Bean fun httpClient() = HttpClient(SslContextFactory.Client()).apply { start() }
+    @Bean fun patientCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "patient", couchDbProperties.username!!, couchDbProperties.password!!)
+    @Bean fun healthdataCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "healthdata", couchDbProperties.username!!, couchDbProperties.password!!)
+    @Bean fun baseCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "base", couchDbProperties.username!!, couchDbProperties.password!!)
+    @Bean fun configCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "config", couchDbProperties.username!!, couchDbProperties.password!!)
 }

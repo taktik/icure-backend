@@ -60,7 +60,7 @@ import kotlin.streams.toList
 @Api(tags = ["patient"])
 class PatientController(
         private val sessionLogic: ICureSessionLogic,
-        private val accessLogLogic: AccessLogLogic,
+        //private val accessLogLogic: AccessLogLogic,
         private val mapper: MapperFacade,
         private val filters: Filters,
         private val patientLogic: PatientLogic,
@@ -181,54 +181,55 @@ class PatientController(
     fun findByExternalId(@PathVariable("externalId")
                          @ApiParam(value = "A external ID", required = true) externalId: String) = mapper.map(patientLogic.getByExternalId(externalId), PatientDto::class.java)
 
-    @ApiOperation(nickname = "findByAccessLogUserAfterDate", value = "Get Paginated List of Patients sorted by Access logs descending")
-    @GetMapping("/byAccess/{userId}")
-    fun findByAccessLogUserAfterDate(@ApiParam(value = "A User ID", required = true) @PathVariable userId: String,
-                                     @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
-                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
-                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): PatientPaginatedList {
-
-        fun removeDuplicates(patientIds: List<String>): List<String> {
-            var patientIds = patientIds
-            val patientIdsSet = LinkedHashSet<String>()
-            patientIdsSet.addAll(patientIds)
-            patientIds = ArrayList(patientIdsSet)
-            return patientIds
-        }
-
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
-        accessLogLogic.findByUserAfterDate(userId, accessType, if (startDate == null) startDate else Instant.ofEpochMilli(startDate), paginationOffset, true)
-                ?.let {
-                    val patientsDtos = PatientPaginatedList()
-
-                    patientsDtos.nextKeyPair = mapper.map(it.nextKeyPair, PaginatedDocumentKeyIdPair::class.java)
-                    patientsDtos.pageSize = it.pageSize
-                    patientsDtos.totalSize = it.totalSize
-
-                    val patientIds = removeDuplicates(it.rows.filter { accessLog -> Objects.nonNull(accessLog) }.sortedBy { accessLog -> accessLog.date }.map { accessLog -> accessLog.patientId })
-
-                    patientsDtos.rows = patientLogic.getPatients(patientIds).filter { p -> p != null && p.deletionDate == null }.map { p ->
-                        val pdto = PatientDto()
-                        pdto.id = p.id
-                        pdto.lastName = p.lastName
-                        pdto.firstName = p.firstName
-                        pdto.partnerName = p.partnerName
-                        pdto.maidenName = p.maidenName
-                        pdto.dateOfBirth = p.dateOfBirth
-                        pdto.ssin = p.ssin
-                        pdto.externalId = p.externalId
-                        pdto.patientHealthCareParties = p.patientHealthCareParties.map { phcp -> mapper.map(phcp, PatientHealthCarePartyDto::class.java) }
-                        pdto.addresses = p.addresses.stream().map { a -> mapper.map(a, AddressDto::class.java) }.toList()
-
-                        pdto
-                    }.toList()
-
-                    return patientsDtos
-                }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog based patient listing failed")
-    }
+    // TODO SH uncomment
+//    @ApiOperation(nickname = "findByAccessLogUserAfterDate", value = "Get Paginated List of Patients sorted by Access logs descending")
+//    @GetMapping("/byAccess/{userId}")
+//    fun findByAccessLogUserAfterDate(@ApiParam(value = "A User ID", required = true) @PathVariable userId: String,
+//                                     @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+//                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
+//                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
+//                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+//                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): PatientPaginatedList {
+//
+//        fun removeDuplicates(patientIds: List<String>): List<String> {
+//            var patientIds = patientIds
+//            val patientIdsSet = LinkedHashSet<String>()
+//            patientIdsSet.addAll(patientIds)
+//            patientIds = ArrayList(patientIdsSet)
+//            return patientIds
+//        }
+//
+//        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
+//        accessLogLogic.findByUserAfterDate(userId, accessType, if (startDate == null) startDate else Instant.ofEpochMilli(startDate), paginationOffset, true)
+//                ?.let {
+//                    val patientsDtos = PatientPaginatedList()
+//
+//                    patientsDtos.nextKeyPair = mapper.map(it.nextKeyPair, PaginatedDocumentKeyIdPair::class.java)
+//                    patientsDtos.pageSize = it.pageSize
+//                    patientsDtos.totalSize = it.totalSize
+//
+//                    val patientIds = removeDuplicates(it.rows.filter { accessLog -> Objects.nonNull(accessLog) }.sortedBy { accessLog -> accessLog.date }.map { accessLog -> accessLog.patientId })
+//
+//                    patientsDtos.rows = patientLogic.getPatients(patientIds).filter { p -> p != null && p.deletionDate == null }.map { p ->
+//                        val pdto = PatientDto()
+//                        pdto.id = p.id
+//                        pdto.lastName = p.lastName
+//                        pdto.firstName = p.firstName
+//                        pdto.partnerName = p.partnerName
+//                        pdto.maidenName = p.maidenName
+//                        pdto.dateOfBirth = p.dateOfBirth
+//                        pdto.ssin = p.ssin
+//                        pdto.externalId = p.externalId
+//                        pdto.patientHealthCareParties = p.patientHealthCareParties.map { phcp -> mapper.map(phcp, PatientHealthCarePartyDto::class.java) }
+//                        pdto.addresses = p.addresses.stream().map { a -> mapper.map(a, AddressDto::class.java) }.toList()
+//
+//                        pdto
+//                    }.toList()
+//
+//                    return patientsDtos
+//                }
+//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog based patient listing failed")
+//    }
 
     @ApiOperation(nickname = "filterBy", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")

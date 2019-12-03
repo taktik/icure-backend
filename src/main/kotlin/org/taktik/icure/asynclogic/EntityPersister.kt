@@ -20,6 +20,7 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.validation.aspect.Check
+import reactor.core.publisher.Flux
 
 interface EntityPersister<E, I> {
 
@@ -33,8 +34,8 @@ interface EntityPersister<E, I> {
     suspend fun undeleteByIds(identifiers: Collection<I>)
     //suspend fun undeleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
 
-    fun getAllEntities(): Flow<E>
-    fun getAllEntityIds(): Flow<I>
+    suspend fun getAllEntities(): Flux<E>
+    suspend fun getAllEntityIds(): Flow<I>
 
     suspend fun hasEntities(): Boolean
 

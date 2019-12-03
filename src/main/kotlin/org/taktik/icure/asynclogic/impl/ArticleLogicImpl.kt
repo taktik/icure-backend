@@ -23,9 +23,8 @@ import org.taktik.icure.asyncdao.ArticleDAO
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.Article
 import org.taktik.icure.exceptions.DeletionException
-import org.taktik.icure.logic.SessionLogic
 
-interface ArticleLogic: EntityPersister<Article, String> {
+interface ArticleLogic : EntityPersister<Article, String> {
     suspend fun createArticle(article: Article): Article?
     suspend fun deleteArticles(ids: List<String>): List<String>
 
@@ -35,10 +34,12 @@ interface ArticleLogic: EntityPersister<Article, String> {
 }
 
 @Service
-class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLogic: SessionLogic) : GenericLogicImpl<Article, ArticleDAO>(sessionLogic), ArticleLogic {
+class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Article, ArticleDAO>(sessionLogic), ArticleLogic {
 
     override suspend fun createArticle(article: Article): Article? {
-        return articleDAO.create(sessionLogic.currentSessionContext.dbInstanceUri, sessionLogic.currentSessionContext.groupId, article)
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.block()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.block()!!
+        return articleDAO.create(dbInstanceUri, groupId, article)
     }
 
     override suspend fun deleteArticles(ids: List<String>): List<String> {
@@ -51,13 +52,15 @@ class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLo
     }
 
     override suspend fun getArticle(articleId: String): Article? {
-        val sessionContext = sessionLogic.currentSessionContext
-        return articleDAO.get(sessionContext.dbInstanceUri, sessionContext.groupId, articleId)
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.block()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.block()!!
+        return articleDAO.get(dbInstanceUri, groupId, articleId)
     }
 
     override suspend fun modifyArticle(article: Article): Article? {
-        val sessionContext = sessionLogic.currentSessionContext
-        return articleDAO.save(sessionContext.dbInstanceUri, sessionContext.groupId, article)
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.block()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.block()!!
+        return articleDAO.save(dbInstanceUri, groupId, article)
     }
 
     override fun getGenericDAO() = articleDAO
