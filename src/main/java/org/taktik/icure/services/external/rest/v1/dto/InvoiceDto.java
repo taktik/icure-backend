@@ -215,15 +215,6 @@ public class InvoiceDto extends IcureDto {
 		this.paid = paid;
 	}
 
-	private String encryptedSelf;
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
 	public String getGnotionNihii() { return gnotionNihii; }
 
 	public void setGnotionNihii(String gnotionNihii) { this.gnotionNihii = gnotionNihii; }

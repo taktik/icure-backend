@@ -70,15 +70,4 @@ public class AccessLogDto extends IcureDto implements EncryptableDto {
 		this.detail = detail;
 	}
 
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
 }

@@ -48,7 +48,9 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
     @NotNull(autoFix = AutoFix.CURRENTHCPID)
     protected String responsible; //healthcarePartyId
 
-	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
+    protected String encryptedSelf;
+
+    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected java.util.Set<CodeStub> codes = new HashSet<>();
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected java.util.Set<CodeStub> tags = new HashSet<>();
@@ -126,7 +128,6 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
         this.responsible = responsible;
     }
 
-	private String encryptedSelf;
 	@Override
 	public String getEncryptedSelf() {
 		return encryptedSelf;
