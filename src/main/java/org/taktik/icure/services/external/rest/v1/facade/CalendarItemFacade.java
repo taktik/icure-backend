@@ -27,9 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.CalendarItem;
+import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
@@ -220,6 +223,24 @@ public class CalendarItemFacade implements OpenApiFacade {
         } else {
             return Response.status(500).type("text/plain").entity("Getting the CalendarItems failed. Please try again or read the server log.").build();
         }
+    }
+
+    @ApiOperation(
+            value = "Update delegations in calendarItems",
+            httpMethod = "POST"
+    )
+    @POST
+    @Path("/delegations")
+    public Response setCalendarItemsDelegations(List<IcureStubDto> stubs) throws Exception {
+        List<CalendarItem> calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+        calendarItems.forEach(calendarItem -> stubs.stream().filter(s -> s.getId().equals(calendarItem.getId())).findFirst().ifPresent(stub -> {
+            stub.getDelegations().forEach((s, delegationDtos) -> calendarItem.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+            stub.getEncryptionKeys().forEach((s, delegationDtos) -> calendarItem.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+            stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> calendarItem.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+        }));
+        calendarItemLogic.updateEntities(calendarItems);
+
+        return Response.ok().build();
     }
 
     @Context

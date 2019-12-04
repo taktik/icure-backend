@@ -41,4 +41,6 @@ public interface CalendarItemLogic extends EntityPersister<CalendarItem, String>
     CalendarItem modifyCalendarItem(CalendarItem CalendarItem);
 
     List<String> deleteCalendarItems(List<String> ids) throws DeletionException;
+
+    List<CalendarItem> getCalendarItemByIds(List<String> ids);
 }
