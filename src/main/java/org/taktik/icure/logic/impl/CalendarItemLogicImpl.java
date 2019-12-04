@@ -74,8 +74,13 @@ public class CalendarItemLogicImpl extends GenericLogicImpl<CalendarItem, Calend
 		return calendarItemDAO.save(calendarItem);
 	}
 
-	@Autowired
-  public void setCalendarItemDAO(CalendarItemDAO calendarItemDAO) {
+    @Override
+    public List<CalendarItem> getCalendarItemByIds(List<String> ids) {
+        return calendarItemDAO.getList(ids);
+    }
+
+    @Autowired
+    public void setCalendarItemDAO(CalendarItemDAO calendarItemDAO) {
 		this.calendarItemDAO = calendarItemDAO;
 	}
 
