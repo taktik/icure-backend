@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.apache.axis2.databinding.types.xsd.Integer
 import org.ektorp.ComplexKey
-import org.ektorp.ViewQuery
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -40,10 +39,8 @@ import java.net.URI
 class TarificationDAOImpl(@Qualifier("tarificationCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Tarification>(Tarification::class.java, couchDbDispatcher, idGenerator), TarificationDAO {
 
     @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    //    fun findTarifications(dbInstanceUrl: URI, groupId: String, type: String, code: String, version: String): Flow<Tarification>
     override fun findTarifications(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Tarification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        //fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
         return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(createQuery("by_type_code_version")
                 .includeDocs(true)
                 .reduce(false)
@@ -82,7 +79,7 @@ class TarificationDAOImpl(@Qualifier("tarificationCouchDbDispatcher") couchDbDis
 
     override fun findTarifications(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<Tarification>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val from = pagination.startKey.let { ComplexKey.of(*(pagination.startKey as List<*>).toTypedArray()) }
+        val from = pagination.startKey.let { ComplexKey.of(it) }
                 ?: ComplexKey.of(
                         region ?: "\u0000",
                         type ?: "\u0000",
@@ -95,15 +92,7 @@ class TarificationDAOImpl(@Qualifier("tarificationCouchDbDispatcher") couchDbDis
                 code?.let { it + "" } ?: ComplexKey.emptyObject(),
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )
-
-        val viewQuery: ViewQuery = createQuery("by_region_type_code_version")
-                .includeDocs(true)
-                .startKey(from) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(pagination.startDocumentId) //Shouldn't be necessary
-                .limit(pagination.limit ?: 1000)
-                .descending(false)
-
+        val viewQuery = pagedViewQuery("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(viewQuery)
 
     }
@@ -128,14 +117,7 @@ class TarificationDAOImpl(@Qualifier("tarificationCouchDbDispatcher") couchDbDis
                 if (language == null) ComplexKey.emptyObject() else if (label == null) language + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery: ViewQuery = createQuery("by_language_label")
-                .includeDocs(true)
-                .startKey(from) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(pagination.startDocumentId) //Shouldn't be necessary
-                .limit(pagination.limit ?: 1000)
-                .descending(false)
-
+        val viewQuery = pagedViewQuery("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, Integer, Tarification>(viewQuery)
     }
 
@@ -160,15 +142,7 @@ class TarificationDAOImpl(@Qualifier("tarificationCouchDbDispatcher") couchDbDis
                 if (type == null) ComplexKey.emptyObject() else if (label == null) type + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-
-        val viewQuery: ViewQuery = createQuery("by_language_label")
-                .includeDocs(true)
-                .startKey(from) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(pagination.startDocumentId) //Shouldn't be necessary
-                .limit(pagination.limit ?: 1000)
-                .descending(false)
-
+        val viewQuery = pagedViewQuery("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, Integer, Tarification>(viewQuery)
     }
 }

@@ -34,9 +34,9 @@ interface MessageDAO {
     fun findByFromAddress(dbInstanceUrl: URI, groupId: String, partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
     fun findByToAddress(dbInstanceUrl: URI, groupId: String, partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent>
     fun findByHcParty(dbInstanceUrl: URI, groupId: String, partyId: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
-    fun findByTransportGuid(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>?): Flow<ViewQueryResultEvent>
+    fun findByTransportGuid(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
     fun findByTransportGuidReceived(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>):Flow<ViewQueryResultEvent>
-    fun findByTransportGuidSentDate(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>?): Flow<ViewQueryResultEvent>
+    fun findByTransportGuidSentDate(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent>
     fun findByHcPartyPatient(dbInstanceUrl: URI, groupId: String, hcPartyId: String, secretPatientKeys: List<String>): Flow<Message>
     fun getChildren(dbInstanceUrl: URI, groupId: String,messageId: String): Flow<Message>
     fun getByInvoiceIds(dbInstanceUrl: URI, groupId: String,invoiceIds: Set<String>): Flow<Message>
