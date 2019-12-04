@@ -27,14 +27,12 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.TimeTable
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.utils.distinctById
 import java.net.URI
-import java.util.*
 
 @Repository("timeTableDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.TimeTable' && !doc.deleted) emit( null, doc._id )}")
-class TimeTableDAOImpl (@Qualifier("timeTableCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
+class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
 
 	@View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
 	override fun listTimeTableByAgendaId(dbInstanceUrl: URI, groupId:String, agendaId: String): Flow<TimeTable> {
