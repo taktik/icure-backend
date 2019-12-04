@@ -12,7 +12,7 @@ import java.math.BigDecimal
 import java.time.temporal.ChronoUnit
 
 object KmehrPrescriptionHelper {
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: CodeStub?): Period? {
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
         if (intakes == null) {
             return null
         }
@@ -39,7 +39,7 @@ object KmehrPrescriptionHelper {
         }
     }
 
-    fun inferPeriodFromFrequency(frequency: CodeStub?): Period? {
+    fun inferPeriodFromFrequency(frequency: Code?): Period? {
         return when(frequency?.code) {
             "D" -> Period(ChronoUnit.DAYS, 1)
             "W" -> Period(ChronoUnit.WEEKS, 1)
