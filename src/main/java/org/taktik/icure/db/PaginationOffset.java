@@ -39,6 +39,11 @@ public class PaginationOffset<K> implements Serializable {
 		this.limit = limit;
 	}
 
+    public PaginationOffset(int limit, String startDocumentId) {
+        this.limit = limit;
+        this.startDocumentId = startDocumentId;
+    }
+
 	public PaginationOffset(PaginatedList paginatedList) {
 		this.startKey = paginatedList.getNextKeyPair().getStartKey() != null ? (K)paginatedList.getNextKeyPair().getStartKey().toArray() : (K) paginatedList.getNextKeyPair().getStartKey();
 		this.startDocumentId = paginatedList.getNextKeyPair().getStartKeyDocId();

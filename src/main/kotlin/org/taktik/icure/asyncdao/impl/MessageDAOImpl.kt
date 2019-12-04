@@ -75,13 +75,7 @@ class MessageDAOImpl(@Qualifier("messageCouchDbDispatcher") couchDbDispatcher: C
         val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, fromAddress, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], startKey.components[1], ComplexKey.emptyObject())
 
-        val viewQuery: ViewQuery = createQuery("by_hcparty_from_address")
-                .includeDocs(true)
-                .startKey(startKey) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(paginationOffset.startDocumentId) //Shouldn't be necessary
-                .limit(paginationOffset.limit ?: 1000)
-                .descending(false)
+        val viewQuery = pagedViewQuery("by_hcparty_from_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
     }
 
@@ -91,19 +85,12 @@ class MessageDAOImpl(@Qualifier("messageCouchDbDispatcher") couchDbDispatcher: C
         val reverse = reverse ?: false
         val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, toAddress, null)
         val endKey = ComplexKey.of(partyId, toAddress, if (reverse) null else ComplexKey.emptyObject())
-        val viewQuery: ViewQuery = createQuery("by_hcparty_to_address")
-                .includeDocs(true)
-                .startKey(startKey) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(paginationOffset.startDocumentId) //Shouldn't be necessary
-                .limit(paginationOffset.limit ?: 1000)
-                .descending(reverse)
-                .endKey(endKey)
+        val viewQuery = pagedViewQuery("by_hcparty_to_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
     }
 
     @View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
-    override fun findByTransportGuid(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>?): Flow<ViewQueryResultEvent> {
+    override fun findByTransportGuid(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String?, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
@@ -115,15 +102,7 @@ class MessageDAOImpl(@Qualifier("messageCouchDbDispatcher") couchDbDispatcher: C
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
-
-        val viewQuery: ViewQuery = createQuery("by_hcparty_transport_guid_received")
-                .includeDocs(true)
-                .startKey(startKey) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(paginationOffset?.startDocumentId) //Shouldn't be necessary
-                .limit(paginationOffset?.limit ?: 1000)
-                .descending(false)
-                .endKey(endKey)
+        val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
     }
 
@@ -140,31 +119,17 @@ class MessageDAOImpl(@Qualifier("messageCouchDbDispatcher") couchDbDispatcher: C
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
-        val viewQuery: ViewQuery = createQuery("by_hcparty_transport_guid_received")
-                .includeDocs(true)
-                .startKey(startKey) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(paginationOffset.startDocumentId) //Shouldn't be necessary
-                .limit(paginationOffset.limit ?: 1000)
-                .descending(false)
-                .endKey(endKey)
+        val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
     }
 
     @View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
-    override fun findByTransportGuidSentDate(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>?): Flow<ViewQueryResultEvent> {
+    override fun findByTransportGuidSentDate(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey = paginationOffset?.startKey?.let { ComplexKey.of(it) }
                 ?: ComplexKey.of(partyId, transportGuid, fromDate)
         val endKey = ComplexKey.of(partyId, transportGuid, toDate)
-        val viewQuery: ViewQuery = createQuery("by_hcparty_transport_guid_received")
-                .includeDocs(true)
-                .startKey(startKey) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(paginationOffset?.startDocumentId) //Shouldn't be necessary
-                .limit(paginationOffset?.limit ?: 1000)
-                .descending(false)
-                .endKey(endKey)
+        val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
     }
 
@@ -173,14 +138,7 @@ class MessageDAOImpl(@Qualifier("messageCouchDbDispatcher") couchDbDispatcher: C
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey: ComplexKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], ComplexKey.emptyObject())
-        val viewQuery: ViewQuery = createQuery("by_hcparty")
-                .includeDocs(true)
-                .startKey(startKey) //Shouldn't be necessary
-                .reduce(false)
-                .startDocId(paginationOffset.startDocumentId) //Shouldn't be necessary
-                .limit(paginationOffset.limit ?: 1000)
-                .descending(false)
-                .endKey(endKey)
+        val viewQuery = pagedViewQuery("by_hcparty", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
     }
 
