@@ -4,6 +4,7 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Duration
 import org.taktik.icure.entities.embed.RegimenItem
@@ -12,7 +13,7 @@ import java.math.BigDecimal
 import java.time.temporal.ChronoUnit
 
 object KmehrPrescriptionHelper {
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: CodeStub?): Period? {
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
         if (intakes == null) {
             return null
         }
@@ -38,7 +39,7 @@ object KmehrPrescriptionHelper {
         }
     }
 
-    fun inferPeriodFromFrequency(frequency: CodeStub?): Period? {
+    fun inferPeriodFromFrequency(frequency: Code?): Period? {
         return when (frequency?.code) {
             "D" -> Period(ChronoUnit.DAYS, 1)
             "W" -> Period(ChronoUnit.WEEKS, 1)
