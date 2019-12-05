@@ -98,7 +98,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
     }
 
     @View(name = "by_language_label", map = "classpath:js/tarif/By_language_label.js")
-    override fun findTarificationsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?, pagination: PaginationOffset<ViewQueryResultEvent>?): Flow<ViewQueryResultEvent> {
+    override fun findTarificationsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?, pagination: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val label = label?.let { StringUtils.sanitizeString(it) }

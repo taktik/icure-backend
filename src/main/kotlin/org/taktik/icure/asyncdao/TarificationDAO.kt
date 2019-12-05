@@ -28,6 +28,6 @@ interface TarificationDAO: GenericDAO<Tarification> {
     fun findTarifications(dbInstanceUrl: URI, groupId:String, type: String?, code: String?, version: String?): Flow<Tarification>
     fun findTarifications(dbInstanceUrl: URI, groupId:String, region: String?, type: String?, code: String?, version: String?): Flow<Tarification>
     fun findTarifications(dbInstanceUrl: URI, groupId:String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<Tarification>): Flow<ViewQueryResultEvent>
-    fun findTarificationsByLabel(dbInstanceUrl: URI, groupId:String, region: String?, language: String?, label: String?, pagination: PaginationOffset<ViewQueryResultEvent>?): Flow<ViewQueryResultEvent>
+    fun findTarificationsByLabel(dbInstanceUrl: URI, groupId:String, region: String?, language: String?, label: String?, pagination: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent>
     fun findTarificationsByLabel(dbInstanceUrl: URI, groupId:String, region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent>
 }

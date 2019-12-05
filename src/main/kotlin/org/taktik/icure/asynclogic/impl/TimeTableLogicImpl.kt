@@ -18,6 +18,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
@@ -53,12 +54,12 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
 
     override fun getTimeTablesByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<TimeTable> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        timeTableDAO.listTimeTableByPeriodAndAgendaId(dbInstanceUri, groupId, startDate, endDate, agendaId).reEmit()
+        timeTableDAO.listTimeTableByPeriodAndAgendaId(dbInstanceUri, groupId, startDate, endDate, agendaId).collect { emit(it) }
     }
 
     override fun getTimeTablesByAgendaId(agendaId: String): Flow<TimeTable> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        timeTableDAO.listTimeTableByAgendaId(dbInstanceUri, groupId, agendaId).reEmit()
+        timeTableDAO.listTimeTableByAgendaId(dbInstanceUri, groupId, agendaId).collect { emit(it) }
     }
 
     override suspend fun modifyTimeTable(timeTable: TimeTable): TimeTable? {

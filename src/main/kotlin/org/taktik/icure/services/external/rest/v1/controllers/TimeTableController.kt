@@ -21,11 +21,11 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -35,7 +35,6 @@ import org.taktik.icure.entities.TimeTableHour
 import org.taktik.icure.entities.TimeTableItem
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.reEmit
 import reactor.core.publisher.Flux
 import java.util.*
 
@@ -113,7 +112,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
-                timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { mapper.map(it, TimeTableDto::class.java) }.reEmit()
+                timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { mapper.map(it, TimeTableDto::class.java) }.collect { emit(it) }
             }.injectReactorContext()
 
     @ApiOperation(nickname = "getTimeTablesByAgendaId", value = "Get TimeTables by AgendaId")
@@ -123,7 +122,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
-                timeTableLogic.getTimeTablesByAgendaId(agendaId).map { mapper.map(it, TimeTableDto::class.java) }.reEmit()
+                timeTableLogic.getTimeTablesByAgendaId(agendaId).map { mapper.map(it, TimeTableDto::class.java) }.collect { emit(it) }
             }.injectReactorContext()
 
 }

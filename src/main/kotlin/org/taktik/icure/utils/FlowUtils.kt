@@ -16,6 +16,7 @@ import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.StoredDto
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
@@ -84,7 +85,7 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
     }
 }
 
-suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
+suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
@@ -118,12 +119,4 @@ suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQuer
         mapper.map(it, T::class.java)
     }.toList()
     return result
-}
-
-fun <T> Flow<T>.reEmit(): Flow<T> {
-    return flow {
-        collect {
-            emit(it)
-        }
-    }
 }
