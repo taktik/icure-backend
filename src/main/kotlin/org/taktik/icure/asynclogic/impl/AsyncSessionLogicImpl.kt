@@ -68,6 +68,8 @@ interface AsyncSessionLogic {
 
     suspend fun getCurrentSessionContext(): Mono<AsyncSessionContext>
 
+    suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String>
+
     fun <T> doInSessionContext(sessionContext: AsyncSessionContext, callable: Callable<T>?): T?
 
     interface AsyncSessionContext {
@@ -83,6 +85,7 @@ interface AsyncSessionLogic {
     }
 }
 
+@ExperimentalCoroutinesApi
 @Transactional
 @Service
 class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthenticationManager,
@@ -170,10 +173,13 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         return SessionContextImpl(authentication)
     }
 
-    @ExperimentalCoroutinesApi
     override suspend fun getCurrentSessionContext(): Mono<AsyncSessionLogic.AsyncSessionContext> {
         val authentication = getCurrentAuthentication()
         return authentication?.map { SessionContextImpl(it) }!!
+    }
+
+    override suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String> {
+        return getCurrentSessionContext().map { Pair(it.getDbInstanceUri(), it.getGroupId()) }.awaitSingle()
     }
 
 //    override fun <T> doInSessionContext(sessionContext: SessionLogic.SessionContext, callable: Callable<T>?): Mono<T?> {

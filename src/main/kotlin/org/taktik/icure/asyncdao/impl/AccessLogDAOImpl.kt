@@ -51,7 +51,7 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
     }
 
     @View(name = "all_by_user_date", map = "classpath:js/accesslog/all_by_user_type_and_date_map.js")
-    override fun findByUserAfterDate(dbInstanceUrl: URI, groupId: String, userId: String, accessType: String, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun findByUserAfterDate(dbInstanceUrl: URI, groupId: String, userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val viewQuery = if (startDate == null) {
@@ -59,7 +59,7 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
             pagedViewQuery("all_by_user_date", key, null, pagination, descending)
         } else {
             val startKey = if (pagination.startKey == null) ComplexKey.of(userId, accessType, startDate.toEpochMilli()) else pagination.startKey as ComplexKey
-            val endKey = ComplexKey.of(userId, accessType, java.lang.Long.MAX_VALUE)
+            val endKey = ComplexKey.of(userId, accessType ?: ComplexKey.emptyObject(), java.lang.Long.MAX_VALUE)
             pagedViewQuery("all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
         }
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, AccessLog::class.java)
