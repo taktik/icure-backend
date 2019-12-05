@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
@@ -37,7 +38,7 @@ class MedexController(private val medexLogic: MedexLogic, private val mapperFaca
 
     @ApiOperation(nickname = "generateMedex", value = "Generate a Medex XML String", produces = MediaType.APPLICATION_XML_VALUE)
     @PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
-    fun generateMedex(infos: MedexInfoDto) = medexLogic.createMedex(
+    fun generateMedex(@RequestBody infos: MedexInfoDto) = medexLogic.createMedex(
             mapperFacade.map(infos.author, HealthcareParty::class.java),
             mapperFacade.map(infos.patient, Patient::class.java),
             infos.patientLanguage,

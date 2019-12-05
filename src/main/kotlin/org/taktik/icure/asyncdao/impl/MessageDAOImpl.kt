@@ -21,7 +21,6 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
-import org.ektorp.ViewQuery
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -33,8 +32,6 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import java.net.URI
-import java.util.*
-import java.util.stream.Collectors
 import kotlin.collections.HashSet
 
 @FlowPreview

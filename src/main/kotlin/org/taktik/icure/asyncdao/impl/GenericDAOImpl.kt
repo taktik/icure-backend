@@ -24,10 +24,7 @@ import org.ektorp.DocumentNotFoundException
 import org.ektorp.ViewQuery
 import org.ektorp.impl.NameConventions
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.Client
-import org.taktik.couchdb.ViewRowWithDoc
-import org.taktik.couchdb.get
-import org.taktik.couchdb.queryView
+import org.taktik.couchdb.*
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
@@ -208,7 +205,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
     protected fun doFetchRelationship(dbInstanceUrl:URI, groupId:String, entity: T?) {}
 
 
-    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T) {
+    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T): DocIdentifier {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".remove: " + entity)
@@ -217,9 +214,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         beforeDelete(dbInstanceUrl, groupId, entity)
         // Mark soft deleted
         entity.deletionDate = System.currentTimeMillis()
-        client.update(entity, entityClass)
+        val deleted = client.update(entity, entityClass)
         // After remove
         afterDelete(dbInstanceUrl, groupId, entity)
+
+        return DocIdentifier(deleted.id, deleted.rev)
     }
 
     override suspend fun unRemove(dbInstanceUrl:URI, groupId:String, entity: T) {
@@ -249,7 +248,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         afterDelete(dbInstanceUrl, groupId, entity)
     }
 
-    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
+    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): List<DocIdentifier> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
@@ -259,10 +258,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 beforeDelete(dbInstanceUrl, groupId, entity)
                 entity.deletionDate = System.currentTimeMillis()
             }
-            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList() // TODO SH why suspend here?
+            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList()
             for (entity in entities) {
                 afterDelete(dbInstanceUrl, groupId, entity)
             }
+            return bulkUpdateResults.map { DocIdentifier(it.id, it.rev) }
         } catch (e: Exception) {
             throw PersistenceException("failed to remove entities ", e)
         }

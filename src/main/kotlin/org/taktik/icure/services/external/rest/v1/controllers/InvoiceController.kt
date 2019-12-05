@@ -224,7 +224,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "setInvoicesDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setInvoicesDelegations(stubs: List<IcureStubDto>) {
+    fun setInvoicesDelegations(@RequestBody stubs: List<IcureStubDto>) {
         val invoices = invoiceLogic.getInvoices(stubs.map { it.id })
         invoices.forEach { healthElement ->
             stubs.find { s -> s.id == healthElement.id }?.let { stub ->
@@ -238,7 +238,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "listByContactIds", value = "Gets all invoices for author at date")
     @PostMapping("/byCtcts")
-    fun listByContactIds(contactIds: ListOfIdsDto): List<InvoiceDto> {
+    fun listByContactIds(@RequestBody contactIds: ListOfIdsDto): List<InvoiceDto> {
         return invoiceLogic.listByHcPartyContacts(sessionLogic.currentSessionContext.user.healthcarePartyId, HashSet(contactIds.ids)).map { mapper.map(it, InvoiceDto::class.java) }
     }
 

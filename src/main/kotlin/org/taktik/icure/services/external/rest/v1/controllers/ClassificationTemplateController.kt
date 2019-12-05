@@ -114,9 +114,9 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
     fun listClassificationTemplates(
             @ApiParam(value = "A label") @RequestBody(required = false) startKey: String?,
             @ApiParam(value = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: String?): ClassificationTemplatePaginatedList {
+            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?): ClassificationTemplatePaginatedList {
 
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit?.let { Integer.valueOf(it) })
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
 
         val classificationTemplates = classificationTemplateLogic.listClassificationTemplates(paginationOffset)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing classification templates failed")

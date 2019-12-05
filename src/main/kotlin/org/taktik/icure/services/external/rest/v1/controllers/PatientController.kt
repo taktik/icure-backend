@@ -391,7 +391,7 @@ class PatientController(
 
     @ApiOperation(nickname = "bulkUpdatePatients", value = "Modify a patient", notes = "Returns the id and _rev of created patients")
     @PostMapping("/bulk")
-    fun bulkUpdatePatients(patientDtos: List<PatientDto>) = try {
+    fun bulkUpdatePatients(@RequestBody patientDtos: List<PatientDto>) = try {
         val patients = patientLogic.updateEntities(patientDtos.map { p -> mapper.map(p, Patient::class.java) }.toList())
         patients.map { p -> mapper.map(p, IdWithRevDto::class.java) }.toList()
     } catch (e: Exception) {
@@ -401,7 +401,7 @@ class PatientController(
 
     @ApiOperation(nickname = "modifyPatient", value = "Modify a patient", notes = "No particular return value. It's just a message.")
     @PutMapping
-    fun modifyPatient(patientDto: PatientDto) =
+    fun modifyPatient(@RequestBody patientDto: PatientDto) =
             patientLogic.modifyPatient(mapper.map(patientDto, Patient::class.java)).let { mapper.map(it, PatientDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting patient failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.")
 

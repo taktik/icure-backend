@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -29,6 +30,7 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.impl.TimeTableLogic
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.entities.TimeTableHour
@@ -38,6 +40,7 @@ import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/timeTable")
 @Api(tags = ["timeTable"])
@@ -54,8 +57,8 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @ApiOperation(nickname = "deleteTimeTable", value = "Deletes an timeTable")
     @DeleteMapping("/{timeTableIds}")
-    suspend fun deleteTimeTable(@PathVariable timeTableIds: String) { // TODO MB deletion to handle properly
-        timeTableLogic.deleteTimeTables(timeTableIds.split(','))
+    suspend fun deleteTimeTable(@PathVariable timeTableIds: String): List<DocIdentifier> {
+        return timeTableLogic.deleteTimeTables(timeTableIds.split(','))
     }
 
     @ApiOperation(nickname = "getTimeTable", value = "Gets a timeTable")

@@ -24,6 +24,7 @@ import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
@@ -229,9 +230,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         return entity
     }
 
-    override suspend fun remove(dbInstanceUrl: URI, groupId: String, entity: T) {
-        super.remove(dbInstanceUrl, groupId, entity)
+    override suspend fun remove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier {
+        val deleted = super.remove(dbInstanceUrl, groupId, entity)
         evictFromCache(dbInstanceUrl, groupId, entity)
+        return deleted
     }
 
     override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T) {
@@ -244,11 +246,12 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         evictFromCache(dbInstanceUrl, groupId, entity)
     }
 
-    override suspend fun remove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) {
-        super.remove(dbInstanceUrl, groupId, entities)
+    override suspend fun remove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): List<DocIdentifier> {
+        val deleted = super.remove(dbInstanceUrl, groupId, entities)
         for (entity in entities) {
             evictFromCache(dbInstanceUrl, groupId, entity)
         }
+        return deleted
     }
 
     override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) {

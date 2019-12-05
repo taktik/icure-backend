@@ -19,28 +19,27 @@
 package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.validation.aspect.Check
-import reactor.core.publisher.Flux
-import java.net.URI
 
 interface EntityPersister<E, I> {
 
-    suspend fun createEntities(dbInstanceUri: URI, groupId: String, @Check entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean
+    suspend fun createEntities(@Check entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean
 
-    suspend fun updateEntities(dbInstanceUri: URI, groupId: String, @Check entities: Collection<E>): List<E>
+    suspend fun updateEntities(@Check entities: Collection<E>): List<E>
 
-    suspend fun deleteByIds(dbInstanceUri: URI, groupId: String, identifiers: Collection<I>)
+    suspend fun deleteByIds(identifiers: Collection<I>): List<DocIdentifier>
     //suspend fun deleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
     // TODO SH why those 2 lines commented?
-    suspend fun undeleteByIds(dbInstanceUri: URI, groupId: String, identifiers: Collection<I>)
+    suspend fun undeleteByIds(identifiers: Collection<I>)
     //suspend fun undeleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
 
-    suspend fun getAllEntities(dbInstanceUri: URI, groupId: String): Flow<E>
-    suspend fun getAllEntityIds(dbInstanceUri: URI, groupId: String): Flow<I>
+    suspend fun getAllEntities(): Flow<E>
+    suspend fun getAllEntityIds(): Flow<I>
 
-    suspend fun hasEntities(dbInstanceUri: URI, groupId: String): Boolean
+    suspend fun hasEntities(): Boolean
 
-    suspend fun exists(dbInstanceUri: URI, groupId: String, id: I): Boolean
+    suspend fun exists(id: I): Boolean
 
-    suspend fun getEntity(dbInstanceUri: URI, groupId: String, id: I): E?
+    suspend fun getEntity(id: I): E?
 }

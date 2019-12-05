@@ -68,7 +68,7 @@ class ReplicationController(private val replicationLogic: ReplicationLogic,
 
     @ApiOperation(nickname = "createReplication", value = "Creates a replication")
     @PostMapping
-    fun createReplication(replicationDto: ReplicationDto): ReplicationDto {
+    fun createReplication(@RequestBody replicationDto: ReplicationDto): ReplicationDto {
         val createdEntities = emptyList<Replication>()
         replicationLogic.createEntities(listOf(mapper.map(replicationDto, Replication::class.java)), createdEntities)
 

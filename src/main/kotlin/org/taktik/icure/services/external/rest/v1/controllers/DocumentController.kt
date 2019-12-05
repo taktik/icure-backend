@@ -258,7 +258,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "setDocumentsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setDocumentsDelegations(stubs: List<IcureStubDto>) {
+    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) {
         val invoices = documentLogic.getDocuments(stubs.map { it.id })
         invoices.forEach { healthElement ->
             stubs.find { it.id == healthElement.id }?.let { stub ->

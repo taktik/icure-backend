@@ -19,42 +19,35 @@
 package org.taktik.icure.asynclogic.impl
 
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.ArticleDAO
-import org.taktik.icure.asynclogic.EntityPersister
+import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.entities.Article
 import org.taktik.icure.exceptions.DeletionException
-import java.net.URI
-
-interface ArticleLogic : EntityPersister<Article, String> {
-    suspend fun createArticle(dbInstanceUri: URI, groupId: String, article: Article): Article?
-    suspend fun deleteArticles(dbInstanceUri: URI, groupId: String, ids: List<String>): List<String>
-
-    suspend fun getArticle(dbInstanceUri: URI, groupId: String, articleId: String): Article?
-
-    suspend fun modifyArticle(dbInstanceUri: URI, groupId: String, article: Article): Article?
-}
 
 @Service
 class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Article, ArticleDAO>(sessionLogic), ArticleLogic {
 
-    override suspend fun createArticle(dbInstanceUri: URI, groupId: String, article: Article): Article? {
+    override suspend fun createArticle(article: Article): Article? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return articleDAO.create(dbInstanceUri, groupId, article)
     }
 
-    override suspend fun deleteArticles(dbInstanceUri: URI, groupId: String, ids: List<String>): List<String> {
+    override suspend fun deleteArticles(ids: List<String>): List<DocIdentifier> {
         try {
-            deleteByIds(dbInstanceUri, groupId, ids)
-            return ids
+            return deleteByIds(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }
     }
 
-    override suspend fun getArticle(dbInstanceUri: URI, groupId: String, articleId: String): Article? {
+    override suspend fun getArticle(articleId: String): Article? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return articleDAO.get(dbInstanceUri, groupId, articleId)
     }
 
-    override suspend fun modifyArticle(dbInstanceUri: URI, groupId: String, article: Article): Article? {
+    override suspend fun modifyArticle(article: Article): Article? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return articleDAO.save(dbInstanceUri, groupId, article)
     }
 
