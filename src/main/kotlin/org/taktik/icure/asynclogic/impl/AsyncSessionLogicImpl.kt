@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.ReactorContext
 import org.slf4j.LoggerFactory
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -51,8 +52,8 @@ import kotlin.coroutines.coroutineContext
 
 interface AsyncICureSessionLogic : AsyncSessionLogic {
     fun getOrCreateSession(): HttpSession?
-    suspend fun getCurrentUserId(): Mono<String?>
-    suspend fun getCurrentHealthcarePartyId(): Mono<String?>
+    suspend fun getCurrentUserId(): Mono<String>
+    suspend fun getCurrentHealthcarePartyId(): Mono<String>
 }
 
 interface AsyncSessionLogic {
@@ -75,11 +76,11 @@ interface AsyncSessionLogic {
         fun getUserDetails(): UserDetails?
         fun isAuthenticated(): Boolean
         fun isAnonymous(): Boolean
-        fun getUser(): User?
-        fun getDbInstanceUrl(): String?
-        fun getDbInstanceUri(): URI?
-        fun getGroupIdUserId(): String?
-        fun getGroupId(): String?
+        fun getUser(): User
+        fun getDbInstanceUrl(): String
+        fun getDbInstanceUri(): URI
+        fun getGroupIdUserId(): String
+        fun getGroupId(): String
     }
 }
 
@@ -203,80 +204,47 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     override fun <T> doInSessionContext(sessionContext: AsyncSessionLogic.AsyncSessionContext, callable: Callable<T>?): T? = null
 
 
-    override suspend fun getCurrentUserId(): Mono<String?> {
-        return getCurrentSessionContext().map { it.getUser()?.id }
+    override suspend fun getCurrentUserId(): Mono<String> {
+        return getCurrentSessionContext().map { it.getUser().id }
     }
 
-    override suspend fun getCurrentHealthcarePartyId(): Mono<String?> {
-        return getCurrentSessionContext().map { it.getUser()?.healthcarePartyId }
+    override suspend fun getCurrentHealthcarePartyId(): Mono<String> {
+        return getCurrentSessionContext().map { it.getUser().healthcarePartyId }
     }
 
     private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext {
-        private var userDetails: UserDetails? = null
-        private var permissionSetIdentifier: PermissionSetIdentifier? = null
+        private var userDetails: UserDetails = extractUserDetails(authentication)
+        private var permissionSetIdentifier: PermissionSetIdentifier
 
         init {
-            this.userDetails = extractUserDetails(authentication)
-            this.permissionSetIdentifier = userDetails?.permissionSetIdentifier
+            this.permissionSetIdentifier = userDetails.permissionSetIdentifier
         }
 
-        fun getUserId(): String? = permissionSetIdentifier?.getPrincipalIdOfClass(User::class.java)
+        fun getUserId(): String? = permissionSetIdentifier.getPrincipalIdOfClass(User::class.java)
 
-        override fun getAuthentication(): Authentication {
-            return authentication
-        }
+        override fun getAuthentication(): Authentication = authentication
 
-        override fun getUserDetails(): UserDetails? {
-            return userDetails
-        }
+        override fun getUserDetails(): UserDetails? = userDetails
 
-        override fun isAuthenticated(): Boolean {
-            return authentication != null && authentication.isAuthenticated
-        }
+        override fun isAuthenticated(): Boolean = authentication.isAuthenticated
 
-        override fun isAnonymous(): Boolean {
-            return false
-        }
+        override fun isAnonymous(): Boolean = false
 
-        override fun getUser(): User? {
-            if (userDetails != null) {
-                val userId = getUserId()
-                val groupId = getGroupId()
-                if (groupId != null && userId != null) {
-                    val u = userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUrl())
-                    u.groupId = groupId
-                    return u
-                }
-            }
-
-            val userId = getGroupIdUserId()
-            return if (userId != null) {
-                userLogic.getUserOnFallbackDb(userId)
-            } else null
-
-        }
-
-        override fun getDbInstanceUrl(): String? {
-            return if (userDetails == null) null else (userDetails as DatabaseUserDetails).dbInstanceUrl
-        }
-
-        override fun getDbInstanceUri(): URI? {
-            return if (userDetails == null) null else URI((userDetails as DatabaseUserDetails).dbInstanceUrl)
-        }
-
-        override fun getGroupIdUserId(): String? {
+        override fun getUser(): User {
             val userId = getUserId()
-            if (userDetails == null) {
-                return userId
-            }
-
             val groupId = getGroupId()
-            return if (groupId != null) "$groupId:$userId" else userId
+            val u = userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUrl())
+            u.groupId = groupId
+            return u
         }
 
-        override fun getGroupId(): String? {
-            return if (userDetails == null) null else (userDetails as DatabaseUserDetails).groupId
-        }
+        override fun getDbInstanceUrl(): String = (userDetails as DatabaseUserDetails).dbInstanceUrl
+
+        override fun getDbInstanceUri(): URI = URI((userDetails as DatabaseUserDetails).dbInstanceUrl)
+
+        override fun getGroupIdUserId(): String = "${getGroupId()}:${getUserId()}"
+
+        override fun getGroupId(): String = (userDetails as DatabaseUserDetails).groupId
     }
 
     companion object {
@@ -306,14 +274,9 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
             return Mono.empty()
         }
 
-        private fun extractUserDetails(authentication: Authentication?): UserDetails? {
-            if (authentication != null) {
-                val principal = authentication.principal
-                if (principal is UserDetails) {
-                    return principal
-                }
-            }
-            return null
+        private fun extractUserDetails(authentication: Authentication): UserDetails {
+            return authentication.principal?.let { it as? UserDetails }
+                    ?: throw AuthenticationServiceException("failed extracting user details : ${authentication.principal}")
         }
     }
 }
