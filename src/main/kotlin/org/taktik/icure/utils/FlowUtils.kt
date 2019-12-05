@@ -84,7 +84,7 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
     }
 }
 
-suspend inline fun <U: StoredICureDocument, reified T: IcureDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
+suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null

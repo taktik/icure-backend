@@ -66,7 +66,7 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         return accessLogDAO.list(dbInstanceUri, groupId, paginationOffset, descending)
     }
 
-    override fun findByUserAfterDate(dbInstanceUri: URI, groupId: String, userId: String, accessType: String, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun findByUserAfterDate(dbInstanceUri: URI, groupId: String, userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
         return accessLogDAO.findByUserAfterDate(dbInstanceUri, groupId, userId, accessType, startDate, pagination, descending)
     }
 

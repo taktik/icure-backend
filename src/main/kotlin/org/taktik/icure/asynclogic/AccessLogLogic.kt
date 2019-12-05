@@ -19,7 +19,7 @@ interface AccessLogLogic {
 
     fun listAccessLogs(dbInstanceUri: URI, groupId: String, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findByUserAfterDate(dbInstanceUri: URI, groupId: String, userId: String, accessType: String, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findByUserAfterDate(dbInstanceUri: URI, groupId: String, userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
     suspend fun modifyAccessLog(dbInstanceUri: URI, groupId: String, accessLog: AccessLog): AccessLog?
     fun getGenericDAO(): AccessLogDAO

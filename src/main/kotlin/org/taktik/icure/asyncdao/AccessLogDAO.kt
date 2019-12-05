@@ -29,6 +29,6 @@ import java.time.Instant
 
 interface AccessLogDAO: GenericDAO<AccessLog> {
     fun list(dbInstanceUrl: URI, groupId: String, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findByUserAfterDate(dbInstanceUrl: URI, groupId: String, userId: String, accessType: String, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findByUserAfterDate(dbInstanceUrl: URI, groupId: String, userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
     fun findByHCPartySecretPatientKeys(dbInstanceUrl: URI, groupId: String, hcPartyId: String, secretPatientKeys: List<String>): Flow<AccessLog>
 }

@@ -22,27 +22,17 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitSingle
 import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import org.taktik.couchdb.TotalCount
-import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.asynclogic.impl.AsyncSessionLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
-import org.taktik.icure.services.external.rest.v1.dto.IcureDto
-import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.utils.paginatedList
 import java.net.URI
@@ -73,16 +63,10 @@ class AccessLogController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "createAccessLog", value = "Creates an access log")
     @PostMapping
     suspend fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
-        val (dbInstanceUri, groupId) = getInstanceAndGroupInformationFromSecurityContext()
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val accessLog = accessLogLogic.createAccessLog(dbInstanceUri, groupId, mapper.map(accessLogDto, AccessLog::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog creation failed")
         return mapper.map(accessLog, AccessLogDto::class.java)
-    }
-
-    private suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String> {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!! // TODO SH handle this nullable case
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
-        return Pair(dbInstanceUri, groupId)
     }
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
@@ -120,7 +104,7 @@ class AccessLogController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")
     @GetMapping("/byUser")
     suspend fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
-                                    @ApiParam(value = "The type of access (COMPUTER or USER)", required = true) @RequestParam accessType: String, // TODO SH was nullable before
+                                    @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
