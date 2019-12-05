@@ -5,6 +5,6 @@ import org.ektorp.support.View
 import org.taktik.icure.entities.FrontEndMigration
 import java.net.URI
 
-interface FrontEndMigrationDAO {
+interface FrontEndMigrationDAO: GenericDAO<FrontEndMigration> {
     fun getByUserIdName(dbInstanceUrl: URI, groupId: String, userId: String, name: String?): Flow<FrontEndMigration>
 }

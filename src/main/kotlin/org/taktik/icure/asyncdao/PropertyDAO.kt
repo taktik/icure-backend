@@ -4,7 +4,7 @@ import org.ektorp.support.View
 import org.taktik.icure.entities.Property
 import java.net.URI
 
-interface PropertyDAO {
+interface PropertyDAO: GenericDAO<Property> {
     suspend fun getByIdentifier(dbInstanceUrl: URI, groupId: String, propertyIdentifier: String): Property?
 
     fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: Property)

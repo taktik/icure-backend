@@ -10,7 +10,7 @@ import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.entities.embed.MediumType
 import java.net.URI
 
-interface InvoiceDAO {
+interface InvoiceDAO: GenericDAO<Invoice> {
     fun findByHcParty(dbInstanceUrl: URI, groupId: String, hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
     suspend fun listByHcPartyContacts(dbInstanceUrl: URI, groupId: String, hcParty: String, contactId: Set<String>): Flow<Invoice>

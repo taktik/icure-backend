@@ -7,7 +7,7 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.util.ArrayList
 
-interface DocumentDAO {
+interface DocumentDAO: GenericDAO<Document> {
     suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document)
 
     suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document)

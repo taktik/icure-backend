@@ -1,3 +1,5 @@
 package org.taktik.icure.asyncdao
 
-interface PlaceDAO
+import org.taktik.icure.entities.Place
+
+interface PlaceDAO: GenericDAO<Place>

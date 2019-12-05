@@ -9,7 +9,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import java.net.URI
 
-interface ContactDAO {
+interface ContactDAO: GenericDAO<Contact> {
     suspend fun getContact(dbInstanceUrl: URI, groupId: String, id: String): Contact?
     fun get(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>): Flow<Contact>
 

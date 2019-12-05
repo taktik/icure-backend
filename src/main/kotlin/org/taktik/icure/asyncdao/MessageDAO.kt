@@ -27,7 +27,7 @@ import org.taktik.icure.entities.Message
 import java.net.URI
 import java.util.*
 
-interface MessageDAO {
+interface MessageDAO: GenericDAO<Message> {
     fun findByFromAddressActor(dbInstanceUrl: URI, groupId: String, partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message>
     fun findByToAddressActor(dbInstanceUrl: URI, groupId: String, partyId: String, toAddress: String, actorKeys: List<String>?): Flow<Message>
     fun findByTransportGuidActor(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String, actorKeys: List<String>?): Flow<Message>

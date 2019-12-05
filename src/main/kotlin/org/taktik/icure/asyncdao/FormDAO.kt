@@ -7,7 +7,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Form
 import java.net.URI
 
-interface FormDAO {
+interface FormDAO: GenericDAO<Form> {
     fun findByHcPartyPatient(dbInstanceUrl: URI, groupId: String, hcPartyId: String, secretPatientKeys: List<String>): Flow<Form>
 
     fun findByHcPartyParentId(dbInstanceUrl: URI, groupId: String, hcPartyId: String, formId: String): Flow<Form>

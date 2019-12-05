@@ -11,7 +11,7 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import java.net.URI
 
-interface PatientDAO {
+interface PatientDAO: GenericDAO<Patient> {
 
     fun listIdsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String?>
     fun listIdsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String?>

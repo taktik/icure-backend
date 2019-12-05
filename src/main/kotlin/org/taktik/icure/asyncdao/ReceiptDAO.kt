@@ -6,7 +6,7 @@ import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.entities.Receipt
 import java.net.URI
 
-interface ReceiptDAO {
+interface ReceiptDAO: GenericDAO<Receipt> {
     fun listByReference(dbInstanceUrl: URI, groupId: String, ref: String): Flow<Receipt>
 
     fun listAfterDate(dbInstanceUrl: URI, groupId: String, date: Long): Flow<Receipt>
