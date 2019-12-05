@@ -37,37 +37,32 @@ interface TimeTableLogic {
 @Service
 class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<TimeTable, TimeTableDAO>(sessionLogic), TimeTableLogic {
     override suspend fun createTimeTable(timeTable: TimeTable): TimeTable? {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return timeTableDAO.create(dbInstanceUri, groupId, timeTable)
     }
 
     override suspend fun deleteTimeTables(ids: List<String>) {
-        deleteByIds(ids)
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        deleteByIds(dbInstanceUri, groupId, ids)
     }
 
     override suspend fun getTimeTable(timeTableId: String): TimeTable? {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return timeTableDAO.get(dbInstanceUri, groupId, timeTableId)
     }
 
     override fun getTimeTablesByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<TimeTable> = flow {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         timeTableDAO.listTimeTableByPeriodAndAgendaId(dbInstanceUri, groupId, startDate, endDate, agendaId).reEmit()
     }
 
     override fun getTimeTablesByAgendaId(agendaId: String): Flow<TimeTable> = flow {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
-
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         timeTableDAO.listTimeTableByAgendaId(dbInstanceUri, groupId, agendaId).reEmit()
     }
 
     override suspend fun modifyTimeTable(timeTable: TimeTable): TimeTable? {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return timeTableDAO.save(dbInstanceUri, groupId, timeTable)
     }
 
