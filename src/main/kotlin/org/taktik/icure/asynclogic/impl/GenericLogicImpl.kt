@@ -18,20 +18,16 @@
 
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.reactor.asCoroutineContext
-import kotlinx.coroutines.reactor.asFlux
-import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.base.Identifiable
-import org.taktik.icure.logic.SessionLogic
+import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import java.net.URI
 
 abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic): EntityPersister<E, String> {
 
@@ -48,8 +44,8 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
     }
 
     override suspend fun deleteByIds(identifiers: Collection<String>) {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.block()!!
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.block()!!
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
         getGenericDAO().remove(dbInstanceUri, groupId, entities)
     }
@@ -59,13 +55,6 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.block()!!
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
         getGenericDAO().unRemove(dbInstanceUri, groupId, entities)
-    }
-
-    @ExperimentalCoroutinesApi
-    fun <T : Any> injectReactorContext(flow: Flow<T>): Flux<T> {
-        return Mono.subscriberContext().flatMapMany { reactorCtx ->
-            flow.flowOn(reactorCtx.asCoroutineContext()).asFlux()
-        }
     }
 
     override suspend fun getAllEntities(): Flux<E> {

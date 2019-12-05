@@ -21,16 +21,22 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.impl.TimeTableLogic
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.entities.TimeTableHour
 import org.taktik.icure.entities.TimeTableItem
-import org.taktik.icure.logic.TimeTableLogic
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
+import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.utils.reEmit
+import reactor.core.publisher.Flux
 import java.util.*
 
 @RestController
@@ -42,87 +48,82 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
     @ApiOperation(nickname = "createTimeTable", value = "Creates a timeTable")
     @PostMapping
     fun createTimeTable(@RequestBody timeTableDto: TimeTableDto) =
-            timeTableLogic.createTimeTable(mapper.map(timeTableDto, TimeTable::class.java)).let { mapper.map(it, TimeTableDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
-
+            mono {
+                timeTableLogic.createTimeTable(mapper.map(timeTableDto, TimeTable::class.java))?.let { mapper.map(it, TimeTableDto::class.java) }
+                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
+            }
 
     @ApiOperation(nickname = "deleteTimeTable", value = "Deletes an timeTable")
     @DeleteMapping("/{timeTableIds}")
-    fun deleteTimeTable(@PathVariable timeTableIds: String): List<String> =
-            timeTableLogic.deleteTimeTables(timeTableIds.split(','))
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable deletion failed")
-                            .also { logger.error(it.message) }
+    suspend fun deleteTimeTable(@PathVariable timeTableIds: String) { // TODO MB deletion to handle properly
+        timeTableLogic.deleteTimeTables(timeTableIds.split(','))
+    }
 
     @ApiOperation(nickname = "getTimeTable", value = "Gets a timeTable")
     @GetMapping("/{timeTableId}")
-    fun getTimeTable(@PathVariable timeTableId: String): TimeTableDto =
-            if (timeTableId.equals("new", ignoreCase = true)) {
-                //Create an hourItem
-                val timeTableHour = TimeTableHour().apply {
-                    startHour = java.lang.Long.parseLong("0800")
-                    startHour = java.lang.Long.parseLong("0900")
-                }
+    fun getTimeTable(@PathVariable timeTableId: String) =
+            mono {
+                if (timeTableId.equals("new", ignoreCase = true)) {
+                    //Create an hourItem
+                    val timeTableHour = TimeTableHour().apply {
+                        startHour = java.lang.Long.parseLong("0800")
+                        startHour = java.lang.Long.parseLong("0900")
+                    }
 
-                //Create a timeTableItem
-                val timeTableItem = TimeTableItem().apply {
-                    calendarItemTypeId = "consult"
-                    days = ArrayList()
-                    days.add("monday")
-                    recurrenceTypes = ArrayList()
-                    hours = ArrayList()
-                    hours.add(timeTableHour)
-                }
-                //Create the timeTable
-                val timeTable = TimeTable().apply {
-                    startTime = java.lang.Long.parseLong("20180601000")
-                    endTime = java.lang.Long.parseLong("20180801000")
-                    name = "myPeriod"
-                    items = ArrayList()
-                    items.add(timeTableItem)
-                }
+                    //Create a timeTableItem
+                    val timeTableItem = TimeTableItem().apply {
+                        calendarItemTypeId = "consult"
+                        days = ArrayList()
+                        days.add("monday")
+                        recurrenceTypes = ArrayList()
+                        hours = ArrayList()
+                        hours.add(timeTableHour)
+                    }
+                    //Create the timeTable
+                    val timeTable = TimeTable().apply {
+                        startTime = java.lang.Long.parseLong("20180601000")
+                        endTime = java.lang.Long.parseLong("20180801000")
+                        name = "myPeriod"
+                        items = ArrayList()
+                        items.add(timeTableItem)
+                    }
 
-                //Return it
-                mapper.map(timeTable, TimeTableDto::class.java)
-            } else {
-                timeTableLogic.getTimeTable(timeTableId).let { mapper.map(it, TimeTableDto::class.java) }
-                        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "TimeTable fetching failed")
+                    //Return it
+                    mapper.map(timeTable, TimeTableDto::class.java)
+                } else {
+                    timeTableLogic.getTimeTable(timeTableId).let { mapper.map(it, TimeTableDto::class.java) }
+                            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "TimeTable fetching failed")
+                }
             }
 
     @ApiOperation(nickname = "modifyTimeTable", value = "Modifies an timeTable")
     @PutMapping
     fun modifyTimeTable(@RequestBody timeTableDto: TimeTableDto) =
-            timeTableLogic.modifyTimeTable(mapper.map(timeTableDto, TimeTable::class.java))?.let { mapper.map(it, TimeTableDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable modification failed")
+            mono {
+                timeTableLogic.modifyTimeTable(mapper.map(timeTableDto, TimeTable::class.java))?.let { mapper.map(it, TimeTableDto::class.java) }
+                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable modification failed")
+            }
 
     @ApiOperation(nickname = "getTimeTablesByPeriodAndAgendaId", value = "Get TimeTables by Period and AgendaId")
     @PostMapping("/byPeriodAndAgendaId")
     fun getTimeTablesByPeriodAndAgendaId(@ApiParam(required = true) @RequestParam startDate: Long,
                                          @ApiParam(required = true) @RequestParam endDate: Long,
-                                         @ApiParam(required = true) @RequestParam agendaId: String): List<TimeTableDto> {
-        if (agendaId.isBlank()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
-        }
-        timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId)?.let { return it.map { mapper.map(it, TimeTableDto::class.java) } }
-                ?: throw ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log."
-                )
-    }
+                                         @ApiParam(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
+            flow<TimeTableDto> {
+                if (agendaId.isBlank()) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
+                }
+                timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { mapper.map(it, TimeTableDto::class.java) }.reEmit()
+            }.injectReactorContext()
 
     @ApiOperation(nickname = "getTimeTablesByAgendaId", value = "Get TimeTables by AgendaId")
     @PostMapping("/byAgendaId")
-    fun getTimeTablesByAgendaId(@ApiParam(required = true) @RequestParam agendaId: String): List<TimeTableDto> {
-        if (agendaId.isBlank()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
-        }
-
-        timeTableLogic.getTimeTablesByAgendaId(agendaId)?.let { return it.map { mapper.map(it, TimeTableDto::class.java) } }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting TimeTable failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
-
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(javaClass)
-    }
+    fun getTimeTablesByAgendaId(@ApiParam(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
+            flow<TimeTableDto> {
+                if (agendaId.isBlank()) {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
+                }
+                timeTableLogic.getTimeTablesByAgendaId(agendaId).map { mapper.map(it, TimeTableDto::class.java) }.reEmit()
+            }.injectReactorContext()
 
 }

@@ -1,10 +1,16 @@
 package org.taktik.icure.utils
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.reactor.asCoroutineContext
+import kotlinx.coroutines.reactor.asFlux
 import org.taktik.icure.entities.base.StoredDocument
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.*
 
 fun <T> Flow<T>.distinct(): Flow<T> = flow {
@@ -59,5 +65,20 @@ suspend fun <T> Flow<T>.firstOrNull(): T? {
 private class AbortFlowException : CancellationException("Flow was aborted, no more elements needed") {
     override fun fillInStackTrace(): Throwable {
         return this
+    }
+}
+
+fun <T> Flow<T>.reEmit(): Flow<T> {
+    return flow {
+        collect {
+            emit(it)
+        }
+    }
+}
+
+@ExperimentalCoroutinesApi
+fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
+    return Mono.subscriberContext().flatMapMany { reactorCtx ->
+        flowOn(reactorCtx.asCoroutineContext()).asFlux()
     }
 }
