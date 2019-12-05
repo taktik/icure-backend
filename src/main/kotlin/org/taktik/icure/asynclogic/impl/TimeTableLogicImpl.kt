@@ -42,8 +42,7 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
     }
 
     override suspend fun deleteTimeTables(ids: List<String>) {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        deleteByIds(dbInstanceUri, groupId, ids)
+        deleteByIds(ids)
     }
 
     override suspend fun getTimeTable(timeTableId: String): TimeTable? {

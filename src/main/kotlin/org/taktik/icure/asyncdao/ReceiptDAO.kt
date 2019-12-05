@@ -1,8 +1,6 @@
 package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
-import org.ektorp.support.View
-import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.entities.Receipt
 import java.net.URI
 

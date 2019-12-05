@@ -18,58 +18,58 @@
 
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.reactor.asCoroutineContext
-import kotlinx.coroutines.reactor.asFlux
-import org.taktik.couchdb.ViewRowWithDoc
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.base.Identifiable
-import org.taktik.icure.logic.SessionLogic
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import java.net.URI
 
-abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic): EntityPersister<E, String> {
+abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic) : EntityPersister<E, String> {
 
-    override suspend fun createEntities(dbInstanceUri: URI, groupId: String, entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean {
+    override suspend fun createEntities(entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return createdEntities.addAll(getGenericDAO().create(dbInstanceUri, groupId, entities))
     }
 
-    override suspend fun updateEntities(dbInstanceUri: URI, groupId: String, entities: Collection<E>): List<E> {
+    override suspend fun updateEntities(entities: Collection<E>): List<E> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().save(dbInstanceUri, groupId, entities)
     }
 
-    override suspend fun deleteByIds(dbInstanceUri: URI, groupId: String, identifiers: Collection<String>) {
+    override suspend fun deleteByIds(identifiers: Collection<String>) {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
         getGenericDAO().remove(dbInstanceUri, groupId, entities)
     }
 
-    override suspend fun undeleteByIds(dbInstanceUri: URI, groupId: String, identifiers: Collection<String>) {
+    override suspend fun undeleteByIds(identifiers: Collection<String>) {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
         getGenericDAO().unRemove(dbInstanceUri, groupId, entities)
     }
 
-    override suspend fun getAllEntities(dbInstanceUri: URI, groupId: String): Flow<E> {
+    override suspend fun getAllEntities(): Flow<E> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().getAll(dbInstanceUri, groupId)
     }
 
-    override suspend fun getAllEntityIds(dbInstanceUri: URI, groupId: String): Flow<String> {
+    override suspend fun getAllEntityIds(): Flow<String> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().getAllIds(dbInstanceUri, groupId)
     }
 
-    override suspend fun hasEntities(dbInstanceUri: URI, groupId: String): Boolean {
+    override suspend fun hasEntities(): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().hasAny(dbInstanceUri, groupId)
     }
 
-    override suspend fun exists(dbInstanceUri: URI, groupId: String, id: String): Boolean {
+    override suspend fun exists(id: String): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().contains(dbInstanceUri, groupId, id)
     }
 
-    override suspend fun getEntity(dbInstanceUri: URI, groupId: String, id: String): E? {
+    override suspend fun getEntity(id: String): E? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().get(dbInstanceUri, groupId, id)
     }
 
