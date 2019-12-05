@@ -46,7 +46,6 @@ import java.util.concurrent.Callable
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 interface AsyncICureSessionLogic : AsyncSessionLogic {
@@ -54,7 +53,7 @@ interface AsyncICureSessionLogic : AsyncSessionLogic {
     suspend fun getCurrentUserId(): Mono<String?>
     suspend fun getCurrentHealthcarePartyId(): Mono<String?>
 }
-
+// TODO SH suspend instead of Monos via awaitSingle
 interface AsyncSessionLogic {
     suspend fun login(username: String, password: String): AsyncSessionContext?
 
@@ -306,13 +305,13 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
             return Mono.empty()
         }
 
-        private fun extractUserDetails(authentication: Authentication?): UserDetails? {
-            if (authentication != null) {
+        private fun extractUserDetails(authentication: Authentication): UserDetails? {
                 val principal = authentication.principal
                 if (principal is UserDetails) {
                     return principal
+                } else {
+                    log.warn("WARNING TODO SH PRINCIPAL IS NOT A USERDETAILS: $principal")
                 }
-            }
             return null
         }
     }

@@ -60,8 +60,8 @@ import org.taktik.icure.services.external.http.WebSocketServlet
     "org.springframework.boot.autoconfigure.aop",
     "org.springframework.boot.autoconfigure.context",
     "org.springframework.boot.autoconfigure.dao",
-    "org.springframework.boot.autoconfigure.jackson",
-    "org.springframework.boot.autoconfigure.jersey",
+    //"org.springframework.boot.autoconfigure.jackson", TODO SH keep or remove?
+    //"org.springframework.boot.autoconfigure.jersey",
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
     "org.taktik.icure.config",

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.FormTemplate
 import java.net.URI
 
-interface FormTemplateDAO {
+interface FormTemplateDAO: GenericDAO<FormTemplate> {
     fun findByUserGuid(dbInstanceUrl: URI, groupId: String, userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate>
 
     fun findByGuid(dbInstanceUrl: URI, groupId: String, guid: String, loadLayout: Boolean): Flow<FormTemplate>

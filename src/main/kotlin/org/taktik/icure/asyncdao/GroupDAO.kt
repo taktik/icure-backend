@@ -1,3 +1,5 @@
 package org.taktik.icure.asyncdao
 
-interface GroupDAO
+import org.taktik.icure.entities.Group
+
+interface GroupDAO: GenericDAO<Group>

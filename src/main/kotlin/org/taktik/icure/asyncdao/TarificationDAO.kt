@@ -25,7 +25,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
 import java.net.URI
 
-interface TarificationDAO  {
+interface TarificationDAO: GenericDAO<Tarification> {
     fun findTarifications(dbInstanceUrl: URI, groupId:String, type: String?, code: String?, version: String?): Flow<Tarification>
     fun findTarifications(dbInstanceUrl: URI, groupId:String, region: String?, type: String?, code: String?, version: String?): Flow<Tarification>
     fun findTarifications(dbInstanceUrl: URI, groupId:String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<Tarification>): Flow<ViewQueryResultEvent>

@@ -5,7 +5,7 @@ import org.ektorp.support.View
 import org.taktik.icure.entities.Insurance
 import java.net.URI
 
-interface InsuranceDAO {
+interface InsuranceDAO: GenericDAO<Insurance> {
     fun listByCode(dbInstanceUrl: URI, groupId: String, code: String): Flow<Insurance>
 
     suspend fun listByName(dbInstanceUrl: URI, groupId: String, name: String): Flow<Insurance>

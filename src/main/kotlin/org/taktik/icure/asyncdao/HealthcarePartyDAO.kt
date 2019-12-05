@@ -6,7 +6,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import java.net.URI
 
-interface HealthcarePartyDAO {
+interface HealthcarePartyDAO: GenericDAO<HealthcareParty> {
     fun findByNihii(dbInstanceUrl: URI, groupId: String, nihii: String?): Flow<HealthcareParty>
 
     fun findBySsin(dbInstanceUrl: URI, groupId: String, ssin: String): Flow<HealthcareParty>

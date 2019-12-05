@@ -5,7 +5,7 @@ import org.ektorp.support.View
 import org.taktik.icure.entities.DocumentTemplate
 import java.net.URI
 
-interface DocumentTemplateDAO {
+interface DocumentTemplateDAO: GenericDAO<DocumentTemplate> {
     fun findByUserGuid(dbInstanceUrl: URI, groupId: String, userId: String, guid: String): Flow<DocumentTemplate>
 
     fun findBySpecialtyGuid(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, guid: String?): Flow<DocumentTemplate>

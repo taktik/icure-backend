@@ -6,7 +6,7 @@ import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.base.Code
 import java.net.URI
 
-interface HealthElementDAO {
+interface HealthElementDAO: GenericDAO<HealthElement> {
     fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<HealthElement>
 
     fun findByPatientAndCodes(dbInstanceUrl: URI, groupId: String, patientId: String, codes: Set<Code>): Flow<HealthElement>

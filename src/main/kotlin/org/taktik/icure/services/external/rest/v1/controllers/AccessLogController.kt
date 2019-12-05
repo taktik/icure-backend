@@ -18,104 +18,132 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers
 
+import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.reactor.asCoroutineContext
-import kotlinx.coroutines.reactor.asFlux
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.awaitSingle
 import ma.glasnost.orika.MapperFacade
+import org.ektorp.ComplexKey
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.asynclogic.impl.AccessLogLogic
+import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.icure.asynclogic.AccessLogLogic
+import org.taktik.icure.asynclogic.impl.AsyncSessionLogic
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.AccessLog
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import org.taktik.icure.utils.paginatedList
+import java.net.URI
+import java.time.Instant
 
 
 @RestController
 @RequestMapping("/rest/v1/accesslog")
 @Api(tags = ["accesslog"])
 class AccessLogController(private val mapper: MapperFacade,
-                          private val accessLogLogic: AccessLogLogic) {
+                          private val accessLogLogic: AccessLogLogic,
+                          private val sessionLogic: AsyncSessionLogic) {
 
-//    @ApiOperation(nickname = "createAccessLog", value = "Creates an access log")
-//    @PostMapping
-//    @FlowPreview // TODO is this needed?
-//    suspend fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto { // TODO add '?' or not?
-//        val accessLog = accessLogLogic.createAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
-//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog creation failed")
-//        return mapper.map(accessLog, AccessLogDto::class.java)
-//    }
-//
-//    @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
-//    @DeleteMapping("/{accessLogIds}")
-//    fun deleteAccessLog(@PathVariable accessLogIds: String): List<String> {
-//        return accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
-//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog deletion failed")
-//    }
-//
-//    @ApiOperation(nickname = "getAccessLog", value = "Gets an access log")
-//    @GetMapping("/{accessLogId}")
-//    fun getAccessLog(@PathVariable accessLogId: String): AccessLogDto {
-//        val accessLog = accessLogLogic.getAccessLog(accessLogId)
-//                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AccessLog fetching failed")
-//
-//        return mapper.map(accessLog, AccessLogDto::class.java)
+    private val DEFAULT_LIMIT = 1000
+
+//    override fun injectIt(paginationOffset: PaginationOffset<Long>, descending: Boolean, myFun: (URI, String, PaginationOffset<Long>, Boolean) -> Flow<ViewQueryResultEvent>): Flux<ViewQueryResultEvent> {
+//        return injectReactorContext(
+//                flow {
+//                    val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
+//                    val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+//                    myFun(dbInstanceUri, groupId, paginationOffset, descending).collect {
+//                        emit(it)
+//                    }
+//                }
+//        )
 //    }
 
-    @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
-    @GetMapping
-    fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) ascending: Boolean = false): Flux<Int> { //Flux<AccessLogDto> {
-        val paginationOffset = PaginationOffset<Long>(null, startDocumentId, null, if (limit != null) Integer.valueOf(limit) else null)
-        val accessLogDtos = PaginatedList<AccessLogDto>()
-        val accessLogs = accessLogLogic.listAccessLogs(paginationOffset, ascending)
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog listing failed")
-
-        /*mapper.map(accessLogs, accessLogDtos, object : TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {
-        }.build(), object : TypeBuilder<PaginatedList<AccessLogDto>>() {
-        }.build())
-        return accessLogDtos.rows.asFlow()*/
-        return accessLogs.map { println(it); if (it is TotalCount) it.total else -1 }
+    @ApiOperation(nickname = "createAccessLog", value = "Creates an access log")
+    @PostMapping
+    suspend fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
+        val (dbInstanceUri, groupId) = getInstanceAndGroupInformationFromSecurityContext()
+        val accessLog = accessLogLogic.createAccessLog(dbInstanceUri, groupId, mapper.map(accessLogDto, AccessLog::class.java))
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog creation failed")
+        return mapper.map(accessLog, AccessLogDto::class.java)
     }
 
-//    @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")
-//    @GetMapping("/byUser")
-//    fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
-//                            @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-//                            @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
-//                            @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
-//                            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-//                            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-//                            @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?): AccessLogPaginatedList {
-//        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-//        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
-//        val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, if (startDate != null) Instant.ofEpochMilli(startDate) else null, paginationOffset, descending
-//                ?: false)
-//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog listing failed")
-//
-//        val accessLogDtos = AccessLogPaginatedList()
-//        mapper.map(accessLogs, accessLogDtos, object : TypeBuilder<org.taktik.icure.db.PaginatedList<AccessLog>>() {
-//        }.build(), object : TypeBuilder<PaginatedList<AccessLogDto>>() {
-//        }.build())
-//        return accessLogDtos
-//    }
-//
-//    @ApiOperation(nickname = "modifyAccessLog", value = "Modifies an access log")
-//    @PutMapping
-//    fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
-//        val accessLog = accessLogLogic.modifyAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
-//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-//        return mapper.map(accessLog, AccessLogDto::class.java)
-//    }
+    private suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String> {
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!! // TODO SH handle this nullable case
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+        return Pair(dbInstanceUri, groupId)
+    }
+
+    @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
+    @DeleteMapping("/{accessLogIds}")
+    suspend fun deleteAccessLog(@PathVariable accessLogIds: String): List<String> {
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+        return accessLogLogic.deleteAccessLogs(dbInstanceUri, groupId, accessLogIds.split(','))
+    }
+
+    @ApiOperation(nickname = "getAccessLog", value = "Gets an access log")
+    @GetMapping("/{accessLogId}")
+    suspend fun getAccessLog(@PathVariable accessLogId: String): AccessLogDto {
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+        val accessLog = accessLogLogic.getAccessLog(dbInstanceUri, groupId, accessLogId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AccessLog fetching failed")
+
+        return mapper.map(accessLog, AccessLogDto::class.java)
+    }
+
+    // TODO don't serialize null fields
+    @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
+    @GetMapping // TODO SH limit as int instread of string?
+    suspend fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) descending: Boolean = false): PaginatedList<AccessLogDto> {
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+        // TODO SH make limit non-nullable in PaginationOffset
+        val realLimit = limit?.let { Integer.valueOf(it) } ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset<Long>(null, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
+        val accessLogs = accessLogLogic.listAccessLogs(dbInstanceUri, groupId, paginationOffset, descending)
+        return accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
+    }
+
+    @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")
+    @GetMapping("/byUser")
+    suspend fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
+                                    @ApiParam(value = "The type of access (COMPUTER or USER)", required = true) @RequestParam accessType: String, // TODO SH was nullable before
+                                    @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
+                                    @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
+                                    @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                                    @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
+                                    @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?): PaginatedList<AccessLogDto> {
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
+        val paginationOffset = PaginationOffset(ComplexKey.of(startKeyElements), startDocumentId, null, realLimit + 1)
+        val accessLogs = accessLogLogic.findByUserAfterDate(dbInstanceUri, groupId, userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
+                ?: false)
+
+        return accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
+    }
+
+    @ApiOperation(nickname = "modifyAccessLog", value = "Modifies an access log")
+    @PutMapping
+    suspend fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
+        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+        val accessLog = accessLogLogic.modifyAccessLog(dbInstanceUri, groupId, mapper.map(accessLogDto, AccessLog::class.java))
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
+        return mapper.map(accessLog, AccessLogDto::class.java)
+    }
 }

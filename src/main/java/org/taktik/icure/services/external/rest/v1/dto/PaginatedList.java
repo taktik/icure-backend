@@ -39,6 +39,10 @@ public class PaginatedList<T extends Serializable> implements Serializable {
 		this.nextKeyPair = nextKeyPair;
 	}
 
+	public PaginatedList(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
 	public PaginatedList() {}
 
 	public int getTotalSize() {

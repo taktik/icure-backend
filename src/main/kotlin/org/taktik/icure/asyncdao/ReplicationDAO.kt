@@ -5,7 +5,7 @@ import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import java.net.URI
 
-interface ReplicationDAO {
+interface ReplicationDAO: GenericDAO<Replication> {
     suspend fun getByName(dbInstanceUrl: URI, groupId: String, name: String): Replication?
 
     fun getActiveReplications(): List<ReplicationTask>
