@@ -189,7 +189,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "setContactsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setContactsDelegations(stubs: List<IcureStubDto>) {
+    fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) {
         val contacts = contactLogic.getContacts(stubs.map { it.id })
         contacts.forEach { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->

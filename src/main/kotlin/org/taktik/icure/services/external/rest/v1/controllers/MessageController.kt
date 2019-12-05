@@ -228,7 +228,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @ApiOperation(nickname = "modifyMessage", value = "Updates a message")
     @PutMapping
-    fun modifyMessage(messageDto: MessageDto): MessageDto {
+    fun modifyMessage(@RequestBody messageDto: MessageDto): MessageDto {
         if (messageDto.id == null) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
                     .also { logger.error(it.message) }

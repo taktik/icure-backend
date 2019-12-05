@@ -71,7 +71,7 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
 
     @ApiOperation(nickname = "modifyKeyword", value = "Modify a keyword", notes = "Returns the modified keyword.")
     @PutMapping
-    fun modifyKeyword(keywordDto: KeywordDto): KeywordDto {
+    fun modifyKeyword(@RequestBody keywordDto: KeywordDto): KeywordDto {
         keywordLogic.modifyKeyword(mapper.map(keywordDto, Keyword::class.java))
         return keywordLogic.getKeyword(keywordDto.id)?.let { mapper.map(it, KeywordDto::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword modification failed.")

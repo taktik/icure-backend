@@ -114,7 +114,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "setClassificationsDelegations", value = "Update delegations in classification", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setClassificationsDelegations(stubs: List<IcureStubDto>) {
+    fun setClassificationsDelegations(@RequestBody stubs: List<IcureStubDto>) {
         val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id })
         classifications.forEach { classification ->
             stubs.find { it.id == classification.id }?.let { stub ->

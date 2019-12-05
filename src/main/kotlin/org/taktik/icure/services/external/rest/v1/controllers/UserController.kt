@@ -80,9 +80,9 @@ class UserController(private val mapper: MapperFacade,
     fun listUsers(
             @ApiParam(value = "An user email") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: String?): UserPaginatedList {
+            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): UserPaginatedList {
 
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit?.toInt())
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
         val allUsers = userLogic.listUsers(paginationOffset)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing users failed.")
         return mapper.map(allUsers, UserPaginatedList::class.java)

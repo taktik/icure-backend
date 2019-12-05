@@ -73,10 +73,10 @@ class AccessLogController(private val mapper: MapperFacade,
 
     // TODO don't serialize null fields
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
-    @GetMapping // TODO SH limit as int instread of string?
-    suspend fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: String?, @RequestParam(required = false) descending: Boolean = false): PaginatedList<AccessLogDto> {
+    @GetMapping
+    suspend fun listAccessLogs(@RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean = false): PaginatedList<AccessLogDto> {
         // TODO SH make limit non-nullable in PaginationOffset
-        val realLimit = limit?.let { Integer.valueOf(it) } ?: DEFAULT_LIMIT
+        val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset<Long>(null, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
         val accessLogs = accessLogLogic.listAccessLogs(paginationOffset, descending)
         return accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
