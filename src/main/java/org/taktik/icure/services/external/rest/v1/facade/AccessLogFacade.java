@@ -126,7 +126,7 @@ public class AccessLogFacade implements OpenApiFacade{
 
 	@ApiOperation(response = AccessLogPaginatedList.class, value = "Lists access logs")
 	@GET
-	public Response listAccessLogs(@QueryParam("fromEpoch") Long fromEpoch, @QueryParam("fromEpoch") Long toEpoch, @QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit,  @QueryParam("descending") Boolean descending) {
+	public Response listAccessLogs(@QueryParam("fromEpoch") Long fromEpoch, @QueryParam("toEpoch") Long toEpoch, @QueryParam("startKey") String startKey, @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") String limit,  @QueryParam("descending") Boolean descending) {
 		Response response;
 
 		PaginationOffset paginationOffset = new PaginationOffset<>(startKey != null ? Long.parseLong(startKey) : null, startDocumentId, null, limit != null ? Integer.valueOf(limit) : null);
