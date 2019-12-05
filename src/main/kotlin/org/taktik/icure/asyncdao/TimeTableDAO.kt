@@ -20,7 +20,6 @@ package org.taktik.icure.asyncdao
 
 
 import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.entities.TimeTable
 import java.net.URI
 

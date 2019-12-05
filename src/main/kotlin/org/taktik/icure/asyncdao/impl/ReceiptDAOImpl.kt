@@ -16,7 +16,7 @@ import java.net.URI
 
 @Repository("receiptDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc._id)}")
-class ReceiptDAOImpl(@Qualifier("receiptCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Receipt>(Receipt::class.java, couchDbDispatcher, idGenerator), ReceiptDAO {
+class ReceiptDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Receipt>(Receipt::class.java, couchDbDispatcher, idGenerator), ReceiptDAO {
     @View(name = "by_reference", map = "classpath:js/receipt/By_ref.js")
     override fun listByReference(dbInstanceUrl: URI, groupId: String, ref: String): Flow<Receipt> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
