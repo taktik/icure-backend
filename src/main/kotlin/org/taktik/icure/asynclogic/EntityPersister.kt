@@ -19,6 +19,7 @@
 package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.validation.aspect.Check
 
 interface EntityPersister<E, I> {
@@ -27,7 +28,7 @@ interface EntityPersister<E, I> {
 
     suspend fun updateEntities(@Check entities: Collection<E>): List<E>
 
-    suspend fun deleteByIds(identifiers: Collection<I>)
+    suspend fun deleteByIds(identifiers: Collection<I>): List<DocIdentifier>
     //suspend fun deleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
     // TODO SH why those 2 lines commented?
     suspend fun undeleteByIds(identifiers: Collection<I>)

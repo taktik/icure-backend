@@ -21,13 +21,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.utils.reEmit
 
 interface TimeTableLogic {
     suspend fun createTimeTable(timeTable: TimeTable): TimeTable?
-    suspend fun deleteTimeTables(ids: List<String>)
+    suspend fun deleteTimeTables(ids: List<String>): List<DocIdentifier>
     suspend fun getTimeTable(timeTableId: String): TimeTable?
     fun getTimeTablesByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<TimeTable>
     fun getTimeTablesByAgendaId(agendaId: String): Flow<TimeTable>
@@ -41,8 +42,8 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
         return timeTableDAO.create(dbInstanceUri, groupId, timeTable)
     }
 
-    override suspend fun deleteTimeTables(ids: List<String>) {
-        deleteByIds(ids)
+    override suspend fun deleteTimeTables(ids: List<String>): List<DocIdentifier> {
+        return deleteByIds(ids)
     }
 
     override suspend fun getTimeTable(timeTableId: String): TimeTable? {

@@ -12,7 +12,7 @@ import java.time.Instant
 interface AccessLogLogic {
     suspend fun createAccessLog(accessLog: AccessLog): AccessLog?
 
-    suspend fun deleteAccessLogs(ids: List<String>): List<String>
+    suspend fun deleteAccessLogs(ids: List<String>): List<DocIdentifier>
     fun findByHCPartySecretPatientKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<AccessLog>
 
     suspend fun getAccessLog(accessLogId: String): AccessLog?

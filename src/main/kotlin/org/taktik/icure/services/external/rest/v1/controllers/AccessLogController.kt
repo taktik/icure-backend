@@ -28,6 +28,7 @@ import org.ektorp.ComplexKey
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.asynclogic.impl.AsyncSessionLogic
 import org.taktik.icure.db.PaginationOffset
@@ -47,18 +48,6 @@ class AccessLogController(private val mapper: MapperFacade,
 
     private val DEFAULT_LIMIT = 1000
 
-//    override fun injectIt(paginationOffset: PaginationOffset<Long>, descending: Boolean, myFun: (URI, String, PaginationOffset<Long>, Boolean) -> Flow<ViewQueryResultEvent>): Flux<ViewQueryResultEvent> {
-//        return injectReactorContext(
-//                flow {
-//                    val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
-//                    val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
-//                    myFun(paginationOffset, descending).collect {
-//                        emit(it)
-//                    }
-//                }
-//        )
-//    }
-
     @ApiOperation(nickname = "createAccessLog", value = "Creates an access log")
     @PostMapping
     suspend fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
@@ -69,7 +58,7 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
     @DeleteMapping("/{accessLogIds}")
-    suspend fun deleteAccessLog(@PathVariable accessLogIds: String): List<String> {
+    suspend fun deleteAccessLog(@PathVariable accessLogIds: String): List<DocIdentifier> {
         return accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
     }
 

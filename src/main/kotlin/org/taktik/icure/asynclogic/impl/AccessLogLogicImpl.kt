@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitSingle
 import org.ektorp.ComplexKey
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asynclogic.AccessLogLogic
@@ -46,10 +47,9 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         return accessLogDAO.create(dbInstanceUri, groupId, accessLog)
     }
 
-    override suspend fun deleteAccessLogs(ids: List<String>): List<String> {
+    override suspend fun deleteAccessLogs(ids: List<String>): List<DocIdentifier> {
         try {
-            deleteByIds(ids)
-            return ids // TODO return (id, rev) list from the DAO!
+            return deleteByIds(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

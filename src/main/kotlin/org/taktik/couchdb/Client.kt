@@ -106,7 +106,8 @@ private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T
 private data class BulkDeleteRequest(val docs: Collection<DeleteRequest>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
 
 data class DeleteRequest(@Json(name = "_id") val id: String, @Json(name = "_id") val rev: String?, @Json(name = "_deleted") val deleted: Boolean = true )
-data class BulkUpdateResult(val id: String, val rev: String?, val ok: Boolean?, val error: String?, val reason: String?)
+data class BulkUpdateResult(val id: String, val rev: String, val ok: Boolean?, val error: String?, val reason: String?)
+data class DocIdentifier(val id: String, val rev: String)
 
 
 // Convenience inline methods with reified type params

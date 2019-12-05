@@ -8,6 +8,7 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.entities.Article
 import org.taktik.icure.services.external.rest.v1.dto.ArticleDto
@@ -32,7 +33,7 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
     @DeleteMapping("/{articleIds}")
-    suspend fun deleteArticle(@PathVariable articleIds: String): List<String> {
+    suspend fun deleteArticle(@PathVariable articleIds: String): List<DocIdentifier> {
         return articleLogic.deleteArticles(articleIds.split(','))
     }
 

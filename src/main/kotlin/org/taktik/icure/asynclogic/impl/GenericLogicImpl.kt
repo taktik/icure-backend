@@ -20,6 +20,7 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.base.Identifiable
@@ -36,10 +37,10 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         return getGenericDAO().save(dbInstanceUri, groupId, entities)
     }
 
-    override suspend fun deleteByIds(identifiers: Collection<String>) {
+    override suspend fun deleteByIds(identifiers: Collection<String>): List<DocIdentifier> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
-        getGenericDAO().remove(dbInstanceUri, groupId, entities)
+        return getGenericDAO().remove(dbInstanceUri, groupId, entities)
     }
 
     override suspend fun undeleteByIds(identifiers: Collection<String>) {

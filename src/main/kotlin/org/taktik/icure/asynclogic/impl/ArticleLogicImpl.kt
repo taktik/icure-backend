@@ -19,6 +19,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.ArticleDAO
 import org.taktik.icure.asynclogic.ArticleLogic
 import org.taktik.icure.entities.Article
@@ -32,10 +33,9 @@ class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLo
         return articleDAO.create(dbInstanceUri, groupId, article)
     }
 
-    override suspend fun deleteArticles(ids: List<String>): List<String> {
+    override suspend fun deleteArticles(ids: List<String>): List<DocIdentifier> {
         try {
-            deleteByIds(ids)
-            return ids
+            return deleteByIds(ids)
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

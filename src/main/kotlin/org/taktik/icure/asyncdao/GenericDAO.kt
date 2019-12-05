@@ -21,6 +21,7 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.ektorp.ViewQuery
 import org.taktik.couchdb.Client
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.Identifiable
 import java.net.URI
@@ -42,8 +43,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     fun getAllIds(dbInstanceUrl:URI, groupId:String): Flow<String>
     fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Flow<T>
 
-    suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T)
-    suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>)
+    suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T): DocIdentifier
+    suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): List<DocIdentifier>
     suspend fun purge(dbInstanceUrl: URI, groupId: String, entity: T)
     suspend fun purge(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
