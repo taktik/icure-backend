@@ -84,6 +84,7 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
@@ -95,19 +96,22 @@ suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQuer
                 null
             }
             is ViewRowWithDoc<*, *, *> -> {
-                // TODO SH can't a doc be null? e.g. if we get by ids and one id doesn't exist? then we should emit null, but flatMap doesn't support it...
-                if (viewRowCount == realLimit) {
-                    result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH startKey was a List<String>, ok with a String?
-                    viewRowCount++
-                    lastProcessedViewRow?.doc as? U?
-                } else if (viewRowCount < realLimit) {
-                    val previous = lastProcessedViewRow
-                    lastProcessedViewRow = viewQueryResultEvent
-                    viewRowCount++
-                    previous?.doc as? U? // if this is the first one, the Mono will be empty, so it will be ignored by flatMap
-                } else { // we have more elements than expected, just ignore them
-                    viewRowCount++
-                    null
+                when {
+                    viewRowCount == realLimit -> {
+                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH startKey was a List<String>, ok with a String?
+                        viewRowCount++
+                        lastProcessedViewRow?.doc as? U
+                    }
+                    viewRowCount < realLimit -> {
+                        val previous = lastProcessedViewRow
+                        lastProcessedViewRow = viewQueryResultEvent
+                        viewRowCount++
+                        previous?.doc as? U // if this is the first one, the Mono will be empty, so it will be ignored by flatMap
+                    }
+                    else -> { // we have more elements than expected, just ignore them
+                        viewRowCount++
+                        null
+                    }
                 }
             }
             else -> {

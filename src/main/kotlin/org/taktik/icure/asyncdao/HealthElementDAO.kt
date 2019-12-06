@@ -11,11 +11,11 @@ interface HealthElementDAO: GenericDAO<HealthElement> {
 
     fun findByPatientAndCodes(dbInstanceUrl: URI, groupId: String, patientId: String, codes: Set<Code>): Flow<HealthElement>
 
-    fun findByHCPartyAndCodes(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String?>
+    fun findByHCPartyAndCodes(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String>
 
-    fun findByHCPartyAndTags(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, tagType: String, tagCode: String): Flow<String?>
+    fun findByHCPartyAndTags(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, tagType: String, tagCode: String): Flow<String>
 
-    fun findByHCPartyAndStatus(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, status: Int?): Flow<String?>
+    fun findByHCPartyAndStatus(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, status: Int?): Flow<String>
 
     suspend fun findHealthElementByPlanOfActionId(dbInstanceUrl: URI, groupId: String, planOfActionId: String): HealthElement?
 

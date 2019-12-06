@@ -190,10 +190,10 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
-    private fun listIdsForSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String, viewName: String): Flow<String?> {
+    private fun listIdsForSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String, viewName: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery(viewName).reduce(false).keys(ssins.map { ssin -> ComplexKey.of(healthcarePartyId, ssin) }).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).map { it.value }
+        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
     }
 
     private fun listIdsForActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String, viewName: String): Flow<String> {
@@ -449,7 +449,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return client.queryViewIncludeDocsNoValue<Long, Patient>(viewQuery)
     }
 
-    override fun listIdsByHcPartyAndSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String): Flow<String?> {
+    override fun listIdsByHcPartyAndSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String): Flow<String> {
         return listIdsForSsins(dbInstanceUrl, groupId, ssins, healthcarePartyId, "by_hcparty_ssin")
     }
 
