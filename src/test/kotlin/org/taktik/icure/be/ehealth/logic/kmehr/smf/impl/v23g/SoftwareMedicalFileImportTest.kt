@@ -6,6 +6,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Matchers
+import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -23,6 +24,8 @@ class SoftwareMedicalFileImportTest {
     val healthcarePartyLogic = mock(HealthcarePartyLogic::class.java)
     val formTemplateLogic = mock(FormTemplateLogic::class.java)
     val insuranceLogic = mock(InsuranceLogic::class.java)
+    @Mock
+    val userLogic = mock(UserLogic::class.java)
 
     val documentLogic = mock(DocumentLogic::class.java)
     val formLogic = mock(FormLogic::class.java)
@@ -42,14 +45,14 @@ class SoftwareMedicalFileImportTest {
     fun importSMF() {
         val mappings = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")
             .readBytes(10000).toString(Charsets.UTF_8)
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
             .importSMF(
                 this.javaClass.getResourceAsStream("Test.xml"),
                 User().apply {
                     id = uuidGenerator.newGUID().toString();
                     healthcarePartyId = uuidGenerator.newGUID().toString()
                 },
-                "fr",
+                "fr", false,
                 mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                       )
         Assert.assertNotNull("Patient must be assigned", res.firstOrNull()?.patient)

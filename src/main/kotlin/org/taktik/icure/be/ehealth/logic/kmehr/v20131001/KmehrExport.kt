@@ -20,8 +20,10 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.v20131001
 
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.drugs.logic.DrugsLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
@@ -30,6 +32,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Address
@@ -43,7 +46,6 @@ import java.io.OutputStream
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -70,7 +72,9 @@ open class KmehrExport {
 	val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20131001"
-    internal val ICUREVERSION = "4.0.0" // TODO fetch actual version here or delete and fetch elsewhere
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
+
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
@@ -342,7 +346,10 @@ open class KmehrExport {
                     isBoolean = content.booleanValue
                 }
                 content.numberValue?.let { decimal = BigDecimal.valueOf(it) }
-                content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply { l = language; value = content.stringValue }) } }
+                content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply {
+                    l = language;
+                    value = StringEscapeUtils.escapeXml10(content.stringValue) // escaped because imported epicure data has EOT chars in it
+                }) } }
 				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->
                     mv.unitCodes?.find { it.type == "CD-UNIT" }?.code?.let { unitCode -> if (unitCode.isNotEmpty()) {unit = UnitType().apply { cd = CDUNIT().apply { s(CDUNITschemes.CD_UNIT); value = unitCode } } } }
@@ -534,14 +541,18 @@ open class KmehrExport {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply {
-					cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
-                    val filetype = if(config.exportAsPMF) {
+                    cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
+                    val filetype = if (config.format == Config.Format.PMF) {
                         CDMESSAGEvalues.GPPATIENTMIGRATION
-                    } else {
+                    } else if (config.format == Config.Format.SMF) {
                         CDMESSAGEvalues.GPSOFTWAREMIGRATION
+                    } else {
+                        null
                     }
-					specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype } ; version = SMF_VERSION }
-				}
+                    filetype?.let {
+                        specialisation = StandardType.Specialisation().apply { cd = CDMESSAGE().apply { s = "CD-MESSAGE"; value = filetype }; version = SMF_VERSION }
+                    }
+                }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (sender.nihii ?: sender.id) + "." + (config._kmehrId ?: System.currentTimeMillis()) })
                 // FIXME: use config or use now ?
                 date = config.date
@@ -757,15 +768,4 @@ open class KmehrExport {
 		const val SMF_VERSION = "2.3"
 	}
 
-	data class Config(
-            var _kmehrId: String? = null,
-            var date: XMLGregorianCalendar? = null,
-            var time: XMLGregorianCalendar? = null,
-            var soft: Software? = null,
-            var clinicalSummaryType: String? = null,
-            var defaultLanguage: String? = null,
-            var exportAsPMF: Boolean = false
-    ) {
-		data class Software(val name : String, val version : String)
-	}
 }

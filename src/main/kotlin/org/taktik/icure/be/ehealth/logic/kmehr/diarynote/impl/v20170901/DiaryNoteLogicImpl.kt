@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter
 
 import be.fgov.ehealth.ehvalidator.core.EhValidator
 import org.springframework.beans.factory.annotation.Qualifier
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 //import org.taktik.icure.be.ehealth.dto.SumehrStatus
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
 //import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901.DiaryNoteImport
@@ -47,7 +48,7 @@ import java.io.InputStream
 
 @org.springframework.stereotype.Service("diaryNoteLogic")
 class DiaryNoteLogicImpl(val contactLogic: ContactLogic, @Qualifier("dairyNoteExport") val diaryNoteExport: DiaryNoteExport, @Qualifier("diaryNoteImport") val diaryNoteImport: DiaryNoteImport) : DiaryNoteLogic {
-    override fun createDiaryNote(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?) = diaryNoteExport.createDiaryNote(os, pat, sfks, sender, recipient, language, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
+    override fun createDiaryNote(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?, config: Config) = diaryNoteExport.createDiaryNote(os, pat, sfks, sender, recipient, language, note, tags, contexts, isPsy, documentId, attachmentId, decryptor, config)
 
     override fun importDiaryNote(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>): List<ImportResult> {
         return diaryNoteImport.importDiaryNote(inputStream, author, language, mappings, dest)

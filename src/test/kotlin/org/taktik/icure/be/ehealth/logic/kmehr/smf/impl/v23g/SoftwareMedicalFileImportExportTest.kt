@@ -11,6 +11,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.taktik.icure.be.ehealth.dto.kmehr.v20100601.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -61,22 +62,22 @@ class SoftwareMedicalFileImportExportTest {
         id = uuidGenerator.newGUID().toString()
     }
 
-    val config = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+    val config = Config(_kmehrId = System.currentTimeMillis().toString(),
             date = makeXGC(Instant.now().toEpochMilli())!!,
             time = makeXGC(Instant.now().toEpochMilli(), true)!!,
-            soft = KmehrExport.Config.Software(name = "iCure", version = "4.0.0"),
+            soft = Config.Software(name = "iCure", version = "4.0.0"),
             clinicalSummaryType = "TODO",
             defaultLanguage = "en",
-            exportAsPMF = false // no versioning in PMF
+            format = Config.Format.SMF // no versioning in PMF
     )
 
-    val config_PMF = KmehrExport.Config(_kmehrId = System.currentTimeMillis().toString(),
+    val config_PMF = Config(_kmehrId = System.currentTimeMillis().toString(),
             date = makeXGC(Instant.now().toEpochMilli())!!,
             time = makeXGC(Instant.now().toEpochMilli(), true)!!,
-            soft = KmehrExport.Config.Software(name = "iCure", version = "4.0.0"),
+            soft = Config.Software(name = "iCure", version = "4.0.0"),
             clinicalSummaryType = "TODO",
             defaultLanguage = "en",
-            exportAsPMF = true // no versioning in PMF
+            format = Config.Format.PMF // no versioning in PMF
     )
 
     @Before
@@ -133,11 +134,12 @@ class SoftwareMedicalFileImportExportTest {
 
     @Test
     fun heHistory() {
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         this.javaClass.getResourceAsStream("he.history.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         val res0 : ImportResult? = res.firstOrNull()
@@ -151,11 +153,12 @@ class SoftwareMedicalFileImportExportTest {
         out.close()
         clearDb()
 
-        var reimportedRes = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        var reimportedRes = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         FileInputStream("out.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         var reimportedRes0 : ImportResult? = reimportedRes.firstOrNull()
@@ -167,11 +170,12 @@ class SoftwareMedicalFileImportExportTest {
 
     @Test
     fun heDuplicates() {
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         this.javaClass.getResourceAsStream("he.duplicates.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         val res0 : ImportResult? = res.firstOrNull()
@@ -183,11 +187,12 @@ class SoftwareMedicalFileImportExportTest {
 
     @Test
     fun heHistory_PMF() { // only last version in PMF
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         this.javaClass.getResourceAsStream("he.history.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         val res0 : ImportResult? = res.firstOrNull()
@@ -201,11 +206,12 @@ class SoftwareMedicalFileImportExportTest {
         out.close()
         clearDb()
 
-        var reimportedRes = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        var reimportedRes = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         FileInputStream("out.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         var reimportedRes0 : ImportResult? = reimportedRes.firstOrNull()
@@ -217,11 +223,12 @@ class SoftwareMedicalFileImportExportTest {
 
     @Test
     fun contactCountStability() {
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         this.javaClass.getResourceAsStream("he.history.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         val res0 : ImportResult? = res.firstOrNull()
@@ -235,11 +242,12 @@ class SoftwareMedicalFileImportExportTest {
         out.close()
         clearDb()
 
-        var reimportedRes = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        var reimportedRes = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         FileInputStream("out.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         var reimportedRes0 : ImportResult? = reimportedRes.firstOrNull()
@@ -256,11 +264,12 @@ class SoftwareMedicalFileImportExportTest {
         out.close()
         clearDb()
 
-        reimportedRes = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        reimportedRes = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         FileInputStream("out.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         reimportedRes0 = reimportedRes.firstOrNull()
@@ -273,11 +282,12 @@ class SoftwareMedicalFileImportExportTest {
 
     @Test
     fun medicationHistory() {
-        val res = SoftwareMedicalFileImport(patientLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
+        val res = SoftwareMedicalFileImport(patientLogic, userLogic, healthcarePartyLogic, healthElementLogic, contactLogic, documentLogic, formLogic, formTemplateLogic, insuranceLogic, uuidGenerator)
                 .importSMF(
                         this.javaClass.getResourceAsStream("medication.history.xml"),
                         testUser,
                         "fr",
+                        false,
                         mapper.readValue(mappings, object : TypeReference<Map<String, List<ImportMapping>>>() {})
                 )
         val res0 : ImportResult? = res.firstOrNull()
