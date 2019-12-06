@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredICureDocument
 import java.net.URI
@@ -31,17 +32,17 @@ import java.net.URI
  */
 open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<T>(entityClass, couchDbDispatcher, idGenerator) {
 
-    override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T?): T? =
-            super.save(dbInstanceUrl, groupId, newEntity, entity?.apply { setTimestamps(this) })
+    override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? =
+            super.save(dbInstanceUrl, groupId, newEntity, entity.apply { setTimestamps(this) })
 
-    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K?): List<T> =
-            super.save(dbInstanceUrl, groupId, newEntity, entities?.map { it.apply { setTimestamps(this) } })
+    override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> =
+            super.save(dbInstanceUrl, groupId, newEntity, entities.map { it.apply { setTimestamps(this) } })
 
     override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T) =
-            super.unRemove(dbInstanceUrl, groupId, entity?.apply { setTimestamps(this) })
+            super.unRemove(dbInstanceUrl, groupId, entity.apply { setTimestamps(this) })
 
-    override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) =
-            super.unRemove(dbInstanceUrl, groupId, entities?.map { it.apply { setTimestamps(this) } })
+    override fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) =
+            super.unRemove(dbInstanceUrl, groupId, entities.map { it.apply { setTimestamps(this) } })
 
 
     private fun setTimestamps(entity: StoredICureDocument) {

@@ -22,6 +22,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
@@ -58,7 +59,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @ApiOperation(nickname = "deleteTimeTable", value = "Deletes an timeTable")
     @DeleteMapping("/{timeTableIds}")
-    suspend fun deleteTimeTable(@PathVariable timeTableIds: String): List<DocIdentifier> {
+    fun deleteTimeTable(@PathVariable timeTableIds: String): Flow<DocIdentifier> {
         return timeTableLogic.deleteTimeTables(timeTableIds.split(','))
     }
 

@@ -3,6 +3,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
@@ -33,7 +34,7 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
     @DeleteMapping("/{articleIds}")
-    suspend fun deleteArticle(@PathVariable articleIds: String): List<DocIdentifier> {
+    fun deleteArticle(@PathVariable articleIds: String): Flow<DocIdentifier> {
         return articleLogic.deleteArticles(articleIds.split(','))
     }
 

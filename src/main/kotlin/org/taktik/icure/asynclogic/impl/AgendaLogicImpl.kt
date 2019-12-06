@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic.impl
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
@@ -17,7 +18,7 @@ class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic
         return agendaDAO.create(dbInstanceUri, groupId, agenda)
     }
 
-    override suspend fun deleteAgenda(ids: List<String>): List<DocIdentifier> {
+    override fun deleteAgenda(ids: List<String>): Flow<DocIdentifier> {
         return try {
             deleteByIds(ids)
         } catch (e: Exception) {

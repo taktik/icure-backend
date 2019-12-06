@@ -24,14 +24,14 @@ import org.taktik.icure.validation.aspect.Check
 
 interface EntityPersister<E, I> {
 
-    suspend fun createEntities(@Check entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean
+    fun createEntities(@Check entities: Collection<E>): Flow<E>
 
-    suspend fun updateEntities(@Check entities: Collection<E>): List<E>
+    fun updateEntities(@Check entities: Collection<E>): Flow<E>
 
-    suspend fun deleteByIds(identifiers: Collection<I>): List<DocIdentifier>
+    fun deleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
     //suspend fun deleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
     // TODO SH why those 2 lines commented?
-    suspend fun undeleteByIds(identifiers: Collection<I>)
+    fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
     //suspend fun undeleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
 
     fun getAllEntities(): Flow<E>

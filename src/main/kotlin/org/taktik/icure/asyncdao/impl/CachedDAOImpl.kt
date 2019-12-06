@@ -206,11 +206,11 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T?): T? {
-        var entity = entity
+    override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? {
+        var savedEntity: T? = entity
         val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
         try {
-            entity = super.save(dbInstanceUrl, groupId, newEntity, entity)
+            savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity)
         } catch (e: UpdateConflictException) {
             val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
 
@@ -223,7 +223,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             throw e
         }
 
-        putInCache(dbInstanceUrl, groupId, keyManager.getKey(entity), entity)
+        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), savedEntity)
         cache.evict(fullId1)
         log.debug("Cache EVICT= {}", fullId1)
 
@@ -236,9 +236,8 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         return deleted
     }
 
-    override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T) {
-        super.unRemove(dbInstanceUrl, groupId, entity)
-        evictFromCache(dbInstanceUrl, groupId, entity)
+    override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier {
+        return super.unRemove(dbInstanceUrl, groupId, entity).also { evictFromCache(dbInstanceUrl, groupId, entity) }
     }
 
     override suspend fun purge(dbInstanceUrl: URI, groupId: String, entity: T) {
@@ -246,18 +245,15 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         evictFromCache(dbInstanceUrl, groupId, entity)
     }
 
-    override suspend fun remove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): List<DocIdentifier> {
-        val deleted = super.remove(dbInstanceUrl, groupId, entities)
-        for (entity in entities) {
-            evictFromCache(dbInstanceUrl, groupId, entity)
+    override fun remove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier> {
+        return super.remove(dbInstanceUrl, groupId, entities).onEach {
+            evictFromCache(dbInstanceUrl, groupId, it.id)
         }
-        return deleted
     }
 
-    override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) {
-        super.unRemove(dbInstanceUrl, groupId, entities)
-        for (entity in entities) {
-            evictFromCache(dbInstanceUrl, groupId, entity)
+    override fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier> {
+        return super.unRemove(dbInstanceUrl, groupId, entities).onEach {
+            evictFromCache(dbInstanceUrl, groupId, it.id)
         }
     }
 
@@ -268,13 +264,12 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K?): List<T> {
+    override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> {
         val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
-        var savedEntities: List<T> = ArrayList()
-        try {
-            savedEntities = super.save(dbInstanceUrl, groupId, newEntity, savedEntities)
+        val savedEntities = try {
+            super.save(dbInstanceUrl, groupId, newEntity, entities)
         } catch (e: UpdateConflictException) {
-            for (entity in savedEntities) {
+            for (entity in entities) {
                 val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
                 log.debug("Cache EVICT= {}", fullId)
                 cache.evict(fullId)
@@ -285,7 +280,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
 
             throw e
         } catch (e: BulkUpdateConflictException) {
-            for (entity in savedEntities) {
+            for (entity in entities) {
                 val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
                 log.debug("Cache EVICT= {}", fullId)
                 cache.evict(fullId)
@@ -295,13 +290,12 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             throw e
         }
 
-        for (entity in savedEntities) {
+        return savedEntities.onEach { entity ->
             putInCache(dbInstanceUrl, groupId, keyManager.getKey(entity), entity)
+        }.also {
+            cache.evict(fullId1)
+            log.debug("Cache EVICT= {}", fullId1)
         }
-        cache.evict(fullId1)
-        log.debug("Cache EVICT= {}", fullId1)
-
-        return savedEntities
     }
 
     companion object {

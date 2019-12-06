@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asynclogic.impl
 
+import kotlinx.coroutines.flow.Flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.ArticleDAO
@@ -33,7 +34,7 @@ class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLo
         return articleDAO.create(dbInstanceUri, groupId, article)
     }
 
-    override suspend fun deleteArticles(ids: List<String>): List<DocIdentifier> {
+    override fun deleteArticles(ids: List<String>): Flow<DocIdentifier> {
         try {
             return deleteByIds(ids)
         } catch (e: Exception) {

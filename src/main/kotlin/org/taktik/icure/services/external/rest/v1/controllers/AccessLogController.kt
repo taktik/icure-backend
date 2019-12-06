@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.springframework.http.HttpStatus
@@ -57,7 +58,7 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
     @DeleteMapping("/{accessLogIds}")
-    suspend fun deleteAccessLog(@PathVariable accessLogIds: String): List<DocIdentifier> {
+    fun deleteAccessLog(@PathVariable accessLogIds: String): Flow<DocIdentifier> {
         return accessLogLogic.deleteAccessLogs(accessLogIds.split(','))
     }
 

@@ -47,7 +47,7 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         return accessLogDAO.create(dbInstanceUri, groupId, accessLog)
     }
 
-    override suspend fun deleteAccessLogs(ids: List<String>): List<DocIdentifier> {
+    override fun deleteAccessLogs(ids: List<String>): Flow<DocIdentifier> {
         try {
             return deleteByIds(ids)
         } catch (e: Exception) {

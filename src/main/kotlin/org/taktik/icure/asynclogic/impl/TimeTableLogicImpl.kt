@@ -28,7 +28,7 @@ import org.taktik.icure.utils.reEmit
 
 interface TimeTableLogic {
     suspend fun createTimeTable(timeTable: TimeTable): TimeTable?
-    suspend fun deleteTimeTables(ids: List<String>): List<DocIdentifier>
+    fun deleteTimeTables(ids: List<String>): Flow<DocIdentifier>
     suspend fun getTimeTable(timeTableId: String): TimeTable?
     fun getTimeTablesByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<TimeTable>
     fun getTimeTablesByAgendaId(agendaId: String): Flow<TimeTable>
@@ -42,7 +42,7 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
         return timeTableDAO.create(dbInstanceUri, groupId, timeTable)
     }
 
-    override suspend fun deleteTimeTables(ids: List<String>): List<DocIdentifier> {
+    override fun deleteTimeTables(ids: List<String>): Flow<DocIdentifier> {
         return deleteByIds(ids)
     }
 
