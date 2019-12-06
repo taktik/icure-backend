@@ -296,7 +296,7 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
                 idsList = idsList.subList(0, paginationOffset!!.limit!! + 1)
             }
             val codes = this.get(idsList)
-            return PaginatedList(if (hasNextPage) paginationOffset!!.limit else codes.size, ids.size, if (hasNextPage) codes.subList(0, paginationOffset!!.limit!!) else codes, if (hasNextPage) PaginatedDocumentKeyIdPair(null, codes[codes.size - 1].id) else null)
+            return PaginatedList(if (hasNextPage) paginationOffset!!.limit!! else codes.size, ids.size, if (hasNextPage) codes.subList(0, paginationOffset!!.limit!!) else codes, if (hasNextPage) PaginatedDocumentKeyIdPair(null, codes[codes.size - 1].id) else null)
         }
     }
 

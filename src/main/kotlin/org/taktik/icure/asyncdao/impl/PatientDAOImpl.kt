@@ -431,7 +431,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         } else {
             // filter firstName because main filtering is done on lastName
             deleted_by_names
-                    .filter { p -> p.firstName != null && StringUtils.sanitizeString(p.firstName).startsWith(firstName) }
+                    .filter { p -> p.firstName != null && StringUtils.sanitizeString(p.firstName)?.startsWith(firstName) == true }
         }
     }
 

@@ -103,7 +103,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
 
         val label = label?.let { StringUtils.sanitizeString(it) }
 
-        val startKey: MutableList<String>? = (pagination?.startKey as List<String>).toMutableList()
+        val startKey: MutableList<String?>? = (pagination?.startKey as List<String>).toMutableList()
         startKey?.takeIf { it.size > 2 }?.get(2)?.let { startKey[2] = StringUtils.sanitizeString(it) }
         val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
                 ?: ComplexKey.of(
@@ -127,7 +127,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
 
         val label = label?.let { StringUtils.sanitizeString(it) }
 
-        val startKey: MutableList<String>? = (pagination?.startKey as List<String>).toMutableList()
+        val startKey: MutableList<String?>? = (pagination?.startKey as List<String>).toMutableList()
         startKey?.takeIf { it.size > 3 }?.get(3)?.let { startKey[3] = StringUtils.sanitizeString(it) }
         val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
                 ?: ComplexKey.of(

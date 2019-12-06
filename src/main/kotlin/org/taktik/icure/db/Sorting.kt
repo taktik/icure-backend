@@ -15,32 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.db
 
-package org.taktik.icure.db;
-
-public class Sorting {
-
-	private String direction;
-	private String field;
-
-	public Sorting(String field, String direction) {
-		this.direction = direction;
-		this.field = field;
-	}
-
-	public String getDirection() {
-		return direction;
-	}
-
-	public void setDirection(String direction) {
-		this.direction = direction;
-	}
-
-	public String getField() {
-		return field;
-	}
-
-	public void setField(String field) {
-		this.field = field;
-	}
-}
+class Sorting(val field: String?, val direction: String)

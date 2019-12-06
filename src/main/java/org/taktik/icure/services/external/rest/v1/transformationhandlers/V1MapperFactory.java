@@ -116,7 +116,7 @@ public class V1MapperFactory {
 		converterFactory.registerConverter(new CustomConverter<PaginatedDocumentKeyIdPair,org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair>() {
 			@Override
 			public org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair convert(PaginatedDocumentKeyIdPair source, Type<? extends org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair> destinationType, MappingContext mappingContext) {
-				return new org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair<>(source.getStartKey(),source.getStartKeyDocId());
+				return new org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair<>(source.getStartKey(), source.getStartKeyDocId());
 			}
 		});
 

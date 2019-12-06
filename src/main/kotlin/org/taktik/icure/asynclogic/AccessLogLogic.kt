@@ -2,6 +2,7 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.ektorp.ComplexKey
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.db.PaginationOffset

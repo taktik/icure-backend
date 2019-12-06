@@ -15,41 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.db
 
-package org.taktik.icure.db;
-
-import java.io.Serializable;
-import java.util.List;
+import java.io.Serializable
 
 /**
  * Created by emad7105 on 11/07/2014.
  */
-public class PaginatedDocumentKeyIdPair implements Serializable {
-
-	private List<String> startKey;
-	private  String startKeyDocId;
-
-	public PaginatedDocumentKeyIdPair() {
-	}
-
-	public PaginatedDocumentKeyIdPair(List<String> startKey, String startKeyDocId) {
-		this.startKey = startKey;
-		this.startKeyDocId = startKeyDocId;
-	}
-
-	public List<String> getStartKey() {
-		return startKey;
-	}
-
-	public void setStartKey(List<String> startKey) {
-		this.startKey = startKey;
-	}
-
-	public String getStartKeyDocId() {
-		return startKeyDocId;
-	}
-
-	public void setStartKeyDocId(String startKeyDocId) {
-		this.startKeyDocId = startKeyDocId;
-	}
-}
+data class PaginatedDocumentKeyIdPair(val startKey: List<String>?, val startKeyDocId: String?) : Serializable
