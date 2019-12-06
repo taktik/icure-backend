@@ -47,6 +47,7 @@ public class AccessLog extends StoredICureDocument implements Encryptable  {
     protected String accessType;
     protected String user;
     protected String detail;
+    protected String objectId;
 
     public AccessLog() {
         super();
@@ -95,4 +96,11 @@ public class AccessLog extends StoredICureDocument implements Encryptable  {
         this.detail = detail;
     }
 
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
 }
