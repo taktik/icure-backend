@@ -137,7 +137,7 @@ public class FuzzyValues {
 	}
 
 	public static long getCurrentFuzzyDate() {
-		return getCurrentFuzzyDateTime(ChronoUnit.DAYS);
+		return getFuzzyDate(LocalDateTime.now(), ChronoUnit.DAYS);
 	}
 
 	public static long getCurrentFuzzyDateTime() {

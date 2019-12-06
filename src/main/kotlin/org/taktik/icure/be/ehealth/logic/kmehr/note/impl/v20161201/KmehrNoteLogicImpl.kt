@@ -1,6 +1,5 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 
-import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
@@ -10,6 +9,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
@@ -45,7 +45,7 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
                 this.date = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(author, emptyList()))
-                    hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "${config.soft.name} ${config.soft.version}" })
+                    hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
                 }
                 this.recipients.add(RecipientType().apply {
                     hcparties.add(HcpartyType().apply { this.ids.add( IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; value = recipientNihii } ); this.firstname = recipientFirstName; this.familyname = recipientLastName })

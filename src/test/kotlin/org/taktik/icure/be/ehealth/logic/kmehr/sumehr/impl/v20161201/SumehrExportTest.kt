@@ -12,8 +12,9 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
-import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport.Config
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
@@ -259,7 +260,7 @@ class SumehrExportTest {
     fun createSumehr() {
         // Arrange
         /// First parameter
-        val path1 = "src/test/resources/org/taktik/icure/be/ehealth/logic/kmehr/sumehr/impl/v20161201/outCreateSumehr1.xml"
+        val path1 = "/tmp/outCreateSumehr1.xml"
         val file1 = File(path1)
         val os1 = file1.outputStream()
 
@@ -307,7 +308,14 @@ class SumehrExportTest {
         val excludedIds = listOf("excludedId")
 
         // Execution
-        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, false, decryptor)
+        sumehrExport.createSumehr(os1, pat, sfks, sender, recipient, language, comment, excludedIds, false, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 
         // Tests
         assertNotNull(file1)
