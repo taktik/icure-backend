@@ -19,11 +19,14 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.base.Identifiable
+import org.taktik.icure.utils.reEmit
 
 abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic) : EntityPersister<E, String> {
 
@@ -49,14 +52,14 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         getGenericDAO().unRemove(dbInstanceUri, groupId, entities)
     }
 
-    override suspend fun getAllEntities(): Flow<E> {
+    override fun getAllEntities(): Flow<E> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return getGenericDAO().getAll(dbInstanceUri, groupId)
+        getGenericDAO().getAll(dbInstanceUri, groupId).collect { emit(it) }
     }
 
-    override suspend fun getAllEntityIds(): Flow<String> {
+    override fun getAllEntityIds(): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return getGenericDAO().getAllIds(dbInstanceUri, groupId)
+        getGenericDAO().getAllIds(dbInstanceUri, groupId).collect { emit(it) }
     }
 
     override suspend fun hasEntities(): Boolean {

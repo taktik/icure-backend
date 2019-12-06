@@ -470,7 +470,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 
 	private PaginatedList<Patient> getDuplicatesFromView(String viewName, String healthcarePartyId, PaginationOffset paginationOffset) throws JsonProcessingException {
 		ArrayList<JsonNode> keysWithDuplicates = new ArrayList<>();
-		ComplexKey from = paginationOffset.getStartKey()==null ? ComplexKey.of(healthcarePartyId, ""):ComplexKey.of((Object[])paginationOffset.getStartKey());
+		ComplexKey from = paginationOffset.getStartKey() ==null ? ComplexKey.of(healthcarePartyId, ""):ComplexKey.of((Object[]) paginationOffset.getStartKey());
 		ComplexKey to = ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject());
 		ViewQuery viewQuery = createQuery(viewName)
 				.startKey(from)

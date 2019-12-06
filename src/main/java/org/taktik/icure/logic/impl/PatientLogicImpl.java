@@ -222,10 +222,10 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			if (firstIndex==-1) {
 				return new PaginatedList<>(0,ids.size(),new ArrayList<>(),null);
 			} else {
-				firstIndex+=paginationOffset != null && paginationOffset.getOffset()!=null?paginationOffset.getOffset():0;
-				boolean hasNextPage = paginationOffset != null && paginationOffset.getLimit() != null && firstIndex+paginationOffset.getLimit() < patients.size();
-				return hasNextPage ? new PaginatedList<>(paginationOffset.getLimit(), patients.size(), patients.subList(firstIndex, firstIndex+paginationOffset.getLimit()),
-					new PaginatedDocumentKeyIdPair(null, patients.get(firstIndex+paginationOffset.getLimit()).getId())) :
+				firstIndex+=paginationOffset != null && paginationOffset.getOffset() !=null? paginationOffset.getOffset() :0;
+				boolean hasNextPage = paginationOffset != null && paginationOffset.getLimit() != null && firstIndex+ paginationOffset.getLimit() < patients.size();
+				return hasNextPage ? new PaginatedList<>(paginationOffset.getLimit(), patients.size(), patients.subList(firstIndex, firstIndex+ paginationOffset.getLimit()),
+					new PaginatedDocumentKeyIdPair(null, patients.get(firstIndex+ paginationOffset.getLimit()).getId())) :
 					new PaginatedList<>(patients.size()-firstIndex, patients.size(), patients.subList(firstIndex, patients.size()),null);
 			}
 		} else {
@@ -237,12 +237,12 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 			if (paginationOffset != null && paginationOffset.getOffset() != null) {
 				idsList = idsList.subList(paginationOffset.getOffset(),idsList.size());
 			}
-			boolean hasNextPage = paginationOffset != null && paginationOffset.getLimit() != null && paginationOffset.getLimit()<idsList.size();
+			boolean hasNextPage = paginationOffset != null && paginationOffset.getLimit() != null && paginationOffset.getLimit() <idsList.size();
 			if (hasNextPage) {
-				idsList = idsList.subList(0,paginationOffset.getLimit()+1);
+				idsList = idsList.subList(0, paginationOffset.getLimit() +1);
 			}
 			List<Patient> patients = this.getPatients(idsList);
-			return new PaginatedList<>(hasNextPage ? paginationOffset.getLimit() : patients.size(), ids.size(), hasNextPage ? patients.subList(0,paginationOffset.getLimit()) : patients, hasNextPage ? new PaginatedDocumentKeyIdPair(null, patients.get(patients.size()-1).getId()) : null);
+			return new PaginatedList<>(hasNextPage ? paginationOffset.getLimit() : patients.size(), ids.size(), hasNextPage ? patients.subList(0, paginationOffset.getLimit()) : patients, hasNextPage ? new PaginatedDocumentKeyIdPair(null, patients.get(patients.size()-1).getId()) : null);
 		}
 	}
 

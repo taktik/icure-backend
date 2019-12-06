@@ -191,7 +191,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 			viewQuery = viewQuery.endKey(endKey);
 		}
 
-		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : ((ComplexKey)pagination.getStartKey()).toJson(), startDocId)).build();
+		PageRequest pr = new PageRequest.Builder().pageSize(limit).page(page).nextKey(new PageRequest.KeyIdPair(pagination.getStartKey() == null ? null : ((ComplexKey) pagination.getStartKey()).toJson(), startDocId)).build();
 
 		Page<String> ts = db.queryForPage(viewQuery, pr, String.class);
 

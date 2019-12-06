@@ -23,9 +23,11 @@ import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.TimeTableDAO
+import org.taktik.icure.asynclogic.EntityPersister
+import org.taktik.icure.entities.Agenda
 import org.taktik.icure.entities.TimeTable
 
-interface TimeTableLogic {
+interface TimeTableLogic : EntityPersister<TimeTable, String> {
     suspend fun createTimeTable(timeTable: TimeTable): TimeTable?
     suspend fun deleteTimeTables(ids: List<String>): List<DocIdentifier>
     suspend fun getTimeTable(timeTableId: String): TimeTable?
@@ -69,7 +71,4 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
         return timeTableDAO
     }
 
-    override fun createEntities(entities: Collection<TimeTable>): Flow<TimeTable> {
-
-    }
 }

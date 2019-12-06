@@ -13,24 +13,24 @@ import java.net.URI
 
 interface PatientDAO: GenericDAO<Patient> {
 
-    fun listIdsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String?>
-    fun listIdsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String?>
-    fun listIdsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String?>
-    fun listIdsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String?>
-    fun listIdsByActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String): Flow<String?>
+    fun listIdsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String>
+    fun listIdsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String>
+    fun listIdsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String>
+    fun listIdsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String): Flow<String>
+    fun listIdsByActive(dbInstanceUrl: URI, groupId: String, active: Boolean, healthcarePartyId: String): Flow<String>
     fun listOfMergesAfter(dbInstanceUrl: URI, groupId: String, date: Long?): Flow<Patient>
     suspend fun countByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Int
     suspend fun countOfHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Int
-    fun listIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Flow<String?>
-    fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String?>
+    fun listIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Flow<String>
+    fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String>
 
-    fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String?>
-    fun listIdsByHcPartyGenderEducationProfession(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String?>
-    fun listIdsForHcPartyDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String?>
-    fun listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String?>
-    fun listIdsOfHcPartyNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String?>
+    fun listIdsByHcPartyAndDateOfBirth(dbInstanceUrl: URI, groupId: String, startDate: Int?, endDate: Int?, healthcarePartyId: String): Flow<String>
+    fun listIdsByHcPartyGenderEducationProfession(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String>
+    fun listIdsForHcPartyDateOfBirth(dbInstanceUrl: URI, groupId: String, date: Int?, healthcarePartyId: String): Flow<String>
+    fun listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String>
+    fun listIdsOfHcPartyNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String>
 
-    fun listIdsByHcPartyAndExternalId(dbInstanceUrl: URI, groupId: String, externalId: String?, healthcarePartyId: String): Flow<String?>
+    fun listIdsByHcPartyAndExternalId(dbInstanceUrl: URI, groupId: String, externalId: String?, healthcarePartyId: String): Flow<String>
 
     fun findIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
     fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
@@ -59,9 +59,9 @@ interface PatientDAO: GenericDAO<Patient> {
 
     fun listOfPatientsModifiedAfter(dbInstanceUrl: URI, groupId: String, date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent>
 
-    fun listIdsByHcPartyAndSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String): Flow<String?>
+    fun listIdsByHcPartyAndSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String): Flow<String>
 
-    fun listByHcPartyName(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String): Flow<String?>
+    fun listByHcPartyName(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String): Flow<String>
 
     suspend fun getHcPartyKeysForDelegate(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Map<String, String>
 

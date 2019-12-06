@@ -298,7 +298,7 @@ class ContactController(private val mapper: MapperFacade,
 
         if (contacts != null) {
             if (contacts.rows == null) {
-                contacts.setRows(ArrayList())
+                contacts.rows = ArrayList()
             }
 
             val paginatedContactDtoList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto>()

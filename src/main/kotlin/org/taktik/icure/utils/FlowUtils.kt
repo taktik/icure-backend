@@ -7,8 +7,6 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
 import ma.glasnost.orika.MapperFacade
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
@@ -18,10 +16,8 @@ import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
-import org.taktik.icure.services.external.rest.v1.dto.StoredDto
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.io.Serializable
 import java.util.*
 import java.net.URI
 
@@ -88,7 +84,8 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
     }
 }
 
-suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
+@Suppress("UNCHECKED_CAST")
+suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
@@ -99,19 +96,22 @@ suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryRes
                 null
             }
             is ViewRowWithDoc<*, *, *> -> {
-                // TODO SH can't a doc be null? e.g. if we get by ids and one id doesn't exist? then we should emit null, but flatMap doesn't support it...
-                if (viewRowCount == realLimit) {
-                    result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH startKey was a List<String>, ok with a String?
-                    viewRowCount++
-                    lastProcessedViewRow?.doc as? U?
-                } else if (viewRowCount < realLimit) {
-                    val previous = lastProcessedViewRow
-                    lastProcessedViewRow = viewQueryResultEvent
-                    viewRowCount++
-                    previous?.doc as? U? // if this is the first one, the Mono will be empty, so it will be ignored by flatMap
-                } else { // we have more elements than expected, just ignore them
-                    viewRowCount++
-                    null
+                when {
+                    viewRowCount == realLimit -> {
+                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH startKey was a List<String>, ok with a String?
+                        viewRowCount++
+                        lastProcessedViewRow?.doc as? U
+                    }
+                    viewRowCount < realLimit -> {
+                        val previous = lastProcessedViewRow
+                        lastProcessedViewRow = viewQueryResultEvent
+                        viewRowCount++
+                        previous?.doc as? U // if this is the first one, the Mono will be empty, so it will be ignored by flatMap
+                    }
+                    else -> { // we have more elements than expected, just ignore them
+                        viewRowCount++
+                        null
+                    }
                 }
             }
             else -> {
@@ -124,10 +124,11 @@ suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryRes
     return result
 }
 
-fun <T> Flow<T>.handleErrors(message: String): Flow<T> = flow {
-    try {
-        collect { value -> emit(value) }
-    } catch (e: Throwable) {
-        throw IllegalStateException(message)
+// TODO SH remove this function
+fun <T> Flow<T>.reEmit(): Flow<T> {
+    return flow {
+        collect {
+            emit(it)
+        }
     }
 }

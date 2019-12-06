@@ -65,7 +65,6 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         return accessLogDAO.get(dbInstanceUri, groupId, accessLogId)
     }
 
-    @ExperimentalCoroutinesApi
     override fun listAccessLogs(paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         accessLogDAO.list(dbInstanceUri, groupId, paginationOffset, descending).collect { emit(it) }

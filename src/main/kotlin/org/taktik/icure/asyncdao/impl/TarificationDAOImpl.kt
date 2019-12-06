@@ -94,6 +94,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
         )
         val viewQuery = pagedViewQuery("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(viewQuery)
+
     }
 
     @View(name = "by_language_label", map = "classpath:js/tarif/By_language_label.js")

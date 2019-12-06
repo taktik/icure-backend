@@ -74,7 +74,7 @@ class PatientController(
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.", defaultValue = "asc") @RequestParam(required = false) sortDirection: String?
+            @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String
     ): PatientPaginatedList {
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
@@ -89,7 +89,7 @@ class PatientController(
     }
 
     private fun buildPaginatedListResponse(patients: PaginatedList<Patient>): PatientPaginatedList {
-        patients.rows = patients.rows ?: emptyList()
+        patients.rows = patients.rows
         val paginatedPatientDtoList = PatientPaginatedList()
         mapper.map(
                 patients,
@@ -107,7 +107,7 @@ class PatientController(
                               @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                               @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                               @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.", defaultValue = "asc") @RequestParam(required = false) sortDirection: String?) {
+                              @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) {
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection))
@@ -156,7 +156,7 @@ class PatientController(
                      @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                      @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                      @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                     @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.", defaultValue = "asc") @RequestParam(required = false) sortDirection: String?): PatientPaginatedList {
+                     @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String): PatientPaginatedList {
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentHealthcarePartyId)

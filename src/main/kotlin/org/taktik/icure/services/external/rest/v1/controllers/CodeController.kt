@@ -68,7 +68,7 @@ class CodeController(private val mapper: MapperFacade,
                     if (typesList.size > 1 || wordsList.size > 1) {
                         val codes = typesList.flatMap { type -> codeLogic.findCodesByLabel(region, language, type, label, paginationOffset).rows }
                         val pageSize = limit?.let { min(it, codes.size) } ?: codes.size
-                        PaginatedList(pageSize, codes.size, codes.subList(0, pageSize), null).also { it.setRows(it.rows.filter { c -> typesList.contains(c.type) }.distinct()) }
+                        PaginatedList(pageSize, codes.size, codes.subList(0, pageSize), null).also { it.rows = it.rows.filter { c -> typesList.contains(c.type) }.distinct() }
                     } else {
                         codeLogic.findCodesByLabel(region, language, typesList[0], label, paginationOffset)
                     }
