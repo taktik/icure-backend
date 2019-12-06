@@ -7,6 +7,8 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
 import ma.glasnost.orika.MapperFacade
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
@@ -19,6 +21,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.StoredDto
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.io.Serializable
 import java.util.*
 import java.net.URI
 
@@ -119,4 +122,12 @@ suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryRes
         mapper.map(it, T::class.java)
     }.toList()
     return result
+}
+
+fun <T> Flow<T>.handleErrors(message: String): Flow<T> = flow {
+    try {
+        collect { value -> emit(value) }
+    } catch (e: Throwable) {
+        throw IllegalStateException(message)
+    }
 }

@@ -27,33 +27,32 @@ import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.embed.Permission
-import org.taktik.icure.utils.reEmit
 
-interface PrincipalLogic<P : Principal?> {
-    fun getPrincipal(principalId: String): P?
+interface PrincipalLogic<P : Principal> {
+    suspend fun getPrincipal(principalId: String): P?
     fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property>
     fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission>
     fun getAscendantRoles(principalId: String): Flow<Role>
 }
 
-abstract class PrincipalLogicImpl<P : Principal?>(protected val roleDAO: RoleDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Role, RoleDAO>(sessionLogic), PrincipalLogic<P> {
+abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, private val sessionLogic: AsyncSessionLogic) : PrincipalLogic<P> {
 
     protected val log = LoggerFactory.getLogger(javaClass)
 
     protected fun getParents(principal: Principal): Flow<Role> = flow {
         val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
         val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
-        roleDAO.getList(dbInstanceUri, groupId, principal.parents).reEmit()
+        roleDAO.getList(dbInstanceUri, groupId, principal.parents).collect { emit(it) }
     }
 
     override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property> = flow {
         val principal: Principal? = getPrincipal(principalId)
         principal?.let { buildProperties(principal, includeDirect, includeHerited, includeDefault, mutableSetOf()) }?.collect { emit(it) }
-                ?: emptyFlow<Property>().reEmit()
+                ?: emptyFlow<Property>().collect { emit(it) }
     }
 
     override fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission> = flow {
-        emptyFlow<Permission>().reEmit()
+        emptyFlow<Permission>().collect { emit(it) }
     }
 
     protected fun buildProperties(principal: Principal, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean, ignoredPropertyTypes: MutableSet<PropertyType>): Flow<Property> = flow {
@@ -92,11 +91,11 @@ abstract class PrincipalLogicImpl<P : Principal?>(protected val roleDAO: RoleDAO
                 }
             }
         }
-        flowOf(properties).reEmit()
+        properties.asFlow().collect { emit(it) }
     }
 
     override fun getAscendantRoles(principalId: String): Flow<Role> = flow {
-        getPrincipal(principalId)?.let { buildAscendantRoles(it, mutableSetOf()).reEmit() }
+        getPrincipal(principalId)?.let { buildAscendantRoles(it, mutableSetOf()).collect { emit(it) } }
     }
 
     protected fun buildAscendantRoles(principal: Principal?, ignoredRoles: MutableSet<Role>): Flow<Role> = flow {
@@ -116,7 +115,7 @@ abstract class PrincipalLogicImpl<P : Principal?>(protected val roleDAO: RoleDAO
                 }.collect()
             }
         }
-        flowOf(roles).reEmit()
+        roles.asFlow().collect { emit(it) }
     }
 
     companion object {

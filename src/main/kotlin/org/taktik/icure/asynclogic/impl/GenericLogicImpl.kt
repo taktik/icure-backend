@@ -32,7 +32,7 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
         return createdEntities.addAll(getGenericDAO().create(dbInstanceUri, groupId, entities))
     }
 
-    override suspend fun updateEntities(entities: Collection<E>): List<E> {
+    override fun updateEntities(entities: Collection<E>): List<E> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return getGenericDAO().save(dbInstanceUri, groupId, entities)
     }

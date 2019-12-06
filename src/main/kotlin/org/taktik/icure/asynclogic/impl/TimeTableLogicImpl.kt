@@ -20,12 +20,10 @@ package org.taktik.icure.asynclogic.impl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.icure.entities.TimeTable
-import org.taktik.icure.utils.reEmit
 
 interface TimeTableLogic {
     suspend fun createTimeTable(timeTable: TimeTable): TimeTable?
@@ -69,5 +67,9 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
 
     override fun getGenericDAO(): TimeTableDAO {
         return timeTableDAO
+    }
+
+    override fun createEntities(entities: Collection<TimeTable>): Flow<TimeTable> {
+
     }
 }

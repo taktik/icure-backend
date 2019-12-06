@@ -24,6 +24,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.TarificationDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
+import java.io.Serializable
 
 interface TarificationLogic {
     suspend fun get(id: String): Tarification?
@@ -34,9 +35,9 @@ interface TarificationLogic {
 
     fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification>
     fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?): Flow<Tarification>
-    fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<Tarification>): Flow<ViewQueryResultEvent>
+    fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>?>): Flow<ViewQueryResultEvent>
     fun findTarificationsByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
-    fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent>
+    fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     suspend fun getOrCreateTarification(type: String, tarification: String): Tarification?
 }
 
@@ -75,7 +76,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         Preconditions.checkState(existingTarification?.code == tarification.code, "Modification failed. Tarification field is immutable.")
         Preconditions.checkState(existingTarification?.type == tarification.type, "Modification failed. Type field is immutable.")
         Preconditions.checkState(existingTarification?.version == tarification.version, "Modification failed. Version field is immutable.")
-        updateEntities(dbInstanceUri, groupId, setOf(tarification))
+        updateEntities(setOf(tarification))
         return this.get(tarification.id)
     }
 
@@ -89,17 +90,17 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         tarificationDAO.findTarifications(dbInstanceUri, groupId, region, type, tarification, version).collect { emit(it) }
     }
 
-    override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<Tarification>): Flow<ViewQueryResultEvent> = flow {
+    override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>?>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         tarificationDAO.findTarifications(dbInstanceUri, groupId, region, type, tarification, version, paginationOffset).collect { emit(it) }
     }
 
     override fun findTarificationsByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, label, paginationOffset).map {  }.collect { emit(it) }
+        tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, label, paginationOffset).collect { emit(it) }
     }
 
-    override fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent> = flow {
+    override fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, type, label, paginationOffset).collect { emit(it) }
     }

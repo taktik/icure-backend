@@ -77,9 +77,9 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                         ))).map { it.doc }
     }
 
-    override fun findTarifications(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<Tarification>): Flow<ViewQueryResultEvent> {
+    override fun findTarifications(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>?>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val from = pagination.startKey.let { ComplexKey.of(it) }
+        val from = pagination?.startKey?.let { ComplexKey.of(it) }
                 ?: ComplexKey.of(
                         region ?: "\u0000",
                         type ?: "\u0000",
@@ -94,23 +94,24 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
         )
         val viewQuery = pagedViewQuery("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(viewQuery)
-
     }
 
     @View(name = "by_language_label", map = "classpath:js/tarif/By_language_label.js")
-    override fun findTarificationsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?, pagination: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent> {
+    override fun findTarificationsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val label = label?.let { StringUtils.sanitizeString(it) }
 
-        val startKey: MutableList<String>? = (pagination?.startKey as List<String>).toMutableList()
-        startKey?.takeIf { it.size > 2 }?.get(2)?.let { startKey[2] = StringUtils.sanitizeString(it) }
-        val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
-                ?: ComplexKey.of(
-                        region ?: "\u0000",
-                        language ?: "\u0000",
-                        label ?: "\u0000"
-                )
+        val startKey: MutableList<String?> = pagination.startKey.toMutableList()
+        startKey.takeIf { it.size > 2 }?.get(2)?.let { startKey[2] = StringUtils.sanitizeString(it) }
+        val from = startKey.let { ComplexKey.of(*startKey.toTypedArray()) }
+                .takeIf { it.components.isEmpty() }.let {
+                    ComplexKey.of(
+                            region ?: "\u0000",
+                            language ?: "\u0000",
+                            label ?: "\u0000"
+                    )
+                }
 
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
@@ -122,20 +123,23 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/tarif/By_language_label.js")
-    override fun findTarificationsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<Tarification>?): Flow<ViewQueryResultEvent> {
+    override fun findTarificationsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val label = label?.let { StringUtils.sanitizeString(it) }
 
-        val startKey: MutableList<String>? = (pagination?.startKey as List<String>).toMutableList()
-        startKey?.takeIf { it.size > 3 }?.get(3)?.let { startKey[3] = StringUtils.sanitizeString(it) }
-        val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
-                ?: ComplexKey.of(
-                        region ?: "\u0000",
-                        language ?: "\u0000",
-                        type ?: "\u0000",
-                        label ?: "\u0000"
-                )
+        val startKey = pagination.startKey.toMutableList()
+        startKey.takeIf { it.size > 3 }?.get(3)?.let { startKey[3] = StringUtils.sanitizeString(it) }
+        val from = startKey.let { ComplexKey.of(*startKey.toTypedArray()) }
+                .takeIf { it.components.isEmpty() }.let {
+                    ComplexKey.of(
+                            region ?: "\u0000",
+                            language ?: "\u0000",
+                            type ?: "\u0000",
+                            label ?: "\u0000"
+                    )
+                }
+
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
                 if (language == null) ComplexKey.emptyObject() else if (type == null) language + "\ufff0" else language,
