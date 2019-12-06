@@ -124,6 +124,7 @@ suspend inline fun <U : StoredICureDocument, reified T : IcureDto> Flow<ViewQuer
     return result
 }
 
+// TODO SH remove this function
 fun <T> Flow<T>.reEmit(): Flow<T> {
     return flow {
         collect {

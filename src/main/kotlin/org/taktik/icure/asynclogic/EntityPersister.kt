@@ -34,8 +34,8 @@ interface EntityPersister<E, I> {
     suspend fun undeleteByIds(identifiers: Collection<I>)
     //suspend fun undeleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
 
-    suspend fun getAllEntities(): Flow<E>
-    suspend fun getAllEntityIds(): Flow<I>
+    fun getAllEntities(): Flow<E>
+    fun getAllEntityIds(): Flow<I>
 
     suspend fun hasEntities(): Boolean
 
