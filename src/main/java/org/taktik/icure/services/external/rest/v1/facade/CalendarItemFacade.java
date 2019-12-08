@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import ma.glasnost.orika.MapperFacade;
@@ -26,16 +27,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.CalendarItem;
+import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.utils.ResponseUtils;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -182,6 +196,51 @@ public class CalendarItemFacade implements OpenApiFacade {
         } else {
             return Response.status(500).type("text/plain").entity("Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.").build();
         }
+    }
+
+    @ApiOperation(
+            value = "Find CalendarItems by hcparty and patient",
+            response = CalendarItemDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = ""
+    )
+    @GET
+    @Path("/byHcPartySecretForeignKeys")
+    public Response findByHCPartyPatientSecretFKeys(@QueryParam("hcPartyId") String hcPartyId, @QueryParam("secretFKeys") String secretFKeys) {
+        if (hcPartyId == null || secretFKeys == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        Set<String> secretPatientKeys = Lists.newArrayList(secretFKeys.split(",")).stream().map(String::trim).collect(Collectors.toSet());
+        List<CalendarItem> calendarItemsList = calendarItemLogic.findByHCPartySecretPatientKeys(hcPartyId, new ArrayList<>(secretPatientKeys));
+
+        boolean succeed = (calendarItemsList != null);
+        if (succeed) {
+            // mapping to Dto
+            List<CalendarItemDto> elementDtoList = calendarItemsList.stream().map(element -> mapper.map(element, CalendarItemDto.class)).collect(Collectors.toList());
+            return Response.ok().entity(elementDtoList).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting the CalendarItems failed. Please try again or read the server log.").build();
+        }
+    }
+
+    @ApiOperation(
+            value = "Update delegations in calendarItems",
+            httpMethod = "POST"
+    )
+    @POST
+    @Path("/delegations")
+    public Response setCalendarItemsDelegations(List<IcureStubDto> stubs) throws Exception {
+        List<CalendarItem> calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.stream().map(IcureDto::getId).collect(Collectors.toList()));
+        calendarItems.forEach(calendarItem -> stubs.stream().filter(s -> s.getId().equals(calendarItem.getId())).findFirst().ifPresent(stub -> {
+            stub.getDelegations().forEach((s, delegationDtos) -> calendarItem.getDelegations().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+            stub.getEncryptionKeys().forEach((s, delegationDtos) -> calendarItem.getEncryptionKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+            stub.getCryptedForeignKeys().forEach((s, delegationDtos) -> calendarItem.getCryptedForeignKeys().put(s, delegationDtos.stream().map(ddto -> mapper.map(ddto, Delegation.class)).collect(Collectors.toSet())));
+        }));
+        calendarItemLogic.updateEntities(calendarItems);
+
+        return Response.ok().build();
     }
 
     @Context

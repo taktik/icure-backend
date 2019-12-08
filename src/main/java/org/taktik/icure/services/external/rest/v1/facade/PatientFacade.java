@@ -316,7 +316,6 @@ public class PatientFacade implements OpenApiFacade{
 
 		if (patients != null) {
 			response = buildPaginatedListResponse(patients);
-
 		} else {
 			response = ResponseUtils.internalServerError("Listing patients failed.");
 		}
@@ -918,7 +917,7 @@ public class PatientFacade implements OpenApiFacade{
       response = ResponseUtils.ok(paginatedPatientDtoList);
       return response;
     }
-    
+
     @Context
     public void setMapper(MapperFacade mapper) {
         this.mapper = mapper;

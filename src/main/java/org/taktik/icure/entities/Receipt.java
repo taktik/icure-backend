@@ -81,17 +81,6 @@ public class Receipt extends StoredICureDocument implements Serializable {
 		this.documentId = documentId;
 	}
 
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
 	public String getCategory() {
 		return category;
 	}
