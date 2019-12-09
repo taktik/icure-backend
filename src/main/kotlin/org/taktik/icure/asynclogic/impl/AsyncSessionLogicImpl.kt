@@ -19,7 +19,7 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.ReactorContext
 import org.slf4j.LoggerFactory
@@ -28,7 +28,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -64,7 +63,7 @@ interface AsyncSessionLogic {
 
     /* SessionContext related */
 
-    fun getSessionContext(authentication: Authentication): AsyncSessionContext
+    fun getSessionContext(authentication: Authentication?): AsyncSessionContext?
 
     suspend fun getCurrentSessionContext(): AsyncSessionContext
 
@@ -74,7 +73,7 @@ interface AsyncSessionLogic {
 
     interface AsyncSessionContext {
         fun getAuthentication(): Authentication
-        fun getUserDetails(): UserDetails?
+        fun getUserDetails(): UserDetails
         fun isAuthenticated(): Boolean
         fun isAnonymous(): Boolean
         fun getUser(): User
@@ -106,7 +105,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         try {
             // Try to authenticate using given username and password
             val token = UsernamePasswordAuthenticationToken(username, password)
-            val authentication = authenticationManager.authenticate(token).block()!! // TODO SH no block
+            val authentication = authenticationManager.authenticate(token).awaitFirstOrNull()
 
             // Set current authentication
             setCurrentAuthentication(authentication)
@@ -169,12 +168,13 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
     /* SessionContext related */
 
-    override fun getSessionContext(authentication: Authentication): AsyncSessionLogic.AsyncSessionContext {
-        return SessionContextImpl(authentication)
+    override fun getSessionContext(authentication: Authentication?): AsyncSessionLogic.AsyncSessionContext? {
+        return authentication?.let { SessionContextImpl(it) }
     }
 
     override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext {
-        return getCurrentAuthentication()?.let { SessionContextImpl(it) } ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
+        return getCurrentAuthentication()?.let { SessionContextImpl(it) }
+                ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
     }
 
     override suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String> {
@@ -228,7 +228,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
         override fun getAuthentication(): Authentication = authentication
 
-        override fun getUserDetails(): UserDetails? = userDetails
+        override fun getUserDetails(): UserDetails = userDetails
 
         override fun isAuthenticated(): Boolean = authentication.isAuthenticated
 
@@ -271,11 +271,8 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 //            return Mono.empty()
 //        }
 
-        private suspend fun setCurrentAuthentication(authentication: Authentication?): Mono<Unit> {
-            if (authentication != null) {
-                    return coroutineContext[ReactorContext]?.context?.get<Mono<SecurityContext>>(SecurityContext::class.java)?.map { it.authentication = authentication }!! // TODO SH !!
-            }
-            return Mono.empty()
+        private suspend fun setCurrentAuthentication(authentication: Authentication?) {
+                return coroutineContext[ReactorContext]?.context?.get<Mono<SecurityContext>>(SecurityContext::class.java)?.map { it.authentication = authentication }?.awaitSingle()!! // TODO SH !!
         }
 
         private fun extractUserDetails(authentication: Authentication): UserDetails {
