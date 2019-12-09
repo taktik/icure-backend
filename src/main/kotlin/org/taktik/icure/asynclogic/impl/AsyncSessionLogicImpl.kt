@@ -73,7 +73,7 @@ interface AsyncSessionLogic {
 
     interface AsyncSessionContext {
         fun getAuthentication(): Authentication
-        fun getUserDetails(): UserDetails?
+        fun getUserDetails(): UserDetails
         fun isAuthenticated(): Boolean
         fun isAnonymous(): Boolean
         fun getUser(): User
@@ -228,7 +228,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
         override fun getAuthentication(): Authentication = authentication
 
-        override fun getUserDetails(): UserDetails? = userDetails
+        override fun getUserDetails(): UserDetails = userDetails
 
         override fun isAuthenticated(): Boolean = authentication.isAuthenticated
 
