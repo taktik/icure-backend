@@ -34,7 +34,7 @@ public interface AccessLogLogic extends EntityPersister<AccessLog, String> {
 
 	AccessLog getAccessLog(String accessLogId);
 
-	PaginatedList<AccessLog> listAccessLogs(PaginationOffset paginationOffset, boolean descending);
+	PaginatedList<AccessLog> listAccessLogs(Long fromEpoch, Long toEpoch, PaginationOffset paginationOffset, boolean descending);
 
     PaginatedList<AccessLog> findByUserAfterDate(String userId, String accessType, Instant startDate, PaginationOffset pagination, boolean descending);
 

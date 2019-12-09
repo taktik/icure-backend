@@ -438,7 +438,7 @@ class SumehrExport : KmehrExport() {
 
 					val it = createItemWithContent(svc, items.size + 1, forceCdItem ?: cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let { listOf(it) } ?: emptyList())
 					if (it != null) {
-                        it.contents.add(ContentType().apply {
+                        it.contents.addAll(listOf(ContentType().apply {
                             svc.codes?.forEach { c ->
                                 try{
                                     // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
@@ -451,7 +451,7 @@ class SumehrExport : KmehrExport() {
                                     log.error(ignored)
                                 }
                             }
-                        })
+                        }).filter { it.cds?.size ?: 0 > 0 })
 						for ((key, value) in svc.content) {
 							if (value.medicationValue != null) {
 								fillMedicationItem(svc, it, key)
@@ -462,7 +462,9 @@ class SumehrExport : KmehrExport() {
 						if (svc.comment != null) {
 							it.texts.add(TextType().apply { l = "fr"; value = svc.comment })
 						}
-						items.add(it)
+                        if (it.contents?.size ?: 0 > 0) {
+                            items.add(it)
+                        }
 					}
 				}
 			}
@@ -472,7 +474,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
-		var item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
+		val item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null
 			it.value.documentId = null
@@ -675,7 +677,7 @@ class SumehrExport : KmehrExport() {
                         eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
                         if(!eds.codes.isEmpty()) {
                             // Notice the content can not be empty (sumehr validator)
-                            it.contents.add(ContentType().apply {
+                            it.contents.addAll(listOf(ContentType().apply {
                                 eds.codes?.forEach { c ->
                                     try {
                                         val cdt = CDCONTENTschemes.fromValue(c.type)
@@ -688,7 +690,7 @@ class SumehrExport : KmehrExport() {
                                         log.error(ignored)
                                     }
                                 }
-                            })
+                            }).filter { it.cds?.size ?: 0 > 0 })
                         }
                         items.add(it)
                     }

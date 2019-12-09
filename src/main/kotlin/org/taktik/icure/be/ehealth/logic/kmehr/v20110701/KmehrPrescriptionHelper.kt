@@ -4,6 +4,7 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Duration
 import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.utils.FuzzyValues
@@ -11,18 +12,19 @@ import java.math.BigDecimal
 import java.time.temporal.ChronoUnit
 
 object KmehrPrescriptionHelper {
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?): Period? {
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
         if (intakes == null) {
             return null
         }
         intakes.forEach { assertValidRegimen(it) }
         return when (intakes.size) {
-            0 -> null
+            0 -> inferPeriodFromFrequency(frequency)
             1 -> intakes[0].let { intake -> if (isDaily(intake)) {
                 Period(ChronoUnit.DAYS, 1)
             } else if (intake.weekday?.weekday?.code != null && intake.weekday?.weekNumber == null && intake.weekday?.weekday?.type == "CD-WEEKDAY") {
                 Period(ChronoUnit.WEEKS, 1)
-            } else null}
+                } else inferPeriodFromFrequency(frequency)
+            }
             else -> when (getCommonField(intakes)) {
                 "date" -> getPeriodByDate(intakes)
                 "dayNumber" -> getPeriodByDayNumber(intakes)
@@ -31,10 +33,20 @@ object KmehrPrescriptionHelper {
                         ChronoUnit.DAYS,
                         1
                 ) // not looking into the intake hours: currently supporting >= DAYS (see precisionBelowDaysNotSupportedDaily test)
-                else -> null
+                else -> inferPeriodFromFrequency(frequency)
             }
         }
     }
+
+    fun inferPeriodFromFrequency(frequency: Code?): Period? {
+        return when (frequency?.code) {
+            "D" -> Period(ChronoUnit.DAYS, 1)
+            "W" -> Period(ChronoUnit.WEEKS, 1)
+            "M" -> Period(ChronoUnit.MONTHS, 1)
+            "J" -> Period(ChronoUnit.YEARS, 1)
+                else -> null
+            }
+        }
 
     private fun isDaily(intake: RegimenItem) =
             intake.date == null && intake.dayNumber == null && intake.weekday == null

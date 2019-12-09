@@ -26,6 +26,7 @@ public class AccessLogDto extends IcureDto implements EncryptableDto {
 	protected Long date;
 	@Deprecated
 	protected String patientId;
+	protected String objectId;
 	protected String user;
 	protected String detail;
 
@@ -70,15 +71,11 @@ public class AccessLogDto extends IcureDto implements EncryptableDto {
 		this.detail = detail;
 	}
 
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
+    public String getObjectId() {
+        return objectId;
+    }
 
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
 }
