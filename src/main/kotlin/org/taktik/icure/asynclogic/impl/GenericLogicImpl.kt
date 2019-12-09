@@ -18,10 +18,7 @@
 
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.EntityPersister
@@ -32,34 +29,34 @@ abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(pri
 
     override fun createEntities(entities: Collection<E>): Flow<E> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        getGenericDAO().create(dbInstanceUri, groupId, entities).collect { emit(it) }
+        emitAll(getGenericDAO().create(dbInstanceUri, groupId, entities))
     }
 
     override fun updateEntities(entities: Collection<E>): Flow<E> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        getGenericDAO().save(dbInstanceUri, groupId, entities).collect { emit(it) }
+        emitAll(getGenericDAO().save(dbInstanceUri, groupId, entities))
     }
 
     override fun deleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
-        getGenericDAO().remove(dbInstanceUri, groupId, entities).collect { emit(it) }
+        emitAll(getGenericDAO().remove(dbInstanceUri, groupId, entities))
     }
 
     override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = getGenericDAO().getList(dbInstanceUri, groupId, identifiers).toList()
-        getGenericDAO().unRemove(dbInstanceUri, groupId, entities).collect { emit(it) }
+        emitAll(getGenericDAO().unRemove(dbInstanceUri, groupId, entities))
     }
 
     override fun getAllEntities(): Flow<E> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        getGenericDAO().getAll(dbInstanceUri, groupId).collect { emit(it) }
+        emitAll(getGenericDAO().getAll(dbInstanceUri, groupId))
     }
 
     override fun getAllEntityIds(): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        getGenericDAO().getAllIds(dbInstanceUri, groupId).collect { emit(it) }
+        emitAll(getGenericDAO().getAllIds(dbInstanceUri, groupId))
     }
 
     override suspend fun hasEntities(): Boolean {

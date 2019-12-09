@@ -23,10 +23,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
@@ -119,7 +116,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
-                timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { mapper.map(it, TimeTableDto::class.java) }.collect { emit(it) }
+                emitAll(timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { mapper.map(it, TimeTableDto::class.java) })
             }.injectReactorContext()
 
     @ApiOperation(nickname = "getTimeTablesByAgendaId", value = "Get TimeTables by AgendaId")
@@ -129,7 +126,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
-                timeTableLogic.getTimeTablesByAgendaId(agendaId).map { mapper.map(it, TimeTableDto::class.java) }.collect { emit(it) }
+                emitAll(timeTableLogic.getTimeTablesByAgendaId(agendaId).map { mapper.map(it, TimeTableDto::class.java) })
             }.injectReactorContext()
 
 }

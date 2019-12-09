@@ -146,9 +146,7 @@ class UserLogicImpl(
 
     override fun findByHcpartyId(hcpartyId: String): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.findByHcpId(dbInstanceUri, groupId, hcpartyId)
-                .map { v: User -> v.id }
-                .collect { emit(it) }
+        emitAll(userDAO.findByHcpId(dbInstanceUri, groupId, hcpartyId).map { v: User -> v.id })
     }
 
     override suspend fun newUser(type: Users.Type, status: Users.Status, email: String, createdDate: Instant): User? {
@@ -217,7 +215,7 @@ class UserLogicImpl(
 
     override fun getUsersByLogin(login: String): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).map { fillGroup(it) }.collect { emit(it) }
+        emitAll(userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).map { fillGroup(it) })
     }
 
     override suspend fun getUserByLogin(login: String): User? { // Format login
@@ -398,7 +396,7 @@ class UserLogicImpl(
 
     override fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.getExpiredUsers(dbInstanceUri, groupId, fromExpirationDate, toExpirationDate).collect { emit(it) }
+        emitAll(userDAO.getExpiredUsers(dbInstanceUri, groupId, fromExpirationDate, toExpirationDate))
     }
 
     override suspend fun acceptUserTermsOfUse(userId: String) {
@@ -501,7 +499,7 @@ class UserLogicImpl(
     }
 
     override fun getProperties(userId: String): Flow<Property> = flow {
-        getProperties(userId, true, true, true).collect { emit(it) }
+        emitAll( getProperties(userId, true, true, true))
     }
 
     override suspend fun modifyProperties(userId: String, propertiesToModify: Set<Property>) {
@@ -525,7 +523,7 @@ class UserLogicImpl(
 
 
     override fun updateEntities(users: Collection<User>): Flow<User> = flow {
-        users.asFlow().mapNotNull { modifyUser(it) }.map { fillGroup(it) }.collect { emit(it) }
+        emitAll(users.asFlow().mapNotNull { modifyUser(it) }.map { fillGroup(it) })
     }
 
     suspend fun deleteEntities(userIds: Collection<String>) { //TODO MB was override here
@@ -542,12 +540,12 @@ class UserLogicImpl(
 
     override fun getAllEntities(): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.getAll(dbInstanceUri, groupId).onEach {  }.map { fillGroup(it) }.collect { emit(it) }
+        emitAll(userDAO.getAll(dbInstanceUri, groupId).onEach {  }.map { fillGroup(it) })
     }
 
     override fun getAllEntityIds(): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.getAllIds(dbInstanceUri, groupId).collect { emit(it) }
+        emitAll(userDAO.getAllIds(dbInstanceUri, groupId))
     }
 
     override suspend fun hasEntities(): Boolean {
@@ -597,7 +595,7 @@ class UserLogicImpl(
 
     override fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.listUsers(dbInstanceUri, groupId, pagination).collect { emit(it) }
+        emitAll(userDAO.listUsers(dbInstanceUri, groupId, pagination))
     }
 
     override suspend fun setProperties(user: User, properties: List<Property>): User? {
@@ -614,7 +612,7 @@ class UserLogicImpl(
 
     override fun getUsers(ids: List<String>): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.getList(dbInstanceUri, groupId, ids).map { fillGroup(it) }.collect { emit(it) }
+        emitAll(userDAO.getList(dbInstanceUri, groupId, ids).map { fillGroup(it) })
     }
 
     override suspend fun getUserOnFallbackDb(userId: String): User {
@@ -632,13 +630,13 @@ class UserLogicImpl(
 
     override fun getUsersByPartialIdOnFallbackDb(id: String): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.getUsersByPartialIdOnFallback(dbInstanceUri, groupId, id).collect { emit(it) }
+        emitAll( userDAO.getUsersByPartialIdOnFallback(dbInstanceUri, groupId, id))
     }
 
     override fun findUsersByLoginOnFallbackDb(login: String): Flow<User> = flow {
         // Format login
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.findByUsernameOnFallback(dbInstanceUri, groupId, formatLogin(login)).collect { emit(it) }
+        emitAll(userDAO.findByUsernameOnFallback(dbInstanceUri, groupId, formatLogin(login)))
     }
     override suspend fun getPrincipal(userId: String): User? {
         return if (userId == "bootstrap") getBootstrapUser() else getUser(userId)
@@ -657,12 +655,12 @@ class UserLogicImpl(
     override fun deleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = userDAO.getList(dbInstanceUri, groupId, identifiers).toList()
-        userDAO.remove(dbInstanceUri, groupId, entities).collect { emit(it) }
+        emitAll(userDAO.remove(dbInstanceUri, groupId, entities))
     }
 
     override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val entities = userDAO.getList(dbInstanceUri, groupId, identifiers).toList()
-        userDAO.unRemove(dbInstanceUri, groupId, entities).collect { emit(it) }
+        emitAll(userDAO.unRemove(dbInstanceUri, groupId, entities))
     }
 }

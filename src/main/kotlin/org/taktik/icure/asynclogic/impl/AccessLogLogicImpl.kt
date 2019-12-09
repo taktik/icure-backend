@@ -21,6 +21,7 @@ package org.taktik.icure.asynclogic.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitSingle
 import org.ektorp.ComplexKey
@@ -43,7 +44,7 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         if (accessLog.date == null) {
             accessLog.date = Instant.now()
         }
-        accessLog.user = sessionLogic.getCurrentUserId().awaitSingle()
+        accessLog.user = sessionLogic.getCurrentUserId()
         return accessLogDAO.create(dbInstanceUri, groupId, accessLog)
     }
 
@@ -57,7 +58,7 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
 
     override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<AccessLog> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        accessLogDAO.findByHCPartySecretPatientKeys(dbInstanceUri, groupId, hcPartyId, secretForeignKeys).collect { emit(it) }
+        emitAll(accessLogDAO.findByHCPartySecretPatientKeys(dbInstanceUri, groupId, hcPartyId, secretForeignKeys))
     }
 
     override suspend fun getAccessLog(accessLogId: String): AccessLog? {
@@ -67,12 +68,12 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
 
     override fun listAccessLogs(paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        accessLogDAO.list(dbInstanceUri, groupId, paginationOffset, descending).collect { emit(it) }
+        emitAll(accessLogDAO.list(dbInstanceUri, groupId, paginationOffset, descending))
     }
 
     override fun findByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        accessLogDAO.findByUserAfterDate(dbInstanceUri, groupId, userId, accessType, startDate, pagination, descending).collect { emit(it) }
+        emitAll(accessLogDAO.findByUserAfterDate(dbInstanceUri, groupId, userId, accessType, startDate, pagination, descending))
     }
 
     override suspend fun modifyAccessLog(accessLog: AccessLog): AccessLog? {

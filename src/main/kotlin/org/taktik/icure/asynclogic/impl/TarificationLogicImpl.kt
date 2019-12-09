@@ -56,7 +56,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
 
     override fun get(ids: List<String>): Flow<Tarification> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.getList(dbInstanceUri, groupId, ids).collect { emit(it) }
+        emitAll(tarificationDAO.getList(dbInstanceUri, groupId, ids))
     }
 
     override suspend fun create(tarification: Tarification): Tarification? {
@@ -82,27 +82,27 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
 
     override fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.findTarifications(dbInstanceUri, groupId, type, tarification, version).collect { emit(it) }
+        emitAll(tarificationDAO.findTarifications(dbInstanceUri, groupId, type, tarification, version))
     }
 
     override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.findTarifications(dbInstanceUri, groupId, region, type, tarification, version).collect { emit(it) }
+        emitAll(tarificationDAO.findTarifications(dbInstanceUri, groupId, region, type, tarification, version))
     }
 
     override fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>?>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.findTarifications(dbInstanceUri, groupId, region, type, tarification, version, paginationOffset).collect { emit(it) }
+        emitAll(tarificationDAO.findTarifications(dbInstanceUri, groupId, region, type, tarification, version, paginationOffset))
     }
 
     override fun findTarificationsByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, label, paginationOffset).collect { emit(it) }
+        emitAll(tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, label, paginationOffset))
     }
 
     override fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, type, label, paginationOffset).collect { emit(it) }
+        emitAll(tarificationDAO.findTarificationsByLabel(dbInstanceUri, groupId, region, language, type, label, paginationOffset))
     }
 
     override suspend fun getOrCreateTarification(type: String, tarification: String): Tarification? {

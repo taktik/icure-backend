@@ -385,7 +385,6 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         if (conflicts.isNotEmpty()) {
             throw BulkUpdateConflictException(conflicts, orderedEntities)
         }
-
-        results.asFlow().mapNotNull { r -> updatedEntities.firstOrNull { u -> r.id == u.id } }.onEach { afterSave(dbInstanceUrl, groupId, it) }.collect { emit(it) }
+        emitAll(results.asFlow().mapNotNull { r -> updatedEntities.firstOrNull { u -> r.id == u.id } }.onEach { afterSave(dbInstanceUrl, groupId, it) })
     }
 }

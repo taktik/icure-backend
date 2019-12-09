@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -101,46 +101,46 @@ class TarificationController(private val mapper: MapperFacade,
             @ApiParam(value = "Tarification region") @RequestParam(required = false) region: String?,
             @ApiParam(value = "Tarification type") @RequestParam(required = false) type: String?,
             @ApiParam(value = "Tarification tarification") @RequestParam(required = false) tarification: String?,
-            @ApiParam(value = "Tarification version") @RequestParam(required = false) version: String?) = flow {
-        tarificationLogic.findTarificationsBy(region, type, tarification, version).map { mapper.map(it, TarificationDto::class.java) }.collect { emit(it) }
-
-        @ApiOperation(nickname = "createTarification", value = "Create a Tarification", notes = "Type, Tarification and Version are required.")
-        @PostMapping
-        suspend fun createTarification(@RequestBody c: TarificationDto) =
-                tarificationLogic.create(mapper.map(c, Tarification::class.java))?.let { mapper.map(it, TarificationDto::class.java) }
-                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
-
-
-        @ApiOperation(nickname = "getTarifications", value = "Get a list of tarifications by ids", notes = "Keys must be delimited by coma")
-        @PostMapping("/byIds")
-        fun getTarifications(@RequestBody tarificationIds: ListOfIdsDto) =
-                tarificationLogic.get(tarificationIds.ids).map { f -> mapper.map(f, TarificationDto::class.java) }
-
-
-        @ApiOperation(nickname = "getTarification", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
-        @GetMapping("/{tarificationId}")
-        suspend fun getTarification(@ApiParam(value = "Tarification id") @PathVariable tarificationId: String) =
-                tarificationLogic.get(tarificationId)?.let { mapper.map(it, TarificationDto::class.java) }
-                        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
-
-        @ApiOperation(nickname = "getTarificationWithParts", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
-        @GetMapping("/{type}/{tarification}/{version}")
-        suspend fun getTarificationWithParts(
-                @ApiParam(value = "Tarification type", required = true) @PathVariable type: String,
-                @ApiParam(value = "Tarification tarification", required = true) @PathVariable tarification: String,
-                @ApiParam(value = "Tarification version", required = true) @PathVariable version: String) =
-                tarificationLogic.get(type, tarification, version)?.let { mapper.map(it, TarificationDto::class.java) }
-                        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
-
-
-        @ApiOperation(nickname = "modifyTarification", value = "Modify a tarification", notes = "Modification of (type, tarification, version) is not allowed.")
-        @PutMapping
-        suspend fun modifyTarification(@RequestBody tarificationDto: TarificationDto): TarificationDto =
-                try {
-                    tarificationLogic.modify(mapper.map(tarificationDto, Tarification::class.java))?.let { mapper.map(it, TarificationDto::class.java) }
-                            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
-                } catch (e: Exception) {
-                    throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")
-                }
+            @ApiParam(value = "Tarification version") @RequestParam(required = false) version: String?) = flow<TarificationDto> {
+        emitAll(tarificationLogic.findTarificationsBy(region, type, tarification, version).map { mapper.map(it, TarificationDto::class.java) })
     }
+
+    @ApiOperation(nickname = "createTarification", value = "Create a Tarification", notes = "Type, Tarification and Version are required.")
+    @PostMapping
+    suspend fun createTarification(@RequestBody c: TarificationDto) =
+            tarificationLogic.create(mapper.map(c, Tarification::class.java))?.let { mapper.map(it, TarificationDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
+
+
+    @ApiOperation(nickname = "getTarifications", value = "Get a list of tarifications by ids", notes = "Keys must be delimited by coma")
+    @PostMapping("/byIds")
+    fun getTarifications(@RequestBody tarificationIds: ListOfIdsDto) =
+            tarificationLogic.get(tarificationIds.ids).map { f -> mapper.map(f, TarificationDto::class.java) }
+
+
+    @ApiOperation(nickname = "getTarification", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
+    @GetMapping("/{tarificationId}")
+    suspend fun getTarification(@ApiParam(value = "Tarification id") @PathVariable tarificationId: String) =
+            tarificationLogic.get(tarificationId)?.let { mapper.map(it, TarificationDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
+
+    @ApiOperation(nickname = "getTarificationWithParts", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
+    @GetMapping("/{type}/{tarification}/{version}")
+    suspend fun getTarificationWithParts(
+            @ApiParam(value = "Tarification type", required = true) @PathVariable type: String,
+            @ApiParam(value = "Tarification tarification", required = true) @PathVariable tarification: String,
+            @ApiParam(value = "Tarification version", required = true) @PathVariable version: String) =
+            tarificationLogic.get(type, tarification, version)?.let { mapper.map(it, TarificationDto::class.java) }
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
+
+
+    @ApiOperation(nickname = "modifyTarification", value = "Modify a tarification", notes = "Modification of (type, tarification, version) is not allowed.")
+    @PutMapping
+    suspend fun modifyTarification(@RequestBody tarificationDto: TarificationDto): TarificationDto =
+            try {
+                tarificationLogic.modify(mapper.map(tarificationDto, Tarification::class.java))?.let { mapper.map(it, TarificationDto::class.java) }
+                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
+            } catch (e: Exception) {
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")
+            }
 }

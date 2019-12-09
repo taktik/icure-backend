@@ -44,17 +44,17 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
     protected fun getParents(principal: Principal): Flow<Role> = flow {
         val dbInstanceUri = sessionLogic.getCurrentSessionContext().getDbInstanceUri()
         val groupId = sessionLogic.getCurrentSessionContext().getGroupId()
-        roleDAO.getList(dbInstanceUri, groupId, principal.parents).collect { emit(it) }
+        emitAll(roleDAO.getList(dbInstanceUri, groupId, principal.parents))
     }
 
-    override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property> = flow {
+    override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property> = flow<Property> {
         val principal: Principal? = getPrincipal(principalId)
-        principal?.let { buildProperties(principal, includeDirect, includeHerited, includeDefault, mutableSetOf()) }?.collect { emit(it) }
-                ?: emptyFlow<Property>().collect { emit(it) }
+        principal?.let { emitAll(buildProperties(principal, includeDirect, includeHerited, includeDefault, mutableSetOf())) }
+                ?: emitAll(emptyFlow<Property>())
     }
 
     override fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission> = flow {
-        emptyFlow<Permission>().collect { emit(it) }
+        emitAll(emptyFlow<Permission>())
     }
 
     protected fun buildProperties(principal: Principal, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean, ignoredPropertyTypes: MutableSet<PropertyType>): Flow<Property> = flow {
@@ -93,10 +93,10 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
                 }
             }
         }
-        properties.asFlow().collect { emit(it) }
+        emitAll(properties.asFlow())
     }
 
-    override fun getAscendantRoles(principalId: String): Flow<Role> = flow {
+    override fun getAscendantRoles(principalId: String): Flow<Role> = flow<Role> {
         getPrincipal(principalId)?.let { buildAscendantRoles(it, mutableSetOf()).collect { emit(it) } }
     }
 
@@ -117,7 +117,7 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
                 }.collect()
             }
         }
-        roles.asFlow().collect { emit(it) }
+        emitAll(roles.asFlow())
     }
 
     companion object {

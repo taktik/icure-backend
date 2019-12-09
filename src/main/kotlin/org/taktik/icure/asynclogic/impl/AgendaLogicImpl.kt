@@ -2,6 +2,7 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -36,14 +37,14 @@ class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic
         return agendaDAO.save(dbInstanceUri, groupId, agenda)
     }
 
-    override fun getAllAgendaForUser(userId: String) = flow {
+    override fun getAllAgendaForUser(userId: String) = flow<Agenda> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        agendaDAO.getAllAgendaForUser(dbInstanceUri, groupId, userId).collect { emit(it) }
+        emitAll(agendaDAO.getAllAgendaForUser(dbInstanceUri, groupId, userId))
     }
 
-    override fun getReadableAgendaForUser(userId: String) = flow {
+    override fun getReadableAgendaForUser(userId: String) = flow<Agenda> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        agendaDAO.getReadableAgendaForUser(dbInstanceUri, groupId, userId).collect { emit(it) }
+        emitAll(agendaDAO.getReadableAgendaForUser(dbInstanceUri, groupId, userId))
     }
 
     override fun getGenericDAO(): AgendaDAO {
