@@ -20,12 +20,15 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.entities.CalendarItem
-import org.taktik.icure.logic.CalendarItemLogic
+import org.taktik.icure.asynclogic.CalendarItemLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
 
 @RestController
@@ -36,16 +39,14 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "getCalendarItems", value = "Gets all calendarItems")
     @GetMapping
-    fun getCalendarItems(): List<CalendarItemDto> {
-        val calendarItems = calendarItemLogic.allEntities
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemTypes fetching failed")
-
+    fun getCalendarItems(): Flow<CalendarItemDto> {
+        val calendarItems = calendarItemLogic.getAllEntities()
         return calendarItems.map { mapper.map(it, CalendarItemDto::class.java) }
     }
 
     @ApiOperation(nickname = "createCalendarItem", value = "Creates a calendarItem")
     @PostMapping
-    fun createCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
+    suspend fun createCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
         val calendarItem = calendarItemLogic.createCalendarItem(mapper.map(calendarItemDto, CalendarItem::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem creation failed")
 
@@ -54,14 +55,13 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "deleteCalendarItem", value = "Deletes an calendarItem")
     @DeleteMapping("/{calendarItemIds}")
-    fun deleteCalendarItem(@PathVariable calendarItemIds: String): List<String> {
+    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flow<DocIdentifier> {
         return calendarItemLogic.deleteCalendarItems(calendarItemIds.split(','))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem deletion failed")
     }
 
     @ApiOperation(nickname = "getCalendarItem", value = "Gets an calendarItem")
     @GetMapping("/{calendarItemId}")
-    fun getCalendarItem(@PathVariable calendarItemId: String): CalendarItemDto {
+    suspend fun getCalendarItem(@PathVariable calendarItemId: String): CalendarItemDto {
         val calendarItem = calendarItemLogic.getCalendarItem(calendarItemId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItem fetching failed")
 
@@ -71,7 +71,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "modifyCalendarItem", value = "Modifies an calendarItem")
     @PutMapping
-    fun modifyCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
+    suspend fun modifyCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
         val calendarItem = calendarItemLogic.modifyCalendarItem(mapper.map(calendarItemDto, CalendarItem::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem modification failed")
 
@@ -83,12 +83,11 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @PostMapping("/byPeriodAndHcPartyId")
     fun getCalendarItemsByPeriodAndHcPartyId(@RequestParam startDate: Long,
                                              @RequestParam endDate: Long,
-                                             @RequestParam hcPartyId: String): List<CalendarItemDto> {
+                                             @RequestParam hcPartyId: String): Flow<CalendarItemDto> {
         if (hcPartyId.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "hcPartyId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate, endDate, hcPartyId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
         return calendars.map { mapper.map(it, CalendarItemDto::class.java) }
     }
 
@@ -96,12 +95,11 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @PostMapping("/byPeriodAndAgendaId")
     fun getCalendarsByPeriodAndAgendaId(@RequestParam startDate: Long,
                                         @RequestParam endDate: Long,
-                                        @RequestParam agendaId: String): List<CalendarItemDto> {
+                                        @RequestParam agendaId: String): Flow<CalendarItemDto> {
         if (agendaId.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting CalendarItem failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
         return calendars.map { mapper.map(it, CalendarItemDto::class.java) }
     }
 }

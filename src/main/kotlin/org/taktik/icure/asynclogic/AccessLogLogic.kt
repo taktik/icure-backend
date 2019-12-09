@@ -7,10 +7,9 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import java.net.URI
 import java.time.Instant
 
-interface AccessLogLogic {
+interface AccessLogLogic : EntityPersister<AccessLog, String> {
     suspend fun createAccessLog(accessLog: AccessLog): AccessLog?
 
     fun deleteAccessLogs(ids: List<String>): Flow<DocIdentifier>
