@@ -89,7 +89,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 
 	private <P> PaginatedList<T> pagedQueryView(String viewName, P startKey, P endKey, PaginationOffset<P> pagination, boolean descending, Function<P, ValueNode> startToNode) {
 		int limit = pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
-		int page = pagination.getPage() != null ? pagination.getPage() : 0;
+		int page = 0;
 		String startDocId = pagination.getStartDocumentId();
 
 		ViewQuery viewQuery = createQuery(viewName)
@@ -133,7 +133,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 
 	protected PaginatedList<T> pagedQueryView(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination, boolean descending) {
 		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
-		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
+		int page = 1;
 		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
 
 		ViewQuery viewQuery = createQuery(viewName)
@@ -178,7 +178,7 @@ class CouchDbICureRepositorySupport<T extends StoredDocument> extends CouchDbRep
 	}
 	protected PaginatedList<String> pagedQueryViewOfIds(String viewName, ComplexKey startKey, ComplexKey endKey, PaginationOffset pagination) {
 		int limit = pagination != null && pagination.getLimit() != null ? pagination.getLimit() : DEFAULT_LIMIT;
-		int page = pagination != null && pagination.getPage() != null ? pagination.getPage() : 1;
+		int page = 1;
 		String startDocId = pagination != null ? pagination.getStartDocumentId() : null;
 
 		ViewQuery viewQuery = createQuery(viewName)

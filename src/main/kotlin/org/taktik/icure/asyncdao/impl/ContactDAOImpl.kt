@@ -233,13 +233,13 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         )
         val to = ComplexKey.of(
                 hcPartyId,
-                codeType, // TODO SH if allowed to be null, should do ?: ComplexKey.emptyObject() here
+                codeType,
                 ComplexKey.emptyObject()
         )
 
         val viewQuery = createQuery("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
-        return client.queryView<ComplexKey, Long>(viewQuery).map { CouchKeyValue(it.id, it.key, it.value) } // TODO SH null values allowed?
+        return client.queryView<ComplexKey, Long>(viewQuery).map { CouchKeyValue(it.id, it.key, it.value) }
     }
 
 
