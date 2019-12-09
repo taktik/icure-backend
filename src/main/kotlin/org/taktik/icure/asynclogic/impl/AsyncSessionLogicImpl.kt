@@ -51,10 +51,10 @@ import kotlin.coroutines.coroutineContext
 
 interface AsyncICureSessionLogic : AsyncSessionLogic {
     fun getOrCreateSession(): HttpSession?
-    suspend fun getCurrentUserId(): Mono<String>
-    suspend fun getCurrentHealthcarePartyId(): Mono<String>
+    suspend fun getCurrentUserId(): String
+    suspend fun getCurrentHealthcarePartyId(): String
 }
-// TODO SH suspend instead of Monos via awaitSingle
+
 interface AsyncSessionLogic {
     suspend fun login(username: String, password: String): AsyncSessionContext?
 
@@ -66,7 +66,7 @@ interface AsyncSessionLogic {
 
     fun getSessionContext(authentication: Authentication): AsyncSessionContext
 
-    suspend fun getCurrentSessionContext(): Mono<AsyncSessionContext>
+    suspend fun getCurrentSessionContext(): AsyncSessionContext
 
     suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String>
 
@@ -146,7 +146,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         }
 
         // Get SessionContext
-        val sessionContext = getCurrentSessionContext().block() // TODO SH
+        val sessionContext = getCurrentSessionContext()
 
         // Get UserDetails
         val userDetails = sessionContext?.getUserDetails()
@@ -173,13 +173,12 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         return SessionContextImpl(authentication)
     }
 
-    override suspend fun getCurrentSessionContext(): Mono<AsyncSessionLogic.AsyncSessionContext> {
-        val authentication = getCurrentAuthentication()
-        return authentication?.map { SessionContextImpl(it) }!!
+    override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext {
+        return getCurrentAuthentication()?.let { SessionContextImpl(it) } ?: throw AuthenticationServiceException("getCurrentAuthentication() returned null, no SecurityContext in the coroutine context?")
     }
 
     override suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String> {
-        return getCurrentSessionContext().map { Pair(it.getDbInstanceUri(), it.getGroupId()) }.awaitSingle()
+        return getCurrentSessionContext().let { Pair(it.getDbInstanceUri(), it.getGroupId()) }
     }
 
 //    override fun <T> doInSessionContext(sessionContext: SessionLogic.SessionContext, callable: Callable<T>?): Mono<T?> {
@@ -209,12 +208,12 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     override fun <T> doInSessionContext(sessionContext: AsyncSessionLogic.AsyncSessionContext, callable: Callable<T>?): T? = null
 
 
-    override suspend fun getCurrentUserId(): Mono<String> {
-        return getCurrentSessionContext().map { it.getUser().id }
+    override suspend fun getCurrentUserId(): String {
+        return getCurrentSessionContext().getUser().id
     }
 
-    override suspend fun getCurrentHealthcarePartyId(): Mono<String> {
-        return getCurrentSessionContext().map { it.getUser().healthcarePartyId }
+    override suspend fun getCurrentHealthcarePartyId(): String {
+        return getCurrentSessionContext().getUser().healthcarePartyId
     }
 
     private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext {
@@ -263,7 +262,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 //        }
 
         private suspend fun getCurrentAuthentication() =
-                coroutineContext[ReactorContext]?.context?.get<Mono<SecurityContext>>(SecurityContext::class.java)?.map { it.authentication }
+                coroutineContext[ReactorContext]?.context?.get<Mono<SecurityContext>>(SecurityContext::class.java)?.map { it.authentication }?.awaitSingle()
 
 //        private fun setCurrentAuthentication(authentication: Authentication?): Mono<Unit> {
 //            if (authentication != null) {

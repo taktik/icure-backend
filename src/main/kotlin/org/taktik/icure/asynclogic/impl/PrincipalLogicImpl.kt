@@ -42,8 +42,8 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
     protected val log = LoggerFactory.getLogger(javaClass)
 
     protected fun getParents(principal: Principal): Flow<Role> = flow {
-        val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()
-        val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()
+        val dbInstanceUri = sessionLogic.getCurrentSessionContext().getDbInstanceUri()
+        val groupId = sessionLogic.getCurrentSessionContext().getGroupId()
         roleDAO.getList(dbInstanceUri, groupId, principal.parents).collect { emit(it) }
     }
 
@@ -83,8 +83,8 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
             }
         }
         if (includeDefault) { // Get the default role and add property if not overridden in child role
-            val dbInstanceUri = sessionLogic.getCurrentSessionContext().map { it.getDbInstanceUri() }.awaitSingle()!!
-            val groupId = sessionLogic.getCurrentSessionContext().map { it.getGroupId() }.awaitSingle()!!
+            val dbInstanceUri = sessionLogic.getCurrentSessionContext().getDbInstanceUri()
+            val groupId = sessionLogic.getCurrentSessionContext().getGroupId()
             roleDAO.getByName(dbInstanceUri, groupId, Roles.DEFAULT_ROLE_NAME)?.let {
                 for (defaultProp in it.properties) {
                     if (!ignoredPropertyTypes.contains(defaultProp.type)) {

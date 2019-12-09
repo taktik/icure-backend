@@ -135,8 +135,8 @@ class UserLogicImpl(
         return userDAO.getUsersByPartialIdOnFallback(dbInstanceUri, groupId, id).first().also { fillGroup(it) }
     }
 
-    suspend private fun fillGroup(user: User): User =
-            user.also { it.groupId = sessionLogic.getCurrentSessionContext().awaitFirst().getGroupId() }
+    private suspend fun fillGroup(user: User): User =
+            user.also { it.groupId = sessionLogic.getCurrentSessionContext().getGroupId() }
 
     override suspend fun getUserByEmail(email: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
@@ -337,7 +337,7 @@ class UserLogicImpl(
     } ?: false
 
     override suspend fun checkPassword(password: String) =
-            sessionLogic.getCurrentSessionContext().awaitSingle().getUser().let { passwordEncoder.matches(password, it.passwordHash) }
+            sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it.passwordHash) }
 
     override suspend fun verifyPasswordToken(userId: String, token: String): Boolean {
         getUser(userId)?.takeIf { it.passwordToken?.isNotEmpty() ?: false }
