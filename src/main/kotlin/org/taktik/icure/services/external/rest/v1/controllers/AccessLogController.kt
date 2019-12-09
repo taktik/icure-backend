@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
-import org.taktik.icure.asynclogic.impl.AsyncSessionLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
@@ -43,8 +42,7 @@ import java.time.Instant
 @RequestMapping("/rest/v1/accesslog")
 @Api(tags = ["accesslog"])
 class AccessLogController(private val mapper: MapperFacade,
-                          private val accessLogLogic: AccessLogLogic,
-                          private val sessionLogic: AsyncSessionLogic) {
+                          private val accessLogLogic: AccessLogLogic) {
 
     private val DEFAULT_LIMIT = 1000
 

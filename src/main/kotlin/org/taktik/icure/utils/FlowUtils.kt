@@ -3,24 +3,19 @@ package org.taktik.icure.utils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
 import ma.glasnost.orika.MapperFacade
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
-import org.taktik.icure.asynclogic.impl.AsyncSessionLogic
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.services.external.rest.v1.dto.IcureDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.StoredDto
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
-import java.net.URI
 
 
 fun <T> Flow<T>.distinct(): Flow<T> = flow {
