@@ -20,17 +20,21 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
+import org.taktik.icure.asynclogic.ClassificationLogic
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.logic.ClassificationLogic
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import java.util.*
 
 @RestController
 @RequestMapping("/rest/v1/classification")
@@ -40,7 +44,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createClassification", value = "Create a classification with the current user", notes = "Returns an instance of created classification Template.")
     @PostMapping
-    fun createClassification(@RequestBody c: ClassificationDto): ClassificationDto {
+    suspend fun createClassification(@RequestBody c: ClassificationDto): ClassificationDto {
         val element = classificationLogic.createClassification(mapper.map(c, Classification::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification creation failed.")
 
@@ -49,7 +53,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getClassification", value = "Get a classification Template")
     @GetMapping("/{classificationId}")
-    fun getClassification(@PathVariable classificationId: String): ClassificationDto {
+    suspend fun getClassification(@PathVariable classificationId: String): ClassificationDto {
         val element = classificationLogic.getClassification(classificationId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
 
@@ -58,38 +62,35 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getClassificationByHcPartyId", value = "Get a list of classifications", notes = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
-    fun getClassificationByHcPartyId(@PathVariable ids: String): List<ClassificationDto> {
+    fun getClassificationByHcPartyId(@PathVariable ids: String): Flow<ClassificationDto> {
         val elements = classificationLogic.getClassificationByIds(ids.split(','))
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
 
         return elements.map { mapper.map(it, ClassificationDto::class.java) }
     }
 
     @ApiOperation(nickname = "findByHCPartyPatientSecretFKeys", value = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", notes = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): List<ClassificationDto> {
+    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flow<ClassificationDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting the classification failed. Please try again or read the server log.")
 
         return elementList.map { mapper.map(it, ClassificationDto::class.java) }
     }
 
     @ApiOperation(nickname = "deleteClassifications", value = "Delete classification Templates.", notes = "Response is a set containing the ID's of deleted classification Templates.")
     @DeleteMapping("/{classificationIds}")
-    fun deleteClassifications(@PathVariable classificationIds: String): List<String> {
+    fun deleteClassifications(@PathVariable classificationIds: String): Flow<DocIdentifier> {
         val ids = classificationIds.split(',')
         if (ids.isEmpty()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
 
-        return classificationLogic.deleteClassifications(HashSet(ids))?.toList()
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification deletion failed")
+        return classificationLogic.deleteClassifications(ids.toSet())
     }
 
     @ApiOperation(nickname = "modifyClassification", value = "Modify a classification Template", notes = "Returns the modified classification Template.")
     @PutMapping
-    fun modifyClassification(@RequestBody classificationDto: ClassificationDto): ClassificationDto {
+    suspend fun modifyClassification(@RequestBody classificationDto: ClassificationDto): ClassificationDto {
         classificationLogic.modifyClassification(mapper.map(classificationDto, Classification::class.java))
         val modifiedClassification = classificationLogic.getClassification(classificationDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification modification failed.")
@@ -100,7 +101,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "newDelegations", value = "Delegates a classification to a healthcare party", notes = "It delegates a classification to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{classificationId}/delegate")
-    fun newDelegations(@PathVariable classificationId: String, @RequestBody ds: List<DelegationDto>): ClassificationDto {
+    suspend fun newDelegations(@PathVariable classificationId: String, @RequestBody ds: List<DelegationDto>): ClassificationDto {
         classificationLogic.addDelegations(classificationId, ds.map { mapper.map(it, Delegation::class.java) })
         val classificationWithDelegation = classificationLogic.getClassification(classificationId)
 
@@ -114,15 +115,15 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "setClassificationsDelegations", value = "Update delegations in classification", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setClassificationsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+    suspend fun setClassificationsDelegations(@RequestBody stubs: List<IcureStubDto>) {
         val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id })
-        classifications.forEach { classification ->
+        classifications.onEach { classification ->
             stubs.find { it.id == classification.id }?.let { stub ->
                 stub.delegations.forEach { (s, delegationDtos) -> classification.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
                 stub.encryptionKeys.forEach { (s, delegationDtos) -> classification.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> classification.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        classificationLogic.updateEntities(classifications)
+        classificationLogic.updateEntities(classifications.toList())
     }
 }
