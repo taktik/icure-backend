@@ -25,7 +25,7 @@ import java.io.Serializable
 class PaginationOffset<K> : Serializable {
     val startKey: K?
     val startDocumentId: String?
-    val offset: Int? // TODO SH this is barely used, should maybe be removed
+    val offset: Int?
     val limit: Int? // TODO SH not nullable once all controllers are done
 
     constructor(): this(null, null, null, null)
