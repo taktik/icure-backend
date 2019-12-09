@@ -33,6 +33,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.entities.User
 import org.taktik.icure.logic.PropertyLogic
@@ -47,42 +49,6 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
 import kotlin.coroutines.coroutineContext
-
-interface AsyncICureSessionLogic : AsyncSessionLogic {
-    fun getOrCreateSession(): HttpSession?
-    suspend fun getCurrentUserId(): String
-    suspend fun getCurrentHealthcarePartyId(): String
-}
-
-interface AsyncSessionLogic {
-    suspend fun login(username: String, password: String): AsyncSessionContext?
-
-    suspend fun logout()
-
-    suspend fun logout(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse)
-
-    /* SessionContext related */
-
-    fun getSessionContext(authentication: Authentication?): AsyncSessionContext?
-
-    suspend fun getCurrentSessionContext(): AsyncSessionContext
-
-    suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String>
-
-    fun <T> doInSessionContext(sessionContext: AsyncSessionContext, callable: Callable<T>?): T?
-
-    interface AsyncSessionContext {
-        fun getAuthentication(): Authentication
-        fun getUserDetails(): UserDetails
-        fun isAuthenticated(): Boolean
-        fun isAnonymous(): Boolean
-        fun getUser(): User
-        fun getDbInstanceUrl(): String
-        fun getDbInstanceUri(): URI
-        fun getGroupIdUserId(): String
-        fun getGroupId(): String
-    }
-}
 
 @ExperimentalCoroutinesApi
 @Transactional

@@ -22,6 +22,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.slf4j.LoggerFactory
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asyncdao.RoleDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Property

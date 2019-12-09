@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.ArticleDAO
 import org.taktik.icure.asynclogic.ArticleLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.entities.Article
 import org.taktik.icure.exceptions.DeletionException
 

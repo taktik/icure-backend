@@ -30,6 +30,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asynclogic.AccessLogLogic
+import org.taktik.icure.asynclogic.AsyncICureSessionLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.exceptions.DeletionException

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.AgendaDAO
 import org.taktik.icure.asynclogic.AgendaLogic
+import org.taktik.icure.asynclogic.AsyncICureSessionLogic
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.exceptions.DeletionException
 

@@ -21,6 +21,7 @@ package org.taktik.icure.asynclogic.impl
 import kotlinx.coroutines.flow.*
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.utils.reEmit

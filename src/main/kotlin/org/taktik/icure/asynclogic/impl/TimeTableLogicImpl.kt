@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.TimeTableDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.entities.TimeTable

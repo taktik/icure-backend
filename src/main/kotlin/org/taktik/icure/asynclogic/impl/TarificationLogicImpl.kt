@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.TarificationDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
 import java.io.Serializable
