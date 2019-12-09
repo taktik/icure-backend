@@ -33,8 +33,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun createAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
     suspend fun deleteAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, attachmentId: String): String
 
-    suspend fun <K : Collection<T>> create(dbInstanceUrl: URI, groupId:String, entities: K): List<T>
-    suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, entities: K): List<T>
+    fun <K : Collection<T>> create(dbInstanceUrl: URI, groupId:String, entities: K): Flow<T>
+    fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, entities: K): Flow<T>
 
     suspend fun contains(dbInstanceUrl:URI, groupId:String, id: String): Boolean
     suspend fun hasAny(dbInstanceUrl:URI, groupId:String): Boolean
@@ -44,11 +44,11 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Flow<T>
 
     suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T): DocIdentifier
-    suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): List<DocIdentifier>
+    fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): Flow<DocIdentifier>
     suspend fun purge(dbInstanceUrl: URI, groupId: String, entity: T)
     suspend fun purge(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
-    suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
-    suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T)
+    fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier>
+    suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier
 
     fun<P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery
     fun<P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery

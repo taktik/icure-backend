@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.EntityPersister
@@ -37,10 +39,7 @@ import org.taktik.icure.constants.Users
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.Property
-import org.taktik.icure.entities.PropertyType
-import org.taktik.icure.entities.Role
-import org.taktik.icure.entities.User
+import org.taktik.icure.entities.*
 import org.taktik.icure.entities.embed.Permission
 import org.taktik.icure.entities.embed.TypedValue
 import org.taktik.icure.exceptions.CreationException
@@ -653,5 +652,17 @@ class UserLogicImpl(
         private val log = LoggerFactory.getLogger(UserLogicImpl::class.java)
         private val pub = PropertyUtilsBean()
         private val CHECK_USERS_EXPIRATION_TIME_RANGE = Duration.ofDays(1)
+    }
+
+    override fun deleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        val entities = userDAO.getList(dbInstanceUri, groupId, identifiers).toList()
+        userDAO.remove(dbInstanceUri, groupId, entities).collect { emit(it) }
+    }
+
+    override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        val entities = userDAO.getList(dbInstanceUri, groupId, identifiers).toList()
+        userDAO.unRemove(dbInstanceUri, groupId, entities).collect { emit(it) }
     }
 }

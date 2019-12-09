@@ -33,6 +33,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
+import org.taktik.icure.exceptions.UpdateConflictException
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
@@ -151,37 +152,35 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return save(dbInstanceUrl, groupId, null, entity)
     }
 
-    protected open suspend fun save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entity: T?): T? {
-        if (entity != null) {
-            var newEntity = newEntity
-            val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".save: " + entity.id + ":" + entity.rev)
-            }
-
-            beforeSave(dbInstanceUrl, groupId, entity)
-
-            // Check if key is missing and if this is a new entity
-            val missingKey = entity.id == null
-
-            // Add new key if missing
-            if (missingKey) {
-                keyManager.setNewKey(entity, entityClass.simpleName)
-                newEntity = true
-            } else {
-                if (newEntity == null) {
-                    newEntity = entity.rev == null
-                }
-            }
-
-            if (newEntity) {
-                client.create(entity, entityClass)
-            } else {
-                client.update(entity, entityClass)
-                //saveRevHistory(entity, null);
-            }
-            afterSave(dbInstanceUrl, groupId, entity)
+    protected open suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? {
+        var newEntity = newEntity
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".save: " + entity.id + ":" + entity.rev)
         }
+
+        beforeSave(dbInstanceUrl, groupId, entity)
+
+        // Check if key is missing and if this is a new entity
+        val missingKey = entity.id == null
+
+        // Add new key if missing
+        if (missingKey) {
+            keyManager.setNewKey(entity, entityClass.simpleName)
+            newEntity = true
+        } else {
+            if (newEntity == null) {
+                newEntity = entity.rev == null
+            }
+        }
+
+        if (newEntity) {
+            client.create(entity, entityClass)
+        } else {
+            client.update(entity, entityClass)
+            //saveRevHistory(entity, null);
+        }
+        afterSave(dbInstanceUrl, groupId, entity)
 
         return entity
     }
@@ -221,7 +220,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return DocIdentifier(deleted.id, deleted.rev)
     }
 
-    override suspend fun unRemove(dbInstanceUrl:URI, groupId:String, entity: T) {
+    override suspend fun unRemove(dbInstanceUrl:URI, groupId:String, entity: T): DocIdentifier {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".remove: " + entity)
@@ -230,9 +229,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         beforeUnDelete(dbInstanceUrl, groupId, entity)
         // Mark soft deleted
         entity.deletionDate = null
-        client.update(entity, entityClass)
+        val undeleted = client.update(entity, entityClass)
         // After remove
         afterUnDelete(dbInstanceUrl, groupId, entity)
+
+        return DocIdentifier(undeleted.id, undeleted.rev)
     }
 
     override suspend fun purge(dbInstanceUrl:URI, groupId:String, entity: T) {
@@ -248,7 +249,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         afterDelete(dbInstanceUrl, groupId, entity)
     }
 
-    override suspend fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): List<DocIdentifier> {
+    override fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): Flow<DocIdentifier> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
@@ -258,9 +259,8 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 beforeDelete(dbInstanceUrl, groupId, entity)
                 entity.deletionDate = System.currentTimeMillis()
             }
-            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList()
-            for (entity in entities) {
-                afterDelete(dbInstanceUrl, groupId, entity)
+            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).onEach { r ->
+                entities.firstOrNull { e -> r.id == e.id }?.let { afterDelete(dbInstanceUrl, groupId, it) }
             }
             return bulkUpdateResults.map { DocIdentifier(it.id, it.rev) }
         } catch (e: Exception) {
@@ -268,7 +268,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
     }
 
-    override suspend fun unRemove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
+    override fun unRemove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): Flow<DocIdentifier> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
@@ -278,16 +278,16 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 beforeUnDelete(dbInstanceUrl, groupId, entity)
                 entity.deletionDate = null
             }
-            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).toList()
-            for (entity in entities) {
-                afterUnDelete(dbInstanceUrl, groupId, entity)
+            val bulkUpdateResults = client.bulkUpdate(entities, entityClass).onEach { r ->
+                entities.firstOrNull { e -> r.id == e.id }?.let { afterUnDelete(dbInstanceUrl, groupId, it) }
             }
+            return bulkUpdateResults.map { DocIdentifier(it.id, it.rev) }
         } catch (e: Exception) {
             throw PersistenceException("failed to remove entities ", e)
         }
     }
 
-    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) { // TODO SH reactive
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
@@ -305,11 +305,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
     }
 
-    override suspend fun <K : Collection<T>> create(dbInstanceUrl:URI, groupId:String, entities: K): List<T> {
+    override fun <K : Collection<T>> create(dbInstanceUrl:URI, groupId:String, entities: K): Flow<T> {
         return save(dbInstanceUrl, groupId, true, entities)
     }
 
-    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): List<T> {
+    override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): Flow<T> {
         return save(dbInstanceUrl, groupId, false, entities)
     }
 
@@ -349,51 +349,43 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return viewQuery
     }
 
-    protected open suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, newEntity: Boolean?, entities: K?): List<T> {
+    // TODO SH TODO AD make sure this is correct
+    protected open fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> = flow {
         var newEntity = newEntity
-        if (entities != null) {
-            val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-            if (log.isDebugEnabled) {
-                log.debug(entityClass.simpleName + ".save: " + entities.mapNotNull { entity -> entity.id + ":" + entity.rev })
-            }
-
-            val updatedEntities = ArrayList<T>()
-
-            // Before save
-            for (entity in entities) {
-                beforeSave(dbInstanceUrl, groupId, entity)
-
-                // Check if key is missing and if this is a new entity
-                val missingKey = entity.id == null
-                newEntity = newEntity ?: (missingKey || entity.rev == null)
-
-                // Add new key if missing
-                if (missingKey) {
-                    keyManager.setNewKey(entity, entityClass.simpleName)
-                }
-
-                if (!newEntity) {
-                    updatedEntities.add(entity)
-                }
-            }
-
-            // Save entity
-            val orderedEntities = ArrayList(entities)
-            val results = client.bulkUpdate(orderedEntities, entityClass).toList()
-            val conflicts = ArrayList<org.taktik.icure.exceptions.UpdateConflictException>()
-            for (r in results) {
-                if (r.error != null && r.error == "conflict") {
-                    conflicts.add(org.taktik.icure.exceptions.UpdateConflictException(orderedEntities.stream().filter { e -> e.id == r.id }.findAny().orElse(null)))
-                }
-            }
-            if (conflicts.size > 0) {
-                throw BulkUpdateConflictException(conflicts, orderedEntities)
-            }
-
-            orderedEntities.filter { e -> e.rev != null }.forEach { this.afterSave(dbInstanceUrl, groupId, it) }
-            return updatedEntities
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".save: " + entities.mapNotNull { entity -> entity.id + ":" + entity.rev })
         }
 
-        return listOf()
+        val updatedEntities = ArrayList<T>()
+
+        // Before save
+        for (entity in entities) {
+            beforeSave(dbInstanceUrl, groupId, entity)
+
+            // Check if key is missing and if this is a new entity
+            val missingKey = entity.id == null
+            newEntity = newEntity ?: (missingKey || entity.rev == null)
+
+            // Add new key if missing
+            if (missingKey) {
+                keyManager.setNewKey(entity, entityClass.simpleName)
+            }
+
+            if (!newEntity) {
+                updatedEntities.add(entity)
+            }
+        }
+
+        // Save entity
+        val orderedEntities = ArrayList(entities)
+        val results = client.bulkUpdate(orderedEntities, entityClass).toList()
+
+        val conflicts = results.filter { it.error == "conflict" }.map { r -> UpdateConflictException(orderedEntities.firstOrNull { e -> e.id == r.id }) }.toList()
+        if (conflicts.isNotEmpty()) {
+            throw BulkUpdateConflictException(conflicts, orderedEntities)
+        }
+
+        results.asFlow().mapNotNull { r -> updatedEntities.firstOrNull { u -> r.id == u.id } }.onEach { afterSave(dbInstanceUrl, groupId, it) }.collect { emit(it) }
     }
 }

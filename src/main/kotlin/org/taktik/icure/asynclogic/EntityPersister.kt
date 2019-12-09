@@ -31,7 +31,7 @@ interface EntityPersister<E, I> {
     fun deleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
     //suspend fun deleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
     // TODO SH why those 2 lines commented?
-    suspend fun undeleteByIds(identifiers: Collection<I>)
+    fun undeleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
     //suspend fun undeleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)
 
     fun getAllEntities(): Flow<E>

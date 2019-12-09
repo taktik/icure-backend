@@ -103,10 +103,10 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
 
         val label = label?.let { StringUtils.sanitizeString(it) }
 
-        val startKey: MutableList<String?> = pagination.startKey.toMutableList()
-        startKey.takeIf { it.size > 2 }?.get(2)?.let { startKey[2] = StringUtils.sanitizeString(it) }
-        val from = startKey.let { ComplexKey.of(*startKey.toTypedArray()) }
-                .takeIf { it.components.isEmpty() }.let {
+        val startKey = pagination.startKey?.toMutableList()
+        startKey?.takeIf { it.size > 2 }?.get(2)?.let { startKey[2] = StringUtils.sanitizeString(it) }
+        val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
+                ?.takeIf { it.components.isEmpty() }.let {
                     ComplexKey.of(
                             region ?: "\u0000",
                             language ?: "\u0000",
@@ -129,10 +129,10 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
 
         val label = label?.let { StringUtils.sanitizeString(it) }
 
-        val startKey = pagination.startKey.toMutableList()
-        startKey.takeIf { it.size > 3 }?.get(3)?.let { startKey[3] = StringUtils.sanitizeString(it) }
-        val from = startKey.let { ComplexKey.of(*startKey.toTypedArray()) }
-                .takeIf { it.components.isEmpty() }.let {
+        val startKey = pagination.startKey?.toMutableList()
+        startKey?.takeIf { it.size > 3 }?.get(3)?.let { startKey[3] = StringUtils.sanitizeString(it) }
+        val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
+                ?.takeIf { it.components.isEmpty() }.let {
                     ComplexKey.of(
                             region ?: "\u0000",
                             language ?: "\u0000",

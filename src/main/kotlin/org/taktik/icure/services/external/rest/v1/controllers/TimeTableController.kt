@@ -22,11 +22,14 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -37,6 +40,7 @@ import org.taktik.icure.entities.TimeTableHour
 import org.taktik.icure.entities.TimeTableItem
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
 import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.utils.reEmit
 import reactor.core.publisher.Flux
 import java.util.*
 
@@ -57,7 +61,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @ApiOperation(nickname = "deleteTimeTable", value = "Deletes an timeTable")
     @DeleteMapping("/{timeTableIds}")
-    suspend fun deleteTimeTable(@PathVariable timeTableIds: String): List<DocIdentifier> {
+    fun deleteTimeTable(@PathVariable timeTableIds: String): Flow<DocIdentifier> {
         return timeTableLogic.deleteTimeTables(timeTableIds.split(','))
     }
 
