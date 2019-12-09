@@ -63,7 +63,7 @@ interface AsyncSessionLogic {
 
     /* SessionContext related */
 
-    fun getSessionContext(authentication: Authentication): AsyncSessionContext
+    fun getSessionContext(authentication: Authentication?): AsyncSessionContext?
 
     suspend fun getCurrentSessionContext(): AsyncSessionContext
 
@@ -168,8 +168,8 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
     /* SessionContext related */
 
-    override fun getSessionContext(authentication: Authentication): AsyncSessionLogic.AsyncSessionContext {
-        return SessionContextImpl(authentication)
+    override fun getSessionContext(authentication: Authentication?): AsyncSessionLogic.AsyncSessionContext? {
+        return authentication?.let { SessionContextImpl(it) }
     }
 
     override suspend fun getCurrentSessionContext(): AsyncSessionLogic.AsyncSessionContext {
