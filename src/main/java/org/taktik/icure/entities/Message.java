@@ -302,17 +302,6 @@ public class Message extends StoredICureDocument implements Serializable {
 		return externalRef;
 	}
 
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
 	public Map<String, String> getSenderReferences() {
 		return senderReferences;
 	}

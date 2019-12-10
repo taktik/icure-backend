@@ -165,7 +165,7 @@ open class KmehrExport {
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
-                    KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen)?.let {
+                    KmehrPrescriptionHelper.inferPeriodFromRegimen(med.regimen, med.frequency)?.let {
                         frequency = KmehrPrescriptionHelper.mapPeriodToFrequency(it)
                     }
                     duration = KmehrPrescriptionHelper.toDurationType(med.duration)

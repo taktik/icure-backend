@@ -82,6 +82,7 @@ public class InvoicingCodeDto implements Serializable {
 
 	protected String locationNihii;
 	protected String locationCdHcParty;
+	protected Integer locationService;
 	protected Long prescriptionDate; // yyyyMMdd
 
 
@@ -429,6 +430,14 @@ public class InvoicingCodeDto implements Serializable {
 
 	public void setLocationCdHcParty(String locationCdHcParty) {
 		this.locationCdHcParty = locationCdHcParty;
+	}
+
+	public Integer getLocationService() {
+		return locationService;
+	}
+
+	public void setLocationService(Integer locationService) {
+		this.locationService = locationService;
 	}
 
 	public String getCode() { return code; }

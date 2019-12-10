@@ -98,14 +98,6 @@ public class CalendarItem extends StoredICureDocument {
         this.masterCalendarItemId = masterCalendarItemId;
     }
 
-    public String getResponsible() {
-        return responsible;
-    }
-
-    public void setResponsible(String responsible) {
-        this.responsible = responsible;
-    }
-
     public Long getStartTime() {
         return startTime;
     }
