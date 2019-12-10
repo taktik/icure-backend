@@ -178,35 +178,21 @@ class SumehrExport : KmehrExport() {
 	}
 
     fun addNoContentItemIfNeeded(trn: TransactionType, type: String){
-        //TODO: implementation can sure be shorter ...
-        val history = getHistory(trn).headingsAndItemsAndTexts
-        val assessment = getAssessment(trn).headingsAndItemsAndTexts
-
-        val hasHistoryItem = history.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+        val assessmentItems = getAssessment(trn).headingsAndItemsAndTexts
+        val hasItem = (assessmentItems + getHistory(trn).headingsAndItemsAndTexts).filterIsInstance(ItemType::class.java)
             .any { item ->
                     item.cds.filterNotNull().any { cd ->
-                        cd.value == type
+                        cd.s == CDITEMschemes.CD_ITEM && cd.value == type
                     }
             }
-
-        val hasAssessmentItem = assessment.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .any { item ->
-                item.cds.filterNotNull().any { cd ->
-                    cd.value == type
-                }
-            }
-        if(!(hasHistoryItem || hasAssessmentItem)){
-            trn.headingsAndItemsAndTexts.add(ItemType().apply {
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
+        if(!hasItem){
+            assessmentItems.add(ItemType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (assessmentItems.size + 1).toString() })
                 cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); nullFlavor = "NA"; value = type })
                 lifecycle =  LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                     value = CDLIFECYCLEvalues.INACTIVE } }
             })
         }
-
-
     }
 
     fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String> {
@@ -627,7 +613,7 @@ class SumehrExport : KmehrExport() {
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
 
-		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedHcElements = nonConfidentialItems
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
 			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
