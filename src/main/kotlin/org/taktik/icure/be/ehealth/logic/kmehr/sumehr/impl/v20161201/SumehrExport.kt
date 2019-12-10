@@ -178,7 +178,7 @@ class SumehrExport : KmehrExport() {
 	}
 
     fun addNoContentItemIfNeeded(trn: TransactionType, type: String){
-        val historyItems = getHistory(trn).headingsAndItemsAndTexts
+        val assessmentItems = getAssessment(trn).headingsAndItemsAndTexts
         val hasItem = (assessmentItems + getHistory(trn).headingsAndItemsAndTexts).filterIsInstance(ItemType::class.java)
             .any { item ->
                     item.cds.filterNotNull().any { cd ->
