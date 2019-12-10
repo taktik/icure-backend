@@ -692,7 +692,9 @@ class SumehrExport : KmehrExport() {
                                 }
                             }).filter { it.cds?.size ?: 0 > 0 })
                         }
-                        items.add(it)
+                        if (it.contents?.size ?: 0 > 0) {
+                            items.add(it)
+                        }
                     }
 				}
 
