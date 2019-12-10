@@ -33,6 +33,7 @@ import org.taktik.icure.logic.CalendarItemLogic;
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
+import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
@@ -279,4 +280,26 @@ public class CalendarItemFacade implements OpenApiFacade {
         return response;
     }
 
+    @ApiOperation(
+            value = "Get calendarItems by id",
+            responseContainer = "Array",
+            response = CalendarItemDto.class,
+            httpMethod = "POST"
+    )
+    @POST
+    @Path("/byIds")
+    public Response getCalendarItemsWithIds(ListOfIdsDto calendarItemIds) {
+        if (calendarItemIds == null) {
+            return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
+        }
+
+        List<CalendarItem> calendarItems = calendarItemLogic.getCalendarItemByIds(calendarItemIds.getIds());
+
+        boolean succeed = (calendarItems != null);
+        if (succeed) {
+            return Response.ok().entity(calendarItems.stream().map(p -> mapper.map(p, CalendarItemDto.class)).collect(Collectors.toList())).build();
+        } else {
+            return Response.status(500).type("text/plain").entity("Getting calendarItems failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.").build();
+        }
+    }
 }
