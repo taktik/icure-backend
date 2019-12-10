@@ -675,7 +675,7 @@ class SumehrExport : KmehrExport() {
                         eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
                         if(!eds.codes.isEmpty()) {
                             // Notice the content can not be empty (sumehr validator)
-                            it.contents.add(ContentType().apply {
+                            val contentType = ContentType().apply {
                                 eds.codes?.forEach { c ->
                                     try {
                                         val cdt = CDCONTENTschemes.fromValue(c.type)
@@ -688,7 +688,11 @@ class SumehrExport : KmehrExport() {
                                         log.error(ignored)
                                     }
                                 }
-                            })
+                            }
+
+                            if (!contentType.cds.isEmpty()) {
+                                it.contents.add(contentType)
+                            }
                         }
                         items.add(it)
                     }
