@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.CalendarItem;
-import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.CalendarItemLogic;
@@ -35,7 +34,6 @@ import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto;
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto;
-import org.taktik.icure.services.external.rest.v1.dto.PatientDto;
 import org.taktik.icure.utils.ResponseUtils;
 
 import javax.ws.rs.Consumes;
@@ -290,7 +288,7 @@ public class CalendarItemFacade implements OpenApiFacade {
     )
     @POST
     @Path("/byIds")
-    public Response getCalendarItems(ListOfIdsDto calendarItemIds) {
+    public Response getCalendarItemsWithIds(ListOfIdsDto calendarItemIds) {
         if (calendarItemIds == null) {
             return Response.status(400).type("text/plain").entity("A required query parameter was not specified for this request.").build();
         }
@@ -304,5 +302,4 @@ public class CalendarItemFacade implements OpenApiFacade {
             return Response.status(500).type("text/plain").entity("Getting calendarItems failed. Possible reasons: no such patient exists, or server error. Please try again or read the server log.").build();
         }
     }
-
 }

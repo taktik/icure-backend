@@ -93,7 +93,7 @@ public class HealthcareParty extends StoredDocument implements Person, CryptoAct
     // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
     // the key encrypted using delegate's public key.
     protected Map<String, String[]> hcPartyKeys = new HashMap<String, String[]>();
-    protected Map<String, String> privateKeyShamirPartitions = new HashMap<>();
+    protected Map<String, String> privateKeyShamirPartitions = new HashMap<>(); //Format is hcpId of key that has been partitionned : "threshold|partition in hex"
 
     protected List<FinancialInstitutionInformation> financialInstitutionInformation = new ArrayList<>();
 	protected Map<String, String> options = new HashMap<>();
