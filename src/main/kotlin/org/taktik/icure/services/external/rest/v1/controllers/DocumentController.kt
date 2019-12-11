@@ -20,6 +20,10 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
@@ -28,12 +32,13 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.commons.uti.UTI
+import org.taktik.couchdb.DocIdentifier
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.DocumentType
-import org.taktik.icure.logic.DocumentLogic
-import org.taktik.icure.logic.SessionLogic
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
@@ -52,24 +57,24 @@ import javax.xml.transform.stream.StreamSource
 @Api(tags = ["document"])
 class DocumentController(private val documentLogic: DocumentLogic,
                          private val mapper: MapperFacade,
-                         private val sessionLogic: SessionLogic) {
+                         private val sessionLogic: AsyncSessionLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "createDocument", value = "Creates a document")
     @PostMapping
-    fun createDocument(@RequestBody documentDto: DocumentDto): DocumentDto {
+    suspend fun createDocument(@RequestBody documentDto: DocumentDto): DocumentDto {
         val document = mapper.map(documentDto, Document::class.java)
-        val createdDocument = documentLogic.createDocument(document, sessionLogic.currentSessionContext.user.healthcarePartyId)
+        val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document creation failed")
         return mapper.map(createdDocument, DocumentDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteDocument", value = "Deletes a document")
     @DeleteMapping("/{documentIds}")
-    fun deleteDocument(@PathVariable documentIds: String) { // TODO SH return deleted ids once logic is changed
+    fun deleteDocument(@PathVariable documentIds: String): Flow<DocIdentifier> {
         val documentIdsList = documentIds.split(',')
-        try {
-            documentLogic.deleteEntities(documentIdsList)
+        return try {
+            documentLogic.deleteByIds(documentIdsList)
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
         }
@@ -77,7 +82,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "getAttachment", value = "Creates a document")
     @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachment(@PathVariable documentId: String,
+    suspend fun getAttachment(@PathVariable documentId: String,
                       @PathVariable attachmentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestParam(required = false) fileName: String?,
@@ -112,7 +117,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "deleteAttachment", value = "Deletes a document's attachment")
     @DeleteMapping("/{documentId}/attachment")
-    fun deleteAttachment(@PathVariable documentId: String): DocumentDto {
+    suspend fun deleteAttachment(@PathVariable documentId: String): DocumentDto {
 
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
@@ -124,7 +129,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setAttachment(@PathVariable documentId: String,
+    suspend fun setAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestBody payload: ByteArray): DocumentDto {
         var newPayload = payload
@@ -151,7 +156,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "setAttachmentMulti", value = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun setAttachmentMulti(@PathVariable documentId: String,
+    suspend fun setAttachmentMulti(@PathVariable documentId: String,
                            @RequestParam(required = false) enckeys: String?,
                            @RequestPart("attachment") payload: ByteArray): DocumentDto {
         return setAttachment(documentId, enckeys, payload)
@@ -159,7 +164,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "getDocument", value = "Gets a document")
     @GetMapping("/{documentId}")
-    fun getDocument(@PathVariable documentId: String): DocumentDto {
+    suspend fun getDocument(@PathVariable documentId: String): DocumentDto {
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         return mapper.map(document, DocumentDto::class.java)
@@ -167,15 +172,14 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "getDocuments", value = "Gets a document")
     @PostMapping("/batch")
-    fun getDocuments(@RequestBody documentIds: ListOfIdsDto): List<DocumentDto> {
+    fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flow<DocumentDto> {
         val documents = documentLogic.get(documentIds.ids)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Documents not found")
         return documents.map { doc -> mapper.map(doc, DocumentDto::class.java) }
     }
 
     @ApiOperation(nickname = "modifyDocument", value = "Updates a document")
     @PutMapping
-    fun modifyDocument(@RequestBody documentDto: DocumentDto): DocumentDto {
+    suspend fun modifyDocument(@RequestBody documentDto: DocumentDto): DocumentDto {
         if (documentDto.id == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify document with no id")
         }
@@ -183,7 +187,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = mapper.map(documentDto, Document::class.java)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         if (documentDto.attachmentId != null) {
-            val prevDoc = documentLogic.get(document.id)
+            val prevDoc = documentLogic.get(document.id) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
             document.attachments = prevDoc.attachments
 
             if (documentDto.attachmentId == prevDoc.attachmentId) {
@@ -197,12 +201,12 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "modifyDocuments", value = "Updates a batch of documents", notes = "Returns the modified documents.")
     @PutMapping("/batch")
-    fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): List<DocumentDto> {
+    suspend fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flow<DocumentDto> {
         try {
             val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }
             for (i in documentDtos.indices) {
                 if (documentDtos[i].attachmentId != null) {
-                    val prevDoc = documentLogic.get(indocs[i].id)
+                    val prevDoc = documentLogic.get(indocs[i].id) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
                     indocs[i].attachments = prevDoc.attachments
 
                     if (documentDtos[i].attachmentId == indocs[i].attachmentId) {
@@ -223,11 +227,10 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @ApiOperation(nickname = "findByHCPartyMessageSecretFKeys", value = "List documents found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findByHCPartyMessageSecretFKeys(@RequestParam hcPartyId: String,
-                                        @RequestParam secretFKeys: String): List<DocumentDto> {
+                                        @RequestParam secretFKeys: String): Flow<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Documents failed. Please try again or read the server log.")
         return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }
     }
 
@@ -235,14 +238,13 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @GetMapping("/byTypeHcPartySecretForeignKeys")
     fun findByTypeHCPartyMessageSecretFKeys(@RequestParam documentTypeCode: String,
                                             @RequestParam hcPartyId: String,
-                                            @RequestParam secretFKeys: String): List<DocumentDto> {
+                                            @RequestParam secretFKeys: String): Flow<DocumentDto> {
         if (DocumentType.fromName(documentTypeCode) == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid documentTypeCode.")
         }
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, ArrayList(secretMessageKeys))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Documents failed. Please try again or read the server log.")
 
         return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }
     }
@@ -250,23 +252,22 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "findWithoutDelegation", value = "List documents with no delegation", notes = "Keys must be delimited by coma")
     @GetMapping("/woDelegation")
-    fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): List<DocumentDto> {
+    fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flow<DocumentDto> {
         val documentList = documentLogic.findWithoutDelegation(limit ?: 100)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Getting Documents failed. Please try again or read the server log.")
         return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }
     }
 
     @ApiOperation(nickname = "setDocumentsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+    suspend fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) {
         val invoices = documentLogic.getDocuments(stubs.map { it.id })
-        invoices.forEach { healthElement ->
+        invoices.onEach { healthElement ->
             stubs.find { it.id == healthElement.id }?.let { stub ->
                 stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
                 stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        documentLogic.updateDocuments(invoices)
+        documentLogic.updateDocuments(invoices.toList())
     }
 }

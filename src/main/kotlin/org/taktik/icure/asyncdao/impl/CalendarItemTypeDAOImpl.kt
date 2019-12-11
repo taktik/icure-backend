@@ -20,7 +20,6 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository

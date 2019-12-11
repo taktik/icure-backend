@@ -150,9 +150,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
         return client.queryViewIncludeDocs<ComplexKey, String, Document>(viewQuery).map { it.doc }
     }
 
-    override fun readAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String): Flow<ByteBuffer> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
+    override fun readAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
         return getAttachment(dbInstanceUrl, groupId, documentId, attachmentId, rev)
     }
 

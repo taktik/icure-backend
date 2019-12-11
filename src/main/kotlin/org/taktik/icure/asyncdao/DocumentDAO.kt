@@ -20,5 +20,5 @@ interface DocumentDAO: GenericDAO<Document> {
 
     fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(dbInstanceUrl: URI, groupId: String, documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
 
-    fun readAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String): Flow<ByteBuffer>
+    fun readAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer>
 }

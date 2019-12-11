@@ -281,7 +281,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     override suspend fun solveConflicts() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val contactsInConflict = contactDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { contactDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
-        contactsInConflict.onEach { ctc ->
+        contactsInConflict.collect { ctc ->
             ctc.conflicts.map { c: String -> contactDAO.get(dbInstanceUri, groupId, ctc.id, c) }.forEach { cp: Contact? ->
                 if (cp != null) {
                     ctc.solveConflictWith(cp)
