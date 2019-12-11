@@ -227,7 +227,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun findIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = pagedViewQueryOfIds("by_hcparty_name", ComplexKey.of(healthcarePartyId, null), ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination)
-        return client.queryView<ComplexKey, String>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java)
     }
 
     override fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
@@ -296,7 +296,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 //        }.filterIsInstance<ViewRow<ComplexKey, String, Patient>>().map { it.doc }.filterNotNull().toList()
 
         val viewQuery = pagedViewQuery(viewName, startKey, endKey, pagination, descending)
-        return client.queryViewIncludeDocs<ComplexKey, String, Patient>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
     private fun findBySsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> {
@@ -319,7 +319,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         }
 
         val viewQuery = pagedViewQuery(viewName, startKey, endKey, pagination, descending)
-        return client.queryViewIncludeDocs<ComplexKey, String, Patient>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
     private fun findByDateOfBirth(dbInstanceUrl: URI, groupId: String, startDate: Int?, endDate: Int?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> {
@@ -344,7 +344,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
                 ?: largestKey)
 
         val viewQuery = pagedViewQuery(viewName, from, to, pagination, descending)
-        return client.queryViewIncludeDocs<ComplexKey, String, Patient>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
     private fun findByModificationDate(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> {
@@ -365,7 +365,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val to = ComplexKey.of(healthcarePartyId, endKeyEndDate ?: largestKey)
 
         val viewQuery = pagedViewQuery(viewName, from, to, pagination, descending)
-        return client.queryViewIncludeDocs<ComplexKey, String, Patient>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
     @View(name = "by_user_id", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted && doc.userId) emit( doc.userId, doc._id )}")
@@ -396,8 +396,8 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun findDeletedPatientsByDeleteDate(dbInstanceUrl: URI, groupId: String, start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val queryView = pagedViewQuery("deleted_by_delete_date", start, end, paginationOffset, descending)
-        return client.queryViewIncludeDocsNoValue<Long, Patient>(queryView)
+        val viewQuery = pagedViewQuery("deleted_by_delete_date", start, end, paginationOffset, descending)
+        return client.queryView(viewQuery, Long::class.java, Any::class.java, Patient::class.java)
     }
 
     @View(name = "deleted_by_names", map = "classpath:js/patient/Deleted_by_names.js")
@@ -446,7 +446,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun listOfPatientsModifiedAfter(dbInstanceUrl: URI, groupId: String, date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = pagedViewQuery("by_modification_date", date, java.lang.Long.MAX_VALUE, paginationOffset, false)
-        return client.queryViewIncludeDocsNoValue<Long, Patient>(viewQuery)
+        return client.queryView(viewQuery, Long::class.java, Any::class.java, Patient::class.java)
     }
 
     override fun listIdsByHcPartyAndSsins(dbInstanceUrl: URI, groupId: String, ssins: Collection<String>, healthcarePartyId: String): Flow<String> {
@@ -504,6 +504,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
         val keysWithDuplicates = viewResult.filter { it.value?.toIntOrNull()?.let { it > 1 } == true }.map { it.key }.toList()
 
+        // TODO MB no reified
         val duplicatePatients = client.queryViewIncludeDocs<ComplexKey, String, Patient>(createQuery(viewName).keys(keysWithDuplicates).reduce(false).includeDocs(true))
                 .filter { it.doc.active }
                 .distinct()

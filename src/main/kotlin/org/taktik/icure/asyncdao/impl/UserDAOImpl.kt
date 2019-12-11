@@ -76,7 +76,7 @@
 //        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 //
 //        val viewQuery = pagedViewQuery("allForPagination", if (pagination.startKey != null) pagination.startKey.toString() else "\u0000", "\ufff0", pagination, false)
-//        return client.queryViewIncludeDocs<String, String, User>(viewQuery)
+//        return client.queryView(viewQuery, String::class.java, String::class.java, User::class.java)
 //    }
 //
 //    override suspend fun getOnFallback(dbInstanceUrl: URI, groupId: String, userId: String, bypassCache: Boolean): User {

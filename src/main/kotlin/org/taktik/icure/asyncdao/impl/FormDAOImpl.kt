@@ -65,7 +65,7 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = pagedViewQuery("all", pagination.startKey, null, pagination, false)
         // TODO SH now: endKey null ok because we don't set it in pagedViewQuery?
-        return client.queryViewIncludeDocsNoKey<String, Form>(viewQuery)
+        return client.queryView(viewQuery, Any::class.java, String::class.java, Form::class.java)
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Form' && !doc.deleted && doc._conflicts) emit(doc._id )}")

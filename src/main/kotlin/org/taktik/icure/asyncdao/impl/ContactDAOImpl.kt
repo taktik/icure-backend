@@ -33,6 +33,7 @@ import org.taktik.icure.dao.impl.ektorp.CouchKeyValue
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.utils.distinct
 import java.net.URI
@@ -61,7 +62,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey = if (pagination.startKey != null) ComplexKey.of(hcPartyId, startOpeningDate) else ComplexKey.of(hcPartyId, pagination.startKey)
         val endKey = ComplexKey.of(hcPartyId, endOpeningDate)
         val viewQuery = pagedViewQuery("by_hcparty_openingdate", startKey, endKey, pagination, false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Contact>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Contact::class.java)
     }
 
     @View(name = "by_hcparty", map = "classpath:js/contact/By_hcparty.js")

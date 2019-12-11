@@ -73,7 +73,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], startKey.components[1], ComplexKey.emptyObject())
 
         val viewQuery = pagedViewQuery("by_hcparty_from_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty_to_address", map = "classpath:js/message/By_hcparty_to_address_map.js")
@@ -83,7 +83,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, toAddress, null)
         val endKey = ComplexKey.of(partyId, toAddress, if (reverse) null else ComplexKey.emptyObject())
         val viewQuery = pagedViewQuery("by_hcparty_to_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
@@ -100,7 +100,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
         val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty_transport_guid_received", map = "classpath:js/message/By_hcparty_transport_guid_received_map.js")
@@ -117,7 +117,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
         val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
@@ -127,7 +127,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 ?: ComplexKey.of(partyId, transportGuid, fromDate)
         val endKey = ComplexKey.of(partyId, transportGuid, toDate)
         val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty", map = "classpath:js/message/By_hcparty_map.js")
@@ -136,7 +136,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey: ComplexKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], ComplexKey.emptyObject())
         val viewQuery = pagedViewQuery("by_hcparty", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty_patientfk", map = "classpath:js/message/By_hcparty_patientfk_map.js")

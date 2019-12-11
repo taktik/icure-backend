@@ -93,7 +93,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )
         val viewQuery = pagedViewQuery("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(viewQuery) // TODO SH now2: CTRL-F "): Flow<ViewQueryResultEvent>" and don't use the reifined methods because they are using .filterIsInstance() and we don't want that for pagination endpoints!
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Tarification::class.java)
 
     }
 
@@ -120,7 +120,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
         val viewQuery = pagedViewQuery("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, Integer, Tarification>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, Integer::class.java, Tarification::class.java)
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/tarif/By_language_label.js")
@@ -148,6 +148,6 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
         val viewQuery = pagedViewQuery("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, Integer, Tarification>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, Integer::class.java, Tarification::class.java)
     }
 }

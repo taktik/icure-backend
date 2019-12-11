@@ -56,7 +56,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val endKey = ComplexKey.of(hcParty, toDate ?: ComplexKey.emptyObject())
 
         val viewQuery = pagedViewQuery("by_hcparty_date", startKey, endKey, paginationOffset, false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Invoice>(viewQuery)
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Invoice::class.java)
     }
 
     @View(name = "by_hcparty_contact", map = "classpath:js/invoice/By_hcparty_contact_map.js")
