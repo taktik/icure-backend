@@ -9,6 +9,7 @@ import ma.glasnost.orika.MapperFacade
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
@@ -81,7 +82,8 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 }
 
 @Suppress("UNCHECKED_CAST")
-suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int): PaginatedList<T> {
+// TODO handle offsets
+suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
@@ -108,7 +110,7 @@ suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryRes
                         viewRowCount++
                         null
                     }
-                }
+                }?.takeUnless { predicate?.apply(it) == false }
             }
             else -> {
                 null
@@ -120,11 +122,23 @@ suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryRes
     return result
 }
 
-// TODO SH remove this function
-fun <T> Flow<T>.reEmit(): Flow<T> {
-    return flow {
-        collect {
-            emit(it)
+@ExperimentalCoroutinesApi
+suspend fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow<List<T>> {
+    require(min >= 1 && max >= 1 && max >= min) {
+        "Min and max chunk sizes should be greater than 0, and max >= min"
+    }
+    val buffer = ArrayList<T>(max)
+    collect {
+        buffer += it
+        if(buffer.size >= max) {
+            send(buffer.toList())
+            buffer.clear()
+        } else if (min <= buffer.size) {
+            val offered = offer(buffer.toList())
+            if (offered) {
+                buffer.clear()
+            }
         }
     }
-}
+    if (buffer.size > 0) send(buffer.toList())
+}.buffer(1)

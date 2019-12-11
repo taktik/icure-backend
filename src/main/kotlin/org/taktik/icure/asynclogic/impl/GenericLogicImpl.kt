@@ -24,7 +24,6 @@ import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityPersister
 import org.taktik.icure.entities.base.Identifiable
-import org.taktik.icure.utils.reEmit
 
 abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic) : EntityPersister<E, String> {
 

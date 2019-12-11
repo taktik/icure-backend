@@ -17,6 +17,8 @@ interface ContactDAO: GenericDAO<Contact> {
 
     fun listContacts(dbInstanceUrl: URI, groupId: String, hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 
+    fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+
     fun listContactIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<String>
 
     fun findByHcPartyPatient(dbInstanceUrl: URI, groupId: String, hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>

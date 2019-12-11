@@ -71,7 +71,13 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val key = if (pagination.startKey == null) hcPartyId else pagination.startKey as String
 
         val viewQuery = pagedViewQuery("by_hcparty", key, key, pagination, false)
-        return client.queryViewIncludeDocs<String, String, Contact>(viewQuery)
+        return client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java)
+    }
+
+    override fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+
+        return client.getForPagination(contactIds, Contact::class.java)
     }
 
     override fun listContactIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<String> {

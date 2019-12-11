@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import org.ektorp.ViewQuery
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.Identifiable
 import java.net.URI
@@ -29,7 +30,7 @@ import java.nio.ByteBuffer
 
 
 interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
-    fun getAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String? = null): Flow<ByteBuffer>;
+    fun getAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String? = null): Flow<ByteBuffer>
     suspend fun createAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
     suspend fun deleteAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, attachmentId: String): String
 
@@ -51,5 +52,5 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier
 
     fun<P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery
-    fun<P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery
+    fun<P> pagedViewQueryOfIds(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery
 }

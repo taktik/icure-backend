@@ -30,6 +30,7 @@ import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
@@ -318,7 +319,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
 
         var viewQuery = createQuery(viewName)
-                .startKey(startKey)
+                .startKey(startKey) // TODO SH now: pagination.startKey ignored? they are probably always the same though
                 .includeDocs(true)
                 .reduce(false)
                 .startDocId(pagination.startDocumentId)
@@ -332,7 +333,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return viewQuery
     }
 
-    override fun<P> pagedViewQueryOfIds(client: Client, viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery {
+    override fun<P> pagedViewQueryOfIds(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery {
         val DEFAULT_LIMIT = 1000
         val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
 

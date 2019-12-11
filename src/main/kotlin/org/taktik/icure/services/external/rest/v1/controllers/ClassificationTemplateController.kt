@@ -35,7 +35,9 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplatePaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.utils.paginatedList
 import java.util.*
 
 @RestController
@@ -43,6 +45,8 @@ import java.util.*
 @Api(tags = ["classificationTemplate"])
 class ClassificationTemplateController(private val mapper: MapperFacade,
                                        private val classificationTemplateLogic: ClassificationTemplateLogic) {
+
+    private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "createClassificationTemplate", value = "Create a classification Template with the current user", notes = "Returns an instance of created classification Template.")
     @PostMapping
@@ -114,11 +118,11 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
     suspend fun listClassificationTemplates(
             @ApiParam(value = "A label") @RequestBody(required = false) startKey: String?,
             @ApiParam(value = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?): ClassificationTemplatePaginatedList {
-
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
+            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?): PaginatedList<ClassificationTemplateDto> {
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val classificationTemplates = classificationTemplateLogic.listClassificationTemplates(paginationOffset)
-        return mapper.map(classificationTemplates, ClassificationTemplatePaginatedList::class.java)
+        return classificationTemplates.paginatedList<ClassificationTemplate, ClassificationTemplateDto>(mapper, realLimit)
     }
 }

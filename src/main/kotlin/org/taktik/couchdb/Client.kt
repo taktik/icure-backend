@@ -153,6 +153,7 @@ interface Client {
     suspend fun <T : CouchDbDocument> get(id: String, clazz: Class<T>, vararg options: Option): T?
     suspend fun <T : CouchDbDocument> get(id: String, rev: String, clazz: Class<T>, vararg options: Option): T?
     fun <T : CouchDbDocument> get(ids: Collection<String>, clazz: Class<T>): Flow<T>
+    fun <T : CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent>
     fun getAttachment(id: String, attachmentId: String, rev: String? = null): Flow<ByteBuffer>
     suspend fun createAttachment(id: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
     suspend fun deleteAttachment(id: String, attachmentId: String, rev: String): String
@@ -225,6 +226,15 @@ class ClientImpl(private val httpClient: HttpClient,
         return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
                 .filterIsInstance<ViewRowWithDoc<String, AllDocsViewValue, T>>()
                 .map { it.doc }
+    }
+
+    override fun <T : CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
+        val viewQuery = ViewQuery()
+                .allDocs()
+                .includeDocs(true)
+                .keys(ids)
+        viewQuery.isIgnoreNotFound = true
+        return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
     }
 
     override fun getAttachment(id: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {

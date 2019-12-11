@@ -93,7 +93,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )
         val viewQuery = pagedViewQuery("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
-        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(viewQuery)
+        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(viewQuery) // TODO SH now2: CTRL-F "): Flow<ViewQueryResultEvent>" and don't use the reifined methods because they are using .filterIsInstance() and we don't want that for pagination endpoints!
 
     }
 

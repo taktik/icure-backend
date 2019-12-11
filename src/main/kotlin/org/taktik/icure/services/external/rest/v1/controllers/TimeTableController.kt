@@ -37,7 +37,6 @@ import org.taktik.icure.entities.TimeTableHour
 import org.taktik.icure.entities.TimeTableItem
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
 import org.taktik.icure.utils.injectReactorContext
-import org.taktik.icure.utils.reEmit
 import reactor.core.publisher.Flux
 import java.util.*
 
