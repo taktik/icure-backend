@@ -23,9 +23,9 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.entities.EntityReference
-import org.taktik.icure.logic.EntityReferenceLogic
-import java.util.*
+import org.taktik.icure.utils.firstOrNull
 
 @RestController
 @RequestMapping("/rest/v1/entityref")
@@ -34,25 +34,19 @@ class EntityReferenceController(private val entityReferenceLogic: EntityReferenc
 
     @ApiOperation(nickname = "getLatest", value = "Find latest reference for a prefix ")
     @GetMapping("/latest/{prefix}")
-    fun getLatest(@PathVariable prefix: String): EntityReference {
+    suspend fun getLatest(@PathVariable prefix: String): EntityReference {
         return entityReferenceLogic.getLatest(prefix)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
     }
 
     @ApiOperation(nickname = "createEntityReference", value = "Create an entity reference")
     @PostMapping
-    fun createEntityReference(@RequestBody er: EntityReference): EntityReference {
-        val created = ArrayList<EntityReference>()
-        try {
-            entityReferenceLogic.createEntities(listOf(er), created)
+    suspend fun createEntityReference(@RequestBody er: EntityReference): EntityReference {
+        val created = try {
+            entityReferenceLogic.createEntities(listOf(er))
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference failed.")
         }
-
-        return if (created.size > 0) {
-            created[0]
-        } else {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
-        }
+        return created.firstOrNull() ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
     }
 }

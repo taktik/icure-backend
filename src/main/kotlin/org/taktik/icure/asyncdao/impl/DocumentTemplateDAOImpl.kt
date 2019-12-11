@@ -46,7 +46,7 @@ import java.nio.ByteBuffer
 internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<DocumentTemplate>(DocumentTemplate::class.java, couchDbDispatcher, idGenerator, cacheManager), DocumentTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
-    override fun findByUserGuid(dbInstanceUrl: URI, groupId: String, userId: String, guid: String): Flow<DocumentTemplate> {
+    override fun findByUserGuid(dbInstanceUrl: URI, groupId: String, userId: String, guid: String?): Flow<DocumentTemplate> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val from = ComplexKey.of(userId, "")

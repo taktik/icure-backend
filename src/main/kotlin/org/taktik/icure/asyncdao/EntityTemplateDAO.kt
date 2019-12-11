@@ -1,6 +1,5 @@
 package org.taktik.icure.asyncdao
 
-import org.ektorp.support.View
 import org.taktik.icure.entities.EntityTemplate
 import java.net.URI
 
