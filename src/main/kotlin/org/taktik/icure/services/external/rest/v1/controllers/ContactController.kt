@@ -292,7 +292,6 @@ class ContactController(private val mapper: MapperFacade,
 
         val paginationOffset = PaginationOffset(startKeyList, startDocumentId, null, realLimit+1)
 
-        // TODO SH now: why not filterChain directly?
         val contacts = contactLogic.filterContacts(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Contact>, mapper.map(filterChain.predicate, Predicate::class.java)))
 
         return contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)

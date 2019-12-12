@@ -6,9 +6,9 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Replication
-import org.taktik.icure.logic.GroupLogic
 import org.taktik.icure.services.external.rest.v1.dto.GroupDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
 
@@ -20,13 +20,13 @@ class GroupController(private val groupLogic: GroupLogic,
 
     @ApiOperation(nickname = "createGroup", value = "Create a group", notes = "Create a new gorup with associated dbs")
     @PostMapping("/{id}")
-    fun createGroup(@PathVariable id: String,
+    suspend fun createGroup(@PathVariable id: String,
                     @RequestParam name: String,
                     @RequestParam password: String,
                     @RequestBody initialReplication: ReplicationDto): GroupDto {
         return try {
             val newGroup = Group(id, name, password)
-            val group = groupLogic.createGroup(newGroup, mapper.map(initialReplication, Replication::class.java))
+            val group = groupLogic.createGroup(newGroup, mapper.map(initialReplication, Replication::class.java)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Group creation failed")
             mapper.map(group, GroupDto::class.java)
         } catch (e: IllegalAccessException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access.")

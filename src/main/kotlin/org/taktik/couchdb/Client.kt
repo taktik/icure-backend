@@ -218,12 +218,7 @@ class ClientImpl(private val httpClient: HttpClient,
     private data class AllDocsViewValue(val rev: String)
 
     override fun <T : CouchDbDocument> get(ids: Collection<String>, clazz: Class<T>): Flow<T> {
-        val viewQuery = ViewQuery()
-                .allDocs()
-                .includeDocs(true)
-                .keys(ids)
-        viewQuery.isIgnoreNotFound = true
-        return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
+        return getForPagination(ids, clazz)
                 .filterIsInstance<ViewRowWithDoc<String, AllDocsViewValue, T>>()
                 .map { it.doc }
     }
