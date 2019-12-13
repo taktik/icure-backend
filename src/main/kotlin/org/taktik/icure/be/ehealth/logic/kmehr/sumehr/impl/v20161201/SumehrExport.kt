@@ -346,7 +346,7 @@ class SumehrExport : KmehrExport() {
     }
 
 	internal fun getVaccines(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
-		return getActiveServices(hcPartyIds, sfks, listOf("vaccine"), excludedIds, false, decryptor).filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }
+		return getActiveServices(hcPartyIds, sfks, listOf("vaccine"), excludedIds, false, decryptor).filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } || it.tags.any{t -> t.type=="CD-ITEM" && t.code=="vaccine"} }
 	}
 
 	internal fun getAssessment(trn: TransactionType): HeadingType {
