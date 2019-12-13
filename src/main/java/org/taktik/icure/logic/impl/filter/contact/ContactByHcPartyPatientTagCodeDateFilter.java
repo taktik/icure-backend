@@ -25,7 +25,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ContactLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.impl.filter.Filter;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;

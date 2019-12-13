@@ -34,7 +34,7 @@ import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.embed.Delegation;
 import org.taktik.icure.logic.HealthElementLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 import org.taktik.icure.validation.aspect.Check;
 

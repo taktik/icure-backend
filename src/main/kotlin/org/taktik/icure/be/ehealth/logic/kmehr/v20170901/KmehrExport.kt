@@ -37,7 +37,7 @@ import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.PlanOfAction
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.logic.*
-import org.taktik.icure.logic.impl.filter.Filters
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal

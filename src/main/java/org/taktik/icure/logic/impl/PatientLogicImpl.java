@@ -47,7 +47,7 @@ import org.taktik.icure.exceptions.DocumentNotFoundException;
 import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.logic.PatientLogic;
 import org.taktik.icure.logic.UserLogic;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto;
 import org.taktik.icure.utils.FuzzyValues;
 import org.taktik.icure.validation.aspect.Check;
@@ -85,7 +85,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 	private UUIDGenerator uuidGenerator;
 	private MapperFacade mapper;
 	private UserLogic userLogic;
-	private org.taktik.icure.logic.impl.filter.Filters filters;
+	private org.taktik.icure.asynclogic.impl.filter.Filters filters;
 
 	public void setUuidGenerator(UUIDGenerator uuidGenerator) {
 		this.uuidGenerator = uuidGenerator;

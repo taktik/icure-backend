@@ -28,7 +28,7 @@ import org.taktik.icure.entities.User;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.PatientLogic;
 import org.taktik.icure.logic.impl.filter.Filter;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 
 public class PatientByHcPartyAndExternalIdFilter implements Filter<String, Patient, org.taktik.icure.dto.filter.patient.PatientByHcPartyAndExternalIdFilter> {
     PatientLogic patientLogic;

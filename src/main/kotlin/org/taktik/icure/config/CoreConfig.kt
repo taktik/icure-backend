@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.json.GsonFactoryBean
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.logic.impl.filter.Filters
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.handlers.GsonMessageBodyHandler
 import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1MapperFactory
 

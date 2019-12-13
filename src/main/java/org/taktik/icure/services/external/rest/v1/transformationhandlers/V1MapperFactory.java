@@ -39,7 +39,7 @@ import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeFlag;
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto;
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 
 import java.time.Instant;
 import java.util.stream.Collectors;

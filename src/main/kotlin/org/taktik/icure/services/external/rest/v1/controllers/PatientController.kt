@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import ma.glasnost.orika.metadata.TypeBuilder
 import org.ektorp.ComplexKey
@@ -41,7 +42,7 @@ import org.taktik.icure.logic.AccessLogLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PatientLogic
-import org.taktik.icure.logic.impl.filter.Filters
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
@@ -264,7 +265,7 @@ class PatientController(
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(@RequestBody filter: Filter<*>): List<String> = filters.resolve(filter).toList()
+    fun matchBy(@RequestBody filter: Filter<*>): Flow<String> = filters.resolve(filter)
 
     @ApiOperation(nickname = "fuzzySearch", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
     @GetMapping("/fuzzy")

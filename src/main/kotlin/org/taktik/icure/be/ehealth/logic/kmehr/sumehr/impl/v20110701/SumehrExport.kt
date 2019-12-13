@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils
@@ -182,7 +183,7 @@ class SumehrExport : KmehrExport() {
         return hcpartyIds
     }
 
-    fun getAllServices(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt? = null): List<Service> {
+    suspend fun getAllServices(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt? = null): List<Service> {
 		return getActiveServices(hcPartyIds, sfks, listOf("adr", "allergy", "socialrisk", "risk", "patientwill", "healthissue", "healthcareelement"), excludedIds, includeIrrelevantInformation, decryptor) + getMedications(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, decryptor) + getVaccines(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, decryptor).filter { s -> !excludedIds.contains(s.id) }
     }
 
@@ -197,7 +198,7 @@ class SumehrExport : KmehrExport() {
             ((ServiceStatus.isInactive(s.status) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
                     && ServiceStatus.isIrrelevant(s.status))
 
-	internal fun getActiveServices(hcPartyIds: Set<String>, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
+	internal suspend fun getActiveServices(hcPartyIds: Set<String>, sfks: List<String>, cdItems: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): List<Service> {
         val f = Filters.UnionFilter(
                 hcPartyIds.map { hcpId ->
                     Filters.UnionFilter(
@@ -208,7 +209,7 @@ class SumehrExport : KmehrExport() {
                             })
                 })
 
-        var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
+        var services = contactLogic?.getServices(filters?.resolve(f).toList())?.filter { s ->
             s.endOfLife == null && //Not end of lifed
                     (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(s) else !ServiceStatus.isIrrelevant(s.status))
                     && (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue)  || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content

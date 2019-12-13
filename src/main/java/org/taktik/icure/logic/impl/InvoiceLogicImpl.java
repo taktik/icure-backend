@@ -52,7 +52,7 @@ import org.taktik.icure.exceptions.DeletionException;
 import org.taktik.icure.logic.EntityReferenceLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.UserLogic;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 
 @Service

@@ -3,7 +3,7 @@ package org.taktik.icure.logic.impl.filter.code;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.logic.CodeLogic;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 
 import java.util.HashSet;
 import java.util.Set;

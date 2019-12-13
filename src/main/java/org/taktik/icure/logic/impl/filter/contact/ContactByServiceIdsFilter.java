@@ -29,7 +29,7 @@ import org.taktik.icure.logic.ContactLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.PatientLogic;
 import org.taktik.icure.logic.impl.filter.Filter;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 
 public class ContactByServiceIdsFilter implements Filter<String, Contact, org.taktik.icure.dto.filter.contact.ContactByServiceIdsFilter> {
     ContactLogic contactLogic;

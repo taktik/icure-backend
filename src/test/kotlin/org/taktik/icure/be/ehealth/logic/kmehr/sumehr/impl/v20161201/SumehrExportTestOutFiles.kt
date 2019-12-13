@@ -25,7 +25,7 @@ import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.logic.impl.CodeLogicImpl
 import org.taktik.icure.logic.impl.ContactLogicImpl
-import org.taktik.icure.logic.impl.filter.Filters
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.logic.impl.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto

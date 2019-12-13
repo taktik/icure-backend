@@ -39,7 +39,7 @@ import org.taktik.icure.entities.embed.SubContact;
 import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.logic.ContactLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 import org.taktik.icure.utils.FuzzyValues;
 import org.taktik.icure.validation.aspect.Check;
 

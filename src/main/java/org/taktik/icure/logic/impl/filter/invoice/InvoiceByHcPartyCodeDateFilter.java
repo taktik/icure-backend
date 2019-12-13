@@ -23,7 +23,7 @@ import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.logic.HealthcarePartyLogic;
 import org.taktik.icure.logic.InvoiceLogic;
 import org.taktik.icure.logic.impl.filter.Filter;
-import org.taktik.icure.logic.impl.filter.Filters;
+import org.taktik.icure.asynclogic.impl.filter.Filters;
 
 import java.util.Collection;
 import java.util.HashSet;
