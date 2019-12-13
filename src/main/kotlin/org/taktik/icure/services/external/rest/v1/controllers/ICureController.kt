@@ -25,7 +25,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.logic.*
-import org.taktik.icure.logic.impl.ICureLogicImpl
+import org.taktik.icure.asynclogic.impl.ICureLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.UserStubDto
@@ -48,7 +48,7 @@ class ICureController(private val replicationLogic: ReplicationLogic,
 
     @ApiOperation(nickname = "getVersion", value = "Get version")
     @GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun getVersion(): String = iCureLogic.version
+    fun getVersion(): String = iCureLogic.getVersion()
 
     @ApiOperation(nickname = "isReady", value = "Check if a user exists")
     @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
@@ -113,7 +113,7 @@ class ICureController(private val replicationLogic: ReplicationLogic,
 
     @ApiOperation(nickname = "updateDesignDoc", value = "Force update design doc")
     @GetMapping("/dd/{entityName}")
-    fun updateDesignDoc(@PathVariable entityName: String): Boolean {
+    suspend fun updateDesignDoc(@PathVariable entityName: String): Boolean {
         iCureLogic.updateDesignDoc(sessionLogic.currentSessionContext.groupId, entityName)
         return true
     }
