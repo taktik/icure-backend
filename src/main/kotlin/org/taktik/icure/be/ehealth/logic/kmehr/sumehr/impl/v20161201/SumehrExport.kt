@@ -178,35 +178,21 @@ class SumehrExport : KmehrExport() {
 	}
 
     fun addNoContentItemIfNeeded(trn: TransactionType, type: String){
-        //TODO: implementation can sure be shorter ...
-        val history = getHistory(trn).headingsAndItemsAndTexts
-        val assessment = getAssessment(trn).headingsAndItemsAndTexts
-
-        val hasHistoryItem = history.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+        val assessmentItems = getAssessment(trn).headingsAndItemsAndTexts
+        val hasItem = (assessmentItems + getHistory(trn).headingsAndItemsAndTexts).filterIsInstance(ItemType::class.java)
             .any { item ->
                     item.cds.filterNotNull().any { cd ->
-                        cd.value == type
+                        cd.s == CDITEMschemes.CD_ITEM && cd.value == type
                     }
             }
-
-        val hasAssessmentItem = assessment.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .any { item ->
-                item.cds.filterNotNull().any { cd ->
-                    cd.value == type
-                }
-            }
-        if(!(hasHistoryItem || hasAssessmentItem)){
-            trn.headingsAndItemsAndTexts.add(ItemType().apply {
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
+        if(!hasItem){
+            assessmentItems.add(ItemType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (assessmentItems.size + 1).toString() })
                 cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); nullFlavor = "NA"; value = type })
                 lifecycle =  LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                     value = CDLIFECYCLEvalues.INACTIVE } }
             })
         }
-
-
     }
 
     fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String> {
@@ -677,7 +663,7 @@ class SumehrExport : KmehrExport() {
                         eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
                         if(!eds.codes.isEmpty()) {
                             // Notice the content can not be empty (sumehr validator)
-                            it.contents.add(ContentType().apply {
+                            it.contents.addAll(listOf(ContentType().apply {
                                 eds.codes?.forEach { c ->
                                     try {
                                         val cdt = CDCONTENTschemes.fromValue(c.type)
@@ -690,9 +676,11 @@ class SumehrExport : KmehrExport() {
                                         log.error(ignored)
                                     }
                                 }
-                            })
+                            }).filter { it.cds?.size ?: 0 > 0 })
                         }
-                        items.add(it)
+                        if (it.contents?.size ?: 0 > 0) {
+                            items.add(it)
+                        }
                     }
 				}
 
