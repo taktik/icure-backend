@@ -613,7 +613,7 @@ class SumehrExport : KmehrExport() {
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
 
-		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedHcElements = nonConfidentialItems
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
 			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
