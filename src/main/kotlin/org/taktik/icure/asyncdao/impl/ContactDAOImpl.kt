@@ -75,10 +75,16 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java)
     }
 
-    override fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> {
+    override fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         return client.getForPagination(contactIds, Contact::class.java)
+    }
+
+    override fun getPaginatedServices(dbInstanceUrl: URI, groupId: String, serviceIds: Collection<String>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return flowOf()
+        //return client.getForPagination(serviceIds, Service::class.java) // TODO SH now: Service is an ICureDocument, not a StoredICureDocument, so it's not Versionable (= CouchDbDocument)
     }
 
     override fun listContactIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<String> {

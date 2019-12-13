@@ -59,7 +59,7 @@ import java.util.*
 @RequestMapping("/rest/v1/contact")
 @Api(tags = ["contact"])
 class ContactController(private val mapper: MapperFacade,
-                        private val filters: org.taktik.icure.logic.impl.filter.Filters,
+                        private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
                         private val contactLogic: ContactLogic,
                         private val sessionLogic: AsyncSessionLogic) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -213,7 +213,6 @@ class ContactController(private val mapper: MapperFacade,
             if (c.closingDate == null) {
                 c.closingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)
                 contactLogic.modifyContact(c)
-                c // TODO SH now: do we want to return null if save failed? if so, then remove this line
             } else {
                 null
             }
@@ -278,19 +277,13 @@ class ContactController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "filterBy", value = "List contacts for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     suspend fun filterBy(
-            @ApiParam(value = "The start key for pagination, depends on the filters used. If multiple keys are used, the keys are delimited by coma") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto> {
 
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyList = if (startKey != null && startKey.isNotEmpty()) { // TODO SH now: this is not used anywhere !? and why is it a list?
-            startKey.split(',').filterNot { it.isBlank() }.map { it.trim() }
-        } else {
-            null
-        }
 
-        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, null, realLimit+1)
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
         val contacts = contactLogic.filterContacts(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Contact>, mapper.map(filterChain.predicate, Predicate::class.java)))
 
@@ -299,49 +292,25 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(@RequestBody filter: Filter<*>): Set<String> { // TODO SH Flow
+    fun matchBy(@RequestBody filter: Filter<*>): Flow<String> {
         return filters.resolve(filter)
     }
 
-    // TODO SH do this one
-//    @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
-//    @PostMapping("/service/filter")
-//    suspend fun filterServicesBy(
-//            @ApiParam(value = "The start key for pagination, depends on the filters used. If multiple keys are used, the keys are delimited by coma") @RequestParam(required = false) startKey: String?,
-//            @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
-//            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-//            @RequestBody(required = false) filterChain: FilterChain?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto> {
-//
-//        var startKeyList: ArrayList<*>? = null
-//        if (startKey != null && startKey.isNotEmpty()) {
-//            startKeyList = ArrayList(startKey.split(',').filterNot { it.isBlank() }.map { it.trim() })
-//        }
-//
-//        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, null, limit)
-//
-//        val services = if (filterChain != null) {
-//            contactLogic.filterServices(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Service>, mapper.map(filterChain.predicate, Predicate::class.java)))
-//        } else {
-//            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-//        }
-//
-//        if (services != null) {
-//            if (services.rows == null) {
-//                services.rows = ArrayList()
-//            }
-//
-//            val paginatedServiceDtoList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>()
-//            mapper.map(
-//                    services,
-//                    paginatedServiceDtoList,
-//                    object : TypeBuilder<PaginatedList<Service>>() {}.build(),
-//                    object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>>() {}.build()
-//            )
-//            return paginatedServiceDtoList
-//        } else {
-//            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing and Filtering services failed.")
-//        }
-//    }
+    @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
+    @PostMapping("/service/filter")
+    suspend fun filterServicesBy(
+            @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
+            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @RequestBody filterChain: FilterChain): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto> {
+
+        val realLimit = limit ?: DEFAULT_LIMIT
+
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, limit)
+
+        val services = contactLogic.filterServices(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Service>, mapper.map(filterChain.predicate, Predicate::class.java)))
+
+        return services.paginatedList<Service, ServiceDto>(mapper, realLimit)
+    }
 
     @ApiOperation(nickname = "listContactsByOpeningDate", value = "List contacts bu opening date parties with(out) pagination", notes = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")

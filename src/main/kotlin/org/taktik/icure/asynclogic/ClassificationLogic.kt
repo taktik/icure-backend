@@ -10,13 +10,13 @@ import org.taktik.icure.validation.aspect.Check
 interface ClassificationLogic : EntityPersister<Classification, String> {
     fun getGenericDAO(): ClassificationDAO
 
-    suspend fun createClassification(@Check classification: Classification): Classification?
+    suspend fun createClassification(classification: Classification): Classification?
 
     suspend fun getClassification(classificationId: String): Classification?
     fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>): Flow<Classification>
     fun deleteClassifications(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyClassification(@Check classification: Classification): Classification
+    suspend fun modifyClassification(classification: Classification): Classification
 
     suspend fun addDelegation(classificationId: String, healthcarePartyId: String, delegation: Delegation): Classification?
 

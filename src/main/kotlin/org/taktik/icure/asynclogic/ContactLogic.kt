@@ -17,15 +17,16 @@ import org.taktik.icure.validation.aspect.Check
 interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getContact(id: String): Contact?
     fun getContacts(selectedIds: Collection<String>): Flow<Contact>
-    fun getPaginatedContacts(selectedIds: Collection<String>, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
+    fun getPaginatedServices(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
     fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
 
     suspend fun addDelegation(contactId: String, delegation: Delegation): Contact?
 
-    suspend fun createContact(@Check contact: Contact): Contact?
+    suspend fun createContact(contact: Contact): Contact?
     fun deleteContacts(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyContact(@Check contact: Contact): Contact?
+    suspend fun modifyContact(contact: Contact): Contact?
     fun getServices(selectedServiceIds: Collection<String>): Flow<Service>
 
     fun pimpServiceWithContactInformation(s: Service, c: Contact): Service
@@ -39,7 +40,8 @@ interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence>
     fun findContactsByHCPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
     fun getGenericDAO(): ContactDAO
-    suspend fun filterContacts(paginationOffset: PaginationOffset<List<String>>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent>
+    suspend fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent>
+    suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<ViewQueryResultEvent>
 
     suspend fun solveConflicts()
     fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>

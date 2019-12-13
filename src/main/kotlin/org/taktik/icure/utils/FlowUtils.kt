@@ -10,12 +10,14 @@ import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.dto.filter.predicate.Predicate
+import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.StoredDto
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.io.Serializable
 import java.util.*
 
 
@@ -83,7 +85,7 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 
 @Suppress("UNCHECKED_CAST")
 // TODO handle offsets
-suspend inline fun <U : StoredDocument, reified T : StoredDto> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
+suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null

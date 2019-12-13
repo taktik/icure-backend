@@ -28,6 +28,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.asynclogic.AsyncICureSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginatedDocumentKeyIdPair
@@ -40,11 +41,9 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
-import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.bufferedChunks
 import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.validation.aspect.Check
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -67,9 +66,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.get(dbInstanceUri, groupId, selectedIds))
     }
 
-    override fun getPaginatedContacts(selectedIds: Collection<String>, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
+    override fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(contactDAO.getPaginatedContacts(dbInstanceUri, groupId, selectedIds, paginationOffset))
+        emitAll(contactDAO.getPaginatedContacts(dbInstanceUri, groupId, selectedIds))
+    }
+
+    override fun getPaginatedServices(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(contactDAO.getPaginatedServices(dbInstanceUri, groupId, selectedIds))
     }
 
     override fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
@@ -84,7 +88,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         return contact?.let { contactDAO.save(dbInstanceUri, groupId, it) }
     }
 
-    override suspend fun createContact(@Check contact: Contact): Contact? {
+    override suspend fun createContact(contact: Contact): Contact? {
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting contact attributes
@@ -115,7 +119,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
     }
 
-    override suspend fun modifyContact(@Check contact: Contact): Contact? {
+    override suspend fun modifyContact(contact: Contact): Contact? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return try {
             contactDAO.save(dbInstanceUri, groupId, contact)
@@ -220,33 +224,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         return contactDAO
     }
 
-    private suspend fun createContactPaginatedList(paginationOffset: PaginationOffset<*>, ids: SortedSet<String>, sortedIds: SortedSet<String>, selectedIds: List<String>, predicate: Predicate?): PaginatedList<Contact> {
-        val hasNextPage = paginationOffset.limit != null && paginationOffset.limit < sortedIds.size
-        val contactList = if (hasNextPage) getContacts(selectedIds).take(selectedIds.size-1) else getContacts(selectedIds)
-        return PaginatedList(
-                if (hasNextPage) paginationOffset.limit!! else sortedIds.size,
-                ids.size,
-                (if (predicate != null) contactList.filter { input: Contact? -> predicate.apply(input) } else contactList).toList(),
-                if (hasNextPage) PaginatedDocumentKeyIdPair(null, selectedIds[selectedIds.size - 1]) else null
-        )
-    }
-
-//    private fun createServicePaginatedList(paginationOffset: PaginationOffset<*>?, ids: SortedSet<String?>, sortedIds: SortedSet<String?>, selectedIds: ArrayList<String>, filter: FilterChain<org.taktik.icure.entities.embed.Service>): Flow<ViewQueryResultEvent> = flow {
-//        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-//        val hasNextPage = paginationOffset != null && paginationOffset.limit != null && paginationOffset.limit < sortedIds.size
-//        val serviceList = if (hasNextPage) getServices(selectedIds).subList(0, selectedIds.size - 1) else getServices(selectedIds)
-//        val toEmit = PaginatedList(
-//                if (hasNextPage) paginationOffset.limit else sortedIds.size,
-//                ids.size,
-//                filter.applyTo(serviceList),
-//                if (hasNextPage) PaginatedDocumentKeyIdPair(null, selectedIds[selectedIds.size - 1]) else null
-//        )
-//        emitAll(toEmit)
-//    }
-
-    override suspend fun filterContacts(paginationOffset: PaginationOffset<List<String>>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent> {
-        //val ids: SortedSet<String> = TreeSet(filters.resolve(filter.filter))
-        val ids = filters.resolve(filter.filter) as Flow<String>
+    override suspend fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent> {
+        val ids = filters.resolve(filter.getFilter())
 
         val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
             ids.dropWhile { it != paginationOffset.startDocumentId }
@@ -255,28 +234,22 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
         val selectedIds = sortedIds.take(paginationOffset.limit!!+1) // Fetching one more contacts for the start key of the next page
 
-        return getPaginatedContacts(selectedIds.toList(), paginationOffset)
+        return getPaginatedContacts(selectedIds.toList())
     }
 
-//    override fun filterServices(paginationOffset: PaginationOffset<*>?, filter: FilterChain<org.taktik.icure.entities.embed.Service>): PaginatedList<Service> {
-//        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-//        val ids: SortedSet<String?> = TreeSet(filters.resolve(filter.filter))
-//        // Sorted Id's
-//        val sortedIds: SortedSet<String?>
-//        sortedIds = if (paginationOffset != null && paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
-//            ids.subSet(paginationOffset.startDocumentId, (ids as TreeSet<*>).last().toString() + "\u0000")
-//        } else {
-//            ids
-//        }
-//        // Selected Id's
-//        val selectedIds: ArrayList<String?>
-//        selectedIds = if (paginationOffset != null && paginationOffset.limit != null) { // Fetching one more contacts for the start key of the next page
-//            if (sortedIds.size > paginationOffset.limit) ArrayList(ArrayList(sortedIds).subList(0, paginationOffset.limit + 1)) else ArrayList(sortedIds)
-//        } else {
-//            ArrayList(sortedIds)
-//        }
-//        emitAll(createServicePaginatedList(paginationOffset, ids, sortedIds, selectedIds, filter))
-//    }
+    override suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>): Flow<ViewQueryResultEvent> {
+        val ids= filters.resolve(filter.getFilter())
+
+        val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
+            ids.dropWhile { it != paginationOffset.startDocumentId }
+        } else {
+            ids
+        }
+
+        val selectedIds = sortedIds.take(paginationOffset.limit!!+1) // Fetching one more contacts for the start key of the next page
+
+        return getPaginatedServices(selectedIds.toList())
+    }
 
     override suspend fun solveConflicts() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()

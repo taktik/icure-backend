@@ -258,7 +258,7 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
     }
 
     override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
-        var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.filter))
+        var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.getFilter()))
         if (filterChain.predicate != null || sort != null && sort != "id") {
             var codes = this.get(ArrayList(ids))
             if (filterChain.predicate != null) {

@@ -46,7 +46,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         return classificationDAO
     }
 
-    override suspend fun createClassification(@Check classification: Classification): Classification? {
+    override suspend fun createClassification(classification: Classification): Classification? {
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Classification attributes
@@ -79,7 +79,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         }
     }
 
-    override suspend fun modifyClassification(@Check classification: Classification): Classification {
+    override suspend fun modifyClassification(classification: Classification): Classification {
         return try {
             getClassification(classification.id)?.let { toEdit ->
                 toEdit.label = classification.label

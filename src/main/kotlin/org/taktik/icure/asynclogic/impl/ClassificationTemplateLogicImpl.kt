@@ -49,7 +49,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         return classificationTemplateDAO
     }
 
-    override suspend fun createClassificationTemplate(@Check classificationTemplate: ClassificationTemplate): ClassificationTemplate? {
+    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
@@ -78,7 +78,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         }
     }
 
-    override suspend fun modifyClassificationTemplate(@Check classificationTemplate: ClassificationTemplate): ClassificationTemplate {
+    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate {
         return try {
             getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
                 toEdit.label = classificationTemplate.label

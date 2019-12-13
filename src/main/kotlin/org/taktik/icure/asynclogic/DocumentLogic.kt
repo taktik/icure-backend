@@ -8,14 +8,14 @@ import java.nio.ByteBuffer
 import java.util.ArrayList
 
 interface DocumentLogic : EntityPersister<Document, String> {
-    suspend fun createDocument(@Check document: Document, ownerHealthcarePartyId: String): Document?
+    suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document?
 
     suspend fun get(documentId: String): Document?
     fun get(documentIds: List<String>): Flow<Document>
     fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
     fun readAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
 
-    suspend fun modifyDocument(@Check document: Document)
+    suspend fun modifyDocument(document: Document)
     fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
     fun findDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
     fun findWithoutDelegation(limit: Int): Flow<Document>

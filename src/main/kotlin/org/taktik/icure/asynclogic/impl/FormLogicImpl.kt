@@ -67,7 +67,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
         return formDAO.save(dbInstanceUri, groupId, form)
     }
 
-    override suspend fun createForm(@Check form: Form): Form? {
+    override suspend fun createForm(form: Form): Form? {
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting contact attributes
@@ -94,7 +94,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
         }
     }
 
-    override suspend fun modifyForm(@Check form: Form) { // TODO SH now: @Check can remove?
+    override suspend fun modifyForm(form: Form) {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try {
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()

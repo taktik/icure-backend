@@ -24,9 +24,9 @@ import org.taktik.icure.validation.aspect.Check
 
 interface EntityPersister<E, I> {
 
-    fun createEntities(@Check entities: Collection<E>): Flow<E>
+    fun createEntities(entities: Collection<E>): Flow<E>
 
-    fun updateEntities(@Check entities: Collection<E>): Flow<E>
+    fun updateEntities(entities: Collection<E>): Flow<E>
 
     fun deleteByIds(identifiers: Collection<I>): Flow<DocIdentifier>
     //suspend fun deleteByIdsAndRevs(identifiers: Collection<I>, revs: Collection<String>)

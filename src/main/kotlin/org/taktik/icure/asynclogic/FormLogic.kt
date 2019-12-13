@@ -14,10 +14,10 @@ interface FormLogic : EntityPersister<Form, String> {
 
     suspend fun addDelegation(formId: String, delegation: Delegation): Form?
 
-    suspend fun createForm(@Check form: Form): Form?
+    suspend fun createForm(form: Form): Form?
     fun deleteForms(ids: Set<String>): Flow<DocIdentifier>
 
-    suspend fun modifyForm(@Check form: Form)
+    suspend fun modifyForm(form: Form)
     fun findByHcPartyParentId(hcPartyId: String, formId: String): Flow<Form>
 
     suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form?

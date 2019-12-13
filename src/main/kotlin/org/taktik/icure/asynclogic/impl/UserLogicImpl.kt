@@ -301,7 +301,7 @@ class UserLogicImpl(
     }
     // TODO MB
     // previously was
-    // suspend fun createEntities(@Check entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean
+    // suspend fun createEntities(entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
         val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
