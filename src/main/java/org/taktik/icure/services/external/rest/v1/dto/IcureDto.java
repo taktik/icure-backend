@@ -33,6 +33,8 @@ public abstract class IcureDto extends StoredDto {
 
     protected String medicalLocationId;
 
+    protected String encryptedSelf;
+
     protected java.util.Set<CodeDto> codes = new HashSet<>();
     protected java.util.Set<CodeDto> tags = new HashSet<>();
 
@@ -103,6 +105,14 @@ public abstract class IcureDto extends StoredDto {
 
     public void setResponsible(String responsible) {
         this.responsible = responsible;
+    }
+
+    public String getEncryptedSelf() {
+        return encryptedSelf;
+    }
+
+    public void setEncryptedSelf(String encryptedSelf) {
+        this.encryptedSelf = encryptedSelf;
     }
 
     public Set<CodeDto> getCodes() {

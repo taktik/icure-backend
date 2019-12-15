@@ -68,15 +68,4 @@ public class HealthElementTemplate extends StoredICureDocument {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
 }

@@ -178,35 +178,21 @@ class SumehrExport : KmehrExport() {
 	}
 
     fun addNoContentItemIfNeeded(trn: TransactionType, type: String){
-        //TODO: implementation can sure be shorter ...
-        val history = getHistory(trn).headingsAndItemsAndTexts
-        val assessment = getAssessment(trn).headingsAndItemsAndTexts
-
-        val hasHistoryItem = history.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
+        val assessmentItems = getAssessment(trn).headingsAndItemsAndTexts
+        val hasItem = (assessmentItems + getHistory(trn).headingsAndItemsAndTexts).filterIsInstance(ItemType::class.java)
             .any { item ->
                     item.cds.filterNotNull().any { cd ->
-                        cd.value == type
+                        cd.s == CDITEMschemes.CD_ITEM && cd.value == type
                     }
             }
-
-        val hasAssessmentItem = assessment.filter { it != null && it is org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .map { it as org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType }
-            .any { item ->
-                item.cds.filterNotNull().any { cd ->
-                    cd.value == type
-                }
-            }
-        if(!(hasHistoryItem || hasAssessmentItem)){
-            trn.headingsAndItemsAndTexts.add(ItemType().apply {
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (trn.headingsAndItemsAndTexts.size + 1).toString() })
+        if(!hasItem){
+            assessmentItems.add(ItemType().apply {
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (assessmentItems.size + 1).toString() })
                 cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); nullFlavor = "NA"; value = type })
                 lifecycle =  LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
                     value = CDLIFECYCLEvalues.INACTIVE } }
             })
         }
-
-
     }
 
     fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String> {
@@ -300,7 +286,7 @@ class SumehrExport : KmehrExport() {
         }.filter {
             (!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
                 &&  (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status)))
-        }.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
+        }.filter { s -> !excludedIds.contains(s.id) }.filter{s -> !s.tags.any{t -> t.code =="familyrisk"}}.distinctBy{s -> s.healthElementId} ?: emptyList()
     }
 
     internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {
@@ -438,7 +424,7 @@ class SumehrExport : KmehrExport() {
 
 					val it = createItemWithContent(svc, items.size + 1, forceCdItem ?: cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let { listOf(it) } ?: emptyList())
 					if (it != null) {
-                        it.contents.add(ContentType().apply {
+                        it.contents.addAll(listOf(ContentType().apply {
                             svc.codes?.forEach { c ->
                                 try{
                                     // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0
@@ -451,7 +437,7 @@ class SumehrExport : KmehrExport() {
                                     log.error(ignored)
                                 }
                             }
-                        })
+                        }).filter { it.cds?.size ?: 0 > 0 })
 						for ((key, value) in svc.content) {
 							if (value.medicationValue != null) {
 								fillMedicationItem(svc, it, key)
@@ -462,7 +448,9 @@ class SumehrExport : KmehrExport() {
 						if (svc.comment != null) {
 							it.texts.add(TextType().apply { l = "fr"; value = svc.comment })
 						}
-						items.add(it)
+                        if (it.contents?.size ?: 0 > 0) {
+                            items.add(it)
+                        }
 					}
 				}
 			}
@@ -472,7 +460,7 @@ class SumehrExport : KmehrExport() {
 	}
 
 	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
-		var item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
+		val item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null
 			it.value.documentId = null
@@ -625,7 +613,7 @@ class SumehrExport : KmehrExport() {
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
 
-		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedHcElements = nonConfidentialItems
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
 			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
@@ -675,7 +663,7 @@ class SumehrExport : KmehrExport() {
                         eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
                         if(!eds.codes.isEmpty()) {
                             // Notice the content can not be empty (sumehr validator)
-                            it.contents.add(ContentType().apply {
+                            it.contents.addAll(listOf(ContentType().apply {
                                 eds.codes?.forEach { c ->
                                     try {
                                         val cdt = CDCONTENTschemes.fromValue(c.type)
@@ -688,9 +676,11 @@ class SumehrExport : KmehrExport() {
                                         log.error(ignored)
                                     }
                                 }
-                            })
+                            }).filter { it.cds?.size ?: 0 > 0 })
                         }
-                        items.add(it)
+                        if (it.contents?.size ?: 0 > 0) {
+                            items.add(it)
+                        }
                     }
 				}
 
