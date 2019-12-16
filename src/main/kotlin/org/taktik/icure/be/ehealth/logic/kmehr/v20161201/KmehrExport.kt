@@ -238,9 +238,9 @@ open class KmehrExport {
             }
 
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
-            beginmoment = (svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            endmoment = svc.closingDate?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            recorddatetime = makeXGC(svc.modified)
+            beginmoment = (svc.valueDate ?: svc.openingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            recorddatetime = makeXGC(svc.modified ?: svc.created)
         }
     }
 
@@ -342,9 +342,14 @@ open class KmehrExport {
         return lst
     }
 
-    fun  makeXGC(date: Long?): XMLGregorianCalendar? {
+    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
         return date?.let {
-            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply { timezone = DatatypeConstants.FIELD_UNDEFINED }
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
+                timezone = DatatypeConstants.FIELD_UNDEFINED
+                if (unsetMillis) {
+                    millisecond = DatatypeConstants.FIELD_UNDEFINED
+                }
+            }
         }
     }
 

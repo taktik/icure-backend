@@ -256,7 +256,7 @@ class SumehrExport : KmehrExport() {
 			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 		}
 
-		return services?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
+		return services?.filterNotNull()?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
 	}
 
     internal fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {
@@ -286,7 +286,7 @@ class SumehrExport : KmehrExport() {
         }.filter {
             (!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
                 &&  (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status)))
-        }.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
+        }.filter { s -> !excludedIds.contains(s.id) }.filter{s -> !s.tags.any{t -> t.code =="familyrisk"}}.distinctBy{s -> s.healthElementId} ?: emptyList()
     }
 
     internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {

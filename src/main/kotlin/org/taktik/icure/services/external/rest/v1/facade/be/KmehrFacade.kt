@@ -243,12 +243,12 @@ class KmehrFacade(
 	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("version") recipientSafe: String, @QueryParam("version") version: Int, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
 
-		return if (medicationSchemeExportParams?.services?.isEmpty() == true)
-            ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", recipientSafe, version, null, null) })
-        else
+		return if (medicationSchemeExportParams.services?.isNotEmpty() == true)
             ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), userHealthCareParty, language ?: "fr", recipientSafe, version, medicationSchemeExportParams.services!!.map {
                 s -> mapper.map(s, Service::class.java) as Service
             }, null) })
+        else
+            ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", recipientSafe, version, null, null) })
 	}
 
     @ApiOperation(value = "Get Kmehr contactreport")
