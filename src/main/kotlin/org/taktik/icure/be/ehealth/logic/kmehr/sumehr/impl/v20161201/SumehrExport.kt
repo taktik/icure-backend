@@ -256,7 +256,7 @@ class SumehrExport : KmehrExport() {
 			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 		}
 
-		return services?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
+		return services?.filterNotNull()?.distinctBy{s -> s.contactId + s.id} ?: emptyList()
 	}
 
     internal fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {

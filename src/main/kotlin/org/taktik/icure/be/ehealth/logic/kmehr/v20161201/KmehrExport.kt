@@ -342,9 +342,14 @@ open class KmehrExport {
         return lst
     }
 
-    fun  makeXGC(date: Long?): XMLGregorianCalendar? {
+    fun  makeXGC(date: Long?, unsetMillis: Boolean = false): XMLGregorianCalendar? {
         return date?.let {
-            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply { timezone = DatatypeConstants.FIELD_UNDEFINED }
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar.getInstance().apply { time = Date(date) } as GregorianCalendar).apply {
+                timezone = DatatypeConstants.FIELD_UNDEFINED
+                if (unsetMillis) {
+                    millisecond = DatatypeConstants.FIELD_UNDEFINED
+                }
+            }
         }
     }
 
