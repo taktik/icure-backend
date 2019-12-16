@@ -155,9 +155,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					makeGmdManager(headingsAndItemsAndTexts.size + 1, config, hcp, period)?.let { headingsAndItemsAndTexts.add(it) }
 				}
 			}
-			patient.insurabilities
 			headingsAndItemsAndTexts.addAll(makeContactPeople(headingsAndItemsAndTexts.size + 1, patient, config))
-			makeInsurancyStatus(headingsAndItemsAndTexts.size + 1, config, patient.insurabilities.find { it.endDate == null || it.endDate > Instant.now().toEpochMilli() })?.let { headingsAndItemsAndTexts.add(it) }
+			makeInsurancyStatus(headingsAndItemsAndTexts.size + 1, config, patient.insurabilities.find { it.endDate == null || FuzzyValues.getDateTime(it.endDate).isAfter(LocalDateTime.now()) })?.let { headingsAndItemsAndTexts.add(it) }
 		})
 
 		val contacts = getAllContacts(healthcareParty, sfks.toList()).sortedBy {
