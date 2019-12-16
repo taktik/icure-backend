@@ -1,17 +1,17 @@
-package org.taktik.icure.be.ehealth.logic.kmehr.medex.impl.v20161201
+package org.taktik.icure.be.ehealth.logic.kmehr.medex.impl.v20131001
 
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
 import org.springframework.stereotype.Service
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
-import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
+import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import java.io.OutputStreamWriter
@@ -38,15 +38,15 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
     ): String {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
-                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; sv = "1.1"; value = STANDARD } }
+                standard = StandardType().apply { cd = CDSTANDARD().apply { value = STANDARD } }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (author.nihii ?: author.id) + "." + System.currentTimeMillis() })
                 this.date = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(author, emptyList()))
-                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.1"; value="application" })); this.name = "iCure ${ICUREVERSION}" })
+                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "iCure ${ICUREVERSION}" })
                 }
                 this.recipients.add(RecipientType().apply {
-                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.1"; value="application" })); this.name = "medex" })
+                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "medex" })
                 })
             }
             folders.add(FolderType().apply {
@@ -56,8 +56,8 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
                 this.transactions.add(
                     TransactionType().apply {
                         this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
-                        this.cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "notification"})
-                        this.cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; sv = "1.5"; value = incapacityType})
+                        this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification"})
+                        this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = incapacityType})
                         this.date = makeXGC(certificateDate)
                         this.author = AuthorType().apply {
                             hcparties.add(createParty(author, emptyList()))
