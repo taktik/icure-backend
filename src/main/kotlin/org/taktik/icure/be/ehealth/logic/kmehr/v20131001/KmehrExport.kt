@@ -90,7 +90,7 @@ open class KmehrExport {
                     ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii })
                 }
             }
-            m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.0"; value = ssin }) }
+            m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.6"; value = ssin }) }
 			cds?.let { this.cds.addAll(it) }
 			this.cds.addAll(if (m.specialityCodes?.size ?: 0 > 0)
 					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
@@ -106,8 +106,8 @@ open class KmehrExport {
 
 	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
             (
-                    ((97 - nihii.substring(0, 6).toLong()) % 97 == nihii.substring(6, 8).toLong()) ||
-                    ((89 - nihii.substring(0, 6).toLong()) % 89 == nihii.substring(6, 8).toLong())
+                    ((97 - nihii.substring(0, 6).toLong() % 97) == nihii.substring(6, 8).toLong()) ||
+                    ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
             )
 
 	fun makePatient(p : Patient, config: Config): PersonType {

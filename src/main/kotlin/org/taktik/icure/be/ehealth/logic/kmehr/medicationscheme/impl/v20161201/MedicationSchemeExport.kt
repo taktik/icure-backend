@@ -105,10 +105,7 @@ class MedicationSchemeExport : KmehrExport() {
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationscheme" })
 			date = config.date
 			time = config.time
-			author = AuthorType().apply {
-				hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(patient.author?.let { userLogic!!.getUser(it).healthcarePartyId }
-						?: healthcareParty.id)))
-			}
+			author = AuthorType().apply { hcparties.add(createParty(healthcareParty, emptyList())) }
 
             //TODO: is there a way to quit the .map once we've found what we where looking for ? (or use something else ?)
             val (_idOnSafeName, _idOnSafe, _medicationSchemeSafeVersion) = medicationServices.flatMap { svc ->
@@ -143,7 +140,7 @@ class MedicationSchemeExport : KmehrExport() {
                 date = config.date
                 time = config.time
                 author = AuthorType().apply {
-                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(patient.author?.let { userLogic!!.getUser(it).healthcarePartyId } ?: healthcareParty.id)))
+                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it).healthcarePartyId } ?: healthcareParty.id)))
                 }
                 isIscomplete = true
                 isIsvalidated = true
