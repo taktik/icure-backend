@@ -2,10 +2,13 @@ package org.taktik.icure.be.ehealth.logic.kmehr.medex.impl.v20161201
 
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
@@ -38,12 +41,16 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
     ): String {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
-                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; sv = "1.1"; value = STANDARD } }
+                standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; sv = "1.8"; value = STANDARD } }
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (author.nihii ?: author.id) + "." + System.currentTimeMillis() })
                 this.date = makeXGC(Instant.now().toEpochMilli())
+                this.time = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
+                    hcparties.add(HcpartyType().apply {
+                        ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = config.soft?.name; sv = config.soft?.version; value = "${config.soft?.name}-${config.soft?.version}" })
+                        cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.0"; value="application" })); this.name = "iCure ${ICUREVERSION}"
+                    })
                     hcparties.add(createParty(author, emptyList()))
-                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.1"; value="application" })); this.name = "iCure ${ICUREVERSION}" })
                 }
                 this.recipients.add(RecipientType().apply {
                     hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; sv = "1.1"; value="application" })); this.name = "medex" })
@@ -59,6 +66,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
                         this.cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "notification"})
                         this.cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; sv = "1.5"; value = incapacityType})
                         this.date = makeXGC(certificateDate)
+                        this.time = makeXGC(certificateDate)
                         this.author = AuthorType().apply {
                             hcparties.add(createParty(author, emptyList()))
                         }
