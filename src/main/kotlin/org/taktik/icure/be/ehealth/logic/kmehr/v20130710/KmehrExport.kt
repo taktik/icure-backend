@@ -98,8 +98,8 @@ open class KmehrExport {
 
 	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
             (
-                    ((97 - nihii.substring(0, 6).toLong()) % 97 == nihii.substring(6, 8).toLong()) ||
-                    ((89 - nihii.substring(0, 6).toLong()) % 89 == nihii.substring(6, 8).toLong())
+                    ((97 - nihii.substring(0, 6).toLong() % 97) == nihii.substring(6, 8).toLong()) ||
+                    ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
             )
 
     fun makePatient(p : Patient, config: Config): PersonType {

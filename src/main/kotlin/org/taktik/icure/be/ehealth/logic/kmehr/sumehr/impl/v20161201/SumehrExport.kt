@@ -286,7 +286,7 @@ class SumehrExport : KmehrExport() {
         }.filter {
             (!(it.descr?.matches("INBOX|Etat g\\u00e9n\\u00e9ral.*".toRegex()) ?: false)
                 &&  (if (includeIrrelevantInformation) !isInactiveAndIrrelevant(it) else !ServiceStatus.isIrrelevant(it.status)))
-        }.filter { s -> !excludedIds.contains(s.id) }.distinctBy{s -> s.healthElementId} ?: emptyList()
+        }.filter { s -> !excludedIds.contains(s.id) }.filter{s -> !s.tags.any{t -> t.code =="familyrisk"}}.distinctBy{s -> s.healthElementId} ?: emptyList()
     }
 
     internal fun addOmissionOfMedicalDataItem(trn: TransactionType) {
@@ -613,7 +613,7 @@ class SumehrExport : KmehrExport() {
 		var nonConfidentialItems = getNonConfidentialItems(healthElements)
 		addOmissionOfMedicalDataItem(trn, healthElements, nonConfidentialItems)
 
-		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedHcElements = nonConfidentialItems
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
 			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}

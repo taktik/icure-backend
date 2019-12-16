@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
@@ -39,26 +41,31 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { value = STANDARD } }
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (author.nihii ?: author.id) + "." + System.currentTimeMillis() })
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = (author.nihii ?: author.id) + "." + System.currentTimeMillis() })
                 this.date = makeXGC(Instant.now().toEpochMilli())
+                this.time = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
+                    hcparties.add(HcpartyType().apply {
+                        ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.LOCAL; sl = config.soft?.name; sv = config.soft?.version; value = "${config.soft?.name}-${config.soft?.version}" })
+                        cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "iCure ${ICUREVERSION}"
+                    })
                     hcparties.add(createParty(author, emptyList()))
-                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "iCure ${ICUREVERSION}" })
                 }
                 this.recipients.add(RecipientType().apply {
                     hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "medex" })
                 })
             }
             folders.add(FolderType().apply {
-                this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
+                this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
                 this.patient = makePerson(patient, config)
 
                 this.transactions.add(
                     TransactionType().apply {
-                        this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
+                        this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "notification"})
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION_TYPE); value = incapacityType})
                         this.date = makeXGC(certificateDate)
+                        this.time = makeXGC(certificateDate)
                         this.author = AuthorType().apply {
                             hcparties.add(createParty(author, emptyList()))
                         }
@@ -66,7 +73,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
                         this.isIsvalidated = true
 
                         this.headingsAndItemsAndTexts.add(ItemType().apply {
-                            this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
+                            this.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = 1.toString() })
                             this.cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity"})
 
                             this.beginmoment = Utils.makeMomentTypeFromFuzzyLong(beginDate);
@@ -74,9 +81,9 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
 
                             this.contents.add(ContentType().apply {
                                 this.incapacity = IncapacityType().apply {
-                                    this.cds.add(CDINCAPACITY().apply { sv = "1.1"; value = CDINCAPACITYvalues.WORK })
+                                    this.cds.add(CDINCAPACITY().apply { value = CDINCAPACITYvalues.WORK })
                                     this.incapacityreason = IncapacityreasonType().apply {
-                                        this.cd = CDINCAPACITYREASON().apply { sv = "1.1"; value = CDINCAPACITYREASONvalues.fromValue(incapacityReason) }
+                                        this.cd = CDINCAPACITYREASON().apply { value = CDINCAPACITYREASONvalues.fromValue(incapacityReason) }
                                     }
                                     this.isOutofhomeallowed = outOfHomeAllowed;
                                 }
@@ -93,10 +100,10 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
 
                             this.contents.add(ContentType().apply {
                                 diagnosisICD?.let {
-                                    this.cds.add(CDCONTENT().apply { s = CDCONTENTschemes.ICD; sv = "10"; value = diagnosisICD })
+                                    this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.ICD); value = diagnosisICD })
                                 }
                                 diagnosisICPC?.let {
-                                    this.cds.add(CDCONTENT().apply { s = CDCONTENTschemes.ICPC; sv = "2"; value = diagnosisICPC })
+                                    this.cds.add(CDCONTENT().apply { s(CDCONTENTschemes.ICPC); value = diagnosisICPC })
                                 }
                             })
 
