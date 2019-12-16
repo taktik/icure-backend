@@ -52,7 +52,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
                     hcparties.add(createParty(author, emptyList()))
                 }
                 this.recipients.add(RecipientType().apply {
-                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_HCPARTY; value="application" })); this.name = "medex" })
+                    hcparties.add(HcpartyType().apply { ; this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "medex" })
                 })
             }
             folders.add(FolderType().apply {
