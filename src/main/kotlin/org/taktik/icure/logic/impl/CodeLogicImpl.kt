@@ -22,6 +22,7 @@ package org.taktik.icure.logic.impl
 
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
@@ -47,7 +48,7 @@ import javax.xml.parsers.SAXParserFactory
 import kotlin.collections.HashMap
 
 @Service
-class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
+class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclogic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
     val log = LogFactory.getLog(this.javaClass)
 
     override fun getTagTypeCandidates(): List<String> {
@@ -257,8 +258,8 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.logic.im
         }
     }
 
-    override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
-        var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.getFilter()))
+    override suspend fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
+        var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.getFilter()).toList())
         if (filterChain.predicate != null || sort != null && sort != "id") {
             var codes = this.get(ArrayList(ids))
             if (filterChain.predicate != null) {

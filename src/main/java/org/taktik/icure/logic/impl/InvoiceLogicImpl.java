@@ -58,7 +58,7 @@ import org.taktik.icure.utils.FuzzyValues;
 @Service
 public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> implements InvoiceLogic {
 	private static final Logger log = LoggerFactory.getLogger(InvoiceLogicImpl.class);
-	private org.taktik.icure.logic.impl.filter.Filters filters;
+	private org.taktik.icure.asynclogic.impl.filter.Filters filters;
 
 	private UserLogic userLogic;
 	private EntityReferenceLogic entityReferenceLogic;

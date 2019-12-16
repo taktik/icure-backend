@@ -150,8 +150,8 @@ class HealthElementLogicImpl(private val filters: Filters,
     }
 
     override suspend fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement> {
-        val ids = filters.resolve(filter.getFilter())
-        val healthElements = getHealthElements(ids.toList())
+        val ids = filters.resolve(filter.getFilter()).toList()
+        val healthElements = getHealthElements(ids)
         val predicate = filter.predicate
         return if (predicate != null) healthElements.filter { predicate.apply(it) } else healthElements
     }

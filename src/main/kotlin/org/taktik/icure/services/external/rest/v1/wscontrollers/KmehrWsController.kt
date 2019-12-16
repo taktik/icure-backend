@@ -68,7 +68,7 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/generateSumehr")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun generateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
+    suspend fun generateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             sumehrLogicV1.createSumehr(bos, patientLogic.getPatient(patientId), info.secretForeignKeys,
@@ -83,7 +83,7 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/validateSumehr")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun validateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
+    suspend fun validateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             sumehrLogicV1.validateSumehr(bos, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
@@ -96,7 +96,7 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/generateSumehrV2")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun generateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
+    suspend fun generateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.secretForeignKeys,
@@ -111,7 +111,7 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/generateSumehrV2JSON")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun generateSumehrV2JSON(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, @WebSocketParam("asJson") asJson: Boolean?, operation: KmehrFileOperation) {
+    suspend fun generateSumehrV2JSON(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, @WebSocketParam("asJson") asJson: Boolean?, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.secretForeignKeys,
@@ -126,7 +126,7 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/validateSumehrV2")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun validateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
+    suspend fun validateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             sumehrLogicV2.validateSumehr(bos, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
@@ -152,7 +152,7 @@ class KmehrWsController(private var mapper: MapperFacade,
 
     @RequestMapping("/generateMedicationScheme")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
-    fun generateMedicationSchemeExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: MedicationSchemeExportInfoDto, @WebSocketParam("recipientSafe") recipientSafe: String, @WebSocketParam("version") version: Int, operation: KmehrFileOperation) {
+    suspend fun generateMedicationSchemeExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: MedicationSchemeExportInfoDto, @WebSocketParam("recipientSafe") recipientSafe: String, @WebSocketParam("version") version: Int, operation: KmehrFileOperation) {
         val bos = ByteArrayOutputStream(10000)
         try {
             medicationSchemeLogic.createMedicationSchemeExport(bos, patientLogic.getPatient(patientId), info.secretForeignKeys,

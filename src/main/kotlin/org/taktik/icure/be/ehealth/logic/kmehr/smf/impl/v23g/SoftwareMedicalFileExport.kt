@@ -22,6 +22,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
+import kotlinx.coroutines.flow.toList
 import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
@@ -939,7 +940,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	////// unused (was probably copied from sumehr export code)
 
-	private fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, comment: String?, decryptor: AsyncDecrypt?, config: Config): FolderType {
+	private suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, comment: String?, decryptor: AsyncDecrypt?, config: Config): FolderType {
 		val trn = TransactionType().apply {
 			cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.5"; value = "sumehr" })
 			author = AuthorType().apply { hcparties.add(createParty(sender)) }
@@ -984,7 +985,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return folder
 	}
 
-	private fun addMedications(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, decryptor: AsyncDecrypt?): Int {
+	private suspend fun addMedications(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, decryptor: AsyncDecrypt?): Int {
 		// NOTE: code from sumehr export, not used currently
 		var mutItemIndex = itemIndex
 		try {
@@ -1030,7 +1031,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return mutItemIndex
 	}
 
-	fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, decryptor: AsyncDecrypt?): Int {
+	suspend fun addVaccines(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, decryptor: AsyncDecrypt?): Int {
 		val mutItemIndex = itemIndex
 		try {
 			getNonConfidentialItems(getVaccines(hcPartyId, sfks, decryptor)).forEach {
@@ -1041,7 +1042,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return mutItemIndex
 	}
 
-	fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, config: Config): String {
+	suspend fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, config: Config): String {
 		val signatures = ArrayList(listOf(patient.modified.toString()))
 		getAllHealthcareElements(hcPartyId, sfks).forEach { signatures.add(it.modified.toString()) }
 		getHealthElements(hcPartyId, sfks, config).forEach { signatures.add(it.modified.toString()) }
@@ -1049,16 +1050,16 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return DigestUtils.md5Hex(signatures.sorted().joinToString(","))
 	}
 
-	fun getAllHealthcareElements(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt? = null): List<Service> {
+	suspend fun getAllHealthcareElements(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt? = null): List<Service> {
 		// NOTE: probably used to retrieve incorrectly imported data (where He is a service in a contact instead of separate He)
 		return getAllServicesByItemTypes(hcPartyId, sfks, listOf("adr", "allergy", "socialrisk", "risk", "patientwill", "healthissue", "healthcareelement"), decryptor) + getMedications(hcPartyId, sfks, decryptor) + getVaccines(hcPartyId, sfks, decryptor)
 	}
 
-	fun getVaccines(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	suspend fun getVaccines(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		return getNonPassiveIrrelevantServices(hcPartyId, sfks, listOf("vaccine"), decryptor).filter { it.codes.any { c -> c.type == "CD-VACCINEINDICATION" && c.code?.length ?: 0 > 0 } }
 	}
 
-	private fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	private suspend fun getNonPassiveIrrelevantServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		val f = Filters.UnionFilter(
 				sfks.map { k ->
 					Filters.UnionFilter(cdItems.map { cd ->
@@ -1068,7 +1069,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				}
 		)
 
-		var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
+		var services = contactLogic?.getServices(filters?.resolve(f)?.toList())?.filter { s ->
 			s.endOfLife == null && //Not end of lifed
 					!(((((s.status
 							?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
@@ -1092,7 +1093,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return services ?: emptyList()
 	}
 
-	private fun getAllServicesByItemTypes(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	private suspend fun getAllServicesByItemTypes(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		val f = Filters.UnionFilter(
 				sfks.map { k ->
 					Filters.UnionFilter(cdItems.map { cd ->
@@ -1102,7 +1103,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				}
 		)
 
-		var services = contactLogic?.getServices(filters?.resolve(f))
+		var services = contactLogic?.getServices(filters?.resolve(f)?.toList())
 
 		val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
@@ -1114,11 +1115,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return services ?: emptyList()
 	}
 
-	private fun getMedications(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	private suspend fun getMedications(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		return getAllServicesByItemTypes(hcPartyId, sfks, listOf("medication"), decryptor)
 	}
 
-	private fun getProcedures(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+	private suspend fun getProcedures(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
 		return getAllServicesByItemTypes(hcPartyId, sfks, listOf("treatment"), decryptor)
 	}
 

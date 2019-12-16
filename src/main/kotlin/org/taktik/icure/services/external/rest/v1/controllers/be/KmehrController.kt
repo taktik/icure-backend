@@ -80,28 +80,28 @@ class KmehrController(
 
     @ApiOperation(nickname = "generateSumehr", value = "Generate sumehr")
     @PostMapping("/sumehr/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun generateSumehr(@PathVariable patientId: String,
-                       @RequestParam language: String,
-                       @RequestBody info: SumehrExportInfoDto,
-                       response: HttpServletResponse) {
+    suspend fun generateSumehr(@PathVariable patientId: String,
+                               @RequestParam language: String,
+                               @RequestBody info: SumehrExportInfoDto,
+                               response: HttpServletResponse) {
         sumehrLogicV1.createSumehr(response.outputStream, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                 ?: false, null)
     }
 
     @ApiOperation(nickname = "validateSumehr", value = "Validate sumehr")
     @PostMapping("/sumehr/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun validateSumehr(@PathVariable patientId: String,
-                       @RequestParam language: String,
-                       @RequestBody info: SumehrExportInfoDto,
-                       response: HttpServletResponse) {
+    suspend fun validateSumehr(@PathVariable patientId: String,
+                               @RequestParam language: String,
+                               @RequestBody info: SumehrExportInfoDto,
+                               response: HttpServletResponse) {
         sumehrLogicV1.validateSumehr(response.outputStream, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                 ?: false, null)
     }
 
     @ApiOperation(nickname = "getSumehrContent", value = "Get sumehr elements")
     @PostMapping("/sumehr/{patientId}/content")
-    fun getSumehrContent(@PathVariable patientId: String,
-                         @RequestBody info: SumehrExportInfoDto): SumehrContentDto {
+    suspend fun getSumehrContent(@PathVariable patientId: String,
+                                 @RequestBody info: SumehrExportInfoDto): SumehrContentDto {
         val result = SumehrContentDto()
 
         result.services = sumehrLogicV1.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
@@ -114,44 +114,44 @@ class KmehrController(
 
     @ApiOperation(nickname = "getSumehrMd5", value = "Check sumehr signature")
     @PostMapping("/sumehr/{patientId}/md5")
-    fun getSumehrMd5(@PathVariable patientId: String,
-                     @RequestBody info: SumehrExportInfoDto): ContentDto {
+    suspend fun getSumehrMd5(@PathVariable patientId: String,
+                             @RequestBody info: SumehrExportInfoDto): ContentDto {
         return ContentDto.fromStringValue(sumehrLogicV1.getSumehrMd5(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                 ?: false))
     }
 
     @ApiOperation(nickname = "isSumehrValid", value = "Get sumehr validity")
     @PostMapping("/sumehr/{patientId}/valid")
-    fun isSumehrValid(@PathVariable patientId: String,
-                      @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
+    suspend fun isSumehrValid(@PathVariable patientId: String,
+                              @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
         return SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV1.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, false).name))
     }
 
     @ApiOperation(nickname = "generateSumehrV2", value = "Generate sumehr")
     @PostMapping("/sumehrv2/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun generateSumehrV2(@PathVariable patientId: String,
-                         @RequestParam language: String,
-                         @RequestBody info: SumehrExportInfoDto,
-                         response: HttpServletResponse) {
+    suspend fun generateSumehrV2(@PathVariable patientId: String,
+                                 @RequestParam language: String,
+                                 @RequestBody info: SumehrExportInfoDto,
+                                 response: HttpServletResponse) {
         sumehrLogicV2.createSumehr(response.outputStream, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                 ?: false, null)
     }
 
     @ApiOperation(nickname = "validateSumehrV2", value = "Validate sumehr")
     @PostMapping("/sumehrv2/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun validateSumehrV2(@PathVariable patientId: String,
-                         @RequestParam language: String,
-                         @RequestBody info: SumehrExportInfoDto,
-                         response: HttpServletResponse) {
+    suspend fun validateSumehrV2(@PathVariable patientId: String,
+                                 @RequestParam language: String,
+                                 @RequestBody info: SumehrExportInfoDto,
+                                 response: HttpServletResponse) {
         sumehrLogicV2.validateSumehr(response.outputStream, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                 ?: false, null)
     }
 
     @ApiOperation(nickname = "getSumehrV2Content", value = "Get sumehr elements")
     @PostMapping("/sumehrv2/{patientId}/content")
-    fun getSumehrV2Content(@PathVariable patientId: String,
-                           @RequestBody info: SumehrExportInfoDto,
-                           response: HttpServletResponse): SumehrContentDto {
+    suspend fun getSumehrV2Content(@PathVariable patientId: String,
+                                   @RequestBody info: SumehrExportInfoDto,
+                                   response: HttpServletResponse): SumehrContentDto {
         val result = SumehrContentDto()
 
         result.services = sumehrLogicV2.getAllServices(sessionLogic.currentSessionContext.user.healthcarePartyId, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
@@ -165,16 +165,16 @@ class KmehrController(
 
     @ApiOperation(nickname = "getSumehrV2Md5", value = "Check sumehr signature")
     @PostMapping("/sumehrv2/{patientId}/md5")
-    fun getSumehrV2Md5(@PathVariable patientId: String,
-                       @RequestBody info: SumehrExportInfoDto): ContentDto {
+    suspend fun getSumehrV2Md5(@PathVariable patientId: String,
+                               @RequestBody info: SumehrExportInfoDto): ContentDto {
         return ContentDto.fromStringValue(sumehrLogicV2.getSumehrMd5(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                 ?: false))
     }
 
     @ApiOperation(nickname = "isSumehrV2Valid", value = "Get sumehr validity")
     @PostMapping("/sumehrv2/{patientId}/valid")
-    fun isSumehrV2Valid(@PathVariable patientId: String,
-                        @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
+    suspend fun isSumehrV2Valid(@PathVariable patientId: String,
+                                @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
         return SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV2.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                 ?: false).name))
     }
@@ -192,12 +192,12 @@ class KmehrController(
 
     @ApiOperation(nickname = "generateMedicationSchemeExport", value = "Get Medicationscheme export")
     @PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun generateMedicationSchemeExport(@PathVariable patientId: String,
-                                       @RequestParam(required = false) language: String?,
-                                       @RequestParam recipientSafe: String,
-                                       @RequestParam version: Int,
-                                       @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto,
-                                       response: HttpServletResponse) {
+    suspend fun generateMedicationSchemeExport(@PathVariable patientId: String,
+                                               @RequestParam(required = false) language: String?,
+                                               @RequestParam recipientSafe: String,
+                                               @RequestParam version: Int,
+                                               @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto,
+                                               response: HttpServletResponse) {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
 
         return if (medicationSchemeExportParams.services?.isEmpty() == true)

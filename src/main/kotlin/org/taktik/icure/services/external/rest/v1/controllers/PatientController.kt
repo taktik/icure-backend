@@ -265,7 +265,7 @@ class PatientController(
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(@RequestBody filter: Filter<*>): Flow<String> = filters.resolve(filter)
+    suspend fun matchBy(@RequestBody filter: Filter<*>): Flow<String> = filters.resolve(filter)
 
     @ApiOperation(nickname = "fuzzySearch", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
     @GetMapping("/fuzzy")

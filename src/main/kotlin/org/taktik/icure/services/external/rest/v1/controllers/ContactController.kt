@@ -292,7 +292,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(@RequestBody filter: Filter<*>): Flow<String> {
+    suspend fun matchBy(@RequestBody filter: Filter<*>): Flow<String> {
         return filters.resolve(filter)
     }
 

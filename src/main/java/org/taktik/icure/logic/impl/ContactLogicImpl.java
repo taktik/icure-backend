@@ -64,7 +64,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	private ContactDAO contactDAO;
 	private UUIDGenerator uuidGenerator;
 	private ICureSessionLogic sessionLogic;
-	private org.taktik.icure.logic.impl.filter.Filters filters;
+	private org.taktik.icure.asynclogic.impl.filter.Filters filters;
 
 	@Autowired
 	public void setContactDAO(ContactDAO contactDAO) {

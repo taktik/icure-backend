@@ -35,7 +35,7 @@ class Filters : ApplicationContextAware {
         this.applicationContext = applicationContext
     }
 
-    fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.dto.filter.Filter<T, O>): Flow<T> {
+    suspend fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.dto.filter.Filter<T, O>): Flow<T> {
         val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.".toRegex(), "")
         return (filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>? ?: try {
             ((applicationContext!!.autowireCapableBeanFactory.createBean(
@@ -49,20 +49,20 @@ class Filters : ApplicationContextAware {
     }
 
     class ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>> {
-        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>, context: Filters): Flow<T> {
+        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>, context: Filters): Flow<T> {
             return filter.getConstant().asFlow()
         }
     }
 
     @FlowPreview
     class UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.UnionFilter<T, O>> {
-        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.UnionFilter<T, O>, context: Filters): Flow<T> {
+        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.UnionFilter<T, O>, context: Filters): Flow<T> {
             return filter.getFilters().asFlow().flatMapConcat { context.resolve(it) }
         }
     }
 
     class IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.IntersectionFilter<T, O>> {
-        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.IntersectionFilter<T, O>, context: Filters): Flow<T> = flow {
+        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.IntersectionFilter<T, O>, context: Filters): Flow<T> = flow {
             val filters = filter.getFilters()
             val result = mutableSetOf<T>()
             for (i in filters.indices) {
@@ -77,7 +77,7 @@ class Filters : ApplicationContextAware {
     }
 
     class ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>> {
-        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {
+        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {
             if (filter.getSuperSet() == null) throw NoSuperSetException() // TODO SH should be nullable?
             val superFlow: Flow<T> = context.resolve(filter.getSuperSet())
             val subList: List<T> = context.resolve(filter.getSubSet()).toList()

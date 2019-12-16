@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
+import kotlinx.coroutines.flow.toList
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
@@ -61,7 +62,7 @@ import javax.xml.bind.Marshaller
 @org.springframework.stereotype.Service
 class MedicationSchemeExport : KmehrExport() {
 
-	fun exportMedicationScheme(
+	suspend fun exportMedicationScheme(
 			os: OutputStream,
 			patient: Patient,
 			sfks: List<String>,
@@ -242,14 +243,14 @@ class MedicationSchemeExport : KmehrExport() {
 	}
 
 
-    private fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+    private suspend fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
         val f = Filters.UnionFilter(sfks.map { k ->
                 Filters.UnionFilter(cdItems.map { cd ->
                     ServiceByHcPartyTagCodeDateFilter(hcPartyId, k, "CD-ITEM", cd, null, null, null, null)
                 })
             })
 
-        var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
+        var services = contactLogic?.getServices(filters?.resolve(f)?.toList())?.filter { s ->
             s.endOfLife == null && //Not end of lifed
                 !((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
                 && (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content

@@ -201,7 +201,7 @@ class CodeController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "filterBy", value = "Filter codes ", notes = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterBy(
+    suspend fun filterBy(
             @ApiParam(value = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,

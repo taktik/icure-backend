@@ -22,5 +22,5 @@ import org.taktik.icure.entities.base.Identifiable
 import java.io.Serializable
 
 interface Filter<T : Serializable, O : Identifiable<T>, F : org.taktik.icure.dto.filter.Filter<T, O>> {
-    fun resolve(filter: F, context: Filters): Flow<T>
+    suspend fun resolve(filter: F, context: Filters): Flow<T>
 }

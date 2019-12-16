@@ -61,7 +61,7 @@ interface CodeLogic : EntityPersister<Code, String> {
 	fun isValid(code: Code, ofType: String? = null): Boolean
 	fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
 	fun getRegions(): List<String>
-    fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code>
+    suspend fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code>
     fun importCodesFromXml(md5: String, type: String, stream: InputStream)
     fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code>
     fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String>

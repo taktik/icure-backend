@@ -45,10 +45,10 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
                                             mappings: Map<String, List<ImportMapping>>,
                                             saveToDatabase: Boolean
     ) : List<ImportResult> {
-        return medicationSchemeImport!!.importMedicationSchemeFile(inputStream, author, language, mappings, saveToDatabase, dest)
+        return medicationSchemeImport.importMedicationSchemeFile(inputStream, author, language, mappings, saveToDatabase, dest)
     }
 
-    override fun createMedicationSchemeExport(
+    override suspend fun createMedicationSchemeExport(
             os: OutputStream,
             patient: Patient,
             sfks: List<String>,
@@ -59,10 +59,10 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
     ) {
-        medicationSchemeExport!!.exportMedicationScheme(os, patient, sfks, sender, language, recipientSafe, version, null, decryptor, progressor)
+        medicationSchemeExport.exportMedicationScheme(os, patient, sfks, sender, language, recipientSafe, version, null, decryptor, progressor)
 	}
 
-    override fun createMedicationSchemeExport(
+    override suspend fun createMedicationSchemeExport(
             os: OutputStream,
             patient: Patient,
             sender: HealthcareParty,
@@ -72,6 +72,6 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
             services: List<org.taktik.icure.entities.embed.Service>,
             progressor: AsyncProgress?
     ) {
-        medicationSchemeExport!!.exportMedicationScheme(os, patient, listOf(), sender, language, recipientSafe, version, services, null, progressor)
+        medicationSchemeExport.exportMedicationScheme(os, patient, listOf(), sender, language, recipientSafe, version, services, null, progressor)
     }
 }

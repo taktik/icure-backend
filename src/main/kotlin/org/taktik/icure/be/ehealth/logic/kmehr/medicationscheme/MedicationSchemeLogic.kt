@@ -14,7 +14,7 @@ import java.io.OutputStream
 interface MedicationSchemeLogic {
 
     fun importMedicationSchemeFile(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult>
-    fun createMedicationSchemeExport(
+    suspend fun createMedicationSchemeExport(
             os: OutputStream,
             patient: Patient,
             sfks: List<String>,
@@ -25,7 +25,7 @@ interface MedicationSchemeLogic {
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
     )
-    fun createMedicationSchemeExport(
+    suspend fun createMedicationSchemeExport(
             os: OutputStream,
             patient: Patient,
             sender: HealthcareParty,

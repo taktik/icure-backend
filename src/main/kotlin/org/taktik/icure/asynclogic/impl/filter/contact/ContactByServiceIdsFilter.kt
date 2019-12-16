@@ -18,23 +18,15 @@
 package org.taktik.icure.asynclogic.impl.filter.contact
 
 import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.dto.filter.contact.ContactByServiceIdsFilter
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import javax.security.auth.login.LoginException
 
-class ContactByServiceIdsFilter(private val contactLogic: ContactLogic,
-                                private val sessionLogic: AsyncICureSessionLogic) : Filter<String, Contact, ContactByServiceIdsFilter> {
+class ContactByServiceIdsFilter(private val contactLogic: ContactLogic) : Filter<String, Contact, ContactByServiceIdsFilter> {
 
-    private suspend fun loggedHealthCarePartyId(): String {
-        val user = sessionLogic.getCurrentSessionContext().getUser()
-        return user.healthcarePartyId ?: throw LoginException("You must be logged to perform this action. ")
-    }
-
-    override fun resolve(filter: ContactByServiceIdsFilter, context: Filters): Flow<String> {
+    override suspend fun resolve(filter: ContactByServiceIdsFilter, context: Filters): Flow<String> {
         return contactLogic.findByServices(filter.ids)
     }
 }

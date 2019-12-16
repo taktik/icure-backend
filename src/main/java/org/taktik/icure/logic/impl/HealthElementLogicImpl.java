@@ -53,7 +53,7 @@ import static java.util.stream.Collectors.groupingBy;
 @org.springframework.stereotype.Service
 public class HealthElementLogicImpl extends GenericLogicImpl<HealthElement, HealthElementDAO> implements HealthElementLogic {
 	private static final Logger log = LoggerFactory.getLogger(HealthElementLogicImpl.class);
-	private org.taktik.icure.logic.impl.filter.Filters filters;
+	private org.taktik.icure.asynclogic.impl.filter.Filters filters;
 
 	private HealthElementDAO healthElementDAO;
 	private UUIDGenerator uuidGenerator;
