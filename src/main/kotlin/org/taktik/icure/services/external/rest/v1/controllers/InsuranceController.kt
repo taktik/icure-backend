@@ -20,12 +20,15 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.DocIdentifier
+import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.entities.Insurance
-import org.taktik.icure.logic.InsuranceLogic
 import org.taktik.icure.services.external.rest.v1.dto.InsuranceDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import java.util.*
@@ -38,7 +41,7 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "createInsurance", value = "Creates an insurance")
     @PostMapping
-    fun createInsurance(@RequestBody insuranceDto: InsuranceDto): InsuranceDto {
+    suspend fun createInsurance(@RequestBody insuranceDto: InsuranceDto): InsuranceDto {
         val insurance = insuranceLogic.createInsurance(mapper.map(insuranceDto, Insurance::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance creation failed")
 
@@ -47,14 +50,13 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "deleteInsurance", value = "Deletes an insurance")
     @DeleteMapping("/{insuranceId}")
-    fun deleteInsurance(@PathVariable insuranceId: String): String {
+    fun deleteInsurance(@PathVariable insuranceId: String): Flow<DocIdentifier> { // TODO SH for all delete endpoints: should we return a flow or use .awaitFirst?
         return insuranceLogic.deleteInsurance(insuranceId)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance deletion failed")
     }
 
     @ApiOperation(nickname = "getInsurance", value = "Gets an insurance")
     @GetMapping("/{insuranceId}")
-    fun getInsurance(@PathVariable insuranceId: String): InsuranceDto {
+    suspend fun getInsurance(@PathVariable insuranceId: String): InsuranceDto {
         val insurance = insuranceLogic.getInsurance(insuranceId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Insurance fetching failed")
         return mapper.map(insurance, InsuranceDto::class.java)
@@ -62,32 +64,29 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "getInsurances", value = "Gets insurances by id")
     @PostMapping("/byIds")
-    fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): List<InsuranceDto> {
+    fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): Flow<InsuranceDto> {
         val insurances = insuranceLogic.getInsurances(HashSet(insuranceIds.ids))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurances fetching failed")
         return insurances.map { mapper.map(it, InsuranceDto::class.java) }
     }
 
     @ApiOperation(nickname = "listInsurancesByCode", value = "Gets an insurance")
     @GetMapping("/byCode/{insuranceCode}")
-    fun listInsurancesByCode(@PathVariable insuranceCode: String): List<InsuranceDto> {
+    fun listInsurancesByCode(@PathVariable insuranceCode: String): Flow<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByCode(insuranceCode)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing insurances failed")
         return insurances.map { mapper.map(it, InsuranceDto::class.java) }
     }
 
     @ApiOperation(nickname = "listInsurancesByName", value = "Gets an insurance")
     @GetMapping("/byName/{insuranceName}")
-    fun listInsurancesByName(@PathVariable insuranceName: String): List<InsuranceDto> {
+    fun listInsurancesByName(@PathVariable insuranceName: String): Flow<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByName(insuranceName)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing insurances failed")
 
         return insurances.map { mapper.map(it, InsuranceDto::class.java) }
     }
 
     @ApiOperation(nickname = "modifyInsurance", value = "Modifies an insurance")
     @PutMapping
-    fun modifyInsurance(@RequestBody insuranceDto: InsuranceDto): InsuranceDto {
+    suspend fun modifyInsurance(@RequestBody insuranceDto: InsuranceDto): InsuranceDto {
         val insurance = insuranceLogic.modifyInsurance(mapper.map(insuranceDto, Insurance::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance modification failed")
 

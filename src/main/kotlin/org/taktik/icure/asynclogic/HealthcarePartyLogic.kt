@@ -7,7 +7,7 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 
-interface HealthcarePartyLogic {
+interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
     fun getGenericDAO(): HealthcarePartyDAO
 
     suspend fun getHealthcareParty(id: String): HealthcareParty?

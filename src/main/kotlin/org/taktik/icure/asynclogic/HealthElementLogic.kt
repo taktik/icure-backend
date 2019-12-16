@@ -7,7 +7,7 @@ import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 
-interface HealthElementLogic {
+interface HealthElementLogic : EntityPersister<HealthElement, String> {
     fun getGenericDAO(): HealthElementDAO
 
     suspend fun createHealthElement(healthElement: HealthElement): HealthElement?
