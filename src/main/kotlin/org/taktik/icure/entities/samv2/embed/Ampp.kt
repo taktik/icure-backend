@@ -38,7 +38,8 @@ class Ampp(
         var pricingInformationDecisionDate: Long? = null,
         var components: List<AmppComponent?>? = null,
         var commercializations: List<Commercialization>? = null,
-        var dmpps: List<Dmpp?>? = null
+        var dmpps: List<Dmpp>? = null,
+        var vaccineIndicationCodes: List<String>? = null
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
