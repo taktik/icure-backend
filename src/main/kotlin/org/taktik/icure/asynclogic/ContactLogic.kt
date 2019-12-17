@@ -18,7 +18,6 @@ interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getContact(id: String): Contact?
     fun getContacts(selectedIds: Collection<String>): Flow<Contact>
     fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
-    fun getPaginatedServices(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
     fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
 
     suspend fun addDelegation(contactId: String, delegation: Delegation): Contact?
@@ -41,7 +40,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun findContactsByHCPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
     fun getGenericDAO(): ContactDAO
     suspend fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent>
-    suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<ViewQueryResultEvent>
+    suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<org.taktik.icure.entities.embed.Service>
 
     suspend fun solveConflicts()
     fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>

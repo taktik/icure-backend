@@ -65,9 +65,7 @@ import org.taktik.icure.services.external.http.WebSocketServlet
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
     "org.taktik.icure.config",
-    "org.taktik.icure.dao", // TODO SH MB: remove this once completely migrated to asyncdao
     "org.taktik.icure.asyncdao",
-    "org.taktik.icure.logic", // TODO SH MB: remove this once completely migrated to asynclogic
     "org.taktik.icure.asynclogic",
     "org.taktik.icure.be.ehealth.logic",
     "org.taktik.icure.be.drugs.logic",

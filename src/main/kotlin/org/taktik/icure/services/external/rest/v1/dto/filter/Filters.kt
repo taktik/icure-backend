@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
-import com.google.common.base.Preconditions
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot
 

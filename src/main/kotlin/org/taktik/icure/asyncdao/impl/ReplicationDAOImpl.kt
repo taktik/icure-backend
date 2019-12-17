@@ -52,30 +52,30 @@ class ReplicationDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher
         return client.queryViewIncludeDocs<String, String, Replication>(createQuery("by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
     }
 
-    // TODO SH AD: here and in ICureDAOImpl: couchdbConfig.connection.getUncached
-    /*override fun getPendingChanges(dbInstanceUrl: URI, groupId: String): Map<DatabaseSynchronization, Number>? {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
-        val active_tasks = db.connection.getUncached("/_active_tasks")
-        val inputStreamReader: InputStreamReader
-        try {
-            inputStreamReader = InputStreamReader(active_tasks.content, "UTF8")
-            val json = gson.fromJson(inputStreamReader, List<*>::class.java)
-            val result = HashMap<DatabaseSynchronization, Number>()
-            for (status in json) {
-                val source = status.get("source") as String
-                val target = status.get("target") as String
-                if (source != null && target != null) {
-                    result[DatabaseSynchronization(source, target)] = status.get("changes_pending") as Number
-                }
-            }
-            return result
-        } catch (e: UnsupportedEncodingException) {
-            //
-        }
-
-        return null
-    }*/
+    // TODO AD: fix or remove (similar problem in ICureDAOImpl)
+//    override fun getPendingChanges(dbInstanceUrl: URI, groupId: String): Map<DatabaseSynchronization, Number>? {
+//        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+//
+//        val active_tasks = db.connection.getUncached("/_active_tasks")
+//        val inputStreamReader: InputStreamReader
+//        try {
+//            inputStreamReader = InputStreamReader(active_tasks.content, "UTF8")
+//            val json = gson.fromJson(inputStreamReader, List<*>::class.java)
+//            val result = HashMap<DatabaseSynchronization, Number>()
+//            for (status in json) {
+//                val source = status.get("source") as String
+//                val target = status.get("target") as String
+//                if (source != null && target != null) {
+//                    result[DatabaseSynchronization(source, target)] = status.get("changes_pending") as Number
+//                }
+//            }
+//            return result
+//        } catch (e: UnsupportedEncodingException) {
+//            //
+//        }
+//
+//        return null
+//    }
 
     override fun getActiveReplications(): List<ReplicationTask> {
         return this.couchdbInstance.activeTasks.filterIsInstance<ReplicationTask>().map { task -> task as ReplicationTask }

@@ -77,13 +77,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
     override fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
         return client.getForPagination(contactIds, Contact::class.java)
-    }
-
-    override fun getPaginatedServices(dbInstanceUrl: URI, groupId: String, serviceIds: Collection<String>): Flow<ViewQueryResultEvent> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.getForPagination(serviceIds, Service::class.java) // TODO SH AD: Service is not a StoredDocument, does this make sense?
     }
 
     override fun listContactIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<String> {

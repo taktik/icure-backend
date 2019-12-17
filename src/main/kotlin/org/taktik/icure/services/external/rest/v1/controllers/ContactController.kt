@@ -43,6 +43,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
@@ -296,6 +297,7 @@ class ContactController(private val mapper: MapperFacade,
         return filters.resolve(filter)
     }
 
+    // TODO SH MB test this for PaginatedList construction...
     @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/service/filter")
     suspend fun filterServicesBy(
@@ -308,8 +310,18 @@ class ContactController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
         val services = contactLogic.filterServices(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Service>, mapper.map(filterChain.predicate, Predicate::class.java)))
+                .toList().let { filterChain.filter.applyTo(it) } // TODO AD is this correct?
+                .map { mapper.map(it, ServiceDto::class.java) }
 
-        return services.paginatedList<Service, ServiceDto>(mapper, realLimit)
+        val totalSize = services.size // TODO SH now: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but currently it's lost...
+
+        return if (services.size <= realLimit) {
+            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>(services.size, totalSize, services, null)
+        } else {
+            val nextKeyPair = services.lastOrNull()?.let { PaginatedDocumentKeyIdPair(null, it.id) }
+            val rows = services.subList(0, services.size-1)
+            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>(realLimit, totalSize, rows, nextKeyPair)
+        }
     }
 
     @ApiOperation(nickname = "listContactsByOpeningDate", value = "List contacts bu opening date parties with(out) pagination", notes = "Returns a list of contacts.")

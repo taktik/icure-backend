@@ -274,10 +274,10 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclog
                 return PaginatedList(0, ids.size, ArrayList(), null)
             } else {
                 firstIndex += if (paginationOffset != null && paginationOffset.offset != null) paginationOffset.offset else 0
-                val hasNextPage = paginationOffset != null && paginationOffset.limit != null && firstIndex + paginationOffset.limit!! < codes.size
+                val hasNextPage = paginationOffset != null && paginationOffset.limit != null && firstIndex + paginationOffset.limit < codes.size
                 return if (hasNextPage)
-                    PaginatedList(paginationOffset!!.limit!!, codes.size, codes.subList(firstIndex, firstIndex + paginationOffset.limit!!),
-                                  PaginatedDocumentKeyIdPair(null, codes[firstIndex + paginationOffset.limit!!].id))
+                    PaginatedList(paginationOffset!!.limit, codes.size, codes.subList(firstIndex, firstIndex + paginationOffset.limit),
+                                  PaginatedDocumentKeyIdPair(null, codes[firstIndex + paginationOffset.limit].id))
                 else
                     PaginatedList(codes.size - firstIndex, codes.size, codes.subList(firstIndex, codes.size), null)
             }
@@ -294,10 +294,10 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclog
             }
             val hasNextPage = paginationOffset != null && paginationOffset.limit != null && paginationOffset.limit < idsList.size
             if (hasNextPage) {
-                idsList = idsList.subList(0, paginationOffset!!.limit!! + 1)
+                idsList = idsList.subList(0, paginationOffset!!.limit + 1)
             }
             val codes = this.get(idsList)
-            return PaginatedList(if (hasNextPage) paginationOffset!!.limit!! else codes.size, ids.size, if (hasNextPage) codes.subList(0, paginationOffset!!.limit!!) else codes, if (hasNextPage) PaginatedDocumentKeyIdPair(null, codes[codes.size - 1].id) else null)
+            return PaginatedList(if (hasNextPage) paginationOffset!!.limit else codes.size, ids.size, if (hasNextPage) codes.subList(0, paginationOffset!!.limit) else codes, if (hasNextPage) PaginatedDocumentKeyIdPair(null, codes[codes.size - 1].id) else null)
         }
     }
 

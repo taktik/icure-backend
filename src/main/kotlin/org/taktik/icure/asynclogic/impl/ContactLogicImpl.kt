@@ -71,11 +71,6 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         emitAll(contactDAO.getPaginatedContacts(dbInstanceUri, groupId, selectedIds))
     }
 
-    override fun getPaginatedServices(selectedIds: Collection<String>): Flow<ViewQueryResultEvent> = flow {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(contactDAO.getPaginatedServices(dbInstanceUri, groupId, selectedIds))
-    }
-
     override fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(contactDAO.findByHcPartyPatient(dbInstanceUri, groupId, hcPartyId, secretPatientKeys))
@@ -232,12 +227,12 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         } else {
             ids
         }
-        val selectedIds = sortedIds.take(paginationOffset.limit!!+1) // Fetching one more contacts for the start key of the next page
+        val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more contacts for the start key of the next page
 
         return getPaginatedContacts(selectedIds.toList())
     }
 
-    override suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>): Flow<ViewQueryResultEvent> {
+    override suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>): Flow<org.taktik.icure.entities.embed.Service> {
         val ids= filters.resolve(filter.getFilter())
 
         val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
@@ -246,9 +241,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
             ids
         }
 
-        val selectedIds = sortedIds.take(paginationOffset.limit!!+1) // Fetching one more contacts for the start key of the next page
+        val selectedIds = sortedIds.take(paginationOffset.limit)
 
-        return getPaginatedServices(selectedIds.toList())
+        return getServices(selectedIds.toList())
     }
 
     override suspend fun solveConflicts() {
