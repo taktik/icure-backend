@@ -23,6 +23,7 @@ import java.util.*
 @Api(tags = ["be_samv2"])
 class SamV2Controller(val mapper: MapperFacade,
                       val samV2Logic: SamV2Logic) {
+    private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "findPaginatedAmpsByLabel", value = "Finding AMPs by label with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp")
@@ -33,8 +34,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "An amp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val ampsList = samV2Logic.findAmpsByLabel(language, label, paginationOffset)
 
@@ -62,8 +64,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val vmpsList = samV2Logic.findVmpsByLabel(language, label, paginationOffset)
 
@@ -90,8 +93,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val vmpsList = samV2Logic.findVmpsByGroupCode(vmpgCode, paginationOffset)
 
@@ -118,8 +122,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val vmpsList = samV2Logic.findVmpsByGroupId(vmpgId, paginationOffset)
 
@@ -146,8 +151,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val ampsList = samV2Logic.findAmpsByVmpGroupCode(vmpgCode, paginationOffset)
 
@@ -174,8 +180,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val ampsList = samV2Logic.findAmpsByVmpGroupId(vmpgId, paginationOffset)
 
@@ -202,8 +209,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A amp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val ampsList = samV2Logic.findAmpsByVmpCode(vmpCode, paginationOffset)
 
@@ -230,8 +238,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A amp document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val ampsList = samV2Logic.findAmpsByVmpId(vmpId, paginationOffset)
 
@@ -259,8 +268,9 @@ class SamV2Controller(val mapper: MapperFacade,
             @ApiParam(value = "A vmpgroup document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val vmpGroupsList = samV2Logic.findVmpGroupsByLabel(language, label, paginationOffset)
 

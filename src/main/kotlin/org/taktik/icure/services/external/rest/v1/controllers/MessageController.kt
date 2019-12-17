@@ -45,7 +45,7 @@ import kotlin.streams.toList
 @RequestMapping("/rest/v1/message")
 @Api(tags = ["message"])
 class MessageController(private val messageLogic: MessageLogic, private val mapper: MapperFacade, private val sessionLogic: SessionLogic) {
-
+    val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "createMessage", value = "Creates a message")
     @PostMapping
@@ -128,8 +128,9 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun findMessages(@RequestParam(required = false) startKey: String?,
                      @RequestParam(required = false) startDocumentId: String?,
                      @RequestParam(required = false) limit: Int?): MessagePaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit+1)
 
         return messageLogic.findForCurrentHcParty(paginationOffset)?.let { mapper.map(it, MessagePaginatedList::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
@@ -163,8 +164,9 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?): MessagePaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit+1)
         val hcpId = hcpId ?: sessionLogic.currentSessionContext.user.healthcarePartyId
         val messages = received?.takeIf { it }?.let { messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
                 ?: messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset)
@@ -182,8 +184,9 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?): MessagePaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit+1)
         return messageLogic.findByTransportGuidSentDate(
                 hcpId ?: sessionLogic.currentSessionContext.user.healthcarePartyId,
                 transportGuid,
@@ -204,8 +207,9 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) reverse: Boolean?,
             @RequestParam(required = false) hcpId: String?): MessagePaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
-        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit+1)
         val hcpId = hcpId ?: sessionLogic.currentSessionContext.user.healthcarePartyId
         return messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse)?.let { mapper.map(it, MessagePaginatedList::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
@@ -219,8 +223,9 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?): MessagePaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
-        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit+1)
         val hcpId = hcpId ?: sessionLogic.currentSessionContext.user.healthcarePartyId
         return messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset)?.let { mapper.map(it, MessagePaginatedList::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")

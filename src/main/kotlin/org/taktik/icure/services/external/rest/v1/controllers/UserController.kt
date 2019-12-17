@@ -51,6 +51,7 @@ class UserController(private val mapper: MapperFacade,
                      private val groupLogic: GroupLogic,
                      private val sessionLogic: ICureSessionLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "getCurrentUser", value = "Get presently logged-in user.", notes = "Get current user.")
     @GetMapping(value = ["/current"])
@@ -82,7 +83,8 @@ class UserController(private val mapper: MapperFacade,
             @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): UserPaginatedList {
 
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
+        val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
         val allUsers = userLogic.listUsers(paginationOffset)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing users failed.")
         return mapper.map(allUsers, UserPaginatedList::class.java)

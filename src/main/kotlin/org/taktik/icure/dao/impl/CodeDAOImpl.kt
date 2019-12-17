@@ -291,7 +291,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 	override fun getCodeByLabel(label: String, ofType: String, labelLang : List<String>) : Code {
 		val cleanLabel = label.toLowerCase().replace("^\\s+".toRegex(), "").replace("\\s+$".toRegex(), "")
 		for (lang in labelLang) {
-			val langLabelMap : Map<String?, Code>? = findCodesByLabel("be", lang, ofType, label, PaginationOffset<Code>()).rows?.associateBy({ it.label[lang]?.toLowerCase() }, { it })
+			val langLabelMap : Map<String?, Code>? = findCodesByLabel("be", lang, ofType, label, PaginationOffset<Code>(DEFAULT_LIMIT)).rows?.associateBy({ it.label[lang]?.toLowerCase() }, { it })
 			if (langLabelMap?.containsKey(cleanLabel) == true) {
 				return langLabelMap[cleanLabel]!!
 			}

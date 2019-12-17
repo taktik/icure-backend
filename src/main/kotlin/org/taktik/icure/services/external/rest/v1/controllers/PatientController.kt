@@ -436,7 +436,7 @@ class PatientController(
 
             }
 
-    // TODO MB add missing methods like findDuplicatesBySsin or findDuplicatesByName
+    // TODO MB add missing methods like findDuplicatesBySsin or findDuplicatesByName  (compare this controller with the master branch)
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)
