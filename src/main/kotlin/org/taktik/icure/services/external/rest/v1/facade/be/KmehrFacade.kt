@@ -240,7 +240,7 @@ class KmehrFacade(
 	@POST
 	@Path("/medicationscheme/{patientId}/export")
 	@Produces("application/octet-stream")
-	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("version") recipientSafe: String, @QueryParam("version") version: Int, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
+	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("recipientSafe") recipientSafe: String, @QueryParam("version") version: Int, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
 
 		return if (medicationSchemeExportParams.services?.isNotEmpty() == true)
