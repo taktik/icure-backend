@@ -41,7 +41,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
 
     private fun getFullId(dbInstanceUrl: URI, groupId: String?, id: String): String {
         return dbInstanceUrl.toString() + (groupId
-                ?: "FALLBACK") + ":$id" // TODO SH now: correct? no need to use DigestUtils.sha256Hex? is groupId enough or do we need the full database name to handle -base etc.?
+                ?: "FALLBACK") + ":$id" // TODO SH AD: correct? no need to use DigestUtils.sha256Hex? is groupId enough or do we need the full database name to handle -base etc.?
     }
 
     override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>): Flow<T> {
@@ -173,7 +173,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
 
     fun evictFromCache(id: String) {
         log.debug("Cache EVICT= {}", id)
-        // TODO SH now: this is wrong? should be the fullId?
+        // TODO SH AD: this is wrong? should be the fullId?
         cache.evict(id)
     }
 

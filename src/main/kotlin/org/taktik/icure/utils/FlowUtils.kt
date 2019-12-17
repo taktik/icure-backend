@@ -84,7 +84,7 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 }
 
 @Suppress("UNCHECKED_CAST")
-// TODO SH now: handle offsets
+// TODO SH MB: handle offsets
 suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
@@ -98,7 +98,7 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
             is ViewRowWithDoc<*, *, *> -> {
                 when {
                     viewRowCount == realLimit -> {
-                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH MB: startKey was a List<String>, ok with a String?
+                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH MB: startKey was a List<String> before, now it is a String, ok?
                         viewRowCount++
                         lastProcessedViewRow?.doc as? U
                     }

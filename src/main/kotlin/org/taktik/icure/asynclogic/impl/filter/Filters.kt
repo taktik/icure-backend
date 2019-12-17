@@ -71,14 +71,14 @@ class Filters : ApplicationContextAware {
                 } else {
                     result.retainAll(context.resolve(filters[i]).toList())
                 }
-                result.forEach { emit(it) } // TODO SH now: not reactive... can be optimized?
+                result.forEach { emit(it) } // TODO SH MB: not reactive... can be optimized?
             }
         }
     }
 
     class ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>> {
         override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {
-            if (filter.getSuperSet() == null) throw NoSuperSetException() // TODO SH now: should be nullable?
+            //if (filter.getSuperSet() == null) throw NoSuperSetException() // not necessary anymore since the superSet is not-nullable
             val superFlow: Flow<T> = context.resolve(filter.getSuperSet())
             val subList: List<T> = context.resolve(filter.getSubSet()).toList()
             superFlow.collect {
