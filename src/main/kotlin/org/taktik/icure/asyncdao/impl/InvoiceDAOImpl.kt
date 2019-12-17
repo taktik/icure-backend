@@ -93,7 +93,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     }
 
     @View(name = "by_hcparty_recipient", map = "classpath:js/invoice/By_hcparty_recipient_map.js")
-    override fun listByHcPartyRecipientIds(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String>): Flow<Invoice> {
+    override fun listByHcPartyRecipientIds(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String?>): Flow<Invoice> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         return client.queryViewIncludeDocs<ComplexKey, String, Invoice>(createQuery("by_hcparty_recipient").includeDocs(true).keys(recipientIds.map { id -> ComplexKey.of(hcParty, id) })).map { it.doc }
@@ -108,7 +108,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     }
 
     @View(name = "by_hcparty_recipient_unsent", map = "classpath:js/invoice/By_hcparty_recipient_unsent_map.js")
-    override fun listByHcPartyRecipientIdsUnsent(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String>): Flow<Invoice> {
+    override fun listByHcPartyRecipientIdsUnsent(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String?>): Flow<Invoice> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         return client.queryViewIncludeDocs<ComplexKey, String, Invoice>(createQuery("by_hcparty_recipient_unsent").includeDocs(true).keys(recipientIds.map { id -> ComplexKey.of(hcParty, id) })).map { it.doc }

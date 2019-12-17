@@ -21,11 +21,11 @@ interface InvoiceDAO: GenericDAO<Invoice> {
 
     fun listByHcPartyGroupId(dbInstanceUrl: URI, groupId: String, hcParty: String): Flow<Invoice>
 
-    fun listByHcPartyRecipientIds(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String>): Flow<Invoice>
+    fun listByHcPartyRecipientIds(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
 
     fun listByHcPartyPatientFk(dbInstanceUrl: URI, groupId: String, hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
 
-    fun listByHcPartyRecipientIdsUnsent(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String>): Flow<Invoice>
+    fun listByHcPartyRecipientIdsUnsent(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
 
     fun listByHcPartyPatientFkUnsent(dbInstanceUrl: URI, groupId: String, hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>
 
