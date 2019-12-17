@@ -66,6 +66,7 @@ class PatientController(
         private val filters: Filters,
         private val patientLogic: PatientLogic,
         private val healthcarePartyLogic: HealthcarePartyLogic) {
+    private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "findByNameBirthSsinAuto", value = "Find patients for the current user (HcParty) ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
@@ -77,8 +78,9 @@ class PatientController(
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String
     ): PatientPaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentHealthcarePartyId)
         return patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
                 if (hcp.parentId != null) hcp.parentId else hcp.id,
@@ -109,8 +111,9 @@ class PatientController(
                               @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                               @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
                               @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection))
                 ?.let { buildPaginatedListResponse(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
@@ -158,8 +161,9 @@ class PatientController(
                      @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                      @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
                      @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String): PatientPaginatedList {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentHealthcarePartyId)
         return patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(if (hcp.parentId != null) hcp.parentId else hcp.id, paginationOffset, null, Sorting(sortField, sortDirection))?.let { buildPaginatedListResponse(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
@@ -171,8 +175,9 @@ class PatientController(
                         @ApiParam(value = "The page first id") @RequestParam(required = false) startKey: String?,
                         @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @ApiParam(value = "Page size") @RequestParam(required = false) limit: Int?): PaginatedList<String> {
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { ComplexKey.of(Gson().fromJson(it, Array<String>::class.java)) }
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         return patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
     }
@@ -182,7 +187,7 @@ class PatientController(
     fun findByExternalId(@PathVariable("externalId")
                          @ApiParam(value = "A external ID", required = true) externalId: String) = mapper.map(patientLogic.getByExternalId(externalId), PatientDto::class.java)
 
-    // TODO SH uncomment
+    // TODO SH MB: uncomment
 //    @ApiOperation(nickname = "findByAccessLogUserAfterDate", value = "Get Paginated List of Patients sorted by Access logs descending")
 //    @GetMapping("/byAccess/{userId}")
 //    fun findByAccessLogUserAfterDate(@ApiParam(value = "A User ID", required = true) @PathVariable userId: String,
@@ -243,8 +248,9 @@ class PatientController(
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
             @RequestBody(required = false) filterChain: FilterChain?): PatientPaginatedList {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { ArrayList(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it)) }
-        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, limit)
+        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, realLimit+1)
 
         try {
             //(Filter<String,O> filter, Predicate predicate)
@@ -324,7 +330,8 @@ class PatientController(
             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): PatientPaginatedList {
 
-        val paginationOffset = PaginationOffset<Long>(startDate, startDocumentId, null, limit) // TODO works with descending=true?
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset<Long>(startDate, startDocumentId, null, realLimit+1) // TODO works with descending=true?
         return patientLogic.findDeletedPatientsByDeleteDate(startDate, endDate, desc ?: false, paginationOffset)
                 ?.let { buildPaginatedListResponse(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Listing deleted patients failed.")

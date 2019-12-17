@@ -40,7 +40,7 @@ class ICureLogicImpl(private val iCureDAO: ICureDAO,
         val group = groupLogic.findGroup(groupId) ?: throw IllegalArgumentException("Cannot load group $groupId")
         allDaos
                 .firstOrNull { dao: GenericDAO<*> -> dao.javaClass.simpleName.startsWith(daoEntityName + "DAO") }
-                //?.let { dao: GenericDAO<*> -> dao.forceInitStandardDesignDocument(group) } // TODO SH now: missing function from GenericLogic
+                //?.let { dao: GenericDAO<*> -> dao.forceInitStandardDesignDocument(group) } // TODO SH AD: missing function from GenericLogic
     }
 
     override fun getVersion(): String {

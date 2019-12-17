@@ -46,6 +46,7 @@ import kotlin.math.min
 class CodeController(private val mapper: MapperFacade,
                      private val codeLogic: CodeLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
     @GetMapping("/byLabel")
@@ -58,8 +59,10 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
+
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val codesList: PaginatedList<Code> =
                 if (types != null) {
@@ -89,10 +92,11 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(
                 getStartKey(region, type, code, version),
                 startDocumentId, null,
-                if (limit == null) null else Integer.valueOf(limit)
+                realLimit+1
         )
 
         val codesList: PaginatedList<Code> = codeLogic.findCodesBy(region, type, code, version, paginationOffset)
@@ -110,8 +114,9 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         val codesList = codeLogic.findCodesByQualifiedLinkId(linkType, linkedId, paginationOffset)
         return paginatedListDto(codesList)
@@ -210,8 +215,9 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
             @RequestBody(required = false) filterChain: FilterChain?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.split(',')?.filter { it.isNotBlank() }?.map { it.trim() } ?: listOf()
-        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, limit)
+        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, realLimit+1)
 
         var codes: PaginatedList<Code>? = null
         val timing = System.currentTimeMillis()

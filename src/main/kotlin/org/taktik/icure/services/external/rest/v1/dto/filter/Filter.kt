@@ -29,15 +29,15 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.patient.*
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import java.io.Serializable
 
-// TODO SH now: bugged annotation
-/*@JsonPolymorphismSupport(Filters.UnionFilter::class, Filters.IntersectionFilter::class, Filters.ComplementFilter::class, Filters.ConstantFilter::class,
-        CodeByRegionTypeLabelLanguageFilter::class, PatientByHcPartyFilter::class, PatientByHcPartyDateOfBirthFilter::class,
-        PatientByHcPartyDateOfBirthBetweenFilter::class, PatientByHcPartyAndSsinFilter::class, PatientByHcPartyNameContainsFuzzyFilter::class,
-        PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class, PatientByHcPartyNameFilter::class, PatientByHcPartyAndSsinsFilter::class,
-        PatientByHcPartyNameContainsFuzzyFilter::class, PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class,
-        PatientByHcPartyAndActiveFilter::class, PatientByHcPartyGenderEducationProfession::class, ContactByHcPartyTagCodeDateFilter::class,
-        ContactByHcPartyPatientTagCodeDateFilter::class, ContactByServiceIdsFilter::class, ServiceByHcPartyTagCodeDateFilter::class,
-        InvoiceByHcPartyCodeDateFilter::class, HealthElementByHcPartyTagCodeFilter::class)*/
+// TODO SH AD: bugged annotation
+//@JsonPolymorphismSupport(Filters.UnionFilter::class, Filters.IntersectionFilter::class, Filters.ComplementFilter::class, Filters.ConstantFilter::class,
+//        CodeByRegionTypeLabelLanguageFilter::class, PatientByHcPartyFilter::class, PatientByHcPartyDateOfBirthFilter::class,
+//        PatientByHcPartyDateOfBirthBetweenFilter::class, PatientByHcPartyAndSsinFilter::class, PatientByHcPartyNameContainsFuzzyFilter::class,
+//        PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class, PatientByHcPartyNameFilter::class, PatientByHcPartyAndSsinsFilter::class,
+//        PatientByHcPartyNameContainsFuzzyFilter::class, PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class,
+//        PatientByHcPartyAndActiveFilter::class, PatientByHcPartyGenderEducationProfession::class, ContactByHcPartyTagCodeDateFilter::class,
+//        ContactByHcPartyPatientTagCodeDateFilter::class, ContactByServiceIdsFilter::class, ServiceByHcPartyTagCodeDateFilter::class,
+//        InvoiceByHcPartyCodeDateFilter::class, HealthElementByHcPartyTagCodeFilter::class)
 abstract class Filter<O : Identifiable<String>> : org.taktik.icure.dto.filter.Filter<String, O>, Serializable {
 	var desc: String? = null
 

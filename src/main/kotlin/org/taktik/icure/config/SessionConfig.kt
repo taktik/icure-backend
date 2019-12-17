@@ -16,7 +16,7 @@ class SessionConfig {
     @Bean
     fun reactiveSessionRepository(hazelcastInstance: HazelcastInstance): ReactiveSessionRepository<MapSession> {
         val mapName = "sessionsMap"
-        val config = hazelcastInstance.config // TODO SH configure TTL to purge expired sessions
+        val config = hazelcastInstance.config // TODO SH later: configure TTL to purge expired sessions
         val map = hazelcastInstance.getMap<String, Session>(mapName)
         return ReactiveMapSessionRepository(map)
     }

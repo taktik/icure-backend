@@ -52,7 +52,7 @@ class ReplicationDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher
         return client.queryViewIncludeDocs<String, String, Replication>(createQuery("by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
     }
 
-    // TODO SH here and in ICureDAOImpl: couchdbConfig.connection.getUncached
+    // TODO SH now: here and in ICureDAOImpl: couchdbConfig.connection.getUncached
     /*override fun getPendingChanges(dbInstanceUrl: URI, groupId: String): Map<DatabaseSynchronization, Number>? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 

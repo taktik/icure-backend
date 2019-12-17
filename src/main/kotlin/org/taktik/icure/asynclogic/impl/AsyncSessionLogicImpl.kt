@@ -238,7 +238,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 //        }
 
         private suspend fun setCurrentAuthentication(authentication: Authentication?) {
-                return coroutineContext[ReactorContext]?.context?.get<Mono<SecurityContext>>(SecurityContext::class.java)?.map { it.authentication = authentication }?.awaitSingle()!! // TODO SH !!
+                return coroutineContext[ReactorContext]?.context?.get<Mono<SecurityContext>>(SecurityContext::class.java)?.map { it.authentication = authentication }?.awaitSingle()!! // TODO SH now !!
         }
 
         private fun extractUserDetails(authentication: Authentication): UserDetails {

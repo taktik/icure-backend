@@ -1,5 +1,5 @@
 package org.taktik.icure.services.external.http
-// TODO SH jsessionid
+// TODO SH later: jsessionid
 /*import org.springframework.session.Session
 import org.springframework.session.web.http.CookieHttpSessionStrategy
 import org.springframework.session.web.http.HeaderHttpSessionStrategy

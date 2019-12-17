@@ -54,7 +54,8 @@ class TarificationController(private val mapper: MapperFacade,
             @RequestParam(required = false) label: String?,
             @ApiParam(value = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<TarificationDto> {
-        val tarificationsList = tarificationLogic.findTarificationsByLabel(region, language, label, PaginationOffset(listOf(region, language, label), startDocumentId, null, limit))
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val tarificationsList = tarificationLogic.findTarificationsByLabel(region, language, label, PaginationOffset(listOf(region, language, label), startDocumentId, null, realLimit+1))
 
         types?.let {
             val splits = it.split(',')
@@ -65,7 +66,7 @@ class TarificationController(private val mapper: MapperFacade,
             }
         }
 
-        return tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, DEFAULT_LIMIT)
+        return tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit)
     }
 
     @ApiOperation(nickname = "findPaginatedTarifications", value = "Finding tarifications by tarification, type and version with pagination.", notes = "Returns a list of tarifications matched with given input.")
@@ -77,7 +78,7 @@ class TarificationController(private val mapper: MapperFacade,
             @RequestParam(required = false) version: String?,
             @ApiParam(value = "A tarification document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<TarificationDto> {
-
+        val realLimit = limit ?: DEFAULT_LIMIT
         fun getStartKey(startKeyRegion: String?, startKeyType: String?, startKeyTarification: String?, startKeyVersion: String?): List<String?>? =
                 if (startKeyRegion != null && startKeyType != null && startKeyTarification != null && startKeyVersion != null) {
                     listOf(startKeyRegion, startKeyType, startKeyTarification, startKeyVersion)
@@ -88,10 +89,10 @@ class TarificationController(private val mapper: MapperFacade,
 
         val tarificationsList = tarificationLogic.findTarificationsBy(
                 region, type, tarification, version,
-                PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, limit)
+                PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, realLimit+1)
         )
 
-        return tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, DEFAULT_LIMIT)
+        return tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit)
     }
 
 

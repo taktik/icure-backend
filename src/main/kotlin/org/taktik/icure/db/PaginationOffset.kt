@@ -26,13 +26,11 @@ class PaginationOffset<K> : Serializable {
     val startKey: K?
     val startDocumentId: String?
     val offset: Int? // should be scarcely used
-    val limit: Int? // TODO SH not nullable once all controllers are done
+    val limit: Int
 
-    constructor(): this(null, null, null, null)
+    constructor(limit: Int): this(null, null, null, limit)
 
-    constructor(limit: Int?): this(null, null, null, limit)
-
-    constructor(limit: Int?, startDocumentId: String?): this(null, startDocumentId, null, limit)
+    constructor(limit: Int, startDocumentId: String?): this(null, startDocumentId, null, limit)
 
     constructor(paginatedList: PaginatedList<*>): this(
             paginatedList.nextKeyPair?.startKey as K?,
@@ -41,7 +39,7 @@ class PaginationOffset<K> : Serializable {
             paginatedList.pageSize
     )
 
-    constructor(startKey: K?, startDocumentId: String?, offset: Int?, limit: Int?) {
+    constructor(startKey: K?, startDocumentId: String?, offset: Int?, limit: Int) {
         this.startKey = startKey
         this.startDocumentId = startDocumentId
         this.offset = offset

@@ -83,8 +83,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
     override fun getPaginatedServices(dbInstanceUrl: URI, groupId: String, serviceIds: Collection<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return flowOf()
-        //return client.getForPagination(serviceIds, Service::class.java) // TODO SH now: Service is an ICureDocument, not a StoredICureDocument, so it's not Versionable (= CouchDbDocument)
+        return client.getForPagination(serviceIds, Service::class.java) // TODO SH AD: Service is not a StoredDocument, does this make sense?
     }
 
     override fun listContactIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<String> {

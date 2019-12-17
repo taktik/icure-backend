@@ -9,6 +9,6 @@ import org.taktik.icure.logic.CodeLogic
 
 class CodeByRegionTypeLabelLanguageFilter(private val codeLogic: CodeLogic) : Filter<String, Code, CodeByRegionTypeLabelLanguageFilter> {
     override suspend fun resolve(filter: CodeByRegionTypeLabelLanguageFilter, context: Filters): Flow<String> {
-        return codeLogic.listCodeIdsByLabel(filter.region, filter.language, filter.type, filter.label) as Flow<String> // TODO SH remove cast on all Filters once asynclogics done
+        return codeLogic.listCodeIdsByLabel(filter.region, filter.language, filter.type, filter.label) as Flow<String> // TODO SH MB: remove cast on all Filters once asynclogics done
     }
 }

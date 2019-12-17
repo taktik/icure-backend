@@ -66,7 +66,7 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
 
     override suspend fun findGroup(groupId: String): Group? {
         val (dbInstanceUri, dbGroupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return groupDAO.get(dbInstanceUri, dbGroupId, groupId) // TODO SH was previously find, ok? groupId, is that the same?
+        return groupDAO.get(dbInstanceUri, dbGroupId, groupId) // TODO SH AD: was previously find, ok? groupId, is that the same?
     }
 
     companion object {

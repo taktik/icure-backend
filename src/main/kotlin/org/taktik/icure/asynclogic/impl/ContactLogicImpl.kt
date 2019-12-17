@@ -131,7 +131,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
     }
 
-    // TODO SH test this
+    // TODO SH MB: make sure this works ('bufferedChunks')
     override fun getServices(selectedServiceIds: Collection<String>): Flow<org.taktik.icure.entities.embed.Service> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val serviceIds: Set<String> = HashSet(selectedServiceIds)

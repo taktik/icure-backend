@@ -288,7 +288,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
     }
 
-    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) { // TODO SH reactive
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) { // TODO SH MB: reactive
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
@@ -319,7 +319,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
 
         var viewQuery = createQuery(viewName)
-                .startKey(startKey) // TODO SH now: pagination.startKey ignored? they are probably always the same though
+                .startKey(startKey) // NB: pagination.startKey is ignored, but should always be null or the same as startKey
                 .includeDocs(true)
                 .reduce(false)
                 .startDocId(pagination.startDocumentId)
@@ -350,7 +350,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return viewQuery
     }
 
-    // TODO SH TODO AD make sure this is correct
+    // TODO SH later: make sure this is correct
     protected open fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> = flow {
         var newEntity = newEntity
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

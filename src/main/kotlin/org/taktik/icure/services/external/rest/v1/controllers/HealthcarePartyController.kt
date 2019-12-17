@@ -55,7 +55,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
                                 private val replicationLogic: ReplicationLogic,
                                 private val sessionLogic: ICureSessionLogic) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
-
+    private val DEFAULT_LIMIT = 1000
     @ApiOperation(nickname = "getCurrentHealthcareParty", value = "Get the current healthcare party if logged in.", notes = "General information about the current healthcare Party")
     @GetMapping("/current")
     fun getCurrentHealthcareParty(): HealthcarePartyDto {
@@ -85,7 +85,8 @@ class HealthcarePartyController(private val mapper: MapperFacade,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<HealthcarePartyDto> {
 
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val healthcareParties = healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing healthcare parties failed")
@@ -102,11 +103,12 @@ class HealthcarePartyController(private val mapper: MapperFacade,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<HealthcarePartyDto> {
 
+        val realLimit = limit ?: DEFAULT_LIMIT
         if (name == null || name.isEmpty()) {
             return listHealthcareParties(startKey, startDocumentId, limit, desc)
         }
 
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val healthcareParties = healthcarePartyLogic.findHealthcareParties(name, paginationOffset, desc)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing healthcare parties failed")
@@ -123,7 +125,8 @@ class HealthcarePartyController(private val mapper: MapperFacade,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<HealthcarePartyDto> {
 
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
+        val realLimit = limit ?: DEFAULT_LIMIT
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val healthcareParties = healthcarePartyLogic.findHealthcarePartiesBySsinOrNihii(searchValue, paginationOffset, desc)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing healthcare parties failed")

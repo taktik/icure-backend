@@ -305,7 +305,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
-        val paginationOffset = PaginationOffset(null, startDocumentId, null, limit)
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
         val services = contactLogic.filterServices(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Service>, mapper.map(filterChain.predicate, Predicate::class.java)))
 
@@ -323,8 +323,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
-        val paginationOffset = PaginationOffset<ComplexKey>(null, startDocumentId, null, realLimit+1)
-        // TODO SH now: I've replaced startKey by null since it is already used in listContactsByOpeningDate, it was just a duplicated!?
+        val paginationOffset = PaginationOffset<ComplexKey>(null, startDocumentId, null, realLimit+1) // startKey is null since it is already a parameter of the subsequent function
         val contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset)
 
         return contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)

@@ -255,7 +255,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
         val users = if (userIds == null) userLogic.allEntities else userLogic.getUsers(userIds.split(','))
         val insuranceIds = insuranceLogic.getAllEntityIds().toSet()
         return users
-                .flatMap { u -> invoiceLogic.listByHcPartyRecipientIds(u.healthcarePartyId, insuranceIds).filter { iv -> u.id == iv.author }.toList() } // TODO SH here and after: no toList() once UserLogic is done
+                .flatMap { u -> invoiceLogic.listByHcPartyRecipientIds(u.healthcarePartyId, insuranceIds).filter { iv -> u.id == iv.author }.toList() } // TODO SH MB here and after: no toList() once UserLogic is done
                 .map { i -> mapper.map(i, InvoiceDto::class.java) }
                 .sortedWith(Comparator.comparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) }.thenComparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) })
     }

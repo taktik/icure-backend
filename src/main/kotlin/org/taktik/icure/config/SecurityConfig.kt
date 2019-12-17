@@ -51,7 +51,7 @@ class SecurityConfig {
     fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder("SHA-256")
 
     @Bean
-    fun httpFirewall() = StrictHttpFirewall().apply { setAllowSemicolon(true) } // TODO SH might be ignored if not registered in the security config
+    fun httpFirewall() = StrictHttpFirewall().apply { setAllowSemicolon(true) } // TODO SH later: might be ignored if not registered in the security config
 
     @Bean
     fun daoAuthenticationProvider(userLogic: UserLogic, groupLogic: GroupLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, groupLogic, permissionLogic).apply {
@@ -73,7 +73,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
         return http
                 .csrf().disable()
                 .httpBasic().disable()
-                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH necessary?)
+                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
                 .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
                 .authenticationManager(authenticationManager())
                 .authorizeExchange()
@@ -96,12 +96,12 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
 
     @Bean
     fun authenticationManager(): ReactiveAuthenticationManager {
-        // TODO SH should swap to an actually reactive version of CustomAuthenticationProvider
+        // TODO SH later: should swap to an actually reactive version of CustomAuthenticationProvider
         return ReactiveAuthenticationManagerAdapter(ProviderManager(listOf(daoAuthenticationProvider)))
     }
 
     @Bean
-    // TODO SH this method might not be necessary anymore
+    // TODO SH later: this method might not be necessary anymore
     fun basicAuthenticationWebFilter(): AuthenticationWebFilter {
         val basicFilter = AuthenticationWebFilter(authenticationManager())
         basicFilter.setAuthenticationSuccessHandler { webFilterExchange, _ ->

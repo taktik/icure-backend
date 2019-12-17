@@ -50,7 +50,7 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "deleteInsurance", value = "Deletes an insurance")
     @DeleteMapping("/{insuranceId}")
-    fun deleteInsurance(@PathVariable insuranceId: String): Flow<DocIdentifier> { // TODO SH for all delete endpoints: should we return a flow or use .awaitFirst?
+    fun deleteInsurance(@PathVariable insuranceId: String): Flow<DocIdentifier> { // TODO SH now: for all delete endpoints: should we return a flow or use .awaitFirst?
         return insuranceLogic.deleteInsurance(insuranceId)
     }
 
