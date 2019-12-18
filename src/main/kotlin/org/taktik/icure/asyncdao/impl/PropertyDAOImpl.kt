@@ -51,12 +51,10 @@ class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: C
 
     override fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: Property) {
         super.evictFromCache(dbInstanceUrl, groupId, entity)
-        super.evictFromCache("PID:" + entity.type.identifier)
     }
 
     override fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, entity: Property) {
         super.putInCache(dbInstanceUrl, groupId, key, entity)
-        super.putInCache(dbInstanceUrl, groupId, "PID:" + entity.type.identifier, entity)
     }
 
     companion object {

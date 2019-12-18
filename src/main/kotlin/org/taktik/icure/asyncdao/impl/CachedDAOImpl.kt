@@ -171,12 +171,6 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         cache.evict(fullId1)
     }
 
-    fun evictFromCache(id: String) {
-        log.debug("Cache EVICT= {}", id)
-        // TODO SH now: this is wrong? should be the fullId? -> delete
-        cache.evict(id)
-    }
-
     protected fun getWrapperFromCache(dbInstanceUrl: URI, groupId: String, id: String): Cache.ValueWrapper? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         val value = cache.get(fullId)

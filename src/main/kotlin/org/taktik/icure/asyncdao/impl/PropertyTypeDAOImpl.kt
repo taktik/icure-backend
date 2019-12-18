@@ -57,12 +57,10 @@ class PropertyTypeDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatche
 
     override fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: PropertyType) {
         super.evictFromCache(dbInstanceUrl, groupId, entity)
-        super.evictFromCache("PID:" + entity.identifier)
     }
 
     override fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, entity: PropertyType) {
         super.putInCache(dbInstanceUrl, groupId, key, entity)
-        super.putInCache(dbInstanceUrl, groupId, "PID:" + entity.identifier, entity)
     }
 
 }
