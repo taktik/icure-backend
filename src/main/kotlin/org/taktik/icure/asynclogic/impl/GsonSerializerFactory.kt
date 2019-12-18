@@ -40,7 +40,7 @@ class GsonSerializerFactory {
                     .registerTypeAdapter(Filter::class.java, DiscriminatedTypeAdapter(Filter::class.java))
                     .registerTypeAdapter(Editor::class.java, DiscriminatedTypeAdapter(Editor::class.java))
                     .registerTypeAdapter(Data::class.java, DiscriminatedTypeAdapter(Data::class.java))
-                    .registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.Filter::class.java, DiscriminatedTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.Filter::class.java))
+                    .registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto::class.java, DiscriminatedTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto::class.java))
                     .registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data::class.java, DiscriminatedTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data::class.java))
                     .registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor::class.java, DiscriminatedTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor::class.java))
                     .registerTypeAdapter(ByteArray::class.java, JsonDeserializer<ByteArray> { json: JsonElement, _: Type?, _: JsonDeserializationContext? ->

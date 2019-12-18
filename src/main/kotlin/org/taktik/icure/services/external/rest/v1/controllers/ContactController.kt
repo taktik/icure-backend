@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
-import ma.glasnost.orika.metadata.TypeBuilder
 import org.ektorp.ComplexKey
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -33,7 +32,6 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Contact
@@ -48,7 +46,7 @@ import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.paginatedList
@@ -293,7 +291,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    suspend fun matchBy(@RequestBody filter: Filter<*>): Flow<String> {
+    suspend fun matchBy(@RequestBody filter: FilterDto<*>): Flow<String> {
         return filters.resolve(filter)
     }
 

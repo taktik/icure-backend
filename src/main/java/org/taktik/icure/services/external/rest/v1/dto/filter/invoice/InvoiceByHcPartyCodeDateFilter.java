@@ -18,14 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.invoice;
 
-import com.google.common.base.Objects;
 import org.taktik.icure.entities.Invoice;
-import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
-@JsonPolymorphismRoot(Filter.class)
-public class InvoiceByHcPartyCodeDateFilter extends Filter<Invoice> implements org.taktik.icure.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class InvoiceByHcPartyCodeDateFilter extends FilterDto<Invoice> implements org.taktik.icure.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter {
 
     private String healthcarePartyId;
     private String code;

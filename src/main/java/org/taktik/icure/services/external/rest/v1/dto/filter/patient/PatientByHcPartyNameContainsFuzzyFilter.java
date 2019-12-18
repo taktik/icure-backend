@@ -21,15 +21,14 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.patient;
 import java.util.Optional;
 
 import com.google.common.base.Objects;
-import org.taktik.icure.db.StringUtils;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import static org.taktik.icure.db.StringUtils.*;
 
-@JsonPolymorphismRoot(Filter.class)
-public class PatientByHcPartyNameContainsFuzzyFilter extends Filter<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyNameContainsFuzzyFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class PatientByHcPartyNameContainsFuzzyFilter extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyNameContainsFuzzyFilter {
 
 	private String searchString;
 	private String healthcarePartyId;

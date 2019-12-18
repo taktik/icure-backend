@@ -21,7 +21,6 @@ package org.taktik.icure.dto.filter.service;
 import org.taktik.icure.dto.filter.Filter;
 import org.taktik.icure.entities.embed.Service;
 
-import java.util.List;
 import java.util.Set;
 
 public interface ServiceByContactsAndSubcontactsFilter extends Filter<String,Service>{

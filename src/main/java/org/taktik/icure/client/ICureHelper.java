@@ -56,7 +56,7 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
 import org.taktik.icure.services.external.rest.v1.dto.IcureDto;
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair;
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -206,7 +206,7 @@ public class ICureHelper {
 			gsonBuilder.serializeSpecialFloatingPointValues().registerTypeAdapter(PaginatedDocumentKeyIdPair.class, (JsonDeserializer<PaginatedDocumentKeyIdPair>) (json, typeOfT, context) -> {
 				Map<String,Object> obj = context.deserialize(json,Map.class);
 				return new PaginatedDocumentKeyIdPair<>((List<String>)obj.get("startKey"), (String)obj.get("startKeyDocId"));
-			}).registerTypeAdapter(Filter.class, new DiscriminatedTypeAdapter<>(Filter.class));
+			}).registerTypeAdapter(FilterDto.class, new DiscriminatedTypeAdapter<>(FilterDto.class));
 
             gson = gsonBuilder.create();
         }

@@ -21,10 +21,10 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.patient;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
-@JsonPolymorphismRoot(Filter.class)
-public class PatientByHcPartyAndExternalIdFilter extends Filter<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyAndExternalIdFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class PatientByHcPartyAndExternalIdFilter extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyAndExternalIdFilter {
     String externalId;
     String healthcarePartyId;
 

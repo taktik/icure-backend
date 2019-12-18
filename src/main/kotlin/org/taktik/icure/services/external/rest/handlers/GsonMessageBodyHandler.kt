@@ -15,143 +15,119 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.rest.handlers
 
-package org.taktik.icure.services.external.rest.handlers;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import org.apache.commons.codec.binary.Base64;
-import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair;
-import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static java.lang.Double.MAX_VALUE;
-import static java.lang.Double.MIN_VALUE;
+import com.google.gson.*
+import org.apache.commons.codec.binary.Base64
+import org.taktik.icure.dto.filter.Filter
+import org.taktik.icure.dto.gui.Editor
+import org.taktik.icure.dto.gui.type.Data
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
+import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate
+import java.io.*
+import java.lang.reflect.Type
+import javax.ws.rs.Consumes
+import javax.ws.rs.Produces
+import javax.ws.rs.WebApplicationException
+import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.MultivaluedMap
+import javax.ws.rs.ext.MessageBodyReader
+import javax.ws.rs.ext.MessageBodyWriter
+import javax.ws.rs.ext.Provider
 
 //Used by Jersey instead of jackson
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public final class GsonMessageBodyHandler implements MessageBodyWriter<Object>,
-		MessageBodyReader<Object> {
+class GsonMessageBodyHandler : MessageBodyWriter<Any?>, MessageBodyReader<Any> {
+    var gson: Gson? = null
+        get() {
+            if (field == null) {
+                val gsonBuilder = GsonBuilder()
+                gsonBuilder
+                        .registerTypeAdapter(PaginatedDocumentKeyIdPair::class.java, JsonDeserializer<PaginatedDocumentKeyIdPair<*>> { json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext ->
+                            val obj = context.deserialize<Map<String, Any>>(json, MutableMap::class.java)
+                            PaginatedDocumentKeyIdPair(obj["startKey"] as List<String>?, obj["startKeyDocId"] as String?) //TODO check what happens when key is string
+                        })
+                        .registerTypeAdapter(Predicate::class.java, DiscriminatedTypeAdapter(Predicate::class.java))
+                        .registerTypeHierarchyAdapter(ByteArray::class.java, ByteArrayToBase64TypeAdapter())
+                        .registerTypeAdapter(Filter::class.java, DiscriminatedTypeAdapter(Filter::class.java))
+                        .registerTypeAdapter(Editor::class.java, DiscriminatedTypeAdapter(Editor::class.java))
+                        .registerTypeAdapter(Data::class.java, DiscriminatedTypeAdapter(Data::class.java))
+                        .registerTypeAdapter(FilterDto::class.java, DiscriminatedTypeAdapter(FilterDto::class.java))
+                        .registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data::class.java, DiscriminatedTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data::class.java))
+                        .registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor::class.java, DiscriminatedTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor::class.java))
+                        .registerTypeAdapter(Double::class.java, JsonSerializer { src: Double?, _: Type?, _: JsonSerializationContext? -> if (src == null) null else JsonPrimitive(if (src.isNaN()) 0.0 else if (src.isInfinite()) if (src > 0) Double.MAX_VALUE else Double.MIN_VALUE else src) })
+                        .registerTypeAdapter(Boolean::class.java, JsonDeserializer { json: JsonElement, _: Type?, _: JsonDeserializationContext? -> if ((json as JsonPrimitive).isBoolean) json.getAsBoolean() else if (json.isString) json.getAsString() == "true" else json.getAsInt() != 0 } as JsonDeserializer<Boolean>)
+                field = gsonBuilder.create()
+            }
+            return field
+        }
+        private set
 
-	private static final String UTF_8 = "UTF-8";
+    override fun isReadable(type: Class<*>?, genericType: Type,
+                            annotations: Array<Annotation>, mediaType: MediaType): Boolean {
+        return true
+    }
 
-	private Gson gson;
+    @Throws(IOException::class)
+    override fun readFrom(type: Class<Any>, genericType: Type, annotations: Array<Annotation>, mediaType: MediaType, httpHeaders: MultivaluedMap<String, String>, entityStream: InputStream): Any {
+        InputStreamReader(entityStream, UTF_8).use { streamReader ->
+            val jsonType: Type = if (type == genericType) {
+                type
+            } else {
+                genericType
+            }
+            return gson!!.fromJson(streamReader, jsonType)
+        }
+    }
 
-	public Gson getGson() {
-		if (gson == null) {
-			final GsonBuilder gsonBuilder = new GsonBuilder();
+    override fun isWriteable(type: Class<*>?, genericType: Type, annotations: Array<Annotation>, mediaType: MediaType): Boolean {
+        return true
+    }
 
-			gsonBuilder
-					.registerTypeAdapter(PaginatedDocumentKeyIdPair.class, (JsonDeserializer<PaginatedDocumentKeyIdPair>) (json, typeOfT, context) -> {
-						Map<String, Object> obj = context.deserialize(json, Map.class);
-						return new PaginatedDocumentKeyIdPair<>((List<String>) obj.get("startKey"), (String) obj.get("startKeyDocId"));
-					})
-					.registerTypeAdapter(Predicate.class, new DiscriminatedTypeAdapter<>(Predicate.class))
-					.registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
-					.registerTypeAdapter(org.taktik.icure.dto.filter.Filter.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.dto.filter.Filter.class))
-					.registerTypeAdapter(org.taktik.icure.dto.gui.Editor.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.dto.gui.Editor.class))
-					.registerTypeAdapter(org.taktik.icure.dto.gui.type.Data.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.dto.gui.type.Data.class))
-					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class))
-					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class))
-					.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class))
-					.registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> src == null ? null : new JsonPrimitive(src.isNaN() ? 0d : src.isInfinite() ? (src > 0 ? MAX_VALUE : MIN_VALUE) : src))
-					.registerTypeAdapter(Boolean.class, (JsonDeserializer<Boolean>) (json, typeOfSrc, context) -> ((JsonPrimitive)json).isBoolean() ? json.getAsBoolean() : ((JsonPrimitive)json).isString() ? json.getAsString().equals("true") : json.getAsInt() != 0);
-			gson = gsonBuilder.create();
-		}
-		return gson;
-	}
+    override fun getSize(`object`: Any?, type: Class<*>?, genericType: Type, annotations: Array<Annotation>, mediaType: MediaType): Long {
+        return -1
+    }
 
-	@Override
-	public boolean isReadable(Class<?> type, Type genericType,
-							  java.lang.annotation.Annotation[] annotations, MediaType mediaType) {
-		return true;
-	}
+    @Throws(IOException::class, WebApplicationException::class)
+    override fun writeTo(`object`: Any?, type: Class<*>, genericType: Type, annotations: Array<Annotation>, mediaType: MediaType, httpHeaders: MultivaluedMap<String, Any>, entityStream: OutputStream) {
+        OutputStreamWriter(entityStream, UTF_8).use { writer ->
+            val jsonType: Type
+            jsonType = if (type == genericType) {
+                type
+            } else {
+                genericType
+            }
+            gson!!.toJson(`object`, jsonType, writer)
+        }
+    }
 
-	@Override
-	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException {
-		try (InputStreamReader streamReader = new InputStreamReader(entityStream, UTF_8)) {
-			Type jsonType;
-			if (type.equals(genericType)) {
-				jsonType = type;
-			} else {
-				jsonType = genericType;
-			}
-			return getGson().fromJson(streamReader, jsonType);
-		}
-	}
+    private inner class ByteArrayToBase64TypeAdapter : JsonSerializer<ByteArray?>, JsonDeserializer<ByteArray> {
+        private val b64 = Base64()
+        @Throws(JsonParseException::class)
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): ByteArray {
+            return if (json.isJsonArray) {
+                val asJsonArray = json.asJsonArray
+                val res = ByteArray(asJsonArray.size())
+                var i = 0
+                val bi: Iterator<JsonElement> = asJsonArray.iterator()
+                while (bi.hasNext()) {
+                    res[i++] = bi.next().asByte
+                }
+                res
+            } else {
+                b64.decode(json.asString)
+            }
+        }
 
-	@Override
-	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return true;
-	}
+        override fun serialize(src: ByteArray?, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+            return JsonPrimitive(b64.encodeToString(src))
+        }
+    }
 
-	@Override
-	public long getSize(Object object, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return -1;
-	}
-
-	@Override
-	public void writeTo(Object object, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-		try (OutputStreamWriter writer = new OutputStreamWriter(entityStream, UTF_8)) {
-			Type jsonType;
-			if (type.equals(genericType)) {
-				jsonType = type;
-			} else {
-				jsonType = genericType;
-			}
-			getGson().toJson(object, jsonType, writer);
-		}
-	}
-
-	private class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
-		private Base64 b64 = new Base64();
-
-		public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-			if (json.isJsonArray()) {
-				JsonArray asJsonArray = json.getAsJsonArray();
-				byte[] res = new byte[asJsonArray.size()];
-				int i = 0;
-				Iterator<JsonElement> bi = asJsonArray.iterator();
-				while (bi.hasNext()) {
-					res[i++] = bi.next().getAsByte();
-				}
-				return res;
-			} else {
-				return b64.decode(json.getAsString());
-			}
-		}
-
-		public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-			return new JsonPrimitive(b64.encodeToString(src));
-		}
-	}
-
+    companion object {
+        private const val UTF_8 = "UTF-8"
+    }
 }

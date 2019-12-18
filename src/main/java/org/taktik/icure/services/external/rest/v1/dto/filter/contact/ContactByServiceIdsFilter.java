@@ -23,10 +23,10 @@ import java.util.List;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
-@JsonPolymorphismRoot(Filter.class)
-public class ContactByServiceIdsFilter extends Filter<Contact> implements org.taktik.icure.dto.filter.contact.ContactByServiceIdsFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class ContactByServiceIdsFilter extends FilterDto<Contact> implements org.taktik.icure.dto.filter.contact.ContactByServiceIdsFilter {
     List<String> ids;
 
     public ContactByServiceIdsFilter() {

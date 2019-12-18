@@ -3,14 +3,14 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.patient;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import java.util.Optional;
 
 import static org.taktik.icure.db.StringUtils.sanitizeString;
 
-@JsonPolymorphismRoot(Filter.class)
-public class PatientByHcPartyNameFilter extends Filter<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyNameFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class PatientByHcPartyNameFilter extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyNameFilter {
 
     private String name;
     private String healthcarePartyId;

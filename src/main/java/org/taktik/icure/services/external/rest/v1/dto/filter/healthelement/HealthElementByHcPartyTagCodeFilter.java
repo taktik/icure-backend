@@ -3,10 +3,10 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.healthelement;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
-@JsonPolymorphismRoot(Filter.class)
-public class HealthElementByHcPartyTagCodeFilter extends Filter<HealthElement> implements org.taktik.icure.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement> implements org.taktik.icure.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter {
 	String healthCarePartyId;
 	String codeType;
 	String codeNumber;

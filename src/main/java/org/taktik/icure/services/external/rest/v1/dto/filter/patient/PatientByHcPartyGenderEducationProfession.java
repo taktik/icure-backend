@@ -21,12 +21,12 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.patient;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import java.util.Objects;
 
-@JsonPolymorphismRoot(Filter.class)
-public class PatientByHcPartyGenderEducationProfession extends Filter<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyGenderEducationProfession {
+@JsonPolymorphismRoot(FilterDto.class)
+public class PatientByHcPartyGenderEducationProfession extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyGenderEducationProfession {
     private String healthcarePartyId;
     private Gender gender;
     private String education;

@@ -46,7 +46,7 @@ public class GsonSerializerFactory {
 			.registerTypeAdapter(Filter.class, new DiscriminatedTypeAdapter<>(Filter.class))
 			.registerTypeAdapter(Editor.class, new DiscriminatedTypeAdapter<>(Editor.class))
 			.registerTypeAdapter(Data.class, new DiscriminatedTypeAdapter<>(Data.class))
-			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.filter.Filter.class))
+			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto.class))
 			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.type.Data.class))
 			.registerTypeAdapter(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class, new DiscriminatedTypeAdapter<>(org.taktik.icure.services.external.rest.v1.dto.gui.Editor.class))
 			.registerTypeAdapter(byte[].class, (JsonDeserializer<byte[]>) (json, typeOfT, context) -> {

@@ -20,17 +20,14 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.service;
 
 
 import com.google.common.collect.Sets;
-import org.taktik.icure.constants.Services;
-import org.taktik.icure.entities.Contact;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
-import java.util.List;
 import java.util.Set;
 
-@JsonPolymorphismRoot(Filter.class)
-public class ServiceByContactsAndSubcontactsFilter extends Filter<Service> implements org.taktik.icure.dto.filter.service.ServiceByContactsAndSubcontactsFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class ServiceByContactsAndSubcontactsFilter extends FilterDto<Service> implements org.taktik.icure.dto.filter.service.ServiceByContactsAndSubcontactsFilter {
 	String healthcarePartyId;
     Set<String> contacts;
 	Set<String> subContacts;

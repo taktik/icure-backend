@@ -21,8 +21,6 @@ package org.taktik.icure.dto.filter.contact;
 import org.taktik.icure.dto.filter.Filter;
 import org.taktik.icure.entities.Contact;
 
-import java.util.List;
-
 public interface ContactByHcPartyTagCodeDateFilter extends Filter<String,Contact> {
 	String getHealthcarePartyId();
 	String getTagType();

@@ -21,15 +21,15 @@ import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot
 
 object Filters {
-    fun<O: Identifiable<String>> union(vararg filters: Filter<O>): UnionFilter<O> {
+    fun<O: Identifiable<String>> union(vararg filters: FilterDto<O>): UnionFilter<O> {
         return UnionFilter(filters.toList())
     }
 
-    fun<O: Identifiable<String>> intersection(vararg filters: Filter<O>): IntersectionFilter<O> {
+    fun<O: Identifiable<String>> intersection(vararg filters: FilterDto<O>): IntersectionFilter<O> {
         return IntersectionFilter(filters.toList())
     }
 
-    fun<O: Identifiable<String>> complement(superSet: Filter<O>, subset: Filter<O>): Filter<O> {
+    fun<O: Identifiable<String>> complement(superSet: FilterDto<O>, subset: FilterDto<O>): FilterDto<O> {
         return ComplementFilter(superSet, subset)
     }
 
@@ -37,8 +37,8 @@ object Filters {
         return ConstantFilter(set)
     }
 
-    @JsonPolymorphismRoot(Filter::class)
-    class ConstantFilter<O : Identifiable<String>>(private var constant: Set<String>) : Filter<O>(), org.taktik.icure.dto.filter.Filters.ConstantFilter<String, O> {
+    @JsonPolymorphismRoot(FilterDto::class)
+    class ConstantFilter<O : Identifiable<String>>(private var constant: Set<String>) : FilterDto<O>(), org.taktik.icure.dto.filter.Filters.ConstantFilter<String, O> {
 
         override fun getConstant(): Set<String> {
             return constant
@@ -49,15 +49,15 @@ object Filters {
         }
     }
 
-    @JsonPolymorphismRoot(Filter::class)
-    class UnionFilter<O : Identifiable<String>> : Filter<O>, org.taktik.icure.dto.filter.Filters.UnionFilter<String, O> {
-        private var filters: List<Filter<O>>
+    @JsonPolymorphismRoot(FilterDto::class)
+    class UnionFilter<O : Identifiable<String>> : FilterDto<O>, org.taktik.icure.dto.filter.Filters.UnionFilter<String, O> {
+        private var filters: List<FilterDto<O>>
 
-        constructor(filters: Array<Filter<O>>) {
+        constructor(filters: Array<FilterDto<O>>) {
             this.filters = filters.toList()
         }
 
-        constructor(filters: List<Filter<O>>) {
+        constructor(filters: List<FilterDto<O>>) {
             this.filters = filters
         }
 
@@ -70,24 +70,24 @@ object Filters {
             return false
         }
 
-        override fun getFilters(): List<org.taktik.icure.dto.filter.Filter<String,O>> {
+        override fun getFilters(): List<org.taktik.icure.dto.filter.Filter<String, O>> {
             return filters
         }
     }
 
-    @JsonPolymorphismRoot(Filter::class)
-    class IntersectionFilter<O : Identifiable<String>> : Filter<O>, org.taktik.icure.dto.filter.Filters.IntersectionFilter<String, O> {
-        private val filters: List<Filter<O>>
+    @JsonPolymorphismRoot(FilterDto::class)
+    class IntersectionFilter<O : Identifiable<String>> : FilterDto<O>, org.taktik.icure.dto.filter.Filters.IntersectionFilter<String, O> {
+        private val filters: List<FilterDto<O>>
 
-        constructor(filters: Array<Filter<O>>) {
+        constructor(filters: Array<FilterDto<O>>) {
             this.filters = filters.toList()
         }
 
-        constructor(filters: List<Filter<O>>) {
+        constructor(filters: List<FilterDto<O>>) {
             this.filters = filters
         }
 
-        override fun getFilters(): List<org.taktik.icure.dto.filter.Filter<String,O>> {
+        override fun getFilters(): List<org.taktik.icure.dto.filter.Filter<String, O>> {
             return filters
         }
 
@@ -101,8 +101,8 @@ object Filters {
         }
     }
 
-    @JsonPolymorphismRoot(Filter::class)
-    class ComplementFilter<O : Identifiable<String>>(private val superSet: Filter<O>, private val subSet: Filter<O>) : Filter<O>(), org.taktik.icure.dto.filter.Filters.ComplementFilter<String, O> {
+    @JsonPolymorphismRoot(FilterDto::class)
+    class ComplementFilter<O : Identifiable<String>>(private val superSet: FilterDto<O>, private val subSet: FilterDto<O>) : FilterDto<O>(), org.taktik.icure.dto.filter.Filters.ComplementFilter<String, O> {
 
         override fun getSuperSet(): org.taktik.icure.dto.filter.Filter<String, O> {
             return superSet

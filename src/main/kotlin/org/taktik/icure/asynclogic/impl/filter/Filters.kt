@@ -23,7 +23,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.taktik.icure.entities.base.Identifiable
-import org.taktik.icure.exceptions.NoSuperSetException
 import java.io.Serializable
 import java.util.*
 

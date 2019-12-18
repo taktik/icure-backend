@@ -38,23 +38,18 @@ import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.DocumentNotFoundException
-import org.taktik.icure.logic.AccessLogLogic
 import org.taktik.icure.logic.HealthcarePartyLogic
 import org.taktik.icure.logic.ICureSessionLogic
 import org.taktik.icure.logic.PatientLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.*
-import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
-import org.taktik.icure.utils.ResponseUtils
 import java.time.Instant
 import java.util.*
 import javax.security.auth.login.LoginException
-import kotlin.streams.toList
 
 @RestController
 @RequestMapping("/rest/v1/patient")
@@ -271,7 +266,7 @@ class PatientController(
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    suspend fun matchBy(@RequestBody filter: Filter<*>): Flow<String> = filters.resolve(filter)
+    suspend fun matchBy(@RequestBody filter: FilterDto<*>): Flow<String> = filters.resolve(filter)
 
     @ApiOperation(nickname = "fuzzySearch", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
     @GetMapping("/fuzzy")

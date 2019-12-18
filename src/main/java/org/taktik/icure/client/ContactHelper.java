@@ -22,15 +22,12 @@ import com.google.common.base.Joiner;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.taktik.icure.db.PaginatedList;
-import org.taktik.icure.dto.filter.Filters;
 import org.taktik.icure.exceptions.EncryptionException;
 import org.taktik.icure.exceptions.ICureException;
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto;
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto;
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -111,7 +108,7 @@ public class ContactHelper {
         return client.getGson().fromJson(response, ContactDto.class);
     }
 
-    public org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto> findServicesBy(ArrayList startKeyList, String startKeyDocId, String limit, Filter filter) throws IOException {
+    public org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto> findServicesBy(ArrayList startKeyList, String startKeyDocId, String limit, FilterDto filter) throws IOException {
         String startKeys = null;
         if (startKeyList != null) {
             startKeys = Joiner.on(",").join(startKeyList);
@@ -219,7 +216,7 @@ public class ContactHelper {
     }
 
 
-	public org.taktik.icure.services.external.rest.v1.dto.PaginatedList filterBy(ArrayList startKeyList, String startKeyDocId, String limit, Filter filter) throws IOException {
+	public org.taktik.icure.services.external.rest.v1.dto.PaginatedList filterBy(ArrayList startKeyList, String startKeyDocId, String limit, FilterDto filter) throws IOException {
 		String startKeys = null;
 		if (startKeyList != null) {
 			startKeys = Joiner.on(",").join(startKeyList);

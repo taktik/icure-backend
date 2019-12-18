@@ -21,12 +21,12 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.contact;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import java.util.List;
 
-@JsonPolymorphismRoot(Filter.class)
-public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implements org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class ContactByHcPartyTagCodeDateFilter extends FilterDto<Contact> implements org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter {
 	String healthcarePartyId;
 	String tagType;
 	String tagCode;

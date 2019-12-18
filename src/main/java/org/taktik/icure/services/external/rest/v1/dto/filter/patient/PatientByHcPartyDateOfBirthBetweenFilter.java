@@ -18,13 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.patient;
 
-import com.google.common.base.Objects;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
-@JsonPolymorphismRoot(Filter.class)
-public class PatientByHcPartyDateOfBirthBetweenFilter extends Filter<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter {
+@JsonPolymorphismRoot(FilterDto.class)
+public class PatientByHcPartyDateOfBirthBetweenFilter extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter {
     private Integer minDateOfBirth;
 	private Integer maxDateOfBirth;
     private String healthcarePartyId;

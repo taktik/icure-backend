@@ -26,9 +26,7 @@ import org.taktik.icure.exceptions.EncryptionException;
 import org.taktik.icure.exceptions.ICureException;
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList;
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto;
-import org.taktik.icure.services.external.rest.v1.dto.PatientPaginatedList;
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto;
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filter;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 
 import javax.crypto.BadPaddingException;
@@ -42,7 +40,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -87,7 +84,7 @@ public class PatientHelper {
 	 * @param filter
 	 * @return list of patients containing next start key.
 	 */
-	public PaginatedList filterBy(ArrayList startKeyList, String startKeyDocId, String limit, Filter filter) throws IOException {
+	public PaginatedList filterBy(ArrayList startKeyList, String startKeyDocId, String limit, FilterDto filter) throws IOException {
 		String startKeys = null;
 		if (startKeyList != null) {
 			startKeys = Joiner.on(",").join(startKeyList);

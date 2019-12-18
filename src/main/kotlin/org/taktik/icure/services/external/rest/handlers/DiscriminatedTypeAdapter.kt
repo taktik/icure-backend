@@ -15,74 +15,49 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.rest.handlers
 
-package org.taktik.icure.services.external.rest.handlers;
+import com.google.common.base.Preconditions
+import com.google.gson.*
+import java.lang.reflect.Modifier
+import java.lang.reflect.Type
+import java.util.*
 
-import com.google.common.base.Preconditions;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public class DiscriminatedTypeAdapter<T> implements JsonSerializer<T>, JsonDeserializer<T> {
-    private String discriminator;
-    private Map<String, Class> subclasses = new HashMap<>();
-    private Map<Class, String> reverseSubclasses = new HashMap<>();
-
-    public DiscriminatedTypeAdapter(Class<T> clazz) {
-        Preconditions.checkArgument(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()),"Superclass must be abstract");
-        JsonPolymorphismSupport annotation = clazz.getAnnotation(JsonPolymorphismSupport.class);
-        Preconditions.checkNotNull(annotation, "Superclass must be annotated with JsonPolymorphismSupport");
-
-        @SuppressWarnings("unchecked")
-        Class<T>[] classes = (Class<T>[]) annotation.value();
-        for (Class<T> subClass : classes) {
-            JsonDiscriminated discriminated = subClass.getAnnotation(JsonDiscriminated.class);
-            String discriminatedString = discriminated != null ? discriminated.value() : subClass.getSimpleName();
-            subclasses.put(discriminatedString, subClass);
-            reverseSubclasses.put(subClass, discriminatedString);
-        }
-        JsonDiscriminator discriminatorAnnotation = clazz.getAnnotation(JsonDiscriminator.class);
-        discriminator = discriminatorAnnotation != null ? discriminatorAnnotation.value() : "$type";
+class DiscriminatedTypeAdapter<T:Any>(clazz: Class<T>) : JsonSerializer<T>, JsonDeserializer<T> {
+    private val discriminator: String
+    private val subclasses: MutableMap<String, Class<*>> = HashMap()
+    private val reverseSubclasses: MutableMap<Class<*>, String> = HashMap()
+    override fun serialize(srcObject: T, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        val el = context.serialize(srcObject, srcObject.javaClass)
+        val result = el.asJsonObject
+        val discr = reverseSubclasses[srcObject.javaClass]
+                ?: throw JsonParseException("Invalid subclass " + srcObject.javaClass)
+        result.addProperty(discriminator, discr)
+        return result
     }
 
-    public JsonElement serialize(T object, Type typeOfSrc, JsonSerializationContext context) {
-        JsonElement el = context.serialize(object, object.getClass());
-
-        JsonObject result = el.getAsJsonObject();
-
-        String discr = reverseSubclasses.get(object.getClass());
-        if (discr == null) {
-            throw new JsonParseException("Invalid subclass " + object.getClass());
-        }
-
-        result.addProperty(discriminator, discr);
-
-        return result;
+    @Throws(JsonParseException::class)
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): T {
+        val `object` = json.asJsonObject
+        val discr = `object`[discriminator]
+                ?: throw JsonParseException("Missing discriminator $discriminator in object")
+        val selectedSubClass = subclasses[discr.asString]
+                ?: throw JsonParseException("Invalid subclass " + discr.asString + " in object")
+        return context.deserialize(`object`, selectedSubClass)
     }
 
-    public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject object = json.getAsJsonObject();
-
-        JsonElement discr = object.get(discriminator);
-
-        if (discr == null) {
-            throw new JsonParseException("Missing discriminator " + discriminator + " in object");
+    init {
+        Preconditions.checkArgument(clazz.isInterface || Modifier.isAbstract(clazz.modifiers), "Superclass must be abstract")
+        val annotation = clazz.getAnnotation(JsonPolymorphismSupport::class.java)
+        Preconditions.checkNotNull(annotation, "Superclass must be annotated with JsonPolymorphismSupport")
+        val classes = annotation.value as Array<Class<T>>
+        for (subClass in classes) {
+            val discriminated = subClass.getAnnotation(JsonDiscriminated::class.java)
+            val discriminatedString = discriminated?.value ?: subClass.simpleName
+            subclasses[discriminatedString] = subClass
+            reverseSubclasses[subClass] = discriminatedString
         }
-
-        Class selectedSubClass = subclasses.get(discr.getAsString());
-        if (selectedSubClass == null) {
-            throw new JsonParseException("Invalid subclass " + discr.getAsString() + " in object");
-        }
-        return context.deserialize(object, selectedSubClass);
+        val discriminatorAnnotation = clazz.getAnnotation(JsonDiscriminator::class.java)
+        discriminator = discriminatorAnnotation?.value ?: "\$type"
     }
 }
