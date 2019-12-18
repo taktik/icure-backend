@@ -20,13 +20,14 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Place
-import org.taktik.icure.logic.PlaceLogic
+import org.taktik.icure.asynclogic.PlaceLogic
 import org.taktik.icure.services.external.rest.v1.dto.PlaceDto
 
 @RestController
@@ -36,36 +37,28 @@ class PlaceController(private val placeLogic: PlaceLogic, private val mapper: Ma
 
     @ApiOperation(nickname = "createPlace", value = "Creates a place")
     @PostMapping
-    fun createPlace(@RequestBody placeDto: PlaceDto) =
+    suspend fun createPlace(@RequestBody placeDto: PlaceDto) =
             placeLogic.createPlace(mapper.map(placeDto, Place::class.java)).let { mapper.map(it, PlaceDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
 
     @ApiOperation(nickname = "deletePlace", value = "Deletes an place")
     @DeleteMapping("/{placeIds}")
-    fun deletePlace(@PathVariable placeIds: String): List<String> = placeLogic.deletePlace(placeIds.split(','))
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place deletion failed.")
-                    .also { logger.error(it.message) }
+    fun deletePlace(@PathVariable placeIds: String) = placeLogic.deletePlace(placeIds.split(','))
 
     @ApiOperation(nickname = "getPlace", value = "Gets an place")
     @GetMapping("/{placeId}")
-    fun getPlace(@PathVariable placeId: String) =
+    suspend fun getPlace(@PathVariable placeId: String) =
             placeLogic.getPlace(placeId).let { mapper.map(it, PlaceDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
 
     @ApiOperation(nickname = "getPlaces", value = "Gets all places")
     @GetMapping
-    fun getPlaces(): List<PlaceDto> =
-            placeLogic.allEntities?.let { it.map { c -> mapper.map(c, PlaceDto::class.java) } }
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Places fetching failed")
+    fun getPlaces() =
+            placeLogic.getAllEntities().let { it.map { c -> mapper.map(c, PlaceDto::class.java) } }
 
     @ApiOperation(nickname = "modifyPlace", value = "Modifies an place")
     @PutMapping
-    fun modifyPlace(@RequestBody placeDto: PlaceDto) =
+    suspend fun modifyPlace(@RequestBody placeDto: PlaceDto) =
             placeLogic.modifyPlace(mapper.map(placeDto, Place::class.java)).let { mapper.map(it, PlaceDto::class.java) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(javaClass)
-    }
-
 }

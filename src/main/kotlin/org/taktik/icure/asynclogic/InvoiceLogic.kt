@@ -14,7 +14,7 @@ import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.MediumType
 
-interface InvoiceLogic {
+interface InvoiceLogic : EntityPersister<Invoice, String> {
     suspend fun createInvoice(invoice: Invoice): Invoice?
     suspend fun deleteInvoice(invoiceId: String): DocIdentifier?
 
