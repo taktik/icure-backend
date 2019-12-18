@@ -161,7 +161,7 @@ open class KmehrExport {
         }
     }
 
-    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service") : ItemType? {
+    open fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String = "iCure-Service", language: String) : ItemType? {
         return ItemType().apply {
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = idx.toString()})
             ids.add(IDKMEHR().apply {s = IDKMEHRschemes.LOCAL; sl = localIdName; sv = ICUREVERSION; value = svc.id })
@@ -223,6 +223,11 @@ open class KmehrExport {
                                     }
                                 }
                             }
+                        }
+                    }
+                    if (this.regimen == null) {
+                        (med.posology ?: med.posologyText)?.let {
+                            this.posology = ItemType.Posology().apply { text = TextType().apply { l = language; value = it } }
                         }
                     }
                     med.renewal?.let {

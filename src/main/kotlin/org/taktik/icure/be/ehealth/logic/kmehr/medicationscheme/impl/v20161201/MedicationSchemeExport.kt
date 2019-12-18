@@ -19,7 +19,6 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
@@ -161,7 +160,7 @@ class MedicationSchemeExport : KmehrExport() {
                                 }})
                             })
                         },
-                        createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!))))
+                        createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language)))
                 //TODO: handle treatmentsuspension
                 //      ITEM: transactionreason: Text
                 //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
@@ -235,7 +234,7 @@ class MedicationSchemeExport : KmehrExport() {
 
         var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
             s.endOfLife == null && //Not end of lifed
-                !((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
+                !((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && (it.code == "inactive" || it.code == "stopped") } ?: false) //Inactive
                 && (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
         }
 
