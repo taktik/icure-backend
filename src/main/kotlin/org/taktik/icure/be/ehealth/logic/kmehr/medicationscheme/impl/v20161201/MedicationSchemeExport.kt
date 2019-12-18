@@ -19,7 +19,6 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
@@ -161,7 +160,7 @@ class MedicationSchemeExport : KmehrExport() {
                                 }})
                             })
                         },
-                        createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!))))
+                        createItemWithContent(svc, itemsIdx++, "medication", listOf(makeContent(language, cnt)!!), language = language)))
                 //TODO: handle treatmentsuspension
                 //      ITEM: transactionreason: Text
                 //      ITEM: medication contains Link to medication <lnk TYPE="isplannedfor" URL="//transaction[id[@S='ID-KMEHR']='18']"/>
