@@ -776,6 +776,7 @@ class SumehrExportTest {
                     )
                 }
         ))
+        val language = "fr"
 
         // Execute
         sumehrExport.addActiveServicesAsCD(setOf(hcPartyId), sfks, transaction, cdItem, type, values, excludedIds, false, decryptor, language)
@@ -850,6 +851,7 @@ class SumehrExportTest {
 
         /// Second parameter
         val itemIndex = 0
+        val language = "fr"
 
         // Execute
         val res1 = sumehrExport.createVaccineItem(svc1, itemIndex, language)
@@ -896,6 +898,7 @@ class SumehrExportTest {
         /// Fourth parameter
         val contents = listOf(ContentType())
 
+        val language = "fr"
         // Execute
         /// createItemWithContent with Service parameter
         val res1S = sumehrExport.createItemWithContent(svc1, idx, cdItem, contents, language = language)
@@ -1094,6 +1097,7 @@ class SumehrExportTest {
         sumehrExport.mapper = this.mapper
         this.resetServices()
         this.services.add(listOf(validService, encryptedService, lifeEndedService, oldService))
+        val language = "fr"
 
         // Execute
         sumehrExport.addMedications(setOf(hcPartyId), sfks, transaction, excludedIds, false, decryptor, language)
@@ -1142,6 +1146,7 @@ class SumehrExportTest {
 
         /// Fifth parameter
         val decryptor1 = decryptor
+        val language = "fr"
 
         // Execution
         sumehrExport.addVaccines(setOf(hcPartyId), sfks, trn1, excludedIds, false, decryptor1, language)
