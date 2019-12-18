@@ -313,7 +313,7 @@ class ContactController(private val mapper: MapperFacade,
                 .toList().let { filterChain.filter.applyTo(it) } // TODO AD is this correct?
                 .map { mapper.map(it, ServiceDto::class.java) }
 
-        val totalSize = services.size // TODO SH now: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but currently it's lost...
+        val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
 
         return if (services.size <= realLimit) {
             org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>(services.size, totalSize, services, null)
