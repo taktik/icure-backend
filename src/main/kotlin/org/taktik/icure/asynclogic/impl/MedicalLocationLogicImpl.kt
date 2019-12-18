@@ -23,7 +23,7 @@ class MedicalLocationLogicImpl(private val medicalLocationDAO: MedicalLocationDA
         return medicalLocationDAO.create(dbInstanceUri, groupId, medicalLocation)
     }
 
-    override fun deleteMedicalLocation(ids: List<String>): Flow<DocIdentifier> {
+    override fun deleteMedicalLocations(ids: List<String>): Flow<DocIdentifier> {
         return try {
             deleteByIds(ids)
         } catch (e: Exception) {

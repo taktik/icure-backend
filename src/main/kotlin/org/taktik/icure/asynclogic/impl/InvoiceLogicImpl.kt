@@ -67,9 +67,9 @@ class InvoiceLogicImpl(private val filters: Filters,
         return invoiceDAO.create(dbInstanceUri, groupId, invoice)
     }
 
-    override fun deleteInvoice(invoiceId: String): Flow<DocIdentifier> {
+    override suspend fun deleteInvoice(invoiceId: String): DocIdentifier? {
         return try {
-            deleteByIds(listOf(invoiceId))
+            deleteByIds(listOf(invoiceId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

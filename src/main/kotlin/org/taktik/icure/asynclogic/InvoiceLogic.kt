@@ -16,7 +16,7 @@ import org.taktik.icure.entities.embed.MediumType
 
 interface InvoiceLogic {
     suspend fun createInvoice(invoice: Invoice): Invoice?
-    fun deleteInvoice(invoiceId: String): Flow<DocIdentifier>
+    suspend fun deleteInvoice(invoiceId: String): DocIdentifier?
 
     suspend fun getInvoice(invoiceId: String): Invoice?
     fun getInvoices(ids: List<String>): Flow<Invoice>

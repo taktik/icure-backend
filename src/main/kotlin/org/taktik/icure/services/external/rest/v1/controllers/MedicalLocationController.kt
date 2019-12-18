@@ -22,7 +22,6 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -44,7 +43,7 @@ class MedicalLocationController(private val medicalLocationLogic: MedicalLocatio
     @ApiOperation(nickname = "deleteMedicalLocation", value = "Deletes a medical location")
     @DeleteMapping("/{locationIds}")
     fun deleteMedicalLocation(@PathVariable locationIds: String) =
-            medicalLocationLogic.deleteMedicalLocation(locationIds.split(','))
+            medicalLocationLogic.deleteMedicalLocations(locationIds.split(','))
 
 
     @ApiOperation(nickname = "getMedicalLocation", response = MedicalLocationDto::class, value = "Gets a medical location")

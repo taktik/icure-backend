@@ -71,8 +71,9 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "deleteInvoice", value = "Deletes an invoice")
     @DeleteMapping("/{invoiceId}")
-    suspend fun deleteInvoice(@PathVariable invoiceId: String): Flow<DocIdentifier> {
+    suspend fun deleteInvoice(@PathVariable invoiceId: String): DocIdentifier {
         return invoiceLogic.deleteInvoice(invoiceId)
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invoice deletion failed")
     }
 
     @ApiOperation(nickname = "getInvoice", value = "Gets an invoice")

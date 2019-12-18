@@ -28,6 +28,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.exceptions.DeletionException
+import org.taktik.icure.utils.firstOrNull
 
 @ExperimentalCoroutinesApi
 @Service
@@ -38,9 +39,9 @@ class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
         return insuranceDAO.create(dbInstanceUri, groupId, insurance)
     }
 
-    override fun deleteInsurance(insuranceId: String): Flow<DocIdentifier> {
+    override suspend fun deleteInsurance(insuranceId: String): DocIdentifier? {
         return try {
-            deleteByIds(listOf(insuranceId))
+            deleteByIds(listOf(insuranceId)).firstOrNull()
         } catch (e: Exception) {
             throw DeletionException(e.message, e)
         }

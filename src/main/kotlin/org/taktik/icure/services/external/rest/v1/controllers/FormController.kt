@@ -46,6 +46,7 @@ import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.utils.FormUtils
+import org.taktik.icure.utils.firstOrNull
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStreamReader
@@ -224,8 +225,9 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteFormTemplate", value = "Delete a form template")
     @DeleteMapping("/template/{formTemplateId}")
-    fun deleteFormTemplate(@PathVariable formTemplateId: String): Flow<DocIdentifier> {
-        return formTemplateLogic.deleteByIds(listOf(formTemplateId))
+    suspend fun deleteFormTemplate(@PathVariable formTemplateId: String): DocIdentifier {
+        return formTemplateLogic.deleteByIds(listOf(formTemplateId)).firstOrNull()
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form deletion failed")
     }
 
     @ApiOperation(nickname = "updateFormTemplate", value = "Modify a form template with the current user", notes = "Returns an instance of created form template.")

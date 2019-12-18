@@ -6,7 +6,7 @@ import org.taktik.icure.entities.Insurance
 
 interface InsuranceLogic : EntityPersister<Insurance, String> {
     suspend fun createInsurance(insurance: Insurance): Insurance?
-    fun deleteInsurance(insuranceId: String): Flow<DocIdentifier>
+    suspend fun deleteInsurance(insuranceId: String): DocIdentifier?
 
     suspend fun getInsurance(insuranceId: String): Insurance?
     fun listInsurancesByCode(code: String): Flow<Insurance>

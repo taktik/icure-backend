@@ -6,7 +6,7 @@ import org.taktik.icure.entities.MedicalLocation
 
 interface MedicalLocationLogic : EntityPersister<MedicalLocation, String> {
     suspend fun createMedicalLocation(medicalLocation: MedicalLocation): MedicalLocation?
-    fun deleteMedicalLocation(ids: List<String>): Flow<DocIdentifier>
+    fun deleteMedicalLocations(ids: List<String>): Flow<DocIdentifier>
 
     suspend fun getMedicalLocation(medicalLocation: String): MedicalLocation?
 

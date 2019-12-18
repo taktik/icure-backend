@@ -50,8 +50,9 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "deleteInsurance", value = "Deletes an insurance")
     @DeleteMapping("/{insuranceId}")
-    fun deleteInsurance(@PathVariable insuranceId: String): Flow<DocIdentifier> { // TODO SH now: for all delete endpoints: should we return a flow or use .awaitFirst? -> awaitFirst
+    suspend fun deleteInsurance(@PathVariable insuranceId: String): DocIdentifier {
         return insuranceLogic.deleteInsurance(insuranceId)
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance deletion failed")
     }
 
     @ApiOperation(nickname = "getInsurance", value = "Gets an insurance")
