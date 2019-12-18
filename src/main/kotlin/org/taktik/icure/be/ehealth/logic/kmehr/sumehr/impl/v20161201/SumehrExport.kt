@@ -142,17 +142,17 @@ class SumehrExport : KmehrExport() {
 		addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf(
             "bloodtransfusionrefusal", "clinicaltrialparticipationconsent", "datareuseforclinicalresearchconsent",
             "datareuseforclinicaltrialsconsent", "euthanasiarequest", "intubationrefusal",
-            "organdonationconsent", "vaccinationrefusal"), excludedIds, includeIrrelevantInformation, decryptor)
+            "organdonationconsent", "vaccinationrefusal"), excludedIds, includeIrrelevantInformation, decryptor, language)
 
         addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
-            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor)
+            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor, language)
 
         addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
-            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor)
+            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor, language)
 
         //vac/med
-		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor)
-		addMedications(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor)
+		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor, language)
+		addMedications(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor, language)
 
         addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthissue", language, excludedIds, treatedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
         addActiveServiceUsingContent(hcpartyIds, sfks, trn, "healthcareelement", language, excludedIds, treatedServiceIds, decryptor, false, "problem", includeIrrelevantInformation)
@@ -373,7 +373,7 @@ class SumehrExport : KmehrExport() {
 		return history as HeadingType
 	}
 
-	internal fun addActiveServicesAsCD(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) {
+	internal fun addActiveServicesAsCD(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, language: String) {
 		val assessment = getAssessment(trn)
 
 		val services = getActiveServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, includeIrrelevantInformation, decryptor)
@@ -384,21 +384,21 @@ class SumehrExport : KmehrExport() {
 			nonConfidentialItems.filter { s -> null != s.codes.find { it.type.replace("-", "") == type.value().replace("-", "") && value == it.code } }.forEach {
                 val svc = it
 				if(svc.content.any{it.value.stringValue!!.contains("|consent")}) {
-                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }))?.let {
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }), language = language)?.let {
                         assessment.headingsAndItemsAndTexts.add(it)
                     }
                 }
                 if(svc.content.any{it.value.stringValue!!.contains("|hos")}) {
                     var stringValue = svc.content.filter{it.value.stringValue!!.contains("|hos")}.values.first().stringValue
                     var itmValue = stringValue!!.split("|")[1]
-                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }))?.let {
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }), language = language)?.let {
                         assessment.headingsAndItemsAndTexts.add(it)
                     }
                 }
                 if(svc.content.any{it.value.stringValue!!.contains("|dnr")}) {
                     var stringValue = svc.content.filter{it.value.stringValue!!.contains("|dnr")}.values.first().stringValue
                     var itmValue = stringValue!!.split("|")[1]
-                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }))?.let {
+                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }), language = language)?.let {
                         assessment.headingsAndItemsAndTexts.add(it)
                     }
                 }
@@ -422,7 +422,7 @@ class SumehrExport : KmehrExport() {
 						getHistory(trn).headingsAndItemsAndTexts
 					}
 
-					val it = createItemWithContent(svc, items.size + 1, forceCdItem ?: cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let { listOf(it) } ?: emptyList())
+					val it = createItemWithContent(svc, items.size + 1, forceCdItem ?: cdItem, (svc.content[language]?.let { makeContent(language, it) } ?: svc.content.entries.firstOrNull()?.let { makeContent(it.key, it.value) })?.let { listOf(it) } ?: emptyList(), language = language)
 					if (it != null) {
                         it.contents.addAll(listOf(ContentType().apply {
                             svc.codes?.forEach { c ->
@@ -459,7 +459,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	internal fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
+	internal fun createVaccineItem(svc: Service, itemIndex: Int, language: String): ItemType? {
 		val item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
 			it.value.booleanValue = null
 			it.value.binaryValue = null
@@ -470,7 +470,7 @@ class SumehrExport : KmehrExport() {
 			it.value.stringValue = null
 
 			makeContent(it.key, it.value)
-		}.first()))
+		}.first()), language = language)
 
         //item.contents = item.contents.distinctBy{it -> it.medicinalproduct.intendedname}
 		item?.let {
@@ -479,10 +479,10 @@ class SumehrExport : KmehrExport() {
 		return item
 	}
 
-	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String): ItemType? {
+	override fun createItemWithContent(svc: Service, idx: Int, cdItem: String, contents: List<ContentType>, localIdName: String, language: String): ItemType? {
 		if (ServiceStatus.isAbsent(svc.status) || svc.tags.any { t -> t.type == "CD-LIFECYCLE" && t.code == "notpresent" }) {
 			return null; }
-		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName)
+		return super.createItemWithContent(svc, idx, cdItem, contents, localIdName, language)
 	}
 
 	override fun createItemWithContent(he: HealthElement, idx: Int, cdItem: String, contents: List<ContentType>): ItemType? {
@@ -548,7 +548,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	internal fun addMedications(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) {
+	internal fun addMedications(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, language: String) {
 		try {
 			val medications = getMedications(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, decryptor)
 			val nonConfidentialItems = getNonConfidentialItems(medications)
@@ -571,7 +571,7 @@ class SumehrExport : KmehrExport() {
 					it.value.instantValue = null
 
 					makeContent(it.key, it.value)
-				})?.let { item ->
+				}, language = language)?.let { item ->
 					if (item.contents?.size ?: 0 > 0) {
 						val medicationEntry = m.content.entries.find { null != it.value.medicationValue }
 						if (medicationEntry != null) {
@@ -586,7 +586,7 @@ class SumehrExport : KmehrExport() {
 		}
 	}
 
-	internal fun addVaccines(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) {
+	internal fun addVaccines(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, language: String) {
 		try {
 			val vaccines = getVaccines(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, decryptor)
 			val nonConfidentialItems = getNonConfidentialItems(vaccines)
@@ -594,7 +594,7 @@ class SumehrExport : KmehrExport() {
 
 			nonConfidentialItems.forEach {
 				val items = getAssessment(trn).headingsAndItemsAndTexts
-				items.add(createVaccineItem(it, items.size + 1))
+				items.add(createVaccineItem(it, items.size + 1, language))
 			}
 		} catch (e: RuntimeException) {
 			log.error("Unexpected error", e)

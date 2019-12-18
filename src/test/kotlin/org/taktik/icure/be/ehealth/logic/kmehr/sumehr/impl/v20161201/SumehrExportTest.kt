@@ -778,7 +778,7 @@ class SumehrExportTest {
         ))
 
         // Execute
-        sumehrExport.addActiveServicesAsCD(setOf(hcPartyId), sfks, transaction, cdItem, type, values, excludedIds, false, decryptor)
+        sumehrExport.addActiveServicesAsCD(setOf(hcPartyId), sfks, transaction, cdItem, type, values, excludedIds, false, decryptor, language)
 
         // Tests
         assertNotNull(transaction)
@@ -852,8 +852,8 @@ class SumehrExportTest {
         val itemIndex = 0
 
         // Execute
-        val res1 = sumehrExport.createVaccineItem(svc1, itemIndex)
-        val res2 = sumehrExport.createVaccineItem(svc2, itemIndex)
+        val res1 = sumehrExport.createVaccineItem(svc1, itemIndex, language)
+        val res2 = sumehrExport.createVaccineItem(svc2, itemIndex, language)
 
         // Tests
         assertNotNull(res1)
@@ -898,13 +898,13 @@ class SumehrExportTest {
 
         // Execute
         /// createItemWithContent with Service parameter
-        val res1S = sumehrExport.createItemWithContent(svc1, idx, cdItem, contents)
-        val res2S = sumehrExport.createItemWithContent(svc2, idx, cdItem, contents)
-        val res3S = sumehrExport.createItemWithContent(svc3, idx, cdItem, contents)
+        val res1S = sumehrExport.createItemWithContent(svc1, idx, cdItem, contents, language = language)
+        val res2S = sumehrExport.createItemWithContent(svc2, idx, cdItem, contents, language = language)
+        val res3S = sumehrExport.createItemWithContent(svc3, idx, cdItem, contents, language = language)
         /// createItemWithContent with HealthElement parameter
         val res1H = sumehrExport.createItemWithContent(he1, idx, cdItem, contents)
         val res2H = sumehrExport.createItemWithContent(he2, idx, cdItem, contents)
-        val res3H = sumehrExport.createItemWithContent(he3, idx, cdItem, contents)
+        val res3H = sumehrExport.createItemWithContent(he3, idx, cdItem, contents, language = language)
 
         // Tests
         assertNotNull(res1S)
@@ -1096,7 +1096,7 @@ class SumehrExportTest {
         this.services.add(listOf(validService, encryptedService, lifeEndedService, oldService))
 
         // Execute
-        sumehrExport.addMedications(setOf(hcPartyId), sfks, transaction, excludedIds, false, decryptor)
+        sumehrExport.addMedications(setOf(hcPartyId), sfks, transaction, excludedIds, false, decryptor, language)
 
         // Tests
         assertNotNull(transaction)
@@ -1144,7 +1144,7 @@ class SumehrExportTest {
         val decryptor1 = decryptor
 
         // Execution
-        sumehrExport.addVaccines(setOf(hcPartyId), sfks, trn1, excludedIds, false, decryptor1)
+        sumehrExport.addVaccines(setOf(hcPartyId), sfks, trn1, excludedIds, false, decryptor1, language)
         //sumehrExport.addVaccines(hcPartyId, sfks, trn2, excludedIds, decryptor2)
 
         // Tests
