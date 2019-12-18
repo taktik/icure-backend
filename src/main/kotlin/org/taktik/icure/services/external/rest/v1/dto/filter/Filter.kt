@@ -29,7 +29,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.patient.*
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import java.io.Serializable
 
-// TODO SH now: bugged annotation, probably because of the fact that this is a Kotlin class with Java classes as values?
+// TODO SH MB: bugged annotation, probably because of the fact that this is a Kotlin class with Java classes as values?
 @JsonPolymorphismSupport(Filters.UnionFilter::class, Filters.IntersectionFilter::class, Filters.ComplementFilter::class, Filters.ConstantFilter::class,
         CodeByRegionTypeLabelLanguageFilter::class, PatientByHcPartyFilter::class, PatientByHcPartyDateOfBirthFilter::class,
         PatientByHcPartyDateOfBirthBetweenFilter::class, PatientByHcPartyAndSsinFilter::class, PatientByHcPartyNameContainsFuzzyFilter::class,
