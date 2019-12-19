@@ -36,6 +36,7 @@ import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.utils.firstOrNull
 import java.util.stream.Collectors
 
 @Repository("codeDAO")
@@ -286,7 +287,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 		return code
 	}
 
-	override suspend fun isValid(code: Code, ofType: String?) = findCodes(ofType ?: code.type, code.code, code.version).toList().isNotEmpty()
+	override suspend fun isValid(code: Code, ofType: String?) = findCodes(ofType ?: code.type, code.code, code.version).firstOrNull() != null
 
 	override suspend fun getCodeByLabel(label: String, ofType: String, labelLang : List<String>) : Code {
 		val cleanLabel = label.toLowerCase().replace("^\\s+".toRegex(), "").replace("\\s+$".toRegex(), "")
