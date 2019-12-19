@@ -2,9 +2,9 @@ package org.taktik.icure.be.samv2.logic.impl
 
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.samv2.logic.SamV2Logic
-import org.taktik.icure.dao.samv2.AmpDAO
-import org.taktik.icure.dao.samv2.VmpDAO
-import org.taktik.icure.dao.samv2.VmpGroupDAO
+import org.taktik.icure.asyncdao.samv2.AmpDAO
+import org.taktik.icure.asyncdao.samv2.VmpDAO
+import org.taktik.icure.asyncdao.samv2.VmpGroupDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp

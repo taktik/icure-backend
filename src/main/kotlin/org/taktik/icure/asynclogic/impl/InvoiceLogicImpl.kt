@@ -28,6 +28,7 @@ import org.taktik.icure.asyncdao.InvoiceDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityReferenceLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.Option
 import org.taktik.icure.db.PaginationOffset

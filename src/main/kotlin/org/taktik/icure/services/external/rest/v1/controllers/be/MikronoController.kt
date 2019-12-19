@@ -31,9 +31,9 @@ import org.taktik.icure.dto.message.EmailOrSmsMessage
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.logic.PatientLogic
-import org.taktik.icure.logic.SessionLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.SessionLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto
 import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto

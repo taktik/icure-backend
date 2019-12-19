@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.taktik.icure.entities.base.Code;
-import org.taktik.icure.logic.CodeLogic;
+import org.taktik.icure.asynclogic.CodeLogic;
 
 @Repository("percentileCodesAreCreatedMigration")
 public class CreatePercentileCodesMigration extends CouchDbRepositorySupport<MigrationStub> implements DbMigration {

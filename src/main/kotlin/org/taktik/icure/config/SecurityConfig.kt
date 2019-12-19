@@ -36,10 +36,10 @@ import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
-import org.taktik.icure.logic.GroupLogic
-import org.taktik.icure.logic.ICureSessionLogic
-import org.taktik.icure.logic.PermissionLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.GroupLogic
+import org.taktik.icure.asynclogic.ICureSessionLogic
+import org.taktik.icure.asynclogic.PermissionLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.security.database.CustomAuthenticationProvider
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 

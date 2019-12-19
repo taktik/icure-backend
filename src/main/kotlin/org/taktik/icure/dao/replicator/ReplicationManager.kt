@@ -1,4 +1,4 @@
-package org.taktik.icure.dao.replicator
+package org.taktik.icure.asyncdao.replicator
 
 import com.hazelcast.core.HazelcastInstance
 import kotlinx.coroutines.*
@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.subscribeForChanges
 import org.taktik.icure.concurrency.doPeriodicallyOnOneReplicaForever
-import org.taktik.icure.dao.GenericDAO
-import org.taktik.icure.dao.GroupDAO
+import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.entities.Group
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct

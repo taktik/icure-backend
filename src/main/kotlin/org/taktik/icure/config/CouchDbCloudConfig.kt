@@ -31,14 +31,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
-import org.taktik.icure.dao.GenericDAO
-import org.taktik.icure.dao.GroupDAO
-import org.taktik.icure.dao.UserDAO
+import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.GroupDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdUserDependentCouchDbICureConnector
-import org.taktik.icure.dao.replicator.Replicator
-import org.taktik.icure.dao.replicator.ReplicationManager
-import org.taktik.icure.dao.replicator.UserReplicator
+import org.taktik.icure.asyncdao.replicator.Replicator
+import org.taktik.icure.asyncdao.replicator.ReplicationManager
+import org.taktik.icure.asyncdao.replicator.UserReplicator
 import org.taktik.icure.properties.CouchDbProperties
 
 @Configuration

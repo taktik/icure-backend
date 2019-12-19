@@ -1,14 +1,14 @@
-package org.taktik.icure.dao.samv2.impl
+package org.taktik.icure.asyncdao.samv2.impl
 
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.icure.dao.impl.GenericDAOImpl
+import org.taktik.icure.asyncdao.impl.GenericDAOImpl
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.dao.samv2.VmpDAO
+import org.taktik.icure.asyncdao.samv2.VmpDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils

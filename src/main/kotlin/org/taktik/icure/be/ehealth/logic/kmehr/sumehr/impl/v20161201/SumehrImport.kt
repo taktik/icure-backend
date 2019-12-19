@@ -25,11 +25,11 @@ import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.logic.ContactLogic
-import org.taktik.icure.logic.DocumentLogic
-import org.taktik.icure.logic.HealthElementLogic
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.PatientLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.utils.FuzzyValues
 import java.io.InputStream

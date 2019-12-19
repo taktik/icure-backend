@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FormDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -36,7 +36,7 @@ import org.taktik.icure.validation.aspect.Check
 @ExperimentalCoroutinesApi
 @Service
 class FormLogicImpl(private val formDAO: FormDAO,
-                    private val sessionLogic: AsyncICureSessionLogic,
+                    private val sessionLogic: AsyncSessionLogic,
                     private val uuidGenerator: UUIDGenerator) : GenericLogicImpl<Form, FormDAO>(sessionLogic), FormLogic {
 
     override suspend fun getForm(id: String): Form? {

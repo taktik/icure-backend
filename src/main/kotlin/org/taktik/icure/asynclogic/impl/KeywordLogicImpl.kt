@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.KeywordDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.KeywordLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.Keyword
@@ -36,7 +36,7 @@ import org.taktik.icure.utils.firstOrNull
 @Service
 class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
                        private val uuidGenerator: UUIDGenerator,
-                       private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<Keyword, KeywordDAO>(sessionLogic), KeywordLogic {
+                       private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Keyword, KeywordDAO>(sessionLogic), KeywordLogic {
 
     override fun getGenericDAO(): KeywordDAO {
         return keywordDAO

@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Replication
-import org.taktik.icure.logic.ReplicationLogic
+import org.taktik.icure.asynclogic.ReplicationLogic
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DatabaseSynchronizationDto
 import java.util.*

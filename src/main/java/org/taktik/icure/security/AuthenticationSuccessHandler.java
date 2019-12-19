@@ -22,8 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.Transactional;
-import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.logic.SessionLogic;
+import org.taktik.icure.asynclogic.ICureSessionLogic;
+import org.taktik.icure.asynclogic.SessionLogic;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

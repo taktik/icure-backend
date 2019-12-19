@@ -38,7 +38,7 @@ public interface SessionLogic {
 
 	void logout();
 
-	void logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException;
+	void logout(HttpServletRequest httpRequest) throws IOException;
 
 	/* SessionContext related */
 

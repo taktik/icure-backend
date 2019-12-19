@@ -1,8 +1,6 @@
 package org.taktik.icure.asynclogic.impl
 
 import org.ektorp.CouchDbInstance
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.task.TaskExecutor
 import org.springframework.stereotype.Service
 import org.taktik.icure.asyncdao.GroupDAO
@@ -13,7 +11,8 @@ import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.User
 import org.taktik.icure.entities.embed.DatabaseSynchronization
-import org.taktik.icure.logic.ReplicationLogic
+import org.taktik.icure.asynclogic.ReplicationLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI
 import java.net.URISyntaxException
@@ -26,7 +25,7 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
                      private val replicationLogic: ReplicationLogic,
                      private val couchDbProperties: CouchDbProperties,
                      private val threadPoolTaskExecutor: TaskExecutor) : GroupLogic {
-    
+
     override suspend fun createGroup(group: Group, initialReplication: Replication): Group? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
 

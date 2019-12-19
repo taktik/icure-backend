@@ -29,7 +29,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentTemplateLogic
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.entities.embed.DocumentType
@@ -47,7 +47,7 @@ import javax.xml.transform.stream.StreamSource
 @Api(tags = ["doctemplate"])
 class DocumentTemplateController(private val mapper: MapperFacade,
                                  private val documentTemplateLogic: DocumentTemplateLogic,
-                                 private val sessionLogic: AsyncICureSessionLogic) {
+                                 private val sessionLogic: AsyncSessionLogic) {
 
     @ApiOperation(nickname = "getDocumentTemplate", value = "Gets a document template")
     @GetMapping("/{documentTemplateId}")

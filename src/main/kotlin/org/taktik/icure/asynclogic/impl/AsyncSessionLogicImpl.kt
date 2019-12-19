@@ -33,12 +33,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.entities.User
-import org.taktik.icure.logic.PropertyLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.UserDetails
 import org.taktik.icure.security.database.DatabaseUserDetails
@@ -55,7 +54,7 @@ import kotlin.coroutines.coroutineContext
 @Service
 class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthenticationManager,
                             private val userLogic: UserLogic,
-                            private val propertyLogic: PropertyLogic) : AsyncICureSessionLogic {
+                            private val propertyLogic: PropertyLogic) : AsyncSessionLogic {
     /* Generic */
 
     override fun getOrCreateSession(): HttpSession? {
@@ -174,12 +173,12 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     override fun <T> doInSessionContext(sessionContext: AsyncSessionLogic.AsyncSessionContext, callable: Callable<T>?): T? = null
 
 
-    override suspend fun getCurrentUserId(): String {
-        return getCurrentSessionContext().getUser().id
+    override suspend fun getCurrentUserId(): String? {
+        return getCurrentSessionContext().getUser()?.id
     }
 
-    override suspend fun getCurrentHealthcarePartyId(): String {
-        return getCurrentSessionContext().getUser().healthcarePartyId
+    override suspend fun getCurrentHealthcarePartyId(): String? {
+        return getCurrentSessionContext().getUser()?.healthcarePartyId
     }
 
     private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext {
@@ -200,12 +199,10 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
         override fun isAnonymous(): Boolean = false
 
-        override fun getUser(): User {
+        override suspend fun getUser(): User? {
             val userId = getUserId()
             val groupId = getGroupId()
-            val u = userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUrl())
-            u.groupId = groupId
-            return u
+            return userId?.let { userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUri()) }?.apply { this.groupId = groupId }
         }
 
         override fun getDbInstanceUrl(): String = (userDetails as DatabaseUserDetails).dbInstanceUrl

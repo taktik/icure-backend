@@ -7,6 +7,7 @@ import java.net.URI
 import java.util.concurrent.Callable
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpSession
 
 interface AsyncSessionLogic {
     suspend fun login(username: String, password: String): AsyncSessionContext?
@@ -25,12 +26,16 @@ interface AsyncSessionLogic {
 
     fun <T> doInSessionContext(sessionContext: AsyncSessionContext, callable: Callable<T>?): T?
 
+    fun getOrCreateSession(): HttpSession?
+    suspend fun getCurrentUserId(): String?
+    suspend fun getCurrentHealthcarePartyId(): String?
+
     interface AsyncSessionContext {
         fun getAuthentication(): Authentication
         fun getUserDetails(): UserDetails
         fun isAuthenticated(): Boolean
         fun isAnonymous(): Boolean
-        fun getUser(): User
+        suspend fun getUser(): User?
         fun getDbInstanceUrl(): String
         fun getDbInstanceUri(): URI
         fun getGroupIdUserId(): String

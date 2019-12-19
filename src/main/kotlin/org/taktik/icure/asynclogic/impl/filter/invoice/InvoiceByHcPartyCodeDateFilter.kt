@@ -23,8 +23,8 @@ import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter
 import org.taktik.icure.entities.Invoice
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.InvoiceLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.InvoiceLogic
 import java.util.*
 import java.util.stream.Collectors
 

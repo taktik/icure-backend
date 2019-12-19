@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.AgendaDAO
 import org.taktik.icure.asynclogic.AgendaLogic
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.exceptions.DeletionException
 
 @Service
-class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<Agenda, AgendaDAO>(sessionLogic), AgendaLogic {
+class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Agenda, AgendaDAO>(sessionLogic), AgendaLogic {
 
     override suspend fun createAgenda(agenda: Agenda): Agenda? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()

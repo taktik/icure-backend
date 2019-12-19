@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.ClassificationTemplateDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ClassificationTemplateLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
@@ -43,7 +43,7 @@ import java.util.function.Consumer
 @Service
 class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: ClassificationTemplateDAO,
                                       private val uuidGenerator: UUIDGenerator,
-                                      private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<ClassificationTemplate, ClassificationTemplateDAO>(sessionLogic), ClassificationTemplateLogic {
+                                      private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<ClassificationTemplate, ClassificationTemplateDAO>(sessionLogic), ClassificationTemplateLogic {
 
     override fun getGenericDAO(): ClassificationTemplateDAO {
         return classificationTemplateDAO

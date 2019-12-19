@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.taktik.icure.logic.SessionLogic;
+import org.taktik.icure.asynclogic.SessionLogic;
 
 public class LogoutServlet extends AbstractHttpServlet {
 	protected SessionLogic sessionLogic;

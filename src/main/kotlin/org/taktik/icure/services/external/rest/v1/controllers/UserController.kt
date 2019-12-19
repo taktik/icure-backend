@@ -29,9 +29,9 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
-import org.taktik.icure.logic.GroupLogic
-import org.taktik.icure.logic.ICureSessionLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.GroupLogic
+import org.taktik.icure.asynclogic.ICureSessionLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.security.database.DatabaseUserDetails
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto

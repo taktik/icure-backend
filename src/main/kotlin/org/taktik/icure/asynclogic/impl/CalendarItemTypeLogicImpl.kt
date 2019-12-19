@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.CalendarItemTypeDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.exceptions.DeletionException
@@ -32,7 +32,7 @@ import org.taktik.icure.exceptions.DeletionException
 @ExperimentalCoroutinesApi
 @Service
 class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTypeDAO,
-                                private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<CalendarItemType, CalendarItemTypeDAO>(sessionLogic), CalendarItemTypeLogic {
+                                private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItemType, CalendarItemTypeDAO>(sessionLogic), CalendarItemTypeLogic {
 
     override suspend fun createCalendarItemType(calendarItemType: CalendarItemType): CalendarItemType? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()

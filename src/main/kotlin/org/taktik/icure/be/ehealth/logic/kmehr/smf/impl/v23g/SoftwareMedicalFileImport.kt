@@ -35,7 +35,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.TelecomType
-import org.taktik.icure.logic.*
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import javax.xml.bind.JAXBElement
 

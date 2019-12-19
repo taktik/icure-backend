@@ -20,7 +20,7 @@ package org.taktik.icure.asynclogic.impl.filter.contact
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -32,7 +32,7 @@ import javax.security.auth.login.LoginException
 
 @Service
 class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
-                                        private val sessionLogic: AsyncICureSessionLogic) : Filter<String, Contact, ContactByHcPartyTagCodeDateFilter> {
+                                        private val sessionLogic: AsyncSessionLogic) : Filter<String, Contact, ContactByHcPartyTagCodeDateFilter> {
 
     override suspend fun resolve(filter: ContactByHcPartyTagCodeDateFilter, context: Filters): Flow<String> {
         try {

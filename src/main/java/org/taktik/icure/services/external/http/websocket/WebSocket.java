@@ -23,8 +23,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-import org.taktik.icure.logic.SessionLogic;
-import org.taktik.icure.logic.SessionLogic.SessionContext;
+import org.taktik.icure.asynclogic.SessionLogic;
+import org.taktik.icure.asynclogic.SessionLogic.SessionContext;
 import org.taktik.icure.services.external.http.WebSocketServlet;
 
 import java.lang.reflect.InvocationTargetException;

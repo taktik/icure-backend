@@ -24,7 +24,7 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.constants.PropertyTypes
-import org.taktik.icure.logic.*
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.ICureLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto

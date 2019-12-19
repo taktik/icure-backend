@@ -32,7 +32,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
 import org.taktik.icure.entities.Form
@@ -59,7 +59,7 @@ import javax.xml.transform.TransformerException
 class FormController(private val mapper: MapperFacade,
                      private val formTemplateLogic: FormTemplateLogic,
                      private val formLogic: FormLogic,
-                     private val sessionLogic: AsyncICureSessionLogic) {
+                     private val sessionLogic: AsyncSessionLogic) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     @ApiOperation(nickname = "getForm", value = "Gets a form")

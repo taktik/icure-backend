@@ -36,7 +36,7 @@ import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.web.reactive.config.EnableWebFlux
-import org.taktik.icure.dao.GenericDAO
+import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.migration.DbMigration
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Confidentiality
@@ -50,10 +50,10 @@ import org.taktik.icure.entities.embed.PaymentType
 import org.taktik.icure.entities.embed.PersonalStatus
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.embed.Visibility
-import org.taktik.icure.logic.CodeLogic
-import org.taktik.icure.logic.ICureLogic
-import org.taktik.icure.logic.PropertyLogic
-import org.taktik.icure.logic.ReplicationLogic
+import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.ICureLogic
+import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.asynclogic.ReplicationLogic
 import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(scanBasePackages = [

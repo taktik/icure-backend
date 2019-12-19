@@ -17,7 +17,7 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.logic
+package org.taktik.icure.asynclogic
 
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
@@ -32,9 +32,9 @@ interface CodeLogic : EntityPersister<Code, String> {
 
 	fun getTagTypeCandidates(): List<String>
 
-    operator fun get(id: String): Code?
-    operator fun get(type: String, code: String, version: String): Code?
-    operator fun get(ids: List<String>): List<Code>
+    suspend fun get(id: String): Code?
+    fun get(type: String, code: String, version: String): Code?
+    fun get(ids: List<String>): List<Code>
 
     fun create(code: Code): Code
     @Throws(Exception::class)

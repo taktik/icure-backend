@@ -38,7 +38,7 @@ interface PrincipalLogic<P : Principal> {
     fun getAscendantRoles(principalId: String): Flow<Role>
 }
 
-abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, private val sessionLogic: AsyncSessionLogic)  : PrincipalLogic<P> {
+abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, protected val sessionLogic: AsyncSessionLogic)  : PrincipalLogic<P> {
 
     protected val log = LoggerFactory.getLogger(javaClass)
 

@@ -37,7 +37,7 @@ import org.taktik.icure.entities.embed.AddressType;
 import org.taktik.icure.entities.embed.Content;
 import org.taktik.icure.entities.embed.Measure;
 import org.taktik.icure.entities.embed.Service;
-import org.taktik.icure.logic.*;
+import org.taktik.icure.asynclogic.*;
 import org.taktik.icure.utils.FuzzyValues;
 
 import java.io.*;

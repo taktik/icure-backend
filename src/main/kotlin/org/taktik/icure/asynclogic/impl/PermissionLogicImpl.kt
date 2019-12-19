@@ -17,7 +17,7 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.logic.impl
+package org.taktik.icure.asynclogic.impl
 
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
@@ -32,9 +32,9 @@ import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.embed.Permission
-import org.taktik.icure.logic.PermissionLogic
-import org.taktik.icure.logic.RoleLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.PermissionLogic
+import org.taktik.icure.asynclogic.RoleLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.security.PermissionSet
 import org.taktik.icure.security.PermissionSetIdentifier
 import java.util.HashSet

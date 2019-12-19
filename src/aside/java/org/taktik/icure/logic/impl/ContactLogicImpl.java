@@ -271,7 +271,7 @@ public class ContactLogicImpl extends GenericLogicImpl<Contact, ContactDAO> impl
 	}
 
 	private PaginatedList<Service> createServicePaginatedList(PaginationOffset paginationOffset, SortedSet<String> ids, SortedSet<String> sortedIds, ArrayList<String> selectedIds, FilterChain<Service> filter) {
-		boolean hasNextPage = paginationOffset != null && paginationOffset.getLimit() != null && paginationOffset.getLimit() < sortedIds.size();
+		boolean hasNextPage = paginationOffset != null && paginationOffset.getLimit() < sortedIds.size();
 
 		List<Service> serviceList = hasNextPage ? this.getServices(selectedIds).subList(0, selectedIds.size() - 1) : this.getServices(selectedIds);
 

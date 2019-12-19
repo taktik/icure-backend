@@ -40,7 +40,7 @@ import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto

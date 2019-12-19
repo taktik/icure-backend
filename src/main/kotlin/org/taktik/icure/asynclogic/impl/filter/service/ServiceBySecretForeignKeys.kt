@@ -18,7 +18,7 @@
 package org.taktik.icure.asynclogic.impl.filter.service
 
 import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -28,7 +28,7 @@ import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import javax.security.auth.login.LoginException
 
 class ServiceBySecretForeignKeys(private val contactLogic: ContactLogic,
-                                 private val sessionLogic: AsyncICureSessionLogic) : Filter<String, Service, ServiceBySecretForeignKeys> {
+                                 private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, ServiceBySecretForeignKeys> {
     override suspend fun resolve(filter: ServiceBySecretForeignKeys, context: Filters): Flow<String> {
         try {
             val hcPartyId = if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)

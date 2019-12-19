@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.MedicalLocationDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.MedicalLocationLogic
 import org.taktik.icure.entities.MedicalLocation
 import org.taktik.icure.exceptions.DeletionException
@@ -16,7 +16,7 @@ import org.taktik.icure.exceptions.DeletionException
 @ExperimentalCoroutinesApi
 @Service
 class MedicalLocationLogicImpl(private val medicalLocationDAO: MedicalLocationDAO,
-                               private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<MedicalLocation, MedicalLocationDAO>(sessionLogic), MedicalLocationLogic {
+                               private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<MedicalLocation, MedicalLocationDAO>(sessionLogic), MedicalLocationLogic {
 
     override suspend fun createMedicalLocation(medicalLocation: MedicalLocation): MedicalLocation? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()

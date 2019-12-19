@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
@@ -32,7 +32,7 @@ import java.util.*
 import javax.security.auth.login.LoginException
 
 class ServiceByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
-                                        private val sessionLogic: AsyncICureSessionLogic) : Filter<String, Service, ServiceByHcPartyTagCodeDateFilter> {
+                                        private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, ServiceByHcPartyTagCodeDateFilter> {
     override suspend fun resolve(filter: ServiceByHcPartyTagCodeDateFilter, context: Filters): Flow<String> {
         try {
             val hcPartyId = if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)

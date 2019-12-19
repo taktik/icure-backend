@@ -1,4 +1,4 @@
-package org.taktik.icure.dao.replicator
+package org.taktik.icure.asyncdao.replicator
 
 import kotlinx.coroutines.Job
 import org.taktik.icure.entities.Group

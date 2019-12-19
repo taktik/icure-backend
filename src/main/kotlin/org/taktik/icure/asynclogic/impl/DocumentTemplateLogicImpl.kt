@@ -24,15 +24,15 @@ import kotlinx.coroutines.flow.flow
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.asyncdao.DocumentTemplateDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentTemplateLogic
 import org.taktik.icure.entities.DocumentTemplate
 
 
 @ExperimentalCoroutinesApi
 @Service
-class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplateDAO, 
-                                private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<DocumentTemplate, DocumentTemplateDAO>(sessionLogic), DocumentTemplateLogic {
+class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplateDAO,
+                                private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<DocumentTemplate, DocumentTemplateDAO>(sessionLogic), DocumentTemplateLogic {
 
     override fun createEntities(entities: Collection<DocumentTemplate>): Flow<DocumentTemplate> = flow {
         entities.forEach { e: DocumentTemplate ->

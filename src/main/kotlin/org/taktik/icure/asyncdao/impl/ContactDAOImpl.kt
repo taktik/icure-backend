@@ -50,6 +50,11 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return get(dbInstanceUrl, groupId, id)
     }
 
+    override fun get(dbInstanceUrl: URI, groupId: String, contactIds: Flow<String>): Flow<Contact> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.get(contactIds, Contact::class.java)
+    }
+
     override fun get(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         return client.get(contactIds, Contact::class.java)
@@ -111,13 +116,13 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return relink(result)
     }
 
-    override suspend fun findByHcPartyFormIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String, ids: List<String>): Flow<Contact> {
+    override fun findByHcPartyFormIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String, ids: List<String>): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val viewQuery = createQuery("by_hcparty_formid")
                 .includeDocs(false)
                 .keys(ids.map { k -> ComplexKey.of(hcPartyId, k) })
-        val result = client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct().toList() //Important to de deduplicate the contact ids
+        val result = client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct()
 
         return relink(get(dbInstanceUrl, groupId, result))
     }

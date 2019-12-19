@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.HealthElementDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -45,7 +45,7 @@ import java.util.function.Consumer
 class HealthElementLogicImpl(private val filters: Filters,
                              private val healthElementDAO: HealthElementDAO,
                              private val uuidGenerator: UUIDGenerator,
-                             private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<HealthElement, HealthElementDAO>(sessionLogic), HealthElementLogic {
+                             private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthElement, HealthElementDAO>(sessionLogic), HealthElementLogic {
 
     override fun getGenericDAO(): HealthElementDAO {
         return healthElementDAO

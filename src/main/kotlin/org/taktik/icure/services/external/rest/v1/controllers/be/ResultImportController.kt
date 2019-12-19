@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils.isBlank
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.be.format.logic.MultiFormatLogic
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.logic.DocumentLogic
+import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
 import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto
 

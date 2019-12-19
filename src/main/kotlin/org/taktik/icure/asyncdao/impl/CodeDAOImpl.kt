@@ -17,15 +17,19 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao.impl
+package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Repository
-import org.taktik.icure.dao.CodeDAO
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.asyncdao.CodeDAO
+import org.taktik.icure.asyncdao.impl.CachedDAOImpl
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.db.PaginatedList
@@ -38,12 +42,8 @@ import java.util.stream.Collectors
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
 class CodeDAOImpl @Autowired
 constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchdb, idGenerator, cacheManager), CodeDAO {
-    init {
-        initStandardDesignDocument()
-    }
-
     @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun findCodes(type: String?, code: String?, version: String?): List<Code> {
+    override fun findCodes(type: String?, code: String?, version: String?): Flow<Code> {
         val result = queryResults(
                 createQuery("by_type_code_version")
                         .includeDocs(true)
@@ -62,7 +62,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         return result
     }
 
-    override fun findCodeTypes(type: String?): List<String> {
+    override fun findCodeTypes(type: String?): Flow<String> {
         val result = (db as CouchDbICureConnector).queryViewWithKeys(
                 createQuery("by_type_code_version")
                         .includeDocs(false)
@@ -76,7 +76,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
     }
 
     @View(name = "by_region_type_code_version", map = "classpath:js/code/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun findCodes(region: String?, type: String?, code: String?, version: String?): List<Code> {
+    override fun findCodes(region: String?, type: String?, code: String?, version: String?): Flow<Code> {
         val result = queryResults(
                 createQuery("by_region_type_code_version")
                         .includeDocs(true)
@@ -97,7 +97,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         return result
     }
 
-    override fun findCodeTypes(region: String?, type: String?): List<String> {
+    override fun findCodeTypes(region: String?, type: String?): Flow<String> {
         //Not transactional aware
         val result = (db as CouchDbICureConnector).queryViewWithKeys(
                 createQuery("by_region_type_code_version")
@@ -111,7 +111,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         return result.stream().map { ckv -> ckv.key.toJson().get(1).asText() }.collect(Collectors.toList<String>())
     }
 
-    override fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code> {
+    override fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): Flow<ViewQueryResultEvent> {
         val from = if (paginationOffset.startKey == null)
             ComplexKey.of(region, type, code, version)
         else
@@ -133,7 +133,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
     }
 
     @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
-    override fun findCodesByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> {
+    override fun findCodesByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<*>?): Flow<ViewQueryResultEvent> {
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val startKey = if (pagination == null) null else pagination.startKey as MutableList<Any?>
         if (startKey != null && startKey.size > 2 && startKey[2] != null) {
@@ -163,7 +163,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
-    override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> {
+    override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<*>?): Flow<ViewQueryResultEvent> {
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val startKey = if (pagination == null || pagination.startKey == null) null else pagination.startKey as MutableList<Any?>
         if (startKey != null && startKey.size > 3 && startKey[3] != null) {
@@ -216,7 +216,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
         )
     }
 
-    override fun listCodeIdsByLabel(region: String?, language: String?, label: String?): List<String> {
+    override fun listCodeIdsByLabel(region: String?, language: String?, label: String?): Flow<String> {
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
             ComplexKey.of(
@@ -237,7 +237,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
             .endKey(to), String::class.java)
     }
 
-    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String> {
+    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String> {
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
             ComplexKey.of(
@@ -260,7 +260,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 
     }
 
-    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String> {
+    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String> {
         val from = ComplexKey.of(
                 linkType,
                 linkedId
@@ -276,7 +276,7 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                 .endKey(to), String::class.java)
     }
 
-    override fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {
+    override suspend fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {
 		if (ofType != null && code.type != ofType) {
 			return orDefault ?: throw IllegalArgumentException("code ($code) has not the expected type $ofType")
 		}
@@ -286,9 +286,9 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 		return code
 	}
 
-	override fun isValid(code: Code, ofType: String?) = findCodes(ofType ?: code.type, code.code, code.version).isNotEmpty()
+	override suspend fun isValid(code: Code, ofType: String?) = findCodes(ofType ?: code.type, code.code, code.version).toList().isNotEmpty()
 
-	override fun getCodeByLabel(label: String, ofType: String, labelLang : List<String>) : Code {
+	override suspend fun getCodeByLabel(label: String, ofType: String, labelLang : List<String>) : Code {
 		val cleanLabel = label.toLowerCase().replace("^\\s+".toRegex(), "").replace("\\s+$".toRegex(), "")
 		for (lang in labelLang) {
 			val langLabelMap : Map<String?, Code>? = findCodesByLabel("be", lang, ofType, label, PaginationOffset<Code>(DEFAULT_LIMIT)).rows?.associateBy({ it.label[lang]?.toLowerCase() }, { it })

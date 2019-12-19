@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.uuid.Generators;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeIdentification;
-import org.taktik.icure.logic.ICureSessionLogic;
+import org.taktik.icure.asynclogic.ICureSessionLogic;
 import org.taktik.icure.security.CryptoUtils;
 import org.taktik.icure.utils.FuzzyValues;
 
@@ -34,8 +34,8 @@ public enum AutoFix {
 	FUZZYNOW((b,v,sl)-> FuzzyValues.getCurrentFuzzyDateTime()),
 	NOW((b,v,sl)-> Instant.now().toEpochMilli()),
 	UUID((b,v,sl)-> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate()),
-	CURRENTUSERID((b,v,sl)-> sl.getCurrentUserId()),
-	CURRENTHCPID((b,v,sl)-> sl.getCurrentHealthcarePartyId()),
+	CURRENTUSERID((b,v,sl)-> sl.currentUserId),
+	CURRENTHCPID((b,v,sl)-> sl.currentHealthcarePartyId),
 	NOFIX((b,v,sl)->v),
 	NORMALIZECODE((b,v,sl)-> {
 		CodeIdentification c = (CodeIdentification) v;

@@ -17,18 +17,20 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.logic.impl
+package org.taktik.icure.asynclogic.impl
 
 
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.taktik.icure.dao.CodeDAO
+import org.taktik.icure.asyncdao.CodeDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.db.PaginatedDocumentKeyIdPair
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
@@ -38,7 +40,7 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.exceptions.BulkUpdateConflictException
-import org.taktik.icure.logic.CodeLogic
+import org.taktik.icure.asynclogic.CodeLogic
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import java.io.InputStream
@@ -48,7 +50,7 @@ import javax.xml.parsers.SAXParserFactory
 import kotlin.collections.HashMap
 
 @Service
-class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclogic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(), CodeLogic {
+class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclogic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(sessionLogic), CodeLogic {
     val log = LogFactory.getLog(this.javaClass)
 
     override fun getTagTypeCandidates(): List<String> {
@@ -59,15 +61,15 @@ class CodeLogicImpl(val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclog
         return Arrays.asList("fr", "be")
     }
 
-    override fun get(id: String): Code? {
-        return codeDAO[id]
+    override suspend fun get(id: String): Code? {
+        return getEntity(id)
     }
 
     override fun get(@NotNull type: String, @NotNull code: String, @NotNull version: String): Code? {
-        return codeDAO["$type|$code|$version"]
+        return codeDAO.get("$type|$code|$version")
     }
 
-    override fun get(ids: List<String>): List<Code> {
+    override fun get(ids: List<String>): Flow<Code> {
         return codeDAO.getList(ids)
     }
 

@@ -36,10 +36,10 @@ import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.ICureSessionLogic
-import org.taktik.icure.logic.ReplicationLogic
-import org.taktik.icure.logic.UserLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.ICureSessionLogic
+import org.taktik.icure.asynclogic.ReplicationLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto

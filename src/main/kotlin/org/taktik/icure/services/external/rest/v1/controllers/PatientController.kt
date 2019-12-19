@@ -38,9 +38,9 @@ import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.DocumentNotFoundException
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.ICureSessionLogic
-import org.taktik.icure.logic.PatientLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.ICureSessionLogic
+import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto

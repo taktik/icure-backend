@@ -26,9 +26,9 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationScheme
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.entities.HealthcareParty
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.PatientLogic
-import org.taktik.icure.logic.SessionLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.SessionLogic
 import org.taktik.icure.services.external.http.websocket.KmehrFileOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketParam

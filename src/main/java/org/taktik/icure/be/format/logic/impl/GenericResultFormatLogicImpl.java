@@ -45,8 +45,8 @@ import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.entities.embed.ServiceLink;
 import org.taktik.icure.entities.embed.SubContact;
-import org.taktik.icure.logic.FormLogic;
-import org.taktik.icure.logic.HealthcarePartyLogic;
+import org.taktik.icure.asynclogic.FormLogic;
+import org.taktik.icure.asynclogic.HealthcarePartyLogic;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;

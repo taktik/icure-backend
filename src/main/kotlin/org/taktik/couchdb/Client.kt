@@ -5,6 +5,8 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types.newParameterizedType
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import okio.Buffer
@@ -21,6 +23,7 @@ import org.ektorp.http.URI
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
 import org.taktik.icure.dao.Option
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
 import org.taktik.jetty.getResponseBytesFlow
@@ -169,6 +172,8 @@ interface Client {
     fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>>
 
 
+    fun <T : CouchDbDocument> get(ids: Flow<String>, clazz: Class<T>): Flow<T>
+    fun <T : CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent>
 }
 
 private const val NOT_FOUND_ERROR = "not_found"
@@ -223,7 +228,30 @@ class ClientImpl(private val httpClient: HttpClient,
                 .map { it.doc }
     }
 
+    override fun <T : CouchDbDocument> get(ids: Flow<String>, clazz: Class<T>): Flow<T> {
+        return getForPagination(ids, clazz)
+                .filterIsInstance<ViewRowWithDoc<String, AllDocsViewValue, T>>()
+                .map { it.doc }
+    }
+
+
     override fun <T: CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
+        val viewQuery = ViewQuery()
+                .allDocs()
+                .includeDocs(true)
+                .keys(ids)
+        viewQuery.isIgnoreNotFound = true
+        return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
+    }
+
+    override fun <T: CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
+        ids.fold(persistentListOf(persistentListOf<String>()), { acc, id ->
+            if (acc.size == 100) {
+                acc + persistentListOf(id)
+            } else {
+                acc.set(acc.size - 1, acc.last() + id)
+            }
+        })
         val viewQuery = ViewQuery()
                 .allDocs()
                 .includeDocs(true)
@@ -630,4 +658,5 @@ class ClientImpl(private val httpClient: HttpClient,
     private fun tryParseError(buffer: Buffer, moshi: Moshi): CouchDbErrorResponse {
         return runCatching { checkNotNull(moshi.adapter<CouchDbErrorResponse>().fromJson(buffer)) }.getOrElse { CouchDbErrorResponse() }
     }
+
 }

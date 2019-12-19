@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FrontEndMigrationDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FrontEndMigrationLogic
 import org.taktik.icure.entities.FrontEndMigration
 import org.taktik.icure.exceptions.DeletionException
@@ -16,7 +16,7 @@ import org.taktik.icure.utils.firstOrNull
 @ExperimentalCoroutinesApi
 @Service
 class FrontEndMigrationLogicImpl(private val frontEndMigrationDAO: FrontEndMigrationDAO,
-                                 private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<FrontEndMigration, FrontEndMigrationDAO>(sessionLogic), FrontEndMigrationLogic {
+                                 private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<FrontEndMigration, FrontEndMigrationDAO>(sessionLogic), FrontEndMigrationLogic {
 
     override suspend fun createFrontEndMigration(frontEndMigration: FrontEndMigration): FrontEndMigration? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()

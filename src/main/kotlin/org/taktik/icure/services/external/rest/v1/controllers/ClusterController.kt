@@ -5,9 +5,9 @@ import io.swagger.annotations.ApiOperation
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.taktik.icure.logic.SessionLogic
-import org.taktik.icure.logic.UserLogic
-import org.taktik.icure.logic.impl.GroupLogicImpl
+import org.taktik.icure.asynclogic.SessionLogic
+import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.GroupLogicImpl
 import org.taktik.icure.services.external.rest.v1.dto.SyncStatusDto
 
 @RestController

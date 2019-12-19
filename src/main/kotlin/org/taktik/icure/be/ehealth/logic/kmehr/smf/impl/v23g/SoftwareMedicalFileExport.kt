@@ -52,9 +52,9 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.logic.FormLogic
-import org.taktik.icure.logic.FormTemplateLogic
-import org.taktik.icure.logic.InsuranceLogic
+import org.taktik.icure.asynclogic.FormLogic
+import org.taktik.icure.asynclogic.FormTemplateLogic
+import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter

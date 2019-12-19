@@ -1,4 +1,4 @@
-package org.taktik.icure.dao.replicator
+package org.taktik.icure.asyncdao.replicator
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,7 +10,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.get
-import org.taktik.icure.dao.UserDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.User
 

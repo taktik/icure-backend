@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.flow
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.asyncdao.FormTemplateDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
 import org.taktik.icure.dto.gui.layout.FormLayout
 
@@ -41,7 +41,7 @@ import java.util.*
 @ExperimentalCoroutinesApi
 @Service
 class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
-                            private val sessionLogic: AsyncICureSessionLogic,
+                            private val sessionLogic: AsyncSessionLogic,
                             private val gsonMapper: Gson) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
     override suspend fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>): Flow<FormTemplate> {

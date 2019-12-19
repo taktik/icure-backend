@@ -24,7 +24,7 @@ import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.ICureDAO
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.ICureLogic
-import org.taktik.icure.logic.PropertyLogic
+import org.taktik.icure.asynclogic.PropertyLogic
 
 @Service
 class ICureLogicImpl(private val iCureDAO: ICureDAO,

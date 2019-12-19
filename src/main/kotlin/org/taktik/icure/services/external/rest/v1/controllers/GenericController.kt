@@ -24,7 +24,7 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import org.taktik.icure.logic.MainLogic
+import org.taktik.icure.asynclogic.MainLogic
 import java.io.Serializable
 import java.lang.reflect.InvocationTargetException
 

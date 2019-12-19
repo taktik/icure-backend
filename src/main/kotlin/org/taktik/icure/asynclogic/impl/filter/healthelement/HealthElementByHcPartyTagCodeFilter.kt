@@ -3,7 +3,7 @@ package org.taktik.icure.asynclogic.impl.filter.healthelement
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toSet
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter
@@ -14,7 +14,7 @@ import java.util.*
 import javax.security.auth.login.LoginException
 
 class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: HealthElementLogic,
-                                          private val sessionLogic: AsyncICureSessionLogic) : Filter<String, HealthElement, HealthElementByHcPartyTagCodeFilter> {
+                                          private val sessionLogic: AsyncSessionLogic) : Filter<String, HealthElement, HealthElementByHcPartyTagCodeFilter> {
 
     override suspend fun resolve(filter: HealthElementByHcPartyTagCodeFilter, context: Filters): Flow<String> {
         try {

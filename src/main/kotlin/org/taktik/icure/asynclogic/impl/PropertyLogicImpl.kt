@@ -17,7 +17,7 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.logic.impl
+package org.taktik.icure.asynclogic.impl
 
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.EnumerablePropertySource
@@ -26,7 +26,7 @@ import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.logic.PropertyLogic
+import org.taktik.icure.asynclogic.PropertyLogic
 
 @Service
 class PropertyLogicImpl(private val environment: ConfigurableEnvironment) : PropertyLogic {

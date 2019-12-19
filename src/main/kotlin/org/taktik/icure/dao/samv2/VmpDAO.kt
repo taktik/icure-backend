@@ -17,9 +17,9 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao.samv2
+package org.taktik.icure.asyncdao.samv2
 
-import org.taktik.icure.dao.GenericDAO
+import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.ClassificationDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ClassificationLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.Classification
@@ -40,7 +40,7 @@ import java.util.function.Consumer
 @Service
 class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
                               private val uuidGenerator: UUIDGenerator,
-                              private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<Classification, ClassificationDAO>(sessionLogic), ClassificationLogic {
+                              private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Classification, ClassificationDAO>(sessionLogic), ClassificationLogic {
 
     override fun getGenericDAO(): ClassificationDAO {
         return classificationDAO

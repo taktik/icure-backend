@@ -36,7 +36,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.taktik.icure.logic.ICureSessionLogic;
+import org.taktik.icure.asynclogic.ICureSessionLogic;
 import org.taktik.icure.validation.AutoFix;
 
 @Aspect

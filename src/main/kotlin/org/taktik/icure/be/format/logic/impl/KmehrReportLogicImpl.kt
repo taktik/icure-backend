@@ -41,8 +41,8 @@ import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
-import org.taktik.icure.logic.ContactLogic
-import org.taktik.icure.logic.DocumentLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.utils.FuzzyValues
 import java.io.IOException
 import java.io.OutputStream

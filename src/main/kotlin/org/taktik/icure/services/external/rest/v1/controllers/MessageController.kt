@@ -30,8 +30,8 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.logic.MessageLogic
-import org.taktik.icure.logic.SessionLogic
+import org.taktik.icure.asynclogic.MessageLogic
+import org.taktik.icure.asynclogic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
 import org.taktik.icure.services.external.rest.v1.dto.MessagePaginatedList

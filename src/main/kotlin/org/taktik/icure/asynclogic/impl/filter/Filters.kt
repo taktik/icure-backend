@@ -38,7 +38,7 @@ class Filters : ApplicationContextAware {
         val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.".toRegex(), "")
         return (filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>? ?: try {
             ((applicationContext!!.autowireCapableBeanFactory.createBean(
-                    Class.forName("org.taktik.icure.logic.impl.filter.$truncatedFullClassName"),
+                    Class.forName("org.taktik.icure.asynclogic.impl.filter.$truncatedFullClassName"),
                     AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                     false
             )) as? Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>)?.also { filters[truncatedFullClassName] = it }

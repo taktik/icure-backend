@@ -22,8 +22,8 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.*
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.ICureSessionLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.ICureSessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
 import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
 

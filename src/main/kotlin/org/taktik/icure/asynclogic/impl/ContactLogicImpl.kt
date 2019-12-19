@@ -26,17 +26,14 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.ContactDAO
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.db.PaginatedDocumentKeyIdPair
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.dto.filter.chain.FilterChain
-import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.ServiceLink
@@ -53,7 +50,7 @@ import java.util.stream.Collectors
 @Service
 class ContactLogicImpl(private val contactDAO: ContactDAO,
                        private val uuidGenerator: UUIDGenerator,
-                       private val sessionLogic: AsyncICureSessionLogic,
+                       private val sessionLogic: AsyncSessionLogic,
                        private val filters: Filters) : GenericLogicImpl<Contact, ContactDAO>(sessionLogic), ContactLogic {
 
     override suspend fun getContact(id: String): Contact? {

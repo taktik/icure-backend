@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.*
 import org.taktik.icure.be.format.logic.HealthOneLogic
 import org.taktik.icure.be.format.logic.KmehrReportLogic
 import org.taktik.icure.be.format.logic.MedidocLogic
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.PatientLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.utils.FuzzyValues
 import javax.servlet.http.HttpServletResponse
 

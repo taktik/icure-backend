@@ -43,8 +43,8 @@ import javax.validation.constraints.NotNull
 
 @ExperimentalCoroutinesApi
 @Service
-class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDAO, 
-                               private val uuidGenerator: UUIDGenerator, 
+class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDAO,
+                               private val uuidGenerator: UUIDGenerator,
                                private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
 
     override fun getGenericDAO(): HealthcarePartyDAO {

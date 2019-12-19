@@ -60,7 +60,7 @@ import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.entities.embed.Telecom;
 import org.taktik.icure.entities.embed.TelecomType;
 import org.taktik.icure.exceptions.MissingRequirementsException;
-import org.taktik.icure.logic.ContactLogic;
+import org.taktik.icure.asynclogic.ContactLogic;
 import org.taktik.icure.utils.FuzzyValues;
 
 @org.springframework.stereotype.Service

@@ -34,7 +34,7 @@ import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
-import org.taktik.icure.logic.CodeLogic
+import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import java.io.Serializable

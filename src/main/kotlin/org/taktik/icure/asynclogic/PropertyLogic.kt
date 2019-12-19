@@ -17,7 +17,7 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.logic
+package org.taktik.icure.asynclogic
 
 import org.taktik.icure.entities.Property
 

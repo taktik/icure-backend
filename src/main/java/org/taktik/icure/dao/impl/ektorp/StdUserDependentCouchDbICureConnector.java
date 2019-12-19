@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.taktik.icure.entities.User;
-import org.taktik.icure.logic.SessionLogic;
+import org.taktik.icure.asynclogic.SessionLogic;
 import org.taktik.icure.properties.CouchDbProperties;
 
 import java.io.InputStream;

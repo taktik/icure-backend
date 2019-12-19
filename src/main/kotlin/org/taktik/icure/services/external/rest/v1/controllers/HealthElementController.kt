@@ -28,7 +28,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.logic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto

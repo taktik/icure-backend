@@ -1,4 +1,4 @@
-package org.taktik.icure.logic.impl
+package org.taktik.icure.asynclogic.impl
 
 import ma.glasnost.orika.MapperFacade
 import org.springframework.stereotype.Service
@@ -13,15 +13,15 @@ import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.logic.DocumentLogic
-import org.taktik.icure.logic.EfactLogic
-import org.taktik.icure.logic.EntityReferenceLogic
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.InsuranceLogic
-import org.taktik.icure.logic.InvoiceLogic
-import org.taktik.icure.logic.MessageLogic
-import org.taktik.icure.logic.PatientLogic
-import org.taktik.icure.logic.SessionLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.EfactLogic
+import org.taktik.icure.asynclogic.EntityReferenceLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.InsuranceLogic
+import org.taktik.icure.asynclogic.InvoiceLogic
+import org.taktik.icure.asynclogic.MessageLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.EIDItem

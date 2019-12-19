@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2018 Taktik SA
  *
@@ -32,8 +33,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.EntityPersister
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.constants.Users
@@ -46,9 +46,7 @@ import org.taktik.icure.entities.embed.TypedValue
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
-import org.taktik.icure.logic.HealthcarePartyLogic
-import org.taktik.icure.logic.PropertyLogic
-import org.taktik.icure.logic.listeners.UserLogicListener
+import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.time.Duration
@@ -56,68 +54,14 @@ import java.time.Instant
 import java.util.*
 import java.util.regex.Pattern
 
-interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
-
-    fun getProperties(userId: String): Flow<Property>
-    suspend fun modifyProperties(userId: String, newProperties: Set<Property>)
-    suspend fun newUser(type: Users.Type, login: String, password: String, healthcarePartyId: String): User?
-    suspend fun registerUser(user: User, password: String): User?
-    suspend fun createUser(user: User): User?
-    suspend fun registerUser(email: String, password: String, healthcarePartyId: String, name: String): User?
-    suspend fun isLoginValid(login: String): Boolean
-    suspend fun isPasswordValid(password: String): Boolean
-    suspend fun modifyUser(modifiedUser: User): User?
-    suspend fun modifyUserAttributes(userId: String, attributesValues: Map<String, Any>)
-    suspend fun enableUser(userId: String)
-    suspend fun disableUser(userId: String)
-    fun encodePassword(password: String): String
-    suspend fun isUserActive(userId: String): Boolean
-    suspend fun checkPassword(password: String): Boolean
-    suspend fun verifyPasswordToken(userId: String, token: String): Boolean
-    suspend fun verifyActivationToken(userId: String, token: String): Boolean
-    suspend fun usePasswordToken(userId: String, token: String, newPassword: String): Boolean
-    suspend fun useActivationToken(userId: String, token: String): Boolean
-    suspend fun checkUsersExpiration()
-    fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User>
-    suspend fun acceptUserTermsOfUse(userId: String)
-    fun addListener(listener: UserLogicListener)
-    fun removeListener(listener: UserLogicListener)
-    suspend fun addPermissions(userId: String, permissions: Set<Permission>)
-    suspend fun modifyPermissions(userId: String, permissions: Set<Permission>)
-    suspend fun modifyRoles(userId: String, roles: Set<Role>)
-    suspend fun getUser(id: String): User?
-    fun getUsersByLogin(login: String): Flow<User>
-    suspend fun getUserByLogin(login: String): User?
-    suspend fun getUserByEmail(email: String): User?
-    suspend fun newUser(type: Users.Type, status: Users.Status, login: String, createdDate: Instant): User?
-    suspend fun deleteUser(user: User)
-    suspend fun undeleteUser(user: User)
-    fun buildStandardUser(userName: String, password: String): User
-    fun getBootstrapUser(): User
-    suspend fun deleteUser(id: String)
-    suspend fun undeleteUser(id: String)
-    fun getRoles(user: User): Flow<Role>
-    suspend fun save(user: User)
-    suspend fun userLogged(user: User)
-    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
-    suspend fun setProperties(user: User, properties: List<Property>): User?
-    fun getUsers(ids: List<String>): Flow<User>
-    suspend fun getUserOnFallbackDb(userId: String): User
-    suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
-    suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User
-    fun getUsersByPartialIdOnFallbackDb(id: String): Flow<User>
-    fun findUsersByLoginOnFallbackDb(username: String): Flow<User>
-    fun findByHcpartyId(hcpartyId: String): Flow<String>
-}
-
 @Transactional
 @Service
 class UserLogicImpl(
-        private val userDAO: UserDAO,
         roleDao: RoleDAO,
+        sessionLogic: AsyncSessionLogic,
+        private val userDAO: UserDAO,
         private val healthcarePartyLogic: HealthcarePartyLogic,
         private val propertyLogic: PropertyLogic,
-        private val sessionLogic: AsyncSessionLogic,
         private val passwordEncoder: PasswordEncoder,
         private val uuidGenerator: UUIDGenerator) : PrincipalLogicImpl<User>(roleDao, sessionLogic), UserLogic {
 
@@ -245,7 +189,7 @@ class UserLogicImpl(
         return userDAO.create(dbInstanceUri, groupId, user)
     }
 
-    private fun setHealthcarePartyIdIfExists(healthcarePartyId: String?, user: User) {
+    private suspend fun setHealthcarePartyIdIfExists(healthcarePartyId: String?, user: User) {
         healthcarePartyId?.let {
             healthcarePartyLogic.getHealthcareParty(it)?.let {
                 user.healthcarePartyId = healthcarePartyId

@@ -6,12 +6,12 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.PlaceDAO
 import org.taktik.icure.entities.Place
 import org.taktik.icure.exceptions.DeletionException
-import org.taktik.icure.asynclogic.AsyncICureSessionLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PlaceLogic
 
 @Service
 class PlaceLogicImpl(private val placeDAO: PlaceDAO,
-                     private val sessionLogic: AsyncICureSessionLogic) : GenericLogicImpl<Place, PlaceDAO>(sessionLogic), PlaceLogic {
+                     private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Place, PlaceDAO>(sessionLogic), PlaceLogic {
 
     override suspend fun createPlace(place: Place): Place? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
