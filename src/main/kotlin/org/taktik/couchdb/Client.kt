@@ -34,6 +34,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.max
+import kotlin.math.min
 
 typealias CouchDbDocument = Versionable<String>
 
@@ -187,6 +189,7 @@ private const val TOTAL_ROWS_FIELD_NAME = "total_rows"
 private const val OFFSET_FIELD_NAME = "offset"
 private const val UPDATE_SEQUENCE_NAME = "update_seq"
 
+@ExperimentalCoroutinesApi
 class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
@@ -222,12 +225,16 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private data class AllDocsViewValue(val rev: String)
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun <T : CouchDbDocument> get(ids: Collection<String>, clazz: Class<T>): Flow<T> {
         return getForPagination(ids, clazz)
                 .filterIsInstance<ViewRowWithDoc<String, AllDocsViewValue, T>>()
                 .map { it.doc }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun <T : CouchDbDocument> get(ids: Flow<String>, clazz: Class<T>): Flow<T> {
         return getForPagination(ids, clazz)
                 .filterIsInstance<ViewRowWithDoc<String, AllDocsViewValue, T>>()
@@ -235,6 +242,8 @@ class ClientImpl(private val httpClient: HttpClient,
     }
 
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun <T: CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
         val viewQuery = ViewQuery()
                 .allDocs()
@@ -244,22 +253,64 @@ class ClientImpl(private val httpClient: HttpClient,
         return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
     }
 
-    override fun <T: CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
-        ids.fold(persistentListOf(persistentListOf<String>()), { acc, id ->
-            if (acc.size == 100) {
-                acc + persistentListOf(id)
+    @FlowPreview
+    @ExperimentalCoroutinesApi
+    override fun <T: CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> = flow {
+        ids.fold(Pair(persistentListOf<String>(), Triple(0, Integer.MAX_VALUE, 0L)), { acc, id ->
+            if (acc.first.size == 100) {
+                getForPagination(acc.first, clazz).fold(Pair(persistentListOf(id), acc.second)) { res, it ->
+                    when (it) {
+                        is ViewRowWithDoc<*, *, *> -> {
+                            emit(it)
+                            res
+                        }
+                        is TotalCount -> {
+                            Pair(res.first, Triple(res.second.first + it.total, res.second.second, res.second.third))
+                        }
+                        is Offset -> {
+                            Pair(res.first, Triple(res.second.first, min(res.second.second, it.offset), res.second.third))
+                        }
+                        is UpdateSequence -> {
+                            Pair(res.first, Triple(res.second.first, res.second.second, max(res.second.third, it.seq)))
+                        }
+                        else -> res
+                    }
+                }
             } else {
-                acc.set(acc.size - 1, acc.last() + id)
+                Pair(acc.first.add(id), acc.second)
             }
-        })
-        val viewQuery = ViewQuery()
-                .allDocs()
-                .includeDocs(true)
-                .keys(ids)
-        viewQuery.isIgnoreNotFound = true
-        return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
+        }).let { remainder ->
+            if (remainder.first.isNotEmpty())
+                getForPagination(remainder.first, clazz).fold(remainder.second) { counters, it ->
+                when (it) {
+                    is ViewRowWithDoc<*, *, *> -> {
+                        emit(it)
+                        counters
+                    }
+                    is TotalCount -> {
+                        Triple(counters.first + it.total, counters.second, counters.third)
+                    }
+                    is Offset -> {
+                        Triple(counters.first, min(counters.second, it.offset), counters.third)
+                    }
+                    is UpdateSequence -> {
+                        Triple(counters.first, counters.second, max(counters.third, it.seq))
+                    }
+                    else -> counters
+                }
+            } else remainder.second
+        }.let {
+            emit(TotalCount(it.first))
+            if (it.second<Integer.MAX_VALUE) {
+                emit(Offset(it.second))
+            }
+            if (it.third>0L) {
+                emit(UpdateSequence(it.third))
+            }
+        }
     }
 
+    @ExperimentalCoroutinesApi
     override fun getAttachment(id: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
         require(id.isNotBlank()) { "Id cannot be blank" }
         require(attachmentId.isNotBlank()) { "attachmentId cannot be blank" }
@@ -344,6 +395,8 @@ class ClientImpl(private val httpClient: HttpClient,
         }.rev
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun <T : CouchDbDocument> bulkUpdate(entities: Collection<T>, clazz: Class<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
             val requestType = newParameterizedType(BulkUpdateRequest::class.java, clazz)
@@ -372,6 +425,8 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override suspend fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
             val requestAdapter = moshi.adapter<BulkDeleteRequest>(BulkDeleteRequest::class.java)
@@ -397,6 +452,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @FlowPreview
     override fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent> = flow {
         coroutineScope {
             query.dbPath(dbURI.toString())
@@ -546,6 +602,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
+    @ExperimentalCoroutinesApi
     @FlowPreview
     private fun <T : CouchDbDocument> internalSubscribeForChanges(clazz: Class<T>, since: String): Flow<Change<T>> = flow {
         val changesURI = dbURI.append("_changes")
