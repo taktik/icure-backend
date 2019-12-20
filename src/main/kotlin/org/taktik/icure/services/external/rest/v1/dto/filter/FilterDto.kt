@@ -19,25 +19,8 @@ package org.taktik.icure.services.external.rest.v1.dto.filter
 
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.entities.base.Identifiable
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport
-import org.taktik.icure.services.external.rest.v1.dto.filter.code.CodeByRegionTypeLabelLanguageFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.contact.ContactByHcPartyTagCodeDateFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.contact.ContactByServiceIdsFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter
-import org.taktik.icure.services.external.rest.v1.dto.filter.patient.*
-import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import java.io.Serializable
 
-@JsonPolymorphismSupport(Filters.UnionFilter::class, Filters.IntersectionFilter::class, Filters.ComplementFilter::class, Filters.ConstantFilter::class,
-        CodeByRegionTypeLabelLanguageFilter::class, PatientByHcPartyFilter::class, PatientByHcPartyDateOfBirthFilter::class,
-        PatientByHcPartyDateOfBirthBetweenFilter::class, PatientByHcPartyAndSsinFilter::class, PatientByHcPartyNameContainsFuzzyFilter::class,
-        PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class, PatientByHcPartyNameFilter::class, PatientByHcPartyAndSsinsFilter::class,
-        PatientByHcPartyNameContainsFuzzyFilter::class, PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class,
-        PatientByHcPartyAndActiveFilter::class, PatientByHcPartyGenderEducationProfession::class, ContactByHcPartyTagCodeDateFilter::class,
-        ContactByHcPartyPatientTagCodeDateFilter::class, ContactByServiceIdsFilter::class, ServiceByHcPartyTagCodeDateFilter::class,
-        InvoiceByHcPartyCodeDateFilter::class, HealthElementByHcPartyTagCodeFilter::class)
 abstract class FilterDto<O : Identifiable<String>> : Filter<String, O>, Serializable {
 	var desc: String? = null
 

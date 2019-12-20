@@ -20,9 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.predicate;
 
 import java.io.Serializable;
 
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
 
-@JsonPolymorphismSupport({KeyValuePredicate.class, AndPredicate.class, OrPredicate.class, NotPredicate.class})
 public abstract class Predicate implements Serializable {
 	String desc;
 

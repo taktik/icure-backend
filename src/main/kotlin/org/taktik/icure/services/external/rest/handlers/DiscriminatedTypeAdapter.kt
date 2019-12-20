@@ -19,14 +19,18 @@ package org.taktik.icure.services.external.rest.handlers
 
 import com.google.common.base.Preconditions
 import com.google.gson.*
+import org.reflections.Reflections
+import org.reflections.scanners.TypeAnnotationsScanner
 import java.lang.reflect.Modifier
 import java.lang.reflect.Type
 import java.util.*
 
 class DiscriminatedTypeAdapter<T:Any>(clazz: Class<T>) : JsonSerializer<T>, JsonDeserializer<T> {
-    private val discriminator: String
+    private val discriminator = clazz.getAnnotation(JsonDiscriminator::class.java)?.value ?: "\$type"
     private val subclasses: MutableMap<String, Class<*>> = HashMap()
     private val reverseSubclasses: MutableMap<Class<*>, String> = HashMap()
+    private val scanner = Reflections(clazz, TypeAnnotationsScanner())
+
     override fun serialize(srcObject: T, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
         val el = context.serialize(srcObject, srcObject.javaClass)
         val result = el.asJsonObject
@@ -48,16 +52,13 @@ class DiscriminatedTypeAdapter<T:Any>(clazz: Class<T>) : JsonSerializer<T>, Json
 
     init {
         Preconditions.checkArgument(clazz.isInterface || Modifier.isAbstract(clazz.modifiers), "Superclass must be abstract")
-        val annotation = clazz.getAnnotation(JsonPolymorphismSupport::class.java)
-        Preconditions.checkNotNull(annotation, "Superclass must be annotated with JsonPolymorphismSupport")
-        val classes = annotation.value as Array<Class<T>>
+        val classes = scanner.getTypesAnnotatedWith(JsonPolymorphismRoot::class.java).filter { clazz.isAssignableFrom(it) }
         for (subClass in classes) {
             val discriminated = subClass.getAnnotation(JsonDiscriminated::class.java)
             val discriminatedString = discriminated?.value ?: subClass.simpleName
             subclasses[discriminatedString] = subClass
             reverseSubclasses[subClass] = discriminatedString
         }
-        val discriminatorAnnotation = clazz.getAnnotation(JsonDiscriminator::class.java)
-        discriminator = discriminatorAnnotation?.value ?: "\$type"
+
     }
 }
