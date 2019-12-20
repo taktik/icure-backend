@@ -20,7 +20,7 @@ package org.taktik.icure.asynclogic
 import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 
-interface ReplicationLogic : EntityPersister<Replication?, String?> {
+interface ReplicationLogic : EntityPersister<Replication, String> {
     val pendingChanges: Map<DatabaseSynchronization?, Number?>?
     fun startReplications()
     @Throws(Exception::class)

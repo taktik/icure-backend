@@ -24,15 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.taktik.icure.dao.ReplicationDAO;
-import org.taktik.icure.entities.Group;
+import org.taktik.icure.asynclogic.ReplicationLogic;
+import org.taktik.icure.asyncdao.ReplicationDAO;
 import org.taktik.icure.entities.Replication;
 import org.taktik.icure.entities.embed.DatabaseSynchronization;
-import org.taktik.icure.asynclogic.ReplicationLogic;
 import org.taktik.icure.properties.CouchDbProperties;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
