@@ -559,17 +559,17 @@ class UserLogicImpl(
         emitAll(userDAO.getList(dbInstanceUri, groupId, ids).map { fillGroup(it) })
     }
 
-    override suspend fun getUserOnFallbackDb(userId: String): User {
+    override suspend fun getUserOnFallbackDb(userId: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.getOnFallback(dbInstanceUri, groupId, userId, false)
+        return userDAO.getOnFallback(dbInstanceUri, userId, false)
     }
 
     override suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User {
         return fillGroup(userDAO.getUserOnUserDb(dbInstanceUrl, groupId, userId, false))
     }
 
-    override suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User {
-        return fillGroup(userDAO.findUserOnUserDb(dbInstanceUrl, groupId, userId, false))
+    override suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User? {
+        return userDAO.findUserOnUserDb(dbInstanceUrl, groupId, userId, false)?.also { fillGroup(it) }
     }
 
     override fun getUsersByPartialIdOnFallbackDb(id: String): Flow<User> = flow {

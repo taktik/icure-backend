@@ -19,23 +19,17 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.Users
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.embed.Permission
-import org.taktik.icure.exceptions.CreationException
-import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.exceptions.UserRegistrationException
-import org.taktik.icure.asynclogic.EntityPersister
-import org.taktik.icure.asynclogic.PrincipalLogic
-import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import java.net.URI
 import java.time.Instant
 
-interface UserLogic : EntityPersister<User, String>, org.taktik.icure.asynclogic.impl.PrincipalLogic<User> {
+interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
 
     fun getProperties(userId: String): Flow<Property>
     suspend fun modifyProperties(userId: String, newProperties: Set<Property>)
@@ -81,9 +75,9 @@ interface UserLogic : EntityPersister<User, String>, org.taktik.icure.asynclogic
     fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     suspend fun setProperties(user: User, properties: List<Property>): User?
     fun getUsers(ids: List<String>): Flow<User>
-    suspend fun getUserOnFallbackDb(userId: String): User
+    suspend fun getUserOnFallbackDb(userId: String): User?
     suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
-    suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User
+    suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
     fun getUsersByPartialIdOnFallbackDb(id: String): Flow<User>
     fun findUsersByLoginOnFallbackDb(username: String): Flow<User>
     fun findByHcpartyId(hcpartyId: String): Flow<String>

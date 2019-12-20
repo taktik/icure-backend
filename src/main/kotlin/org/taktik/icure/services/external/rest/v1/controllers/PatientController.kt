@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
@@ -39,7 +40,6 @@ import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.ICureSessionLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.*
@@ -55,7 +55,7 @@ import javax.security.auth.login.LoginException
 @RequestMapping("/rest/v1/patient")
 @Api(tags = ["patient"])
 class PatientController(
-        private val sessionLogic: ICureSessionLogic,
+        private val sessionLogic: AsyncSessionLogic,
         //private val accessLogLogic: AccessLogLogic,
         private val mapper: MapperFacade,
         private val filters: Filters,
@@ -65,7 +65,7 @@ class PatientController(
 
     @ApiOperation(nickname = "findByNameBirthSsinAuto", value = "Find patients for the current user (HcParty) ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
-    fun findByNameBirthSsinAuto(
+    suspend fun findByNameBirthSsinAuto(
             @ApiParam(value = "HealthcareParty Id, if unset will user user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
             @ApiParam(value = "Optional value for filtering results") @RequestParam(required = false) filterValue: String?,
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
@@ -76,14 +76,17 @@ class PatientController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
-        val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentHealthcarePartyId)
-        return patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                if (hcp.parentId != null) hcp.parentId else hcp.id,
-                paginationOffset,
-                filterValue,
-                Sorting(null, sortDirection))
-                ?.let { buildPaginatedListResponse(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
+
+        sessionLogic.getCurrentHealthcarePartyId()?.let {
+            val hcp = healthcarePartyLogic.getHealthcareParty(it)
+            return patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
+                    if (hcp?.parentId != null) hcp.parentId else hcp.id,
+                    paginationOffset,
+                    filterValue,
+                    Sorting(null, sortDirection))
+                    ?.let { buildPaginatedListResponse(it) }
+                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
     }
 
     private fun buildPaginatedListResponse(patients: PaginatedList<Patient>): PatientPaginatedList {

@@ -173,12 +173,14 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     override fun <T> doInSessionContext(sessionContext: AsyncSessionLogic.AsyncSessionContext, callable: Callable<T>?): T? = null
 
 
-    override suspend fun getCurrentUserId(): String? {
+    override suspend fun getCurrentUserId(): String {
         return getCurrentSessionContext().getUser()?.id
+                ?: throw AuthenticationServiceException("Failed extracting currentUser id")
     }
 
-    override suspend fun getCurrentHealthcarePartyId(): String? {
+    override suspend fun getCurrentHealthcarePartyId(): String {
         return getCurrentSessionContext().getUser()?.healthcarePartyId
+                ?: throw AuthenticationServiceException("Failed extracting current healthCareParty id")
     }
 
     private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext {
@@ -199,10 +201,11 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
         override fun isAnonymous(): Boolean = false
 
-        override suspend fun getUser(): User? {
+        override suspend fun getUser(): User {
             val userId = getUserId()
             val groupId = getGroupId()
             return userId?.let { userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUri()) }?.apply { this.groupId = groupId }
+                    ?: throw AuthenticationServiceException("Failed getting the user from session context : userId=$userId, groupId=$groupId")
         }
 
         override fun getDbInstanceUrl(): String = (userDetails as DatabaseUserDetails).dbInstanceUrl

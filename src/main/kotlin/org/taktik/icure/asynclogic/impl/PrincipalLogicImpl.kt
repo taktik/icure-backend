@@ -18,16 +18,12 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.awaitSingle
 import org.slf4j.LoggerFactory
-import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PrincipalLogic
 import org.taktik.icure.constants.Roles
-import org.taktik.icure.dao.impl.GenericDAOImpl
-import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.Role

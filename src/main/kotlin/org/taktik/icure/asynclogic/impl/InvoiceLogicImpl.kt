@@ -320,7 +320,7 @@ class InvoiceLogicImpl(private val filters: Filters,
         emitAll(invoiceDAO.listInvoiceIdsByTarificationsByCode(dbInstanceUri, groupId, hcPartyId, codeCode, startValueDate, endValueDate))
     }
 
-    override suspend fun filter(filter: FilterChain<Invoice>): Flow<Invoice> {
+    override suspend fun filter(filter: FilterChain<Invoice>): Flow<Invoice> { // TODO MB flowify here?
         val ids = filters.resolve(filter.getFilter()).toList()
         val invoices = getInvoices(ids)
         val predicate = filter.predicate

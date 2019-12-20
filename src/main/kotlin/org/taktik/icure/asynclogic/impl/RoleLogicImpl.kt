@@ -106,7 +106,6 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
 
     @Throws(Exception::class)
     override fun updateEntities(roles: Collection<Role>) = flow<Role> {
-        //TODO MB check if there is a method that catt saveAll
         roles.map { role: Role -> saveRole(role) }
                 .filterNotNull()
                 .onEach { emit(it) }

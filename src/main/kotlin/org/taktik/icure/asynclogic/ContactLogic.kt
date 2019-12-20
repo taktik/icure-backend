@@ -17,7 +17,7 @@ import org.taktik.icure.validation.aspect.Check
 interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getContact(id: String): Contact?
     fun getContacts(selectedIds: Collection<String>): Flow<Contact>
-    fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
+        fun getPaginatedContacts(selectedIds: Collection<String>): Flow<ViewQueryResultEvent>
     fun findByHCPartyPatient(hcPartyId: String, secretPatientKeys: List<String>): Flow<Contact>
 
     suspend fun addDelegation(contactId: String, delegation: Delegation): Contact?

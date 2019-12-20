@@ -80,6 +80,11 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java)
     }
 
+    override fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Flow<String>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.getForPagination(contactIds, Contact::class.java)
+    }
+
     override fun getPaginatedContacts(dbInstanceUrl: URI, groupId: String, contactIds: Collection<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         return client.getForPagination(contactIds, Contact::class.java)

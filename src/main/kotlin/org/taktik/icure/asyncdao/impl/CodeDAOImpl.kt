@@ -290,6 +290,11 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                         .endKey(to)).mapNotNull { it.id }
     }
 
+    override fun getForPagination(dbInstanceUri: URI, groupId: String, ids: List<String>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUri, groupId)
+        return client.getForPagination(ids, Code::class.java)
+    }
+
     override suspend fun ensureValid(dbInstanceUrl: URI, groupId: String, code : Code, ofType : String?, orDefault : Code?) : Code {
         if (ofType != null && code.type != ofType) {
 			return orDefault ?: throw IllegalArgumentException("code ($code) has not the expected type $ofType")
