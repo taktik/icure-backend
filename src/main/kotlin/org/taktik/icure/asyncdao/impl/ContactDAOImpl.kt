@@ -308,8 +308,8 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return client.queryView<String, String>(viewQuery).mapNotNull { it.value }
     }
 
-    override suspend fun listByServices(dbInstanceUrl: URI, groupId: String, services: Collection<String>): Flow<Contact> {
-        return get(dbInstanceUrl, groupId, this.listIdsByServices(dbInstanceUrl, groupId, services).toList())
+    override fun listByServices(dbInstanceUrl: URI, groupId: String, services: Collection<String>): Flow<Contact> {
+        return get(dbInstanceUrl, groupId, this.listIdsByServices(dbInstanceUrl, groupId, services))
     }
 
     override fun listIdsByServices(dbInstanceUrl: URI, groupId: String, services: Collection<String>): Flow<String> {

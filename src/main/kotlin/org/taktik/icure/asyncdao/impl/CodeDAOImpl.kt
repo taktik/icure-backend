@@ -19,33 +19,36 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.queryView
+import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CodeDAO
-import org.taktik.icure.asyncdao.impl.CachedDAOImpl
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.utils.firstOrNull
-import java.util.stream.Collectors
+import java.net.URI
 
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
-class CodeDAOImpl @Autowired
-constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchdb, idGenerator, cacheManager), CodeDAO {
+class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchDbDispatcher, idGenerator, cacheManager), CodeDAO {
     @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun findCodes(type: String?, code: String?, version: String?): Flow<Code> {
-        val result = queryResults(
+    override fun findCodes(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Code> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.queryViewIncludeDocsNoValue<String, Code>(
                 createQuery("by_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
@@ -58,27 +61,24 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                                 type ?: ComplexKey.emptyObject(),
                                 code ?: ComplexKey.emptyObject(),
                                 version ?: ComplexKey.emptyObject()
-                        )))
-
-        return result
+                        ))).map { it.doc }
     }
 
-    override fun findCodeTypes(type: String?): Flow<String> {
-        val result = (db as CouchDbICureConnector).queryViewWithKeys(
+    override fun findCodeTypes(dbInstanceUrl: URI, groupId: String, type: String?): Flow<String> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.queryView<String,String>(
                 createQuery("by_type_code_version")
                         .includeDocs(false)
                         .group(true)
                         .groupLevel(2)
                         .startKey(ComplexKey.of(type, null, null))
-                        .endKey(ComplexKey.of(if (type == null) null else type + "\ufff0", null, null)),
-                String::class.java)
-
-        return result.stream().map { ckv -> ckv.key.toJson().get(1).asText() }.collect(Collectors.toList<String>())
+                        .endKey(ComplexKey.of(if (type == null) null else type + "\ufff0", null, null))).mapNotNull { it.key }
     }
 
     @View(name = "by_region_type_code_version", map = "classpath:js/code/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
-    override fun findCodes(region: String?, type: String?, code: String?, version: String?): Flow<Code> {
-        val result = queryResults(
+    override fun findCodes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?): Flow<Code> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.queryViewIncludeDocsNoValue<String, Code>(
                 createQuery("by_region_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
@@ -93,30 +93,30 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                                 type ?: ComplexKey.emptyObject(),
                                 code ?: ComplexKey.emptyObject(),
                                 version ?: ComplexKey.emptyObject()
-                        )))
-
-        return result
+                        ))).map { it.doc }
     }
 
-    override fun findCodeTypes(region: String?, type: String?): Flow<String> {
-        //Not transactional aware
-        val result = (db as CouchDbICureConnector).queryViewWithKeys(
+    override fun findCodeTypes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?): Flow<String> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.queryView<String,String>(
                 createQuery("by_region_type_code_version")
                         .includeDocs(false)
                         .group(true)
                         .groupLevel(2)
                         .startKey(ComplexKey.of(region, type ?: "", null, null))
-                        .endKey(ComplexKey.of(region, if (type == null) ComplexKey.emptyObject() else type + "\ufff0", null, null)),
-                String::class.java)
-
-        return result.stream().map { ckv -> ckv.key.toJson().get(1).asText() }.collect(Collectors.toList<String>())
+                        .endKey(ComplexKey.of(region, if (type == null) ComplexKey.emptyObject() else type + "\ufff0", null, null))
+        ).mapNotNull { it.key }
     }
 
-    override fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): Flow<ViewQueryResultEvent> {
+    @ExperimentalCoroutinesApi
+    @FlowPreview
+    override fun findCodes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+
         val from = if (paginationOffset.startKey == null)
             ComplexKey.of(region, type, code, version)
         else
-            ComplexKey.of(*(paginationOffset.startKey as List<*>).toTypedArray())
+            ComplexKey.of(*paginationOffset.startKey.toTypedArray())
         val to = ComplexKey.of(
                 region ?: ComplexKey.emptyObject(),
                 type ?: ComplexKey.emptyObject(),
@@ -124,61 +124,63 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                 if (version == null) ComplexKey.emptyObject() else version + "\ufff0"
         )
 
-        return pagedQueryView(
-            "by_region_type_code_version",
-            from,
-            to,
-            paginationOffset,
-            false
-                             )
+        val viewQuery = pagedViewQuery(
+                "by_region_type_code_version",
+                from,
+                to,
+                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                false
+        )
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
     }
 
+    @ExperimentalCoroutinesApi
+    @FlowPreview
     @View(name = "by_language_label", map = "classpath:js/code/By_language_label.js")
-    override fun findCodesByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<*>?): Flow<ViewQueryResultEvent> {
+    override fun findCodesByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
-        val startKey = if (pagination == null) null else pagination.startKey as MutableList<Any?>
-        if (startKey != null && startKey.size > 2 && startKey[2] != null) {
-			startKey[2] = StringUtils.sanitizeString(startKey[2] as String)
-        }
+        val startKey = paginationOffset.startKey
         val from = if (startKey == null)
             ComplexKey.of(
                     region ?: "\u0000",
                     language ?: "\u0000",
-                    if (sanitizedLabel == null) "\u0000" else sanitizedLabel
+                    sanitizedLabel ?: "\u0000"
             )
         else
-            ComplexKey.of(*startKey.toTypedArray())
+            ComplexKey.of(*startKey.mapIndexed { i, s -> if (i==2) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray())
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
                 if (language == null) ComplexKey.emptyObject() else if (sanitizedLabel == null) language + "\ufff0" else language,
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
 
-        return pagedQueryView(
-            "by_language_label",
-            from,
-            to,
-            pagination,
-            false
-                             )
+        val viewQuery = pagedViewQuery(
+                "by_language_label",
+                from,
+                to,
+                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                false
+        )
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
     }
 
+    @ExperimentalCoroutinesApi
+    @FlowPreview
     @View(name = "by_language_type_label", map = "classpath:js/code/By_language_type_label.js")
-    override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, pagination: PaginationOffset<*>?): Flow<ViewQueryResultEvent> {
+    override fun findCodesByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
-        val startKey = if (pagination == null || pagination.startKey == null) null else pagination.startKey as MutableList<Any?>
-        if (startKey != null && startKey.size > 3 && startKey[3] != null) {
-			startKey[3] = StringUtils.sanitizeString(startKey[3] as String)
-        }
+        val startKey = paginationOffset.startKey
         val from = if (startKey == null)
             ComplexKey.of(
                     region ?: "\u0000",
                     language ?: "\u0000",
                     type ?: "\u0000",
-                    if (sanitizedLabel == null) "\u0000" else sanitizedLabel
+                    sanitizedLabel ?: "\u0000"
             )
         else
-            ComplexKey.of(*startKey.toTypedArray())
+            ComplexKey.of(*startKey.mapIndexed { i, s -> if (i==3) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray())
         val to = ComplexKey.of(
 			if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
 			language ?: ComplexKey.emptyObject(),
@@ -186,18 +188,22 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
 			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
 
-        return pagedQueryView(
-            "by_language_type_label",
-            from,
-            to,
-            pagination,
-            false
-                             )
+        val viewQuery = pagedViewQuery(
+                "by_language_type_label",
+                from,
+                to,
+                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                false
+        )
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
     }
 
+    @ExperimentalCoroutinesApi
+    @FlowPreview
     @View(name = "by_qualifiedlink_id", map = "classpath:js/code/By_qualifiedlink_id.js")
-    override fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> {
-        val startKey = if (pagination == null || pagination.startKey == null) null else pagination.startKey as MutableList<Any?>
+    override fun findCodesByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        val startKey = paginationOffset.startKey
         val from = startKey?.let { ComplexKey.of(*it.toTypedArray()) } ?:
             ComplexKey.of(
                     linkType,
@@ -208,22 +214,24 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                         linkedId ?: ComplexKey.emptyObject()
             )
 
-        return pagedQueryView(
+        val viewQuery = pagedViewQuery(
                 "by_qualifiedlink_id",
                 from,
                 to,
-                pagination,
+                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
                 false
         )
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
     }
 
-    override fun listCodeIdsByLabel(region: String?, language: String?, label: String?): Flow<String> {
+    override fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?): Flow<String> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
             ComplexKey.of(
                 region ?: "\u0000",
                 language ?: "\u0000",
-                if (sanitizedLabel == null) "\u0000" else sanitizedLabel
+                    sanitizedLabel ?: "\u0000"
                          )
 
         val to = ComplexKey.of(
@@ -232,20 +240,22 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
             if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
                               )
 
-        return db.queryView(createQuery("by_language_label")
-            .includeDocs(false)
-            .startKey(from)
-            .endKey(to), String::class.java)
+        return client.queryView<String,String>(
+                createQuery("by_language_label")
+                        .includeDocs(false)
+                        .startKey(from)
+                        .endKey(to)).mapNotNull { it.key }
     }
 
-    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String> {
+    override fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?): Flow<String> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val from =
             ComplexKey.of(
                 region ?: "\u0000",
                 language ?: "\u0000",
                 type ?: "\u0000",
-                if (sanitizedLabel == null) "\u0000" else sanitizedLabel
+                    sanitizedLabel ?: "\u0000"
                          )
         val to = ComplexKey.of(
             if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
@@ -254,14 +264,16 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
             if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
                               )
 
-        return db.queryViewWithKeys(createQuery("by_language_type_label")
-                                .includeDocs(false)
-                                .startKey(from)
-                                .endKey(to), String::class.java)?.mapNotNull { ckv -> ckv.id } ?: listOf()
+        return client.queryView<String,String>(
+                createQuery("by_language_type_label")
+                        .includeDocs(false)
+                        .startKey(from)
+                        .endKey(to)).mapNotNull { it.id }
 
     }
 
-    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String> {
+    override fun listCodeIdsByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, linkType: String, linkedId: String?): Flow<String> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val from = ComplexKey.of(
                 linkType,
                 linkedId
@@ -271,32 +283,45 @@ constructor(@Qualifier("couchdbBase") couchdb: CouchDbICureConnector, idGenerato
                         linkedId ?: ComplexKey.emptyObject()
         )
 
-        return db.queryView(createQuery("by_qualifiedlink_id")
-                .includeDocs(false)
-                .startKey(from)
-                .endKey(to), String::class.java)
+        return client.queryView<String,String>(
+                createQuery("by_qualifiedlink_id")
+                        .includeDocs(false)
+                        .startKey(from)
+                        .endKey(to)).mapNotNull { it.id }
     }
 
-    override suspend fun ensureValid(code : Code, ofType : String?, orDefault : Code?) : Code {
-		if (ofType != null && code.type != ofType) {
+    override suspend fun ensureValid(dbInstanceUrl: URI, groupId: String, code : Code, ofType : String?, orDefault : Code?) : Code {
+        if (ofType != null && code.type != ofType) {
 			return orDefault ?: throw IllegalArgumentException("code ($code) has not the expected type $ofType")
 		}
-		if (!isValid(code, ofType)) {
+		if (!isValid(dbInstanceUrl, groupId,code, ofType)) {
 			return orDefault ?: throw IllegalArgumentException("code ($code) is invalid")
 		}
 		return code
 	}
 
-	override suspend fun isValid(code: Code, ofType: String?) = findCodes(ofType ?: code.type, code.code, code.version).firstOrNull() != null
+	override suspend fun isValid(dbInstanceUrl: URI, groupId: String,code: Code, ofType: String?) = findCodes(dbInstanceUrl, groupId,ofType ?: code.type, code.code, code.version).firstOrNull() != null
 
-	override suspend fun getCodeByLabel(label: String, ofType: String, labelLang : List<String>) : Code {
-		val cleanLabel = label.toLowerCase().replace("^\\s+".toRegex(), "").replace("\\s+$".toRegex(), "")
-		for (lang in labelLang) {
-			val langLabelMap : Map<String?, Code>? = findCodesByLabel("be", lang, ofType, label, PaginationOffset<Code>(DEFAULT_LIMIT)).rows?.associateBy({ it.label[lang]?.toLowerCase() }, { it })
-			if (langLabelMap?.containsKey(cleanLabel) == true) {
-				return langLabelMap[cleanLabel]!!
-			}
-		}
+	@InternalCoroutinesApi
+    override suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String>) : Code {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        val sanitizedLabel= label.let { StringUtils.sanitizeString(it) }
+        for (lang in labelLang) {
+            val codeFlow = client.queryViewIncludeDocsNoValue<String, Code>(
+                    createQuery("by_region_type_code_version")
+                            .includeDocs(true)
+                            .key(ComplexKey.of(
+                                    region,
+                                    lang,
+                                    ofType,
+                                    sanitizedLabel
+                            ))).map { it.doc }.filter { c -> c.label[lang]?.let { StringUtils.sanitizeString(it) } == sanitizedLabel }
+            val code = codeFlow.firstOrNull()
+            if (code != null) {
+                return code
+            }
+        }
+
 		throw IllegalArgumentException("code of type $ofType not found for label $label in languages $labelLang")
 	}
 }

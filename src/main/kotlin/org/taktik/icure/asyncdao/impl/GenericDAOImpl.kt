@@ -316,7 +316,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     override fun<P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery {
         val DEFAULT_LIMIT = 1000
-        val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
+        val limit = pagination.limit ?: DEFAULT_LIMIT
 
         var viewQuery = createQuery(viewName)
                 .startKey(startKey) // NB: pagination.startKey is ignored, but should always be null or the same as startKey

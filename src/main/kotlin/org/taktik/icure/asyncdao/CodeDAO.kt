@@ -20,26 +20,25 @@
 package org.taktik.icure.asyncdao
 
 import kotlinx.coroutines.flow.Flow
+import org.ektorp.support.View
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.base.Code
+import java.net.URI
 
 interface CodeDAO : GenericDAO<Code> {
-    fun findCodeTypes(type: String?): Flow<String>
-    fun findCodeTypes(region: String?, type: String?): Flow<String>
-
-    fun findCodes(type: String?, code: String?, version: String?): Flow<Code>
-    fun findCodes(region: String?, type: String?, code: String?, version: String?): Flow<Code>
-
-    fun findCodes(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): Flow<ViewQueryResultEvent>
-    fun findCodesByLabel(region: String?, language: String?, label: String?, pagination: PaginationOffset<*>?): Flow<ViewQueryResultEvent>
-    fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<*>?): Flow<ViewQueryResultEvent>
-    fun listCodeIdsByLabel(region: String?, language: String?, label: String?): Flow<String>
-    fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
-	suspend fun ensureValid(code : Code, ofType : String? = null, orDefault : Code? = null) : Code
-    suspend fun isValid(code: Code, ofType: String? = null): Boolean
-    suspend fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
-    fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): Flow<ViewQueryResultEvent>
-    fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
+    fun findCodeTypes(dbInstanceUrl: URI, groupId: String, type: String?): Flow<String>
+    fun findCodeTypes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?): Flow<String>
+    fun findCodes(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Code>
+    fun findCodes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?): Flow<Code>
+    fun findCodes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun findCodesByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun findCodesByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?): Flow<String>
+    fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?): Flow<String>
+	suspend fun ensureValid(dbInstanceUrl: URI, groupId: String, code : Code, ofType : String? = null, orDefault : Code? = null) : Code
+    suspend fun isValid(dbInstanceUrl: URI, groupId: String, code: Code, ofType: String? = null): Boolean
+    suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
+    fun findCodesByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    fun listCodeIdsByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, linkType: String, linkedId: String?): Flow<String>
 }
