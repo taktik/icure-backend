@@ -22,21 +22,17 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
-import org.jetbrains.annotations.NotNull
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asyncdao.CodeDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.db.PaginatedDocumentKeyIdPair
-import org.taktik.icure.db.PaginatedList
+import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
@@ -44,8 +40,6 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.exceptions.BulkUpdateConflictException
-import org.taktik.icure.asynclogic.CodeLogic
-import org.taktik.icure.utils.firstOrNull
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import java.io.InputStream
@@ -53,7 +47,6 @@ import java.lang.reflect.InvocationTargetException
 import java.util.*
 import javax.xml.parsers.SAXParserFactory
 import kotlin.collections.HashMap
-import kotlin.collections.forEach
 
 @ExperimentalCoroutinesApi
 @Service
