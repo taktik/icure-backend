@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory
 import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.PrincipalLogic
 import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Property
@@ -30,13 +31,6 @@ import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.embed.Permission
-
-interface PrincipalLogic<P : Principal> {
-    suspend fun getPrincipal(principalId: String): P?
-    fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property>
-    fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission>
-    fun getAscendantRoles(principalId: String): Flow<Role>
-}
 
 abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, protected val sessionLogic: AsyncSessionLogic)  : PrincipalLogic<P> {
 
