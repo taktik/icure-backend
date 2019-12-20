@@ -19,7 +19,7 @@ class ClusterController(private val sessionLogic: SessionLogic,
     @ApiOperation(nickname = "groupSyncStatus", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/gsyncs")
     fun groupSyncStatus(): List<SyncStatusDto> {
-        val id = sessionLogic.currentSessionContext.groupIdUserId
+        val id = sessionLogic.currentSessionContext().groupIdUserId
                 ?: throw IllegalAccessException("No registered user")
         if (GroupLogicImpl.ADMIN_GROUP != userLogic.getUserOnFallbackDb(id).groupId) {
             throw IllegalAccessException("No registered user")

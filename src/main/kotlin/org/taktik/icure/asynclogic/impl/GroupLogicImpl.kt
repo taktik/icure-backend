@@ -11,7 +11,6 @@ import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.User
 import org.taktik.icure.entities.embed.DatabaseSynchronization
-import org.taktik.icure.asynclogic.ReplicationLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI
@@ -22,7 +21,6 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
                      private val groupDAO: GroupDAO,
                      private val couchdbInstance: CouchDbInstance,
                      private val userLogic: UserLogic,
-                     private val replicationLogic: ReplicationLogic,
                      private val couchDbProperties: CouchDbProperties,
                      private val threadPoolTaskExecutor: TaskExecutor) : GroupLogic {
 
@@ -30,7 +28,7 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
 
         val id = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
-        if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(id).groupId) {
+        if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(id)?.groupId) {
             throw IllegalAccessException("No registered user")
         }
         val paths = listOf(
@@ -58,8 +56,6 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
             connector.create("_security", security)
         }
         val result = groupDAO.save(dbInstanceUri, groupId, group)
-        initialReplication.databaseSynchronizations = sanitizedDatabaseSynchronizations
-        threadPoolTaskExecutor.execute { replicationLogic.startDatabaseSynchronisations(initialReplication, false) }
         return if (result?.rev != null) result else null
     }
 
