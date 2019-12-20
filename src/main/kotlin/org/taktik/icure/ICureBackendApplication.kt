@@ -34,25 +34,11 @@ import org.springframework.context.annotation.PropertySource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.web.reactive.config.EnableWebFlux
 import org.taktik.icure.asyncdao.GenericDAO
-import org.taktik.icure.dao.migration.DbMigration
-import org.taktik.icure.entities.embed.AddressType
-import org.taktik.icure.entities.embed.Confidentiality
-import org.taktik.icure.entities.embed.DocumentStatus
-import org.taktik.icure.entities.embed.DocumentType
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.InsuranceStatus
-import org.taktik.icure.entities.embed.PartnershipStatus
-import org.taktik.icure.entities.embed.PartnershipType
-import org.taktik.icure.entities.embed.PaymentType
-import org.taktik.icure.entities.embed.PersonalStatus
-import org.taktik.icure.entities.embed.TelecomType
-import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(scanBasePackages = [
@@ -86,14 +72,14 @@ class ICureBackendApplication {
     @Bean
     fun initializer(webSocketServlet: WebSocketServlet) = ServletContextInitializer {
         val webSocketServletReg = it.addServlet("webSocketServlet", webSocketServlet)
-        webSocketServletReg.setLoadOnStartup(1);
+        webSocketServletReg.setLoadOnStartup(1)
         webSocketServletReg.addMapping("/ws/*")
     }
 
     @Bean
-    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, replicationLogic:ReplicationLogic, allDaos: List<GenericDAO<*>>, migrations: List<DbMigration>) = ApplicationRunner {
+    fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>) = ApplicationRunner {
         //Check that core types have corresponding codes
-        log.info("icure (" + iCureLogic.version + ") is initialised")
+        log.info("icure (" + iCureLogic.getVersion() + ") is initialised")
 
         taskExecutor.execute {
             listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
@@ -102,32 +88,14 @@ class ICureBackendApplication {
         }
 
         taskExecutor.execute {
-            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader);
+            val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
             resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
                 val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
                 codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
             }
         }
 
-
-        //Execute migrations sequentially
-        taskExecutor.execute {
-            migrations.forEach { dbMigration ->
-                try {
-                    if (!dbMigration.hasBeenApplied()) {
-                        dbMigration.apply()
-                    }
-                } catch (e: Exception) {
-                    log.error("Could not perform dbMigration " + dbMigration.javaClass.getName(), e)
-                }
-            }
-        }
-
-        //Schedule background tasks (plugins) + replication + index refresh
-        taskScheduler.scheduleAtFixedRate({ replicationLogic.startReplications() }, 60_000L)
-        taskScheduler.scheduleAtFixedRate({ allDaos.forEach { it.refreshIndex() } }, 240_000L)
-
-        log.info("icure (" + iCureLogic.version + ") is started")
+        log.info("icure (" + iCureLogic.getVersion() + ") is started")
     }
 }
 
