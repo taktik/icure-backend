@@ -18,11 +18,15 @@
 package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Preconditions
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.TarificationDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.TarificationLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
 

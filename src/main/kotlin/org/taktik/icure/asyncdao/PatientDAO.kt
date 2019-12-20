@@ -1,17 +1,14 @@
 package org.taktik.icure.asyncdao
 
-import com.fasterxml.jackson.core.JsonProcessingException
 import kotlinx.coroutines.flow.Flow
 import org.ektorp.ComplexKey
-import org.ektorp.support.View
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Gender
 import java.net.URI
 
-interface PatientDAO: GenericDAO<Patient> {
+interface PatientDAO : GenericDAO<Patient> {
 
     fun listIdsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String>
     fun listIdsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String): Flow<String>
@@ -33,10 +30,10 @@ interface PatientDAO: GenericDAO<Patient> {
     fun listIdsByHcPartyAndExternalId(dbInstanceUrl: URI, groupId: String, externalId: String?, healthcarePartyId: String): Flow<String>
 
     fun findIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
-    fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
-    fun findPatientsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findPatientsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findPatientsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findPatientsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
     fun findPatientsByHcPartyModificationDate(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
 
@@ -68,5 +65,9 @@ interface PatientDAO: GenericDAO<Patient> {
     suspend fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
     suspend fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+
+    fun getForPagination(dbInstanceUrl: URI, groupId: String, ids: Collection<String>):  Flow<ViewQueryResultEvent>
+
+    fun getForPagination(dbInstanceUrl: URI, groupId: String, ids: Flow<String>):  Flow<ViewQueryResultEvent>
 
 }
