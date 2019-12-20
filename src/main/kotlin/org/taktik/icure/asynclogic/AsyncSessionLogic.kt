@@ -27,15 +27,15 @@ interface AsyncSessionLogic {
     fun <T> doInSessionContext(sessionContext: AsyncSessionContext, callable: Callable<T>?): T?
 
     fun getOrCreateSession(): HttpSession?
-    suspend fun getCurrentUserId(): String?
-    suspend fun getCurrentHealthcarePartyId(): String?
+    suspend fun getCurrentUserId(): String
+    suspend fun getCurrentHealthcarePartyId(): String
 
     interface AsyncSessionContext {
         fun getAuthentication(): Authentication
         fun getUserDetails(): UserDetails
         fun isAuthenticated(): Boolean
         fun isAnonymous(): Boolean
-        suspend fun getUser(): User?
+        suspend fun getUser(): User
         fun getDbInstanceUrl(): String
         fun getDbInstanceUri(): URI
         fun getGroupIdUserId(): String

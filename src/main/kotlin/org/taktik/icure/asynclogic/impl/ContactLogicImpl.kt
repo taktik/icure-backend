@@ -216,7 +216,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         return contactDAO
     }
 
-    override suspend fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent> {
+    override suspend fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>)= flow<ViewQueryResultEvent> {
         val ids = filters.resolve(filter.getFilter())
 
         val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
@@ -225,8 +225,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
             ids
         }
         val selectedIds = sortedIds.take(paginationOffset.limit+1) // Fetching one more contacts for the start key of the next page
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
 
-        return getPaginatedContacts(selectedIds.toList())
+        emitAll(contactDAO.getPaginatedContacts(dbInstanceUri, groupId, selectedIds))
     }
 
     override suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>): Flow<org.taktik.icure.entities.embed.Service> {
@@ -239,7 +240,6 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
 
         val selectedIds = sortedIds.take(paginationOffset.limit)
-
         return getServices(selectedIds.toList())
     }
 

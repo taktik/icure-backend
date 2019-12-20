@@ -21,17 +21,18 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.GroupLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
-import org.taktik.icure.asynclogic.GroupLogic
-import org.taktik.icure.asynclogic.ICureSessionLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.security.database.DatabaseUserDetails
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto
@@ -49,28 +50,30 @@ import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
 class UserController(private val mapper: MapperFacade,
                      private val userLogic: UserLogic,
                      private val groupLogic: GroupLogic,
-                     private val sessionLogic: ICureSessionLogic) {
+                     private val sessionLogic: AsyncSessionLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "getCurrentUser", value = "Get presently logged-in user.", notes = "Get current user.")
     @GetMapping(value = ["/current"])
-    fun getCurrentUser(): UserDto {
-        val user = userLogic.getUser(sessionLogic.currentSessionContext.user.id)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        return mapper.map(user, UserDto::class.java)
+    suspend fun getCurrentUser(): UserDto {
+        sessionLogic.getCurrentUserId()?.let { currentUserId ->
+            val user = userLogic.getUser(currentUserId)
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+            return mapper.map(user, UserDto::class.java)
+        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
     }
 
     @ApiOperation(nickname = "getCurrentSession", value = "Get Currently logged-in user session.", notes = "Get current user.")
     @GetMapping("/session", produces = ["text/plain"])
-    fun getCurrentSession(): String {
-        return sessionLogic.orCreateSession.id
+    fun getCurrentSession(): String? { // TODO MB nullable or exception ?
+        return sessionLogic.getOrCreateSession()?.id
     }
 
     @ApiOperation(nickname = "getMatchingUsers", value = "Get presently logged-in user.", notes = "Get current user.")
     @GetMapping("/matches")
-    fun getMatchingUsers(): List<UserGroupDto> {
-        return (sessionLogic.currentSessionContext.userDetails as DatabaseUserDetails).groupIdUserIdMatching.map { ug ->
+    suspend fun getMatchingUsers(): List<UserGroupDto> {
+        return (sessionLogic.getCurrentSessionContext().getUserDetails() as DatabaseUserDetails).groupIdUserIdMatching.map { ug ->
             val split = ug.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (split.size == 1) UserGroupDto(null, split[0], null) else UserGroupDto(split[0], split[1], groupLogic.findGroup(split[0])?.name)
         }
@@ -84,7 +87,7 @@ class UserController(private val mapper: MapperFacade,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): UserPaginatedList {
 
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
-        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(paginationOffset)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing users failed.")
         return mapper.map(allUsers, UserPaginatedList::class.java)
@@ -92,7 +95,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createUser", value = "Create a user", notes = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
     @PostMapping
-    fun createUser(@RequestBody userDto: UserDto): UserDto {
+    suspend fun createUser(@RequestBody userDto: UserDto): UserDto {
         //Sanitize group
         userDto.groupId = null
 
@@ -108,7 +111,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getUser", value = "Get a user by his ID", notes = "General information about the user")
     @GetMapping("/{userId}")
-    fun getUser(@PathVariable userId: String): UserDto {
+    suspend fun getUser(@PathVariable userId: String): UserDto {
         val user = userLogic.getUser(userId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
         return mapper.map(user, UserDto::class.java)
@@ -116,7 +119,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getUserByEmail", value = "Get a user by his Email/Login", notes = "General information about the user")
     @GetMapping("/byEmail/{email}")
-    fun getUserByEmail(@PathVariable email: String): UserDto {
+    suspend fun getUserByEmail(@PathVariable email: String): UserDto {
         val user = userLogic.getUserByEmail(email)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
         return mapper.map(user, UserDto::class.java)
@@ -124,7 +127,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable id: String): List<String> {
+    fun findByHcpartyId(@PathVariable id: String): Flow<String> {
         return userLogic.findByHcpartyId(id)
     }
 
@@ -132,7 +135,7 @@ class UserController(private val mapper: MapperFacade,
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: String): List<String> {
         try {
-            userLogic.deleteEntities(setOf(userId))
+            userLogic.deleteByIds(setOf(userId))
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
@@ -143,7 +146,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "modifyUser", value = "Modify a user.", notes = "No particular return value. It's just a message.")
     @PutMapping
-    fun modifyUser(@RequestBody userDto: UserDto): UserDto {
+    suspend fun modifyUser(@RequestBody userDto: UserDto): UserDto {
         //Sanitize group
         userDto.groupId = null
 
@@ -156,28 +159,32 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "assignHealthcareParty", value = "Assign a healthcare party ID to current user", notes = "UserDto gets returned.")
     @PutMapping("/current/hcparty/{healthcarePartyId}")
-    fun assignHealthcareParty(@PathVariable healthcarePartyId: String): UserDto {
-        val modifiedUser = userLogic.getUser(sessionLogic.currentUserId)
-        if (modifiedUser == null) {
-            logger.error("Assigning healthcare party ID to the current user failed.")
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.")
-        }
-        modifiedUser.healthcarePartyId = healthcarePartyId
-        userLogic.save(modifiedUser)
+    suspend fun assignHealthcareParty(@PathVariable healthcarePartyId: String): UserDto {
+        sessionLogic.getCurrentUserId()?.let {
+            val modifiedUser = userLogic.getUser(it)
+            modifiedUser?.let {
+                modifiedUser.healthcarePartyId = healthcarePartyId
+                userLogic.save(modifiedUser)
 
-        return mapper.map(modifiedUser, UserDto::class.java)
+                return mapper.map(modifiedUser, UserDto::class.java)
+            } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
+
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.")
     }
 
     @ApiOperation(nickname = "modifyProperties", value = "Modify a User property", notes = "Modify a User properties based on his/her ID. The return value is the modified user.")
     @PutMapping("/{userId}/properties")
-    fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyDto>?): UserDto {
+    suspend fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyDto>?): UserDto {
         val user = userLogic.getUser(userId)
-        val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) }
-                ?: listOf())
-        if (modifiedUser == null) {
-            logger.error("Modify a User property failed.")
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
-        }
-        return mapper.map(modifiedUser, UserDto::class.java)
+        user?.let {
+            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) }
+                    ?: listOf())
+            if (modifiedUser == null) {
+                logger.error("Modify a User property failed.")
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+            }
+            return mapper.map(modifiedUser, UserDto::class.java)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+
     }
 }

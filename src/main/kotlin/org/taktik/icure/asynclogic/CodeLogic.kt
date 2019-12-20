@@ -19,50 +19,47 @@
 
 package org.taktik.icure.asynclogic
 
-import org.taktik.icure.db.PaginatedList
+import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import java.io.InputStream
-import javax.security.auth.login.LoginException
 
 
 interface CodeLogic : EntityPersister<Code, String> {
-
-	fun getTagTypeCandidates(): List<String>
-
+    fun getTagTypeCandidates(): List<String>
+    fun getRegions(): List<String>
     suspend fun get(id: String): Code?
-    fun get(type: String, code: String, version: String): Code?
-    fun get(ids: List<String>): List<Code>
 
-    fun create(code: Code): Code
+    suspend fun get(type: String, code: String, version: String): Code?
+    fun get(ids: List<String>): Flow<Code>
+    suspend fun create(code: Code): Code?
+
     @Throws(Exception::class)
-    fun modify(code: Code): Code
+    suspend fun modify(code: Code): Code?
 
-    fun findCodesBy(type: String?, code: String?, version: String?): List<Code>
+    fun findCodeTypes(type: String?): Flow<String>
+    fun findCodeTypes(region: String?, type: String?): Flow<String>
+    fun findCodesBy(type: String?, code: String?, version: String?): Flow<Code>
+    fun findCodesBy(region: String?, type: String?, code: String?, version: String?): Flow<Code>
+    fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
+    fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): Flow<String>
+    fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): Flow<String>
+    suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
 
-    fun findCodeTypes(type: String?): List<String>
+    suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream)
+    fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
 
-    fun findCodesBy(region: String?, type: String?, code: String?, version: String?): List<Code>
-    fun findCodeTypes(region: String?, type: String?): List<String>
-    fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
+    suspend fun getOrCreateCode(type: String, code: String, version: String): Code?
 
-    fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
-    fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String>
+    suspend fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code?
 
-    fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code>
+    suspend fun isValid(code: Code, ofType: String?): Boolean
 
-    fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
-
-    fun getOrCreateCode(type: String, value: String, version: String = "1.0"): Code
-
-	fun ensureValid(code : Code, ofType : String? = null, orDefault : Code? = null) : Code
-	fun isValid(code: Code, ofType: String? = null): Boolean
-	fun getCodeByLabel(label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
-	fun getRegions(): List<String>
-    suspend fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code>
-    fun importCodesFromXml(md5: String, type: String, stream: InputStream)
-    fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code>
-    fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String>
+    suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String>): Code?
 }

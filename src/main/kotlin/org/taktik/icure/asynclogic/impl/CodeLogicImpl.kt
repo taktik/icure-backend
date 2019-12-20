@@ -22,13 +22,17 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableMap
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.logging.LogFactory
 import org.jetbrains.annotations.NotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asyncdao.CodeDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.db.PaginatedDocumentKeyIdPair
@@ -41,6 +45,7 @@ import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.utils.firstOrNull
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import java.io.InputStream
@@ -48,32 +53,38 @@ import java.lang.reflect.InvocationTargetException
 import java.util.*
 import javax.xml.parsers.SAXParserFactory
 import kotlin.collections.HashMap
+import kotlin.collections.forEach
 
+@ExperimentalCoroutinesApi
 @Service
-class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclogic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(sessionLogic), CodeLogic {
-    val log = LogFactory.getLog(this.javaClass)
+class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val filters: org.taktik.icure.asynclogic.impl.filter.Filters) : GenericLogicImpl<Code, CodeDAO>(sessionLogic), CodeLogic {
+    companion object {
+        private val log = LogFactory.getLog(this.javaClass)
+    }
 
     override fun getTagTypeCandidates(): List<String> {
-        return Arrays.asList("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
+        return listOf("CD-ITEM", "CD-PARAMETER", "CD-CAREPATH", "CD-SEVERITY", "CD-URGENCY", "CD-GYNECOLOGY")
     }
 
     override fun getRegions(): List<String> {
-        return Arrays.asList("fr", "be")
+        return listOf("fr", "be")
     }
 
     override suspend fun get(id: String): Code? {
         return getEntity(id)
     }
 
-    override fun get(@NotNull type: String, @NotNull code: String, @NotNull version: String): Code? {
-        return codeDAO.get("$type|$code|$version")
+    override suspend fun get(type: String, code: String, version: String): Code? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return codeDAO.get(dbInstanceUri, groupId, "$type|$code|$version")
     }
 
-    override fun get(ids: List<String>): Flow<Code> {
-        return codeDAO.getList(ids)
+    override fun get(ids: List<String>) = flow<Code> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.getList(dbInstanceUri, groupId, ids))
     }
 
-    override fun create(code: Code): Code {
+    override suspend fun create(code: Code): Code? {
         Preconditions.checkNotNull(code.code, "Code field is null.")
         Preconditions.checkNotNull(code.type, "Type field is null.")
         Preconditions.checkNotNull(code.version, "Version code field is null.")
@@ -81,68 +92,83 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
         // assinging Code id type|code|version
         code.id = code.type + "|" + code.code + "|" + code.version
 
-        return codeDAO.create(code)
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return codeDAO.create(dbInstanceUri, groupId, code)
     }
 
     @Throws(Exception::class)
-    override fun modify(code: Code): Code {
-        val existingCode = codeDAO[code.id]
+    override suspend fun modify(code: Code): Code? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        val existingCode = codeDAO.get(dbInstanceUri, groupId, code.id)
+        return existingCode?.let {
+            Preconditions.checkState(existingCode.code == code.code, "Modification failed. Code field is immutable.")
+            Preconditions.checkState(existingCode.type == code.type, "Modification failed. Type field is immutable.")
+            Preconditions.checkState(existingCode.version == code.version, "Modification failed. Version field is immutable.")
 
-        Preconditions.checkState(existingCode.code == code.code, "Modification failed. Code field is immutable.")
-        Preconditions.checkState(existingCode.type == code.type, "Modification failed. Type field is immutable.")
-        Preconditions.checkState(existingCode.version == code.version, "Modification failed. Version field is immutable.")
+            updateEntities(setOf(code))
 
-        updateEntities(setOf(code))
-
-        return this.get(code.id)!!
+            this.get(code.id)
+        }
     }
 
-    override fun findCodeTypes(type: String?): List<String> {
-        return codeDAO.findCodeTypes(type)
+    override fun findCodeTypes(type: String?) = flow<String> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodeTypes(dbInstanceUri, groupId, type))
     }
 
-    override fun findCodeTypes(region: String?, type: String?): List<String> {
-        return codeDAO.findCodeTypes(region, type)
+    override fun findCodeTypes(region: String?, type: String?) = flow<String> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodeTypes(dbInstanceUri, groupId, region, type))
     }
 
-    override fun findCodesBy(type: String?, code: String?, version: String?): List<Code> {
-        return codeDAO.findCodes(type, code, version)
+    override fun findCodesBy(type: String?, code: String?, version: String?) = flow<Code> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodes(dbInstanceUri, groupId, type, code, version))
     }
 
-    override fun findCodesBy(region: String?, type: String?, code: String?, version: String?): List<Code> {
-        return codeDAO.findCodes(region, type, code, version)
+    override fun findCodesBy(region: String?, type: String?, code: String?, version: String?) = flow<Code> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodes(dbInstanceUri, groupId, region, type, code, version))
     }
 
-    override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code> {
-        return codeDAO.findCodes(region, type, code, version, paginationOffset)
+    override fun findCodesBy(region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodes(dbInstanceUri, groupId, region, type, code, version, paginationOffset))
     }
 
-    override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code> {
-        return codeDAO.findCodesByLabel(region, language, label, paginationOffset)
+    override fun findCodesByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodesByLabel(dbInstanceUri, groupId, region, language, label, paginationOffset))
     }
 
-    override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Code> {
-        return codeDAO.findCodesByLabel(region, language, type, label, paginationOffset)
+    override fun findCodesByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>) = flow<ViewQueryResultEvent> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodesByLabel(dbInstanceUri, groupId, region, language, type, label, paginationOffset))
     }
 
-    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?): List<String> {
-        return codeDAO.listCodeIdsByLabel(region, language, type, label)
+    override fun listCodeIdsByLabel(region: String?, language: String?, type: String?, label: String?) = flow<String> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.listCodeIdsByLabel(dbInstanceUri, groupId, region, language, type, label))
     }
 
-    override fun findCodesByQualifiedLinkId(linkType: String, linkedId: String?, pagination: PaginationOffset<*>?): PaginatedList<Code> =
-            codeDAO.findCodesByQualifiedLinkId(linkType, linkedId, pagination)
+    override fun findCodesByQualifiedLinkId(region: String?, linkType: String, linkedId: String, pagination: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(codeDAO.findCodesByQualifiedLinkId(dbInstanceUri, groupId, region, linkType, linkedId, pagination))
+    }
 
-    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?): List<String> =
-            codeDAO.listCodeIdsByQualifiedLinkId(linkType, linkedId)
+    override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?) = flow<String> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        codeDAO.listCodeIdsByQualifiedLinkId(dbInstanceUri, groupId, linkType, linkedId)
+    }
 
 
-    override fun <T : Enum<*>> importCodesFromEnum(e: Class<T>) {
-		/* TODO: rewrite this */
+    override suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>) {
+        /* TODO: rewrite this */
         val version = "" + e.getAnnotation(EnumVersion::class.java).value
 
         val regions = getRegions().toSet()
         val codes = HashMap<String, Code>()
-        findCodesBy(e.name, null, null).stream().filter { c -> c.version == version }.forEach { c -> codes.put(c.id, c) }
+        findCodesBy(e.name, null, null).filter { c -> c.version == version }.onEach { c -> codes[c.id] = c }.collect()
 
         try {
             for (t in e.getMethod("values").invoke(null) as Array<T>) {
@@ -156,7 +182,7 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
                             try {
                                 modify(newCode)
                             } catch (ex2: Exception) {
-                                logger.info("Could not create code " + e.name, ex2)
+                                log.info("Could not create code " + e.name, ex2)
                             }
                         }
                     }
@@ -172,8 +198,8 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
 
     }
 
-    override fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
-        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id))
+    override suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
+        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id)).toList()
 
         if (check.isEmpty()) {
             val factory = SAXParserFactory.newInstance();
@@ -181,17 +207,18 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
 
             val stack = LinkedList<Code>()
 
-            val batchSave : (Code?, Boolean?) -> Unit = { c, flush ->
+            val batchSave: suspend (Code?, Boolean?) -> Unit = { c, flush ->
                 c?.let { stack.add(it) }
                 if (stack.size == 100 || flush == true) {
                     val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
                     try {
-                        codeDAO.save(stack.map { c ->
+                        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+                        codeDAO.save(dbInstanceUri, groupId, stack.map { c ->
                             val prev = existings[c.id]
                             prev?.let { c.rev = it.rev }
                             c
                         })
-                    } catch (e:BulkUpdateConflictException) {
+                    } catch (e: BulkUpdateConflictException) {
                         log.error("${e.conflicts.size} conflicts for type $type")
                     }
                     stack.clear()
@@ -238,7 +265,10 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
                     qName?.let {
                         when (it.toUpperCase()) {
                             "VALUE" -> {
-                                batchSave(code, false)
+                                runBlocking {
+                                    // TODO MB  can improve this ?
+                                    batchSave(code, false)
+                                }
                             }
                             else -> null
                         }
@@ -250,7 +280,7 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
                 saxParser.parse(stream, handler)
                 batchSave(null, true)
                 create(Code("ICURE-SYSTEM", md5, "1"))
-            } catch(e:IllegalArgumentException) {
+            } catch (e: IllegalArgumentException) {
                 //Skip
             } finally {
                 stream.close()
@@ -260,53 +290,46 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
         }
     }
 
-    override suspend fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): PaginatedList<Code> {
-        var ids: SortedSet<String> = TreeSet<String>(filters.resolve(filterChain.getFilter()).toList())
+    override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
+        var ids = filters.resolve(filterChain.getFilter()).toList().sorted()
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        var codes = codeDAO.getForPagination(dbInstanceUri, groupId, ids)
         if (filterChain.predicate != null || sort != null && sort != "id") {
-            var codes = this.get(ArrayList(ids))
-            if (filterChain.predicate != null) {
-                codes = codes.filter { it -> filterChain.predicate.apply(it) }
+            filterChain.predicate?.let {
+                codes.filter {
+                    if (it is ViewRowWithDoc<*, *, *>) {
+                        val code = it.doc as Code
+                        filterChain.predicate.apply(code)
+                    }else{
+                        true
+                    }
+                }
             }
-            val pub = PropertyUtilsBean()
 
-            codes.sortedBy { it -> try { pub.getProperty(it, sort ?: "id") as? String } catch(e:Exception) {""} ?: "" }
-
-            var firstIndex = if (paginationOffset != null && paginationOffset.startDocumentId != null) codes.map { it -> it.id }.indexOf(paginationOffset.startDocumentId) else 0
-            if (firstIndex == -1) {
-                return PaginatedList(0, ids.size, ArrayList(), null)
-            } else {
-                firstIndex += if (paginationOffset != null && paginationOffset.offset != null) paginationOffset.offset else 0
-                val hasNextPage = paginationOffset != null && paginationOffset.limit != null && firstIndex + paginationOffset.limit < codes.size
-                return if (hasNextPage)
-                    PaginatedList(paginationOffset!!.limit, codes.size, codes.subList(firstIndex, firstIndex + paginationOffset.limit),
-                                  PaginatedDocumentKeyIdPair(null, codes[firstIndex + paginationOffset.limit].id))
-                else
-                    PaginatedList(codes.size - firstIndex, codes.size, codes.subList(firstIndex, codes.size), null)
-            }
+            sort?.let { sortProperty ->
+                val pub = PropertyUtilsBean()
+                var codesList = codes.toList()
+                codesList = codesList.mapNotNull {
+                    if(it is ViewRowWithDoc<*, *, *>){
+                        it
+                    }else{
+                        emit(it)
+                        null
+                    }
+                }.toList().sortedBy { it ->
+                    val itCode = it.doc as Code
+                    try { pub.getProperty(itCode, sort) as? String } catch(e:Exception) {""} ?: ""
+                }
+                emitAll(codesList.asFlow())
+            }?: emitAll(codes)
         } else {
-            if (desc != null && desc) {
-                ids = (ids as TreeSet<String>).descendingSet()
-            }
-            if (paginationOffset != null && paginationOffset.startDocumentId != null) {
-                ids = ids.subSet(paginationOffset.startDocumentId, (ids as TreeSet<*>).last().toString() + "\u0000")
-            }
-            var idsList: List<String> = ArrayList(ids)
-            if (paginationOffset != null && paginationOffset.offset != null) {
-                idsList = idsList.subList(paginationOffset.offset!!, idsList.size)
-            }
-            val hasNextPage = paginationOffset != null && paginationOffset.limit != null && paginationOffset.limit < idsList.size
-            if (hasNextPage) {
-                idsList = idsList.subList(0, paginationOffset!!.limit + 1)
-            }
-            val codes = this.get(idsList)
-            return PaginatedList(if (hasNextPage) paginationOffset!!.limit else codes.size, ids.size, if (hasNextPage) codes.subList(0, paginationOffset!!.limit) else codes, if (hasNextPage) PaginatedDocumentKeyIdPair(null, codes[codes.size - 1].id) else null)
+            emitAll(codes)
         }
     }
 
 
-    override fun getOrCreateCode(type: String, code: String, version: String): Code {
-        val codes = findCodesBy(type, code, null)
-
+    override suspend fun getOrCreateCode(type: String, code: String, version: String): Code? {
+        val codes = findCodesBy(type, code, null).toList()
         if (codes.isNotEmpty()) {
             return codes.stream().sorted { a, b -> b.version.compareTo(a.version) }.findFirst().get()
         }
@@ -314,23 +337,23 @@ class CodeLogicImpl(sessionLogic: AsyncSessionLogic, val codeDAO: CodeDAO, val f
         return this.create(Code(type, code, version))
     }
 
-	override fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code {
-		return codeDAO.ensureValid(code, ofType, orDefault)
-	}
+    override suspend fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return codeDAO.ensureValid(dbInstanceUri, groupId, code, ofType, orDefault)
+    }
 
-	override fun isValid(code: Code, ofType: String?): Boolean {
-		return codeDAO.isValid(code, ofType)
-	}
+    override suspend fun isValid(code: Code, ofType: String?): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return codeDAO.isValid(dbInstanceUri, groupId, code, ofType)
+    }
 
-	override fun getCodeByLabel(label: String, ofType: String, labelLang: List<String>): Code {
-		return codeDAO.getCodeByLabel(label, ofType, labelLang)
-	}
+    override suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String>): Code? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return codeDAO.getCodeByLabel(dbInstanceUri, groupId, region, label, ofType, labelLang)
+    }
 
-    override fun getGenericDAO(): CodeDAO? {
+    override fun getGenericDAO(): CodeDAO {
         return codeDAO
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(CodeLogicImpl::class.java)
-    }
 }
