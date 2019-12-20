@@ -17,16 +17,9 @@
  */
 package org.taktik.icure.dto.filter
 
-import org.taktik.icure.dto.filter.code.CodeByRegionTypeLabelLanguageFilter
-import org.taktik.icure.dto.filter.contact.ContactByHcPartyPatientTagCodeDateFilter
-import org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter
-import org.taktik.icure.dto.filter.patient.*
-import org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.entities.base.Identifiable
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport
 import java.io.Serializable
 
-@JsonPolymorphismSupport(Filters.UnionFilter::class, Filters.IntersectionFilter::class, Filters.ComplementFilter::class, Filters.ConstantFilter::class, CodeByRegionTypeLabelLanguageFilter::class, PatientByHcPartyFilter::class, PatientByHcPartyDateOfBirthFilter::class, PatientByHcPartyDateOfBirthBetweenFilter::class, PatientByHcPartyAndSsinFilter::class, PatientByHcPartyAndSsinsFilter::class, PatientByHcPartyNameContainsFuzzyFilter::class, PatientByHcPartyAndExternalIdFilter::class, PatientByIdsFilter::class, ContactByHcPartyTagCodeDateFilter::class, ContactByHcPartyPatientTagCodeDateFilter::class, ServiceByHcPartyTagCodeDateFilter::class, PatientByHcPartyNameFilter::class, PatientByHcPartyAndActiveFilter::class, PatientByHcPartyGenderEducationProfession::class)
 interface Filter<T : Serializable, O : Identifiable<T>> {
     fun applyTo(items: List<O>): List<O>
     fun applyTo(items: Set<O>): Set<O>

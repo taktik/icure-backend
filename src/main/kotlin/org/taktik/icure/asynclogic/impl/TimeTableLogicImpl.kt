@@ -18,18 +18,13 @@
 package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.EntityPersister
-import org.taktik.icure.asynclogic.TimeTableLogic
-import org.taktik.icure.entities.Agenda
 import org.taktik.icure.entities.TimeTable
-
 
 @Service
 class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<TimeTable, TimeTableDAO>(sessionLogic), TimeTableLogic {

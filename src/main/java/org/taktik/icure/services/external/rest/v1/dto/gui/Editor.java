@@ -23,7 +23,6 @@ import java.io.Serializable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.taktik.icure.services.external.rest.handlers.JsonDiscriminator;
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.ActionButton;
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.Audiometry;
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.CheckBoxEditor;
@@ -49,12 +48,6 @@ import org.taktik.icure.services.external.rest.v1.dto.gui.editor.TypeValueString
  * Created by aduchate on 19/11/13, 15:28
  */
 @XStreamAlias("Editor")
-@JsonPolymorphismSupport({
-        ActionButton.class, StringEditor.class, CheckBoxEditor.class, DashboardEditor.class, DateTimeEditor.class,
-        IntegerSliderEditor.class, MeasureEditor.class, MedicationEditor.class, MedicationTableEditor.class, NumberEditor.class,
-        PopupMenuEditor.class, SchemaEditor.class, StringTableEditor.class, StyledStringEditor.class, SubFormEditor.class,
-        TokenFieldEditor.class, TypeValueStringEditor.class, Label.class, HealthcarePartyEditor.class, Audiometry.class
-})
 @JsonDiscriminator("key")
 public abstract class Editor implements Serializable {
     @XStreamAsAttribute
@@ -68,7 +61,7 @@ public abstract class Editor implements Serializable {
 
 	@XStreamAsAttribute
 	boolean multiline;
-    
+
     @XStreamAsAttribute
 	LabelPosition labelPosition;
 

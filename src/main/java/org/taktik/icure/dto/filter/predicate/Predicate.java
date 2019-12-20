@@ -19,9 +19,7 @@
 package org.taktik.icure.dto.filter.predicate;
 
 import org.taktik.icure.entities.base.Identifiable;
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
 
-@JsonPolymorphismSupport({KeyValuePredicate.class, AndPredicate.class, OrPredicate.class})
 public interface Predicate {
 
 	boolean apply(Identifiable<String> input);

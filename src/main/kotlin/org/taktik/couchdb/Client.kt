@@ -5,7 +5,6 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types.newParameterizedType
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -23,13 +22,13 @@ import org.ektorp.http.URI
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
 import org.taktik.icure.dao.Option
-import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
 import org.taktik.jetty.getResponseBytesFlow
 import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
 import java.nio.ByteBuffer
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -69,6 +68,36 @@ class DesignDocument(
     override fun getRev(): String? = _rev
 }
 
+
+sealed class ActiveTask(val pid: String? = null, val progress: Int, val startedOn: Date? = null, val updatedOn: Date? = null)
+class DatabaseCompactionTask(
+        pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
+        val databaseName: String?,
+        val totalChanges: Long,
+        val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+class Indexer(
+        pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
+        val databaseName: String?,
+        val designDocumentId: String?,
+        val totalChanges: Long,
+        val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+class ReplicationTask(
+        pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
+        val replicationId: String?,
+        val replicationDocumentId: String?,
+        val node: String?,
+        val isContinuous: Boolean,
+        val changesPending: Long,
+        val writeFailures: Long,
+        val totalReads: Long,
+        val totalWrites: Long,
+        val totalMissingRevisions: Long,
+        val totalRevisionsChecked: Long,
+        val sourceDatabaseName: String?,
+        val targetDatabaseName: String?,
+        val sourceSequenceId: String?,
+        val checkpointedSourceSequenceId: String?,
+        val checkpointInterval: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
 
 class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
 data class View(val map: String, val reduce: String)
@@ -168,13 +197,11 @@ interface Client {
     suspend fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult>
     // Query
     fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
-
     // Changes observing
     fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>>
-
-
     fun <T : CouchDbDocument> get(ids: Flow<String>, clazz: Class<T>): Flow<T>
     fun <T : CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent>
+    suspend fun activeTasks(): List<ActiveTask>
 }
 
 private const val NOT_FOUND_ERROR = "not_found"
@@ -599,6 +626,12 @@ class ClientImpl(private val httpClient: HttpClient,
                 delayMillis = (delayMillis * backOffFactor).coerceAtMost(maxDelay)
             }
         }
+    }
+
+    override suspend fun activeTasks(): List<ActiveTask> {
+        val uri = dbURI.append("_active_tasks")
+        val request = newRequest(uri)
+        return request.getCouchDbResponse(listOf<ActiveTask>()::class.java, nullIf404 = true)
     }
 
     @ExperimentalCoroutinesApi

@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.stereotype.Service
@@ -14,11 +15,13 @@ import java.nio.ByteBuffer
 class ReceiptLogicImpl(private val receiptDAO: ReceiptDAO,
                        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Receipt, ReceiptDAO>(sessionLogic), ReceiptLogic {
 
+    @ExperimentalCoroutinesApi
     override fun listByReference(ref: String): Flow<Receipt> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(receiptDAO.listByReference(dbInstanceUri, groupId, ref))
     }
 
+    @ExperimentalCoroutinesApi
     override fun getAttachment(receiptId: String, attachmentId: String): Flow<ByteBuffer> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(receiptDAO.getAttachment(dbInstanceUri, groupId, receiptId, attachmentId))

@@ -20,14 +20,8 @@ package org.taktik.icure.dto.gui.type;
 
 import org.taktik.icure.dto.gui.type.primitive.*;
 import org.taktik.icure.services.external.rest.handlers.JsonDiscriminator;
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
 
 
-@JsonPolymorphismSupport({
-		Array.class, AttributedString.class, Dictionary.class, Label.class, Measure.class, MedicationTable.class, MenuOption.class,
-		Primitive.class, PrimitiveBoolean.class, PrimitiveDate.class, PrimitiveNumber.class, PrimitiveString.class, Schema.class,
-		StringTable.class
-})
 @JsonDiscriminator("key")
 public interface Data {
 

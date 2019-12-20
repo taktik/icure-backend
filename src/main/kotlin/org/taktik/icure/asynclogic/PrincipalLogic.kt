@@ -29,3 +29,4 @@ interface PrincipalLogic<P : Principal> {
     fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission>
     fun getAscendantRoles(principalId: String): Flow<Role>
 }
+

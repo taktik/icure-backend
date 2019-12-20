@@ -26,12 +26,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import org.taktik.commons.serialization.SerializableValue;
 import org.taktik.commons.service.rest.gson.JsonDiscriminator;
-import org.taktik.commons.service.rest.gson.JsonPolymorphismSupport;
 
-@JsonPolymorphismSupport(
-		value = {
-				FilterListFilters.class, FilterOnProperty.class, FilterTwoFilters.class
-		})
 @JsonDiscriminator("$type")
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = FilterListFilters.class),

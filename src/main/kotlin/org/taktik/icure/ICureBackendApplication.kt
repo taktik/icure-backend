@@ -53,7 +53,6 @@ import org.taktik.icure.entities.embed.Visibility
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
-import org.taktik.icure.asynclogic.ReplicationLogic
 import org.taktik.icure.services.external.http.WebSocketServlet
 
 @SpringBootApplication(scanBasePackages = [
