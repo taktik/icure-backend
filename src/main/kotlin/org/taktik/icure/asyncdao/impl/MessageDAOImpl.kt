@@ -171,7 +171,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     }
 
     @View(name = "by_external_ref", map = "classpath:js/message/By_hcparty_external_ref_map.js")
-    override fun getByExternalRefs(dbInstanceUrl: URI, groupId: String, hcPartyId: String, externalRefs: HashSet<String>): Flow<Message> {
+    override fun getByExternalRefs(dbInstanceUrl: URI, groupId: String, hcPartyId: String, externalRefs: Set<String>): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_hcparty_transport_guid").includeDocs(true).keys(HashSet(externalRefs).map { ComplexKey.of(hcPartyId, it) })).map{it.doc}
     }
