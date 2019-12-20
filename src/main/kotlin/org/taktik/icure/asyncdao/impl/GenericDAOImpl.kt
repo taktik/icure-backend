@@ -28,7 +28,7 @@ import org.taktik.couchdb.*
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.asyncdao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
+import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.base.StoredDocument

@@ -16,6 +16,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: String, private val dbFamily: String, private val username: String, private val password: String) {
+    @ExperimentalCoroutinesApi
     private val connectors = CacheBuilder.newBuilder()
             .maximumSize(10000)
             .expireAfterAccess(240, TimeUnit.MINUTES)
@@ -26,8 +27,9 @@ class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: 
                 }
             })
 
-    fun getClient(dbInstanceUrl: java.net.URI, groupId: String): ClientImpl {
-        return connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString(), groupId))
+    @ExperimentalCoroutinesApi
+    fun getClient(dbInstanceUrl: java.net.URI, groupId: String? = null): ClientImpl {
+        return connectors.get(CouchDbConnectorReference(dbInstanceUrl.toString(), groupId ?: "__"))
     }
 
     private data class CouchDbConnectorReference(internal val dbInstanceUrl: String, internal val groupId: String)
