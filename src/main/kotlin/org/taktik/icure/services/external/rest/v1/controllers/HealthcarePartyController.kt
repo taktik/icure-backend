@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
@@ -36,10 +39,6 @@ import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.ICureSessionLogic
-import org.taktik.icure.asynclogic.ReplicationLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
@@ -52,23 +51,18 @@ import java.util.*
 class HealthcarePartyController(private val mapper: MapperFacade,
                                 private val userLogic: UserLogic,
                                 private val healthcarePartyLogic: HealthcarePartyLogic,
-                                private val replicationLogic: ReplicationLogic,
-                                private val sessionLogic: ICureSessionLogic) {
+                                private val sessionLogic: AsyncSessionLogic) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
     @ApiOperation(nickname = "getCurrentHealthcareParty", value = "Get the current healthcare party if logged in.", notes = "General information about the current healthcare Party")
     @GetMapping("/current")
-    fun getCurrentHealthcareParty(): HealthcarePartyDto {
-        val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentHealthcarePartyId)
+    suspend fun getCurrentHealthcareParty(): HealthcarePartyDto {
+        val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the current healthcare party. Probable reasons: no healthcare party is logged in, or server error. Please try again or read the server log.")
         return mapper.map(healthcareParty, HealthcarePartyDto::class.java)
     }
 
     private fun getHealthcarePartyDtoPaginatedList(healthcareParties: PaginatedList<HealthcareParty>): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<HealthcarePartyDto> {
-        if (healthcareParties.rows == null) {
-            healthcareParties.rows = ArrayList()
-        }
-
         val healthcarePartyDtoPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<HealthcarePartyDto>()
         mapper.map(healthcareParties,
                 healthcarePartyDtoPaginatedList,
@@ -89,7 +83,6 @@ class HealthcarePartyController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val healthcareParties = healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing healthcare parties failed")
 
         return getHealthcarePartyDtoPaginatedList(healthcareParties)
     }
