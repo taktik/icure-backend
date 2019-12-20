@@ -18,6 +18,8 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
@@ -39,6 +41,8 @@ import java.net.URI
 import java.util.*
 import kotlin.collections.set
 
+@ExperimentalCoroutinesApi
+@FlowPreview
 @Repository("patientDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted) emit(doc._id )}")
 class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Patient>(Patient::class.java, couchDbDispatcher, idGenerator), PatientDAO {
@@ -230,19 +234,19 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Any::class.java)
     }
 
-    override fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
         return findByName(dbInstanceUrl, groupId, name, healthcarePartyId, pagination, descending, "by_hcparty_name")
     }
 
-    override fun findPatientsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun findPatientsOfHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
         return findByName(dbInstanceUrl, groupId, name, healthcarePartyId, pagination, descending, "of_hcparty_name")
     }
 
-    override fun findPatientsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun findPatientsByHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
         return findBySsin(dbInstanceUrl, groupId, ssin, healthcarePartyId, pagination, descending, "by_hcparty_ssin")
     }
 
-    override fun findPatientsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun findPatientsOfHcPartyAndSsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
         return findBySsin(dbInstanceUrl, groupId, ssin, healthcarePartyId, pagination, descending, "of_hcparty_ssin")
     }
 
@@ -487,6 +491,16 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
     override suspend fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         return this.getDuplicatesFromView(dbInstanceUrl, groupId, "by_hcparty_name", healthcarePartyId, paginationOffset)
+    }
+
+    override fun getForPagination(dbInstanceUrl: URI, groupId: String, ids: Collection<String>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.getForPagination(ids, Patient::class.java)
+    }
+
+    override fun getForPagination(dbInstanceUrl: URI, groupId: String, ids: Flow<String>): Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        return client.getForPagination(ids, Patient::class.java)
     }
 
     private suspend fun getDuplicatesFromView(dbInstanceUrl: URI, groupId: String, viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {

@@ -18,24 +18,17 @@
 
 package org.taktik.icure.asynclogic;
 
-import org.taktik.icure.entities.Role;
-import org.taktik.icure.entities.User;
-import org.taktik.icure.asynclogic.EntityPersister;
-import org.taktik.icure.asynclogic.PrincipalLogic;
+import kotlinx.coroutines.flow.Flow
+import org.taktik.icure.entities.Role
+import org.taktik.icure.entities.User
 
-import java.util.Collection;
-import java.util.Set;
+interface RoleLogic : EntityPersister<Role, String> {
+    suspend fun getRoleByName(name: String): Role?
+    fun getDescendantRoles(roleId: String): Flow<Role>
 
-public interface RoleLogic extends EntityPersister<Role, String>, PrincipalLogic<Role> {
-	Set<Role> getDescendantRoles(String roleId);
+    suspend fun getRole(id: String): Role?
+    fun getUsers(role: Role): Flow<User>
+    suspend fun createDefaultRoleIfNecessary()
 
-	Role getRole(String String);
-
-	Role getRoleByName(String name);
-
-	Role newRole(Role role);
-
-	Collection<User> getUsers(Role role);
-
-    void createDefaultRoleIfNecessary();
+    suspend fun newRole(role: Role): Role?
 }

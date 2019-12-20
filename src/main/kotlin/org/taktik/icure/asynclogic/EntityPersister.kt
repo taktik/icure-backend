@@ -20,7 +20,6 @@ package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.validation.aspect.Check
 
 interface EntityPersister<E, I> {
 

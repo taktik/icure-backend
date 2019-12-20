@@ -17,64 +17,66 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import org.springframework.beans.factory.annotation.Autowired
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.RoleDAO
+import org.taktik.icure.asyncdao.UserDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.RoleLogic
 import org.taktik.icure.constants.Permissions
 import org.taktik.icure.constants.Roles
-import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.embed.Permission
-import org.taktik.icure.asynclogic.RoleLogic
-import org.taktik.icure.asynclogic.impl.PrincipalLogicImpl
 import java.util.*
-import java.util.stream.Collectors
 
+@ExperimentalCoroutinesApi
 @Transactional
 @Service
-class RoleLogicImpl : PrincipalLogicImpl<Role?>(), RoleLogic {
-    private var userDAO: UserDAO? = null
-    override fun getRoleByName(name: String): Role {
-        return roleDAO.getByName(name)
+class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogic, roleDAO: RoleDAO) : PrincipalLogicImpl<Role>(roleDAO, sessionLogic), RoleLogic {
+
+    override suspend fun getRoleByName(name: String): Role? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return roleDAO.getByName(dbInstanceUri, groupId, name)
     }
 
-    override fun getDescendantRoles(roleId: String): Set<Role> {
+    override fun getDescendantRoles(roleId: String) = flow<Role> {
         val role = getRole(roleId)
-        return if (role != null) {
-            getDescendantRoles(role, HashSet())
-        } else null
-    }
-
-    private fun getDescendantRoles(role: Role?, ignoredRoles: MutableSet<Role>): MutableSet<Role> { // Build descendant roles list
-        val roles: MutableSet<Role> = HashSet()
-        if (role != null) { // Add this role to ignore list
-            ignoredRoles.add(role)
-            // Process children
-            if (role.children != null) {
-                for (child in getChildren(role)) {
-                    if (child != null) {
-                        if (!ignoredRoles.contains(child)) {
-                            roles.add(child)
-                            roles.addAll(getDescendantRoles(child, ignoredRoles))
-                        }
-                    }
-                }
-            }
+        role?.let {
+            emitAll(getDescendantRoles(it, mutableSetOf()))
         }
-        return roles
     }
 
-    override fun getRole(id: String): Role {
-        return roleDAO[id]
+    private fun getDescendantRoles(role: Role, ignoredRoles: MutableSet<Role>): Flow<Role> = flow {
+        ignoredRoles.add(role)
+
+        // Process children
+        role.children?.let {
+            getChildren(role)
+                    .filterNotNull()
+                    .filter { !ignoredRoles.contains(it) }
+                    .onEach { r: Role ->
+                        emit(r)
+                        emitAll(getDescendantRoles(r, ignoredRoles))
+                    }
+        }
     }
 
-    override fun getUsers(role: Role): Set<User> {
-        return userDAO!!.getSet(role.users)
+    override suspend fun getRole(id: String): Role? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return roleDAO.get(dbInstanceUri, groupId, id)
     }
 
-    override fun createDefaultRoleIfNecessary() {
-        if (getRoleByName(Roles.DEFAULT_ROLE_NAME) != null) {
+    override fun getUsers(role: Role) = flow<User> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(userDAO.getList(dbInstanceUri, groupId, role.users))
+    }
+
+    override suspend fun createDefaultRoleIfNecessary() {
+        getRoleByName(Roles.DEFAULT_ROLE_NAME)?.let {
             return
         }
         val defaultRole = Role()
@@ -83,71 +85,62 @@ class RoleLogicImpl : PrincipalLogicImpl<Role?>(), RoleLogic {
         saveRole(defaultRole)
     }
 
-    private fun saveRole(role: Role): Role { // Save role
-        val savedRole = roleDAO.save(role)
-        // Invalidate PermissionSet/Filter from cache for all descendantRoles/Users
-        val descendantRoles = getDescendantRoles(savedRole, HashSet())
-        descendantRoles.add(savedRole)
-        return savedRole
+    private suspend fun saveRole(role: Role): Role? { // Save role
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return roleDAO.save(dbInstanceUri, groupId, role)
     }
 
-    override fun newRole(role: Role): Role {
+    override suspend fun newRole(role: Role): Role? {
         return saveRole(role)
     }
 
-    private fun getChildren(role: Role): Set<Role> {
-        return roleDAO.getSet(role.children)
+    private fun getChildren(role: Role) = flow<Role> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(roleDAO.getList(dbInstanceUri, groupId, role.children))
+    }
+
+    override fun createEntities(entities: Collection<Role>) = flow<Role> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(roleDAO.create(dbInstanceUri, groupId, entities))
     }
 
     @Throws(Exception::class)
-    override fun createEntities(roles: Collection<Role>, createdRoles: MutableCollection<Role>): Boolean {
-        for (role in roles) {
-            createdRoles.add(newRole(role))
-        }
-        return true
+    override fun updateEntities(roles: Collection<Role>) = flow<Role> {
+        //TODO MB check if there is a method that catt saveAll
+        roles.map { role: Role -> saveRole(role) }
+                .filterNotNull()
+                .onEach { emit(it) }
     }
 
-    @Throws(Exception::class)
-    override fun updateEntities(roles: Collection<Role>): List<Role> {
-        return roles.stream().map { role: Role -> saveRole(role) }.collect(Collectors.toList())
+    override fun getAllEntities() = flow<Role>() {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(roleDAO.getAll(dbInstanceUri, groupId))
     }
 
-    @Throws(Exception::class)
-    override fun deleteEntities(roleIds: Collection<String>) {
-        roleDAO.removeByIds(roleIds)
+    override fun getAllEntityIds() = flow<String> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(roleDAO.getAll(dbInstanceUri, groupId).map { it.id })
     }
 
-    @Throws(Exception::class)
-    override fun undeleteEntities(roleIds: Collection<String>) {
-        roleDAO.unremoveByIds(roleIds)
+    override suspend fun exists(id: String): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return roleDAO.contains(dbInstanceUri, groupId, id)
     }
 
-    override fun getAllEntities(): List<Role> {
-        return roleDAO.all
+    override suspend fun hasEntities(): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        return roleDAO.hasAny(dbInstanceUri, groupId)
     }
 
-    override fun getAllEntityIds(): List<String> {
-        return roleDAO.all.stream().map { e: Role -> e.id }.collect(Collectors.toList())
-    }
-
-    override fun exists(id: String): Boolean {
-        return roleDAO.contains(id)
-    }
-
-    override fun hasEntities(): Boolean {
-        return roleDAO.hasAny()
-    }
-
-    override fun getEntity(id: String): Role {
+    override suspend fun getEntity(id: String): Role? {
         return getRole(id)
     }
 
-    override fun getPrincipal(roleId: String): Role {
+    override suspend fun getPrincipal(roleId: String): Role? {
         return getRole(roleId)
     }
 
-    @Autowired
-    fun setUserDAO(userDAO: UserDAO?) {
-        this.userDAO = userDAO
+    override fun getGenericDAO(): GenericDAO<Role> {
+        return roleDAO
     }
 }

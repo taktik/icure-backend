@@ -33,12 +33,11 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asyncdao.PatientDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.db.PaginatedDocumentKeyIdPair
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.db.StringUtils.safeConcat
@@ -62,8 +61,8 @@ import java.io.IOException
 import java.time.Instant
 import java.util.*
 import java.util.function.Consumer
-import java.util.stream.Collectors
 import kotlin.math.min
+
 
 @FlowPreview
 @ExperimentalCoroutinesApi
@@ -76,77 +75,77 @@ class PatientLogicImpl(
         private val userLogic: UserLogic,
         private val filters: Filters) : GenericLogicImpl<Patient, PatientDAO>(sessionLogic), PatientLogic {
 
-    suspend fun countByHcParty(healthcarePartyId: String): Int {
+    override suspend fun countByHcParty(healthcarePartyId: String): Int {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return patientDAO.countByHcParty(dbInstanceUri, groupId, healthcarePartyId)
     }
 
-    suspend fun countOfHcParty(healthcarePartyId: String): Int {
+    override suspend fun countOfHcParty(healthcarePartyId: String): Int {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return patientDAO.countOfHcParty(dbInstanceUri, groupId, healthcarePartyId)
     }
 
-    fun listByHcPartyIdsOnly(healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyIdsOnly(healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcParty(dbInstanceUri, groupId, healthcarePartyId))
     }
 
-    fun listByHcPartyAndSsinIdsOnly(ssin: String, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyAndSsinIdsOnly(ssin: String, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyAndSsin(dbInstanceUri, groupId, ssin, healthcarePartyId))
     }
 
-    fun listByHcPartyAndSsinsIdsOnly(ssins: Collection<String>, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyAndSsinsIdsOnly(ssins: Collection<String>, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyAndSsins(dbInstanceUri, groupId, ssins, healthcarePartyId))
     }
 
-    fun listByHcPartyDateOfBirthIdsOnly(date: Int, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyDateOfBirthIdsOnly(date: Int, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyAndDateOfBirth(dbInstanceUri, groupId, date, healthcarePartyId))
     }
 
-    fun listByHcPartyGenderEducationProfessionIdsOnly(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?) = flow<String> {
+    override fun listByHcPartyGenderEducationProfessionIdsOnly(healthcarePartyId: String, gender: Gender?, education: String?, profession: String?) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyGenderEducationProfession(dbInstanceUri, groupId, healthcarePartyId, gender, education, profession))
     }
 
-    fun listByHcPartyDateOfBirthIdsOnly(startDate: Int?, endDate: Int?, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyDateOfBirthIdsOnly(startDate: Int?, endDate: Int?, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyAndDateOfBirth(dbInstanceUri, groupId, startDate, endDate, healthcarePartyId))
     }
 
-    fun listByHcPartyNameContainsFuzzyIdsOnly(searchString: String?, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyNameContainsFuzzyIdsOnly(searchString: String?, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUri, groupId, searchString, healthcarePartyId, null))
     }
 
-    fun listByHcPartyName(searchString: String?, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyName(searchString: String?, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listByHcPartyName(dbInstanceUri, groupId, searchString, healthcarePartyId))
     }
 
-    fun listByHcPartyAndExternalIdsOnly(externalId: String?, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyAndExternalIdsOnly(externalId: String?, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByHcPartyAndExternalId(dbInstanceUri, groupId, externalId, healthcarePartyId))
     }
 
-    fun listByHcPartyAndActiveIdsOnly(active: Boolean, healthcarePartyId: String) = flow<String> {
+    override fun listByHcPartyAndActiveIdsOnly(active: Boolean, healthcarePartyId: String) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listIdsByActive(dbInstanceUri, groupId, active, healthcarePartyId))
     }
 
-    fun listOfMergesAfter(date: Long?) = flow<Patient> {
+    override fun listOfMergesAfter(date: Long?) = flow<Patient> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listOfMergesAfter(dbInstanceUri, groupId, date))
     }
 
-    fun findByHcPartyIdsOnly(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyIdsOnly(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.findIdsByHcParty(dbInstanceUri, groupId, healthcarePartyId, offset))
     }
 
-    fun findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
         val descending = "desc" == sorting.direction
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
 
@@ -180,92 +179,70 @@ class PatientLogicImpl(
         }
     }
 
-    fun listPatients(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
-        var ids = filters.resolve(filterChain.getFilter()).toSet().sorted()
-        if (filterChain.predicate != null || sort != null && sort != "id") {
-            var patients = getPatients(ArrayList(ids)).toList()
-            if (filterChain.predicate != null) {
-                patients = patients.filter { filterChain.predicate.apply(it) }
-            }
-            val pub = PropertyUtilsBean()
-
-            patients = patients.sortedWith(kotlin.Comparator { a, b ->
-                try {
-                    val ap = pub.getProperty(a, sort ?: "id") as Comparable<*>
-                    val bp = pub.getProperty(b, sort ?: "id") as Comparable<*>
-                    if (ap is String && bp is String) {
-                        if (desc != null && desc) {
-                            StringUtils.compareIgnoreCase(bp, ap)
-                        } else {
-                            StringUtils.compareIgnoreCase(ap, bp)
-                        }
-                    } else if (desc != null && desc) {
-                        bp as Comparable<Comparable<*>> // TODO MB ask
-                        ap as Comparable<Comparable<*>>
-                        ObjectUtils.compare<Comparable<Comparable<*>>>(bp, ap)
-                    } else {
-                        bp as Comparable<Comparable<*>>
-                        ap as Comparable<Comparable<*>>
-                        ObjectUtils.compare(ap, bp)
-                    }
-                } catch (e: Exception) {
-                }
-                0
-            })
-
-            var firstIndex = paginationOffset?.takeIf { it.startDocumentId != null }?.let { patients.map { it.id }.toList().indexOf(paginationOffset.startDocumentId) }
-                    ?: 0
-
-            if (firstIndex != -1) {
-                firstIndex += paginationOffset?.offset ?: 0
-                val hasNextPage = paginationOffset != null && paginationOffset.limit != null && firstIndex + paginationOffset.limit < patients.size
-                if (hasNextPage) PaginatedList(paginationOffset.limit, patients.size, patients.subList(firstIndex, firstIndex + paginationOffset.limit),
-                        PaginatedDocumentKeyIdPair(null, patients[firstIndex + paginationOffset.limit].id)) else PaginatedList(patients.size - firstIndex, patients.size, patients.subList(firstIndex, patients.size), null)
-            }
-        } else {
-            if (desc != null && desc) {
-                ids = (ids as TreeSet<String?>).descendingSet()
-            }
-            if (paginationOffset != null && paginationOffset.startDocumentId != null) {
-                ids = ids.subSet(paginationOffset.startDocumentId, (ids as TreeSet<*>).last().toString() + "\u0000")
-            }
-            var idsList: List<String?> = ArrayList(ids)
-            if (paginationOffset != null && paginationOffset.offset != null) {
-                idsList = idsList.subList(paginationOffset.offset, idsList.size)
-            }
-            val hasNextPage = paginationOffset != null && paginationOffset.limit != null && paginationOffset.limit < idsList.size
-            if (hasNextPage) {
-                idsList = idsList.subList(0, paginationOffset.limit + 1)
-            }
-            val patients = getPatients(idsList)
-            PaginatedList(if (hasNextPage) paginationOffset.limit else patients.size, ids.size, if (hasNextPage) patients.subList(0, paginationOffset.limit) else patients, if (hasNextPage) PaginatedDocumentKeyIdPair(null, patients[patients.size - 1].id) else null)
-        }
-    }
-
-    fun findByHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String?, offset: PaginationOffset<*>, descending: Boolean) = flow<ViewQueryResultEvent> {
-        val sanSs = sanitizeString(searchString)
-        //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
-//We will get partial results but at least we will not overload the servers
-        val limit = if (offset.startKey == null && offset.limit != null) Math.min(1000, offset.limit * 10) else null
-        val ids: Set<String> = HashSet(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, limit))
-        val patients = patientDAO[ids].stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList())
-        val patientKeys = patients.stream().map { p: Patient -> sanitizeString(safeConcat(p.lastName, p.firstName)) }.collect(Collectors.toList())
-        return buildPatientPaginatedList(healthcarePartyId, offset, patients, patientKeys, descending)
-    }
-
-    fun findOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, offset: PaginationOffset<*>, descending: Boolean) = flow<ViewQueryResultEvent> {
-        val sanSs = sanitizeString(searchString)
-        //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
-//We will get partial results but at least we will not overload the servers
-        val limit = if (offset.startKey == null && offset.limit != null) Math.min(1000, offset.limit * 10) else null
+    override fun listPatients(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val ids = patientDAO.listIdsOfHcPartyNameContainsFuzzy(dbInstanceUri, groupId, searchString, healthcarePartyId, limit).toList()
-        val patients = patientDAO.get(dbInstanceUri, groupId, ids).toList().sortedWith(getPatientComparator(sanSs, descending))
-        val patientKeys = patients.map { p: Patient -> sanitizeString(safeConcat(p.lastName, p.firstName)) }
-        return buildPatientPaginatedList(healthcarePartyId, offset, patients, patientKeys, descending)
+        var ids = filters.resolve(filterChain.getFilter()).toSet().sorted()
+        val forPagination = patientDAO.getForPagination(dbInstanceUri, groupId, ids)
+        if (filterChain.predicate != null) {
+            forPagination.filterIsInstance<ViewRowWithDoc<*, *, *>>()
+                    .filter { filterChain.predicate.apply(it.doc as Patient) }
+        }
+        if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
+            var patientsListToSort = forPagination.toList()
+            val pub = PropertyUtilsBean()
+            patientsListToSort = patientsListToSort.sortedWith(
+                    kotlin.Comparator { a, b ->
+                        try {
+                            val ap = pub.getProperty(a, sort ?: "id") as Comparable<*>
+                            val bp = pub.getProperty(b, sort ?: "id") as Comparable<*>
+                            if (ap is String && bp is String) {
+                                if (desc != null && desc) {
+                                    StringUtils.compareIgnoreCase(bp, ap)
+                                } else {
+                                    StringUtils.compareIgnoreCase(ap, bp)
+                                }
+                            } else if (desc != null && desc) {
+                                bp as Comparable<Comparable<*>>
+                                ap as Comparable<Comparable<*>>
+                                ObjectUtils.compare<Comparable<Comparable<*>>>(bp, ap)
+                            } else {
+                                bp as Comparable<Comparable<*>>
+                                ap as Comparable<Comparable<*>>
+                                ObjectUtils.compare(ap, bp)
+                            }
+                        } catch (e: Exception) {
+                        }
+                        0
+                    }
+            )
+            emitAll(patientsListToSort.asFlow())
+        }
+        emitAll(forPagination)
     }
 
-    fun findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String?, offset: PaginationOffset<*>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, offset: PaginationOffset<*>, descending: Boolean) = flow<ViewQueryResultEvent> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
+        //We will get partial results but at least we will not overload the servers
+        val limit = if (offset.startKey == null) min(1000, offset.limit * 10) else null
+        val ids = patientDAO.listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUri, groupId, searchString, healthcarePartyId, limit)
+        emitAll(
+                patientDAO.getForPagination(dbInstanceUri, groupId, ids)
+        )
+    }
+
+    override fun findOfHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, offset: PaginationOffset<*>, descending: Boolean) = flow<ViewQueryResultEvent> {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
+        //We will get partial results but at least we will not overload the servers
+        val limit = if (offset.startKey == null) min(1000, offset.limit * 10) else null
+        val ids = patientDAO.listIdsOfHcPartyNameContainsFuzzy(dbInstanceUri, groupId, searchString, healthcarePartyId, limit)
+        emitAll(
+                patientDAO.getForPagination(dbInstanceUri, groupId, ids)
+        )
+    }
+
+    override fun findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
         val descending = "desc" == sorting.direction
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         if (searchString == null || searchString.isEmpty()) {
@@ -288,22 +265,22 @@ class PatientLogicImpl(
         }
     }
 
-    fun findByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, ssin, healthcarePartyId, paginationOffset, false))
+        emitAll(patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, ssin!!, healthcarePartyId, paginationOffset, false))
     }
 
-    fun findByHcPartyDateOfBirth(date: Int?, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyDateOfBirth(date: Int?, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, date, date, healthcarePartyId, paginationOffset, false))
     }
 
-    fun findByHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.findPatientsByHcPartyModificationDate(dbInstanceUri, groupId, start, end, healthcarePartyId, paginationOffset, descending))
     }
 
-    fun findOfHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findOfHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.findPatientsOfHcPartyModificationDate(dbInstanceUri, groupId, start, end, healthcarePartyId, paginationOffset, descending))
     }
@@ -319,8 +296,10 @@ class PatientLogicImpl(
             if (b == null) {
                 return@label 1
             }
-            var res = ObjectUtils.compare(if (sanitizeString(safeConcat(a.lastName, a.firstName))?.startsWith(sanitizedSearchString)?: false) 0 else 1,
-                    if (sanitizeString(safeConcat(b.lastName, b.firstName))?.startsWith(sanitizedSearchString)?:false) 0 else 1)
+            var res = ObjectUtils.compare(if (sanitizeString(safeConcat(a.lastName, a.firstName))?.startsWith(sanitizedSearchString)
+                            ?: false) 0 else 1,
+                    if (sanitizeString(safeConcat(b.lastName, b.firstName))?.startsWith(sanitizedSearchString)
+                                    ?: false) 0 else 1)
             if (res != 0) return@label res * if (descending) -1 else 1
             res = ObjectUtils.compare<String>(sanitizeString(a.lastName), sanitizeString(b.lastName))
             if (res != 0) return@label res * if (descending) -1 else 1
@@ -329,26 +308,26 @@ class PatientLogicImpl(
         }
     }
 
-    suspend fun findByUserId(id: String): Patient? {
+    override suspend fun findByUserId(id: String): Patient? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return patientDAO.findPatientsByUserId(dbInstanceUri, groupId, id)
     }
 
-    suspend fun getPatient(patientId: String): Patient? {
+    override suspend fun getPatient(patientId: String): Patient? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return patientDAO.get(dbInstanceUri, groupId, patientId)
     }
 
-    fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>? { //		return patientDtoBeans.getAsMapOfValues(patientDto, propertyExpressions);
+    override fun getPatientSummary(patientDto: PatientDto?, propertyExpressions: List<String?>?): Map<String, Any>? { //		return patientDtoBeans.getAsMapOfValues(patientDto, propertyExpressions);
         return null
     }
 
-    fun getPatients(patientIds: List<String>) = flow<Patient> {
+    override fun getPatients(patientIds: List<String>) = flow<Patient> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.get(dbInstanceUri, groupId, patientIds))
     }
 
-    suspend fun addDelegation(patientId: String, delegation: Delegation): Patient? {
+    override suspend fun addDelegation(patientId: String, delegation: Delegation): Patient? {
         val patient = getPatient(patientId)
         return patient?.let {
             patient.addDelegation(delegation.delegatedTo, delegation)
@@ -357,7 +336,7 @@ class PatientLogicImpl(
         }
     }
 
-    suspend fun addDelegations(patientId: String, delegations: Collection<Delegation>): Patient? {
+    override suspend fun addDelegations(patientId: String, delegations: Collection<Delegation>): Patient? {
         val patient = getPatient(patientId)
         return patient?.let { patient ->
             delegations.forEach { patient.addDelegation(it.delegatedTo, it) }
@@ -367,7 +346,7 @@ class PatientLogicImpl(
     }
 
     @Throws(MissingRequirementsException::class)
-    suspend fun createPatient(patient: Patient): Patient? { // checking requirements
+    override suspend fun createPatient(patient: Patient): Patient? { // checking requirements
         if (patient.preferredUserId != null && (patient.delegations == null || patient.delegations.isEmpty())) {
             patient.delegations = HashMap()
             val user: User? = userLogic.getUser(patient.preferredUserId as String) //TODO MB remove explicit cast when Patient is kotlinized
@@ -385,7 +364,7 @@ class PatientLogicImpl(
     }
 
     @Throws(MissingRequirementsException::class)
-    suspend fun modifyPatient(patient: Patient): Patient? {
+    override suspend fun modifyPatient(patient: Patient): Patient? {
         log.debug("Modifying patient with id:" + patient.id)
         // checking requirements
         if ((patient.firstName == null || patient.lastName == null) && patient.encryptedSelf == null) {
@@ -403,7 +382,7 @@ class PatientLogicImpl(
         }
     }
 
-    suspend fun logAllPatients(hcPartyId: String) { //TODO MB ask : supend collect // launch ?
+    override suspend fun logAllPatients(hcPartyId: String) { //TODO MB ask : supend collect // launch ?
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         patientDAO.listIdsByHcParty(dbInstanceUri, groupId, hcPartyId)
                 .bufferedChunks(100, 101)
@@ -425,7 +404,7 @@ class PatientLogicImpl(
         }
     }
 
-    suspend fun modifyPatientReferral(patient: Patient, referralId: String?, start: Instant?, end: Instant?): Patient? {
+    override suspend fun modifyPatientReferral(patient: Patient, referralId: String?, start: Instant?, end: Instant?): Patient? {
         val startOrNow = start ?: Instant.now()
         val shouldSave = booleanArrayOf(false)
         //Close referrals relative to other healthcare parties
@@ -463,7 +442,7 @@ class PatientLogicImpl(
         return if (shouldSave[0]) modifyPatient(patient) else patient
     }
 
-    suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient? {
+    override suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient? {
         for (from in fromPatients) {
             val entries: Set<Map.Entry<String, Set<Delegation>>> = from.delegations.entries
             for ((key, value) in entries) {
@@ -491,12 +470,12 @@ class PatientLogicImpl(
         }
     }
 
-    suspend fun getByExternalId(externalId: String): Patient? {
+    override suspend fun getByExternalId(externalId: String): Patient? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return patientDAO.getByExternalId(dbInstanceUri, groupId, externalId)
     }
 
-    suspend fun solveConflicts() {
+    override suspend fun solveConflicts() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val patientsInConflict = patientDAO.listConflicts(dbInstanceUri, groupId).map { it: Patient -> patientDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
                 .filterNotNull()
@@ -511,28 +490,28 @@ class PatientLogicImpl(
                 }
     }
 
-    suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String> {
+    override suspend fun getHcPartyKeysForDelegate(healthcarePartyId: String): Map<String, String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return patientDAO.getHcPartyKeysForDelegate(dbInstanceUri, groupId, healthcarePartyId)
     }
 
-    fun listOfPatientsModifiedAfter(date: Long, startKey: Long?, startDocumentId: String?, limit: Int?) = flow<ViewQueryResultEvent> {
+    override fun listOfPatientsModifiedAfter(date: Long, startKey: Long?, startDocumentId: String?, limit: Int?) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.listOfPatientsModifiedAfter(dbInstanceUri, groupId, date, PaginationOffset(startKey, startDocumentId, 0, limit
                 ?: 1000)))
     }
 
-    fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.getDuplicatePatientsBySsin(dbInstanceUri, groupId, healthcarePartyId, paginationOffset))
     }
 
-    fun getDuplicatePatientsByName(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsByName(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.getDuplicatePatientsByName(dbInstanceUri, groupId, healthcarePartyId, paginationOffset))
     }
 
-    fun fuzzySearchPatients(mapper: MapperFacade, healthcarePartyId: String, firstName: String?, lastName: String?, dateOfBirth: Int?) = flow<Patient> {
+    override fun fuzzySearchPatients(mapper: MapperFacade, healthcarePartyId: String, firstName: String?, lastName: String?, dateOfBirth: Int?) = flow<Patient> {
         if (dateOfBirth != null) { //Patients with the right date of birth
             val combined: Flow<Flow<ViewQueryResultEvent>>
             val patients = findByHcPartyDateOfBirth(dateOfBirth, healthcarePartyId, PaginationOffset(1000))
@@ -565,25 +544,29 @@ class PatientLogicImpl(
         }
     }
 
-    fun deletePatients(ids: Set<String>) = flow<DocIdentifier> {
+    override fun deletePatients(ids: Set<String>) = flow<DocIdentifier> {
         emitAll(deleteByIds(ids))
     }
 
-    fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>) = flow<ViewQueryResultEvent> {
+    override fun findDeletedPatientsByDeleteDate(start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.findDeletedPatientsByDeleteDate(dbInstanceUri, groupId, start, end, descending, paginationOffset))
     }
 
-    fun findDeletedPatientsByNames(firstName: String?, lastName: String?) = flow<Patient> {
+    override fun findDeletedPatientsByNames(firstName: String?, lastName: String?) = flow<Patient> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(patientDAO.findDeletedPatientsByNames(dbInstanceUri, groupId, firstName, lastName))
     }
 
-    fun undeletePatients(ids: Set<String>) = flow<DocIdentifier> {
+    override fun undeletePatients(ids: Set<String>) = flow<DocIdentifier> {
         emitAll(undeleteByIds(ids))
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(PatientLogicImpl::class.java)
+    }
+
+    override fun getGenericDAO(): PatientDAO {
+        return patientDAO
     }
 }

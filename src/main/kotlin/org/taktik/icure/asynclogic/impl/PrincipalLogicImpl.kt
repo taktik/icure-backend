@@ -21,9 +21,11 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.awaitSingle
 import org.slf4j.LoggerFactory
 import org.taktik.icure.asyncdao.AccessLogDAO
+import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.Roles
+import org.taktik.icure.dao.impl.GenericDAOImpl
 import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
@@ -38,7 +40,7 @@ interface PrincipalLogic<P : Principal> {
     fun getAscendantRoles(principalId: String): Flow<Role>
 }
 
-abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, protected val sessionLogic: AsyncSessionLogic)  : PrincipalLogic<P> {
+abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, protected val sessionLogic: AsyncSessionLogic)  :  GenericLogicImpl<P, GenericDAO<P>>(sessionLogic), PrincipalLogic<P> {
 
     protected val log = LoggerFactory.getLogger(javaClass)
 

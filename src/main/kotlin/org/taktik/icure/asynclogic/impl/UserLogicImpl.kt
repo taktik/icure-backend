@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.AccessLogDAO
+import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.*
@@ -243,9 +244,7 @@ class UserLogicImpl(
             throw IllegalArgumentException("Invalid User", e)
         }
     }
-    // TODO MB
-    // previously was
-    // suspend fun createEntities(entities: Collection<E>, createdEntities: MutableCollection<E>): Boolean
+
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
         val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
@@ -280,7 +279,7 @@ class UserLogicImpl(
     } ?: false
 
     override suspend fun checkPassword(password: String) =
-            sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it.passwordHash) }
+            sessionLogic.getCurrentSessionContext().getUser().let { passwordEncoder.matches(password, it?.passwordHash) }
 
     override suspend fun verifyPasswordToken(userId: String, token: String): Boolean {
         getUser(userId)?.takeIf { it.passwordToken?.isNotEmpty() ?: false }
@@ -597,15 +596,8 @@ class UserLogicImpl(
         private val CHECK_USERS_EXPIRATION_TIME_RANGE = Duration.ofDays(1)
     }
 
-    override fun deleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val entities = userDAO.getList(dbInstanceUri, groupId, identifiers).toList()
-        emitAll(userDAO.remove(dbInstanceUri, groupId, entities))
+    override fun getGenericDAO(): GenericDAO<User> {
+        return userDAO
     }
 
-    override fun undeleteByIds(identifiers: Collection<String>): Flow<DocIdentifier> = flow {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val entities = userDAO.getList(dbInstanceUri, groupId, identifiers).toList()
-        emitAll(userDAO.unRemove(dbInstanceUri, groupId, entities))
-    }
 }
