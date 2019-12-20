@@ -114,7 +114,6 @@ data class DeleteRequest(@Json(name = "_id") val id: String, @Json(name = "_id")
 data class BulkUpdateResult(val id: String, val rev: String, val ok: Boolean?, val error: String?, val reason: String?)
 data class DocIdentifier(val id: String, val rev: String)
 
-
 // Convenience inline methods with reified type params
 inline fun <reified K, reified V, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, V, T>> {
     require(query.isIncludeDocs) { "Query must have includeDocs=true" }

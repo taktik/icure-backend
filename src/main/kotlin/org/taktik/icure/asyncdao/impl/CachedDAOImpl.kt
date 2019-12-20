@@ -126,7 +126,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    fun getFromCache(dbInstanceUrl: URI, groupId: String, id: String): T? {
+    fun getFromCache(dbInstanceUrl: URI, groupId: String?, id: String): T? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         val value = cache.get(fullId)
         return if (value == null) {
@@ -143,7 +143,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, value: T?) {
+    fun putInCache(dbInstanceUrl: URI, groupId: String?, key: String, value: T?) {
         val fullId = getFullId(dbInstanceUrl, groupId, key)
         if (value != null) {
             log.debug("Cache SAVE = {}, {} - {}", fullId, value.id, value.rev)
@@ -162,7 +162,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         cache.evict(fullId1)
     }
 
-    fun evictFromCache(dbInstanceUrl: URI, groupId: String, id: String) {
+    fun evictFromCache(dbInstanceUrl: URI, groupId: String?, id: String) {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
         log.debug("Cache EVICT= {}", fullId)
@@ -171,7 +171,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         cache.evict(fullId1)
     }
 
-    protected fun getWrapperFromCache(dbInstanceUrl: URI, groupId: String, id: String): Cache.ValueWrapper? {
+    protected fun getWrapperFromCache(dbInstanceUrl: URI, groupId: String?, id: String): Cache.ValueWrapper? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         val value = cache.get(fullId)
         if (value != null) {

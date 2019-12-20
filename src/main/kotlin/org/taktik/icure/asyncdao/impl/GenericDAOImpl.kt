@@ -28,7 +28,7 @@ import org.taktik.couchdb.*
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.asyncdao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
+import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.base.StoredDocument
@@ -316,7 +316,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     override fun<P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery {
         val DEFAULT_LIMIT = 1000
-        val limit = pagination.limit ?: DEFAULT_LIMIT
+        val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
 
         var viewQuery = createQuery(viewName)
                 .startKey(startKey) // NB: pagination.startKey is ignored, but should always be null or the same as startKey
