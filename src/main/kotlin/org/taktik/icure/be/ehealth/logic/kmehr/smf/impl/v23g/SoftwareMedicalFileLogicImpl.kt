@@ -39,25 +39,25 @@ import java.io.OutputStream
 class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
                                    val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
 
-    override fun importSmfFile(inputStream: InputStream,
-                               author: User,
-                               language: String,
-                               dest: Patient?,
-                               mappings: Map<String, List<ImportMapping>>
+    override suspend fun importSmfFile(inputStream: InputStream,
+                                       author: User,
+                                       language: String,
+                                       dest: Patient?,
+                                       mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> {
         return softwareMedicalFileImport.importSMF(inputStream, author, language, mappings, dest)
     }
 
-    override fun checkIfSMFPatientsExists(inputStream: InputStream,
-                               author: User,
-                               language: String,
-                               dest: Patient?,
-                               mappings: Map<String, List<ImportMapping>>
+    override suspend fun checkIfSMFPatientsExists(inputStream: InputStream,
+                                                  author: User,
+                                                  language: String,
+                                                  dest: Patient?,
+                                                  mappings: Map<String, List<ImportMapping>>
     ) : List<CheckSMFPatientResult> {
         return softwareMedicalFileImport.checkIfSMFPatientsExists(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
+    override suspend fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
 		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor)
 	}
 }

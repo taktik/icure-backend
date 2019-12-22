@@ -1,8 +1,11 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 
+import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
 import org.springframework.stereotype.Service
+import org.taktik.icure.asynclogic.*
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTY
@@ -22,7 +25,16 @@ import javax.xml.bind.Marshaller
 import kotlin.text.Charsets.UTF_8
 
 @Service
-class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
+class KmehrNoteLogicImpl(mapper: MapperFacade,
+                         patientLogic: PatientLogic,
+                         codeLogic: CodeLogic,
+                         healthElementLogic: HealthElementLogic,
+                         healthcarePartyLogic: HealthcarePartyLogic,
+                         contactLogic: ContactLogic,
+                         documentLogic: DocumentLogic,
+                         sessionLogic: AsyncSessionLogic,
+                         userLogic: UserLogic,
+                         filters: Filters) : KmehrNoteLogic, KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
     override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
 
@@ -34,7 +46,7 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
             defaultLanguage = "en"
     )
 
-    override fun createNote(
+    override suspend fun createNote(
             output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
     ) {
         val message = Kmehrmessage().apply {

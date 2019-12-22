@@ -38,12 +38,12 @@ import java.io.OutputStream
 class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExport,
                                    val medicationSchemeImport: MedicationSchemeImport) : MedicationSchemeLogic {
 
-    override fun importMedicationSchemeFile(inputStream: InputStream,
-                                            author: User,
-                                            language: String,
-                                            dest: Patient?,
-                                            mappings: Map<String, List<ImportMapping>>,
-                                            saveToDatabase: Boolean
+    override suspend fun importMedicationSchemeFile(inputStream: InputStream,
+                                                    author: User,
+                                                    language: String,
+                                                    dest: Patient?,
+                                                    mappings: Map<String, List<ImportMapping>>,
+                                                    saveToDatabase: Boolean
     ) : List<ImportResult> {
         return medicationSchemeImport.importMedicationSchemeFile(inputStream, author, language, mappings, saveToDatabase, dest)
     }

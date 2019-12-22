@@ -25,7 +25,6 @@ import ma.glasnost.orika.MapperFacade
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
-import org.ektorp.ComplexKey
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -40,8 +39,6 @@ import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
-import org.taktik.icure.db.StringUtils.safeConcat
-import org.taktik.icure.db.StringUtils.sanitizeString
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
@@ -54,6 +51,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.bufferedChunks
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -70,8 +68,6 @@ import kotlin.math.min
 class PatientLogicImpl(
         private val sessionLogic: AsyncSessionLogic,
         private val patientDAO: PatientDAO,
-        private val uuidGenerator: UUIDGenerator,
-        private val mapper: MapperFacade,
         private val userLogic: UserLogic,
         private val filters: Filters) : GenericLogicImpl<Patient, PatientDAO>(sessionLogic), PatientLogic {
 
@@ -140,12 +136,12 @@ class PatientLogicImpl(
         emitAll(patientDAO.listOfMergesAfter(dbInstanceUri, groupId, date))
     }
 
-    override fun findByHcPartyIdsOnly(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyIdsOnly(healthcarePartyId: String, offset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.findIdsByHcParty(dbInstanceUri, groupId, healthcarePartyId, offset))
+        emitAll(patientDAO.findIdsByHcParty(dbInstanceUri, groupId, healthcarePartyId, offset.toComplexKeyPaginationOffset()))
     }
 
-    override fun findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<List<String>>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
         val descending = "desc" == sorting.direction
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
 
@@ -153,23 +149,23 @@ class PatientLogicImpl(
             emitAll(
                     when (sorting.field) {
                         "ssin" -> {
-                            patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, null, healthcarePartyId, offset, descending)
+                            patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
                         }
                         "dateOfBirth" -> {
-                            patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, null, null, healthcarePartyId, offset, descending)
+                            patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, null, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
                         }
                         else -> {
-                            patientDAO.findPatientsByHcPartyAndName(dbInstanceUri, groupId, null, healthcarePartyId, offset, descending)
+                            patientDAO.findPatientsByHcPartyAndName(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
                         }
                     }
             )
         } else {
             emitAll(when {
                 FuzzyValues.isSsin(searchString) -> {
-                    patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, searchString, healthcarePartyId, offset, false)
+                    patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, searchString, healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
                 }
                 FuzzyValues.isDate(searchString) -> {
-                    patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, FuzzyValues.toYYYYMMDD(searchString), FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false)
+                    patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, FuzzyValues.toYYYYMMDD(searchString), FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
                 }
                 else -> {
                     findByHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending)
@@ -193,8 +189,8 @@ class PatientLogicImpl(
             patientsListToSort = patientsListToSort.sortedWith(
                     kotlin.Comparator { a, b ->
                         try {
-                            val ap = pub.getProperty(a, sort ?: "id") as Comparable<*>
-                            val bp = pub.getProperty(b, sort ?: "id") as Comparable<*>
+                            val ap = pub.getProperty(a, sort) as Comparable<*>
+                            val bp = pub.getProperty(b, sort) as Comparable<*>
                             if (ap is String && bp is String) {
                                 if (desc != null && desc) {
                                     StringUtils.compareIgnoreCase(bp, ap)
@@ -204,7 +200,7 @@ class PatientLogicImpl(
                             } else if (desc != null && desc) {
                                 bp as Comparable<Comparable<*>>
                                 ap as Comparable<Comparable<*>>
-                                ObjectUtils.compare<Comparable<Comparable<*>>>(bp, ap)
+                                ObjectUtils.compare(bp, ap)
                             } else {
                                 bp as Comparable<Comparable<*>>
                                 ap as Comparable<Comparable<*>>
@@ -242,70 +238,47 @@ class PatientLogicImpl(
         )
     }
 
-    override fun findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<ComplexKey>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
+    override fun findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<List<String>>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
         val descending = "desc" == sorting.direction
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         if (searchString == null || searchString.isEmpty()) {
             if ("ssin" == sorting.field) {
-                patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, null, healthcarePartyId, offset, descending)
+                patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
             } else if ("dateOfBirth" == sorting.field) {
-                patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, null, null, healthcarePartyId, offset, descending)
+                patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, null, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
             } else {
-                patientDAO.findPatientsOfHcPartyAndName(dbInstanceUri, groupId, null, healthcarePartyId, offset, descending)
+                patientDAO.findPatientsOfHcPartyAndName(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
             }
         } else {
             if (FuzzyValues.isSsin(searchString)) {
-                patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, searchString, healthcarePartyId, offset, false)
+                patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, searchString, healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
             } else if (FuzzyValues.isDate(searchString)) {
                 patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, FuzzyValues.toYYYYMMDD(searchString),
-                        FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset, false)
+                        FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
             } else {
                 findOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending)
             }
         }
     }
 
-    override fun findByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, ssin!!, healthcarePartyId, paginationOffset, false))
+        emitAll(patientDAO.findPatientsByHcPartyAndSsin(dbInstanceUri, groupId, ssin!!, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset(), false))
     }
 
-    override fun findByHcPartyDateOfBirth(date: Int?, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyDateOfBirth(date: Int?, healthcarePartyId: String, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, date, date, healthcarePartyId, paginationOffset, false))
+        emitAll(patientDAO.findPatientsByHcPartyDateOfBirth(dbInstanceUri, groupId, date, date, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset(), false))
     }
 
-    override fun findByHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findByHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.findPatientsByHcPartyModificationDate(dbInstanceUri, groupId, start, end, healthcarePartyId, paginationOffset, descending))
+        emitAll(patientDAO.findPatientsByHcPartyModificationDate(dbInstanceUri, groupId, start, end, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset(), descending))
     }
 
-    override fun findOfHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun findOfHcPartyModificationDate(start: Long?, end: Long?, healthcarePartyId: String, descending: Boolean, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.findPatientsOfHcPartyModificationDate(dbInstanceUri, groupId, start, end, healthcarePartyId, paginationOffset, descending))
-    }
-
-    private fun getPatientComparator(sanitizedSearchString: String, descending: Boolean): Comparator<Patient> {
-        return label@ Comparator { a: Patient?, b: Patient? ->
-            if (a == null && b == null) {
-                return@label 0
-            }
-            if (a == null) {
-                return@label -1
-            }
-            if (b == null) {
-                return@label 1
-            }
-            var res = ObjectUtils.compare(if (sanitizeString(safeConcat(a.lastName, a.firstName))?.startsWith(sanitizedSearchString)
-                            ?: false) 0 else 1,
-                    if (sanitizeString(safeConcat(b.lastName, b.firstName))?.startsWith(sanitizedSearchString)
-                                    ?: false) 0 else 1)
-            if (res != 0) return@label res * if (descending) -1 else 1
-            res = ObjectUtils.compare<String>(sanitizeString(a.lastName), sanitizeString(b.lastName))
-            if (res != 0) return@label res * if (descending) -1 else 1
-            res = ObjectUtils.compare<String>(sanitizeString(a.firstName), sanitizeString(b.firstName))
-            res * if (descending) -1 else 1
-        }
+        emitAll(patientDAO.findPatientsOfHcPartyModificationDate(dbInstanceUri, groupId, start, end, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset(), descending))
     }
 
     override suspend fun findByUserId(id: String): Patient? {
@@ -477,7 +450,7 @@ class PatientLogicImpl(
 
     override suspend fun solveConflicts() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val patientsInConflict = patientDAO.listConflicts(dbInstanceUri, groupId).map { it: Patient -> patientDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
+        patientDAO.listConflicts(dbInstanceUri, groupId).map { it: Patient -> patientDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
                 .filterNotNull()
                 .onEach { patient ->
                     patient.conflicts?.map { patientDAO.get(dbInstanceUri, groupId, patient.id, it) }
@@ -501,14 +474,14 @@ class PatientLogicImpl(
                 ?: 1000)))
     }
 
-    override fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsBySsin(healthcarePartyId: String, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.getDuplicatePatientsBySsin(dbInstanceUri, groupId, healthcarePartyId, paginationOffset))
+        emitAll(patientDAO.getDuplicatePatientsBySsin(dbInstanceUri, groupId, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset()))
     }
 
-    override fun getDuplicatePatientsByName(healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsByName(healthcarePartyId: String, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(patientDAO.getDuplicatePatientsByName(dbInstanceUri, groupId, healthcarePartyId, paginationOffset))
+        emitAll(patientDAO.getDuplicatePatientsByName(dbInstanceUri, groupId, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset()))
     }
 
     override fun fuzzySearchPatients(mapper: MapperFacade, healthcarePartyId: String, firstName: String?, lastName: String?, dateOfBirth: Int?) = flow<Patient> {
@@ -570,3 +543,4 @@ class PatientLogicImpl(
         return patientDAO
     }
 }
+

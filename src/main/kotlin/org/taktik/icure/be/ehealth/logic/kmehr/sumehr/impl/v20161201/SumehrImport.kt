@@ -1,7 +1,8 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
 
-import org.springframework.beans.factory.annotation.Qualifier
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
@@ -30,8 +31,11 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
+import org.taktik.icure.db.StringUtils
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.firstOrNull
 import java.io.InputStream
 import java.io.Serializable
 import java.util.LinkedList
@@ -45,7 +49,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                                 val documentLogic: DocumentLogic,
                                 val idGenerator: UUIDGenerator) {
 
-    fun importSumehr(inputStream: InputStream,
+    suspend fun importSumehr(inputStream: InputStream,
                      author: User,
                      language: String,
                      mappings: Map<String, List<ImportMapping>>,
@@ -79,7 +83,7 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    fun importSumehrByItemId(inputStream: InputStream,
+    suspend fun importSumehrByItemId(inputStream: InputStream,
                      itemId: String,
                      author: User,
                      language: String,
@@ -114,7 +118,7 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    private fun parseSumehr(trn: TransactionType,
+    private suspend fun parseSumehr(trn: TransactionType,
                                    author: User,
                                    v: ImportResult,
                                    language: String,
@@ -125,7 +129,7 @@ class SumehrImport(val patientLogic: PatientLogic,
         }
     }
 
-    private fun parseGenericTransaction(trn: TransactionType,
+    private suspend fun parseGenericTransaction(trn: TransactionType,
                                         author: User,
                                         v: ImportResult,
                                         language: String,
@@ -196,7 +200,7 @@ class SumehrImport(val patientLogic: PatientLogic,
 
                 if(listOf("healthcareelement", "allergy", "adr", "risk", "socialrisk").contains(cdItem)){
                     val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
-                    he?.let { v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(it) else it) }
+                    he?.let { v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(it) ?: throw(IllegalStateException("Cannot save to database")) else it) }
                 }else{
                     when (cdItem) {
                         //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
@@ -362,7 +366,7 @@ class SumehrImport(val patientLogic: PatientLogic,
             content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean): HealthcareParty? {
+    protected suspend fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean): HealthcareParty? {
         val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
         val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
 
@@ -413,36 +417,44 @@ class SumehrImport(val patientLogic: PatientLogic,
         }
     }
 
-    protected fun createOrProcessPatient(p: PersonType,
-                                         author: User,
-                                         v: ImportResult,
-                                         saveToDatabase: Boolean,
-                                         dest: Patient? = null): Patient? {
-        val niss = p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value
+    protected suspend fun getExistingPatient(p: PersonType,
+                                             author: User,
+                                             v: ImportResult,
+                                             dest: Patient? = null): Patient? {
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value) // searching empty niss return all patients
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =
-            dest ?: niss?.let {
-                patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
-                    ?.let { patientLogic.getPatient(it) }
-            }
-            ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.healthcarePartyId).let {
-                if (it.size > 0) patientLogic.getPatients(it).find {
-                    p.firstnames.any { fn -> org.taktik.icure.db.StringUtils.equals(it.firstName, fn) && org.taktik.icure.db.StringUtils.equals(it.lastName, p.familyname) }
-                } else null
-            }
-            ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
-                if (it.size > 0) patientLogic.getPatients(it).find {
-                    it.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
-                        ?: false
-                } else null
-            }
+                dest ?: niss?.let {
+                    patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
+                            ?.let { patientLogic.getPatient(it) }
+                }
+                ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) ?: throw IllegalStateException("Person's date of birth is invalid"), author.healthcarePartyId).toList().let {
+                    if (it.isNotEmpty()) patientLogic.getPatients(it).filter {
+                        p.firstnames.any { fn -> StringUtils.equals(it.firstName, fn) && StringUtils.equals(it.lastName, p.familyname) }
+                    }.firstOrNull() else null
+                }
+                ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).toList().let {
+                    if (it.isNotEmpty()) patientLogic.getPatients(it).filter { patient ->
+                        patient.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
+                                ?: false
+                    }.firstOrNull() else null
+                }
 
-        return if (dbPatient == null) Patient().apply {
-            this.delegations = mapOf(author.healthcarePartyId to setOf())
+        return dbPatient
+    }
 
-	        copyFromPersonToPatient(p, this, true)
-        }.let { if (saveToDatabase) patientLogic.createPatient(it) else it } else dbPatient
+    protected suspend fun createOrProcessPatient(p: PersonType,
+                                                 author: User,
+                                                 v: ImportResult,
+                                                 saveToDatabase: Boolean,
+                                                 dest: Patient? = null): Patient? {
+
+        return getExistingPatient(p, author, v, dest)
+                ?: Patient().apply {
+                    this.delegations = mapOf(author.healthcarePartyId to setOf())
+                    copyFromPersonToPatient(p, this, true)
+                }.let { if (saveToDatabase) patientLogic.createPatient(it) else it }
     }
 
     protected fun copyFromPersonToPatient(p: PersonType, patient: Patient, force: Boolean) {

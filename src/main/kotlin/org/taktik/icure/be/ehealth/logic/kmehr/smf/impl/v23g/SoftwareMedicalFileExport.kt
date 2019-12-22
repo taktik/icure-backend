@@ -22,10 +22,15 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.toList
+import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeXGC
@@ -52,9 +57,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.asynclogic.FormLogic
-import org.taktik.icure.asynclogic.FormTemplateLogic
-import org.taktik.icure.asynclogic.InsuranceLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
@@ -74,17 +77,25 @@ import javax.xml.datatype.DatatypeConstants
  * @author Bernard Paulus on 29/05/17.
  */
 @org.springframework.stereotype.Service
-class SoftwareMedicalFileExport : KmehrExport() {
-
-	@Autowired var formLogic: FormLogic? = null
-	@Autowired var formTemplateLogic: FormTemplateLogic? = null
-	@Autowired var insuranceLogic: InsuranceLogic? = null
-
+class SoftwareMedicalFileExport(
+        val formLogic: FormLogic,
+        val formTemplateLogic: FormTemplateLogic,
+        val insuranceLogic: InsuranceLogic,
+        mapper: MapperFacade,
+        patientLogic: PatientLogic,
+        codeLogic: CodeLogic,
+        healthElementLogic: HealthElementLogic,
+        healthcarePartyLogic: HealthcarePartyLogic,
+        contactLogic: ContactLogic,
+        documentLogic: DocumentLogic,
+        sessionLogic: AsyncSessionLogic,
+        userLogic: UserLogic,
+        filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
 
-	fun exportSMF(
+	suspend fun exportSMF(
 			os: OutputStream,
 			patient: Patient,
 			sfks: List<String>,
@@ -128,7 +139,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 
-	private fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
+	private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
 								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
@@ -141,8 +152,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			date = config.date
 			time = config.time
 			author = AuthorType().apply {
-				hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(patient.author?.let { userLogic!!.getUser(it).healthcarePartyId }
-						?: healthcareParty.id)))
+				hcparties.add(healthcarePartyLogic.getHealthcareParty(patient.author?.let { userLogic.getUser(it)?.healthcarePartyId }
+                        ?: healthcareParty.id)?.let { createParty(it) })
 			}
 			isIscomplete = true
 			isIsvalidated = true
@@ -156,7 +167,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			makeInsurancyStatus(headingsAndItemsAndTexts.size + 1, config, patient.insurabilities.find { it.endDate == null || it.endDate > Instant.now().toEpochMilli() })?.let { headingsAndItemsAndTexts.add(it) }
 		})
 
-		val contacts = contactLogic!!.findByHCPartyPatient(healthcareParty.id, sfks.toList()).sortedBy {
+		val contacts = contactLogic.findByHCPartyPatient(healthcareParty.id, sfks.toList()).toList().sortedBy {
 			it.openingDate
 		}
 		val startIndex = folder.transactions.size
@@ -228,7 +239,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 							time = makeXGC(0L, unsetMillis = true)
 						}
 						(contact.responsible ?: healthcareParty.id) ?.let {
-							author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+							author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
 						}
 						isIscomplete = true
 						isIsvalidated = true
@@ -245,9 +256,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
                             //TODO: Please explain
 							if(subcon.healthElementId == null) { // discard form <-> he links
 								subcon.formId?.let {
-									formLogic!!.getForm(it)?.let {form ->
+									formLogic.getForm(it)?.let {form ->
 										form.formTemplateId?.let {
-											formTemplateLogic!!.getFormTemplateById(it)?.let {
+											formTemplateLogic.getFormTemplateById(it)?.let {
 												when(it.guid) {
 													"FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" ->  { // ITT
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)} // remove form services from main list
@@ -262,7 +273,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 														// get subforms
 														val subformsubcons = contact.subContacts.filter { subformsubcon ->
 															subformsubcon.formId?.let {
-																formLogic!!.getForm(it)?.let { subform ->
+																formLogic.getForm(it)?.let { subform ->
 																	subform.parent == form.id
 
 																}
@@ -416,7 +427,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 					time = makeXGC(0L, unsetMillis = true)
 				}
 				(svc.responsible ?: healthcareParty.id) ?.let {
-					author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+					author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic.getHealthcareParty(it)!!, emptyList())) }
 				}
 				isIscomplete = true
 				isIsvalidated = true
@@ -427,7 +438,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 						value = svc.comment
 					})
 				}
-				documentLogic?.get(docid)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+				documentLogic.get(docid)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
 				headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(con.id) })
 			})
 		}
@@ -580,9 +591,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 	}
 
-	private fun makeContactPeople(startIndex: Int, pat: Patient, config: Config): List<ItemType> {
-		val partnersById: Map<String, Patient> = patientLogic!!.getPatients(pat.partnerships.map { it?.partnerId }.filterNotNull())!!
-				.filterNotNull().associateBy { partner -> partner.id }
+	private suspend fun makeContactPeople(startIndex: Int, pat: Patient, config: Config): List<ItemType> {
+		val partnersById: Map<String, Patient> = patientLogic.getPatients(pat.partnerships.map { it?.partnerId }.filterNotNull())
+				.filterNotNull().toList().associateBy { partner -> partner.id }
 
 		return pat.partnerships.filter { it.partnerId != null }.mapIndexed { i, partnership ->
 			partnersById[partnership.partnerId]?.let { partner ->
@@ -597,7 +608,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}.filterNotNull()
 	}
 
-	private fun makeGmdManager(itemIndex: Int, config: Config, hcp: HealthcareParty, period: ReferralPeriod): ItemType? {
+	private suspend fun makeGmdManager(itemIndex: Int, config: Config, hcp: HealthcareParty, period: ReferralPeriod): ItemType? {
 		return ItemType().apply {
 			ids.add(idKmehr(itemIndex))
 			ids.add(localIdKmehrElement(itemIndex, config))
@@ -608,14 +619,14 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}.let { if (it.contents.first().hcparty.ids.filter { it.s == IDHCPARTYschemes.ID_HCPARTY }.size == 1) it else null }
 	}
 
-	private fun makeInsurancyStatus(itemIndex: Int, config: Config, insurability: Insurability?): ItemType? {
+	private suspend fun makeInsurancyStatus(itemIndex: Int, config: Config, insurability: Insurability?): ItemType? {
 		val insStatus = ItemType().apply {
 			ids.add(idKmehr(itemIndex))
 			ids.add(localIdKmehrElement(itemIndex, config))
 			cds.add(cdItem("insurancystatus"))
 			if (insurability?.insuranceId?.isBlank() == false) {
 				try {
-					insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
+					insuranceLogic.getInsurance(insurability.insuranceId)?.let {
 						if (it.code != null && it.code.length >= 3) {
 							contents.add(ContentType().apply {
 								insurance = InsuranceType().apply {
@@ -640,13 +651,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = v }
 	}
 
-	private fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
+	private suspend fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
 		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate }
 		val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any(isActive) ?: false }
-		if (gmdRelationship == null) {
-			return Pair(null, null)
-		}
-		val gmd = healthcarePartyLogic?.getHealthcareParty(gmdRelationship.healthcarePartyId)
+                ?: return Pair(null, null)
+        val gmd = gmdRelationship.healthcarePartyId?.let { healthcarePartyLogic.getHealthcareParty(it) }
 		return Pair(gmd, gmdRelationship.referralPeriods?.find(isActive))
 	}
 
@@ -718,11 +727,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return mutItemIndex
 	}
 
-	fun getHealthElements(hcPartyId: String, sfks: List<String>, config: Config): List<HealthElement> {
+	suspend fun getHealthElements(hcPartyId: String, sfks: List<String>, config: Config): List<HealthElement> {
 		return excludeHealthElementsForPMF(
-				healthElementLogic?.findByHCPartySecretPatientKeys(hcPartyId, sfks)?.filterNot {
+				healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, sfks).filterNot {
 					it.descr?.matches("INBOX|Etat général.*|Algemeen toestand.*".toRegex()) ?: false
-				} ?: emptyList()
+				}.toList()
 		, config)
 	}
 
@@ -770,7 +779,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return "//item[id[@SL=\"MF-ID\" and .=\"${id}\"]]"
 	}
 
-	fun makeSpecialPrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form, cdTransactionType: String, data: ByteArray): TransactionType {
+	suspend fun makeSpecialPrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form, cdTransactionType: String, data: ByteArray): TransactionType {
 		return TransactionType().apply {
 
 			ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
@@ -782,7 +791,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				time = makeXGC(it, unsetMillis = true)
 			}
 			contact.responsible?.let {
-				author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+				author = AuthorType().apply { hcparties.add(healthcarePartyLogic.getHealthcareParty(it)?.let { hcp -> createParty(hcp, emptyList()) }) }
 			}
 			recorddatetime = Utils.makeXGC(contact.created) // TODO: maybe should take form date instead of contact date
 			isIscomplete = true
@@ -797,12 +806,12 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 	}
 
-	fun makeKinePrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form): TransactionType {
+	suspend fun makeKinePrescriptionTransaction(contact: Contact, subcon: SubContact, form: Form): TransactionType {
 		val data = renderKinePrescriptionTemplate(contact, subcon, form)
 		return makeSpecialPrescriptionTransaction(contact, subcon, form, "physiotherapy", data)
 	}
 
-	fun makeNursePrescriptionTransaction(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form): TransactionType {
+	suspend fun makeNursePrescriptionTransaction(contact: Contact, subcon: SubContact, subformsubcons: List<SubContact>, form: Form): TransactionType {
 		val data = renderNursePrescriptionTemplate(contact, subcon, subformsubcons, form)
 		return makeSpecialPrescriptionTransaction(contact, subcon, form, "nursing", data)
 	}
@@ -994,19 +1003,19 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				if (null == m.closingDate) {
 					m.closingDate = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)
 				}
-				createItemWithContent(m, itemIndex, "medication", m.content.entries.map {
-					if ((it.value.booleanValue ?: false || it.value.instantValue != null || it.value.numberValue != null) && it.value.stringValue?.length ?: 0 == 0) {
-						it.value.stringValue = m.label
-					}
-					it.value.booleanValue = null
-					it.value.binaryValue = null
-					it.value.documentId = null
-					it.value.measureValue = null
-					it.value.numberValue = null
-					it.value.instantValue = null
+				createItemWithContent(m, itemIndex, "medication", m.content.entries.mapNotNull {
+                    if ((it.value.booleanValue ?: false || it.value.instantValue != null || it.value.numberValue != null) && it.value.stringValue?.length ?: 0 == 0) {
+                        it.value.stringValue = m.label
+                    }
+                    it.value.booleanValue = null
+                    it.value.binaryValue = null
+                    it.value.documentId = null
+                    it.value.measureValue = null
+                    it.value.numberValue = null
+                    it.value.instantValue = null
 
-					makeContent(it.key, it.value)
-				}.filterNotNull(), "MF-ID")?.let {
+                    makeContent(it.key, it.value)
+                }, "MF-ID")?.let {
 					if (it.contents?.size ?: 0 == 0) {
 						return mutItemIndex
 					}
@@ -1023,7 +1032,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return mutItemIndex
 	}
 
-	fun addHealthCareElements(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, config: Config): Int {
+	suspend fun addHealthCareElements(hcPartyId: String, sfks: List<String>, trn: TransactionType, itemIndex: Int, config: Config): Int {
 		var mutItemIndex = itemIndex
 		for (healthElement in getNonConfidentialItems(getHealthElements(hcPartyId, sfks, config))) {
 			mutItemIndex = addHealthCareElement(trn, healthElement, mutItemIndex, config)
@@ -1069,28 +1078,26 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				}
 		)
 
-		var services = contactLogic?.getServices(filters?.resolve(f)?.toList())?.filter { s ->
-			s.endOfLife == null && //Not end of lifed
-					!(((((s.status
-							?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
-							&& (((s.status ?: 0) and 2) != 0)) //And irrelevant
-					&& (s.content.values.any {
-				null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue
-				?: it.medicationValue) || it.stringValue?.length ?: 0 > 0
-			} || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
-		}
+		val services = contactLogic.getServices(filters.resolve(f).toList()).filter { s ->
+            s.endOfLife == null && //Not end of lifed
+                    !(((((s.status
+                            ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
+                            && (((s.status ?: 0) and 2) != 0)) //And irrelevant
+                    && (s.content.values.any {
+                null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue
+                ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0
+            } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
+        }.toList()
 
-		val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedServices = services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
-		if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
-			val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
-			services = services?.map {
+		return if (decryptor != null && toBeDecryptedServices.size ?: 0 > 0) {
+			val decryptedServices = decryptor.decrypt(toBeDecryptedServices.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper.map(it, Service::class.java) }
+			services?.map {
 				if (toBeDecryptedServices?.contains(it)
 								?: false) decryptedServices[toBeDecryptedServices!!.indexOf(it)] else it
 			}
-		}
-
-		return services ?: emptyList()
+		} else services
 	}
 
 	private suspend fun getAllServicesByItemTypes(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
@@ -1103,16 +1110,14 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				}
 		)
 
-		var services = contactLogic?.getServices(filters?.resolve(f)?.toList())
+		val services = contactLogic.getServices(filters.resolve(f).toList()).toList()
 
-		val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
+		val toBeDecryptedServices = services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
-		if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
+		return if (decryptor != null && toBeDecryptedServices.size ?: 0 > 0) {
 			val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
-			services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
-		}
-
-		return services ?: emptyList()
+			services.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
+		} else services
 	}
 
 	private suspend fun getMedications(hcPartyId: String, sfks: List<String>, decryptor: AsyncDecrypt?): List<Service> {
@@ -1135,7 +1140,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return history as HeadingType
 	}
 
-	fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
+	suspend fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
 		val item = createItemWithContent(svc, itemIndex, "vaccine", svc.content.entries.map {
 			it.value.booleanValue = null
 			it.value.binaryValue = null

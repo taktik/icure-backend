@@ -23,15 +23,18 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
-import ma.glasnost.orika.metadata.TypeBuilder
-import org.ektorp.ComplexKey
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
@@ -39,18 +42,18 @@ import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.DocumentNotFoundException
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.utils.paginatedList
 import java.time.Instant
 import java.util.*
 import javax.security.auth.login.LoginException
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/patient")
 @Api(tags = ["patient"])
@@ -74,53 +77,42 @@ class PatientController(
             @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String
     ): PatientPaginatedList {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
+        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java).toList()
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
-        sessionLogic.getCurrentHealthcarePartyId()?.let {
-            val hcp = healthcarePartyLogic.getHealthcareParty(it)
-            return patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                    if (hcp?.parentId != null) hcp.parentId else hcp.id,
+        return sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
+            val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
+            (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
+                patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
+                    hcpId,
                     paginationOffset,
                     filterValue,
                     Sorting(null, sortDirection))
-                    ?.let { buildPaginatedListResponse(it) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
+                    .let { PatientPaginatedList(it.paginatedList<Patient, PatientDto>(mapper, realLimit)) }
+        } ?: PatientPaginatedList() }
     }
 
-    private fun buildPaginatedListResponse(patients: PaginatedList<Patient>): PatientPaginatedList {
-        patients.rows = patients.rows
-        val paginatedPatientDtoList = PatientPaginatedList()
-        mapper.map(
-                patients,
-                paginatedPatientDtoList,
-                object : TypeBuilder<PaginatedList<Patient>>() {}.build(),
-                object : TypeBuilder<PatientPaginatedList>() {}.build())
-        return paginatedPatientDtoList
-    }
-
+    private fun buildPaginatedListResponse(patients: PaginatedList<Patient>): PatientPaginatedList =
+            PatientPaginatedList(patients.pageSize, patients.totalSize, patients.rows.map { mapper.map(it, PatientDto::class.java) }, mapper.map(patients.nextKeyPair, PaginatedDocumentKeyIdPair::class.java))
 
     @ApiOperation(nickname = "listPatientsOfHcParty", value = "List patients of a specific HcParty or of the current HcParty ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/ofHcParty/{hcPartyId}")
-    fun listPatientsOfHcParty(@PathVariable hcPartyId: String,
+    suspend fun listPatientsOfHcParty(@PathVariable hcPartyId: String,
                               @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
                               @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                               @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                               @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) {
+                              @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String): PatientPaginatedList {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
+        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java).toList()
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
-        patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection))
-                ?.let { buildPaginatedListResponse(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
+        return PatientPaginatedList(patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(mapper, realLimit))
     }
 
     @ApiOperation(nickname = "listOfMergesAfter", value = "List patients that have been merged towards another patient ", notes = "Returns a list of patients that have been merged after the provided date")
     @GetMapping("/merges/{date}")
     fun listOfMergesAfter(@PathVariable date: Long) =
-            patientLogic.listOfMergesAfter(date).map { p -> mapper.map(p, PatientDto::class.java) }
+            patientLogic.listOfMergesAfter(date).map { p -> mapper.map(p, PatientDto::class.java) }.injectReactorContext()
 
     @ApiOperation(nickname = "listOfPatientsModifiedAfter", value = "List patients that have been modified after the provided date", notes = "Returns a list of patients that have been modified after the provided date")
     @GetMapping("/modifiedAfter/{date}")
@@ -128,11 +120,11 @@ class PatientController(
                                     @ApiParam(value = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) =
-            patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, limit).also { mapper.map(it, PatientPaginatedList::class.java) }
+            patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, limit).also { mapper.map(it, PatientPaginatedList::class.java) }.injectReactorContext()
 
     @ApiOperation(nickname = "listPatientsByHcParty", value = "List patients for a specific HcParty or for the current HcParty ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/hcParty/{hcPartyId}")
-    fun listPatientsByHcParty(@PathVariable hcPartyId: String,
+    suspend fun listPatientsByHcParty(@PathVariable hcPartyId: String,
                               @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
                               @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
                               @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
@@ -142,42 +134,48 @@ class PatientController(
 
     @ApiOperation(nickname = "getHcPartyKeysForDelegate", value = "Get the HcParty encrypted AES keys indexed by owner", notes = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
     @GetMapping("/{healthcarePartyId}/keys")
-    fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) =
+    suspend fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) =
             patientLogic.getHcPartyKeysForDelegate(healthcarePartyId)
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding fetching keys. Read the app logs.")
 
     @ApiOperation(nickname = "countOfPatients", value = "Get count of patients for a specific HcParty or for the current HcParty ", notes = "Returns the count of patients")
     @GetMapping("/hcParty/{hcPartyId}/count")
-    fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable hcPartyId: String) =
+    suspend fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable hcPartyId: String) =
             ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId))
 
     @ApiOperation(nickname = "listPatients", value = "List patients for a specific HcParty", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping
-    fun listPatients(@ApiParam(value = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
+    suspend fun listPatients(@ApiParam(value = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
                      @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
                      @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
                      @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                      @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
                      @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String): PatientPaginatedList {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java)
+        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java).toList()
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
-        val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentHealthcarePartyId)
-        return patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(if (hcp.parentId != null) hcp.parentId else hcp.id, paginationOffset, null, Sorting(sortField, sortDirection))?.let { buildPaginatedListResponse(it) }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
+        return sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
+            val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
+            (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
+                patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
+                        hcpId,
+                        paginationOffset,
+                        null,
+                        Sorting(sortField, sortDirection))
+                        .let { PatientPaginatedList(it.paginatedList<Patient, PatientDto>(mapper, realLimit)) }
+            } ?: PatientPaginatedList()
+        }
     }
 
     @ApiOperation(nickname = "listPatientsIds", value = "List patients by pages for a specific HcParty", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/idsPages")
-    fun listPatientsIds(@ApiParam(value = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
+    suspend fun listPatientsIds(@ApiParam(value = "Healthcare party id") hcPartyId: String,
                         @ApiParam(value = "The page first id") @RequestParam(required = false) startKey: String?,
                         @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                        @ApiParam(value = "Page size") @RequestParam(required = false) limit: Int?): PaginatedList<String> {
+                        @ApiParam(value = "Page size") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<String> {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let { ComplexKey.of(Gson().fromJson(it, Array<String>::class.java)) }
+        val startKeyElements = Gson().fromJson(startKey, Array<String>::class.java).toList()
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
-        return patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing patients failed.")
+        return patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset).paginatedList<String, String>(mapper, realLimit)
     }
 
     @ApiOperation(nickname = "findByExternalId", value = "Get Paginated List of Patients sorted by Access logs descending")

@@ -17,22 +17,22 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.invoice
 
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import org.springframework.beans.factory.annotation.Autowired
+import kotlinx.coroutines.flow.flatMapConcat
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter
 import org.taktik.icure.entities.Invoice
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.InvoiceLogic
-import java.util.*
-import java.util.stream.Collectors
 
 class InvoiceByHcPartyCodeDateFilter(private val invoiceLogic: InvoiceLogic,
                                      private val healthcarePartyLogic: HealthcarePartyLogic) : Filter<String, Invoice, InvoiceByHcPartyCodeDateFilter> {
 
+    @FlowPreview
     override suspend fun resolve(filter: InvoiceByHcPartyCodeDateFilter, context: Filters): Flow<String> {
         return if (filter.healthcarePartyId != null) invoiceLogic.listInvoiceIdsByTarificationsByCode(filter.healthcarePartyId, filter.code(), filter.startInvoiceDate, filter.endInvoiceDate) as Flow<String>
-        else healthcarePartyLogic.allEntityIds.flatMap { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code(), filter.startInvoiceDate, filter.endInvoiceDate) } as Flow<String>
+        else healthcarePartyLogic.getAllEntityIds().flatMapConcat { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code(), filter.startInvoiceDate, filter.endInvoiceDate) } as Flow<String>
     }
 }

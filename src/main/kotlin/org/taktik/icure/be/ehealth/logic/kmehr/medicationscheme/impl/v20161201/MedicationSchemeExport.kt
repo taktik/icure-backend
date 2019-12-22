@@ -19,7 +19,12 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import ma.glasnost.orika.MapperFacade
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
@@ -40,6 +45,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -60,7 +66,16 @@ import javax.xml.bind.Marshaller
  * @author Bernard Paulus on 29/05/17.
  */
 @org.springframework.stereotype.Service
-class MedicationSchemeExport : KmehrExport() {
+class MedicationSchemeExport(mapper: MapperFacade,
+                             patientLogic: PatientLogic,
+                             codeLogic: CodeLogic,
+                             healthElementLogic: HealthElementLogic,
+                             healthcarePartyLogic: HealthcarePartyLogic,
+                             contactLogic: ContactLogic,
+                             documentLogic: DocumentLogic,
+                             sessionLogic: AsyncSessionLogic,
+                             userLogic: UserLogic,
+                             filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
 	suspend fun exportMedicationScheme(
 			os: OutputStream,
@@ -102,7 +117,7 @@ class MedicationSchemeExport : KmehrExport() {
 	}
 
 
-	private fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
+	private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
                                   config: Config, language: String, medicationServices: List<Service>, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
 
 		//creation of Patient
@@ -120,8 +135,8 @@ class MedicationSchemeExport : KmehrExport() {
 			date = config.date
 			time = config.time
 			author = AuthorType().apply {
-				hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(patient.author?.let { userLogic!!.getUser(it).healthcarePartyId }
-						?: healthcareParty.id)))
+				hcparties.add(healthcarePartyLogic.getHealthcareParty(patient.author?.let { userLogic.getUser(it)?.healthcarePartyId }
+                        ?: healthcareParty.id)?.let { createParty(it) })
 			}
 
             //TODO: is there a way to quit the .map once we've found what we where looking for ? (or use something else ?)
@@ -157,7 +172,7 @@ class MedicationSchemeExport : KmehrExport() {
                 date = config.date
                 time = config.time
                 author = AuthorType().apply {
-                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(patient.author?.let { userLogic!!.getUser(it).healthcarePartyId } ?: healthcareParty.id)))
+                    hcparties.add(healthcarePartyLogic.getHealthcareParty(patient.author?.let { userLogic.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)?.let { createParty(it) })
                 }
                 isIscomplete = true
                 isIsvalidated = true
@@ -250,21 +265,18 @@ class MedicationSchemeExport : KmehrExport() {
                 })
             })
 
-        var services = contactLogic?.getServices(filters?.resolve(f)?.toList())?.filter { s ->
+        var services = filters?.resolve(f)?.toList()?.let { contactLogic?.getServices(it) }?.filter { s ->
             s.endOfLife == null && //Not end of lifed
                 !((((s.status ?: 0) and 1) != 0) || s.tags?.any { it.type == "CD-LIFECYCLE" && it.code == "inactive" } ?: false) //Inactive
                 && (s.content.values.any { null != (it.binaryValue ?: it.booleanValue ?: it.documentId ?: it.instantValue ?: it.measureValue ?: it.medicationValue) || it.stringValue?.length ?: 0 > 0 } || s.encryptedContent?.length ?: 0 > 0 || s.encryptedSelf?.length ?: 0 > 0) //And content
-        }
+        }?.toList() ?: listOf()
 
-        val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
+        val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }?.toList()
 
-        if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
+        return if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
             val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
-            services = services?.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
-            services = services?.filter(Objects::nonNull)
-        }
-
-        return services ?: emptyList()
+            services.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
+        } else services
     }
 
 

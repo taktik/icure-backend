@@ -34,17 +34,17 @@ import java.io.OutputStream
  * @author Bernard Paulus on 24/05/17.
  */
 interface SoftwareMedicalFileLogic {
-	fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
-    fun importSmfFile(inputStream: InputStream,
-                      author: User,
-                      language: String,
-                      dest: Patient? = null,
-                      mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
+	suspend fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
+    suspend fun importSmfFile(inputStream: InputStream,
+                              author: User,
+                              language: String,
+                              dest: Patient? = null,
+                              mappings: Map<String, List<ImportMapping>> = HashMap()): List<ImportResult>
 
-    fun checkIfSMFPatientsExists(inputStream: InputStream,
-                                          author: User,
-                                          language: String,
-                                          dest: Patient?,
-                                          mappings: Map<String, List<ImportMapping>>
+    suspend fun checkIfSMFPatientsExists(inputStream: InputStream,
+                                         author: User,
+                                         language: String,
+                                         dest: Patient?,
+                                         mappings: Map<String, List<ImportMapping>>
     ) : List<CheckSMFPatientResult>
 }

@@ -19,7 +19,7 @@ interface AccessLogLogic : EntityPersister<AccessLog, String> {
 
     fun listAccessLogs(paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
 
-    fun findByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun findByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<String>>, descending: Boolean): Flow<ViewQueryResultEvent>
 
     suspend fun modifyAccessLog(accessLog: AccessLog): AccessLog?
     fun getGenericDAO(): AccessLogDAO

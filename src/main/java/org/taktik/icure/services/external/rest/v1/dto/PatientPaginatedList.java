@@ -31,6 +31,10 @@ public class PatientPaginatedList extends PaginatedList<PatientDto> {
         this.setNextKeyPair(plist.getNextKeyPair());
     }
 
+    public PatientPaginatedList(int pageSize, int totalSize, List<PatientDto> rows, PaginatedDocumentKeyIdPair nextKeyPair) {
+        super(pageSize, totalSize, rows, nextKeyPair);
+    }
+
     @Override
     public List<PatientDto> getRows() {
         return super.getRows();

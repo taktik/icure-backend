@@ -59,7 +59,7 @@ interface CodeLogic : EntityPersister<Code, String> {
 
     suspend fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code?
 
-    suspend fun isValid(code: Code, ofType: String?): Boolean
+    suspend fun isValid(code: Code, ofType: String? = null): Boolean
 
-    suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String>): Code?
+    suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String> = listOf("fr", "nl")): Code?
 }

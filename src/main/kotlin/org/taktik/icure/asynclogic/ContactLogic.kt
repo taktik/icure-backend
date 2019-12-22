@@ -29,8 +29,8 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun getServices(selectedServiceIds: Collection<String>): Flow<Service>
 
     fun pimpServiceWithContactInformation(s: Service, c: Contact): Service
-    fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
-    fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
+    fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
+    fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listContactIds(hcPartyId: String): Flow<String>
     fun findByServices(services: Collection<String>): Flow<String>
     fun findServicesBySecretForeignKeys(hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
@@ -43,5 +43,5 @@ interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<org.taktik.icure.entities.embed.Service>
 
     suspend fun solveConflicts()
-    fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+    fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
 }

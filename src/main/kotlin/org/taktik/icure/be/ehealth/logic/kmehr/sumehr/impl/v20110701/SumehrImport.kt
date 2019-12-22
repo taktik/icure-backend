@@ -1,7 +1,8 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
 
-import org.springframework.beans.factory.annotation.Qualifier
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
@@ -32,7 +33,10 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.db.StringUtils
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.firstOrNull
 import java.io.InputStream
 import java.io.Serializable
 import java.util.LinkedList
@@ -46,7 +50,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                                 val documentLogic: DocumentLogic,
                                 val idGenerator: UUIDGenerator) {
 
-    fun importSumehr(inputStream: InputStream,
+    suspend fun importSumehr(inputStream: InputStream,
                      author: User,
                      language: String,
                      mappings: Map<String, List<ImportMapping>>,
@@ -80,7 +84,7 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    fun importSumehrByItemId(inputStream: InputStream,
+    suspend fun importSumehrByItemId(inputStream: InputStream,
                              itemId: String,
                              author: User,
                              language: String,
@@ -104,8 +108,8 @@ class SumehrImport(val patientLogic: PatientLogic,
                 res.patient = patient
                 folder.transactions.forEach { trn ->
                     val ctc: Contact = when (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) {
-                        "sumehr" -> parseSumehr(trn, author, res, language, mappings, saveToDatabase)
-                        else -> parseGenericTransaction(trn, author, res, language, mappings, saveToDatabase)
+                        "sumehr" -> parseSumehr(trn, author, res, language, mappings, saveToDatabase, itemId)
+                        else -> parseGenericTransaction(trn, author, res, language, mappings, saveToDatabase, itemId)
                     }
                     contactLogic.createContact(ctc)
                     res.ctcs.add(ctc)
@@ -115,23 +119,23 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    private fun parseSumehr(trn: TransactionType,
+    private suspend fun parseSumehr(trn: TransactionType,
                                    author: User,
                                    v: ImportResult,
                                    language: String,
                                    mappings: Map<String, List<ImportMapping>>,
-                            saveToDatabase: Boolean): Contact {
-        return parseGenericTransaction(trn, author, v, language, mappings, saveToDatabase).apply {
+                            saveToDatabase: Boolean, itemId: String? = null): Contact {
+        return parseGenericTransaction(trn, author, v, language, mappings, saveToDatabase, itemId).apply {
 
         }
     }
 
-    private fun parseGenericTransaction(trn: TransactionType,
+    private suspend fun parseGenericTransaction(trn: TransactionType,
                                         author: User,
                                         v: ImportResult,
                                         language: String,
                                         mappings: Map<String, List<ImportMapping>>,
-                                        saveToDatabase: Boolean): Contact {
+                                        saveToDatabase: Boolean, itemId: String? = null): Contact {
         return Contact().apply {
             val contact = this
             this.id = idGenerator.newGUID().toString()
@@ -159,7 +163,21 @@ class SumehrImport(val patientLogic: PatientLogic,
                     } ?: listOf())
                 }
 
-            trn.findItems().forEach { item ->
+            var items = trn.findItems()
+            if(itemId?.isNotBlank() == true && itemId.isNotEmpty()){
+                //itemId = "[headingId].[itemId]" OR "[itemId]"
+                val idList = itemId.split("/")
+                if(idList.count() > 1){
+                    //headings and items
+                    items = trn.findItemsByHeadingId(null, idList[0])
+                    items = items.filter{ it.ids.filter{it.s == IDKMEHRschemes.ID_KMEHR && it.value == idList[1]}.count() > 0}
+                } else {
+                    //only items
+                    items = items.filter{ it.ids.filter{it.s == IDKMEHRschemes.ID_KMEHR && it.value == idList[0]}.count() > 0}
+                }
+            }
+
+            items.forEach { item ->
                 val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
                 val mapping =
                     mappings[cdItem]?.find { (it.lifecycle == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) && ((it.content == "*") || item.hasContentOfType(it.content)) }
@@ -182,7 +200,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                 when (cdItem) {
                     "healthcareelement" -> {
                         val he = parseHealthcareElement(mapping?.cdItem ?: cdItem, label, item, author, language, v, contact.id)
-                        he?.let { v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(it) else it) }
+                        he?.let { v.hes.add(if (saveToDatabase) healthElementLogic.createHealthElement(it) ?: throw(IllegalStateException("Cannot save to database")) else it) }
                     }
                 //"careplansubscription" -> parseCarePlanSubscription(cdItem, label, item, author, language, v)
                 //"healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, language, v)
@@ -346,14 +364,14 @@ class SumehrImport(val patientLogic: PatientLogic,
             content == "s" && this.contents.any { it.texts?.size ?: 0 > 0 || it.cds?.size ?: 0 > 0 || it.hcparty != null }
     }
 
-    protected fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean): HealthcareParty? {
-        val nihii = validNihiiOrNull(p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value)
-        val niss = validSsinOrNull(p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value)
+    protected suspend fun createOrProcessHcp(p: HcpartyType, saveToDatabase: Boolean): HealthcareParty? {
+        val nihii = p.ids.find { it.s == IDHCPARTYschemes.ID_HCPARTY }?.value
+        val niss = p.ids.find { it.s == IDHCPARTYschemes.INSS }?.value
 
         return (nihii?.let { healthcarePartyLogic.listByNihii(it).firstOrNull() }
             ?: niss?.let  { healthcarePartyLogic.listBySsin(niss).firstOrNull() }
             ?: try { HealthcareParty().apply {
-                this.nihii = nihii; this.ssin = niss;
+                this.nihii = nihii; this.ssin = niss
                 copyFromHcpToHcp(p, this)
             }.let { if (saveToDatabase) healthcarePartyLogic.createHealthcareParty(it) else it }} catch (e : MissingRequirementsException) { null })
     }
@@ -397,12 +415,11 @@ class SumehrImport(val patientLogic: PatientLogic,
         }
     }
 
-    protected fun createOrProcessPatient(p: PersonType,
+    protected suspend fun getExistingPatient(p: PersonType,
                                          author: User,
                                          v: ImportResult,
-                                         saveToDatabase: Boolean,
                                          dest: Patient? = null): Patient? {
-        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value)
+        val niss = validSsinOrNull(p.ids.find { it.s == IDPATIENTschemes.ID_PATIENT }?.value) // searching empty niss return all patients
         v.notNull(niss, "Niss shouldn't be null for patient $p")
 
         val dbPatient: Patient? =
@@ -410,23 +427,33 @@ class SumehrImport(val patientLogic: PatientLogic,
                 patientLogic.listByHcPartyAndSsinIdsOnly(niss, author.healthcarePartyId).firstOrNull()
                     ?.let { patientLogic.getPatient(it) }
             }
-            ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date), author.healthcarePartyId).let {
-                if (it.size > 0) patientLogic.getPatients(it).find {
-                    p.firstnames.any { fn -> org.taktik.icure.db.StringUtils.equals(it.firstName, fn) && org.taktik.icure.db.StringUtils.equals(it.lastName, p.familyname) }
-                } else null
+                ?: patientLogic.listByHcPartyDateOfBirthIdsOnly(Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) ?: throw IllegalStateException("Person's date of birth is invalid"), author.healthcarePartyId).toList().let {
+                    if (it.isNotEmpty()) patientLogic.getPatients(it).filter {
+                        p.firstnames.any { fn -> StringUtils.equals(it.firstName, fn) && StringUtils.equals(it.lastName, p.familyname) }
+                    }.firstOrNull() else null
             }
-            ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).let {
-                if (it.size > 0) patientLogic.getPatients(it).find {
-                    it.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
+                ?: patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(org.taktik.icure.db.StringUtils.sanitizeString(p.familyname + p.firstnames.first()), author.healthcarePartyId).toList().let {
+                    if (it.isNotEmpty()) patientLogic.getPatients(it).filter { patient ->
+                        patient.dateOfBirth?.let { it == Utils.makeFuzzyIntFromXMLGregorianCalendar(p.birthdate.date) }
                         ?: false
-                } else null
+                    }.firstOrNull() else null
+                }
+
+        return dbPatient
             }
 
-        return if (dbPatient == null) Patient().apply {
+    protected suspend fun createOrProcessPatient(p: PersonType,
+                                                 author: User,
+                                                 v: ImportResult,
+                                                 saveToDatabase: Boolean,
+                                                 dest: Patient? = null): Patient? {
+
+        return getExistingPatient(p, author, v, dest)
+                ?: Patient().apply {
             this.delegations = mapOf(author.healthcarePartyId to setOf())
 
             copyFromPersonToPatient(p, this, true)
-        }.let { if (saveToDatabase) patientLogic.createPatient(it) else it } else dbPatient
+                }.let { if (saveToDatabase) patientLogic.createPatient(it) else it }
     }
 
     protected fun copyFromPersonToPatient(p: PersonType, patient: Patient, force: Boolean) {
@@ -498,6 +525,12 @@ private fun selector(headingsAndItemsAndTexts: MutableList<Serializable>,
 
 private fun TransactionType.findItem(predicate: ((ItemType) -> Boolean)? = null): ItemType? {
     return selector(this.headingsAndItemsAndTexts, predicate).firstOrNull()
+}
+
+private fun TransactionType.findItemsByHeadingId(predicate: ((ItemType) -> Boolean)? = null, headingId: String): List<ItemType> {
+    val hits = this.headingsAndItemsAndTexts.filter{it -> it is HeadingType && it.ids.filter{id -> id.value == headingId}.count() > 0}
+
+    return selector(hits.toMutableList(), predicate)
 }
 
 private fun TransactionType.findItems(predicate: ((ItemType) -> Boolean)? = null): List<ItemType> {

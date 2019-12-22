@@ -19,6 +19,7 @@
 
 package org.taktik.icure
 
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.ApplicationRunner
@@ -84,14 +85,14 @@ class ICureBackendApplication {
         taskExecutor.execute {
             listOf(AddressType::class.java, DocumentType::class.java, DocumentStatus::class.java,
                    Gender::class.java, InsuranceStatus::class.java, PartnershipStatus::class.java, PartnershipType::class.java, PaymentType::class.java,
-                   PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach({ codeLogic.importCodesFromEnum(it) })
+                   PersonalStatus::class.java, TelecomType::class.java, Confidentiality::class.java, Visibility::class.java).forEach { runBlocking { codeLogic.importCodesFromEnum(it) } }
         }
 
         taskExecutor.execute {
             val resolver = PathMatchingResourcePatternResolver(javaClass.classLoader)
             resolver.getResources("classpath*:/org/taktik/icure/db/codes/**.xml").forEach {
                 val md5 = it.filename!!.replace(Regex(".+\\.([0-9a-f]{20}[0-9a-f]+)\\.xml"), "$1")
-                codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream)
+                runBlocking { codeLogic.importCodesFromXml(md5, it.filename!!.replace(Regex("(.+)\\.[0-9a-f]{20}[0-9a-f]+\\.xml"), "$1"), it.inputStream) }
             }
         }
 

@@ -1,7 +1,6 @@
 package org.taktik.icure.be.format.logic.impl;
 
 
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Matchers
@@ -18,7 +17,7 @@ import java.nio.charset.UnsupportedCharsetException
 
 class KmehrReportLogicImplTest {
     //The method tested needs a HealthOneLogicImpl Class to run
-    val kmehrReportLogic = KmehrReportLogicImpl();
+    val kmehrReportLogic = KmehrReportLogicImpl(null, null);
 
     val contactLogic = mock(ContactLogic::class.java)
     val documentLogic = mock(DocumentLogic::class.java)

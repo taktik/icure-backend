@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.v20170901
 
+import kotlinx.coroutines.flow.collect
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,18 +56,18 @@ import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 import kotlin.collections.ArrayList
 
-open class KmehrExport {
-    @Autowired var patientLogic: PatientLogic? = null
-    @Autowired var codeLogic: CodeLogic? = null
-    @Autowired var healthElementLogic: HealthElementLogic? = null
-    @Autowired var healthcarePartyLogic: HealthcarePartyLogic? = null
-    @Autowired var contactLogic: ContactLogic? = null
-    @Autowired var documentLogic: DocumentLogic? = null
-    @Autowired var sessionLogic: SessionLogic? = null
-    @Autowired var userLogic: UserLogic?= null
-    @Autowired var filters: Filters? = null
-    @Autowired var mapper: MapperFacade? = null
-
+open class KmehrExport(
+        val mapper: MapperFacade,
+        val patientLogic: PatientLogic,
+        val codeLogic: CodeLogic,
+        val healthElementLogic: HealthElementLogic,
+        val healthcarePartyLogic: HealthcarePartyLogic,
+        val contactLogic: ContactLogic,
+        val documentLogic: DocumentLogic,
+        val sessionLogic: AsyncSessionLogic,
+        val userLogic: UserLogic,
+        val filters: Filters
+) {
     val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20170901"
@@ -78,7 +79,7 @@ open class KmehrExport {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
     }
 
-    fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
+    suspend fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
         return HcpartyType().apply {
             if(!m.nihii.isNullOrBlank()) {
                 m.nihii?.let { nihii -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii }) }
@@ -117,7 +118,7 @@ open class KmehrExport {
                 ((89 - nihii.substring(0, 6).toLong()) % 89 == nihii.substring(6, 8).toLong())
             )
 
-    fun makePatient(p : Patient, config: Config): PersonType {
+    suspend fun makePatient(p : Patient, config: Config): PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
         return makePerson(p, config).apply {
             ids.clear()
@@ -126,7 +127,7 @@ open class KmehrExport {
         }
     }
 
-    fun makePerson(p : Patient, config: Config) : PersonType {
+    suspend fun makePerson(p : Patient, config: Config) : PersonType {
         return makePersonBase(p, config).apply {
             p.dateOfDeath?.let { deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
@@ -172,9 +173,9 @@ open class KmehrExport {
                 }
             } }
             if(cdItem == "medication") {
-                svc.tags.find { it.type == "CD-TEMPORALITY" }?.let {
+                svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
@@ -270,7 +271,7 @@ open class KmehrExport {
 
             this.contents.addAll(filterEmptyContent(contents))
             lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (ServiceStatus.isIrrelevant(he.status) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
+                value = if (ServiceStatus.isIrrelevant(he.status) || (!ServiceStatus.isActive(he.status)) || (he.closingDate ?: 0 > FuzzyValues.getCurrentFuzzyDate()))
                     CDLIFECYCLEvalues.INACTIVE
                 else
                     he.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) } ?: CDLIFECYCLEvalues.ACTIVE
@@ -310,7 +311,7 @@ open class KmehrExport {
         return lst
     }
 
-    fun makeAddresses(addresses: Collection<Address>?): List<AddressType> {
+    suspend fun makeAddresses(addresses: Collection<Address>?): List<AddressType> {
         return addresses?.filter { it.addressType != null && it.postalCode != null && it.street != null }?.mapTo(ArrayList<AddressType>()) { a ->
             AddressType().apply {
                 cds.add(CDADDRESS().apply { s(CDADDRESSschemes.CD_ADDRESS); value = a.addressType!!.name })
@@ -343,7 +344,7 @@ open class KmehrExport {
         }
     }
 
-    fun makeContent(language: String, content: Content): ContentType? {
+    suspend fun makeContent(language: String, content: Content): ContentType? {
         return (content.booleanValue ?: content.numberValue ?: content.stringValue ?: content.instantValue
         ?: content.measureValue ?: content.medicationValue ?: content.binaryValue ?: content.documentId).let {
             ContentType().apply {
@@ -396,7 +397,7 @@ open class KmehrExport {
                 }
                 content.documentId?.let {
                     try {
-                        documentLogic?.get(it)?.let { d -> d.attachment?.let { lnks.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+                        documentLogic.get(it)?.let { d -> d.attachment?.let { lnks.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
                     } catch (e: Exception) {
                         log.warn("Document with id ${it} could not be loaded", e)
                     }
@@ -519,7 +520,7 @@ open class KmehrExport {
         }
     }
 
-    fun createFolder(sender: HealthcareParty, patient: Patient, cdTransaction: String, transactionType: CDTRANSACTIONschemes, dem: PlanOfAction, ssc: Form, text: String?, attachmentDocumentIds: List<String>, config: Config): FolderType {
+    suspend fun createFolder(sender: HealthcareParty, patient: Patient, cdTransaction: String, transactionType: CDTRANSACTIONschemes, dem: PlanOfAction, ssc: Form, text: String?, attachmentDocumentIds: List<String>, config: Config): FolderType {
         return FolderType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
             this.patient = makePerson(patient, config)
@@ -534,7 +535,7 @@ open class KmehrExport {
 
                 if (text?.length ?: 0 >0) headingsAndItemsAndTexts.add(TextType().apply { l = "fr"; value = text })
                 attachmentDocumentIds.forEach { id ->
-                    val d = documentLogic?.get(id)
+                    val d = documentLogic.get(id)
                     d?.attachment.let {
                         headingsAndItemsAndTexts.add(LnkType().apply {
                             type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d!!); value = d.attachment
@@ -545,7 +546,7 @@ open class KmehrExport {
         }
     }
 
-    fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
+    suspend fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD }
@@ -573,30 +574,34 @@ open class KmehrExport {
         }
     }
 
-    fun mapToCountryCode(country: String?): String? {
+    private suspend fun mapToCountryCode(country: String?): String? {
         if (country == null) {return null }
-        if (codeLogic!!.isValid(Code("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
-            return country.toLowerCase()
+        return if (codeLogic.isValid(Code("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
+            country.toLowerCase()
         } else {
             try {
-                return codeLogic!!.getCodeByLabel(country, "CD-FED-COUNTRY").code
+                codeLogic.getCodeByLabel("be", country, "CD-FED-COUNTRY")?.code
             } catch (e:IllegalArgumentException) {
-                return null
+                null
             }
         }
     }
 
-    fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
-        if (recipient is HealthcareParty) {
+    suspend fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+        when (recipient) {
+            is HealthcareParty -> {
             exportContactReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
-        } else if (recipient == null) {
+            }
+            null -> {
             exportContactReport(patient, sender, null, dem, ssc, text, attachmentDocIds, config, stream)
-        }  else {
+            }
+            else -> {
             throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
         }
     }
+    }
 
-    fun exportContactReport(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportContactReport(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -611,7 +616,7 @@ open class KmehrExport {
         jaxbMarshaller.marshal(message, stream)
     }
 
-    fun exportReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
             exportReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
@@ -621,7 +626,7 @@ open class KmehrExport {
         }
     }
 
-    fun exportReport(patient : Patient, sender : HealthcareParty, recipient : HealthcareParty?, dem : PlanOfAction, ssc : Form, text : String, attachmentDocIds : List<String>, config: Config, stream : OutputStream) {
+    suspend fun exportReport(patient : Patient, sender : HealthcareParty, recipient : HealthcareParty?, dem : PlanOfAction, ssc : Form, text : String, attachmentDocIds : List<String>, config: Config, stream : OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -637,7 +642,7 @@ open class KmehrExport {
 
     }
 
-    fun exportNoteDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportNoteDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
             exportNote(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
@@ -647,7 +652,7 @@ open class KmehrExport {
         }
     }
 
-    fun exportNote(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportNote(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -663,7 +668,7 @@ open class KmehrExport {
 
     }
 
-    fun exportPrescriptionDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportPrescriptionDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
             exportPrescription(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
@@ -673,7 +678,7 @@ open class KmehrExport {
         }
     }
 
-    fun exportPrescription(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportPrescription(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -759,11 +764,10 @@ open class KmehrExport {
         }
     }
 
-    fun getCode(key:String) : Code? {
-        synchronized(unitCodes) {
+	suspend fun getCode(key:String) : Code? {
             if (unitCodes.size==0) {
-                codeLogic!!.findCodesBy("CD-UNIT", null, null).forEach { unitCodes[it.id] = it }
-            }}
+			codeLogic.findCodesBy("CD-UNIT", null, null).collect { unitCodes[it.id] = it }
+		}
         return unitCodes[key]
     }
 
