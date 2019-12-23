@@ -48,22 +48,39 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
     suspend fun getInfos(@PathVariable id: String,
                  @RequestParam(required = false) full: Boolean?,
                  @RequestParam language: String,
-                 @RequestParam enckeys: String): List<ResultInfoDto> {
-        return multiFormatLogic.getInfos(documentLogic.get(id), full
-                ?: false, language, if (isBlank(enckeys)) null else enckeys.split(',')).map { mapper.map(it, ResultInfoDto::class.java) }
+                 @RequestParam enckeys: String): List<ResultInfoDto>? {
+        val doc = documentLogic.get(id)
+        return doc?.let {
+            multiFormatLogic.getInfos(
+                    it,
+                    full ?: false,
+                    language,
+                    if (isBlank(enckeys)) null else enckeys.split(',')
+            )?.map { mapper.map(it, ResultInfoDto::class.java) }
+        }
     }
 
     @ApiOperation(nickname = "doImport", value = "import document")
     @GetMapping("/import/{documentId}/{hcpId}/{language}")
-    fun doImport(@PathVariable documentId: String,
+    suspend fun doImport(@PathVariable documentId: String,
                  @PathVariable hcpId: String,
                  @PathVariable language: String,
                  @RequestParam protocolIds: String,
                  @RequestParam formIds: String,
                  @RequestParam planOfActionId: String,
-                 @RequestParam enckeys: String, ctc: ContactDto): ContactDto {
-        return mapper.map(multiFormatLogic.doImport(language, documentLogic.get(documentId), hcpId, protocolIds.split(','),
-                formIds.split(','), planOfActionId, mapper.map(ctc, Contact::class.java),
-                if (isBlank(enckeys)) null else enckeys.split(',')), ContactDto::class.java)
+                 @RequestParam enckeys: String, ctc: ContactDto): ContactDto? {
+        val doc = documentLogic.get(documentId)
+        return mapper.map(doc?.let {
+            multiFormatLogic.doImport(
+                    language,
+                    it,
+                    hcpId,
+                    protocolIds.split(','),
+                    formIds.split(','),
+                    planOfActionId,
+                    mapper.map(ctc, Contact::class.java),
+                    if (isBlank(enckeys)) null else enckeys.split(',')
+            )
+        }, ContactDto::class.java)
     }
 }

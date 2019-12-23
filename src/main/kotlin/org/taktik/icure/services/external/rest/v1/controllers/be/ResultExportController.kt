@@ -41,7 +41,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
 
     @ApiOperation(nickname = "exportMedidoc", value = "Export data")
     @PostMapping("/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun exportMedidoc(@PathVariable fromHcpId: String,
+    suspend fun exportMedidoc(@PathVariable fromHcpId: String,
                       @PathVariable toHcpId: String,
                       @PathVariable patId: String,
                       @PathVariable date: Long,
@@ -53,7 +53,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
 
     @ApiOperation(nickname = "exportHealthOne", value = "Export data")
     @PostMapping("/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun exportHealthOne(@PathVariable fromHcpId: String,
+    suspend fun exportHealthOne(@PathVariable fromHcpId: String,
                         @PathVariable toHcpId: String,
                         @PathVariable patId: String,
                         @PathVariable date: Long,
@@ -65,7 +65,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
 
     @ApiOperation(nickname = "exportKmehrReport", value = "Export data")
     @PostMapping("/kmehrreport/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun exportKmehrReport(@PathVariable fromHcpId: String,
+    suspend fun exportKmehrReport(@PathVariable fromHcpId: String,
                           @PathVariable toHcpId: String,
                           @PathVariable patId: String,
                           @PathVariable date: Long,

@@ -29,15 +29,22 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.flow.toList
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.asynclogic.*
+import org.taktik.icure.be.ehealth.logic.kmehr.byteBufferArrayToInputStream
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.utils.firstOrNull
+import java.io.ByteArrayInputStream
+import java.io.SequenceInputStream
+import java.nio.ByteBuffer
 import javax.xml.bind.JAXBElement
 
 @org.springframework.stereotype.Service
@@ -51,13 +58,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val insuranceLogic: InsuranceLogic,
                                 val idGenerator: UUIDGenerator) {
 
-    suspend fun importSMF(inputStream: InputStream,
+    suspend fun importSMF(inputData : Flow<ByteBuffer>,
                   author: User,
                   language: String,
                   mappings: Map<String, List<ImportMapping>>,
                   dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
-
+        val inputStream = byteBufferArrayToInputStream(inputData)
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
@@ -241,13 +248,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    suspend fun checkIfSMFPatientsExists(inputStream: InputStream,
-                  author: User,
-                  language: String,
-                  mappings: Map<String, List<ImportMapping>>,
-                  dest: Patient? = null): List<CheckSMFPatientResult> {
+    suspend fun checkIfSMFPatientsExists(inputData : Flow<ByteBuffer>,
+                                         author: User,
+                                         language: String,
+                                         mappings: Map<String, List<ImportMapping>>,
+                                         dest: Patient? = null): List<CheckSMFPatientResult> {
 
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
+
+        val inputStream = byteBufferArrayToInputStream(inputData)
 
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage

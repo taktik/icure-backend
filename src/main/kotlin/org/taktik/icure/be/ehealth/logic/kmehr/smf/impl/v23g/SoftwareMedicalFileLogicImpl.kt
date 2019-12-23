@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
+import kotlinx.coroutines.flow.Flow
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -31,6 +32,7 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.ByteBuffer
 
 /**
  * @author Bernard Paulus on 24/05/17.
@@ -39,22 +41,22 @@ import java.io.OutputStream
 class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
                                    val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
 
-    override suspend fun importSmfFile(inputStream: InputStream,
+    override suspend fun importSmfFile(inputData : Flow<ByteBuffer>,
                                        author: User,
                                        language: String,
                                        dest: Patient?,
                                        mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> {
-        return softwareMedicalFileImport.importSMF(inputStream, author, language, mappings, dest)
+        return softwareMedicalFileImport.importSMF(inputData, author, language, mappings, dest)
     }
 
-    override suspend fun checkIfSMFPatientsExists(inputStream: InputStream,
+    override suspend fun checkIfSMFPatientsExists(inputData : Flow<ByteBuffer>,
                                                   author: User,
                                                   language: String,
                                                   dest: Patient?,
                                                   mappings: Map<String, List<ImportMapping>>
     ) : List<CheckSMFPatientResult> {
-        return softwareMedicalFileImport.checkIfSMFPatientsExists(inputStream, author, language, mappings, dest)
+        return softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
     }
 
     override suspend fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {

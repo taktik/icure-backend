@@ -67,14 +67,14 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         return kmehrMessage
     }
 
-    suspend fun importMedicationSchemeFile(inputStream: InputStream,
+    suspend fun importMedicationSchemeFile(inputData : Flow<ByteBuffer>,
                                    author: User,
                                    language: String,
                                    mappings: Map<String, List<ImportMapping>>,
                                    saveToDatabase: Boolean,
                                    dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
-
+        val inputStream = byteBufferArrayToInputStream(inputData)
         val unmarshaller = jc.createUnmarshaller()
 
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage

@@ -13,7 +13,7 @@ import java.io.OutputStream
 
 interface MedicationSchemeLogic {
 
-    suspend fun importMedicationSchemeFile(inputStream: InputStream, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult>
+    suspend fun importMedicationSchemeFile(inputData : Flow<ByteBuffer>, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult>
     suspend fun createMedicationSchemeExport(
             os: OutputStream,
             patient: Patient,

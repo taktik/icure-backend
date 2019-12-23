@@ -374,14 +374,18 @@ class KmehrController(
                   @RequestParam(required = false) documentKey: String?,
                   @RequestParam(required = false) patientId: String?,
                   @RequestParam(required = false) language: String?,
-                  @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+                  @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
-        return softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, document.attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
-                ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
-                patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap()).map { mapper.map(it, ImportResultDto::class.java) }
+        val attachmentId = document?.attachmentId
+
+        return attachmentId?.let {
+            softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
+                    ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
+                    patientId?.let { patientLogic.getPatient(patientId) },
+                    mappings ?: HashMap())
+        }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
     @ApiOperation(nickname = "checkIfSMFPatientsExists", value = "Check whether patients in SMF already exists in DB")
@@ -390,15 +394,21 @@ class KmehrController(
                                  @RequestParam(required = false) documentKey: String?,
                                  @RequestParam(required = false) patientId: String?,
                                  @RequestParam(required = false) language: String?,
-                                 @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<CheckSMFPatientResult> {
+                                 @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<CheckSMFPatientResult>? {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
-        return softwareMedicalFileLogic.checkIfSMFPatientsExists(documentLogic.readAttachment(documentId, document.attachmentId), sessionLogic.getCurrentSessionContext()
-                .getUser(), language
-                ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
-                patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap()).map { mapper.map(it, CheckSMFPatientResult::class.java) }
+        val attachmentId = document?.attachmentId
+
+        return attachmentId?.let {
+            softwareMedicalFileLogic.checkIfSMFPatientsExists(
+                    documentLogic.readAttachment(documentId, attachmentId),
+                    sessionLogic.getCurrentSessionContext().getUser(),
+                    language ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
+                    patientId?.let { patientLogic.getPatient(patientId) },
+                    mappings ?: HashMap()
+            )
+        }?.map { mapper.map(it, CheckSMFPatientResult::class.java) }
     }
 
     @ApiOperation(nickname = "importSumehr", value = "Import sumehr into patient(s) using existing document")
@@ -409,15 +419,22 @@ class KmehrController(
                      @RequestParam(required = false) dryRun: Boolean?,
                      @RequestParam(required = false) patientId: String?,
                      @RequestParam(required = false) language: String?,
-                     @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+                     @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
-        return sumehrLogicV1.importSumehr(documentLogic.readAttachment(documentId, document.attachmentId), sessionLogic.getCurrentSessionContext()
-                .getUser(), language
-                ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
-                patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap(), dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
+        val attachmentId = document?.attachmentId
+
+        return attachmentId?.let {
+            sumehrLogicV1.importSumehr(
+                    documentLogic.readAttachment(documentId, attachmentId),
+                    sessionLogic.getCurrentSessionContext().getUser(),
+                    language ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
+                    patientId?.let { patientLogic.getPatient(patientId) },
+                    mappings ?: HashMap(),
+                    dryRun != true
+            )
+        }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
     @ApiOperation(nickname = "importSumehrByItemId", value = "Import sumehr into patient(s) using existing document")
@@ -429,15 +446,22 @@ class KmehrController(
                              @RequestParam itemId: String,
                              @RequestParam(required = false) patientId: String?,
                              @RequestParam(required = false) language: String?,
-                             @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+                             @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
-        return sumehrLogicV2.importSumehrByItemId(documentLogic.readAttachment(documentId, document.attachmentId), itemId, sessionLogic.getCurrentSessionContext()
-                .getUser(), language
-                ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
-                patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap(), dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
+        val attachmentId = document?.attachmentId
+        return attachmentId?.let {
+            sumehrLogicV2.importSumehrByItemId(
+                    documentLogic.readAttachment(documentId, attachmentId),
+                    itemId,
+                    sessionLogic.getCurrentSessionContext().getUser(),
+                    language ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
+                    patientId?.let { patientLogic.getPatient(patientId) },
+                    mappings ?: HashMap(),
+                    dryRun != true
+            )
+        }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
     @ApiOperation(nickname = "importMedicationScheme", value = "Import MedicationScheme into patient(s) using existing document")
@@ -448,20 +472,23 @@ class KmehrController(
                                        @RequestParam(required = false) dryRun: Boolean?,
                                        @RequestParam(required = false) patientId: String?,
                                        @RequestParam(required = false) language: String?,
-                                       @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto> {
+                                       @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
 
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
-        val ll = documentLogic.readAttachment(documentId, document.attachmentId).toList()
-        ll[0].array()
-
-        val v = ByteBufferBackedInputStream(documentLogic.readAttachment(documentId, document.attachmentId).reduce())
-        return medicationSchemeLogic.importMedicationSchemeFile(documentLogic.readAttachment(documentId, document.attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
-                ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
-                patientId?.let { patientLogic.getPatient(patientId) },
-                mappings ?: HashMap(),
-                dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
+        val attachmentId = document?.attachmentId
+        return attachmentId?.let {
+            medicationSchemeLogic.importMedicationSchemeFile(
+                    documentLogic.readAttachment(documentId, attachmentId),
+                    sessionLogic.getCurrentSessionContext().getUser(),
+                    language
+                            ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
+                    patientId?.let { patientLogic.getPatient(patientId) },
+                    mappings ?: HashMap(),
+                    dryRun != true
+            )
+        }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
 }
