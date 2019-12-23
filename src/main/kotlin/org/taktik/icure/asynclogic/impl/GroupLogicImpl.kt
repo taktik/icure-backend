@@ -55,13 +55,13 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
             val connector = couchdbInstance.createConnector(c, true)
             connector.create("_security", security)
         }
-        val result = groupDAO.save(dbInstanceUri, groupId, group)
+        val result = groupDAO.save(group)
         return if (result?.rev != null) result else null
     }
 
     override suspend fun findGroup(groupId: String): Group? {
         val (dbInstanceUri, dbGroupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return groupDAO.get(dbInstanceUri, dbGroupId, groupId) // TODO SH AD: groupId, is that the same?
+        return groupDAO.get(groupId)
     }
 
     companion object {

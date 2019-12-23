@@ -4,6 +4,7 @@ import com.hazelcast.core.HazelcastInstance
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
@@ -102,7 +103,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
 
     private suspend fun ensureReplicationStartedForAllGroups() {
         coroutineScope {
-            val allGroups = withContext(IO) { groupDAO.all.sortedBy { it.id } }
+            val allGroups = withContext(IO) { groupDAO.getAll().toList().sortedBy { it.id } }
             log.debug("Ensuring all replications started for ${allGroups.size} groups")
             val ensureReplicationStartedJobs = allGroups.map { group ->
                 async {
@@ -140,7 +141,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
             val groupId = change.id
             log.info("New group detected : $groupId")
             val group = groupDAO.get(groupId)
-            ensureGroupReplicationStarted(group)
+            group?.let { ensureGroupReplicationStarted(it) }
         }
     }
 

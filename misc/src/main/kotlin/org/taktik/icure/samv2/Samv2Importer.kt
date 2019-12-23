@@ -10,9 +10,9 @@ import org.taktik.icure.be.samv2.entities.ExportVirtualMedicines
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.dao.samv2.impl.AmpDAOImpl
-import org.taktik.icure.dao.samv2.impl.VmpDAOImpl
-import org.taktik.icure.dao.samv2.impl.VmpGroupDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.AmpDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.VmpDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.VmpGroupDAOImpl
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp

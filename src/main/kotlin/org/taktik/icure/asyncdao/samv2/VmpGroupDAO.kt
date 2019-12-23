@@ -19,12 +19,13 @@
 
 package org.taktik.icure.asyncdao.samv2
 
+import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.VmpGroup
 
 interface VmpGroupDAO : GenericDAO<VmpGroup> {
-    fun findVmpGroupsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<VmpGroup>
-    fun listVmpGroupIdsByLabel(language: String?, label: String?): List<String>
+    suspend fun findVmpGroupsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<VmpGroup>
+    fun listVmpGroupIdsByLabel(language: String?, label: String?): Flow<String>
 }

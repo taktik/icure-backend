@@ -19,7 +19,7 @@ import org.taktik.icure.entities.samv2.Amp
 class AmpDAOImpl @Autowired
 constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
     @View(name = "by_groupcode", map = "classpath:js/amp/By_groupcode.js")
-    override fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+    override suspend fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
         val from = vmpgCode
         val to = vmpgCode
 

@@ -148,9 +148,6 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
             super.evictFromCache(dbInstanceUrl, null, u)
             super.evictFromCache(dbInstanceUrl, groupId, u)
         }
-
-        super.evictFromCache(dbInstanceUrl, groupId, CachedDAOImpl.ALL_ENTITIES_CACHE_KEY)
-        super.evictFromCache(dbInstanceUrl, groupId, CachedDAOImpl.ALL_ENTITIES_CACHE_KEY)
     }
 
     override suspend fun saveOnFallback(dbInstanceUrl: URI, user: User): User {

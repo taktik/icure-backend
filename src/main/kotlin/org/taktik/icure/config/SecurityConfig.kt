@@ -27,7 +27,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ReactiveAuthenticationManagerAdapter
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -35,8 +34,10 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
-import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
-import org.taktik.icure.asynclogic.*
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.GroupLogic
+import org.taktik.icure.asynclogic.PermissionLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.security.database.CustomAuthenticationProvider
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 

@@ -43,6 +43,7 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     fun getAll(dbInstanceUrl:URI, groupId:String): Flow<T>
     fun getAllIds(dbInstanceUrl:URI, groupId:String): Flow<String>
     fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Flow<T>
+    fun getList(dbInstanceUrl:URI, groupId:String, ids: Flow<String>): Flow<T>
 
     suspend fun remove(dbInstanceUrl:URI, groupId:String, entity: T): DocIdentifier
     fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): Flow<DocIdentifier>
