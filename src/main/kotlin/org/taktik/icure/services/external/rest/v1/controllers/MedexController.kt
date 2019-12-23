@@ -38,7 +38,7 @@ class MedexController(private val medexLogic: MedexLogic, private val mapperFaca
 
     @ApiOperation(nickname = "generateMedex", value = "Generate a Medex XML String", produces = MediaType.APPLICATION_XML_VALUE)
     @PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
-    fun generateMedex(@RequestBody infos: MedexInfoDto) = medexLogic.createMedex(
+    suspend fun generateMedex(@RequestBody infos: MedexInfoDto) = medexLogic.createMedex(
             mapperFacade.map(infos.author, HealthcareParty::class.java),
             mapperFacade.map(infos.patient, Patient::class.java),
             infos.patientLanguage,

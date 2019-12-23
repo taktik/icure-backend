@@ -21,13 +21,18 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
-import org.ektorp.ComplexKey
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.InsuranceLogic
+import org.taktik.icure.asynclogic.InvoiceLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.Filter
@@ -37,18 +42,18 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.InvoiceType
 import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.MediumType
-import org.taktik.icure.asynclogic.InsuranceLogic
-import org.taktik.icure.asynclogic.InvoiceLogic
-import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
+import reactor.core.publisher.Flux
 import java.util.*
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/invoice")
 @Api(tags = ["invoice"])
@@ -86,10 +91,9 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "getInvoices", value = "Gets an invoice")
     @PostMapping("/byIds")
-    fun getInvoices(@RequestBody invoiceIds: ListOfIdsDto): Flow<InvoiceDto> {
-        val invoices = invoiceLogic.getInvoices(invoiceIds.ids)
-        return invoices.map { mapper.map(it, InvoiceDto::class.java) }
-    }
+    fun getInvoices(@RequestBody invoiceIds: ListOfIdsDto) = invoiceLogic.getInvoices(invoiceIds.ids)
+            .map { mapper.map(it, InvoiceDto::class.java) }
+            .injectReactorContext()
 
     @ApiOperation(nickname = "modifyInvoice", value = "Modifies an invoice")
     @PutMapping
@@ -124,7 +128,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @PostMapping("/mergeTo/{invoiceId}")
     suspend fun mergeTo(@PathVariable invoiceId: String, @RequestBody ids: ListOfIdsDto): InvoiceDto {
         return mapper.map(invoiceLogic.mergeInvoices(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, invoiceLogic.getInvoices(ids.ids).toList(), invoiceLogic.getInvoice(invoiceId))
-                        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice $invoiceId not found"), InvoiceDto::class.java)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice $invoiceId not found"), InvoiceDto::class.java)
     }
 
     @ApiOperation(nickname = "validate", value = "Gets all invoices for author at date")
@@ -142,11 +146,11 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
                             @RequestParam secretFKeys: String,
                             @RequestParam(required = false) invoiceId: String?,
                             @RequestParam(required = false) gracePeriod: Int?,
-                            @RequestBody invoicingCodes: List<InvoicingCodeDto>): Flow<InvoiceDto> {
+                            @RequestBody invoicingCodes: List<InvoicingCodeDto>): Flux<InvoiceDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         val invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type), MediumType.valueOf(sentMediumType),
                 invoicingCodes.map { ic -> mapper.map(ic, InvoicingCode::class.java) }, invoiceId, gracePeriod)
-        return invoices.map { mapper.map(it, InvoiceDto::class.java) }
+        return invoices.map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "removeCodes", value = "Gets all invoices for author at date")
@@ -154,7 +158,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     fun removeCodes(@PathVariable userId: String,
                     @PathVariable serviceId: String,
                     @RequestParam secretFKeys: String,
-                    @RequestBody tarificationIds: List<String>): Flow<InvoiceDto> {
+                    @RequestBody tarificationIds: List<String>): Flux<InvoiceDto> {
         if (tarificationIds.isEmpty()) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot modify invoice: tarificationIds is empty")
         } else {
@@ -162,54 +166,54 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
             val invoices = invoiceLogic.removeCodes(userId, secretPatientKeys, serviceId, tarificationIds)
 
-            return invoices.map { mapper.map(it, InvoiceDto::class.java) }
+            return invoices.map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
         }
     }
 
     @ApiOperation(nickname = "findByAuthor", value = "Gets all invoices for author at date")
     @GetMapping("/byauthor/{hcPartyId}")
     suspend fun findByAuthor(@PathVariable hcPartyId: String,
-                     @RequestParam(required = false) fromDate: Long?,
-                     @RequestParam(required = false) toDate: Long?,
-                     @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
-                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): PaginatedList<InvoiceDto> {
+                             @RequestParam(required = false) fromDate: Long?,
+                             @RequestParam(required = false) toDate: Long?,
+                             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
+                             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): PaginatedList<InvoiceDto> {
         val realLimit = limit ?: DEFAULT_LIMIT
         val sk: Array<String>
         var startKey1 = ""
-        var startKey2: Long? = 0L
+        var startKey2 = ""
         if (startKey != null) {
             sk = startKey.split(',').toTypedArray()
             startKey1 = sk[0]
-            startKey2 = java.lang.Long.parseLong(sk[1])
+            startKey2 = sk[1]
         }
-        val paginationOffset = PaginationOffset(ComplexKey.of(listOf(startKey1, startKey2)), startDocumentId, 0, realLimit + 1) // fetch one more for nextKeyPair
+        val paginationOffset = PaginationOffset<List<String>>(listOf<String>(startKey1, startKey2), startDocumentId, 0, realLimit + 1) // fetch one more for nextKeyPair
         val findByAuthor = invoiceLogic.findByAuthor(hcPartyId, fromDate, toDate, paginationOffset)
         return findByAuthor.paginatedList<Invoice, InvoiceDto>(mapper, realLimit)
     }
 
     @ApiOperation(nickname = "findByHCPartyPatientSecretFKeys", value = "List invoices found By Healthcare Party and secret foreign patient keys.", notes = "Keys have to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flow<InvoiceDto> {
+    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<InvoiceDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         val elementList = invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys)
 
-        return elementList.map { element -> mapper.map(element, InvoiceDto::class.java) }
+        return elementList.map { element -> mapper.map(element, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findDelegationsStubsByHCPartyPatientSecretFKeys", value = "List helement stubs found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
     fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flow<IcureStubDto> {
+                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
-        return invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }
+        return invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listByHcPartyGroupId", value = "List invoices by groupId", notes = "Keys have to delimited by coma")
     @GetMapping("/byHcPartyGroupId/{hcPartyId}/{groupId}")
-    fun listByHcPartyGroupId(@PathVariable hcPartyId: String, @PathVariable groupId: String): Flow<InvoiceDto> {
+    fun listByHcPartyGroupId(@PathVariable hcPartyId: String, @PathVariable groupId: String): Flux<InvoiceDto> {
         val invoices = invoiceLogic.listByHcPartyGroupId(hcPartyId, groupId)
-        return invoices.map { el -> mapper.map(el, InvoiceDto::class.java) }
+        return invoices.map { el -> mapper.map(el, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listByHcPartySentMediumTypeInvoiceTypeSentDate", value = "List invoices by type, sent or unsent", notes = "Keys have to delimited by coma")
@@ -219,9 +223,9 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
                                                        @PathVariable invoiceType: InvoiceType,
                                                        @PathVariable sent: Boolean,
                                                        @RequestParam(required = false) from: Long?,
-                                                       @RequestParam(required = false) to: Long?): Flow<InvoiceDto> {
+                                                       @RequestParam(required = false) to: Long?): Flux<InvoiceDto> {
         val invoices = invoiceLogic.listByHcPartySentMediumTypeInvoiceTypeSentDate(hcPartyId, sentMediumType, invoiceType, sent, from, to)
-        return invoices.map { el -> mapper.map(el, InvoiceDto::class.java) }
+        return invoices.map { el -> mapper.map(el, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "setInvoicesDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
@@ -240,39 +244,49 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "listByContactIds", value = "Gets all invoices for author at date")
     @PostMapping("/byCtcts")
-    suspend fun listByContactIds(@RequestBody contactIds: ListOfIdsDto): Flow<InvoiceDto> {
-        return invoiceLogic.listByHcPartyContacts(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, HashSet(contactIds.ids)).map { mapper.map(it, InvoiceDto::class.java) }
-    }
+    suspend fun listByContactIds(@RequestBody contactIds: ListOfIdsDto) =
+            invoiceLogic.listByHcPartyContacts(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, HashSet(contactIds.ids))
+                    .map { mapper.map(it, InvoiceDto::class.java) }
+                    .injectReactorContext()
 
     @ApiOperation(nickname = "listByRecipientsIds", value = "Gets all invoices for author at date")
     @GetMapping("/to/{recipientIds}")
-    suspend fun listByRecipientsIds(@PathVariable recipientIds: String): Flow<InvoiceDto> {
-        return invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, recipientIds.split(',').toSet()).map { mapper.map(it, InvoiceDto::class.java) }
-    }
+    suspend fun listByRecipientsIds(@PathVariable recipientIds: String) =
+            invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, recipientIds.split(',').toSet())
+                    .map { mapper.map(it, InvoiceDto::class.java) }
+                    .injectReactorContext()
 
     @ApiOperation(nickname = "listToInsurances", value = "Gets all invoices for author at date")
     @GetMapping("/toInsurances")
-    suspend fun listToInsurances(@RequestParam(required = false) userIds: String?): List<InvoiceDto> {
-        val users = if (userIds == null) userLogic.allEntities else userLogic.getUsers(userIds.split(','))
+    suspend fun listToInsurances(@RequestParam(required = false) userIds: String?): Flux<InvoiceDto> {
+        val users = if (userIds == null) userLogic.getAllEntities() else userLogic.getUsers(userIds.split(','))
         val insuranceIds = insuranceLogic.getAllEntityIds().toSet()
         return users
-                .flatMap { u -> invoiceLogic.listByHcPartyRecipientIds(u.healthcarePartyId, insuranceIds).filter { iv -> u.id == iv.author }.toList() } // TODO SH MB here and after: no toList() once UserLogic is done
-                .map { i -> mapper.map(i, InvoiceDto::class.java) }
+                .map { user ->
+                    invoiceLogic.listByHcPartyRecipientIds(user.healthcarePartyId, insuranceIds)
+                            .filter { iv -> user.id == iv.author }
+                }
+                .map { mapper.map(it, InvoiceDto::class.java) }
+                .toList()
                 .sortedWith(Comparator.comparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) }.thenComparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) })
+                .asFlow()
+                .injectReactorContext()
     }
 
     @ApiOperation(nickname = "listToInsurancesUnsent", value = "Gets all invoices for author at date")
     @GetMapping("/toInsurances/unsent")
-    suspend fun listToInsurancesUnsent(@RequestParam(required = false) userIds: String?): List<InvoiceDto> {
-        val users = if (userIds == null) userLogic.allEntities else userLogic.getUsers(userIds.split(','))
+    suspend fun listToInsurancesUnsent(@RequestParam(required = false) userIds: String?): Flux<InvoiceDto> {
+        val users = if (userIds == null) userLogic.getAllEntities() else userLogic.getUsers(userIds.split(','))
         val insuranceIds = insuranceLogic.getAllEntityIds().toSet()
         return users
-                .flatMap { u ->
-                    invoiceLogic.listByHcPartyRecipientIdsUnsent(u.healthcarePartyId, insuranceIds)
-                            .filter { iv -> u.id == iv.author }.toList()
+                .flatMapConcat { u ->
+                    invoiceLogic.listByHcPartyRecipientIdsUnsent(u.healthcarePartyId, insuranceIds).filter { iv -> u.id == iv.author }
                 }
                 .map { mapper.map(it, InvoiceDto::class.java) }
+                .toList()
                 .sortedWith(Comparator.comparing<InvoiceDto, Long> { invoiceDto -> Optional.ofNullable(invoiceDto.invoiceDate).orElse(0L) })
+                .asFlow()
+                .injectReactorContext()
     }
 
     @ApiOperation(nickname = "listToPatients", value = "Gets all invoices for author at date")

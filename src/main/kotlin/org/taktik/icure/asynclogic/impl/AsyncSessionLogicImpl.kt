@@ -174,12 +174,12 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
 
 
     override suspend fun getCurrentUserId(): String {
-        return getCurrentSessionContext().getUser()?.id
+        return getCurrentSessionContext().getUser().id
                 ?: throw AuthenticationServiceException("Failed extracting currentUser id")
     }
 
     override suspend fun getCurrentHealthcarePartyId(): String {
-        return getCurrentSessionContext().getUser()?.healthcarePartyId
+        return getCurrentSessionContext().getUser().healthcarePartyId
                 ?: throw AuthenticationServiceException("Failed extracting current healthCareParty id")
     }
 

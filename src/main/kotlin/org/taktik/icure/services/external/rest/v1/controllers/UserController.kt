@@ -57,11 +57,9 @@ class UserController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "getCurrentUser", value = "Get presently logged-in user.", notes = "Get current user.")
     @GetMapping(value = ["/current"])
     suspend fun getCurrentUser(): UserDto {
-        sessionLogic.getCurrentUserId()?.let { currentUserId ->
-            val user = userLogic.getUser(currentUserId)
+            val user = userLogic.getUser(sessionLogic.getCurrentUserId())
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
             return mapper.map(user, UserDto::class.java)
-        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
     }
 
     @ApiOperation(nickname = "getCurrentSession", value = "Get Currently logged-in user session.", notes = "Get current user.")
@@ -89,7 +87,6 @@ class UserController(private val mapper: MapperFacade,
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(paginationOffset)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing users failed.")
         return mapper.map(allUsers, UserPaginatedList::class.java)
     }
 
@@ -160,16 +157,13 @@ class UserController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "assignHealthcareParty", value = "Assign a healthcare party ID to current user", notes = "UserDto gets returned.")
     @PutMapping("/current/hcparty/{healthcarePartyId}")
     suspend fun assignHealthcareParty(@PathVariable healthcarePartyId: String): UserDto {
-        sessionLogic.getCurrentUserId()?.let {
-            val modifiedUser = userLogic.getUser(it)
-            modifiedUser?.let {
-                modifiedUser.healthcarePartyId = healthcarePartyId
-                userLogic.save(modifiedUser)
+        val modifiedUser = userLogic.getUser(sessionLogic.getCurrentUserId())
+        modifiedUser?.let {
+            modifiedUser.healthcarePartyId = healthcarePartyId
+            userLogic.save(modifiedUser)
 
-                return mapper.map(modifiedUser, UserDto::class.java)
-            } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
-
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.")
+            return mapper.map(modifiedUser, UserDto::class.java)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
     }
 
     @ApiOperation(nickname = "modifyProperties", value = "Modify a User property", notes = "Modify a User properties based on his/her ID. The return value is the modified user.")

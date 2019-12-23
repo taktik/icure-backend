@@ -22,24 +22,24 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.*
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.ICureSessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
 import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
 
 @RestController
 @RequestMapping("/rest/v1/auth")
 @Api(tags = ["auth"])
-class LoginController(private val mapper: MapperFacade, private val sessionLogic: ICureSessionLogic, private val healthcarePartyLogic: HealthcarePartyLogic) {
+class LoginController(private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic, private val healthcarePartyLogic: HealthcarePartyLogic) {
 
     @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
     @PostMapping("/login")
-    fun login(@RequestBody loginInfo: LoginCredentials): AuthenticationResponse {
+    suspend fun login(@RequestBody loginInfo: LoginCredentials): AuthenticationResponse {
         val response = AuthenticationResponse()
         val sessionContext = sessionLogic.login(loginInfo.username, loginInfo.password)
-        response.isSuccessful = sessionContext != null && sessionContext.isAuthenticated
+        response.isSuccessful = sessionContext != null && sessionContext.isAuthenticated()
         if (response.isSuccessful) {
-            response.healthcarePartyId = sessionLogic.currentHealthcarePartyId
+            response.healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             response.username = loginInfo.username
         }
         return mapper.map(response, AuthenticationResponse::class.java)
@@ -47,14 +47,14 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
 
     @ApiOperation(nickname = "logout", value = "logout", notes = "Logout")
     @GetMapping("/logout")
-    fun logout(): AuthenticationResponse {
+    suspend fun logout(): AuthenticationResponse {
         sessionLogic.logout()
         return mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
     }
 
     @ApiOperation(nickname = "logoutPost", value = "logout", notes = "Logout")
     @PostMapping("/logout")
-    fun logoutPost(): AuthenticationResponse {
+    suspend fun logoutPost(): AuthenticationResponse {
         sessionLogic.logout()
         return mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
     }

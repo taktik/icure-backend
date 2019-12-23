@@ -38,14 +38,14 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
 
     @ApiOperation(nickname = "canHandle", value = "Can we handle this document")
     @GetMapping("/canhandle/{id}")
-    fun canHandle(@PathVariable id: String,
+    suspend fun canHandle(@PathVariable id: String,
                   @RequestParam enckeys: String): Boolean? {
-        return multiFormatLogic.canHandle(documentLogic.get(id), if (isBlank(enckeys)) null else enckeys.split(','))
+        return documentLogic.get(id)?.let { multiFormatLogic.canHandle(it, if (isBlank(enckeys)) null else enckeys.split(',')) }
     }
 
     @ApiOperation(nickname = "getInfos", value = "Extract general infos from document")
     @GetMapping("/infos/{id}")
-    fun getInfos(@PathVariable id: String,
+    suspend fun getInfos(@PathVariable id: String,
                  @RequestParam(required = false) full: Boolean?,
                  @RequestParam language: String,
                  @RequestParam enckeys: String): List<ResultInfoDto> {

@@ -20,21 +20,24 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
-import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.ICureLogicImpl
+import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.UserStubDto
+import org.taktik.icure.utils.injectReactorContext
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/icure")
 @Api(tags = ["icure"])
-class ICureController(private val replicationLogic: ReplicationLogic,
-                      private val iCureLogic: ICureLogicImpl,
+class ICureController(private val iCureLogic: ICureLogicImpl,
                       private val patientLogic: PatientLogic,
                       private val userLogic: UserLogic,
                       private val contactLogic: ContactLogic,
@@ -43,7 +46,7 @@ class ICureController(private val replicationLogic: ReplicationLogic,
                       private val documentLogic: DocumentLogic,
                       private val healthElementLogic: HealthElementLogic,
                       private val formLogic: FormLogic,
-                      private val sessionLogic: ICureSessionLogic,
+                      private val sessionLogic: AsyncSessionLogic,
                       private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "getVersion", value = "Get version")
@@ -52,58 +55,25 @@ class ICureController(private val replicationLogic: ReplicationLogic,
 
     @ApiOperation(nickname = "isReady", value = "Check if a user exists")
     @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun isReady() = if (userLogic.hasEntities()) "true" else "false"
+    suspend fun isReady() = if (userLogic.hasEntities()) "true" else "false"
 
     @ApiOperation(nickname = "isPatientReady", value = "Check if a patient exists")
     @GetMapping("/pok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun isPatientReady(): String = if (patientLogic.hasEntities()) "true" else "false"
+    suspend fun isPatientReady(): String = if (patientLogic.hasEntities()) "true" else "false"
 
     @ApiOperation(nickname = "getUsers", value = "Get users stubs")
     @GetMapping("/u")
-    fun getUsers(): List<UserStubDto> =
-            userLogic.allEntities.map { u -> mapper.map(u, UserStubDto::class.java) }
+    fun getUsers() = userLogic.getAllEntities().map { u -> mapper.map(u, UserStubDto::class.java) }.injectReactorContext()
+
 
     @ApiOperation(nickname = "getProcessInfo", value = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
     fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
 
-    @ApiOperation(nickname = "getReplicationInfo", value = "Get replication info")
-    @GetMapping("/r")
-    fun getReplicationInfo(): ReplicationInfoDto {
-        val ri = ReplicationInfoDto()
-
-        ri.pendingFrom = 0
-        ri.pendingTo = 0
-
-        ri.active = replicationLogic.hasEntities()
-        if (ri.active) {
-            val pendingChanges = replicationLogic.pendingChanges
-            ri.running = pendingChanges.isNotEmpty()
-            for ((key, value) in pendingChanges) {
-                val src = key.source
-                if (src.contains("127.0.0.1") || src.contains("localhost")) {
-                    if (value != null) {
-                        ri.pendingFrom = if (ri.pendingFrom != null) ri.pendingFrom + value.toInt() else value.toInt()
-                    } else {
-                        ri.pendingFrom = null
-                    }
-                } else {
-                    if (value != null) {
-                        ri.pendingTo = if (ri.pendingTo != null) ri.pendingTo + value.toInt() else value.toInt()
-                    } else {
-                        ri.pendingTo = null
-                    }
-                }
-            }
-        }
-        return ri
-    }
-
-
     @ApiOperation(nickname = "getIndexingInfo", value = "Get index info")
     @GetMapping("/i")
-    fun getIndexingInfo(): IndexingInfoDto =
-            IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.currentSessionContext.groupId))
+    suspend fun getIndexingInfo(): IndexingInfoDto =
+            IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.getCurrentSessionContext().getGroupId()))
 
     @ApiOperation(nickname = "getPropertyTypes", value = "Get property types")
     @GetMapping("/propertytypes/{type}")
@@ -114,49 +84,49 @@ class ICureController(private val replicationLogic: ReplicationLogic,
     @ApiOperation(nickname = "updateDesignDoc", value = "Force update design doc")
     @GetMapping("/dd/{entityName}")
     suspend fun updateDesignDoc(@PathVariable entityName: String): Boolean {
-        iCureLogic.updateDesignDoc(sessionLogic.currentSessionContext.groupId, entityName)
+        iCureLogic.updateDesignDoc(sessionLogic.getCurrentSessionContext().getGroupId(), entityName)
         return true
     }
 
     @ApiOperation(nickname = "resolvePatientsConflicts", value = "Resolve patients conflicts")
     @PostMapping("/conflicts/patient")
-    fun resolvePatientsConflicts() {
+    suspend fun resolvePatientsConflicts() {
         patientLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveContactsConflicts", value = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")
-    fun resolveContactsConflicts() {
+    suspend fun resolveContactsConflicts() {
         contactLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveFormsConflicts", value = "resolve forms conflicts")
     @PostMapping("/conflicts/form")
-    fun resolveFormsConflicts() {
+    suspend fun resolveFormsConflicts() {
         formLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveHealthElementsConflicts", value = "resolve health elements conflicts")
     @PostMapping("/conflicts/healthelement")
-    fun resolveHealthElementsConflicts() {
+    suspend fun resolveHealthElementsConflicts() {
         healthElementLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveInvoicesConflicts", value = "resolve invoices conflicts")
     @PostMapping("/conflicts/invoice")
-    fun resolveInvoicesConflicts() {
+    suspend fun resolveInvoicesConflicts() {
         invoiceLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveMessagesConflicts", value = "resolve messages conflicts")
     @PostMapping("/conflicts/message")
-    fun resolveMessagesConflicts() {
+    suspend fun resolveMessagesConflicts() {
         messageLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveDocumentsConflicts", value = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
-    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) {
+    suspend fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) {
         documentLogic.solveConflicts(ids?.split(','))
     }
 }
