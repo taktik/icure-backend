@@ -335,7 +335,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
-        val paginationOffset = PaginationOffset<ComplexKey>(null, startDocumentId, null, realLimit+1) // startKey is null since it is already a parameter of the subsequent function
+        val paginationOffset = PaginationOffset<List<String>>(null, startDocumentId, null, realLimit+1) // startKey is null since it is already a parameter of the subsequent function
         val contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset)
 
         return contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)

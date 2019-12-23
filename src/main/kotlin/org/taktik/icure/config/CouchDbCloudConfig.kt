@@ -72,4 +72,5 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
     @Bean fun healthdataCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "healthdata", couchDbProperties.username!!, couchDbProperties.password!!)
     @Bean fun baseCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "base", couchDbProperties.username!!, couchDbProperties.password!!)
     @Bean fun configCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "config", couchDbProperties.username!!, couchDbProperties.password!!)
+    @Bean fun drugsCouchDbDispatcher(httpClient: HttpClient) = CouchDbDispatcher(httpClient, "icure", "drugs", couchDbProperties.username!!, couchDbProperties.password!!)
 }

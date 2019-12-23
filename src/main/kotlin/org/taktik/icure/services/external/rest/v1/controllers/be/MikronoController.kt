@@ -24,6 +24,7 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.be.mikrono.MikronoLogic
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -47,14 +48,14 @@ import java.util.function.Supplier
 class MikronoController(private val mapper: MapperFacade,
                         private val mikronoLogic: MikronoLogic,
                         private val patientLogic: PatientLogic,
-                        private val sessionLogic: SessionLogic,
+                        private val sessionLogic: AsyncSessionLogic,
                         private val userLogic: UserLogic) {
 
     private val uuidGenerator = UUIDGenerator()
 
     @ApiOperation(nickname = "setUserCredentials", value = "Set credentials for provided user")
     @PutMapping("/user/{userId}/credentials")
-    fun setUserCredentials(@PathVariable userId: String,
+    suspend fun setUserCredentials(@PathVariable userId: String,
                            @RequestBody(required = false) credentials: MikronoCredentialsDto?) {
 
         if (credentials == null) {
@@ -100,7 +101,7 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "register", value = "Set credentials for provided user")
     @PutMapping("/user/{userId}/register")
-    fun register(@PathVariable userId: String,
+    suspend fun register(@PathVariable userId: String,
                  @RequestBody credentials: MikronoCredentialsDto) {
 
         val u = userLogic.getUser(userId)
@@ -149,8 +150,8 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "sendMessage", value = "Send message using mikrono from logged user")
     @PostMapping("/sendMessage")
-    fun sendMessage(@RequestBody message: EmailOrSmsMessageDto) {
-        val loggedUser = sessionLogic.currentSessionContext.user
+    suspend fun sendMessage(@RequestBody message: EmailOrSmsMessageDto) {
+        val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
         val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
@@ -171,8 +172,8 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "appointmentsByDate", value = "Get appointments for patient")
     @GetMapping("/appointments/byDate/{calendarDate}")
-    fun appointmentsByDate(@PathVariable calendarDate: Long): List<AppointmentDto> {
-        val loggedUser = sessionLogic.currentSessionContext.user
+    suspend fun appointmentsByDate(@PathVariable calendarDate: Long): List<AppointmentDto> {
+        val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
         val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
@@ -184,10 +185,10 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "appointmentsByPatient", value = "Get appointments for patient")
     @GetMapping("/appointments/byPatient/{patientId}")
-    fun appointmentsByPatient(@PathVariable patientId: String,
+    suspend fun appointmentsByPatient(@PathVariable patientId: String,
                               @RequestParam(required = false) from: Long?,
                               @RequestParam(required = false) to: Long?): List<AppointmentDto> {
-        val loggedUser = sessionLogic.currentSessionContext.user
+        val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
         val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
@@ -199,8 +200,8 @@ class MikronoController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createAppointments", value = "Create appointments for owner")
     @PostMapping("/appointments")
-    fun createAppointments(@RequestBody appointments: List<AppointmentImportDto>): List<String> {
-        val loggedUser = sessionLogic.currentSessionContext.user
+    suspend fun createAppointments(@RequestBody appointments: List<AppointmentImportDto>): List<String> {
+        val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
         val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
         val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)

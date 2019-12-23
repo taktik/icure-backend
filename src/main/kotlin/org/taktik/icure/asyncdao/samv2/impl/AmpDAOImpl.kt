@@ -1,10 +1,13 @@
 package org.taktik.icure.asyncdao.samv2.impl
 
+import org.apache.axis2.description.Flow
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.GenericDAOImpl
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
@@ -12,28 +15,28 @@ import org.taktik.icure.asyncdao.samv2.AmpDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
+import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.samv2.Amp
+import java.net.URI
 
 @Repository("ampDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
 class AmpDAOImpl @Autowired
-constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
+constructor(@Qualifier("drugsCouchDbDispatcher") couchdb: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchdb, idGenerator), AmpDAO {
     @View(name = "by_groupcode", map = "classpath:js/amp/By_groupcode.js")
-    override suspend fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+    override suspend fun findAmpsByVmpGroupCode(dbInstanceUrl: URI, groupId: String, vmpgCode: String, paginationOffset: PaginationOffset<String>): kotlinx.coroutines.flow.Flow<ViewQueryResultEvent> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+
         val from = vmpgCode
         val to = vmpgCode
 
-        return pagedQueryView(
-                "by_groupcode",
-                from,
-                to,
-                paginationOffset,
-                false
-        )
+        val viewQuery = pagedViewQuery("by_groupcode", from, to, paginationOffset, false)
+
+        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, AccessLog::class.java)
     }
 
     @View(name = "by_groupid", map = "classpath:js/amp/By_groupid.js")
-    override fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+    override fun findAmpsByVmpGroupId(dbInstanceUrl: URI, groupId: String, vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
         val from = vmpgId
         val to = vmpgId
 
