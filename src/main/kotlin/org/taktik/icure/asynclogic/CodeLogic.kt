@@ -26,6 +26,7 @@ import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
 import java.io.InputStream
+import java.io.Serializable
 
 
 interface CodeLogic : EntityPersister<Code, String> {

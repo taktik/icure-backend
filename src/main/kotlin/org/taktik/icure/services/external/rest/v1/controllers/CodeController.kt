@@ -22,24 +22,33 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import ma.glasnost.orika.metadata.TypeBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
-import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.utils.paginatedList
+import reactor.core.publisher.Flux
 import java.io.Serializable
-import kotlin.math.min
 
+@ExperimentalCoroutinesApi
+@FlowPreview
 @RestController
 @RequestMapping("/rest/v1/code")
 @Api(tags = ["code"])
@@ -50,7 +59,7 @@ class CodeController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, pagination is not supported")
     @GetMapping("/byLabel")
-    fun findPaginatedCodesByLabel(
+    suspend fun findPaginatedCodesByLabel(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) types: String?,
             @RequestParam(required = false) language: String?,
@@ -61,30 +70,33 @@ class CodeController(private val mapper: MapperFacade,
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
-        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
+        val startKeyElements: List<String?>? = if (startKey == null) null else Gson().fromJson<List<String?>>(startKey, List::class.java)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
 
-        val codesList: PaginatedList<Code> =
-                if (types != null) {
-                    val typesList = types.split(',')
-                    val wordsList = label?.split(' ') ?: listOf()
-                    if (typesList.size > 1 || wordsList.size > 1) {
-                        val codes = typesList.flatMap { type -> codeLogic.findCodesByLabel(region, language, type, label, paginationOffset).rows }
-                        val pageSize = limit?.let { min(it, codes.size) } ?: codes.size
-                        PaginatedList(pageSize, codes.size, codes.subList(0, pageSize), null).also { it.rows = it.rows.filter { c -> typesList.contains(c.type) }.distinct() }
-                    } else {
-                        codeLogic.findCodesByLabel(region, language, typesList[0], label, paginationOffset)
-                    }
-                } else {
-                    codeLogic.findCodesByLabel(region, language, label, paginationOffset)
-                }
+        return types?.let {
+            val typesList = types.split(',')
+            val wordsList = label?.split(' ') ?: listOf()
+            if (typesList.size > 1 || wordsList.size > 1) {
+                typesList.asFlow()
+                        .map { type -> codeLogic.findCodesByLabel(region, language, type, label, paginationOffset) }
+                        .flattenMerge()
+                        .paginatedList<Code, CodeDto>(mapper, realLimit, object : Predicate {
+                            override fun apply(input: Identifiable<String>?): Boolean {
+                                return typesList.contains(input.toString())
+                            }
+                        })
+            } else {
+                codeLogic.findCodesByLabel(region, language, typesList[0], label, paginationOffset)
+                        .paginatedList<Code, CodeDto>(mapper, realLimit)
+            }
+        } ?: codeLogic.findCodesByLabel(region, language, label, paginationOffset)
+                .paginatedList<Code, CodeDto>(mapper, realLimit)
 
-        return paginatedListDto(codesList)
     }
 
     @ApiOperation(nickname = "findPaginatedCodes", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input.")
     @GetMapping
-    fun findPaginatedCodes(
+    suspend fun findPaginatedCodes(
             @RequestParam(required = false) region: String?,
             @RequestParam(required = false) type: String?,
             @RequestParam(required = false) code: String?,
@@ -96,39 +108,39 @@ class CodeController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(
                 getStartKey(region, type, code, version),
                 startDocumentId, null,
-                realLimit+1
+                realLimit + 1
         )
 
-        val codesList: PaginatedList<Code> = codeLogic.findCodesBy(region, type, code, version, paginationOffset)
+        return codeLogic.findCodesBy(region, type, code, version, paginationOffset)
+                .paginatedList<Code, CodeDto>(mapper, realLimit)
 
-        return paginatedListDto(codesList)
+
     }
-
+    private fun getStartKey(startKeyRegion: String?, startKeyType: String?, startKeyCode: String?, startKeyVersion: String?): List<String?>? {
+        return if (startKeyRegion != null && startKeyType != null && startKeyCode != null && startKeyVersion != null) {
+            listOf(startKeyRegion, startKeyType, startKeyCode, startKeyVersion)
+        } else {
+            null
+        }
+    }
     @ApiOperation(nickname = "findPaginatedCodesWithLink", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input.")
     @GetMapping("link/{linkType}")
-    fun findPaginatedCodesWithLink(
+    suspend fun findPaginatedCodesWithLink(
             @PathVariable linkType: String,
-            @RequestParam(required = false) linkedId: String?,
+            @RequestParam(required = false) linkedId: String,
             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> {
 
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
-        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
-
-        val codesList = codeLogic.findCodesByQualifiedLinkId(linkType, linkedId, paginationOffset)
-        return paginatedListDto(codesList)
+        val startKeyElements : List<String>? = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
+        return codeLogic.findCodesByQualifiedLinkId(null, linkType, linkedId, paginationOffset)
+                .paginatedList<Code, CodeDto>(mapper, realLimit)
     }
 
-    private fun getStartKey(startKeyRegion: String?, startKeyType: String?, startKeyCode: String?, startKeyVersion: String?): Serializable? {
-        return if (startKeyRegion != null && startKeyType != null && startKeyCode != null && startKeyVersion != null) {
-            listOf(startKeyRegion, startKeyType, startKeyCode, startKeyVersion) as Serializable
-        } else {
-            null
-        }
-    }
+
 
     @ApiOperation(nickname = "findCodes", value = "Finding codes by code, type and version", notes = "Returns a list of codes matched with given input.")
     @GetMapping("/byRegionTypeCode")
@@ -136,66 +148,72 @@ class CodeController(private val mapper: MapperFacade,
             @ApiParam(value = "Code region") @RequestParam(required = false) region: String?,
             @ApiParam(value = "Code type") @RequestParam(required = false) type: String?,
             @ApiParam(value = "Code code") @RequestParam(required = false) code: String?,
-            @ApiParam(value = "Code version") @RequestParam(required = false) version: String?): List<CodeDto> {
+            @ApiParam(value = "Code version") @RequestParam(required = false) version: String?): Flux<CodeDto> {
 
-        val codesList = codeLogic.findCodesBy(region, type, code, version)
-        return codesList.map { c -> mapper.map(c, CodeDto::class.java) }
+        return codeLogic.findCodesBy(region, type, code, version)
+                .map { c -> mapper.map(c, CodeDto::class.java) }
+                .injectReactorContext()
     }
 
     @ApiOperation(nickname = "findCodeTypes", value = "Finding code types.", notes = "Returns a list of code types matched with given input.")
     @GetMapping("/codetype/byRegionType")
     fun findCodeTypes(
             @ApiParam(value = "Code region") @RequestParam(required = false) region: String?,
-            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?): List<String> {
+            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
         return codeLogic.findCodeTypes(region, type)
+                .injectReactorContext()
     }
 
     @ApiOperation(nickname = "findTagTypes", value = "Finding tag types.", notes = "Returns a list of tag types matched with given input.")
     @GetMapping("/tagtype/byRegionType")
     fun findTagTypes(
             @ApiParam(value = "Code region") @RequestParam(required = false) region: String?,
-            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?): List<String> {
+            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
         val tagTypeCandidates = codeLogic.getTagTypeCandidates()
-        return codeLogic.findCodeTypes(region, type).filter { tagTypeCandidates.contains(it) }
+        return codeLogic.findCodeTypes(region, type)
+                .filter { tagTypeCandidates.contains(it) }
+                .injectReactorContext()
     }
 
     @ApiOperation(nickname = "createCode", value = "Create a Code", notes = "Type, Code and Version are required.")
     @PostMapping
-    fun createCode(@RequestBody c: CodeDto): CodeDto {
+    suspend fun createCode(@RequestBody c: CodeDto): CodeDto {
         val code = codeLogic.create(mapper.map(c, Code::class.java))
         return mapper.map(code, CodeDto::class.java)
     }
 
     @ApiOperation(nickname = "getCodes", value = "Get a list of codes by ids", notes = "Keys must be delimited by coma")
     @GetMapping("/byIds/{codeIds}")
-    fun getCodes(@PathVariable codeIds: String): List<CodeDto> {
-        val codes = codeLogic[codeIds.split(',')]
-        return codes.map { f -> mapper.map(f, CodeDto::class.java) }
+    fun getCodes(@PathVariable codeIds: String): Flux<CodeDto> {
+        val codes = codeLogic.get(codeIds.split(','))
+        return codes
+                .map { f -> mapper.map(f, CodeDto::class.java) }
+                .injectReactorContext()
     }
 
     @ApiOperation(nickname = "getCode", value = "Get a code", notes = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
     @GetMapping("/{codeId}")
-    fun getCode(@ApiParam(value = "Code id") @PathVariable codeId: String): CodeDto {
-        val c = codeLogic[codeId]
+    suspend fun getCode(@ApiParam(value = "Code id") @PathVariable codeId: String): CodeDto {
+        val c = codeLogic.get(codeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code. Read the app logs.")
         return mapper.map(c, CodeDto::class.java)
     }
 
     @ApiOperation(nickname = "getCodeWithParts", value = "Get a code", notes = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
     @GetMapping("/{type}/{code}/{version}")
-    fun getCodeWithParts(
+    suspend fun getCodeWithParts(
             @ApiParam(value = "Code type") @PathVariable type: String,
             @ApiParam(value = "Code code") @PathVariable code: String,
             @ApiParam(value = "Code version") @PathVariable version: String): CodeDto {
 
-        val c = codeLogic[type, code, version]
+        val c = codeLogic.get(type, code, version)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code with parts. Read the app logs.")
         return mapper.map(c, CodeDto::class.java)
     }
 
     @ApiOperation(nickname = "modifyCode", value = "Modify a code", notes = "Modification of (type, code, version) is not allowed.")
     @PutMapping
-    fun modifyCode(@RequestBody codeDto: CodeDto): CodeDto {
+    suspend fun modifyCode(@RequestBody codeDto: CodeDto): CodeDto {
         val modifiedCode = try {
             codeLogic.modify(mapper.map(codeDto, Code::class.java))
         } catch (e: Exception) {
@@ -217,33 +235,16 @@ class CodeController(private val mapper: MapperFacade,
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.split(',')?.filter { it.isNotBlank() }?.map { it.trim() } ?: listOf()
-        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, realLimit+1)
+        val paginationOffset = PaginationOffset(startKeyList, startDocumentId, skip, realLimit + 1)
 
-        var codes: PaginatedList<Code>? = null
+        var codes: Flow<ViewQueryResultEvent>? = null
         val timing = System.currentTimeMillis()
-        if (filterChain != null) {
+        filterChain?.let {
             codes = codeLogic.listCodes(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as Filter<String, Patient>, mapper.map(filterChain.predicate, Predicate::class.java)), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")
-        if (codes != null) {
-            return paginatedListDto(codes)
-        } else {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing codes failed.")
-        }
-    }
-
-    private fun paginatedListDto(codesList: PaginatedList<Code>): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto> {
-        if (codesList.rows == null) {
-            codesList.rows = emptyList()
-        }
-
-        val codeDtoPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto>()
-        mapper.map(
-                codesList,
-                codeDtoPaginatedList,
-                object : TypeBuilder<PaginatedList<Code>>() {}.build(),
-                object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<CodeDto>>() {}.build()
-        )
-        return codeDtoPaginatedList
+        return codes?.let {
+            it.paginatedList<Code, CodeDto>(mapper, realLimit)
+        } ?:throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing codes failed.")
     }
 }
