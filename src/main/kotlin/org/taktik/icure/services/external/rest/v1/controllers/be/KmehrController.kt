@@ -464,18 +464,4 @@ class KmehrController(
                 dryRun != true).map { mapper.map(it, ImportResultDto::class.java) }
     }
 
-    fun convertToOne(src: Array<ByteBuffer>): ByteBuffer? {
-        var size = 0
-        for (i in src.indices) {
-            size += src[i].array().size
-        }
-        val newBuffer: ByteBuffer = ByteBuffer.allocate(size)
-        var sizeAt = 0
-        for (i in src.indices) {
-            newBuffer.put(src[i].array(), sizeAt)
-            sizeAt += src[i].array().size
-        }
-        ByteSource.wrap()
-        return newBuffer
-    }
 }
