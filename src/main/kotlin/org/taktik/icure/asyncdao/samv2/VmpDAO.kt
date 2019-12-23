@@ -20,18 +20,17 @@
 package org.taktik.icure.asyncdao.samv2
 
 import kotlinx.coroutines.flow.Flow
+import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.GenericDAO
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 
 interface VmpDAO : GenericDAO<Vmp> {
-    suspend fun findVmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Vmp>
-    suspend fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<Vmp>
-    suspend fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
+    fun findVmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 
-    fun listVmpIdsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): Flow<String>
-    fun listVmpIdsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): Flow<String>
+    fun listVmpIdsByGroupCode(vmpgCode: String): Flow<String>
+    fun listVmpIdsByGroupId(vmpgId: String): Flow<String>
     fun listVmpIdsByLabel(language: String?, label: String?): Flow<String>
 }
