@@ -1,5 +1,6 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme
 
+import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
@@ -10,6 +11,7 @@ import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.ByteBuffer
 
 interface MedicationSchemeLogic {
 
