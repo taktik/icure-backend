@@ -25,7 +25,7 @@ interface InvoiceLogic : EntityPersister<Invoice, String> {
     fun updateInvoices(invoices: List<Invoice>): Flow<Invoice>
 
     suspend fun addDelegation(invoiceId: String, delegation: Delegation): Invoice?
-    fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+    fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun listByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice>
     fun listByHcPartyRecipientIds(hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
     fun listByHcPartyPatientSks(hcParty: String, secretPatientKeys: Set<String>): Flow<Invoice>

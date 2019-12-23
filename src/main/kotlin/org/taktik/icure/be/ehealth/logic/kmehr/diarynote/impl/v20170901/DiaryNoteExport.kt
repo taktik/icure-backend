@@ -19,6 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901
 
+import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
@@ -52,11 +53,22 @@ import java.util.*
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import org.taktik.commons.uti.UTI
+import org.taktik.icure.asynclogic.*
+import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import java.io.ByteArrayInputStream
 import javax.xml.transform.stream.StreamSource
 
 @org.springframework.stereotype.Service("dairyNoteExport")
-class DiaryNoteExport : KmehrExport() {
+class DiaryNoteExport(mapper: MapperFacade,
+                      patientLogic: PatientLogic,
+                      codeLogic: CodeLogic,
+                      healthElementLogic: HealthElementLogic,
+                      healthcarePartyLogic: HealthcarePartyLogic,
+                      contactLogic: ContactLogic,
+                      documentLogic: DocumentLogic,
+                      sessionLogic: AsyncSessionLogic,
+                      userLogic: UserLogic,
+                      filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
     override val log = LogFactory.getLog(DiaryNoteExport::class.java)
 
     fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>): String {
@@ -66,7 +78,7 @@ class DiaryNoteExport : KmehrExport() {
         return md5Hex
     }
 
-    fun createDiaryNote(
+    suspend fun createDiaryNote(
         os: OutputStream,
         pat: Patient,
         sfks: List<String>,
@@ -117,7 +129,7 @@ class DiaryNoteExport : KmehrExport() {
         }
     }
 
-    internal fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?): FolderType {
+    internal suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, note: String?, tags: List<String>, contexts: List<String>, isPsy: Boolean, documentId: String?, attachmentId: String?, decryptor: AsyncDecrypt?): FolderType {
         val trn = TransactionType().apply {
             cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = "diarynote" })
             author = AuthorType().apply {
@@ -135,8 +147,8 @@ class DiaryNoteExport : KmehrExport() {
             isIsvalidated = true
         }
         folder.transactions.add(trn)
-        if(documentId != "" && attachmentId != "") {
-            val document = documentLogic?.get(documentId)
+        if(documentId?.isNotEmpty() == true && attachmentId?.isNotEmpty() == true) {
+            val document = documentLogic.get(documentId)
             val attachment = document?.decryptAttachment(sfks)
             if(attachment != null){
                 trn.headingsAndItemsAndTexts.add(LnkType().apply{type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(document); value = attachment })

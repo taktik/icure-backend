@@ -14,7 +14,6 @@ import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
-import org.taktik.icure.services.external.rest.v1.dto.StoredDto
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.Serializable
@@ -120,6 +119,43 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
         }
     }.map {
         mapper.map(it, T::class.java)
+    }.toList()
+    return result
+}
+
+suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(realLimit: Int): PaginatedList<T> {
+    val result = PaginatedList<T>(realLimit)
+    var viewRowCount = 0
+    var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
+    result.rows = this.mapNotNull { viewQueryResultEvent ->
+        when (viewQueryResultEvent) {
+            is TotalCount -> {
+                result.totalSize = viewQueryResultEvent.total
+                null
+            }
+            is ViewRowWithDoc<*, *, *> -> {
+                when {
+                    viewRowCount == realLimit -> {
+                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
+                        viewRowCount++
+                        lastProcessedViewRow?.doc as? T
+                    }
+                    viewRowCount < realLimit -> {
+                        val previous = lastProcessedViewRow
+                        lastProcessedViewRow = viewQueryResultEvent
+                        viewRowCount++
+                        previous?.doc as? T
+                    }
+                    else -> { // we have more elements than expected, just ignore them
+                        viewRowCount++
+                        null
+                    }
+                }
+            }
+            else -> {
+                null
+            }
+        }
     }.toList()
     return result
 }

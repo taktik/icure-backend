@@ -240,8 +240,8 @@ class HealthOneLogicImplTest {
         val ll2 = healthOneLogic.getLaboLine(laboLine)
         val resultsInfosLine = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
         val ril = healthOneLogic.getResultsInfosLine(resultsInfosLine)
-        ll1.setRil(ril)
-        ll2.setRil(ril)
+        ll1.ril = ril
+        ll2.ril = ril
         val laboResultLine1 = "L1\\protocol\\BLOOD\\Red corpuscule\\2-4\\g\\+\\6.0"
         val lrl1 = healthOneLogic.getLaboResultLine(laboResultLine1, ll1)
         val laboResultLine2 = "L1\\protocol\\UREA\\Urea\\1-2\\mL\\+\\0.5"
@@ -1158,26 +1158,26 @@ class HealthOneLogicImplTest {
         val line1 = "A4"
         val res1 = healthOneLogic.getResultsInfosLine(line1)
         Assert.assertEquals(res1.protocol, null)
-        Assert.assertEquals(res1.complete, true)
+        Assert.assertEquals(res1.isComplete, true)
         Assert.assertEquals(res1.demandDate, null)
 
         val line2 = "A4\\\\\\\\\\"
         val res2 = healthOneLogic.getResultsInfosLine(line2)
         Assert.assertEquals(res2.protocol, "")
-        Assert.assertEquals(res2.complete, false)
+        Assert.assertEquals(res2.isComplete, false)
         Assert.assertNotEquals(res2.demandDate, null)
 
         // Complete line with C
         val line3 = "A4\\protocol\\Docteur Bidon\\19032019\\\\C\\"
         val res3 = healthOneLogic.getResultsInfosLine(line3)
         Assert.assertEquals(res3.protocol, "protocol")
-        Assert.assertEquals(res3.complete, true)
+        Assert.assertEquals(res3.isComplete, true)
         Assert.assertEquals(res3.demandDate, healthOneLogic.parseDemandDate("19032019"))
 
         // Complete line with P
         val line4 = "A4\\protocol\\Docteur Bidon\\19032019\\\\P\\"
         val res4 = healthOneLogic.getResultsInfosLine(line4)
-        Assert.assertEquals(res4.complete, false)
+        Assert.assertEquals(res4.isComplete, false)
 
         // Null line
         val line5 = null

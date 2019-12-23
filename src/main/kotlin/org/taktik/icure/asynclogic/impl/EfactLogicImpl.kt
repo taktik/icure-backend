@@ -1,7 +1,11 @@
 package org.taktik.icure.asynclogic.impl
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.stereotype.Service
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.HealthcareParty
@@ -13,15 +17,6 @@ import org.taktik.icure.entities.embed.InvoicingCode
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.exceptions.MissingRequirementsException
-import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.asynclogic.EfactLogic
-import org.taktik.icure.asynclogic.EntityReferenceLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
-import org.taktik.icure.asynclogic.InsuranceLogic
-import org.taktik.icure.asynclogic.InvoiceLogic
-import org.taktik.icure.asynclogic.MessageLogic
-import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.icure.asynclogic.SessionLogic
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.EIDItem
@@ -34,6 +29,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingSideCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDay
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
+import org.taktik.icure.utils.firstOrNull
 import java.math.BigInteger
 import java.time.Instant
 import java.time.ZoneId
@@ -49,7 +45,7 @@ import javax.security.auth.login.LoginException
 import kotlin.math.roundToLong
 
 @Service
-class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: SessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
+class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: AsyncSessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
     private val LSB_MASK = BigInteger("ffffffffffffffff", 16)
     private fun decodeUuidFromRef(`val`: String?): UUID? {
         var `val` = `val`
@@ -88,7 +84,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return BigInteger(1, Arrays.copyOfRange(bb.array(), 0, 4)).toLong()
     }
 
-    private fun createBatch(sendNumber: Int, messageId: String, `is`: Insurance, ivs: Map<String, List<org.taktik.icure.entities.Invoice>>, hcp: HealthcareParty): InvoicesBatch {
+    private suspend fun createBatch(sendNumber: Int, messageId: String, `is`: Insurance, ivs: Map<String, List<Invoice>>, hcp: HealthcareParty): InvoicesBatch {
         val invBatch = InvoicesBatch()
 
         val calendar = Calendar.getInstance()
@@ -148,7 +144,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 invoice.patient = mapper.map(patient, PatientDto::class.java)
 
-                invoice.ioCode = insuranceLogic.getInsurance(insuranceLogic.getInsurance(patient.insurabilities[0].insuranceId).parent).code.substring(0,3)
+                invoice.ioCode = insuranceLogic.getInsurance(patient.insurabilities[0].insuranceId)?.let { insuranceLogic.getInsurance(it.parent)?.code?.substring(0,3) }
                 val invoiceNumber = if (iv.invoiceReference != null && iv.invoiceReference.matches("^[0-9]{4,12}$".toRegex())) java.lang.Long.valueOf(iv.invoiceReference) else this.encodeNumberFromUUID(UUID.fromString(iv.id))
                 invoice.invoiceNumber = invoiceNumber
                 invoice.invoiceRef = encodeRefFromUUID(UUID.fromString(iv.id))
@@ -256,8 +252,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return invoiceItem
     }
 
-    override fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch? {
-        synchronized(this) {
+    override suspend fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch? {
             var zonedDateTime = ZonedDateTime.now().minusDays(1)
             for (invoice in invoices.values.flatten()) {
                 val invoiceDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(invoice.invoiceDate!!), ZoneId.systemDefault())
@@ -269,11 +264,10 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
             val prefix = "efact:${hcp.id}:${insurance.code}:"
             val latestPrefix = entityReferenceLogic.getLatest(prefix)
             val entityRefId = prefix + ("" + (((latestPrefix?.id?.let { it.substring(prefix.length).toLong() } ?: 0) + 1) % 1000000000)).padStart(9 /*1 billion invoices that are going to be mod 1000*/, '0')
-            val entityRefs = mutableListOf<EntityReference>()
-            entityReferenceLogic.createEntities(listOf(EntityReference().apply {
+            val entityRefs = entityReferenceLogic.createEntities(listOf(EntityReference().apply {
                 id = entityRefId
                 docId =  messageId
-            }), entityRefs)
+            }))
 
             return entityRefs.firstOrNull()?.let { ref ->
                 val sendNumber = ref.id.split(":").last()
@@ -285,7 +279,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
                 mm.subject = "Facture tiers payant"
                 mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
                 mm.transportGuid = "EFACT:BATCH:$numericalRef"
-                mm.author = sessionLogic.currentSessionContext.user.id
+                mm.author = sessionLogic.getCurrentUserId()
                 mm.responsible = hcp.id
                 mm.fromHealthcarePartyId = hcp.id
                 mm.recipients = setOf(insurance.id)
@@ -312,11 +306,10 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 MessageWithBatch().apply { invoicesBatch = invBatch; message = mapper.map(mm, MessageDto::class.java) }
             }
-       }
     }
 
     @Throws(LoginException::class, MissingRequirementsException::class)
-    private fun acceptAndMaskMessage(msg: Message, hasError: Boolean) {
+    private suspend fun acceptAndMaskMessage(msg: Message, hasError: Boolean) {
         msg.status = msg.status or Message.STATUS_MASKED
         if (hasError) {
             msg.status = msg.status or Message.STATUS_PARTIAL_SUCCESS
@@ -324,42 +317,49 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
-            parent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
-            messageLogic.modifyMessage(parent)
-            if (parent.parentId != null) {
-                val parentParent = messageLogic.get(parent.parentId)
-                parentParent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
-                messageLogic.modifyMessage(parentParent)
+            if (parent != null) {
+                parent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
+                messageLogic.modifyMessage(parent)
+                if (parent.parentId != null) {
+                    val parentParent = messageLogic.get(parent.parentId)
+                    if (parentParent != null) {
+                        parentParent.status = parent.status or Message.STATUS_ACCEPTED_FOR_TREATMENT
+                        messageLogic.modifyMessage(parentParent)
+                    }
+                }
             }
         }
     }
 
     @Throws(LoginException::class, MissingRequirementsException::class)
-    private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): List<org.taktik.icure.entities.Invoice> {
+    private suspend fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): Flow<Invoice> {
         msg.status = msg.status or Message.STATUS_FULL_ERROR
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
             val parent = messageLogic.get(msg.parentId)
-            parent.status = parent.status or Message.STATUS_REJECTED
-            parent.status = parent.status or Message.STATUS_FULL_ERROR
-            messageLogic.modifyMessage(parent)
-            if (parent.parentId != null) {
-                val parentParent = messageLogic.get(parent.parentId)
-                parentParent.status = parentParent.status or Message.STATUS_REJECTED
-                parentParent.status = parentParent.status or Message.STATUS_FULL_ERROR
-                messageLogic.modifyMessage(parentParent)
-                val invoices = invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.invoiceIds).orElse(LinkedList()))
-                for (iv in invoices) {
-                    for (ic in iv.invoicingCodes) {
-                        val uuid = UUID.fromString(ic.id)
-                        ic.canceled = true
-                        ic.error = rejectedIcErrorCodes?.get(uuid)?.joinToString(",")
-                        ic.pending = false
+            if (parent != null) {
+                parent.status = parent.status or Message.STATUS_REJECTED
+                parent.status = parent.status or Message.STATUS_FULL_ERROR
+                messageLogic.modifyMessage(parent)
+                if (parent.parentId != null) {
+                    val parentParent = messageLogic.get(parent.parentId)
+                    if (parentParent!= null) {
+                        parentParent.status = parentParent.status or Message.STATUS_REJECTED
+                        parentParent.status = parentParent.status or Message.STATUS_FULL_ERROR
+                        messageLogic.modifyMessage(parentParent)
+                        return invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.invoiceIds).orElse(LinkedList())).map {iv ->
+                            for (ic in iv.invoicingCodes) {
+                                val uuid = UUID.fromString(ic.id)
+                                ic.canceled = true
+                                ic.error = rejectedIcErrorCodes?.get(uuid)?.joinToString(",")
+                                ic.pending = false
+                            }
+                            iv
+                        }
                     }
                 }
-                return invoices
             }
         }
-        return LinkedList()
+        return flowOf()
     }
 }

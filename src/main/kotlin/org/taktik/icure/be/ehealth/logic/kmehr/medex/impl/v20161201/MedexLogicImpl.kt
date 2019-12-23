@@ -1,8 +1,10 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.medex.impl.v20161201
 
+import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
 import org.springframework.stereotype.Service
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
@@ -19,7 +21,16 @@ import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
 @Service
-class MedexLogicImpl : MedexLogic, KmehrExport() {
+class MedexLogicImpl(mapper: MapperFacade,
+                     patientLogic: PatientLogic,
+                     codeLogic: CodeLogic,
+                     healthElementLogic: HealthElementLogic,
+                     healthcarePartyLogic: HealthcarePartyLogic,
+                     contactLogic: ContactLogic,
+                     documentLogic: DocumentLogic,
+                     sessionLogic: AsyncSessionLogic,
+                     userLogic: UserLogic,
+                     filters: org.taktik.icure.asynclogic.impl.filter.Filters) : MedexLogic, KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
     internal override val log = LogFactory.getLog(MedexLogicImpl::class.java)
 
@@ -31,7 +42,7 @@ class MedexLogicImpl : MedexLogic, KmehrExport() {
             defaultLanguage = "en"
     )
 
-    override fun createMedex(
+    override suspend fun createMedex(
             author: HealthcareParty, patient: Patient, lang: String, incapacityType: String, incapacityReason: String, outOfHomeAllowed: Boolean, certificateDate: Long,
             contentDate: Long?, beginDate: Long, endDate: Long, diagnosisICD: String?, diagnosisICPC: String?, diagnosisDescr: String?
     ): String {

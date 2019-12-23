@@ -15,9 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.format.logic
 
-
-package org.taktik.icure.be.format.logic;
-
-public interface HealthOneLogic extends ResultFormatLogic {
-}
+interface HealthOneLogic : ResultFormatLogic

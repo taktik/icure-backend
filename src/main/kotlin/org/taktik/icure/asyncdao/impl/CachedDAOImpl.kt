@@ -18,6 +18,8 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.Validate
 import org.ektorp.UpdateConflictException
@@ -29,19 +31,49 @@ import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
+import org.taktik.icure.utils.getFullId
 import java.net.URI
 import java.util.*
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, cacheManager: CacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
     private val cache: Cache = cacheManager.getCache(entityClass.name) ?: throw UnsupportedOperationException("No cache found for: $entityClass")
+    private val log = LoggerFactory.getLogger(javaClass)
 
     init {
         log.debug("Cache impl = {}", this.cache.nativeCache)
     }
 
-    private fun getFullId(dbInstanceUrl: URI, groupId: String?, id: String): String {
-        return dbInstanceUrl.toString() + (groupId
-                ?: "FALLBACK") + ":$id"
+    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Flow<String>) = flow<T> {
+        val batch = mutableListOf<String>()
+        ids.collect {id ->
+            val fullId = getFullId(dbInstanceUrl, groupId, id)
+            val value = cache.get(fullId)
+            if (value != null) {
+                if (batch.isNotEmpty()) {
+                    super.getList(dbInstanceUrl, groupId, batch).collect {
+                        emit(it)
+                    }
+                    batch.clear()
+                }
+                val o = value.get() as T?
+                if (o != null) {
+                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
+                    emit(o)
+                } else {
+                    log.trace("Cache HIT  = {}, Null value", fullId)
+                }
+            } else {
+                batch.add(id)
+            }
+        }
+
+        if (batch.isNotEmpty()) {
+            super.getList(dbInstanceUrl, groupId, batch).collect {
+                emit(it)
+            }
+        }
     }
 
     override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>): Flow<T> {
@@ -66,7 +98,6 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                 missingKeys.add(id)
             }
         }
-
 
         if (missingKeys.isEmpty()) {
             return cachedKeys.map { it.second }.asFlow()
@@ -155,20 +186,14 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
 
     open fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: T) {
         val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
-        val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
         log.debug("Cache EVICT= {}", fullId)
-        log.debug("Cache EVICT= {}", fullId1)
         cache.evict(fullId)
-        cache.evict(fullId1)
     }
 
     fun evictFromCache(dbInstanceUrl: URI, groupId: String?, id: String) {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
-        val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
         log.debug("Cache EVICT= {}", fullId)
-        log.debug("Cache EVICT= {}", fullId1)
         cache.evict(fullId)
-        cache.evict(fullId1)
     }
 
     protected fun getWrapperFromCache(dbInstanceUrl: URI, groupId: String?, id: String): Cache.ValueWrapper? {
@@ -183,44 +208,21 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         return value
     }
 
-    override fun getAll(dbInstanceUrl: URI, groupId: String): Flow<T> {
-        val fullId = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
-
-        val valueWrapper = cache.get(fullId)
-        return if (valueWrapper == null) {
-            log.debug("Cache MISS = {}", fullId)
-            val allEntities = super.getAll(dbInstanceUrl, groupId)
-            cache.put(fullId, allEntities)
-            log.debug("Cache SAVE = {}", fullId)
-            allEntities
-        } else {
-            log.trace("Cache HIT  = {}", fullId)
-
-            valueWrapper.get() as Flow<T>
-        }
-    }
+    override fun getAll(dbInstanceUrl: URI, groupId: String): Flow<T> =
+            getList(dbInstanceUrl, groupId, getAllIds(dbInstanceUrl, groupId))
 
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? {
         var savedEntity: T? = entity
-        val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
         try {
             savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity)
         } catch (e: UpdateConflictException) {
             val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
-
             log.info("Cache EVICT= {}", fullId)
-            log.info("Cache EVICT= {}", fullId1)
-
             cache.evict(fullId)
-            cache.evict(fullId1)
-
             throw e
         }
 
         putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), savedEntity)
-        cache.evict(fullId1)
-        log.debug("Cache EVICT= {}", fullId1)
-
         return entity
     }
 
@@ -259,7 +261,6 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
     }
 
     override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> {
-        val fullId1 = getFullId(dbInstanceUrl, groupId, ALL_ENTITIES_CACHE_KEY)
         val savedEntities = try {
             super.save(dbInstanceUrl, groupId, newEntity, entities)
         } catch (e: UpdateConflictException) {
@@ -268,10 +269,6 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                 log.debug("Cache EVICT= {}", fullId)
                 cache.evict(fullId)
             }
-
-            log.debug("Cache EVICT= {}", fullId1)
-            cache.evict(fullId1)
-
             throw e
         } catch (e: BulkUpdateConflictException) {
             for (entity in entities) {
@@ -279,21 +276,12 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                 log.debug("Cache EVICT= {}", fullId)
                 cache.evict(fullId)
             }
-            log.debug("Cache EVICT= {}", fullId1)
-            cache.evict(fullId1)
             throw e
         }
 
         return savedEntities.onEach { entity ->
             putInCache(dbInstanceUrl, groupId, keyManager.getKey(entity), entity)
-        }.also {
-            cache.evict(fullId1)
-            log.debug("Cache EVICT= {}", fullId1)
         }
     }
 
-    companion object {
-        internal val ALL_ENTITIES_CACHE_KEY = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-        private val log = LoggerFactory.getLogger(javaClass)
-    }
 }

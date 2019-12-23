@@ -44,6 +44,7 @@ import org.taktik.icure.entities.embed.MediumType
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.Instant
@@ -103,9 +104,9 @@ class InvoiceLogicImpl(private val filters: Filters,
         return invoice?.let { invoiceDAO.save(dbInstanceUri, groupId, it) }
     }
 
-    override fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
+    override fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(invoiceDAO.findByHcParty(dbInstanceUri, groupId, hcPartyId, fromDate, toDate, paginationOffset))
+        emitAll(invoiceDAO.findByHcParty(dbInstanceUri, groupId, hcPartyId, fromDate, toDate, paginationOffset.toComplexKeyPaginationOffset()))
     }
 
     override fun listByHcPartyContacts(hcParty: String, contactIds: Set<String>): Flow<Invoice> = flow {

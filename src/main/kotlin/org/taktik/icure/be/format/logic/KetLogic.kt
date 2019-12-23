@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.format.logic
 
-
-package org.taktik.icure.be.format.logic;
-
-public interface KmehrReportLogic extends ResultFormatLogic {
-}
+/**
+ * Created by aduchate on 20/06/2017.
+ */
+interface KetLogic : ResultFormatLogic

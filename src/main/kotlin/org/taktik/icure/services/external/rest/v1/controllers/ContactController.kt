@@ -49,7 +49,9 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
+import reactor.core.publisher.Flux
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -119,9 +121,9 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getContacts", value = "Get contacts")
     @PostMapping("/byIds")
-    fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flow<ContactDto> {
+    fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flux<ContactDto> {
         val contacts = contactLogic.getContacts(contactIds.ids)
-        return contacts.map { c -> mapper.map(c, ContactDto::class.java) }
+        return contacts.map { c -> mapper.map(c, ContactDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "getServiceCodesOccurences", value = "Get the list of all used codes frequencies in services")

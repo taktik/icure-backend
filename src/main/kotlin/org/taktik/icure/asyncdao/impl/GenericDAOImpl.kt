@@ -18,6 +18,8 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
 import org.ektorp.DocumentNotFoundException
@@ -39,6 +41,8 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
     protected val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -121,6 +125,14 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
     }
 
     override fun getList(dbInstanceUrl:URI, groupId:String, ids: Collection<String>): Flow<T> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        if (log.isDebugEnabled) {
+            log.debug(entityClass.simpleName + ".get: " + ids)
+        }
+        return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it); it }
+    }
+
+    override fun getList(dbInstanceUrl:URI, groupId:String, ids: Flow<String>): Flow<T> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)

@@ -41,6 +41,7 @@ import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.bufferedChunks
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -167,13 +168,13 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         return s
     }
 
-    override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long, endValueDate: Long): Flow<String> = flow {
+    override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByTag(dbInstanceUri, groupId, hcPartyId, tagType, tagCode, startValueDate, endValueDate) else contactDAO.listServiceIdsByPatientTag(dbInstanceUri, groupId, hcPartyId, patientSecretForeignKeys, tagType, tagCode, startValueDate, endValueDate)
         emitAll(toEmit)
     }
 
-    override fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String> = flow {
+    override fun listServiceIdsByCode(hcPartyId: String, patientSecretForeignKeys: List<String>?, codeType: String, codeCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val toEmit = if (patientSecretForeignKeys == null) contactDAO.listServiceIdsByCode(dbInstanceUri, groupId, hcPartyId, codeType, codeCode, startValueDate, endValueDate) else contactDAO.findServicesByForeignKeys(dbInstanceUri, groupId, hcPartyId, patientSecretForeignKeys, codeType, codeCode, startValueDate, endValueDate)
         emitAll(toEmit)
@@ -257,9 +258,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
     }
 
-    override fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> = flow {
+    override fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(contactDAO.listContactsByOpeningDate(dbInstanceUri, groupId, hcPartyId, startOpeningDate, endOpeningDate, offset))
+        emitAll(contactDAO.listContactsByOpeningDate(dbInstanceUri, groupId, hcPartyId, startOpeningDate, endOpeningDate, offset.toComplexKeyPaginationOffset()))
     }
 
     companion object {
