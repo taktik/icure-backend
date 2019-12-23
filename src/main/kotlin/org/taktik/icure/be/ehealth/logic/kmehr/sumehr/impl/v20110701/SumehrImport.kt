@@ -1,6 +1,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.cd.v1.*
@@ -33,12 +34,14 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.byteBufferArrayToInputStream
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
 import java.io.InputStream
 import java.io.Serializable
+import java.nio.ByteBuffer
 import java.util.LinkedList
 import javax.xml.bind.JAXBContext
 
@@ -50,15 +53,16 @@ class SumehrImport(val patientLogic: PatientLogic,
                                 val documentLogic: DocumentLogic,
                                 val idGenerator: UUIDGenerator) {
 
-    suspend fun importSumehr(inputStream: InputStream,
-                     author: User,
-                     language: String,
-                     mappings: Map<String, List<ImportMapping>>,
-                     saveToDatabase: Boolean,
-                     dest: Patient? = null): List<ImportResult> {
+    suspend fun importSumehr(inputData : Flow<ByteBuffer>,
+                             author: User,
+                             language: String,
+                             mappings: Map<String, List<ImportMapping>>,
+                             saveToDatabase: Boolean,
+                             dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
 
         val unmarshaller = jc.createUnmarshaller()
+        val inputStream = byteBufferArrayToInputStream(inputData)
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
         var allRes = LinkedList<ImportResult>()
@@ -84,7 +88,7 @@ class SumehrImport(val patientLogic: PatientLogic,
         return allRes
     }
 
-    suspend fun importSumehrByItemId(inputStream: InputStream,
+    suspend fun importSumehrByItemId(inputData : Flow<ByteBuffer>,
                              itemId: String,
                              author: User,
                              language: String,
@@ -92,7 +96,7 @@ class SumehrImport(val patientLogic: PatientLogic,
                              saveToDatabase: Boolean,
                              dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
-
+        val inputStream = byteBufferArrayToInputStream(inputData)
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 

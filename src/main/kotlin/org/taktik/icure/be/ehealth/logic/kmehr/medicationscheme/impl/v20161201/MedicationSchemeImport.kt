@@ -41,12 +41,15 @@ import java.io.Serializable
 import java.util.*
 import javax.xml.bind.JAXBContext
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
+import org.taktik.icure.be.ehealth.logic.kmehr.byteBufferArrayToInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.utils.firstOrNull
+import java.nio.ByteBuffer
 import javax.xml.bind.JAXBElement
 
 
@@ -68,11 +71,11 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
     }
 
     suspend fun importMedicationSchemeFile(inputData : Flow<ByteBuffer>,
-                                   author: User,
-                                   language: String,
-                                   mappings: Map<String, List<ImportMapping>>,
-                                   saveToDatabase: Boolean,
-                                   dest: Patient? = null): List<ImportResult> {
+                                           author: User,
+                                           language: String,
+                                           mappings: Map<String, List<ImportMapping>>,
+                                           saveToDatabase: Boolean,
+                                           dest: Patient? = null): List<ImportResult> {
         val jc = JAXBContext.newInstance(Kmehrmessage::class.java)
         val inputStream = byteBufferArrayToInputStream(inputData)
         val unmarshaller = jc.createUnmarshaller()
