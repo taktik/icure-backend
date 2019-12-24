@@ -19,44 +19,24 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901
 
+import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
+import org.springframework.core.io.buffer.DataBuffer
+import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170901.KmehrExport
-import org.taktik.icure.constants.ServiceStatus
-import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.embed.Content
-import org.taktik.icure.entities.embed.Partnership
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.services.external.api.AsyncDecrypt
-import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
-import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
-import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
-import org.taktik.icure.utils.FuzzyValues
-import java.io.OutputStream
-import java.io.OutputStreamWriter
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import java.util.*
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.Marshaller
-import org.taktik.commons.uti.UTI
-import org.taktik.icure.asynclogic.*
-import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
-import java.io.ByteArrayInputStream
-import javax.xml.transform.stream.StreamSource
 
 @org.springframework.stereotype.Service("dairyNoteExport")
 class DiaryNoteExport(mapper: MapperFacade,
@@ -79,7 +59,6 @@ class DiaryNoteExport(mapper: MapperFacade,
     }
 
     suspend fun createDiaryNote(
-        os: OutputStream,
         pat: Patient,
         sfks: List<String>,
         sender: HealthcareParty,
@@ -99,7 +78,7 @@ class DiaryNoteExport(mapper: MapperFacade,
             clinicalSummaryType = "",
             defaultLanguage = "en"
         )
-    ) {
+    ): Flow<DataBuffer> {
         val message = initializeMessage(sender, config)
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
@@ -108,15 +87,12 @@ class DiaryNoteExport(mapper: MapperFacade,
         val folder = FolderType()
         folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
         folder.patient = makePerson(pat, config)
-        fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
-        message.folders.add(folder)
 
-        val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-        // output pretty printed
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
-        jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+        fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
+        return emitMessage(folder, message)
     }
+
+
 
     private fun dnFromContext(context: String) : String{
         return when (context) {

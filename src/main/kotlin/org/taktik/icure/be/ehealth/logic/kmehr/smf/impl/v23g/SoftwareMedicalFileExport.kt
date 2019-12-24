@@ -22,14 +22,12 @@ package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils.makeMomentType
@@ -57,6 +55,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
@@ -96,7 +95,6 @@ class SoftwareMedicalFileExport(
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
 
 	suspend fun exportSMF(
-			os: OutputStream,
 			patient: Patient,
 			sfks: List<String>,
 			sender: HealthcareParty,
@@ -110,7 +108,7 @@ class SoftwareMedicalFileExport(
 					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
 					exportAsPMF = true
-			)) {
+			)) : Flow<DataBuffer> {
 
 		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 
@@ -126,20 +124,13 @@ class SoftwareMedicalFileExport(
 			})
 		})
 
-		// TODO split marshalling
-		message.folders.add(makePatientFolder(1, patient, sfksUniq, sender, config, language, decryptor, progressor));
-
-		val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
-
-		// output pretty printed
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
-
-		jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+        val folder = makePatientFolder(1, patient, sfksUniq, sender, config, language, decryptor, progressor)
+        return emitMessage(folder, message)
 	}
 
 
-	private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
+
+    private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
 								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))

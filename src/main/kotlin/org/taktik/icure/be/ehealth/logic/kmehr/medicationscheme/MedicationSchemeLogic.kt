@@ -1,6 +1,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme
 
 import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
@@ -17,7 +18,6 @@ interface MedicationSchemeLogic {
 
     suspend fun importMedicationSchemeFile(inputData : Flow<ByteBuffer>, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult>
     suspend fun createMedicationSchemeExport(
-            os: OutputStream,
             patient: Patient,
             sfks: List<String>,
             sender: HealthcareParty,
@@ -26,9 +26,8 @@ interface MedicationSchemeLogic {
             version: Int,
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
-    )
+    ): Flow<DataBuffer>
     suspend fun createMedicationSchemeExport(
-            os: OutputStream,
             patient: Patient,
             sender: HealthcareParty,
             language: String,

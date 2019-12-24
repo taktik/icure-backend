@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -59,7 +60,6 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
         return softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
     }
 
-    override suspend fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
-		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor)
-	}
+    override suspend fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): Flow<DataBuffer> =
+            softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor)
 }

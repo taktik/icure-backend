@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf
 
 import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.dto.result.ImportResult
@@ -36,7 +37,7 @@ import java.nio.ByteBuffer
  * @author Bernard Paulus on 24/05/17.
  */
 interface SoftwareMedicalFileLogic {
-	suspend fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?)
+	suspend fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): Flow<DataBuffer>
     suspend fun importSmfFile(inputData : Flow<ByteBuffer>,
                               author: User,
                               language: String,

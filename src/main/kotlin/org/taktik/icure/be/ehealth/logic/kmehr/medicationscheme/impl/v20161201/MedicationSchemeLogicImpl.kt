@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.dto.mapping.ImportMapping
@@ -51,7 +52,6 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
     }
 
     override suspend fun createMedicationSchemeExport(
-            os: OutputStream,
             patient: Patient,
             sfks: List<String>,
             sender: HealthcareParty,
@@ -60,12 +60,11 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
             version: Int,
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
-    ) {
-        medicationSchemeExport.exportMedicationScheme(os, patient, sfks, sender, language, recipientSafe, version, null, decryptor, progressor)
-	}
+    ):Flow<DataBuffer> =
+        medicationSchemeExport.exportMedicationScheme(patient, sfks, sender, language, recipientSafe, version, null, decryptor, progressor)
+
 
     override suspend fun createMedicationSchemeExport(
-            os: OutputStream,
             patient: Patient,
             sender: HealthcareParty,
             language: String,
@@ -74,6 +73,6 @@ class MedicationSchemeLogicImpl(val medicationSchemeExport: MedicationSchemeExpo
             services: List<org.taktik.icure.entities.embed.Service>,
             progressor: AsyncProgress?
     ) {
-        medicationSchemeExport.exportMedicationScheme(os, patient, listOf(), sender, language, recipientSafe, version, services, null, progressor)
+        medicationSchemeExport.exportMedicationScheme(patient, listOf(), sender, language, recipientSafe, version, services, null, progressor)
     }
 }

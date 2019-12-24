@@ -56,7 +56,7 @@ import org.taktik.icure.services.external.http.WebSocketHandler
     "org.taktik.icure.be.ehealth.logic",
     "org.taktik.icure.be.drugs.logic",
     "org.taktik.icure.be.format.logic",
-    "org.taktik.icure.be.samv2.logic",
+//    "org.taktik.icure.be.samv2.logic",
     "org.taktik.icure.properties",
     "org.taktik.icure.services"
 ], exclude = [

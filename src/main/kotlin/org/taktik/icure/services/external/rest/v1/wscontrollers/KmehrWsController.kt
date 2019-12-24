@@ -19,10 +19,13 @@
 package org.taktik.icure.services.external.rest.v1.wscontrollers
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.withContext
 import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.reactive.function.client.WebClient
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
@@ -39,6 +42,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.DiaryNoteExportIn
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeExportInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
+import reactor.core.publisher.toFlux
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -56,19 +60,16 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/generateDiaryNote")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun generateDiaryNote(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: DiaryNoteExportInfoDto, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 healthcareParty?.let { it1 ->
-                    diaryNoteLogic.createDiaryNote(bos, it, info.secretForeignKeys,
-                            it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId, operation)
+                    operation.binaryResponse(
+                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId, operation)
+                    )
                 }
             }
-            operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-            bos.close()
         } catch (e: Exception) {
             operation.errorResponse(e)
         }
@@ -77,20 +78,16 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/generateSumehr")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun generateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 healthcareParty?.let { it1 ->
-                    sumehrLogicV1.createSumehr(bos, it, info.secretForeignKeys,
+                    operation.binaryResponse(sumehrLogicV1.createSumehr( it, info.secretForeignKeys,
                             it1,
                             mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
+                    )
                 }
-            }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
@@ -102,15 +99,10 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/validateSumehr")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun validateSumehr(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let { healthcareParty?.let { it1 -> sumehrLogicV1.validateSumehr(bos, it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation) } }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
-            }
+            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)) } }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
                 operation.errorResponse(e)
@@ -121,20 +113,17 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/generateSumehrV2")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun generateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 healthcareParty?.let { it1 ->
-                    sumehrLogicV2.createSumehr(bos, it, info.secretForeignKeys,
-                            it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
+                    operation.binaryResponse(
+                            sumehrLogicV2.createSumehr( it, info.secretForeignKeys,
+                                    it1,
+                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
+                    )
                 }
-            }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
@@ -146,29 +135,25 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/generateSumehrV2JSON")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun generateSumehrV2JSON(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, @WebSocketParam("asJson") asJson: Boolean?, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 healthcareParty?.let { it1 ->
-                    sumehrLogicV2.createSumehr(
-                            bos,
-                            it,
-                            info.secretForeignKeys,
-                            it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java),
-                            language,
-                            info.comment,
-                            info.excludedIds,
-                            if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
-                            operation
+                    operation.binaryResponse(
+                            sumehrLogicV2.createSumehr(
+                                    it,
+                                    info.secretForeignKeys,
+                                    it1,
+                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java),
+                                    language,
+                                    info.comment,
+                                    info.excludedIds,
+                                    if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
+                                    operation
+                            )
                     )
                 }
-            }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
@@ -180,29 +165,25 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/validateSumehrV2")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun validateSumehrV2(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SumehrExportInfoDto, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 healthcareParty?.let { it1 ->
-                    sumehrLogicV2.validateSumehr(
-                            bos,
-                            it,
-                            info.secretForeignKeys,
-                            it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java),
-                            language,
-                            info.comment,
-                            info.excludedIds,
-                            if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
-                            operation
+                    operation.binaryResponse(
+                            sumehrLogicV2.validateSumehr(
+                                    it,
+                                    info.secretForeignKeys,
+                                    it1,
+                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java),
+                                    language,
+                                    info.comment,
+                                    info.excludedIds,
+                                    if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
+                                    operation
+                            )
                     )
                 }
-            }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
@@ -214,26 +195,23 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/generateSmf")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun generateSmfExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: SoftwareMedicalFileExportDto, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 healthcareParty?.let { it1 ->
-                    softwareMedicalFileLogic.createSmfExport(
-                            bos,
-                            it,
-                            info.secretForeignKeys,
-                            it1,
-                            language,
-                            operation,
-                            operation
+                    operation.binaryResponse(
+                            softwareMedicalFileLogic.createSmfExport(
+                                    it,
+                                    info.secretForeignKeys,
+                                    it1,
+                                    language,
+                                    operation,
+                                    operation
+                            )
+
                     )
                 }
-            }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
             }
 
         } catch (e: Exception) {
@@ -246,28 +224,24 @@ class KmehrWsController(private var mapper: MapperFacade,
     @RequestMapping("/generateMedicationScheme")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
     suspend fun generateMedicationSchemeExport(@WebSocketParam("patientId") patientId: String, @WebSocketParam("language") language: String, @WebSocketParam("info") info: MedicationSchemeExportInfoDto, @WebSocketParam("recipientSafe") recipientSafe: String, @WebSocketParam("version") version: Int, operation: KmehrFileOperation) {
-        val bos = ByteArrayOutputStream(10000)
         try {
             val patient = patientLogic.getPatient(patientId)
             val hcParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
             patient?.let {
                 hcParty?.let { it1 ->
-                    medicationSchemeLogic.createMedicationSchemeExport(
-                            bos,
-                            it,
-                            info.secretForeignKeys,
-                            it1,
-                            language,
-                            recipientSafe,
-                            version,
-                            operation,
-                            null
+                    operation.binaryResponse(
+                            medicationSchemeLogic.createMedicationSchemeExport(
+                                    it,
+                                    info.secretForeignKeys,
+                                    it1,
+                                    language,
+                                    recipientSafe,
+                                    version,
+                                    operation,
+                                    null
+                            )
                     )
                 }
-            }
-            withContext(Dispatchers.IO) {
-                operation.binaryResponse(ByteBuffer.wrap(bos.toByteArray()))
-                bos.close()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
