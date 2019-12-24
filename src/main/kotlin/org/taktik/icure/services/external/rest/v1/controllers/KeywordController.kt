@@ -30,6 +30,8 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.entities.Keyword
 import org.taktik.icure.asynclogic.KeywordLogic
 import org.taktik.icure.services.external.rest.v1.dto.KeywordDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
 @RestController
 @RequestMapping("/rest/v1/keyword")
@@ -56,16 +58,16 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
 
     @ApiOperation(nickname = "getKeywords", value = "Gets all keywords")
     @GetMapping
-    fun getKeywords(): Flow<KeywordDto> {
-        return keywordLogic.getAllEntities().map { c -> mapper.map(c, KeywordDto::class.java) }
+    fun getKeywords(): Flux<KeywordDto> {
+        return keywordLogic.getAllEntities().map { c -> mapper.map(c, KeywordDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "deleteKeywords", value = "Delete keywords.", notes = "Response is a set containing the ID's of deleted keywords.")
     @DeleteMapping("/{keywordIds}")
-    fun deleteKeywords(@PathVariable keywordIds: String): Flow<DocIdentifier> {
+    fun deleteKeywords(@PathVariable keywordIds: String): Flux<DocIdentifier> {
         val ids = keywordIds.split(',')
         if (ids.isEmpty()) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
-        return keywordLogic.deleteKeywords(ids.toSet())
+        return keywordLogic.deleteKeywords(ids.toSet()).injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyKeyword", value = "Modify a keyword", notes = "Returns the modified keyword.")

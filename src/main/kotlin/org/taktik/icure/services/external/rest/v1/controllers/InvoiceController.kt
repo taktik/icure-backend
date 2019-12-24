@@ -324,7 +324,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @ApiOperation(nickname = "listByServiceIds", value = "Gets all invoices for author at date")
     @GetMapping("/byServiceIds/{serviceIds}")
     fun listByServiceIds(@PathVariable serviceIds: String): Flux<InvoiceDto> {
-        return invoiceLogic.listByServiceIds(serviceIds.split(',').toSet()).map { mapper.map(it, InvoiceDto::class.java) }.in
+        return invoiceLogic.listByServiceIds(serviceIds.split(',').toSet()).map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listAllHcpsByStatus", value = "Gets all invoices per status")
@@ -332,8 +332,8 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     fun listAllHcpsByStatus(@PathVariable status: String,
                             @RequestParam(required = false) from: Long?,
                             @RequestParam(required = false) to: Long?,
-                            @RequestBody hcpIds: ListOfIdsDto): Flow<InvoiceDto> {
-        return invoiceLogic.listAllHcpsByStatus(status, from, to, hcpIds.ids).map { mapper.map(it, InvoiceDto::class.java) }
+                            @RequestBody hcpIds: ListOfIdsDto): Flux<InvoiceDto> {
+        return invoiceLogic.listAllHcpsByStatus(status, from, to, hcpIds.ids).map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "getTarificationsCodesOccurences", value = "Get the list of all used tarifications frequencies in invoices")
@@ -344,9 +344,9 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "filterBy", value = "Filter invoices for the current user (HcParty)", notes = "Returns a list of invoices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    suspend fun filterBy(@RequestBody filterChain: FilterChain): Flow<InvoiceDto> {
+    suspend fun filterBy(@RequestBody filterChain: FilterChain): Flux<InvoiceDto> {
         val invoices = invoiceLogic.filter(org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as Filter<String, Invoice>, mapper.map(filterChain.predicate, Predicate::class.java)))
 
-        return invoices.map { element -> mapper.map(element, InvoiceDto::class.java) }
+        return invoices.map { element -> mapper.map(element, InvoiceDto::class.java) }.injectReactorContext()
     }
 }

@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
@@ -38,12 +39,15 @@ import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
 import org.taktik.icure.services.external.rest.v1.dto.UserDto
 import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto
 import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
  * is not required by default and overrides it, so we have to make sure they always match!
  * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/user")
 @Api(tags = ["user"]) // otherwise would default to "user-controller"
@@ -124,8 +128,8 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable id: String): Flow<String> {
-        return userLogic.findByHcpartyId(id)
+    fun findByHcpartyId(@PathVariable id: String): Flux<String> {
+        return userLogic.findByHcpartyId(id).injectReactorContext()
     }
 
     @ApiOperation(nickname = "deleteUser", value = "Delete a User based on his/her ID.", notes = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")

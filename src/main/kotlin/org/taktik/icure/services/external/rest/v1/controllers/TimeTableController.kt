@@ -58,8 +58,8 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @ApiOperation(nickname = "deleteTimeTable", value = "Deletes an timeTable")
     @DeleteMapping("/{timeTableIds}")
-    fun deleteTimeTable(@PathVariable timeTableIds: String): Flow<DocIdentifier> {
-        return timeTableLogic.deleteTimeTables(timeTableIds.split(','))
+    fun deleteTimeTable(@PathVariable timeTableIds: String): Flux<DocIdentifier> {
+        return timeTableLogic.deleteTimeTables(timeTableIds.split(',')).injectReactorContext()
     }
 
     @ApiOperation(nickname = "getTimeTable", value = "Gets a timeTable")
