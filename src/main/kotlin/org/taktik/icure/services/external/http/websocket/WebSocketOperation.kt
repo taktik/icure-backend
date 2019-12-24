@@ -23,4 +23,4 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @Retention(RetentionPolicy.RUNTIME)
-annotation class WebSocketOperation(val adapterClass: KClass<out Operation?>)
+annotation class WebSocketOperation(val adapterClass: KClass<out Operation>)

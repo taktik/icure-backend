@@ -18,15 +18,22 @@
 package org.taktik.icure.services.external.http.websocket
 
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.asFlux
 import org.apache.commons.logging.LogFactory
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.web.reactive.socket.WebSocketMessage
+import org.springframework.web.reactive.socket.WebSocketSession
 import java.io.IOException
-import java.nio.ByteBuffer
 import java.util.*
 
-abstract class BinaryOperation internal constructor(protected var gsonMapper: Gson, protected var webSocket: WebSocket) : Operation, AsyncProgress {
+abstract class BinaryOperation(protected var webSocket: WebSocketSession, protected var gsonMapper: Gson) : Operation, AsyncProgress {
+    private val log = LogFactory.getLog(BinaryOperation::class.java)
+
     @Throws(IOException::class)
-    fun binaryResponse(response: ByteBuffer?) {
-        webSocket.remote.sendBytes(response)
+    fun binaryResponse(response: Flow<DataBuffer>) {
+        webSocket.send(response.map { WebSocketMessage(WebSocketMessage.Type.BINARY, it)}.asFlux())
     }
 
     @Throws(IOException::class)
@@ -35,21 +42,15 @@ abstract class BinaryOperation internal constructor(protected var gsonMapper: Gs
         ed["message"] = e.message
         ed["localizedMessage"] = e.localizedMessage
         log.info("Error in socket " + e.message + ":" + e.localizedMessage + " ", e)
-        if (webSocket.remote != null) {
-            webSocket.remote.sendString(gsonMapper.toJson(ed))
-        }
+        webSocket.textMessage(gsonMapper.toJson(ed))
     }
 
     @Throws(IOException::class)
     override fun progress(progress: Double) {
         val wrapper = HashMap<String, Double>()
         wrapper["progress"] = progress
-        val message: Message<*> = Message("progress", "Map", UUID.randomUUID().toString(), Arrays.asList(wrapper))
-        webSocket.remote.sendString(gsonMapper.toJson(message))
-    }
-
-    companion object {
-        private val log = LogFactory.getLog(BinaryOperation::class.java)
+        val message: Message<*> = Message("progress", "Map", UUID.randomUUID().toString(), listOf(wrapper))
+        webSocket.textMessage(gsonMapper.toJson(message))
     }
 
 }

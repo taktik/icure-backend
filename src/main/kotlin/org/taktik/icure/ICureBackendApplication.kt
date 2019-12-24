@@ -40,7 +40,7 @@ import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.entities.embed.*
-import org.taktik.icure.services.external.http.WebSocketServlet
+import org.taktik.icure.services.external.http.WebSocketHandler
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
@@ -71,7 +71,7 @@ class ICureBackendApplication {
 
 
     @Bean
-    fun initializer(webSocketServlet: WebSocketServlet) = ServletContextInitializer {
+    fun initializer(webSocketServlet: WebSocketHandler) = ServletContextInitializer {
         val webSocketServletReg = it.addServlet("webSocketServlet", webSocketServlet)
         webSocketServletReg.setLoadOnStartup(1)
         webSocketServletReg.addMapping("/ws/*")

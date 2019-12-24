@@ -146,32 +146,6 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         return getCurrentSessionContext().let { Pair(it.getDbInstanceUri(), it.getGroupId()) }
     }
 
-//    override fun <T> doInSessionContext(sessionContext: SessionLogic.SessionContext, callable: Callable<T>?): Mono<T?> {
-//        // Backup current sessionContext and authentication if any
-//        val previousAuthentication = getCurrentAuthentication()
-//
-//        // Set new authentication
-//        previousAuthentication.map { previous ->
-//            setCurrentAuthentication(sessionContext?.getAuthentication()).map {
-//
-//                // Prepare result
-//                var result: T? = null
-//
-//                // Call callable
-//                try {
-//                    if (callable != null) {
-//                        result = callable.call()
-//                    }
-//                } finally {
-//                    // Restore previous sessionContext and authentication
-//                    return setCurrentAuthentication(previous).map { result }
-//                }
-//            }
-//        }
-//    }
-
-    override fun <T> doInSessionContext(sessionContext: AsyncSessionLogic.AsyncSessionContext, callable: Callable<T>?): T? = null
-
 
     override suspend fun getCurrentUserId(): String {
         return getCurrentSessionContext().getUser().id

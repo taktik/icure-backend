@@ -18,19 +18,17 @@
 package org.taktik.icure.services.external.http.websocket
 
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
+import org.springframework.web.reactive.socket.WebSocketSession
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import java.io.IOException
 import java.io.Serializable
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
-import java.util.stream.Collectors
-import java.util.stream.StreamSupport
 
-class KmehrFileOperation(webSocket: WebSocket, gsonMapper: Gson) : BinaryOperation(gsonMapper, webSocket), AsyncDecrypt {
+class KmehrFileOperation(webSocket: WebSocketSession, gsonMapper: Gson) : BinaryOperation(webSocket, gsonMapper), AsyncDecrypt {
     private val decodingSessions: MutableMap<String?, DecodingSession<*>> = HashMap()
     @Throws(IOException::class)
     override fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): Future<List<K>> {
@@ -38,7 +36,7 @@ class KmehrFileOperation(webSocket: WebSocket, gsonMapper: Gson) : BinaryOperati
         val future = CompletableFuture<List<K>>()
         val decodingSession = DecodingSession(future, clazz)
         decodingSessions[message.uuid] = decodingSession
-        webSocket.remote.sendString(gsonMapper.toJson(message))
+        webSocket.textMessage(gsonMapper.toJson(message))
         return future
     }
 
