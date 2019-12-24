@@ -24,8 +24,6 @@ interface AsyncSessionLogic {
 
     suspend fun getInstanceAndGroupInformationFromSecurityContext(): Pair<URI, String>
 
-    fun <T> doInSessionContext(sessionContext: AsyncSessionContext, callable: Callable<T>?): T?
-
     fun getOrCreateSession(): HttpSession?
     suspend fun getCurrentUserId(): String
     suspend fun getCurrentHealthcarePartyId(): String

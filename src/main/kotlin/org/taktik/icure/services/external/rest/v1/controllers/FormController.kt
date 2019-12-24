@@ -78,7 +78,7 @@ class FormController(private val mapper: MapperFacade,
     @PostMapping("/byIds")
     fun getForms(@RequestBody formIds: ListOfIdsDto): Flux<FormDto> {
         val forms = formLogic.getForms(formIds.ids)
-        return forms.map { mapper.map(it, FormDto::class.java) }
+        return forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "getChildren", value = "Get a list of forms by ids", notes = "Keys must be delimited by coma")
@@ -145,7 +145,7 @@ class FormController(private val mapper: MapperFacade,
     fun modifyForms(@RequestBody formDtos: List<FormDto>): Flux<FormDto> {
         return try {
             val forms = formLogic.updateEntities(formDtos.map { mapper.map(it, Form::class.java) })
-            forms.map { mapper.map(it, FormDto::class.java) }
+            forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)

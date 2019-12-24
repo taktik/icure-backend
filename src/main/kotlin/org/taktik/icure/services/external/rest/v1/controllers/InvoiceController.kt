@@ -318,13 +318,13 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
                                            @RequestParam(required = false) status: String?,
                                            @RequestParam(required = false) from: Long?,
                                            @RequestParam(required = false) to: Long?): Flux<InvoiceDto> {
-        return invoiceLogic.listByHcPartySendingModeStatus(hcPartyId, sendingMode, status, from, to).map { mapper.map(it, InvoiceDto::class.java) }
+        return invoiceLogic.listByHcPartySendingModeStatus(hcPartyId, sendingMode, status, from, to).map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listByServiceIds", value = "Gets all invoices for author at date")
     @GetMapping("/byServiceIds/{serviceIds}")
-    fun listByServiceIds(@PathVariable serviceIds: String): Flow<InvoiceDto> {
-        return invoiceLogic.listByServiceIds(serviceIds.split(',').toSet()).map { mapper.map(it, InvoiceDto::class.java) }
+    fun listByServiceIds(@PathVariable serviceIds: String): Flux<InvoiceDto> {
+        return invoiceLogic.listByServiceIds(serviceIds.split(',').toSet()).map { mapper.map(it, InvoiceDto::class.java) }.in
     }
 
     @ApiOperation(nickname = "listAllHcpsByStatus", value = "Gets all invoices per status")
