@@ -1,7 +1,8 @@
-package org.taktik.icure.services.external.http.websocket;
+package org.taktik.icure.services.external.http.websocket
 
-import java.io.IOException;
+import java.io.IOException
 
-public interface AsyncProgress {
-	void progress(Double progress) throws IOException;
+interface AsyncProgress {
+    @Throws(IOException::class)
+    fun progress(progress: Double)
 }

@@ -15,97 +15,79 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http.websocket
 
-package org.taktik.icure.services.external.http.websocket;
+import com.google.gson.Gson
+import com.google.gson.JsonParser
+import org.eclipse.jetty.websocket.api.Session
+import org.eclipse.jetty.websocket.api.WebSocketAdapter
+import org.taktik.icure.asynclogic.SessionLogic
+import org.taktik.icure.services.external.http.WebSocketServlet.WebSocketInvocation
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Parameter
+import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executor
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
-import org.taktik.icure.asynclogic.SessionLogic;
-import org.taktik.icure.asynclogic.SessionLogic.SessionContext;
-import org.taktik.icure.services.external.http.WebSocketServlet;
+class WebSocket(// TODO SH does this still work ?
+        private val sessionContext: SessionLogic.SessionContext, private val prefix: String, private val gsonMapper: Gson, private val sessionLogic: SessionLogic, private val executor: Executor, private val operations: Map<String, WebSocketInvocation>) : WebSocketAdapter() {
+    private var operation: Operation? = null
+    override fun onWebSocketConnect(sess: Session) {
+        super.onWebSocketConnect(sess)
+    }
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.Executor;
+    override fun onWebSocketText(message: String) {
+        if (operation == null) {
+            val parser = JsonParser()
+            val parameters = parser.parse(message).asJsonObject["parameters"].asJsonObject
+            val path = session.upgradeRequest.requestURI.path.replaceFirst("^" + prefix.toRegex(), "").replaceFirst(";jsessionid=.*".toRegex(), "")
+            val invocation = operations[path]
+            operation = try {
+                invocation!!.operationClass.getConstructor(WebSocket::class.java, Gson::class.java).newInstance(this, gsonMapper)
+            } catch (e: InstantiationException) {
+                throw IllegalStateException(e)
+            } catch (e: IllegalAccessException) {
+                throw IllegalStateException(e)
+            } catch (e: NoSuchMethodException) {
+                throw IllegalStateException(e)
+            } catch (e: InvocationTargetException) {
+                throw IllegalStateException(e)
+            }
+            executor.execute {
+                try {
+                    sessionLogic.doInSessionContext(sessionContext, Callable<Any?> {
+                        try {
+                            invocation.method.invoke(invocation.bean, *Arrays.stream(invocation.method.parameters).map { p: Parameter ->
+                                val paramAnnotation = p.getAnnotation(WebSocketParam::class.java)
+                                if (paramAnnotation == null) operation else gsonMapper.fromJson(parameters[paramAnnotation.value()], p.type)
+                            }.toArray { _Dummy_.__Array__() })
+                        } catch (e: IllegalAccessException) {
+                            throw IllegalArgumentException(e)
+                        } catch (e: InvocationTargetException) {
+                            throw IllegalArgumentException(e)
+                        }
+                        null
+                    })
+                } catch (e: Exception) {
+                    throw RuntimeException(e)
+                }
+            }
+        } else {
+            operation!!.handle(message)
+        }
+    }
 
-public class WebSocket extends WebSocketAdapter { // TODO SH does this still work ?
-	private SessionContext sessionContext;
-	private String prefix;
-	private Gson gsonMapper;
-	private Map<String, WebSocketServlet.WebSocketInvocation> operations;
-	private Operation operation;
-	private SessionLogic sessionLogic;
-	private Executor executor;
+    override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
+        super.onWebSocketBinary(payload, offset, len)
+    }
 
-	public WebSocket(SessionContext sessionContext, String prefix, Gson gsonMapper, SessionLogic sessionLogic, Executor executor, Map<String, WebSocketServlet.WebSocketInvocation> operations) {
-		this.sessionContext = sessionContext;
-		this.prefix = prefix;
-		this.gsonMapper = gsonMapper;
-		this.sessionLogic = sessionLogic;
-		this.executor = executor;
-		this.operations = operations;
-	}
+    override fun onWebSocketClose(statusCode: Int, reason: String) {
+        super.onWebSocketClose(statusCode, reason)
+    }
 
-	@Override
-	public void onWebSocketConnect(Session sess) {
-		super.onWebSocketConnect(sess);
-	}
+    override fun onWebSocketError(cause: Throwable) {
+        super.onWebSocketError(cause)
+        cause.printStackTrace(System.err)
+    }
 
-	@Override
-	public void onWebSocketText(String message) {
-		if (operation == null) {
-			JsonParser parser = new JsonParser();
-			JsonObject parameters = parser.parse(message).getAsJsonObject().get("parameters").getAsJsonObject();
-
-			String path = getSession().getUpgradeRequest().getRequestURI().getPath().replaceFirst("^" + prefix, "").replaceFirst(";jsessionid=.*", "");
-			WebSocketServlet.WebSocketInvocation invocation = operations.get(path);
-			try {
-				operation = invocation.getOperationClass().getConstructor(WebSocket.class, Gson.class).newInstance(this, gsonMapper);
-			} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-				throw new IllegalStateException(e);
-			}
-
-			executor.execute(() -> {
-				try {
-					sessionLogic.doInSessionContext(sessionContext, () -> {
-						try {
-							invocation.getMethod().invoke(invocation.getBean(), Arrays.stream(invocation.getMethod().getParameters()).map(p -> {
-								WebSocketParam paramAnnotation = p.getAnnotation(WebSocketParam.class);
-								return paramAnnotation == null ? operation : gsonMapper.fromJson(parameters.get(paramAnnotation.value()), p.getType());
-							}).toArray(java.lang.Object[]::new));
-						} catch (IllegalAccessException | InvocationTargetException e) {
-							throw new IllegalArgumentException(e);
-						}
-
-						return null;
-					});
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-
-		} else {
-			operation.handle(message);
-		}
-	}
-
-	@Override
-	public void onWebSocketBinary(byte[] payload, int offset, int len) {
-		super.onWebSocketBinary(payload, offset, len);
-	}
-
-	@Override
-	public void onWebSocketClose(int statusCode, String reason) {
-		super.onWebSocketClose(statusCode, reason);
-	}
-
-	@Override
-	public void onWebSocketError(Throwable cause) {
-		super.onWebSocketError(cause);
-		cause.printStackTrace(System.err);
-	}
 }

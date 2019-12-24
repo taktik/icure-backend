@@ -15,54 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http.websocket
 
-package org.taktik.icure.services.external.http.websocket;
+import java.io.Serializable
 
-import java.io.Serializable;
-import java.util.List;
-
-public class Message<K extends List<? extends Serializable>> {
-	String command;
-	String uuid;
-	String type;
-	K body;
-
-	public Message(String command, String type, String uuid, K body) {
-		this.command = command;
-		this.type = type;
-		this.uuid = uuid;
-		this.body = body;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getCommand() {
-		return command;
-	}
-
-	public void setCommand(String command) {
-		this.command = command;
-	}
-
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-
-	public K getBody() {
-		return body;
-	}
-
-	public void setBody(K body) {
-		this.body = body;
-	}
-}
+class Message<K : List<Serializable?>?>(var command: String, var type: String, var uuid: String, var body: K)

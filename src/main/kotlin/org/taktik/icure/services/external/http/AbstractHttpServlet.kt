@@ -15,60 +15,49 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http
 
-package org.taktik.icure.services.external.http;
+import org.slf4j.LoggerFactory
+import java.io.IOException
+import javax.servlet.*
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
-import java.io.IOException;
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+abstract class AbstractHttpServlet : Servlet {
+    protected val log = LoggerFactory.getLogger(javaClass)
+    protected var theServletConfig: ServletConfig? = null
+    @Throws(ServletException::class)
+    override fun init(servletConfig: ServletConfig) {
+        this.theServletConfig = servletConfig
+    }
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+    override fun getServletConfig(): ServletConfig {
+        return theServletConfig!!
+    }
 
-public abstract class AbstractHttpServlet implements Servlet {
-	protected final Logger log = LoggerFactory.getLogger(getClass());
+    override fun getServletInfo(): String? {
+        return null
+    }
 
-	protected ServletConfig servletConfig;
+    override fun destroy() {
+        theServletConfig = null
+    }
 
-	@Override
-	public void init(ServletConfig servletConfig) throws ServletException {
-		this.servletConfig = servletConfig;
-	}
+    @Throws(ServletException::class, IOException::class)
+    override fun service(servletRequest: ServletRequest, servletResponse: ServletResponse) {
+        if (servletRequest is HttpServletRequest && servletResponse is HttpServletResponse) {
+            try {
+                handleRequest(servletRequest, servletResponse)
+            } catch (se: ServletException) {
+                throw se
+            } catch (se: IOException) {
+                throw se
+            } catch (e: Exception) {
+                throw ServletException(e)
+            }
+        }
+    }
 
-	@Override
-	public ServletConfig getServletConfig() {
-		return servletConfig;
-	}
-
-	@Override
-	public String getServletInfo() {
-		return null;
-	}
-
-	@Override
-	public void destroy() {
-		this.servletConfig = null;
-	}
-
-	@Override
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-		if (servletRequest instanceof HttpServletRequest && servletResponse instanceof HttpServletResponse) {
-			HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-			HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-			try {
-				handleRequest(httpRequest, httpResponse);
-			} catch (ServletException | IOException se) {
-				throw se;
-			} catch (Exception e) {
-				throw new ServletException(e);
-			}
-		}
-	}
-
-	protected abstract void handleRequest(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception;
+    @Throws(Exception::class)
+    protected abstract fun handleRequest(httpRequest: HttpServletRequest?, httpResponse: HttpServletResponse?)
 }

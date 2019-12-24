@@ -15,52 +15,41 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http.websocket
 
-package org.taktik.icure.services.external.http.websocket;
+import com.google.gson.Gson
+import org.apache.commons.logging.LogFactory
+import java.io.IOException
+import java.nio.ByteBuffer
+import java.util.*
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+abstract class BinaryOperation internal constructor(protected var gsonMapper: Gson, protected var webSocket: WebSocket) : Operation, AsyncProgress {
+    @Throws(IOException::class)
+    fun binaryResponse(response: ByteBuffer?) {
+        webSocket.remote.sendBytes(response)
+    }
 
-import com.google.gson.Gson;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+    @Throws(IOException::class)
+    fun errorResponse(e: Exception) {
+        val ed: MutableMap<String, String?> = HashMap()
+        ed["message"] = e.message
+        ed["localizedMessage"] = e.localizedMessage
+        log.info("Error in socket " + e.message + ":" + e.localizedMessage + " ", e)
+        if (webSocket.remote != null) {
+            webSocket.remote.sendString(gsonMapper.toJson(ed))
+        }
+    }
 
-public abstract class BinaryOperation implements Operation, AsyncProgress {
-	private static Log log = LogFactory.getLog(BinaryOperation.class);
+    @Throws(IOException::class)
+    override fun progress(progress: Double) {
+        val wrapper = HashMap<String, Double>()
+        wrapper["progress"] = progress
+        val message: Message<*> = Message("progress", "Map", UUID.randomUUID().toString(), Arrays.asList(wrapper))
+        webSocket.remote.sendString(gsonMapper.toJson(message))
+    }
 
-	protected Gson gsonMapper;
-	protected WebSocket webSocket;
-
-	BinaryOperation(Gson gsonMapper, WebSocket webSocket) {
-		this.gsonMapper = gsonMapper;
-		this.webSocket = webSocket;
-	}
-
-	public void binaryResponse(ByteBuffer response) throws IOException {
-		webSocket.getRemote().sendBytes(response);
-	}
-
-	public void errorResponse(Exception e) throws IOException {
-		Map<String,String> ed = new HashMap<>();
-		ed.put("message",e.getMessage());
-		ed.put("localizedMessage",e.getLocalizedMessage());
-
-		log.info("Error in socket " + e.getMessage() + ":" +e.getLocalizedMessage() + " ", e);
-
-		if (webSocket.getRemote() != null) { webSocket.getRemote().sendString(gsonMapper.toJson(ed)); }
-	}
-
-	@Override
-	public void progress(Double progress) throws IOException {
-		HashMap<String, Double> wrapper = new HashMap<>();
-		wrapper.put("progress",progress);
-		Message message = new Message<>("progress", "Map", UUID.randomUUID().toString(), Arrays.asList(wrapper));
-
-		webSocket.getRemote().sendString(gsonMapper.toJson(message));
-	}
+    companion object {
+        private val log = LogFactory.getLog(BinaryOperation::class.java)
+    }
 
 }

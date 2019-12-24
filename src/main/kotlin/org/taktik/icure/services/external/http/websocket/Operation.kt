@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http.websocket
 
-package org.taktik.icure.services.external.http.websocket;
+import java.io.Serializable
 
-public interface Operation {
-	void handle(String message);
+interface Operation {
+    fun <K:Serializable>handle(message: String?)
 }

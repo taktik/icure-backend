@@ -15,109 +15,63 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http
 
-package org.taktik.icure.services.external.http;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.google.gson.Gson;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.taktik.icure.asynclogic.SessionLogic;
-import org.taktik.icure.services.external.http.websocket.Operation;
-import org.taktik.icure.services.external.http.websocket.WebSocket;
-import org.taktik.icure.services.external.http.websocket.WebSocketOperation;
-import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController;
+import com.google.gson.Gson
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse
+import org.eclipse.jetty.websocket.servlet.WebSocketCreator
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.task.TaskExecutor
+import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.reactive.socket.WebSocketHandler
+import org.springframework.web.reactive.socket.WebSocketSession
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.services.external.http.websocket.Operation
+import org.taktik.icure.services.external.http.websocket.WebSocket
+import org.taktik.icure.services.external.http.websocket.WebSocketOperation
+import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
+import reactor.core.publisher.Mono
+import java.lang.reflect.Method
+import java.util.*
 
 @Component
-public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSocketServlet {
-	public static final int MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-	private KmehrWsController kmehrWsController;
-	private Gson gsonMapper;
-	private String prefix;
-	private SessionLogic sessionLogic;
-	private TaskExecutor wsExecutor;
+class WebSocketServlet(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic, val wsExecutor: TaskExecutor) : WebSocketHandler {
+    var prefix: String? = null
 
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
+    fun configure(factory: WebSocketServletFactory) {
+        factory.policy.maxTextMessageSize = MAX_MESSAGE_SIZE
+        factory.policy.maxTextMessageBufferSize = MAX_MESSAGE_SIZE
+        factory.policy.maxBinaryMessageSize = MAX_MESSAGE_SIZE
+        factory.policy.maxBinaryMessageBufferSize = MAX_MESSAGE_SIZE
+        val methods: MutableMap<String, WebSocketInvocation> = HashMap()
+        scanBeanMethods(kmehrWsController, methods)
+        factory.creator = WebSocketCreator { req: ServletUpgradeRequest?, resp: ServletUpgradeResponse? -> WebSocket(sessionLogic!!.getCurrentSessionContext(), prefix, gsonMapper, sessionLogic, wsExecutor, methods) }
+    }
 
-	@Override
-	public void configure(WebSocketServletFactory factory) {
-		factory.getPolicy().setMaxTextMessageSize(MAX_MESSAGE_SIZE);
-		factory.getPolicy().setMaxTextMessageBufferSize(MAX_MESSAGE_SIZE);
-		factory.getPolicy().setMaxBinaryMessageSize(MAX_MESSAGE_SIZE);
-		factory.getPolicy().setMaxBinaryMessageBufferSize(MAX_MESSAGE_SIZE);
+    private fun scanBeanMethods(bean: Any, methods: MutableMap<String, WebSocketInvocation>) {
+        val clazz: Class<*> = bean.javaClass
+        val annotation = clazz.getAnnotation(RequestMapping::class.java)
+        if (annotation != null && annotation.path.isNotEmpty()) {
+            val basePath: String = annotation.path[0]
+            clazz.methods.filter { m: Method -> m.getAnnotation(WebSocketOperation::class.java)?.let { wso ->
+                    m.getAnnotation(RequestMapping::class.java)?.path?.isNotEmpty()
+                } == true
+            }.forEach { m: Method ->
+                methods[(basePath + "/" + m.getAnnotation(RequestMapping::class.java).path[0]).replace("//".toRegex(), "/")] =
+                        WebSocketInvocation(m.getAnnotation(WebSocketOperation::class.java).adapterClass.java, bean, m) }
+        }
+    }
 
-		Map<String,WebSocketInvocation> methods = new HashMap<>();
-		scanBeanMethods(this.kmehrWsController, methods);
-		factory.setCreator((req, resp) ->
-				new WebSocket(sessionLogic.getCurrentSessionContext(), prefix, gsonMapper, sessionLogic, wsExecutor, methods));
-	}
+    override fun handle(session: WebSocketSession): Mono<Void> {
+        return null
+    }
 
-	private void scanBeanMethods(Object bean, Map<String, WebSocketInvocation> methods) {
-		Class clazz = bean.getClass();
-		RequestMapping annotation = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
+    inner class WebSocketInvocation(val operationClass: Class<out Operation?>, val bean: Any?, val method: Method)
 
-		if (annotation!=null && annotation.path().length > 0) {
-			String basePath = annotation.path()[0];
-			Arrays.stream(clazz.getMethods()).filter(m -> m.getAnnotation(WebSocketOperation.class) != null && m.getAnnotation(RequestMapping.class).path().length > 0).forEach(m ->
-					methods.put((basePath + "/" + m.getAnnotation(RequestMapping.class).path()[0]).replaceAll("//", "/"), new WebSocketInvocation(m.getAnnotation(WebSocketOperation.class).adapterClass(), bean, m))
-			);
-		}
-	}
-
-	public class WebSocketInvocation {
-		private Class<? extends Operation> operationClass;
-		private Object bean;
-		private Method method;
-
-		public WebSocketInvocation(Class<? extends Operation> operationClass, Object bean, Method method) {
-			this.operationClass = operationClass;
-			this.bean = bean;
-			this.method = method;
-		}
-
-		public Class<? extends Operation> getOperationClass() {
-			return operationClass;
-		}
-
-		public Object getBean() {
-			return bean;
-		}
-
-		public Method getMethod() {
-			return method;
-		}
-	}
-
-	@Autowired
-	public void setKmehrWsController(KmehrWsController kmehrWsController) {
-		this.kmehrWsController = kmehrWsController;
-	}
-
-	@Autowired
-	public void setGsonMapper(Gson gsonMapper) {
-		this.gsonMapper = gsonMapper;
-	}
-
-	@Autowired
-	public void setSessionLogic(SessionLogic sessionLogic) {
-		this.sessionLogic = sessionLogic;
-	}
-
-	@Autowired
-	public void setWsExecutor(TaskExecutor wsExecutor) {
-		this.wsExecutor = wsExecutor;
-	}
-
-	public String getPrefix() {
-		return prefix;
-	}
+    companion object {
+        const val MAX_MESSAGE_SIZE = 4 * 1024 * 1024
+    }
 }

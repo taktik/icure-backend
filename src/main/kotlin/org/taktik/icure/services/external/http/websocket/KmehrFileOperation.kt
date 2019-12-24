@@ -15,78 +15,48 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.http.websocket
 
-package org.taktik.icure.services.external.http.websocket;
+import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.JsonParser
+import com.google.gson.JsonSyntaxException
+import org.taktik.icure.services.external.api.AsyncDecrypt
+import java.io.IOException
+import java.io.Serializable
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
+import java.util.stream.Collectors
+import java.util.stream.StreamSupport
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+class KmehrFileOperation(webSocket: WebSocket, gsonMapper: Gson) : BinaryOperation(gsonMapper, webSocket), AsyncDecrypt {
+    private val decodingSessions: MutableMap<String?, DecodingSession<*>> = HashMap()
+    @Throws(IOException::class)
+    override fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): Future<List<K>> {
+        val message: Message<*> = Message("decrypt", clazz.simpleName, UUID.randomUUID().toString(), encrypted)
+        val future = CompletableFuture<List<K>>()
+        val decodingSession = DecodingSession(future, clazz)
+        decodingSessions[message.uuid] = decodingSession
+        webSocket.remote.sendString(gsonMapper.toJson(message))
+        return future
+    }
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.eclipse.jetty.websocket.api.Session;
-import org.taktik.icure.services.external.api.AsyncDecrypt;
-import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
+    override fun <K: Serializable>handle(message: String?) {
+        val parser = JsonParser()
+        val dto = parser.parse(message).asJsonObject
+        if (dto["command"].asString == "decryptResponse") {
+            val decodingSession = decodingSessions[dto["uuid"].asString] as DecodingSession<K>
+            decodingSession.future.complete(
+                    dto["body"].asJsonArray.map { e ->
+                        try {
+                            gsonMapper.fromJson<K>(e.asJsonObject, decodingSession.clazz)
+                        } catch (ee: JsonSyntaxException) {
+                            null
+                        }
+            }.filterNotNull())
+        }
+    }
 
-public class KmehrFileOperation extends BinaryOperation implements AsyncDecrypt {
-	private Map<String,DecodingSession> decodingSessions = new HashMap<>();
-
-	public KmehrFileOperation(WebSocket webSocket, Gson gsonMapper) {
-		super(gsonMapper, webSocket);
-	}
-
-	@Override
-	public <K extends Serializable> Future<List<K>> decrypt(List<K> encrypted, Class<K> clazz) throws IOException {
-		Message message = new Message<>("decrypt", clazz.getSimpleName(), UUID.randomUUID().toString(), encrypted);
-
-		CompletableFuture<List<K>> future = new CompletableFuture<>();
-		DecodingSession<K> decodingSession = new DecodingSession<>(future, clazz);
-		decodingSessions.put(message.getUuid(), decodingSession);
-
-		webSocket.getRemote().sendString(gsonMapper.toJson(message));
-
-		return future;
-	}
-
-	@Override
-	public void handle(String message) {
-		JsonParser parser = new JsonParser();
-		JsonObject dto = parser.parse(message).getAsJsonObject();
-
-		if (dto.get("command").getAsString().equals("decryptResponse")) {
-			DecodingSession decodingSession = decodingSessions.get(dto.get("uuid").getAsString());
-            if (decodingSession != null) {
-                decodingSession.getFuture().complete(StreamSupport.stream(dto.get("body").getAsJsonArray().spliterator(), false).map(e -> {
-                    try {
-                        return gsonMapper.fromJson(e.getAsJsonObject(), decodingSession.getClazz());
-                    } catch (com.google.gson.JsonSyntaxException ee) {
-                        return null;
-                    }
-                }).collect(Collectors.toList()));
-            }
-		}
-	}
-
-	private class DecodingSession<K extends Serializable> {
-		CompletableFuture<List<K>> future;
-		Class<K> clazz;
-
-		DecodingSession(CompletableFuture<List<K>> future, Class<K> clazz) {
-			this.future = future;
-			this.clazz = clazz;
-		}
-
-		public CompletableFuture<List<K>> getFuture() {
-			return future;
-		}
-
-		public Class<K> getClazz() {
-			return clazz;
-		}
-	}
+    private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
 }
