@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -47,12 +48,15 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.util.*
 import javax.xml.transform.TransformerException
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/form")
 @Api(tags = ["form"])
@@ -72,7 +76,7 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getForms", value = "Get a list of forms by ids", notes = "Keys must be delimited by coma")
     @PostMapping("/byIds")
-    fun getForms(@RequestBody formIds: ListOfIdsDto): Flow<FormDto> {
+    fun getForms(@RequestBody formIds: ListOfIdsDto): Flux<FormDto> {
         val forms = formLogic.getForms(formIds.ids)
         return forms.map { mapper.map(it, FormDto::class.java) }
     }
@@ -80,9 +84,9 @@ class FormController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "getChildren", value = "Get a list of forms by ids", notes = "Keys must be delimited by coma")
     @GetMapping("/childrenOf/{formId}/{hcPartyId}")
     fun getChildren(@PathVariable formId: String,
-                    @PathVariable hcPartyId: String): Flow<FormDto> {
+                    @PathVariable hcPartyId: String): Flux<FormDto> {
         val forms = formLogic.findByHcPartyParentId(hcPartyId, formId)
-        return forms.map { mapper.map(it, FormDto::class.java) }
+        return forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createForm", value = "Create a form with the current user", notes = "Returns an instance of created form.")
@@ -129,16 +133,16 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteForms", value = "Delete forms.", notes = "Response is a set containing the ID's of deleted forms.")
     @DeleteMapping("/{formIds}")
-    fun deleteForms(@PathVariable formIds: String): Flow<DocIdentifier> {
+    fun deleteForms(@PathVariable formIds: String): Flux<DocIdentifier> {
         if (formIds.isEmpty()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "formIds was empty")
         }
-        return formLogic.deleteForms(formIds.split(',').toSet())
+        return formLogic.deleteForms(formIds.split(',').toSet()).injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyForms", value = "Modify a batch of forms", notes = "Returns the modified forms.")
     @PutMapping("/batch")
-    fun modifyForms(@RequestBody formDtos: List<FormDto>): Flow<FormDto> {
+    fun modifyForms(@RequestBody formDtos: List<FormDto>): Flux<FormDto> {
         return try {
             val forms = formLogic.updateEntities(formDtos.map { mapper.map(it, Form::class.java) })
             forms.map { mapper.map(it, FormDto::class.java) }
@@ -154,18 +158,18 @@ class FormController(private val mapper: MapperFacade,
                                         @RequestParam secretFKeys: String,
                                         @RequestParam(required = false) healthElementId: String?,
                                         @RequestParam(required = false) planOfActionId: String?,
-                                        @RequestParam(required = false) formTemplateId: String?): Flow<FormDto> {
+                                        @RequestParam(required = false) formTemplateId: String?): Flux<FormDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val formsList = formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), healthElementId, planOfActionId, formTemplateId)
-        return formsList.map { contact -> mapper.map(contact, FormDto::class.java) }
+        return formsList.map { contact -> mapper.map(contact, FormDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findDelegationsStubsByHCPartyPatientSecretFKeys", value = "List form stubs found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
     fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flow<IcureStubDto> {
+                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { contact -> mapper.map(contact, IcureStubDto::class.java) }
+        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(value = "Update delegations in form.", notes = "Keys must be delimited by coma")
@@ -192,28 +196,28 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getFormTemplatesByGuid", value = "Gets a form template")
     @GetMapping("/template/{specialityCode}/guid/{formTemplateGuid}")
-    suspend fun getFormTemplatesByGuid(@PathVariable formTemplateGuid: String, @PathVariable specialityCode: String): Flow<FormTemplateDto> {
+    suspend fun getFormTemplatesByGuid(@PathVariable formTemplateGuid: String, @PathVariable specialityCode: String): Flux<FormTemplateDto> {
         val formTemplates = formTemplateLogic.getFormTemplatesByGuid(sessionLogic.getCurrentUserId(), specialityCode, formTemplateGuid)
-        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }
+        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findFormTemplatesBySpeciality", value = "Gets all form templates")
     @GetMapping("/template/bySpecialty/{specialityCode}")
-    fun findFormTemplatesBySpeciality(@PathVariable specialityCode: String, @RequestParam(required = false) loadLayout: Boolean?): Flow<FormTemplateDto> {
+    fun findFormTemplatesBySpeciality(@PathVariable specialityCode: String, @RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> {
         val formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, loadLayout ?: true)
-        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }
+        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findFormTemplates", value = "Gets all form templates for current user")
     @GetMapping("/template")
-    suspend fun findFormTemplates(@RequestParam(required = false) loadLayout: Boolean?): Flow<FormTemplateDto> {
+    suspend fun findFormTemplates(@RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> {
         val formTemplates = try {
             formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), loadLayout ?: true)
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }
+        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createFormTemplate", value = "Create a form template with the current user", notes = "Returns an instance of created form template.")

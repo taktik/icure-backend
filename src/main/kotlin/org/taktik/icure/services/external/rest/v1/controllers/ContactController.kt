@@ -22,6 +22,7 @@ import com.google.common.collect.Lists
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
@@ -56,6 +57,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/contact")
 @Api(tags = ["contact"])
@@ -136,31 +138,31 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByHCPartyFormId", value = "List contacts found By Healthcare Party and form Id.")
     @GetMapping("/byHcPartyFormId")
-    fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flow<ContactDto> {
+    fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.findContactsByHCPartyFormId(hcPartyId, formId)
-        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }
+        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findByHCPartyFormIds", value = "List contacts found By Healthcare Party and form Id.")
     @PostMapping("/byHcPartyFormIds")
-    fun findByHCPartyFormIds(@RequestParam hcPartyId: String, @RequestBody formIds: ListOfIdsDto): Flow<ContactDto> {
+    fun findByHCPartyFormIds(@RequestParam hcPartyId: String, @RequestBody formIds: ListOfIdsDto): Flux<ContactDto> {
         if (formIds.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
         val contactList = contactLogic.findContactsByHCPartyFormIds(hcPartyId, formIds.ids)
 
-        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }
+        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findByHCPartyPatientForeignKeys", value = "List contacts found By Healthcare Party and Patient foreign keys.")
     @PostMapping("/byHcPartyPatientForeignKeys")
-    fun findByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flow<ContactDto> {
+    fun findByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flux<ContactDto> {
         if (patientForeignKeys.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
         val contactList = contactLogic.findByHCPartyPatient(hcPartyId, patientForeignKeys.ids)
 
-        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }
+        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findByHCPartyPatientSecretFKeys", value = "List contacts found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
@@ -168,24 +170,24 @@ class ContactController(private val mapper: MapperFacade,
     fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
                                         @RequestParam secretFKeys: String,
                                         @RequestParam(required = false) planOfActionsIds: String?,
-                                        @RequestParam(required = false) skipClosedContacts: Boolean?): Flow<ContactDto> {
+                                        @RequestParam(required = false) skipClosedContacts: Boolean?): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactList = contactLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys))
 
         return if (planOfActionsIds != null) {
             val poaids = planOfActionsIds.split(',')
-            contactList.filter { c -> (skipClosedContacts == null || !skipClosedContacts || c.closingDate == null) && !Collections.disjoint(c.subContacts.map { it.planOfActionId }, poaids) }.map { contact -> mapper.map(contact, ContactDto::class.java) }
+            contactList.filter { c -> (skipClosedContacts == null || !skipClosedContacts || c.closingDate == null) && !Collections.disjoint(c.subContacts.map { it.planOfActionId }, poaids) }.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
         } else {
-            contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> mapper.map(contact, ContactDto::class.java) }
+            contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
         }
     }
 
     @ApiOperation(nickname = "findDelegationsStubsByHCPartyPatientSecretFKeys", value = "List contacts found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
     fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
-                                                        @RequestParam secretFKeys: String): Flow<IcureStubDto> {
+                                                        @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }
+        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "setContactsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
@@ -206,7 +208,7 @@ class ContactController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "closeForHCPartyPatientSecretFKeys", value = "Close contacts for Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @PutMapping("/byHcPartySecretForeignKeys/close")
     fun closeForHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
-                                          @RequestParam secretFKeys: String): Flow<ContactDto> {
+                                          @RequestParam secretFKeys: String): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactFlow = contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys)
 
@@ -219,17 +221,17 @@ class ContactController(private val mapper: MapperFacade,
             }
         }
 
-        return savedOrFailed.map { contact -> mapper.map(contact, ContactDto::class.java) }
+        return savedOrFailed.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "deleteContacts", value = "Delete contacts.", notes = "Response is a set containing the ID's of deleted contacts.")
     @DeleteMapping("/{contactIds}")
-    fun deleteContacts(@PathVariable contactIds: String): Flow<DocIdentifier> {
+    fun deleteContacts(@PathVariable contactIds: String): Flux<DocIdentifier> {
         if (contactIds.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
         // TODO versioning?
-        return contactLogic.deleteContacts(contactIds.split(',').toSet())
+        return contactLogic.deleteContacts(contactIds.split(',').toSet()).injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyContact", value = "Modify a contact", notes = "Returns the modified contact.")
@@ -245,12 +247,12 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "modifyContacts", value = "Modify a batch of contacts", notes = "Returns the modified contacts.")
     @PutMapping("/batch")
-    fun modifyContacts(@RequestBody contactDtos: List<ContactDto>): Flow<ContactDto> {
+    fun modifyContacts(@RequestBody contactDtos: List<ContactDto>): Flux<ContactDto> {
         return try {
             contactDtos.forEach { c -> handleServiceIndexes(c) }
 
             val contacts = contactLogic.updateEntities(contactDtos.map { f -> mapper.map(f, Contact::class.java) })
-            contacts.map { f -> mapper.map(f, ContactDto::class.java) }
+            contacts.map { f -> mapper.map(f, ContactDto::class.java) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -293,8 +295,8 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    suspend fun matchBy(@RequestBody filter: FilterDto<*>): Flow<String> {
-        return filters.resolve(filter)
+    suspend fun matchBy(@RequestBody filter: FilterDto<*>): Flux<String> {
+        return filters.resolve(filter).injectReactorContext()
     }
 
     // TODO SH MB test this for PaginatedList construction...

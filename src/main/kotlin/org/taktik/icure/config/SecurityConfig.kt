@@ -19,10 +19,13 @@
 
 package org.taktik.icure.config
 
+import CustomAuthenticationProvider
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.support.MessageSourceAccessor
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.ReactiveAuthenticationManager
@@ -38,10 +41,11 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.PermissionLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.security.database.CustomAuthenticationProvider
+import org.taktik.icure.properties.AuthenticationProperties
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 
 
+@ExperimentalCoroutinesApi
 @Configuration
 class SecurityConfig {
 
@@ -52,16 +56,20 @@ class SecurityConfig {
     fun httpFirewall() = StrictHttpFirewall().apply { setAllowSemicolon(true) } // TODO SH later: might be ignored if not registered in the security config
 
     @Bean
-    fun daoAuthenticationProvider(userLogic: UserLogic, groupLogic: GroupLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, groupLogic, permissionLogic).apply {
-        setPasswordEncoder(passwordEncoder)
-    }
+    fun authenticationManager(userLogic: UserLogic,
+                                      groupLogic: GroupLogic,
+                                      permissionLogic: PermissionLogic,
+                                      passwordEncoder: PasswordEncoder,
+                                      authenticationProperties: AuthenticationProperties) =
+            CustomAuthenticationProvider(userLogic, groupLogic, permissionLogic, passwordEncoder, authenticationProperties)
 }
 
+@ExperimentalCoroutinesApi
 @Configuration
 @EnableWebFluxSecurity
-class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
-                            private val httpFirewall: StrictHttpFirewall,
-                            private val sessionLogic: AsyncSessionLogic) {
+class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
+                            private val sessionLogic: AsyncSessionLogic,
+                            private val authenticationManager: CustomAuthenticationProvider) {
 
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -72,8 +80,7 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
                 .csrf().disable()
                 .httpBasic().disable()
                 //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
-                .addFilterAt(basicAuthenticationWebFilter(), SecurityWebFiltersOrder.HTTP_BASIC)
-                .authenticationManager(authenticationManager())
+                .authenticationManager(authenticationManager)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .pathMatchers("/v2/api-docs").permitAll()
@@ -90,23 +97,6 @@ class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthent
                 .pathMatchers("/ping.json").permitAll()
                 .pathMatchers("/**").hasRole("USER")
                 .and().build()
-    }
-
-    @Bean
-    fun authenticationManager(): ReactiveAuthenticationManager {
-        // TODO SH later: should swap to an actually reactive version of CustomAuthenticationProvider
-        return ReactiveAuthenticationManagerAdapter(ProviderManager(listOf(daoAuthenticationProvider)))
-    }
-
-    @Bean
-    // TODO SH later: this method might not be necessary anymore
-    fun basicAuthenticationWebFilter(): AuthenticationWebFilter {
-        val basicFilter = AuthenticationWebFilter(authenticationManager())
-        basicFilter.setAuthenticationSuccessHandler { webFilterExchange, _ ->
-            val exchange = webFilterExchange.exchange
-            webFilterExchange.chain.filter(exchange)
-        }
-        return basicFilter
     }
 
 }

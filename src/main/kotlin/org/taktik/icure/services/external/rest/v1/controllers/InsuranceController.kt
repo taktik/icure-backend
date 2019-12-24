@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
@@ -31,8 +32,11 @@ import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.services.external.rest.v1.dto.InsuranceDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 import java.util.*
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/insurance")
 @Api(tags = ["insurance"])
@@ -65,24 +69,24 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "getInsurances", value = "Gets insurances by id")
     @PostMapping("/byIds")
-    fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): Flow<InsuranceDto> {
+    fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): Flux<InsuranceDto> {
         val insurances = insuranceLogic.getInsurances(HashSet(insuranceIds.ids))
-        return insurances.map { mapper.map(it, InsuranceDto::class.java) }
+        return insurances.map { mapper.map(it, InsuranceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listInsurancesByCode", value = "Gets an insurance")
     @GetMapping("/byCode/{insuranceCode}")
-    fun listInsurancesByCode(@PathVariable insuranceCode: String): Flow<InsuranceDto> {
+    fun listInsurancesByCode(@PathVariable insuranceCode: String): Flux<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByCode(insuranceCode)
-        return insurances.map { mapper.map(it, InsuranceDto::class.java) }
+        return insurances.map { mapper.map(it, InsuranceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listInsurancesByName", value = "Gets an insurance")
     @GetMapping("/byName/{insuranceName}")
-    fun listInsurancesByName(@PathVariable insuranceName: String): Flow<InsuranceDto> {
+    fun listInsurancesByName(@PathVariable insuranceName: String): Flux<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByName(insuranceName)
 
-        return insurances.map { mapper.map(it, InsuranceDto::class.java) }
+        return insurances.map { mapper.map(it, InsuranceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyInsurance", value = "Modifies an insurance")

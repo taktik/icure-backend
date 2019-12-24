@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
@@ -30,7 +31,10 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/calendarItemType")
 @Api(tags = ["calendarItemType"])
@@ -39,17 +43,17 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
 
     @ApiOperation(nickname = "getCalendarItemTypes", value = "Gets all calendarItemTypes")
     @GetMapping
-    fun getCalendarItemTypes(): Flow<CalendarItemTypeDto> {
+    fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> {
         val calendarItemTypes = calendarItemTypeLogic.getAllEntities()
-        return calendarItemTypes.map { mapper.map(it, CalendarItemTypeDto::class.java) }
+        return calendarItemTypes.map { mapper.map(it, CalendarItemTypeDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "getCalendarItemTypesIncludeDeleted", value = "Gets all calendarItemTypes include deleted")
     @GetMapping("/includeDeleted")
-    fun getCalendarItemTypesIncludeDeleted(): Flow<CalendarItemTypeDto> {
+    fun getCalendarItemTypesIncludeDeleted(): Flux<CalendarItemTypeDto> {
         val calendarItemTypes = calendarItemTypeLogic.getAllEntitiesIncludeDelete()
 
-        return calendarItemTypes.map { mapper.map(it, CalendarItemTypeDto::class.java) }
+        return calendarItemTypes.map { mapper.map(it, CalendarItemTypeDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createCalendarItemType", value = "Creates a calendarItemType")
@@ -62,8 +66,8 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
 
     @ApiOperation(nickname = "deleteCalendarItemType", value = "Deletes an calendarItemType")
     @DeleteMapping("/{calendarItemTypeIds}")
-    fun deleteCalendarItemType(@PathVariable calendarItemTypeIds: String): Flow<DocIdentifier> {
-        return calendarItemTypeLogic.deleteCalendarItemTypes(calendarItemTypeIds.split(','))
+    fun deleteCalendarItemType(@PathVariable calendarItemTypeIds: String): Flux<DocIdentifier> {
+        return calendarItemTypeLogic.deleteCalendarItemTypes(calendarItemTypeIds.split(',')).injectReactorContext()
     }
 
     @ApiOperation(nickname = "getCalendarItemType", value = "Gets an calendarItemType")

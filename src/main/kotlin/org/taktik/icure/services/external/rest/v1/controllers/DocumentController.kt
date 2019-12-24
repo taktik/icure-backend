@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -44,6 +45,8 @@ import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.utils.FormUtils
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.*
@@ -52,6 +55,7 @@ import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/document")
 @Api(tags = ["document"])
@@ -71,10 +75,10 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "deleteDocument", value = "Deletes a document")
     @DeleteMapping("/{documentIds}")
-    fun deleteDocument(@PathVariable documentIds: String): Flow<DocIdentifier> {
+    fun deleteDocument(@PathVariable documentIds: String): Flux<DocIdentifier> {
         val documentIdsList = documentIds.split(',')
         return try {
-            documentLogic.deleteByIds(documentIdsList)
+            documentLogic.deleteByIds(documentIdsList).injectReactorContext()
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document deletion failed")
         }
@@ -172,9 +176,9 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "getDocuments", value = "Gets a document")
     @PostMapping("/batch")
-    fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flow<DocumentDto> {
+    fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flux<DocumentDto> {
         val documents = documentLogic.get(documentIds.ids)
-        return documents.map { doc -> mapper.map(doc, DocumentDto::class.java) }
+        return documents.map { doc -> mapper.map(doc, DocumentDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyDocument", value = "Updates a document")
@@ -201,7 +205,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "modifyDocuments", value = "Updates a batch of documents", notes = "Returns the modified documents.")
     @PutMapping("/batch")
-    suspend fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flow<DocumentDto> {
+    suspend fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> {
         try {
             val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }
             for (i in documentDtos.indices) {
@@ -216,7 +220,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
             }
 
             val docs = documentLogic.updateEntities(indocs)
-            return docs.map { f -> mapper.map(f, DocumentDto::class.java) }
+            return docs.map { f -> mapper.map(f, DocumentDto::class.java) }.injectReactorContext()
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -227,18 +231,18 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @ApiOperation(nickname = "findByHCPartyMessageSecretFKeys", value = "List documents found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
     fun findByHCPartyMessageSecretFKeys(@RequestParam hcPartyId: String,
-                                        @RequestParam secretFKeys: String): Flow<DocumentDto> {
+                                        @RequestParam secretFKeys: String): Flux<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
-        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }
+        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findByTypeHCPartyMessageSecretFKeys", value = "List documents found By type, By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byTypeHcPartySecretForeignKeys")
     fun findByTypeHCPartyMessageSecretFKeys(@RequestParam documentTypeCode: String,
                                             @RequestParam hcPartyId: String,
-                                            @RequestParam secretFKeys: String): Flow<DocumentDto> {
+                                            @RequestParam secretFKeys: String): Flux<DocumentDto> {
         if (DocumentType.fromName(documentTypeCode) == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid documentTypeCode.")
         }
@@ -246,15 +250,15 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, ArrayList(secretMessageKeys))
 
-        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }
+        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }.injectReactorContext()
     }
 
 
     @ApiOperation(nickname = "findWithoutDelegation", value = "List documents with no delegation", notes = "Keys must be delimited by coma")
     @GetMapping("/woDelegation")
-    fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flow<DocumentDto> {
+    fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flux<DocumentDto> {
         val documentList = documentLogic.findWithoutDelegation(limit ?: 100)
-        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }
+        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "setDocumentsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")

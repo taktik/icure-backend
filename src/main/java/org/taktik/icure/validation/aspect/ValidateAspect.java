@@ -36,17 +36,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.taktik.icure.asynclogic.ICureSessionLogic;
+import org.taktik.icure.asynclogic.AsyncSessionLogic;
 import org.taktik.icure.validation.AutoFix;
 
 @Aspect
 public class ValidateAspect {
 	private Validator validator;
 
-	private ICureSessionLogic sessionLogic;
+	private AsyncSessionLogic sessionLogic;
 
 	@Autowired
-	public void setSessionLogic(ICureSessionLogic sessionLogic) {
+	public void setSessionLogic(AsyncSessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
 	}
 

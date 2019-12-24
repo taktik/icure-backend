@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
@@ -30,7 +31,10 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.entities.EntityTemplate
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/entitytemplate")
 @Api(tags = ["entitytemplate"])
@@ -88,12 +92,12 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getEntityTemplates", value = "Get a list of entityTemplates by ids", notes = "Keys must be delimited by coma")
     @GetMapping("/byIds/{entityTemplateIds}")
-    fun getEntityTemplates(@PathVariable entityTemplateIds: String): Flow<EntityTemplateDto> {
+    fun getEntityTemplates(@PathVariable entityTemplateIds: String): Flux<EntityTemplateDto> {
         val entityTemplates = entityTemplateLogic.getEntityTemplates(entityTemplateIds.split(','))
 
         val entityTemplateDtos = entityTemplates.map { f -> mapper.map(f, EntityTemplateDto::class.java).apply { entity = f.entity } }
 
-        return entityTemplateDtos
+        return entityTemplateDtos.injectReactorContext()
     }
 
 

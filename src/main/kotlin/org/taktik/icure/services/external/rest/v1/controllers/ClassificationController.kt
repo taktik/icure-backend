@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -35,7 +36,10 @@ import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/classification")
 @Api(tags = ["classification"])
@@ -62,30 +66,30 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getClassificationByHcPartyId", value = "Get a list of classifications", notes = "Ids are seperated by a coma")
     @GetMapping("/byIds/{ids}")
-    fun getClassificationByHcPartyId(@PathVariable ids: String): Flow<ClassificationDto> {
+    fun getClassificationByHcPartyId(@PathVariable ids: String): Flux<ClassificationDto> {
         val elements = classificationLogic.getClassificationByIds(ids.split(','))
 
-        return elements.map { mapper.map(it, ClassificationDto::class.java) }
+        return elements.map { mapper.map(it, ClassificationDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "findByHCPartyPatientSecretFKeys", value = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", notes = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flow<ClassificationDto> {
+    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
 
-        return elementList.map { mapper.map(it, ClassificationDto::class.java) }
+        return elementList.map { mapper.map(it, ClassificationDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "deleteClassifications", value = "Delete classification Templates.", notes = "Response is a set containing the ID's of deleted classification Templates.")
     @DeleteMapping("/{classificationIds}")
-    fun deleteClassifications(@PathVariable classificationIds: String): Flow<DocIdentifier> {
+    fun deleteClassifications(@PathVariable classificationIds: String): Flux<DocIdentifier> {
         val ids = classificationIds.split(',')
         if (ids.isEmpty()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
 
-        return classificationLogic.deleteClassifications(ids.toSet())
+        return classificationLogic.deleteClassifications(ids.toSet()).injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyClassification", value = "Modify a classification Template", notes = "Returns the modified classification Template.")

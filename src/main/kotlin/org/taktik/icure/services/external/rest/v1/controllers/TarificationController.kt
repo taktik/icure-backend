@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
@@ -35,8 +36,11 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.TarificationDto
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/tarification")
 @Api(tags = ["tarification"])
@@ -102,8 +106,8 @@ class TarificationController(private val mapper: MapperFacade,
             @ApiParam(value = "Tarification region") @RequestParam(required = false) region: String?,
             @ApiParam(value = "Tarification type") @RequestParam(required = false) type: String?,
             @ApiParam(value = "Tarification tarification") @RequestParam(required = false) tarification: String?,
-            @ApiParam(value = "Tarification version") @RequestParam(required = false) version: String?) = flow<TarificationDto> {
-        emitAll(tarificationLogic.findTarificationsBy(region, type, tarification, version).map { mapper.map(it, TarificationDto::class.java) })
+            @ApiParam(value = "Tarification version") @RequestParam(required = false) version: String?) : Flux<TarificationDto> {
+        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { mapper.map(it, TarificationDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createTarification", value = "Create a Tarification", notes = "Type, Tarification and Version are required.")

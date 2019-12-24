@@ -13,6 +13,8 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FrontEndMigrationLogic
 import org.taktik.icure.entities.FrontEndMigration
 import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
 @RestController
 @RequestMapping("/rest/v1/frontendmigration")
@@ -23,13 +25,13 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
     @ApiOperation(nickname = "getFrontEndMigrations", value = "Gets a front end migration")
     @GetMapping
-    suspend fun getFrontEndMigrations(): Flow<FrontEndMigrationDto> {
+    suspend fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> {
         val userId = sessionLogic.getCurrentSessionContext().getUser().id
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Not authorized")
 
         val migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
 
-        return migrations.map { mapper.map(it, FrontEndMigrationDto::class.java) }
+        return migrations.map { mapper.map(it, FrontEndMigrationDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createFrontEndMigration", value = "Creates a front end migration")
@@ -57,11 +59,11 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
     @ApiOperation(nickname = "getFrontEndMigrationByName", value = "Gets an front end migration")
     @GetMapping("/byName/{frontEndMigrationName}")
-    suspend fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flow<FrontEndMigrationDto> {
+    suspend fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flux<FrontEndMigrationDto> {
         val userId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
 
         val migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
-        return migrations.map { mapper.map(it, FrontEndMigrationDto::class.java) }
+        return migrations.map { mapper.map(it, FrontEndMigrationDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "modifyFrontEndMigration", value = "Modifies a front end migration")

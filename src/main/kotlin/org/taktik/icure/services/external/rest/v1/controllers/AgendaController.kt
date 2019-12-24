@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
@@ -31,7 +32,10 @@ import org.taktik.icure.asynclogic.AgendaLogic
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.services.external.rest.v1.dto.AgendaDto
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/agenda")
 @Api(tags = ["agenda"])
@@ -40,9 +44,9 @@ class AgendaController(private val agendaLogic: AgendaLogic,
 
     @ApiOperation(nickname = "getAgendas", value = "Gets all agendas")
     @GetMapping
-    fun getAgendas(): Flow<AgendaDto> {
+    fun getAgendas(): Flux<AgendaDto> {
         val agendas = agendaLogic.getAllEntities()
-        return agendas.map { mapper.map(it, AgendaDto::class.java) }
+        return agendas.map { mapper.map(it, AgendaDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createAgenda", value = "Creates a agenda")
@@ -56,8 +60,8 @@ class AgendaController(private val agendaLogic: AgendaLogic,
 
     @ApiOperation(nickname = "deleteAgenda", value = "Deletes an agenda")
     @DeleteMapping("/{agendaIds}")
-    fun deleteAgenda(@PathVariable agendaIds: String): Flow<DocIdentifier> {
-        return agendaLogic.deleteAgenda(agendaIds.split(','))
+    fun deleteAgenda(@PathVariable agendaIds: String): Flux<DocIdentifier> {
+        return agendaLogic.deleteAgenda(agendaIds.split(',')).injectReactorContext()
     }
 
     @ApiOperation(nickname = "getAgenda", value = "Gets an agenda")
@@ -77,10 +81,10 @@ class AgendaController(private val agendaLogic: AgendaLogic,
 
     @ApiOperation(nickname = "getReadableAgendasForUser", value = "Gets readable agendas for user")
     @GetMapping("/readableForUser")
-    fun getReadableAgendasForUser(@RequestParam userId: String): Flow<AgendaDto> {
+    fun getReadableAgendasForUser(@RequestParam userId: String): Flux<AgendaDto> {
         val agendas = agendaLogic.getReadableAgendaForUser(userId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Readable agendas fetching failed")
-        return agendas.map { mapper.map(it, AgendaDto::class.java) }
+        return agendas.map { mapper.map(it, AgendaDto::class.java) }.injectReactorContext()
     }
 
 

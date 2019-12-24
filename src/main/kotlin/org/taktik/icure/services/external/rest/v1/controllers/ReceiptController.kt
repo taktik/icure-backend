@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -35,7 +36,10 @@ import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/receipt")
 @Api(tags = ["receipt"])
@@ -108,8 +112,8 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
 
     @ApiOperation(nickname = "listByReference", value = "Gets a receipt")
     @GetMapping("/byref/{ref}")
-    fun listByReference(@PathVariable ref: String): Flow<ReceiptDto> =
-            receiptLogic.listByReference(ref).map { mapper.map(it, ReceiptDto::class.java) }
+    fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
+            receiptLogic.listByReference(ref).map { mapper.map(it, ReceiptDto::class.java) }.injectReactorContext()
 
     @ApiOperation(nickname = "modifyReceipt", value = "Updates a receipt")
     @PutMapping

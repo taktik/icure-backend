@@ -291,24 +291,24 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @ApiOperation(nickname = "listToPatients", value = "Gets all invoices for author at date")
     @GetMapping("/toPatients")
-    suspend fun listToPatients(@RequestParam(required = false) hcPartyId: String?): Flow<InvoiceDto> {
+    suspend fun listToPatients(@RequestParam(required = false) hcPartyId: String?): Flux<InvoiceDto> {
         return invoiceLogic.listByHcPartyRecipientIds(hcPartyId
                 ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId,
-                setOf<String?>(null)).map { mapper.map(it, InvoiceDto::class.java) }
+                setOf<String?>(null)).map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listToPatientsUnsent", value = "Gets all invoices for author at date")
     @GetMapping("/toPatients/unsent")
-    suspend fun listToPatientsUnsent(@RequestParam(required = false) hcPartyId: String?): Flow<InvoiceDto> {
+    suspend fun listToPatientsUnsent(@RequestParam(required = false) hcPartyId: String?): Flux<InvoiceDto> {
         return invoiceLogic.listByHcPartyRecipientIdsUnsent(hcPartyId
                 ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId,
-                setOf<String?>(null)).map { mapper.map(it, InvoiceDto::class.java) }
+                setOf<String?>(null)).map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listByIds", value = "Gets all invoices for author at date")
     @GetMapping("/byIds/{invoiceIds}")
-    fun listByIds(@PathVariable invoiceIds: String): Flow<InvoiceDto> {
-        return invoiceLogic.getInvoices(invoiceIds.split(',')).map { mapper.map(it, InvoiceDto::class.java) }
+    fun listByIds(@PathVariable invoiceIds: String): Flux<InvoiceDto> {
+        return invoiceLogic.getInvoices(invoiceIds.split(',')).map { mapper.map(it, InvoiceDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "listByHcpartySendingModeStatusDate", value = "Get all invoices by author, by sending mode, by status and by date")
@@ -317,7 +317,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
                                            @RequestParam(required = false) sendingMode: String?,
                                            @RequestParam(required = false) status: String?,
                                            @RequestParam(required = false) from: Long?,
-                                           @RequestParam(required = false) to: Long?): Flow<InvoiceDto> {
+                                           @RequestParam(required = false) to: Long?): Flux<InvoiceDto> {
         return invoiceLogic.listByHcPartySendingModeStatus(hcPartyId, sendingMode, status, from, to).map { mapper.map(it, InvoiceDto::class.java) }
     }
 

@@ -34,8 +34,8 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
     @DeleteMapping("/{articleIds}")
-    fun deleteArticle(@PathVariable articleIds: String): Flow<DocIdentifier> {
-        return articleLogic.deleteArticles(articleIds.split(','))
+    fun deleteArticle(@PathVariable articleIds: String): Flux<DocIdentifier> {
+        return articleLogic.deleteArticles(articleIds.split(',')).injectReactorContext()
     }
 
     @ApiOperation(nickname = "getArticle", value = "Gets an article")

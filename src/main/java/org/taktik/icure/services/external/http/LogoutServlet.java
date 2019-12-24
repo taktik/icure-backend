@@ -33,7 +33,7 @@ public class LogoutServlet extends AbstractHttpServlet {
 		httpRequest.setCharacterEncoding("UTF-8");
 
 		// Logout
-		sessionLogic.logout(httpRequest, httpResponse);
+		sessionLogic.logout(httpRequest); //TODO MB ok here ?
 	}
 
 	@Autowired

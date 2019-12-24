@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
@@ -30,7 +31,10 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.asynclogic.CalendarItemLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
+import org.taktik.icure.utils.injectReactorContext
+import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/calendarItem")
 @Api(tags = ["calendarItem"])
@@ -39,9 +43,9 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "getCalendarItems", value = "Gets all calendarItems")
     @GetMapping
-    fun getCalendarItems(): Flow<CalendarItemDto> {
+    fun getCalendarItems(): Flux<CalendarItemDto> {
         val calendarItems = calendarItemLogic.getAllEntities()
-        return calendarItems.map { mapper.map(it, CalendarItemDto::class.java) }
+        return calendarItems.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "createCalendarItem", value = "Creates a calendarItem")
@@ -55,8 +59,8 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "deleteCalendarItem", value = "Deletes an calendarItem")
     @DeleteMapping("/{calendarItemIds}")
-    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flow<DocIdentifier> {
-        return calendarItemLogic.deleteCalendarItems(calendarItemIds.split(','))
+    fun deleteCalendarItem(@PathVariable calendarItemIds: String): Flux<DocIdentifier> {
+        return calendarItemLogic.deleteCalendarItems(calendarItemIds.split(',')).injectReactorContext()
     }
 
     @ApiOperation(nickname = "getCalendarItem", value = "Gets an calendarItem")
@@ -83,23 +87,23 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @PostMapping("/byPeriodAndHcPartyId")
     fun getCalendarItemsByPeriodAndHcPartyId(@RequestParam startDate: Long,
                                              @RequestParam endDate: Long,
-                                             @RequestParam hcPartyId: String): Flow<CalendarItemDto> {
+                                             @RequestParam hcPartyId: String): Flux<CalendarItemDto> {
         if (hcPartyId.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "hcPartyId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndHcPartyId(startDate, endDate, hcPartyId)
-        return calendars.map { mapper.map(it, CalendarItemDto::class.java) }
+        return calendars.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
     }
 
     @ApiOperation(nickname = "getCalendarsByPeriodAndAgendaId", value = "Get CalendarItems by Period and AgendaId")
     @PostMapping("/byPeriodAndAgendaId")
     fun getCalendarsByPeriodAndAgendaId(@RequestParam startDate: Long,
                                         @RequestParam endDate: Long,
-                                        @RequestParam agendaId: String): Flow<CalendarItemDto> {
+                                        @RequestParam agendaId: String): Flux<CalendarItemDto> {
         if (agendaId.isBlank()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
         }
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId)
-        return calendars.map { mapper.map(it, CalendarItemDto::class.java) }
+        return calendars.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
     }
 }
