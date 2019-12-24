@@ -69,7 +69,7 @@ fun emitMessage(folder : org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov
     val os = ByteArrayOutputStream(10000)
     message.folders.add(folder)
 
-    val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+    val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
     // output pretty printed
     jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
     jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
@@ -82,7 +82,7 @@ fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.
     val os = ByteArrayOutputStream(10000)
     message.folders.add(folder)
 
-    val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+    val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
     // output pretty printed
     jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
     jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
@@ -94,7 +94,7 @@ fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.
     val os = ByteArrayOutputStream(10000)
     message.folders.add(folder)
 
-    val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
+    val jaxbMarshaller = JAXBContext.newInstance(org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage::class.java).createMarshaller()
     // output pretty printed
     jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
     jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8")
