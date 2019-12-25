@@ -35,7 +35,6 @@ import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
-import org.taktik.icure.dao.impl.ektorp.StdUserDependentCouchDbICureConnector
 import org.taktik.icure.asyncdao.replicator.Replicator
 import org.taktik.icure.asyncdao.replicator.ReplicationManager
 import org.taktik.icure.asyncdao.replicator.UserReplicator
@@ -53,12 +52,6 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
             .password(couchDbProperties.password)
             .url(couchDbProperties.url)
             .build())
-
-    @Bean fun couchdbConfig(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("$couchDbPrefix-config", couchdbInstance)
-    @Bean fun couchdbDrugs(couchdbInstance:CouchDbInstance) = StdCouchDbICureConnector("$couchDbPrefix-drugs", couchdbInstance)
-    @Bean fun couchdbBase(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-base", couchdbInstance, couchDbProperties, true)
-    @Bean fun couchdbPatient(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-patient", couchdbInstance, couchDbProperties, true)
-    @Bean fun couchdbHealthdata(couchdbInstance:CouchDbInstance) = StdUserDependentCouchDbICureConnector("$couchDbPrefix-healthdata", couchdbInstance, couchDbProperties, true)
 
     @Bean fun entitiesCacheManager(hazelcastInstance: HazelcastInstance) = HazelcastCacheManager(hazelcastInstance)
 

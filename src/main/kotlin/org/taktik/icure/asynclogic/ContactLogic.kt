@@ -1,18 +1,15 @@
 package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
-import org.ektorp.ComplexKey
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.ContactDAO
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.validation.aspect.Check
 
 interface ContactLogic : EntityPersister<Contact, String> {
     suspend fun getContact(id: String): Contact?

@@ -4,15 +4,8 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.eclipse.jetty.client.HttpClient
-import org.ektorp.CouchDbInstance
-import org.ektorp.http.StdHttpClient
 import org.ektorp.http.URI
-import org.ektorp.impl.StdCouchDbInstance
-import org.taktik.couchdb.Client
 import org.taktik.couchdb.ClientImpl
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
-import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: String, private val dbFamily: String, private val username: String, private val password: String) {

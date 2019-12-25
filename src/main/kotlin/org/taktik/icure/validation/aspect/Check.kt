@@ -15,20 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.validation.aspect
 
-package org.taktik.icure.validation;
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import kotlin.reflect.KClass
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
-public class NotNullValidator implements ConstraintValidator<org.taktik.icure.validation.NotNull, Object> {
-	public NotNullValidator() {
-	}
-
-	public void initialize(org.taktik.icure.validation.NotNull parameters) {
-	}
-
-	public boolean isValid(Object object, ConstraintValidatorContext constraintValidatorContext) {
-		return object != null;
-	}
-}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(AnnotationTarget.VALUE_PARAMETER)
+annotation class Check(val groups: Array<KClass<*>> = [])

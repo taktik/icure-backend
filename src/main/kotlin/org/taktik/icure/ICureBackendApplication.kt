@@ -29,7 +29,6 @@ import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.jdbc.JndiDataSourceAutoConfiguration
-import org.springframework.boot.web.servlet.ServletContextInitializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
@@ -40,7 +39,6 @@ import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.entities.embed.*
-import org.taktik.icure.services.external.http.WebSocketHandler
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
@@ -69,13 +67,6 @@ import org.taktik.icure.services.external.http.WebSocketHandler
 class ICureBackendApplication {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-
-    @Bean
-    fun initializer(webSocketServlet: WebSocketHandler) = ServletContextInitializer {
-        val webSocketServletReg = it.addServlet("webSocketServlet", webSocketServlet)
-        webSocketServletReg.setLoadOnStartup(1)
-        webSocketServletReg.addMapping("/ws/*")
-    }
 
     @Bean
     fun performStartupTasks(@Qualifier("threadPoolTaskExecutor") taskExecutor: TaskExecutor, taskScheduler: TaskScheduler, iCureLogic: ICureLogic, codeLogic: CodeLogic, propertyLogic: PropertyLogic, allDaos: List<GenericDAO<*>>) = ApplicationRunner {
