@@ -32,7 +32,7 @@ class ICureLogicImpl(private val iCureDAO: ICureDAO,
                      private val propertyLogic: PropertyLogic,
                      private val allDaos: List<GenericDAO<*>>) : ICureLogic {
 
-    override fun getIndexingStatus(groupId: String): Map<String, Number>? {
+    override suspend fun getIndexingStatus(groupId: String): Map<String, Number>? {
         return iCureDAO.getIndexingStatus(groupId)
     }
 

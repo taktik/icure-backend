@@ -201,6 +201,7 @@ interface Client {
     fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>>
     fun <T : CouchDbDocument> get(ids: Flow<String>, clazz: Class<T>): Flow<T>
     fun <T : CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent>
+
     suspend fun activeTasks(): List<ActiveTask>
 }
 

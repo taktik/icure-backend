@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.handlers
 import com.google.common.base.Preconditions
 import com.google.gson.*
 import org.reflections.Reflections
+import org.reflections.scanners.SubTypesScanner
 import org.reflections.scanners.TypeAnnotationsScanner
 import java.lang.reflect.Modifier
 import java.lang.reflect.Type
@@ -29,7 +30,7 @@ class DiscriminatedTypeAdapter<T:Any>(clazz: Class<T>) : JsonSerializer<T>, Json
     private val discriminator = clazz.getAnnotation(JsonDiscriminator::class.java)?.value ?: "\$type"
     private val subclasses: MutableMap<String, Class<*>> = HashMap()
     private val reverseSubclasses: MutableMap<Class<*>, String> = HashMap()
-    private val scanner = Reflections(clazz, TypeAnnotationsScanner())
+    private val scanner = Reflections(clazz, TypeAnnotationsScanner(), SubTypesScanner())
 
     override fun serialize(srcObject: T, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
         val el = context.serialize(srcObject, srcObject.javaClass)

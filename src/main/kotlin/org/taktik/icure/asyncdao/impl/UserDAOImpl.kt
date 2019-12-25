@@ -86,8 +86,8 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     }
 
     @View(name = "by_id", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc._id.split(':')[1] || doc._id, null)}}")
-    override fun getUsersByPartialIdOnFallback(dbInstanceUrl: URI, groupId: String, id: String): Flow<User> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+    override fun getUsersByPartialIdOnFallback(dbInstanceUrl: URI, id: String): Flow<User> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, null)
 
         return client.queryViewIncludeDocsNoValue<String, User>(createQuery("by_id").includeDocs(true).key(id)).map { it.doc }
     }
@@ -99,8 +99,8 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
         return client.queryViewIncludeDocsNoValue<String,User>(createQuery("by_hcp_id").key(hcPartyId).includeDocs(true)).map { it.doc }
     }
 
-    override fun findByUsernameOnFallback(dbInstanceUrl: URI, groupId: String, login: String): Flow<User> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+    override fun findByUsernameOnFallback(dbInstanceUrl: URI, login: String): Flow<User> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, null)
 
         return client.queryViewIncludeDocsNoValue<String,User>(createQuery("by_username").includeDocs(true).key(login)).map { it.doc }
     }

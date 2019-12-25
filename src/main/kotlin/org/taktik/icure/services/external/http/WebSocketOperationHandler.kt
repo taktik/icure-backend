@@ -43,7 +43,7 @@ import java.util.*
 import java.util.concurrent.Callable
 
 @Component
-class WebSocketHandler(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
+class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
     var prefix: String? = null
     val methods = scanBeanMethods(kmehrWsController)
 

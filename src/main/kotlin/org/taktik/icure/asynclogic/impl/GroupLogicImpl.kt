@@ -25,8 +25,6 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
                      private val threadPoolTaskExecutor: TaskExecutor) : GroupLogic {
 
     override suspend fun createGroup(group: Group, initialReplication: Replication): Group? {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-
         val id = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
         if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(id)?.groupId) {
             throw IllegalAccessException("No registered user")
@@ -60,7 +58,6 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
     }
 
     override suspend fun findGroup(groupId: String): Group? {
-        val (dbInstanceUri, dbGroupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return groupDAO.get(groupId)
     }
 

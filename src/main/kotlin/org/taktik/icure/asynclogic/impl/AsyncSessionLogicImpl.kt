@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.entities.User
@@ -53,7 +54,7 @@ import kotlin.coroutines.coroutineContext
 @Transactional
 @Service
 class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthenticationManager,
-                            private val userLogic: UserLogic,
+                            private val userDAO: UserDAO,
                             private val propertyLogic: PropertyLogic) : AsyncSessionLogic {
     /* Generic */
 
@@ -178,7 +179,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         override suspend fun getUser(): User {
             val userId = getUserId()
             val groupId = getGroupId()
-            return userId?.let { userLogic.getUserOnUserDb(userId, groupId, getDbInstanceUri()) }?.apply { this.groupId = groupId }
+            return userId?.let { userDAO.getUserOnUserDb(getDbInstanceUri(), groupId, userId, false) }?.apply { this.groupId = groupId }
                     ?: throw AuthenticationServiceException("Failed getting the user from session context : userId=$userId, groupId=$groupId")
         }
 

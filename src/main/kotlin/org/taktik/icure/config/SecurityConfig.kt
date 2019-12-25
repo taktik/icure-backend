@@ -37,11 +37,14 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
+import org.taktik.icure.asyncdao.GroupDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.PermissionLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.properties.AuthenticationProperties
+import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 
 
@@ -56,12 +59,14 @@ class SecurityConfig {
     fun httpFirewall() = StrictHttpFirewall().apply { setAllowSemicolon(true) } // TODO SH later: might be ignored if not registered in the security config
 
     @Bean
-    fun authenticationManager(userLogic: UserLogic,
-                                      groupLogic: GroupLogic,
-                                      permissionLogic: PermissionLogic,
-                                      passwordEncoder: PasswordEncoder,
-                                      authenticationProperties: AuthenticationProperties) =
-            CustomAuthenticationProvider(userLogic, groupLogic, permissionLogic, passwordEncoder, authenticationProperties)
+    fun authenticationManager(
+            couchDbProperties: CouchDbProperties,
+            userDAO: UserDAO,
+            groupDAO: GroupDAO,
+            permissionLogic: PermissionLogic,
+            passwordEncoder: PasswordEncoder
+    ) =
+            CustomAuthenticationProvider(couchDbProperties, userDAO, groupDAO, permissionLogic, passwordEncoder)
 }
 
 @ExperimentalCoroutinesApi

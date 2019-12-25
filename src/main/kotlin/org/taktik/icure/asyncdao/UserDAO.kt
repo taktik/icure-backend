@@ -16,9 +16,9 @@ interface UserDAO : GenericDAO<User>{
     fun findByEmail(dbInstanceUrl: URI, groupId: String, searchString: String): Flow<User>
     fun listUsers(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     suspend fun getOnFallback(dbInstanceUrl: URI, userId: String, bypassCache: Boolean): User?
-    fun getUsersByPartialIdOnFallback(dbInstanceUrl: URI, groupId: String, id: String): Flow<User>
+    fun getUsersByPartialIdOnFallback(dbInstanceUrl: URI, id: String): Flow<User>
     fun findByHcpId(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<User>
-    fun findByUsernameOnFallback(dbInstanceUrl: URI, groupId: String, login: String): Flow<User>
+    fun findByUsernameOnFallback(dbInstanceUrl: URI, login: String): Flow<User>
     suspend fun getUserOnUserDb(dbInstanceUrl: URI, groupId: String, userId: String, bypassCache: Boolean): User
     suspend fun findUserOnUserDb(dbInstanceUrl: URI, groupId: String, userId: String, bypassCache: Boolean): User?
     fun getUsersOnDb(dbInstanceUrl: URI, groupId: String): Flow<User>

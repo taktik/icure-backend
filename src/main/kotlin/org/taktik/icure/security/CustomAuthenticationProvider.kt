@@ -14,6 +14,8 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.SpringSecurityMessageSource
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.util.Assert
+import org.taktik.icure.asyncdao.GroupDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.PermissionLogic
 import org.taktik.icure.asynclogic.UserLogic
@@ -21,6 +23,7 @@ import org.taktik.icure.constants.Users
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.AuthenticationProperties
+import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.database.DatabaseUserDetails
 import reactor.core.publisher.Mono
@@ -30,14 +33,14 @@ import java.util.stream.Collectors
 
 @ExperimentalCoroutinesApi
 class CustomAuthenticationProvider(
-        private val userLogic: UserLogic,
-        private val groupLogic: GroupLogic,
+        couchDbProperties: CouchDbProperties,
+        private val userDAO: UserDAO, //prevent cyclic dependnecies
+        private val groupDAO: GroupDAO,
         private val permissionLogic: PermissionLogic,
         private val passwordEncoder: PasswordEncoder,
-        private val authenticationProperties: AuthenticationProperties,
         private val messageSourceAccessor: MessageSourceAccessor = SpringSecurityMessageSource.getAccessor()
 ) : ReactiveAuthenticationManager {
-
+    private val dbInstanceUri = URI(couchDbProperties.url)
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
     override fun authenticate(authentication: Authentication?): Mono<Authentication> = scope.async {
@@ -53,13 +56,13 @@ class CustomAuthenticationProvider(
 
         val usersFlow = when {
             isFullToken -> {
-                flowOf(userLogic.getUserOnFallbackDb(username.replace('/', ':')))
+                flowOf(userDAO.getOnFallback(dbInstanceUri, username.replace('/', ':'), false))
             }
             isPartialToken -> {
-                userLogic.getUsersByPartialIdOnFallbackDb(username)
+                userDAO.getUsersByPartialIdOnFallback(dbInstanceUri, username)
             }
             else -> {
-                userLogic.findUsersByLoginOnFallbackDb(username)
+                userDAO.findByUsernameOnFallback(dbInstanceUri, username)
             }
         }
 
@@ -80,11 +83,11 @@ class CustomAuthenticationProvider(
             val userId = if (userOnFallbackDb.id.contains(":")) userOnFallbackDb.id.split(":")[1] else userOnFallbackDb.id
             val gId = userOnFallbackDb.groupId
 
-            if (gId != null || authenticationProperties.local) {
-                val g = if (gId == null) null else groupLogic.findGroup(gId)
-                val candidate = userLogic.findUserOnUserDb(userId, gId, URI.create(g?.dbInstanceUrl()!!)) // TODO MB possible error with dbInstanceURl
+            if (gId != null) {
+                val g = groupDAO.get(gId)
+                val candidate = g?.dbInstanceUrl()?.let { userDAO.findUserOnUserDb(URI.create(it), gId, userId, false) }
                 if (candidate != null && isPasswordValid(candidate, password)) {
-                    if (groupId == null && gId != null) {
+                    if (groupId == null) {
                         user = candidate
                         groupId = gId
                         group = g

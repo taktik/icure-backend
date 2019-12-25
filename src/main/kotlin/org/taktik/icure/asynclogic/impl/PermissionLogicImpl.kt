@@ -40,7 +40,7 @@ import org.taktik.icure.security.PermissionSetIdentifier
 import java.util.HashSet
 
 @Service
-class PermissionLogicImpl(val permissionSetCache: Cache, val userLogic: UserLogic, val roleLogic: RoleLogic) : PermissionLogic {
+class PermissionLogicImpl(val permissionSetCache: Cache) : PermissionLogic {
 	private val log = LoggerFactory.getLogger(PermissionLogicImpl::class.java)
 	private val permissionSetSafeCache = SafeCache<String, PermissionSet>(permissionSetCache)
 
@@ -51,13 +51,6 @@ class PermissionLogicImpl(val permissionSetCache: Cache, val userLogic: UserLogi
 	private fun buildPermissionSet(permissionSetIdentifier: PermissionSetIdentifier?): PermissionSet? {
 		if (permissionSetIdentifier != null) {
 			log.debug("Creating permission set for {} #{}", permissionSetIdentifier.principalClass.simpleName, permissionSetIdentifier.principalId)
-
-			// Get related principal logic
-			val principalLogic = if (permissionSetIdentifier.principalClass == User::class.java) userLogic else if (permissionSetIdentifier.principalClass == Role::class.java) roleLogic else null
-			if (principalLogic == null) {
-				log.error("Cannot get related principal logic !")
-				return null
-			}
 
 			// Build granted authorities before adding implicit permissions
 			val grantedAuthorities = buildGrantedAuthorities(permissionSetIdentifier, hashSetOf())

@@ -78,7 +78,7 @@ class UserLogicImpl(
 
     override suspend fun getUser(id: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.getUsersByPartialIdOnFallback(dbInstanceUri, groupId, id).first().also { fillGroup(it) }
+        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, false).also { fillGroup(it) }
     }
 
     private suspend fun fillGroup(user: User): User =
@@ -572,16 +572,6 @@ class UserLogicImpl(
         return userDAO.findUserOnUserDb(dbInstanceUrl, groupId, userId, false)?.also { fillGroup(it) }
     }
 
-    override fun getUsersByPartialIdOnFallbackDb(id: String): Flow<User> = flow {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll( userDAO.getUsersByPartialIdOnFallback(dbInstanceUri, groupId, id))
-    }
-
-    override fun findUsersByLoginOnFallbackDb(login: String): Flow<User> = flow {
-        // Format login
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(userDAO.findByUsernameOnFallback(dbInstanceUri, groupId, formatLogin(login)))
-    }
     override suspend fun getPrincipal(userId: String): User? {
         return if (userId == "bootstrap") getBootstrapUser() else getUser(userId)
     }

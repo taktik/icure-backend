@@ -16,7 +16,7 @@ import org.springframework.web.reactive.socket.server.support.HandshakeWebSocket
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import org.springframework.web.reactive.socket.server.upgrade.JettyRequestUpgradeStrategy
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.services.external.http.WebSocketHandler
+import org.taktik.icure.services.external.http.WebSocketOperationHandler
 import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
 
 
@@ -33,10 +33,10 @@ class SessionConfig {
 
     @Bean
     fun webSocketHandler(kmehrWsController: KmehrWsController, sessionLogic: AsyncSessionLogic) =
-            WebSocketHandler(kmehrWsController, Gson(), sessionLogic)
+            WebSocketOperationHandler(kmehrWsController, Gson(), sessionLogic)
 
     @Bean
-    fun handlerMapping(webSocketHandler: WebSocketHandler) = SimpleUrlHandlerMapping().apply {
+    fun handlerMapping(webSocketHandler: WebSocketOperationHandler) = SimpleUrlHandlerMapping().apply {
         urlMap = mapOf("/ws/*" to webSocketHandler)
         order = Ordered.HIGHEST_PRECEDENCE
     }
