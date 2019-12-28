@@ -70,17 +70,20 @@ class DesignDocument(
 
 
 sealed class ActiveTask(val pid: String? = null, val progress: Int, val startedOn: Date? = null, val updatedOn: Date? = null)
+@Suppress("unused")
 class DatabaseCompactionTask(
         pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
         val databaseName: String?,
         val totalChanges: Long,
         val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+@Suppress("unused")
 class Indexer(
         pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
         val databaseName: String?,
         val designDocumentId: String?,
         val totalChanges: Long,
         val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+@Suppress("unused")
 class ReplicationTask(
         pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
         val replicationId: String?,
@@ -490,7 +493,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
             // Get adapters to deserialize key, value and doc
             val keyAdapter = moshi.adapter(keyType)
-            val valueAdapter = moshi.adapter(valueType)
+            val valueAdapter = if (valueType == Void::class.java) null else moshi.adapter(valueType)
             val docAdapter = if (query.isIncludeDocs) moshi.adapter(docType) else null
 
             // Response should be a Json object
@@ -539,7 +542,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     VALUE_FIELD_NAME -> {
                                                         val valueEvents = jsonEvents.nextValue()
                                                         @Suppress("BlockingMethodInNonBlockingContext")
-                                                        value = valueAdapter.fromJson(EventListJsonReader(valueEvents))
+                                                        value = valueAdapter?.fromJson(EventListJsonReader(valueEvents))
                                                     }
                                                     // Parse doc
                                                     INCLUDED_DOC_FIELD_NAME -> {
