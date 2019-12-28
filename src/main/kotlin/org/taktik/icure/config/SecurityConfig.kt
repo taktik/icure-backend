@@ -30,6 +30,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ReactiveAuthenticationManagerAdapter
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -72,6 +73,7 @@ class SecurityConfig {
 @ExperimentalCoroutinesApi
 @Configuration
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                             private val sessionLogic: AsyncSessionLogic,
                             private val authenticationManager: CustomAuthenticationProvider) {
@@ -83,9 +85,10 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
 
         return http
                 .csrf().disable()
-                .httpBasic().disable()
+                .httpBasic()
                 //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
                 .authenticationManager(authenticationManager)
+                .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .pathMatchers("/v2/api-docs").permitAll()
