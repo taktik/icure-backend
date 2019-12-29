@@ -92,6 +92,7 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .pathMatchers("/v2/api-docs").permitAll()
+                .pathMatchers("/api/**").permitAll()
                 .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
                 .pathMatchers("/rest/*/icure/v").permitAll()

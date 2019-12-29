@@ -94,7 +94,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 code?.let { it + "" } ?: ComplexKey.emptyObject(),
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )
-        val viewQuery = pagedViewQuery("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Tarification::class.java)
 
     }
@@ -121,7 +121,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (language == null) ComplexKey.emptyObject() else if (label == null) language + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery = pagedViewQuery("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, Integer::class.java, Tarification::class.java)
     }
 
@@ -149,7 +149,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (type == null) ComplexKey.emptyObject() else if (label == null) type + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery = pagedViewQuery("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, Integer::class.java, Tarification::class.java)
     }
 }

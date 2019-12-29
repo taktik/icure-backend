@@ -126,7 +126,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 if (version == null) ComplexKey.emptyObject() else version + "\ufff0"
         )
 
-        val viewQuery = pagedViewQuery(
+        val viewQuery = pagedViewQuery<Code, ComplexKey>(
                 "by_region_type_code_version",
                 from,
                 to,
@@ -157,7 +157,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
 
-        val viewQuery = pagedViewQuery(
+        val viewQuery = pagedViewQuery<Code, ComplexKey>(
                 "by_language_label",
                 from,
                 to,
@@ -190,7 +190,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
 			if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
 		)
 
-        val viewQuery = pagedViewQuery(
+        val viewQuery = pagedViewQuery<Code, ComplexKey>(
                 "by_language_type_label",
                 from,
                 to,
@@ -216,7 +216,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                         linkedId ?: ComplexKey.emptyObject()
             )
 
-        val viewQuery = pagedViewQuery(
+        val viewQuery = pagedViewQuery<Code, ComplexKey>(
                 "by_qualifiedlink_id",
                 from,
                 to,

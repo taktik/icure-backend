@@ -229,7 +229,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
     override fun findIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val viewQuery = pagedViewQueryOfIds("by_hcparty_name", ComplexKey.of(healthcarePartyId, null), ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination)
+        val viewQuery = pagedViewQueryOfIds<Patient, ComplexKey>("by_hcparty_name", ComplexKey.of(healthcarePartyId, null), ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Any::class.java)
     }
 
@@ -298,7 +298,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 //            it
 //        }.filterIsInstance<ViewRow<ComplexKey, String, Patient>>().map { it.doc }.filterNotNull().toList()
 
-        val viewQuery = pagedViewQuery(viewName, startKey, endKey, pagination, descending)
+        val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, startKey, endKey, pagination, descending)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
@@ -321,7 +321,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
             endKey = ComplexKey.of(healthcarePartyId, ssinSearchString + endKeyNameKeySuffix)
         }
 
-        val viewQuery = pagedViewQuery(viewName, startKey, endKey, pagination, descending)
+        val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, startKey, endKey, pagination, descending)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
@@ -346,7 +346,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val to = ComplexKey.of(healthcarePartyId, if (startKeyStartDate == null && endKeyEndDate == null) null else endKeyEndDate
                 ?: largestKey)
 
-        val viewQuery = pagedViewQuery(viewName, from, to, pagination, descending)
+        val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, from, to, pagination, descending)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
@@ -367,7 +367,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 
         val to = ComplexKey.of(healthcarePartyId, endKeyEndDate ?: largestKey)
 
-        val viewQuery = pagedViewQuery(viewName, from, to, pagination, descending)
+        val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, from, to, pagination, descending)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
     }
 
@@ -399,7 +399,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun findDeletedPatientsByDeleteDate(dbInstanceUrl: URI, groupId: String, start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = pagedViewQuery("deleted_by_delete_date", start, end, paginationOffset, descending)
+        val viewQuery = pagedViewQuery<Patient, Long>("deleted_by_delete_date", start, end, paginationOffset, descending)
         return client.queryView(viewQuery, Long::class.java, Any::class.java, Patient::class.java)
     }
 
@@ -448,7 +448,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     @View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && doc.modified) emit(doc.modified)}")
     override fun listOfPatientsModifiedAfter(dbInstanceUrl: URI, groupId: String, date: Long, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val viewQuery = pagedViewQuery("by_modification_date", date, java.lang.Long.MAX_VALUE, paginationOffset, false)
+        val viewQuery = pagedViewQuery<Patient, Long>("by_modification_date", date, java.lang.Long.MAX_VALUE, paginationOffset, false)
         return client.queryView(viewQuery, Long::class.java, Any::class.java, Patient::class.java)
     }
 

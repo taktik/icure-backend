@@ -65,7 +65,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
     override fun findBySpecialityPostcode(dbInstanceUrl: URI, groupId: String, type: String, spec: String, firstCode: String, lastCode: String): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = pagedViewQuery("by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), PaginationOffset(10000), false)
+        val viewQuery = pagedViewQuery<HealthcareParty, ComplexKey>("by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), PaginationOffset(10000), false)
 
         return client.queryView(viewQuery, String::class.java, String::class.java, HealthcareParty::class.java)
     }
@@ -74,7 +74,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
     override fun listHealthCareParties(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = pagedViewQuery("allForPagination", if (pagination.startKey != null) pagination.startKey.toString() else if (desc != null && desc) "\ufff0" else "\u0000", if (desc != null && desc) "\u0000" else "\ufff0", pagination, desc
+        val viewQuery = pagedViewQuery<HealthcareParty, String>("allForPagination", if (pagination.startKey != null) pagination.startKey.toString() else if (desc != null && desc) "\ufff0" else "\u0000", if (desc != null && desc) "\u0000" else "\ufff0", pagination, desc
                 ?: false)
 
         return client.queryView(viewQuery, String::class.java, String::class.java, HealthcareParty::class.java)
@@ -95,7 +95,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
         val from = if (offset.startKey == null) if (isDesc) searchValue!! + "\ufff0" else searchValue else offset.startKey
         val to = if (searchValue != null) if (isDesc) searchValue else searchValue + "\ufff0" else if (isDesc) null else "\ufff0"
 
-        val viewQuery = pagedViewQuery("by_ssin_or_nihii", from, to, offset, isDesc)
+        val viewQuery = pagedViewQuery<HealthcareParty, String>("by_ssin_or_nihii", from, to, offset, isDesc)
 
         return client.queryView(viewQuery, String::class.java, String::class.java, HealthcareParty::class.java)
     }
@@ -109,7 +109,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
         val from = if (offset.startKey == null) if (isDesc) r!! + "\ufff0" else r else offset.startKey as String
         val to = if (r != null) if (isDesc) r else r + "\ufff0" else if (isDesc) null else "\ufff0"
 
-        val viewQuery = pagedViewQuery("by_hcParty_name", from, to, offset, isDesc)
+        val viewQuery = pagedViewQuery<HealthcareParty, String>("by_hcParty_name", from, to, offset, isDesc)
 
         return client.queryView(viewQuery, String::class.java, String::class.java, HealthcareParty::class.java)
     }

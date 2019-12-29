@@ -57,7 +57,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey = if (paginationOffset.startKey == null) ComplexKey.of(hcParty, fromDate) else paginationOffset.startKey
         val endKey = ComplexKey.of(hcParty, toDate ?: ComplexKey.emptyObject())
 
-        val viewQuery = pagedViewQuery("by_hcparty_date", startKey, endKey, paginationOffset, false)
+        val viewQuery = pagedViewQuery<Invoice, ComplexKey>("by_hcparty_date", startKey, endKey, paginationOffset, false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Invoice::class.java)
     }
 

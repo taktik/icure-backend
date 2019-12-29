@@ -49,7 +49,7 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = pagedViewQuery(
+        val viewQuery = pagedViewQuery<VmpGroup,ComplexKey>(
                 "by_language_label",
                 from,
                 to,

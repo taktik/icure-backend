@@ -69,7 +69,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val startKey = if (pagination.startKey != null) ComplexKey.of(hcPartyId, startOpeningDate) else ComplexKey.of(hcPartyId, pagination.startKey)
         val endKey = ComplexKey.of(hcPartyId, endOpeningDate)
-        val viewQuery = pagedViewQuery("by_hcparty_openingdate", startKey, endKey, pagination, false)
+        val viewQuery = pagedViewQuery<Contact,ComplexKey>("by_hcparty_openingdate", startKey, endKey, pagination, false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Contact::class.java)
     }
 
@@ -77,9 +77,9 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun listContacts(dbInstanceUrl: URI, groupId: String, hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val key = if (pagination.startKey == null) hcPartyId else pagination.startKey as String
+        val key = if (pagination.startKey == null) hcPartyId else pagination.startKey
 
-        val viewQuery = pagedViewQuery("by_hcparty", key, key, pagination, false)
+        val viewQuery = pagedViewQuery<Contact,String>("by_hcparty", key, key, pagination, false)
         return client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java)
     }
 

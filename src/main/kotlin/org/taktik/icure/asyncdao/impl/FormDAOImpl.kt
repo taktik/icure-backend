@@ -65,7 +65,7 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
 
     override fun findAll(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val viewQuery = pagedViewQuery("all", pagination.startKey, null, pagination, false)
+        val viewQuery = pagedViewQuery<Form,String>("all", pagination.startKey, null, pagination, false)
         return client.queryView(viewQuery, Any::class.java, String::class.java, Form::class.java)
     }
 

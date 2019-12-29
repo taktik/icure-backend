@@ -36,7 +36,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = paginationOffset.startKey ?: vmpgCode
         val to = vmpgCode
 
-        val viewQuery = pagedViewQuery("by_groupcode", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Amp, String>("by_groupcode", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, String::class.java, String::class.java, Amp::class.java)
     }
 
@@ -48,7 +48,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = paginationOffset.startKey ?: vmpgId
         val to = vmpgId
 
-        val viewQuery = pagedViewQuery("by_groupid", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Amp,String>("by_groupid", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, String::class.java, String::class.java, Amp::class.java)
     }
 
@@ -60,7 +60,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = paginationOffset.startKey ?: vmpCode
         val to = vmpCode
 
-        val viewQuery = pagedViewQuery("by_vmpcode", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Amp,String>("by_vmpcode", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, String::class.java, String::class.java, Amp::class.java)
     }
 
@@ -72,7 +72,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
         val from = paginationOffset.startKey ?: vmpId
         val to = vmpId
 
-        val viewQuery = pagedViewQuery("by_vmpid", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Amp,String>("by_vmpid", from, to, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, String::class.java, String::class.java, Amp::class.java)
     }
 
@@ -154,7 +154,7 @@ class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDi
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = pagedViewQuery(
+        val viewQuery = pagedViewQuery<Amp,ComplexKey>(
                 "by_language_label",
                 from,
                 to,

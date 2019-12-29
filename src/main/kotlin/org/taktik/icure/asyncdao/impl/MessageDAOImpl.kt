@@ -75,7 +75,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, fromAddress, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], startKey.components[1], ComplexKey.emptyObject())
 
-        val viewQuery = pagedViewQuery("by_hcparty_from_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_from_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
@@ -85,7 +85,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val reverse = reverse ?: false
         val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, toAddress, null)
         val endKey = ComplexKey.of(partyId, toAddress, if (reverse) null else ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery("by_hcparty_to_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_to_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
@@ -102,7 +102,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
@@ -119,7 +119,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
@@ -129,7 +129,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey = paginationOffset?.startKey?.let { ComplexKey.of(it) }
                 ?: ComplexKey.of(partyId, transportGuid, fromDate)
         val endKey = ComplexKey.of(partyId, transportGuid, toDate)
-        val viewQuery = pagedViewQuery("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 
@@ -138,7 +138,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey: ComplexKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery("by_hcparty", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Message::class.java)
     }
 

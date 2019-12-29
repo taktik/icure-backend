@@ -16,13 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.util.Assert
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
-import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.PermissionLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.constants.Users
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.User
-import org.taktik.icure.properties.AuthenticationProperties
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.database.DatabaseUserDetails
@@ -40,6 +37,7 @@ class CustomAuthenticationProvider(
         private val passwordEncoder: PasswordEncoder,
         private val messageSourceAccessor: MessageSourceAccessor = SpringSecurityMessageSource.getAccessor()
 ) : ReactiveAuthenticationManager {
+    private val log = LogFactory.getLog(javaClass)
     private val dbInstanceUri = URI(couchDbProperties.url)
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
@@ -94,19 +92,19 @@ class CustomAuthenticationProvider(
                     }
                     matchingUsers.add(userOnFallbackDb)
                 } else {
-                    logger.warn("No match for " + userOnFallbackDb.id + ":" + gId)
+                    log.warn("No match for " + userOnFallbackDb.id + ":" + gId)
                 }
             } else {
-                logger.warn("No group for " + userOnFallbackDb.id)
+                log.warn("No group for " + userOnFallbackDb.id)
             }
         }
 
         if (user == null) {
-            logger.warn("Invalid username or password for user " + username + ", no user matched out of " + users.size + " candidates")
+            log.warn("Invalid username or password for user " + username + ", no user matched out of " + users.size + " candidates")
             throw BadCredentialsException("Invalid username or password")
         }
 
-        if (user.isUse2fa != null && user.isUse2fa != null && user.isUse2fa!! && !user.isSecretEmpty && !user.applicationTokens.containsValue(password)) {
+        if (user.isUse2fa == true && !user.isSecretEmpty && !user.applicationTokens.containsValue(password)) {
             val splittedPassword = password.split("\\|")
             if (splittedPassword.size < 2) {
                 throw BadCredentialsException("Missing verfication code")
@@ -165,10 +163,6 @@ class CustomAuthenticationProvider(
             return false
         }
         return true
-    }
-
-    companion object {
-        val logger = LogFactory.getLog(javaClass)
     }
 
 }
