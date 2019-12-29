@@ -25,11 +25,20 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.bind.JAXBContext
 import com.sun.xml.internal.ws.util.NoCloseInputStream
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import org.eclipse.jetty.client.HttpClient
+import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.springframework.context.annotation.Bean
+import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.entities.samv2.embed.AmppComponent
 import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2.entities.ExportReimbursements
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
+import org.taktik.icure.properties.CouchDbProperties
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
@@ -60,9 +69,14 @@ class Samv2Import : CliktCommand() {
     val update: String by option(help="Force update of existing entries").prompt("Force update")
 
     override fun run() {
-        val httpClient = StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url(url).username(username).password(password).build()
-        val dbInstance = StdCouchDbInstance(httpClient)
-        val couchdbConfig = StdCouchDbICureConnector(dbName, dbInstance)
+        val couchDbProperties = CouchDbProperties().apply {
+            this.username = this@Samv2Import.username
+            this.password = this@Samv2Import.password
+            this.url = this@Samv2Import.url
+        }
+
+        val httpClient = HttpClient(SslContextFactory.Client()).apply { start() }
+        val couchDbDispatcher = CouchDbDispatcher(httpClient, dbName, "drug", username, password)
         val updateExistingDocs = (update == "true" || update == "yes")
         val reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>> = HashMap()
         val vmps : MutableMap<String, VmpStub> = HashMap()
@@ -73,9 +87,17 @@ class Samv2Import : CliktCommand() {
             while (zip.let { entry = it.nextEntry;entry != null }) {
                 when {
                     entry!!.name.startsWith("VMP") ->
-                        (JAXBContext.newInstance(ExportVirtualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportVirtualMedicines)?.let { importVirtualMedicines(it, vmps, couchdbConfig, updateExistingDocs) }
+                        (JAXBContext.newInstance(ExportVirtualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportVirtualMedicines)?.let {
+                            runBlocking {
+                                importVirtualMedicines(it, vmps, couchDbProperties, couchDbDispatcher, updateExistingDocs)
+                            }
+                        }
                     entry!!.name.startsWith("RMB") ->
-                        (JAXBContext.newInstance(ExportVirtualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportReimbursements)?.let { importReimbursements(it, reimbursements, couchdbConfig, updateExistingDocs) }
+                        (JAXBContext.newInstance(ExportVirtualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportReimbursements)?.let {
+                            runBlocking {
+                                importReimbursements(it, reimbursements, couchDbProperties, couchDbDispatcher, updateExistingDocs)
+                            }
+                        }
                 }
             }
         }
@@ -86,13 +108,17 @@ class Samv2Import : CliktCommand() {
             while (zip.let { entry = it.nextEntry; entry != null }) {
                 when {
                     entry!!.name.startsWith("AMP") ->
-                        (JAXBContext.newInstance(ExportActualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportActualMedicines)?.let { importActualMedicines(it, vmps, reimbursements, couchdbConfig, updateExistingDocs) }
+                        runBlocking {
+                            (JAXBContext.newInstance(ExportActualMedicines::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportActualMedicines)?.let {
+                                importActualMedicines(it, vmps, reimbursements, couchDbProperties, couchDbDispatcher, updateExistingDocs)
+                            }
+                        }
                 }
             }
         }
     }
 
-    private fun importReimbursements(export: ExportReimbursements, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
+    private suspend fun importReimbursements(export: ExportReimbursements, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) {
         export.reimbursementContexts.forEach { reimb ->
             reimb.datas.forEach { reimbd ->
                 val from = reimbd.from?.toGregorianCalendar()?.timeInMillis
@@ -123,9 +149,9 @@ class Samv2Import : CliktCommand() {
             }
         }
 
-        val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
-        HashSet(ampDAO.allIds).chunked(100).forEach { ids ->
-            ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
+        val ampDAO = AmpDAOImpl(couchDbProperties, couchDbDispatcher , UUIDGenerator())
+        HashSet(ampDAO.getAllIds().toList()).chunked(100).forEach { ids ->
+            ampDAO.save(ampDAO.list(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
                 var shouldAdd = false
                 amp.ampps.flatMap { it.dmpps ?: listOf() }.filterNotNull().forEach { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let {
@@ -137,16 +163,16 @@ class Samv2Import : CliktCommand() {
                 }
                 if (shouldAdd) acc.add(amp)
                 acc
-            }))
+            }).asFlow())
         }
     }
 
-    private fun importVirtualMedicines(export: ExportVirtualMedicines, vmps: MutableMap<String, VmpStub>, couchdbConfig: CouchDbICureConnector, force: Boolean) {
-        val vmpGroupDAO = VmpGroupDAOImpl(couchdbConfig , UUIDGenerator())
-        val vmpDAO = VmpDAOImpl(couchdbConfig , UUIDGenerator())
+    private suspend fun importVirtualMedicines(export: ExportVirtualMedicines, vmps: MutableMap<String, VmpStub>, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) {
+        val vmpGroupDAO = VmpGroupDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator())
+        val vmpDAO = VmpDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator())
 
-        val currentVmpGroups = HashSet(vmpGroupDAO.allIds)
-        val currentVmps = HashSet(vmpDAO.allIds)
+        val currentVmpGroups = HashSet(vmpGroupDAO.getAllIds().toList())
+        val currentVmps = HashSet(vmpDAO.getAllIds().toList())
 
         val vmpGroupIds = HashMap<Int, String>()
 
@@ -173,16 +199,16 @@ class Samv2Import : CliktCommand() {
                     this.id = id
                 }.let { vmpg ->
                     if (!currentVmpGroups.contains(id)) {
-                        vmpGroupDAO.create(vmpg)
+                        vmpGroupDAO.save(vmpg)
                     } else if (force) {
                         val prev = vmpGroupDAO.get(vmpg.id)
                         if (prev != vmpg) {
-                            vmpGroupDAO.update(vmpg.apply { this.rev = prev.rev })
+                            vmpGroupDAO.update(vmpg.apply { this.rev = prev?.rev })
                         }
                         vmpg
                     } else vmpg
                 }
-            }.maxBy { it.to ?: Long.MAX_VALUE }?.let {
+            }.maxBy { it?.to ?: Long.MAX_VALUE }?.let {
                 latestVmpGroup -> vmpGroupIds[vmpg.code] = latestVmpGroup.id
             }
         }
@@ -250,11 +276,11 @@ class Samv2Import : CliktCommand() {
                 ).let { vmp ->
                     vmp.code?.let { vmps[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                     if (!currentVmps.contains(id)) {
-                        vmpDAO.create(vmp)
+                        vmpDAO.save(vmp)
                     } else if (force) {
                         val prev = vmpDAO.get(vmp.id)
                         if(prev != vmp) {
-                            vmpDAO.update(vmp.apply {this.rev=prev.rev})
+                            vmpDAO.update(vmp.apply {this.rev=prev?.rev})
                         }
                         vmp
                     } else vmp
@@ -263,9 +289,9 @@ class Samv2Import : CliktCommand() {
         }
     }
 
-    private fun importActualMedicines(export: ExportActualMedicines, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchdbConfig: CouchDbICureConnector, force: Boolean) {
-        val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
-        val currentAmps = HashSet(ampDAO.allIds)
+    private suspend fun importActualMedicines(export: ExportActualMedicines, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) {
+        val ampDAO = AmpDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator())
+        val currentAmps = HashSet(ampDAO.getAllIds().toList())
 
         export.amps.forEach { amp ->
             amp.datas.map { d ->
@@ -422,14 +448,14 @@ class Samv2Import : CliktCommand() {
                         } ?: listOf()
                 ).let { amp ->
                     if (!currentAmps.contains(id)) {
-                        ampDAO.create(amp)
+                        ampDAO.save(amp)
                     } else if (force) {
                         val prev = ampDAO.get(amp.id)
                         if (amp.ampps.all { it.dmpps?.all { it?.reimbursements == null } != false }) {
-                            prev.ampps.forEach { it.dmpps?.forEach { it?.reimbursements = null } }
+                            prev?.ampps?.forEach { it.dmpps?.forEach { it?.reimbursements = null } }
                         }
                         if(prev != amp) {
-                            ampDAO.update(amp.apply { this.rev = prev.rev })
+                            ampDAO.update(amp.apply { this.rev = prev?.rev })
                         }
                         amp
                     } else amp

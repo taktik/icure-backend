@@ -32,6 +32,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Document
+import org.taktik.icure.utils.createQuery
 import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.io.FileInputStream
@@ -106,7 +107,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
     override fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("conflicts")
+        val viewQuery = createQuery<Document>("conflicts")
                 .limit(200)
                 .includeDocs(true)
 
@@ -119,7 +120,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_hcparty_message")
+        val viewQuery = createQuery<Document>("by_hcparty_message")
                 .keys(keys)
                 .includeDocs(true)
 
@@ -130,7 +131,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
     override fun findDocumentsWithNoDelegations(dbInstanceUrl: URI, groupId: String, limit: Int): Flow<Document> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("without_delegations")
+        val viewQuery = createQuery<Document>("without_delegations")
                 .limit(limit)
                 .includeDocs(true)
 
@@ -143,7 +144,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
 
         val keys = secretForeignKeys.map { fk -> ComplexKey.of(documentTypeCode, hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_type_hcparty_message")
+        val viewQuery = createQuery<Document>("by_type_hcparty_message")
                 .keys(keys)
                 .includeDocs(true)
 

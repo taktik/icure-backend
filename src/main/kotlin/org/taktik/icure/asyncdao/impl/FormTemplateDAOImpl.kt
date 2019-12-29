@@ -36,6 +36,7 @@ import org.taktik.icure.asyncdao.FormTemplateDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.FormTemplate
+import org.taktik.icure.utils.createQuery
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
@@ -55,7 +56,7 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
 
         val from = ComplexKey.of(userId, guid ?: "")
         val to = ComplexKey.of(userId, guid ?: "\ufff0")
-        val formTemplates = client.queryViewIncludeDocsNoValue<ComplexKey, FormTemplate>(createQuery("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+        val formTemplates = client.queryViewIncludeDocsNoValue<ComplexKey, FormTemplate>(createQuery<FormTemplate>("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
 
         // invoke postLoad()
         if (loadLayout) {
@@ -71,7 +72,7 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
     override fun findByGuid(dbInstanceUrl: URI, groupId: String, guid: String, loadLayout: Boolean): Flow<FormTemplate> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery("by_guid").key(guid).includeDocs(true)).map { it.doc }
+        val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery<FormTemplate>("by_guid").key(guid).includeDocs(true)).map { it.doc }
 
         // invoke postLoad()
         if (loadLayout) {
@@ -89,11 +90,11 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
 
         val formTemplates = if (guid != null) {
             val key = ComplexKey.of(specialityCode, guid)
-            client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery("by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery<FormTemplate>("by_specialty_code_and_guid").key(key).includeDocs(true)).map { it.doc }
         } else {
             val from = ComplexKey.of(specialityCode, null)
             val to = ComplexKey.of(specialityCode, ComplexKey.emptyObject())
-            client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery<FormTemplate>("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
         }
 
         // invoke postLoad()

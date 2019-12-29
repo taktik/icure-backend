@@ -9,6 +9,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.AgendaDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Agenda
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 
 @Repository("AgendaDAO")
@@ -19,7 +20,7 @@ class AgendaDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher:
     override fun getAllAgendaForUser(dbInstanceUrl: URI, groupId: String, userId: String): Flow<Agenda> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("by_user")
+        val viewQuery = createQuery<Agenda>("by_user")
                 .startKey(userId)
                 .endKey(userId)
                 .includeDocs(true)
@@ -31,7 +32,7 @@ class AgendaDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher:
     override fun getReadableAgendaForUser(dbInstanceUrl: URI, groupId: String, userId: String): Flow<Agenda> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("readable_by_user")
+        val viewQuery = createQuery<Agenda>("readable_by_user")
                 .startKey(userId)
                 .endKey(userId)
                 .includeDocs(true)

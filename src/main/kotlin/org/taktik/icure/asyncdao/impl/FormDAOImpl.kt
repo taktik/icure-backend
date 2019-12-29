@@ -34,6 +34,8 @@ import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Form
+import org.taktik.icure.utils.createQuery
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 
 /**
@@ -50,7 +52,7 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val result = client.queryViewIncludeDocs<ComplexKey, String, Form>(createQuery("by_hcparty_patientfk").keys(keys).includeDocs(true)).map { it.doc }
+        val result = client.queryViewIncludeDocs<ComplexKey, String, Form>(createQuery<Form>("by_hcparty_patientfk").keys(keys).includeDocs(true)).map { it.doc }
         return result.distinctUntilChangedBy { it.id }
     }
 
@@ -58,7 +60,7 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
     override fun findByHcPartyParentId(dbInstanceUrl: URI, groupId: String, hcPartyId: String, formId: String): Flow<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, Form>(createQuery("by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<ComplexKey, String, Form>(createQuery<Form>("by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc }
     }
 
     override fun findAll(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
@@ -71,6 +73,6 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
     override fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, Form>(createQuery("conflicts").includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<ComplexKey, Form>(createQuery<Form>("conflicts").includeDocs(true)).map { it.doc }
     }
 }

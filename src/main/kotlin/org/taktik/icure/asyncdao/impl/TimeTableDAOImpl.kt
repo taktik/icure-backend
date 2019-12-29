@@ -27,6 +27,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.TimeTable
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinctById
 import java.net.URI
 
@@ -37,7 +38,7 @@ class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatc
 	@View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
 	override fun listTimeTableByAgendaId(dbInstanceUrl: URI, groupId:String, agendaId: String): Flow<TimeTable> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val viewQuery = createQuery("by_agenda")
+        val viewQuery = createQuery<TimeTable>("by_agenda")
 				.startKey(agendaId)
 				.endKey(agendaId)
 				.includeDocs(true)
@@ -55,7 +56,7 @@ class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatc
 				agendaId,
 				endDate ?: ComplexKey.emptyObject()
 		)
-		val viewQuery = createQuery("by_agenda_and_startdate")
+		val viewQuery = createQuery<TimeTable>("by_agenda_and_startdate")
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
@@ -73,7 +74,7 @@ class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatc
 				agendaId,
 				endDate ?: ComplexKey.emptyObject()
 		)
-		val viewQuery = createQuery("by_agenda_and_enddate")
+		val viewQuery = createQuery<TimeTable>("by_agenda_and_enddate")
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)

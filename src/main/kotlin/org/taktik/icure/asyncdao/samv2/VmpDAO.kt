@@ -21,11 +21,11 @@ package org.taktik.icure.asyncdao.samv2
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.InternalDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Vmp
 
-interface VmpDAO : GenericDAO<Vmp> {
+interface VmpDAO : InternalDAO<Vmp> {
     fun findVmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>

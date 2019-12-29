@@ -30,6 +30,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.ClassificationDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Classification
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 
 /**
@@ -42,7 +43,7 @@ internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") c
 
     override fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<Classification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val viewQuery = createQuery("all").includeDocs(true).key(patientId)
+        val viewQuery = createQuery<Classification>("all").includeDocs(true).key(patientId)
         return client.queryViewIncludeDocs<String, String, Classification>(viewQuery).map { it.doc }
     }
 
@@ -55,7 +56,7 @@ internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") c
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_hcparty_patient").includeDocs(true).keys(keys)
+        val viewQuery = createQuery<Classification>("by_hcparty_patient").includeDocs(true).keys(keys)
         return client.queryViewIncludeDocs<ComplexKey, String, Classification>(viewQuery).map { it.doc }.distinctUntilChangedBy { it.id }
     }
 }

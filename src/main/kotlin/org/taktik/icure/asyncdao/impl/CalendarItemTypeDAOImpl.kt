@@ -27,6 +27,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemTypeDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.CalendarItemType
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 
 @Repository("calendarItemTypeDAO")
@@ -36,7 +37,7 @@ class CalendarItemTypeDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbD
     @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
     override fun getAllEntitiesIncludeDelete(dbInstanceUrl: URI, groupId: String): Flow<CalendarItemType> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val viewQuery = createQuery("all_and_deleted").includeDocs(true)
+        val viewQuery = createQuery<CalendarItemType>("all_and_deleted").includeDocs(true)
 
         val result = client.queryViewIncludeDocsNoValue<String, CalendarItemType>(viewQuery).map { it.doc }
         return result.map {

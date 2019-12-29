@@ -31,6 +31,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.CalendarItem
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinctById
 import java.net.URI
 
@@ -52,7 +53,7 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("by_hcparty_and_startdate")
+        val viewQuery = createQuery<CalendarItem>("by_hcparty_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -73,7 +74,7 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("by_hcparty_and_enddate")
+        val viewQuery = createQuery<CalendarItem>("by_hcparty_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -101,7 +102,7 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("by_agenda_and_startdate")
+        val viewQuery = createQuery<CalendarItem>("by_agenda_and_startdate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)
@@ -122,7 +123,7 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
                 endDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("by_agenda_and_enddate")
+        val viewQuery = createQuery<CalendarItem>("by_agenda_and_enddate")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(true)

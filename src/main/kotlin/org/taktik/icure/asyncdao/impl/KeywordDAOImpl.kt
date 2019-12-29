@@ -27,6 +27,7 @@ import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.KeywordDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Keyword
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 
 @Repository("keywordDAO")
@@ -41,6 +42,6 @@ internal class KeywordDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatc
     override fun getByUserId(dbInstanceUrl: URI, groupId: String, userId: String): Flow<Keyword> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryView<String, Keyword>(createQuery("by_user").startKey(userId).endKey(userId).includeDocs(false)).mapNotNull { it.value }
+        return client.queryView<String, Keyword>(createQuery<Keyword>("by_user").startKey(userId).endKey(userId).includeDocs(false)).mapNotNull { it.value }
     }
 }

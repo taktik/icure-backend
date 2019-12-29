@@ -27,6 +27,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Role
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 
@@ -42,6 +43,6 @@ class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: Couch
     override suspend fun getByName(dbInstanceUrl: URI, groupId: String, name: String): Role? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<String, String, Role>(createQuery("by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
+        return client.queryViewIncludeDocs<String, String, Role>(createQuery<Role>("by_name").key(name).includeDocs(true)).map { it.doc }.firstOrNull()
     }
 }

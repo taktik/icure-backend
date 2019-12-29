@@ -8,6 +8,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.EntityReferenceDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.EntityReference
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 
@@ -20,7 +21,7 @@ class EntityReferenceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDi
     override suspend fun getLatest(dbInstanceUrl: URI, groupId: String, prefix: String): EntityReference? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
+        val viewQuery = createQuery<EntityReference>("all").startKey(prefix + "\ufff0").descending(true).includeDocs(true).limit(1)
         val entityReferences = client.queryViewIncludeDocsNoValue<String, EntityReference>(viewQuery).map { it.doc }
         return entityReferences.firstOrNull()
     }

@@ -32,6 +32,8 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.utils.createQuery
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 import java.util.*
 
@@ -48,7 +50,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
             flowOf()
         } else {
             val key = if (nihii.length > 8) nihii.substring(0, 8) else nihii
-            client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_nihii").key(key).includeDocs(true)).map { it.doc }
+            client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_nihii").key(key).includeDocs(true)).map { it.doc }
         }
     }
 
@@ -56,7 +58,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
     override fun findBySsin(dbInstanceUrl: URI, groupId: String, ssin: String): Flow<HealthcareParty> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_ssin").key(ssin).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_ssin").key(ssin).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_speciality_postcode", map = "classpath:js/healthcareparty/By_speciality_postcode.js")
@@ -82,7 +84,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
     override fun findByName(dbInstanceUrl: URI, groupId: String, name: String): Flow<HealthcareParty> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_name").key(name).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_name").key(name).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_ssin_or_nihii", map = "classpath:js/healthcareparty/By_Ssin_or_Nihii.js")
@@ -119,7 +121,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
         val from = ComplexKey.of(r)
         val to = ComplexKey.of(r + "\ufff0")
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_hcParty_name").startKey(from).endKey(to).includeDocs(true).limit(limit + offset)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_hcParty_name").startKey(from).endKey(to).includeDocs(true).limit(limit + offset)).map { it.doc }
                 .withIndex().filter { it.index >= offset }.map { it.value }
     }
 
@@ -128,7 +130,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         //Not transactional aware
-        val result = client.queryView<String, List<String>>(createQuery("by_hcparty_delegate_keys").key(healthcarePartyId).includeDocs(false)).mapNotNull { it.value }
+        val result = client.queryView<String, List<String>>(createQuery<HealthcareParty>("by_hcparty_delegate_keys").key(healthcarePartyId).includeDocs(false)).mapNotNull { it.value }
 
         val resultMap = HashMap<String, String>()
         result.collect {
@@ -141,6 +143,6 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
     override fun findByParentId(dbInstanceUrl: URI, groupId: String, parentId: String): Flow<HealthcareParty> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery("by_parent").key(parentId).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, HealthcareParty>(createQuery<HealthcareParty>("by_parent").key(parentId).includeDocs(true)).map { it.doc }
     }
 }

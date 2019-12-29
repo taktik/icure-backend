@@ -31,6 +31,7 @@ import org.taktik.icure.asyncdao.EntityTemplateDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.EntityTemplate
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinctById
 import java.net.URI
 
@@ -43,7 +44,7 @@ class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDis
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery("by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
+        val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView<ComplexKey, EntityTemplate>(viewQuery)
@@ -55,7 +56,7 @@ class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDis
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
+        val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView<ComplexKey, EntityTemplate>(viewQuery)

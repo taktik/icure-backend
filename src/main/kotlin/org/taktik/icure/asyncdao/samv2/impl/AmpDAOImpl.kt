@@ -12,6 +12,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.GenericDAOImpl
+import org.taktik.icure.asyncdao.impl.InternalDAOImpl
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.asyncdao.samv2.AmpDAO
 import org.taktik.icure.db.PaginationOffset
@@ -19,12 +20,14 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.createQuery
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 
 @ExperimentalCoroutinesApi
 @Repository("ampDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
-class AmpDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Amp>(Amp::class.java, couchDbDispatcher, idGenerator), AmpDAO {
+class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : InternalDAOImpl<Amp>(Amp::class.java, couchDbProperties, couchDbDispatcher, idGenerator), AmpDAO {
     @View(name = "by_groupcode", map = "classpath:js/amp/By_groupcode.js")
     override fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val dbInstanceUri = URI(couchDbProperties.url)
@@ -80,7 +83,7 @@ class AmpDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouch
         val from = vmpgCode
         val to = vmpgCode
 
-        val viewQuery = createQuery("by_groupcode")
+        val viewQuery = createQuery<Amp>("by_groupcode")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -95,7 +98,7 @@ class AmpDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouch
         val from = vmpgId
         val to = vmpgId
 
-        val viewQuery = createQuery("by_groupid")
+        val viewQuery = createQuery<Amp>("by_groupid")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -110,7 +113,7 @@ class AmpDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouch
         val from = vmpCode
         val to = vmpCode
 
-        val viewQuery = createQuery("by_code")
+        val viewQuery = createQuery<Amp>("by_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -125,7 +128,7 @@ class AmpDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouch
         val from = vmpId
         val to = vmpId
 
-        val viewQuery = createQuery("by_id")
+        val viewQuery = createQuery<Amp>("by_id")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -174,12 +177,13 @@ class AmpDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouch
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery("by_language_label")
+        val viewQuery = createQuery<Amp>("by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
                 .includeDocs(false)
         return client.queryView<ComplexKey,String>(viewQuery).map { it.id }
     }
+
 
 }

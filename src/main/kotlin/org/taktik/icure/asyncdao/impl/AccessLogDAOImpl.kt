@@ -32,6 +32,8 @@ import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
+import org.taktik.icure.utils.createQuery
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 import java.time.Instant
 
@@ -71,7 +73,7 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_hcparty_patient").includeDocs(true).keys(keys)
+        val viewQuery = createQuery<AccessLog>("by_hcparty_patient").includeDocs(true).keys(keys)
 
         return client.queryViewIncludeDocs<ComplexKey, String, AccessLog>(viewQuery).map { it.doc }
     }

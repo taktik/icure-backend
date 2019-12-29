@@ -51,7 +51,4 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun purge(dbInstanceUrl: URI, groupId: String, entities: Collection<T>)
     fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier>
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier
-
-    fun<P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery
-    fun<P> pagedViewQueryOfIds(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery
 }

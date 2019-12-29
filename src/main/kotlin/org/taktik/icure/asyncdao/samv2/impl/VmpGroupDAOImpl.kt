@@ -12,6 +12,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.GenericDAOImpl
+import org.taktik.icure.asyncdao.impl.InternalDAOImpl
 import org.taktik.icure.asyncdao.samv2.AmpDAO
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
@@ -22,12 +23,14 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.createQuery
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 
 @FlowPreview
 @Repository("vmpGroupDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.VmpGroup' && !doc.deleted) emit( null, doc._id )}")
-class VmpGroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<VmpGroup>(VmpGroup::class.java, couchDbDispatcher, idGenerator), VmpGroupDAO {
+class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : InternalDAOImpl<VmpGroup>(VmpGroup::class.java, couchDbProperties, couchDbDispatcher, idGenerator), VmpGroupDAO {
     @View(name = "by_language_label", map = "classpath:js/vmpgroup/By_language_label.js")
     override fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> {
         val dbInstanceUri = URI(couchDbProperties.url)
@@ -69,7 +72,7 @@ class VmpGroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("drug
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
         )
-        val viewQuery = createQuery("by_language_label")
+        val viewQuery = createQuery<VmpGroup>("by_language_label")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)

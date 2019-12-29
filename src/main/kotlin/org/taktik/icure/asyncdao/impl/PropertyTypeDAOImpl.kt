@@ -27,6 +27,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.PropertyTypeDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.PropertyType
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 
@@ -44,7 +45,7 @@ class PropertyTypeDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatche
 
         val wrappedValue = getWrapperFromCache(dbInstanceUrl, groupId, "PID:$propertyTypeIdentifier")
         if (wrappedValue == null) {
-            val result = client.queryViewIncludeDocs<String, String, PropertyType>(createQuery("by_identifier").includeDocs(true).key(propertyTypeIdentifier)).map { it.doc }.firstOrNull()
+            val result = client.queryViewIncludeDocs<String, String, PropertyType>(createQuery<PropertyType>("by_identifier").includeDocs(true).key(propertyTypeIdentifier)).map { it.doc }.firstOrNull()
 
             if (result?.id != null) {
                 putInCache(dbInstanceUrl, groupId, result.id, result)

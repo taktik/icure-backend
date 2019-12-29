@@ -34,8 +34,11 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Message
+import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Service
+import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinct
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 
 /**
@@ -93,7 +96,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun listContactIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("by_hcparty")
+        val viewQuery = createQuery<Contact>("by_hcparty")
                 .startKey(hcPartyId)
                 .endKey(hcPartyId)
                 .includeDocs(false)
@@ -107,7 +110,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val viewQuery = createQuery("by_hcparty_patientfk").keys(keys).includeDocs(true)
+        val viewQuery = createQuery<Contact>("by_hcparty_patientfk").keys(keys).includeDocs(true)
 
         return client.queryViewIncludeDocs<ComplexKey, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
     }
@@ -116,7 +119,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun findByHcPartyFormId(dbInstanceUrl: URI, groupId: String, hcPartyId: String, formId: String): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
+        val viewQuery = createQuery<Contact>("by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
         val result = client.queryViewIncludeDocs<ComplexKey, String, Contact>(viewQuery).map { it.doc }
         return relink(result)
     }
@@ -124,7 +127,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun findByHcPartyFormIds(dbInstanceUrl: URI, groupId: String, hcPartyId: String, ids: List<String>): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("by_hcparty_formid")
+        val viewQuery = createQuery<Contact>("by_hcparty_formid")
                 .includeDocs(false)
                 .keys(ids.map { k -> ComplexKey.of(hcPartyId, k) })
         val result = client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct()
@@ -158,7 +161,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("service_by_hcparty_tag")
+        val viewQuery = createQuery<Contact>("service_by_hcparty_tag")
                 .startKey(from)
                 .endKey(to)
                 .includeDocs(false)
@@ -195,7 +198,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                     endValueDate ?: ComplexKey.emptyObject()
             )
 
-            val viewQuery = createQuery("service_by_hcparty_patient_tag")
+            val viewQuery = createQuery<Contact>("service_by_hcparty_patient_tag")
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
@@ -230,7 +233,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("service_by_hcparty_code")
+        val viewQuery = createQuery<Contact>("service_by_hcparty_code")
                 .startKey(from)
                 .endKey(to)
                 .reduce(false)
@@ -253,7 +256,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 ComplexKey.emptyObject()
         )
 
-        val viewQuery = createQuery("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
+        val viewQuery = createQuery<Contact>("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
         return client.queryView<ComplexKey, Long>(viewQuery).map { CouchKeyValue(it.id, it.key, it.value) }
     }
@@ -288,7 +291,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                     endValueDate ?: ComplexKey.emptyObject()
             )
 
-            val viewQuery = createQuery("service_by_hcparty_patient_code")
+            val viewQuery = createQuery<Contact>("service_by_hcparty_patient_code")
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
@@ -306,7 +309,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun findByServices(dbInstanceUrl: URI, groupId: String, services: Collection<String>): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("by_service")
+        val viewQuery = createQuery<Contact>("by_service")
                 .keys(services)
                 .includeDocs(false)
 
@@ -320,7 +323,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun listIdsByServices(dbInstanceUrl: URI, groupId: String, services: Collection<String>): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("by_service").keys(services).includeDocs(false)
+        val viewQuery = createQuery<Contact>("by_service").keys(services).includeDocs(false)
         val result = client.queryView<String, String>(viewQuery)
         return result.mapNotNull { it.value }.distinct()
 
@@ -346,7 +349,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Contact> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = createQuery("conflicts").includeDocs(true)
+        val viewQuery = createQuery<Contact>("conflicts").includeDocs(true)
         return client.queryViewIncludeDocsNoValue<String, Contact>(viewQuery).map { it.doc }
     }
 }

@@ -37,6 +37,7 @@ import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
 import org.taktik.icure.exceptions.UpdateConflictException
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 import java.nio.ByteBuffer
 import java.util.*
@@ -46,15 +47,6 @@ import java.util.*
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
     protected val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
     private val log = LoggerFactory.getLogger(this.javaClass)
-
-    /**
-     * Creates a ViewQuery pre-configured with correct dbPath, design document id and view name.
-     * @param viewName
-     * @return
-     */
-    protected fun createQuery(viewName: String): ViewQuery = ViewQuery()
-            .designDocId(NameConventions.designDocName(entityClass))
-            .viewName(viewName)
 
     override suspend fun contains(dbInstanceUrl:URI, groupId:String, id: String): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
@@ -67,7 +59,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     override suspend fun hasAny(dbInstanceUrl:URI, groupId:String): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return designDocContainsAllView(dbInstanceUrl, groupId) && client.queryView<String, String>(createQuery("all").limit(1)).count() > 0
+        return designDocContainsAllView(dbInstanceUrl, groupId) && client.queryView<String, String>(createQuery("all", entityClass).limit(1)).count() > 0
     }
 
     private suspend fun designDocContainsAllView(dbInstanceUrl:URI, groupId:String): Boolean {
@@ -81,7 +73,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
         if (designDocContainsAllView(dbInstanceUrl, groupId)) {
             val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-            client.queryView<String, String>(createQuery("all")).onEach { emit(it.id) }.collect()
+            client.queryView<String, String>(createQuery("all", entityClass)).onEach { emit(it.id) }.collect()
         }
     }
 
@@ -90,7 +82,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
             log.debug(entityClass.simpleName + ".getAll")
         }
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryView(createQuery("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
+        return client.queryView(createQuery("all", entityClass).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
     }
 
     override fun getAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {
@@ -324,42 +316,6 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
     override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId:String, entities: K): Flow<T> {
         return save(dbInstanceUrl, groupId, false, entities)
-    }
-
-    override fun<P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery {
-        val DEFAULT_LIMIT = 1000
-        val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
-
-        var viewQuery = createQuery(viewName)
-                .startKey(startKey) // NB: pagination.startKey is ignored, but should always be null or the same as startKey
-                .includeDocs(true)
-                .reduce(false)
-                .startDocId(pagination.startDocumentId)
-                .limit(limit)
-                .descending(descending)
-
-        if (endKey != null) {
-            viewQuery = viewQuery.endKey(endKey)
-        }
-
-        return viewQuery
-    }
-
-    override fun<P> pagedViewQueryOfIds(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>): ViewQuery {
-        val DEFAULT_LIMIT = 1000
-        val limit = if (pagination.limit != null) pagination.limit else DEFAULT_LIMIT
-
-        var viewQuery = createQuery(viewName)
-                .startKey(startKey)
-                .includeDocs(false)
-                .reduce(false)
-                .limit(limit)
-
-        if (endKey != null) {
-            viewQuery = viewQuery.endKey(endKey)
-        }
-
-        return viewQuery
     }
 
     // TODO SH later: make sure this is correct

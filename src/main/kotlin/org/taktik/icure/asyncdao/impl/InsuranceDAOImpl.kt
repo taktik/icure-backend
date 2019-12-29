@@ -32,6 +32,7 @@ import org.taktik.icure.asyncdao.InsuranceDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Insurance
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 
 @Repository("insuranceDAO")
@@ -42,7 +43,7 @@ class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: Co
     override fun listByCode(dbInstanceUrl: URI, groupId: String, code: String): Flow<Insurance> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<String, String, Insurance>(createQuery("all_by_code").key(code).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<String, String, Insurance>(createQuery<Insurance>("all_by_code").key(code).includeDocs(true)).map { it.doc }
     }
 
     @View(name = "all_by_name", map = "classpath:js/insurance/all_by_name_map.js")
@@ -51,7 +52,7 @@ class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: Co
 
         val sanitizedName = StringUtils.sanitizeString(name)
 
-        val ids = client.queryView<ComplexKey, String>(createQuery("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }.toList()
+        val ids = client.queryView<ComplexKey, String>(createQuery<Insurance>("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }.toList()
         return getList(dbInstanceUrl, groupId, ids)
     }
 }

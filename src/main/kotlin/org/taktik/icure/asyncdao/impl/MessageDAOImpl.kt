@@ -32,6 +32,8 @@ import org.taktik.icure.asyncdao.MessageDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
+import org.taktik.icure.utils.createQuery
+import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
 
 
@@ -45,7 +47,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         return actorKeys?.takeIf { it.isNotEmpty() }?.let {
             val keys = actorKeys.map { k: String -> ComplexKey.of(partyId, fromAddress, k) }
-            client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_from_address_actor").includeDocs(true).keys(keys)).map { it.doc }
+            client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery<Message>("by_from_address_actor").includeDocs(true).keys(keys)).map { it.doc }
         } ?: emptyFlow()
     }
 
@@ -54,7 +56,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         return actorKeys?.takeIf { it.isNotEmpty() }?.let {
             val keys = actorKeys.map { k: String -> ComplexKey.of(partyId, toAddress, k) }
-            client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_hcparty_to_address_actor").includeDocs(true).keys(keys)).map { it.doc }
+            client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery<Message>("by_hcparty_to_address_actor").includeDocs(true).keys(keys)).map { it.doc }
         } ?: emptyFlow()
     }
 
@@ -63,7 +65,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         return actorKeys?.takeIf { it.isNotEmpty() }?.let {
             val keys = actorKeys.map { k: String -> ComplexKey.of(partyId, transportGuid, k) }
-            client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_hcparty_transport_guid_actor").includeDocs(true).keys(keys)).map { it.doc }
+            client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery<Message>("by_hcparty_transport_guid_actor").includeDocs(true).keys(keys)).map { it.doc }
         } ?: emptyFlow()
     }
 
@@ -144,42 +146,42 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun findByHcPartyPatient(dbInstanceUrl: URI, groupId: String, hcPartyId: String, secretPatientKeys: List<String>): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val keys = secretPatientKeys.map { fk: String -> ComplexKey.of(hcPartyId, fk) }
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_hcparty_patientfk").includeDocs(true).keys(keys)).distinctUntilChangedBy { it.id }.map { it.doc }
+        return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery<Message>("by_hcparty_patientfk").includeDocs(true).keys(keys)).distinctUntilChangedBy { it.id }.map { it.doc }
     }
 
     @View(name = "by_parent_id", map = "classpath:js/message/By_parent_id_map.js")
     override fun getChildren(dbInstanceUrl: URI, groupId: String, messageId: String): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocs<String, Int, Message>(createQuery("by_parent_id").includeDocs(true).key(messageId)).map { it.doc }
+        return client.queryViewIncludeDocs<String, Int, Message>(createQuery<Message>("by_parent_id").includeDocs(true).key(messageId)).map { it.doc }
     }
 
     override suspend fun getChildren(dbInstanceUrl: URI, groupId: String, parentIds: List<String>): Flow<List<Message>> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val byParentId = client.queryViewIncludeDocs<String, Int, Message>(createQuery("by_parent_id").includeDocs(true).keys(parentIds)).map { it.doc }.toList()
+        val byParentId = client.queryViewIncludeDocs<String, Int, Message>(createQuery<Message>("by_parent_id").includeDocs(true).keys(parentIds)).map { it.doc }.toList()
         return parentIds.asFlow().map { parentId -> byParentId.filter { message -> message.id == parentId } }
     }
 
     @View(name = "by_invoice_id", map = "classpath:js/message/By_invoice_id_map.js")
     override fun getByInvoiceIds(dbInstanceUrl: URI, groupId: String, invoiceIds: Set<String>): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocs<String, Int, Message>(createQuery("by_invoice_id").includeDocs(true).keys(invoiceIds)).map { it.doc }
+        return client.queryViewIncludeDocs<String, Int, Message>(createQuery<Message>("by_invoice_id").includeDocs(true).keys(invoiceIds)).map { it.doc }
     }
 
     @View(name = "by_hcparty_transport_guid", map = "classpath:js/message/By_hcparty_transport_guid_map.js")
     override fun getByTransportGuids(dbInstanceUrl: URI, groupId: String, hcPartyId: String, transportGuids: Collection<String>): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_hcparty_transport_guid").includeDocs(true).keys(HashSet(transportGuids).map { ComplexKey.of(hcPartyId, it) })).map { it.doc }
+        return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery<Message>("by_hcparty_transport_guid").includeDocs(true).keys(HashSet(transportGuids).map { ComplexKey.of(hcPartyId, it) })).map { it.doc }
     }
 
     @View(name = "by_external_ref", map = "classpath:js/message/By_hcparty_external_ref_map.js")
     override fun getByExternalRefs(dbInstanceUrl: URI, groupId: String, hcPartyId: String, externalRefs: Set<String>): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery("by_hcparty_transport_guid").includeDocs(true).keys(HashSet(externalRefs).map { ComplexKey.of(hcPartyId, it) })).map{it.doc}
+        return client.queryViewIncludeDocs<ComplexKey, String, Message>(createQuery<Message>("by_hcparty_transport_guid").includeDocs(true).keys(HashSet(externalRefs).map { ComplexKey.of(hcPartyId, it) })).map{it.doc}
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Message' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     override fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Message> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocsNoValue<String, Message>(createQuery("conflicts").includeDocs(true).key(Message::class.java)).map{it.doc}
+        return client.queryViewIncludeDocsNoValue<String, Message>(createQuery<Message>("conflicts").includeDocs(true).key(Message::class.java)).map{it.doc}
     }
 }

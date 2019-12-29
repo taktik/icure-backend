@@ -10,6 +10,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.FrontEndMigrationDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.FrontEndMigration
+import org.taktik.icure.utils.createQuery
 import java.net.URI
 
 @Repository("frontEndMigrationDAO")
@@ -29,9 +30,9 @@ class FrontEndMigrationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispat
             val startKey = ComplexKey.of(userId)
             val endKey = ComplexKey.of(userId, ComplexKey.emptyObject())
 
-            createQuery("by_userid_name").startKey(startKey).endKey(endKey).includeDocs(true)
+            createQuery<FrontEndMigration>("by_userid_name").startKey(startKey).endKey(endKey).includeDocs(true)
         } else {
-            createQuery("by_userid_name").key(ComplexKey.of(userId, name)).includeDocs(true)
+            createQuery<FrontEndMigration>("by_userid_name").key(ComplexKey.of(userId, name)).includeDocs(true)
         }
         return client.queryViewIncludeDocs<ComplexKey, String, FrontEndMigration>(viewQuery).map { it.doc }
     }
