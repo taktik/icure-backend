@@ -32,14 +32,13 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.database.DatabaseUserDetails
-import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
-import org.taktik.icure.services.external.rest.v1.dto.UserDto
-import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto
-import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 
 /* Useful notes:
@@ -83,7 +82,7 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "listUsers", value = "List users with(out) pagination", notes = "Returns a list of users.")
     @GetMapping
-    fun listUsers(
+    suspend fun listUsers(
             @ApiParam(value = "An user email") @RequestParam(required = false) startKey: String?,
             @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): UserPaginatedList {
@@ -91,7 +90,7 @@ class UserController(private val mapper: MapperFacade,
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(paginationOffset)
-        return mapper.map(allUsers, UserPaginatedList::class.java)
+        return UserPaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
     }
 
     @ApiOperation(nickname = "createUser", value = "Create a user", notes = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
