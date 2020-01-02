@@ -403,4 +403,53 @@
     <DESCRIPTION L='en'>Per 6 weeks</DESCRIPTION>
     <DESCRIPTION L='nl'>per 6 weken </DESCRIPTION>
   </VALUE>
+  <VALUE>
+    <CODE>MF</CODE>
+    <DESCRIPTION L='de'>Pro 15 Monaten</DESCRIPTION>
+    <DESCRIPTION L='fr'>Par 15 mois</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 15 months</DESCRIPTION>
+    <DESCRIPTION L='nl'>per 15 maanden</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JE</CODE>
+    <DESCRIPTION L='de'>Pro 11 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 11 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 11 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 11 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JY</CODE>
+    <DESCRIPTION L='de'>Pro 13 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 13 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 13 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 13 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JF</CODE>
+    <DESCRIPTION L='de'>Pro 15 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 15 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 15 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 15 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JX</CODE>
+    <DESCRIPTION L='de'>Pro 10 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 10 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 10 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 10 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JW</CODE>
+    <DESCRIPTION L='de'>Pro 12 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 12 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 12 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 12 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JB</CODE>
+    <DESCRIPTION L='de'>Pro 14 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 14 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 14 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 14 années</DESCRIPTION>
+  </VALUE>
 </kmehr-cd>

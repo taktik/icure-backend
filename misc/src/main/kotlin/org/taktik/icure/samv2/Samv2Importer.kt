@@ -3,9 +3,14 @@ package org.taktik.icure.samv2
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.sun.xml.internal.ws.util.NoCloseInputStream
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
+import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2.entities.ExportActualMedicines
+import org.taktik.icure.be.samv2.entities.ExportReimbursements
 import org.taktik.icure.be.samv2.entities.ExportVirtualMedicines
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
@@ -18,19 +23,15 @@ import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.entities.samv2.embed.*
+import org.taktik.icure.entities.samv2.stub.VmpGroupStub
+import org.taktik.icure.entities.samv2.stub.VmpStub
 import java.math.BigInteger
 import java.net.URI
 import java.security.MessageDigest
+import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.bind.JAXBContext
-import com.sun.xml.internal.ws.util.NoCloseInputStream
-import org.taktik.icure.entities.samv2.embed.AmppComponent
-import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
-import org.taktik.icure.be.samv2.entities.ExportReimbursements
-import org.taktik.icure.entities.samv2.stub.VmpGroupStub
-import org.taktik.icure.entities.samv2.stub.VmpStub
-import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
@@ -58,6 +59,15 @@ class Samv2Import : CliktCommand() {
     val password: String by option(help="The Password").prompt("Password")
     val dbName: String by option(help="The database name").prompt("Database name")
     val update: String by option(help="Force update of existing entries").prompt("Force update")
+
+    val vaccineIndicationsMap = Gson().fromJson<ArrayList<Map<String, *>>>(
+            this.javaClass.getResource("vaccines.json").openStream().bufferedReader(),
+            object : TypeToken<ArrayList<Map<String, *>>>() {}.type
+    )
+            .fold(mutableMapOf<String, List<String>>(), { map, it ->
+                    map[it["cnk"] as String] = it["codes"] as List<String>
+                    map
+            })
 
     override fun run() {
         val httpClient = StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url(url).username(username).password(password).build()
@@ -353,7 +363,7 @@ class Samv2Import : CliktCommand() {
                                                         from = it.from?.toGregorianCalendar()?.timeInMillis,
                                                         to = it.to?.toGregorianCalendar()?.timeInMillis
                                          ) } } ?: listOf(),
-                                        dmpps = ampp.dmpps?.map { dmpp ->
+                                        dmpps = ampp.dmpps?.mapNotNull { dmpp ->
                                             dmpp.datas.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
                                             Dmpp( from = it.from?.toGregorianCalendar()?.timeInMillis,
                                                     to = it.to?.toGregorianCalendar()?.timeInMillis,
@@ -363,7 +373,11 @@ class Samv2Import : CliktCommand() {
                                                     price = it.price?.toString(), cheap = it.isCheap, cheapest = it.isCheapest, reimbursable = it.isReimbursable,
                                                     reimbursements = reimbursements[Triple(dmpp.deliveryEnvironment?.value(), dmpp.codeType?.value(), dmpp.code)])
                                             }
-                                        }
+                                        },
+                                        vaccineIndicationCodes = ArrayList(HashSet(ampp.dmpps?.flatMap { dmpp ->
+                                            dmpp.datas.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
+                                                vaccineIndicationsMap[dmpp.code]
+                                            } ?: listOf()}))
                                 )
                             }
                         } ?: listOf(),

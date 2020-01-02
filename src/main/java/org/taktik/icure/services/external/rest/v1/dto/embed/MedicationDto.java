@@ -44,6 +44,9 @@ public class MedicationDto implements Serializable {
 	Long beginMoment;
 	Long endMoment;
 
+	Long deliveryMoment;
+	Long endExecutionMoment;
+
 	Boolean knownUsage;
 
 	CodeDto frequency;
@@ -74,6 +77,8 @@ public class MedicationDto implements Serializable {
 	Boolean posologyChanged;
 
 	String prescriptionRID;
+
+	Integer status;
 
 	public Map<String, ContentDto> getOptions() {
 		return options;
@@ -162,6 +167,22 @@ public class MedicationDto implements Serializable {
 	public void setEndMoment(Long endMoment) {
 		this.endMoment = endMoment;
 	}
+
+    public Long getDeliveryMoment() {
+        return deliveryMoment;
+    }
+
+    public void setDeliveryMoment(Long deliveryMoment) {
+        this.deliveryMoment = deliveryMoment;
+    }
+
+    public Long getEndExecutionMoment() {
+        return endExecutionMoment;
+    }
+
+    public void setEndExecutionMoment(Long endExecutionMoment) {
+        this.endExecutionMoment = endExecutionMoment;
+    }
 
 	public List<RegimenItemDto> getRegimen() {
 		return regimen;
@@ -278,4 +299,8 @@ public class MedicationDto implements Serializable {
 	public String getPrescriptionRID() { return prescriptionRID; }
 
 	public void setPrescriptionRID(String prescriptionRID) { this.prescriptionRID = prescriptionRID; }
+
+    public Integer getStatus() { return status; }
+
+    public void setStatus(Integer status) { this.status = status; }
 }

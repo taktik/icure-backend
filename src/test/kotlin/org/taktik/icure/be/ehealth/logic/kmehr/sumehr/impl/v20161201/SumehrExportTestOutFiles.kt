@@ -6,7 +6,9 @@ import org.mockito.Matchers.eq
 import org.mockito.Mockito
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -935,6 +937,8 @@ private fun initializeMocks() {
     }
 }
 
+var includeIrrelevantInformation = false
+
 private fun generateMinimalist() {
     services.clear()
     healthElements.clear()
@@ -982,7 +986,14 @@ private fun generateMinimalist() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateEveryItemsSumehr() {
@@ -1060,7 +1071,14 @@ private fun generateEveryItemsSumehr() {
     healthElements.addAll(listOf(MyHealthElements.historyHealthElementProblem, MyHealthElements.assessmentHealthElementProblem, MyHealthElements.assessmentHealthElementAdr, MyHealthElements.historyHealthElementAllergy))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullPatientSumehr() {
@@ -1110,7 +1128,14 @@ private fun generateFullPatientSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullSenderSumehr() {
@@ -1202,7 +1227,14 @@ private fun generateFullSenderSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullRecipientSumehr() {
@@ -1330,7 +1362,14 @@ private fun generateFullRecipientSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateDecryptedSumehr() {
@@ -1391,7 +1430,14 @@ private fun generateDecryptedSumehr() {
     ))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullAdrItemSumehr() { // same structure as 'allergy', 'risk' and 'socialrisk'
@@ -1443,7 +1489,14 @@ private fun generateFullAdrItemSumehr() { // same structure as 'allergy', 'risk'
     healthElements.addAll(listOf(MyHealthElements.assessmentHealthElementAdr))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullGmdManagerItemSumehr() {
@@ -1498,7 +1551,14 @@ private fun generateFullGmdManagerItemSumehr() {
     hcparties["4"] = MyHealthcareParties.retirementhomeGMD
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullContactPersonItemSumehr() {
@@ -1552,7 +1612,14 @@ private fun generateFullContactPersonItemSumehr() {
     patients["Sister"] = MyPatients.sisterPatient
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun generateFullContactHcPartyItemSumehr() {
@@ -1607,7 +1674,14 @@ private fun generateFullContactHcPartyItemSumehr() {
     hcparties["4"] = MyHealthcareParties.retirementhomeGMD
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = makeXGC(Instant.now().toEpochMilli())!!,
+                time = makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = "iCure", version = "1.0"),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        ))
 }
 
 private fun Service.map(): ServiceDto {
@@ -1797,7 +1871,7 @@ private fun CodeDto.map(): Code {
         this@apply.label = this@map.label?.map { Pair(it.key, it.value) }?.toMap()
         this@apply.level = this@map.level
         this@apply.links = this@map.links?.toList()
-        this@apply.parent = this@map.parent
+        //this@apply.parent = this@map.parent
         this@apply.qualifiedLinks = this@map.qualifiedLinks?.map { Pair(it.key, it.value?.toList()) }?.toMap()
         this@apply.regions = this@map.regions?.toSet()
         this@apply.searchTerms = this@map.searchTerms?.map { Pair(it.key, it.value?.toSet()) }?.toMap()

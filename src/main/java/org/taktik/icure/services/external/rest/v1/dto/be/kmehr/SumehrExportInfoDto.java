@@ -24,46 +24,16 @@ import java.util.List;
 
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
 
-public class SumehrExportInfoDto implements Serializable {
-	List<String> secretForeignKeys;
-	List<String> excludedIds;
-	HealthcarePartyDto recipient;
-	String comment;
-	Boolean includeIrrelevantInformation;
+public class SumehrExportInfoDto extends ExportInfoDto implements Serializable {
+    private String comment;
+	private Boolean includeIrrelevantInformation;
 
-	public List<String> getSecretForeignKeys() {
-		return secretForeignKeys;
-	}
-
-	public void setSecretForeignKeys(List<String> secretForeignKeys) {
-		this.secretForeignKeys = secretForeignKeys;
-	}
-
-	public List<String> getExcludedIds() {
-		if(excludedIds != null)
-			return excludedIds;
-		else
-			return new ArrayList<>();
-	}
-
-	public void setExcludedIds(List<String> excludedIds) {
-		this.excludedIds = excludedIds;
-	}
-
-	public String getComment() {
+    public String getComment() {
 		return comment;
 	}
 
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	public HealthcarePartyDto getRecipient() {
-		return recipient;
-	}
-
-	public void setRecipient(HealthcarePartyDto recipient) {
-		this.recipient = recipient;
 	}
 
     public Boolean getIncludeIrrelevantInformation() {

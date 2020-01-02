@@ -13,6 +13,10 @@ import org.taktik.icure.entities.samv2.VmpGroup
 
 @Service
 class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO) : SamV2Logic {
+    override fun findAmpsByDmppCode(dmppCode: String): List<Amp> {
+        return ampDAO.findAmpsByDmppCode(dmppCode)
+    }
+
     override fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp> {
         return vmpDAO.findVmpsByGroupId(vmpgId, paginationOffset)
     }

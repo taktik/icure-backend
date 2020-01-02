@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
 import org.springframework.stereotype.Service
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
@@ -42,10 +43,11 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
     override fun importSmfFile(inputStream: InputStream,
                                author: User,
                                language: String,
+                               dryRun: Boolean,
                                dest: Patient?,
                                mappings: Map<String, List<ImportMapping>>
                               ) : List<ImportResult> {
-        return softwareMedicalFileImport.importSMF(inputStream, author, language, mappings, dest)
+        return softwareMedicalFileImport.importSMF(inputStream, author, language, !dryRun, mappings, dest)
     }
 
     override fun checkIfSMFPatientsExists(inputStream: InputStream,
@@ -57,7 +59,9 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
         return softwareMedicalFileImport.checkIfSMFPatientsExists(inputStream, author, language, mappings, dest)
     }
 
-    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) {
-		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor)
+    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, exportAsPMF : Boolean?) {
+		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor,
+                Config(format = if(exportAsPMF == true) Config.Format.PMF else Config.Format.SMF)
+        )
 	}
 }

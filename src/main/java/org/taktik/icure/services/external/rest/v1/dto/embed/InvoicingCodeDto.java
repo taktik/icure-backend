@@ -46,6 +46,8 @@ public class InvoicingCodeDto implements Serializable {
     protected Double doctorSupplement;
 	protected Double vat;
 
+	protected Integer transplantationCode;
+
 	//Etarif
 	protected String code;
     protected String error;
@@ -80,6 +82,7 @@ public class InvoicingCodeDto implements Serializable {
 
 	protected String locationNihii;
 	protected String locationCdHcParty;
+	protected Integer locationService;
 	protected Long prescriptionDate; // yyyyMMdd
 
 
@@ -429,6 +432,14 @@ public class InvoicingCodeDto implements Serializable {
 		this.locationCdHcParty = locationCdHcParty;
 	}
 
+	public Integer getLocationService() {
+		return locationService;
+	}
+
+	public void setLocationService(Integer locationService) {
+		this.locationService = locationService;
+	}
+
 	public String getCode() { return code; }
 
 	public void setCode(String code) { this.code = code; }
@@ -440,4 +451,8 @@ public class InvoicingCodeDto implements Serializable {
 	public Long getPrescriptionDate() {	return prescriptionDate;	}
 
 	public void setPrescriptionDate(Long prescriptionDate) {	this.prescriptionDate = prescriptionDate;	}
+
+    public Integer getTransplantationCode() {	return transplantationCode;	}
+
+    public void setTransplantationCode(Integer transplantationCode) {	this.transplantationCode = transplantationCode;	}
 }

@@ -6,15 +6,13 @@ import java.util.List;
 
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
 
-public class DiaryNoteExportInfoDto implements Serializable {
-    List<String> secretForeignKeys;
-    List<String> tags;
-    List<String> contexts;
+public class DiaryNoteExportInfoDto extends ExportInfoDto implements Serializable {
+    private List<String> tags;
+    private List<String> contexts;
     private Boolean isPsy;
     private String documentId;
     private String attachmentId;
-    HealthcarePartyDto recipient;
-    String note;
+    private String note;
 
     public List<String> getSecretForeignKeys() {
         return secretForeignKeys;
