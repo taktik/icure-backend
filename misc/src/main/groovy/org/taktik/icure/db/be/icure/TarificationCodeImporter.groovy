@@ -521,7 +521,7 @@ class TarificationCodeImporter extends Importer {
     }
 
     List<Tarification> doScan(File root, String type, List<Tarification> newCodes = null, List<String> subset = null) {
-        def YEAR = 2019
+        def YEAR = 2020
 
         def codes = newCodes ?: []
 
