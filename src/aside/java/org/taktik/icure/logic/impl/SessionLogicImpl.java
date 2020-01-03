@@ -67,7 +67,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	/* Static methods */
 
 	private static Authentication getCurrentAuthentication() {
-		SecurityContext context = ReactiveSecurityContextHolder.getContext().block(); // TODO SH no block
+		SecurityContext context = ReactiveSecurityContextHolder.getContext().block();
 		if (context != null) {
 			return context.getAuthentication();
 		}
@@ -76,7 +76,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 	}
 
 	private static void setCurrentAuthentication(Authentication authentication) {
-		SecurityContext context = ReactiveSecurityContextHolder.getContext().block(); // TODO SH no block
+		SecurityContext context = ReactiveSecurityContextHolder.getContext().block();
 		if (context != null) {
 			context.setAuthentication(authentication);
 		}
@@ -112,7 +112,7 @@ public class SessionLogicImpl implements ICureSessionLogic {
 		try {
 			// Try to authenticate using given username and password
 			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-			Authentication authentication = authenticationManager.authenticate(token).block(); // TODO SH no block
+			Authentication authentication = authenticationManager.authenticate(token).block();
 
 			// Set current authentication
 			setCurrentAuthentication(authentication);
