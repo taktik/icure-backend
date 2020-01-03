@@ -21,7 +21,8 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
@@ -68,20 +69,19 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
         }
     }
 
-// TODO SH later: implement this endpoint
-//    @ApiOperation(nickname = "getAttachment", value = "Get an attachment")
-//    @GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-//    suspend fun getAttachment(
-//            @PathVariable receiptId: String,
-//            @PathVariable attachmentId: String,
-//            @RequestParam enckeys: String): ByteArray? {
-//        receiptLogic.getAttachment(receiptId, attachmentId).toList()
-//                .let {
-//                    if (enckeys != null && enckeys.isNotEmpty()) CryptoUtils.decryptAESWithAnyKey(it, enckeys.split('.')) else it
-//                }
-//                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
-//                        .also { logger.error(it.message) }
-//    }
+    @ApiOperation(nickname = "getAttachment", value = "Get an attachment")
+    @GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    suspend fun getAttachment(
+            @PathVariable receiptId: String,
+            @PathVariable attachmentId: String,
+            @RequestParam enckeys: String): ByteArray {
+        val attachment = receiptLogic.getAttachment(receiptId, attachmentId).flatMapConcat { byteBuffer ->
+            byteBuffer.array().map { it }.asFlow()
+        }.toList().toByteArray()
+        if (attachment.isEmpty()) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found")
+                .also { logger.error(it.message) }
+        return CryptoUtils.decryptAESWithAnyKey(attachment, enckeys.split('.'))
+    }
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a receipt's attachment")
     @PutMapping("/{receiptId}/attachment/{blobType}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
