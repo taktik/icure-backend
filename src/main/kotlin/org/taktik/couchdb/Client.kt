@@ -196,7 +196,7 @@ interface Client {
     suspend fun <T : CouchDbDocument> create(entity: T, clazz: Class<T>): T
     suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T
     fun <T : CouchDbDocument> bulkUpdate(entities: Collection<T>, clazz: Class<T>): Flow<BulkUpdateResult>
-    suspend fun <T : CouchDbDocument> delete(entity: T): String // New revision
+    suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier
     suspend fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult>
     // Query
     fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
