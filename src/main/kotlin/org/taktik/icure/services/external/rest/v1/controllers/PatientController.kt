@@ -24,9 +24,8 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
@@ -34,6 +33,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
+import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
@@ -42,13 +42,15 @@ import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.dto.filter.predicate.Predicate
+import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.utils.injectReactorContext
@@ -57,6 +59,7 @@ import reactor.core.publisher.Flux
 import java.time.Instant
 import java.util.*
 import javax.security.auth.login.LoginException
+import kotlin.streams.toList
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -64,12 +67,11 @@ import javax.security.auth.login.LoginException
 @Api(tags = ["patient"])
 class PatientController(
         private val sessionLogic: AsyncSessionLogic,
-        //private val accessLogLogic: AccessLogLogic,
+        private val accessLogLogic: AccessLogLogic,
         private val mapper: MapperFacade,
         private val filters: Filters,
         private val patientLogic: PatientLogic,
         private val healthcarePartyLogic: HealthcarePartyLogic) {
-    private val DEFAULT_LIMIT = 1000
 
     @ApiOperation(nickname = "findByNameBirthSsinAuto", value = "Find patients for the current user (HcParty) ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
@@ -186,57 +188,47 @@ class PatientController(
     @ApiOperation(nickname = "findByExternalId", value = "Get Paginated List of Patients sorted by Access logs descending")
     @GetMapping("/byExternalId/{externalId}")
     suspend fun findByExternalId(@PathVariable("externalId")
-                         @ApiParam(value = "A external ID", required = true) externalId: String) = mapper.map(patientLogic.getByExternalId(externalId), PatientDto::class.java)
+                         @ApiParam(value = "A external ID", required = true) externalId: String): PatientDto = mapper.map(patientLogic.getByExternalId(externalId), PatientDto::class.java)
 
-    // TODO SH MB: uncomment
-//    @ApiOperation(nickname = "findByAccessLogUserAfterDate", value = "Get Paginated List of Patients sorted by Access logs descending")
-//    @GetMapping("/byAccess/{userId}")
-//    fun findByAccessLogUserAfterDate(@ApiParam(value = "A User ID", required = true) @PathVariable userId: String,
-//                                     @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-//                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
-//                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
-//                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-//                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): PatientPaginatedList {
-//
-//        fun removeDuplicates(patientIds: List<String>): List<String> {
-//            var patientIds = patientIds
-//            val patientIdsSet = LinkedHashSet<String>()
-//            patientIdsSet.addAll(patientIds)
-//            patientIds = ArrayList(patientIdsSet)
-//            return patientIds
-//        }
-//
-//        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, limit)
-//        accessLogLogic.findByUserAfterDate(userId, accessType, if (startDate == null) startDate else Instant.ofEpochMilli(startDate), paginationOffset, true)
-//                ?.let {
-//                    val patientsDtos = PatientPaginatedList()
-//
-//                    patientsDtos.nextKeyPair = mapper.map(it.nextKeyPair, PaginatedDocumentKeyIdPair::class.java)
-//                    patientsDtos.pageSize = it.pageSize
-//                    patientsDtos.totalSize = it.totalSize
-//
-//                    val patientIds = removeDuplicates(it.rows.filter { accessLog -> Objects.nonNull(accessLog) }.sortedBy { accessLog -> accessLog.date }.map { accessLog -> accessLog.patientId })
-//
-//                    patientsDtos.rows = patientLogic.getPatients(patientIds).filter { p -> p != null && p.deletionDate == null }.map { p ->
-//                        val pdto = PatientDto()
-//                        pdto.id = p.id
-//                        pdto.lastName = p.lastName
-//                        pdto.firstName = p.firstName
-//                        pdto.partnerName = p.partnerName
-//                        pdto.maidenName = p.maidenName
-//                        pdto.dateOfBirth = p.dateOfBirth
-//                        pdto.ssin = p.ssin
-//                        pdto.externalId = p.externalId
-//                        pdto.patientHealthCareParties = p.patientHealthCareParties.map { phcp -> mapper.map(phcp, PatientHealthCarePartyDto::class.java) }
-//                        pdto.addresses = p.addresses.stream().map { a -> mapper.map(a, AddressDto::class.java) }.toList()
-//
-//                        pdto
-//                    }.toList()
-//
-//                    return patientsDtos
-//                }
-//                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog based patient listing failed")
-//    }
+    @ApiOperation(nickname = "findByAccessLogUserAfterDate", value = "Get Paginated List of Patients sorted by Access logs descending")
+    @GetMapping("/byAccess/{userId}")
+    suspend fun findByAccessLogUserAfterDate(@ApiParam(value = "A User ID", required = true) @PathVariable userId: String,
+                                     @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
+                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
+                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                                     @ApiParam(value = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int): PatientPaginatedList {
+
+        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+        accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
+                .let {
+                    val patientsDtos = PatientPaginatedList()
+
+                    patientsDtos.nextKeyPair = mapper.map(it.nextKeyPair, PaginatedDocumentKeyIdPair::class.java)
+                    patientsDtos.pageSize = it.pageSize
+                    patientsDtos.totalSize = it.totalSize
+
+                    val patientIds = it.rows.filterNotNull().sortedBy { accessLog -> accessLog.date }.map { it.patientId }.distinct()
+
+                    patientsDtos.rows = patientLogic.getPatients(patientIds).filter { it.deletionDate == null }.map { p ->
+                        val pdto = PatientDto()
+                        pdto.id = p.id
+                        pdto.lastName = p.lastName
+                        pdto.firstName = p.firstName
+                        pdto.partnerName = p.partnerName
+                        pdto.maidenName = p.maidenName
+                        pdto.dateOfBirth = p.dateOfBirth
+                        pdto.ssin = p.ssin
+                        pdto.externalId = p.externalId
+                        pdto.patientHealthCareParties = p.patientHealthCareParties.map { phcp -> mapper.map(phcp, PatientHealthCarePartyDto::class.java) }
+                        pdto.addresses = p.addresses.map { mapper.map(it, AddressDto::class.java) }
+                        pdto
+                    }.toList()
+
+                    return patientsDtos
+                }
+    }
 
     @ApiOperation(nickname = "filterBy", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
@@ -425,5 +417,6 @@ class PatientController(
 
     companion object {
         private val log = LoggerFactory.getLogger(javaClass)
+        private const val DEFAULT_LIMIT = 1000
     }
 }

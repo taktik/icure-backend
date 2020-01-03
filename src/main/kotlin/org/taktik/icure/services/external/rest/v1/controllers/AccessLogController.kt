@@ -92,7 +92,7 @@ class AccessLogController(private val mapper: MapperFacade,
                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
                                     @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?): PaginatedList<AccessLogDto> {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, Array<String>::class.java).toList()
+        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
         val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
                 ?: false)
