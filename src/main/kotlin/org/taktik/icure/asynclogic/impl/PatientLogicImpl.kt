@@ -453,8 +453,7 @@ class PatientLogicImpl(
         patientDAO.listConflicts(dbInstanceUri, groupId).map { it: Patient -> patientDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
                 .filterNotNull()
                 .onEach { patient ->
-                    patient.conflicts?.map { patientDAO.get(dbInstanceUri, groupId, patient.id, it) }
-                            ?.filterNotNull()
+                    patient.conflicts?.mapNotNull { patientDAO.get(dbInstanceUri, groupId, patient.id, it) }
                             ?.forEach {
                                 patient.solveConflictWith(it)
                                 patientDAO.purge(dbInstanceUri, groupId, it)

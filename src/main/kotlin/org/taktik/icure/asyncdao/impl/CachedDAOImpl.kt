@@ -236,9 +236,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         return super.unRemove(dbInstanceUrl, groupId, entity).also { evictFromCache(dbInstanceUrl, groupId, entity) }
     }
 
-    override suspend fun purge(dbInstanceUrl: URI, groupId: String, entity: T) {
-        super.purge(dbInstanceUrl, groupId, entity)
+    override suspend fun purge(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier {
+        val purged = super.purge(dbInstanceUrl, groupId, entity)
         evictFromCache(dbInstanceUrl, groupId, entity)
+        return purged
     }
 
     override fun remove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier> {

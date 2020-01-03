@@ -414,7 +414,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
     }
 
-    override suspend fun <T : CouchDbDocument> delete(entity: T): String {
+    override suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier {
         val id = entity.id
         require(!id.isNullOrBlank()) { "Id cannot be blank" }
         require(!entity.rev.isNullOrBlank()) { "Revision cannot be blank" }
@@ -422,7 +422,7 @@ class ClientImpl(private val httpClient: HttpClient,
         val request = newRequest(uri).method(HttpMethod.DELETE)
         return request.getCouchDbResponse<CUDResponse>().also {
             check(it.ok)
-        }.rev
+        }.let { DocIdentifier(it.id, it.rev) }
     }
 
     @FlowPreview

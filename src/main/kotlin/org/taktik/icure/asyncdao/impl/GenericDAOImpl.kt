@@ -241,7 +241,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return DocIdentifier(undeleted.id, undeleted.rev)
     }
 
-    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entity: T) {
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entity: T): DocIdentifier {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".remove: " + entity)
@@ -249,9 +249,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         // Before remove
         beforeDelete(dbInstanceUrl, groupId, entity)
         // Delete
-        client.delete(entity)
+        val purged = client.delete(entity)
         // After remove
         afterDelete(dbInstanceUrl, groupId, entity)
+
+        return purged
     }
 
     override fun remove(dbInstanceUrl:URI, groupId:String, entities: Collection<T>): Flow<DocIdentifier> {
@@ -292,7 +294,8 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
     }
 
-    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) { // TODO SH MB: reactive
+    // This function is not reactive, but it doesn't seem to be used at all anyway...
+    override suspend fun purge(dbInstanceUrl:URI, groupId:String, entities: Collection<T>) {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         if (log.isDebugEnabled) {
             log.debug("remove $entities")
