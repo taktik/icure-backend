@@ -671,7 +671,7 @@ class SumehrExport : KmehrExport() {
                                         val version = if (c.type == "CD-ATC") "1.0" else c.version
                                         // BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
                                         val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
-                                        this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+                                        if(c.type != "CD-HCPARTY") this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
                                     } catch (ignored: IllegalArgumentException) {
                                         log.error(ignored)
                                     }
