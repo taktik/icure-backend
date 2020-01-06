@@ -94,20 +94,20 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
     }
 
 	override fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServices(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
+        = sumehrExport.getAllServices(healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
 	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServicesPlusPlus(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
+        = sumehrExport.getAllServicesPlusPlus(healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
 	override fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
-        return sumehrExport.getHealthElements(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, HashSet())
+        return sumehrExport.getHealthElements(healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, HashSet())
     }
 
     override fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
-        return sumehrExport.getContactPeople(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
+        return sumehrExport.getContactPeople(healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
     }
 
     override fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
-        return sumehrExport.getPatientHealthCareParties(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
+        return sumehrExport.getPatientHealthCareParties(healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
     }
 }
