@@ -6,9 +6,6 @@ out/
 # Log file
 *.log
 
-# MAC file
-.DS_Store
-
 # BlueJ files
 *.ctxt
 
@@ -18,6 +15,7 @@ out/
 # Package Files #
 *.war
 *.ear
+*.zip
 *.tar.gz
 *.rar
 
@@ -30,11 +28,12 @@ node_modules/
 dist/
 dist-tz/
 
-#IntelliJ & eclipse files
-.project
+#IntelliJ files
 *.iml
 .idea
-.gradle
+package-lock.json
+.gradletasknamecache
+.gradle/4.5.1/fileChanges/last-build.bin
 .gradle/4.5.1/fileHashes/fileHashes.bin
 .gradle/4.5.1/fileHashes/fileHashes.lock
 .gradle/4.5.1/taskHistory/taskHistory.bin
@@ -44,18 +43,3 @@ dist-tz/
 .gradle/buildOutputCleanup/outputFiles.bin
 .gradle/vcsWorkingDirs/gc.properties
 test.json
-.gradletasknamecache
-
-web/icure-ht/package-lock\.json
-
-web/icure-ht/package\.json
-
-bin/
-misc/bin
-misc/build
-misc/out
-.classpath
-.settings
-
-# Test generated files
-src/test/resources/**/out*
