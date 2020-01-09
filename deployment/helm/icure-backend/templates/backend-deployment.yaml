@@ -58,10 +58,10 @@ spec:
                           {{- if .Values.images.backend.cpuLimit }}
                             cpu: {{ .Values.images.backend.cpuLimit | quote }}
                           {{- end }}
-            initContainers:
-                -   name: init-couchdb
-                    image: busybox
-                    command: ['sh', '-c', 'until wget {{ .Values.couchdbUrl }}:{{ .Values.couchdbPortNumber }}; do echo waiting for couchdb; sleep 2; done;']
+{{/*            initContainers:*/}}
+{{/*                -   name: init-couchdb*/}}
+{{/*                    image: busybox*/}}
+{{/*                    command: ['sh', '-c', 'until wget {{ .Values.couchdbUrl }}:{{ .Values.couchdbPortNumber }}; do echo waiting for couchdb; sleep 2; done;']*/}}
             imagePullSecrets:
                 -   name: regsecret
   {{- end }}
