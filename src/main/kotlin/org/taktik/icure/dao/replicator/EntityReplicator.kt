@@ -36,7 +36,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     @Value("\${icure.couchdb.url}")
     protected lateinit var couchDbUrl: String
 
-    protected val replicationSemaphore = Semaphore(16)
+    protected val replicationSemaphore = Semaphore(8)
 
     private data class SyncKey(val groupId: String, val id: String)
     protected data class IdAndRev(val id: String, val rev: String)
@@ -122,9 +122,13 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     }
 
     private suspend fun doReplicate(client:Client, group: Group): Boolean {
+        val id = (Math.random()*1000).toInt()
         val startTime = System.currentTimeMillis()
         try {
+            log.warn("Thread {} acquiring semaphore with {} slots available", id, replicationSemaphore.availablePermits)
             replicationSemaphore.acquire()
+            log.warn("Thread {} semaphore acquired", id)
+
             val allIds = this.getAllIdsAndRevs(client)
             // Only sync outdated docs
             val idsToSync = allIds.filter {
@@ -141,6 +145,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
             return false
         } finally {
             replicationSemaphore.release()
+            log.warn("Thread {} semaphore released with {} slots available", id, replicationSemaphore.availablePermits)
         }
 
         val endTime = System.currentTimeMillis()

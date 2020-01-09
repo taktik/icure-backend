@@ -16,7 +16,8 @@
     <logger name="org.taktik.couchdb" level="INFO" />
     <logger name="org.taktik.couchdb.ClientImpl" level="DEBUG" />
     <logger name="org.taktik.icure.logic" level="INFO" />
-    <logger name="org.taktik.icure.dao" level="DEBUG" />
+    <logger name="org.taktik.icure.dao" level="INFO" />
+    <logger name="org.taktik.icure.dao.replicator" level="DEBUG" />
 
     <!-- uncomment the following line to log expected errors -->
     <!-- <logger name="org.taktik.icure.services.external.rest.v1.error.WsExceptionMapper" level="DEBUG" /> -->
