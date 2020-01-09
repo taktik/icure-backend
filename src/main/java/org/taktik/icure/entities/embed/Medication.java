@@ -92,6 +92,8 @@ public class Medication implements Serializable {
 	private Boolean medicationChanged;
 	private Boolean posologyChanged;
 
+	private List<Suspension> suspension;
+
 	private String prescriptionRID;
 	private Integer status;
 
@@ -318,6 +320,10 @@ public class Medication implements Serializable {
     public Integer getStatus() { return status; }
 
     public void setStatus(Integer status) { this.status = status; }
+
+    public List<Suspension> getSuspension() { return suspension; }
+
+    public void setSuspension(List<Suspension> suspension) { this.suspension = suspension; }
 
     public String toString() {
 		String result = String.format("%s, %s", this.compoundPrescription!=null?this.compoundPrescription:this.substanceProduct!=null?this.substanceProduct:this.medicinalProduct, getPosologyText());
