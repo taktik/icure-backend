@@ -226,11 +226,15 @@ class MedicationSchemeExport : KmehrExport() {
 
 
     private fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-        val f = Filters.UnionFilter(sfks.map { k ->
+        val hcPartyIds = healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic!!.getHealthcareParty(hcPartyId))
+
+        val f = Filters.UnionFilter(hcPartyIds.map { hcpId ->
+            Filters.UnionFilter(sfks.map { k ->
                 Filters.UnionFilter(cdItems.map { cd ->
-                    ServiceByHcPartyTagCodeDateFilter(hcPartyId, k, "CD-ITEM", cd, null, null, null, null)
+                    ServiceByHcPartyTagCodeDateFilter(hcpId, k, "CD-ITEM", cd, null, null, null, null)
                 })
             })
+        })
 
         var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
             s.endOfLife == null && //Not end of lifed

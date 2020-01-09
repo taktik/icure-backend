@@ -65,7 +65,7 @@ class SumehrExport : KmehrExport() {
 
 	fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): String {
 		val signatures = ArrayList(listOf(patient.signature))
-        val hcPartyIds = getHcpHierarchyIds(healthcarePartyLogic!!.getHealthcareParty(hcPartyId))
+        val hcPartyIds = healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic!!.getHealthcareParty(hcPartyId))
         val treatedServiceIds = HashSet<String>()
         getHealthElements(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation, treatedServiceIds).forEach { signatures.add(it.modified.toString()) }
         getAllServices(hcPartyIds, sfks, excludedIds, includeIrrelevantInformation).filter{!treatedServiceIds.contains(it.id)}.forEach { signatures.add(it.modified.toString()) }
@@ -109,7 +109,7 @@ class SumehrExport : KmehrExport() {
 
     // was set from private to public for unit tests
 	public fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {
-        val hcpartyIds = getHcpHierarchyIds(sender)
+        val hcpartyIds = healthcarePartyLogic!!.getHcpHierarchyIds(sender)
         val treatedServiceIds = HashSet<String>()
         //Create transaction
 		val trn = TransactionType().apply {
@@ -193,19 +193,6 @@ class SumehrExport : KmehrExport() {
                     value = CDLIFECYCLEvalues.INACTIVE } }
             })
         }
-    }
-
-    fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String> {
-        val hcpartyIds = HashSet<String>()
-        hcpartyIds.add(sender.id)
-
-        var hcpInHierarchy = sender
-
-        while (hcpInHierarchy.parentId != null) {
-            hcpInHierarchy = healthcarePartyLogic!!.getHealthcareParty(hcpInHierarchy.parentId)
-            hcpartyIds.add(hcpInHierarchy.id)
-        }
-        return hcpartyIds
     }
 
     fun getAllServices(hcPartyIds: Set<String>, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt? = null): List<Service> {
