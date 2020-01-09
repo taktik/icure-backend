@@ -1,6 +1,6 @@
 pullPolicy: "IfNotPresent"
 
-couchdbServiceName: "couchdb-svc-couchdb.couch"
+couchdbUrl: "http://couchdb-svc-couchdb.couch"
 couchdbPortNumber: 5984
 couchdbCredentialsBase64: "" # defiend in the config
 couchdbVirtualHosts: ["couch.icure.dev"]

@@ -42,7 +42,7 @@ spec:
                         -   name: HAZELCAST_KUBERNETES_NAMESPACE
                             value: "{{ .Release.Namespace }}"
                         -   name: ICURE_COUCHDB_URL
-                            value: "http://{{ .Values.couchdbServiceName }}:{{ .Values.couchdbPortNumber }}"
+                            value: "{{ .Values.couchdbUrl }}:{{ .Values.couchdbPortNumber }}"
                       {{- range $key, $value := .Values.images.backend.env }}
                         -   name: "{{ $key }}"
                             value: "{{ $value }}"
@@ -61,7 +61,7 @@ spec:
             initContainers:
                 -   name: init-couchdb
                     image: busybox
-                    command: ['sh', '-c', 'until wget http://{{ .Values.couchdbServiceName }}:{{ .Values.couchdbPortNumber }}; do echo waiting for couchdb; sleep 2; done;']
+                    command: ['sh', '-c', 'until wget {{ .Values.couchdbUrl }}:{{ .Values.couchdbPortNumber }}; do echo waiting for couchdb; sleep 2; done;']
             imagePullSecrets:
                 -   name: regsecret
   {{- end }}

@@ -51,7 +51,7 @@ spec:
               paths:
                   - path: /
                     backend:
-                        serviceName: "{{ $.Values.couchdbServiceName }}"
+                        serviceName: "{{ $.Values.couchdbUrl }}"
                         servicePort: {{ $.Values.couchdbPortNumber }}
                         backendRules:
                             - 'option httpchk GET /_up HTTP/1.0\r\nAuthorization:\ Basic\ {{ $.Values.couchdbCredentialsBase64 }}'
