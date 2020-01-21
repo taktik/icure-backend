@@ -1,6 +1,5 @@
 package org.taktik.couchdb
 
-import com.ibm.icu.lang.UCharacter.GraphemeClusterBreak.V
 import com.squareup.moshi.*
 import com.squareup.moshi.Types.newParameterizedType
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
