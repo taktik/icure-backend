@@ -1,8 +1,7 @@
 package org.taktik.couchdb
 
-import com.squareup.moshi.EventListJsonReader
-import com.squareup.moshi.Json
-import com.squareup.moshi.Moshi
+import com.ibm.icu.lang.UCharacter.GraphemeClusterBreak.V
+import com.squareup.moshi.*
 import com.squareup.moshi.Types.newParameterizedType
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.collections.immutable.persistentListOf
@@ -27,6 +26,9 @@ import org.taktik.jetty.basicAuth
 import org.taktik.jetty.getResponseBytesFlow
 import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
+import java.io.IOException
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -35,6 +37,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 import kotlin.math.min
+
 
 typealias CouchDbDocument = Versionable<String>
 
@@ -147,9 +150,9 @@ data class BulkUpdateResult(val id: String, val rev: String, val ok: Boolean?, v
 data class DocIdentifier(val id: String, val rev: String)
 
 // Convenience inline methods with reified type params
-inline fun <reified K, reified V, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, V, T>> {
+inline fun <reified K, reified U, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, U, T>> {
     require(query.isIncludeDocs) { "Query must have includeDocs=true" }
-    return queryView(query, K::class.java, V::class.java, T::class.java).filterIsInstance()
+    return queryView(query, K::class.java, U::class.java, T::class.java).filterIsInstance()
 }
 
 inline fun <reified K, reified T> Client.queryViewIncludeDocsNoValue(query: ViewQuery): Flow<ViewRowWithDoc<K, Nothing, T>> {
@@ -224,7 +227,7 @@ class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
                  private val password: String,
-                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).build()) : Client {
+                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).add(Base64Adapter()).add(SortedSetAdapterFactory()).build()) : Client {
     private val log = LoggerFactory.getLogger(javaClass.name)
     // Create a copy and set to prototype to avoid unwanted mutation
     // (the URI class is mutable)
@@ -750,6 +753,60 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private fun tryParseError(buffer: Buffer, moshi: Moshi): CouchDbErrorResponse {
         return runCatching { checkNotNull(moshi.adapter<CouchDbErrorResponse>().fromJson(buffer)) }.getOrElse { CouchDbErrorResponse() }
+    }
+
+    internal class Base64Adapter {
+        @FromJson
+        fun fromJson(string: String?): ByteArray {
+            return Base64.getDecoder().decode(string)
+        }
+
+        @ToJson
+        fun toJson(bytes: ByteArray?): String {
+            return Base64.getEncoder().withoutPadding().encodeToString(bytes)
+        }
+    }
+
+    internal class SortedSetAdapterFactory : JsonAdapter.Factory {
+        override fun create(type: Type, annotations: Set<Annotation?>, moshi: Moshi): JsonAdapter<*>? {
+            if (!annotations.isEmpty()) {
+                return null // Annotations? This factory doesn't apply.
+            }
+            if (type !is ParameterizedType) {
+                return null // No type parameter? This factory doesn't apply.
+            }
+            val parameterizedType: ParameterizedType = type as ParameterizedType
+            if (parameterizedType.getRawType() !== SortedSet::class.java) {
+                return null // Not a sorted set? This factory doesn't apply.
+            }
+            val elementType: Type = parameterizedType.getActualTypeArguments().get(0)
+            val elementAdapter = moshi.adapter<Any>(elementType)
+            return SortedSetAdapter(elementAdapter).nullSafe()
+        }
+    }
+
+    internal class SortedSetAdapter<T>(private val elementAdapter: JsonAdapter<T>) : JsonAdapter<SortedSet<T>?>() {
+        @Throws(IOException::class)
+        override fun fromJson(reader: JsonReader): SortedSet<T>? {
+            val result: SortedSet<T>? = TreeSet<T>()
+            reader.beginArray()
+            while (reader.hasNext()) {
+                result?.add(elementAdapter.fromJson(reader))
+            }
+            reader.endArray()
+            return result
+        }
+
+        @Throws(IOException::class)
+        override fun toJson(writer: JsonWriter, set: SortedSet<T>?) {
+            writer.beginArray()
+            set?.let {
+                for (element in set) {
+                    elementAdapter.toJson(writer, element)
+                }
+            }
+            writer.endArray()
+        }
     }
 
 }

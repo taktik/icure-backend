@@ -21,6 +21,8 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.squareup.moshi.FromJson;
+import com.squareup.moshi.Json;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.base.CryptoActor;

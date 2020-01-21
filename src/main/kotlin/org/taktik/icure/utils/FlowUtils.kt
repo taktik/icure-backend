@@ -8,6 +8,7 @@ import kotlinx.coroutines.reactor.asFlux
 import ma.glasnost.orika.MapperFacade
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.couchdb.ViewRowNoDoc
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.base.Identifiable
@@ -88,6 +89,7 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
+    var lastProcessedViewRowNoDoc: ViewRowNoDoc<*, *>? = null
     result.rows = this.mapNotNull { viewQueryResultEvent ->
         when (viewQueryResultEvent) {
             is TotalCount -> {
@@ -112,6 +114,25 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
                         null
                     }
                 }?.takeUnless { predicate?.apply(it) == false }
+            }
+            is ViewRowNoDoc<*, *> -> {
+                when{
+                    viewRowCount == realLimit -> {
+                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
+                        viewRowCount++
+                        lastProcessedViewRowNoDoc?.id
+                    }
+                    viewRowCount < realLimit -> {
+                        val previous = lastProcessedViewRowNoDoc
+                        lastProcessedViewRowNoDoc = viewQueryResultEvent
+                        viewRowCount++
+                        previous?.id // if this is the first one, the Mono will be empty, so it will be ignored by flatMap
+                    }
+                    else -> { // we have more elements than expected, just ignore them
+                        viewRowCount++
+                        null
+                    }
+                }
             }
             else -> {
                 null

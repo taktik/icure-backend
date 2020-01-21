@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import com.squareup.moshi.Types
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -230,7 +231,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun findIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = pagedViewQueryOfIds<Patient, ComplexKey>("by_hcparty_name", ComplexKey.of(healthcarePartyId, null), ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject()), pagination)
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Any::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Any::class.java)
     }
 
     override fun findPatientsByHcPartyAndName(dbInstanceUrl: URI, groupId: String, name: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean): Flow<ViewQueryResultEvent> {
@@ -299,7 +300,8 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 //        }.filterIsInstance<ViewRow<ComplexKey, String, Patient>>().map { it.doc }.filterNotNull().toList()
 
         val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, startKey, endKey, pagination, descending)
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
+//        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Patient::class.java)
     }
 
     private fun findBySsin(dbInstanceUrl: URI, groupId: String, ssin: String?, healthcarePartyId: String, pagination: PaginationOffset<ComplexKey>, descending: Boolean, viewName: String): Flow<ViewQueryResultEvent> {
