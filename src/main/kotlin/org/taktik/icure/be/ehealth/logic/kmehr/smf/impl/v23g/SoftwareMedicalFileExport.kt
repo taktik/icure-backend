@@ -430,6 +430,22 @@ class SoftwareMedicalFileExport : KmehrExport() {
 										}
 									}
 								}
+                                contact.services.forEach {
+                                    itemByServiceId[it.id]?.lnks?.let {
+                                        val lnk = LnkType().apply {
+                                            type = CDLNKvalues.ISASERVICEFOR
+                                            // link should point to He.healthElementId and not He.id
+                                            subcon.healthElementId?.let {
+                                                heById[it]?.firstOrNull()?.let {
+                                                    url = makeLnkUrl(it.healthElementId)
+                                                }
+                                            }
+                                        }
+                                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                                            it.add(lnk)
+                                        }
+                                    }
+                                }
 							}
 						}
 					}
@@ -537,7 +553,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return folder
 	}
 
-	private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
+	private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType
+    {
 		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servlist = listOf(
 				"incapacité de",
@@ -861,7 +878,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     (
                         svc.tags.any { // is tagged active
                             it.type == "CD-LIFECYCLE" && (
-                                    listOf("active", "pending").contains(it.code) // "administrated" because vaccines should be included
+                                    listOf("active", "pending", "planned").contains(it.code) // "administrated" because vaccines should be included
                             )
                         }
                         || ( // or administrated vaccine

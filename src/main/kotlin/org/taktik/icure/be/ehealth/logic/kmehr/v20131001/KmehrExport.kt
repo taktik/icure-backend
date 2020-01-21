@@ -340,6 +340,9 @@ open class KmehrExport {
 					if (unit == null) {
 						mv.unit?.let { getCode(it)?.let {unit = UnitType().apply { cd = CDUNIT().apply { s(CDUNITschemes.CD_UNIT); value = it.code }}}}
 					}
+                    if (unit == null) {
+                        mv.unit?.let { unit = UnitType().apply { cd = CDUNIT().apply { s(CDUNITschemes.CD_UNIT); value = it }}}
+                    }
                     mv.value?.let { decimal = BigDecimal.valueOf(it) }
                 }
                 content.medicationValue?.medicinalProduct?.let {
