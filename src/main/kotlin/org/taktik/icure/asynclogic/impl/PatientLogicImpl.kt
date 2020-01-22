@@ -344,7 +344,7 @@ class PatientLogicImpl(
             throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
         }
         return try {
-            updateEntities(setOf(patient))
+            updateEntities(setOf(patient)).collect()
             val modifiedPatient = getPatient(patient.id)
             modifiedPatient?.let {
                 logPatient(modifiedPatient, "patient.modify.")
@@ -483,7 +483,8 @@ class PatientLogicImpl(
         emitAll(patientDAO.getDuplicatePatientsByName(dbInstanceUri, groupId, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset()))
     }
 
-    override fun fuzzySearchPatients(mapper: MapperFacade, healthcarePartyId: String, firstName: String?, lastName: String?, dateOfBirth: Int?) = flow<Patient> {
+    override fun fuzzySearchPatients(mapper: MapperFacade, firstName: String?, lastName: String?, dateOfBirth: Int?, healthcarePartyId: String?) = flow<Patient> {
+        val healthcarePartyId = healthcarePartyId ?: sessionLogic.getCurrentHealthcarePartyId()
         if (dateOfBirth != null) { //Patients with the right date of birth
             val combined: Flow<Flow<ViewQueryResultEvent>>
             val patients = findByHcPartyDateOfBirth(dateOfBirth, healthcarePartyId, PaginationOffset(1000))

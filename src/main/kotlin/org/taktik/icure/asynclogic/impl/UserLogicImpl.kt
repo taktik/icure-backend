@@ -87,7 +87,6 @@ class UserLogicImpl(
     override suspend fun getUserByEmail(email: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return userDAO.findByEmail(dbInstanceUri, groupId, email).singleOrNull()?.also { fillGroup(it) }
-                ?: throw IllegalStateException("Two users with same email $email")
     }
 
     override fun findByHcpartyId(hcpartyId: String): Flow<String> = flow {
@@ -236,7 +235,7 @@ class UserLogicImpl(
         try { // check whether user exists
             val userByEmail = getUserByEmail(user.email)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
-            user.id = uuidGenerator.newGUID().toString()
+            user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
             user.login = user.email
             return createEntities(setOf(user)).firstOrNull()

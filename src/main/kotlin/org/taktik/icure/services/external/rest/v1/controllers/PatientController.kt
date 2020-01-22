@@ -26,7 +26,6 @@ import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
@@ -34,7 +33,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.ViewRowNoDoc
 import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
@@ -61,7 +59,6 @@ import reactor.core.publisher.Flux
 import java.time.Instant
 import java.util.*
 import javax.security.auth.login.LoginException
-import kotlin.streams.toList
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -115,7 +112,6 @@ class PatientController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
-        val coolected = patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).toList()
         return PatientPaginatedList(patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(mapper, realLimit))
     }
 
@@ -271,18 +267,20 @@ class PatientController(
 
     @ApiOperation(nickname = "fuzzySearch", value = "Filter patients for the current user (HcParty) ", notes = "Returns a list of patients")
     @GetMapping("/fuzzy")
-    suspend fun fuzzySearch(
+     fun fuzzySearch(
             @ApiParam(value = "The first name") @RequestParam(required = false) firstName: String,
             @ApiParam(value = "The last name") @RequestParam(required = false) lastName: String,
-            @ApiParam(value = "The date of birth") @RequestParam(required = false) dateOfBirth: Int?) =
-            try {
-                patientLogic.fuzzySearchPatients(mapper, sessionLogic.getCurrentHealthcarePartyId(), firstName, lastName, dateOfBirth)
-                        .map { p -> mapper.map(p, PatientDto::class.java) }
-                        .injectReactorContext()
-            } catch (e: Exception) {
-                log.warn(e.message, e)
-                throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-            }
+            @ApiParam(value = "The date of birth") @RequestParam(required = false) dateOfBirth: Int?): Flux<PatientDto> {
+
+        return try {
+            patientLogic.fuzzySearchPatients(mapper, firstName, lastName, dateOfBirth)
+                    .map { p -> mapper.map(p, PatientDto::class.java) }
+                    .injectReactorContext()
+        } catch (e: Exception) {
+            log.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        }
+    }
 
     @ApiOperation(nickname = "createPatient", value = "Create a patient", notes = "Name, last name, date of birth, and gender are required. After creation of the patient and obtaining the ID, you need to create an initial delegation.")
     @PostMapping
@@ -330,7 +328,7 @@ class PatientController(
             @ApiParam(value = "First name prefix") @RequestParam(required = false) firstName: String?,
             @ApiParam(value = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
-                patientLogic.findDeletedPatientsByNames(firstName, lastName).map { p -> mapper.map(p, PatientDto::class.java) }
+                patientLogic.findDeletedPatientsByNames(firstName, lastName).map { p -> mapper.map(p, PatientDto::class.java) }.injectReactorContext()
             } catch (e: Exception) {
                 log.warn(e.message, e)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -407,15 +405,16 @@ class PatientController(
 
     @ApiOperation(nickname = "mergeInto", value = "Merge a series of patients into another patient")
     @PutMapping("/mergeInto/{toId}/from/{fromIds}")
-    suspend fun mergeInto(@PathVariable("toId") patientId: String, @PathVariable fromIds: String) {
+    suspend fun mergeInto(@PathVariable("toId") patientId: String, @PathVariable fromIds: String): PatientDto {
         val patient = patientLogic.getPatient(patientId)
-        patient?.let {
-            fromIds
-                    .split(',').mapNotNull { patientLogic.getPatient(it) }
-                    .also { patientLogic.mergePatient(patient, it) }
-                    .let { mapper.map(it, PatientDto::class.java) }
-        }
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find patient with ID $patientId in the database").also { log.error(it.message) }
+        return patient?.let {
+            val patientsFrom = fromIds
+                    .split(',')
+                    .mapNotNull { patientLogic.getPatient(it) }
+                    .toList()
+            val mergedPatient  = patientLogic.mergePatient(patient, patientsFrom)
+            mapper.map(mergedPatient, PatientDto::class.java)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find patient with ID $patientId in the database").also { log.error(it.message) }
     }
 
     // TODO MB add missing methods like findDuplicatesBySsin or findDuplicatesByName  (compare this controller with the master branch)

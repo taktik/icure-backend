@@ -102,7 +102,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun listIdsByHcParty(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery<Patient>("by_hcparty_date_of_birth").startKey(ComplexKey.of(healthcarePartyId, null)).endKey(ComplexKey.of(healthcarePartyId, ComplexKey.emptyObject())).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
 
@@ -142,7 +142,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery<Patient>("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).limit(limit
                 ?: 10000).includeDocs(false)
-        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct()
+        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 
     @View(name = "of_hcparty_contains_name", map = "classpath:js/patient/Of_hcparty_contains_name_map.js")
@@ -429,7 +429,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         }
 
         val queryView = createQuery<Patient>("deleted_by_names").startKey(startKey).endKey(endKey).includeDocs(true)
-        val deleted_by_names = client.queryViewIncludeDocsNoValue<ComplexKey, Patient>(queryView).map { it.doc }
+        val deleted_by_names = client.queryViewIncludeDocsNoValue<Array<String>, Patient>(queryView).map { it.doc }
 
         return if (firstName == null || lastName == null) {
             deleted_by_names
