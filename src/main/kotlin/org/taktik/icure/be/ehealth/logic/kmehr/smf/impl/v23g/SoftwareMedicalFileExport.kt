@@ -410,28 +410,16 @@ class SoftwareMedicalFileExport : KmehrExport() {
 							}
 						}
 
+                        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
+                        val subContactServicesByFormId = subContactsByFormId.mapValues {
+                            it.value.flatMap { subContact -> subContact.services }
+                        }
 
 						// add link from items to HEs
 						contact.subContacts.forEach { subcon ->
 							if (subcon.healthElementId != null) {
-								subcon.services.forEach {
-									itemByServiceId[it.serviceId]?.lnks?.let {
-										val lnk = LnkType().apply {
-											type = CDLNKvalues.ISASERVICEFOR
-											// link should point to He.healthElementId and not He.id
-											subcon.healthElementId?.let {
-												heById[it]?.firstOrNull()?.let {
-													url = makeLnkUrl(it.healthElementId)
-												}
-											}
-										}
-										if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
-											it.add(lnk)
-										}
-									}
-								}
-                                contact.services.forEach {
-                                    itemByServiceId[it.id]?.lnks?.let {
+                                subContactServicesByFormId[subcon.formId]?.forEach {
+                                    itemByServiceId[it.serviceId]?.lnks?.let {
                                         val lnk = LnkType().apply {
                                             type = CDLNKvalues.ISASERVICEFOR
                                             // link should point to He.healthElementId and not He.id
