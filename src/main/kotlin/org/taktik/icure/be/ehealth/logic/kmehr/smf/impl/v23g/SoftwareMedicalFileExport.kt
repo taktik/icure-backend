@@ -224,6 +224,10 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				encContact
 			}
 
+            // newestServicesById should point to decrypted services
+            contact.services.toList().forEach {
+                svc -> newestServicesById[svc.id!!] = svc
+            }
 
 			folder.transactions.add(
 					TransactionType().apply {
