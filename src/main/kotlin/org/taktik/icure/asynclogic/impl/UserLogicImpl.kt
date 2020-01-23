@@ -78,7 +78,7 @@ class UserLogicImpl(
 
     override suspend fun getUser(id: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, false).also { fillGroup(it) }
+        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, true).also { fillGroup(it) } //TODO MB : bypassCache because we need the rev for the test, maybe false when done with tests
     }
 
     private suspend fun fillGroup(user: User): User =

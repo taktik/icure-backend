@@ -22,7 +22,6 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -32,14 +31,18 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.database.DatabaseUserDetails
-import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
+import org.taktik.icure.services.external.rest.v1.dto.UserDto
+import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto
+import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
-import reactor.core.publisher.Flux
+import javax.ws.rs.GET
+import javax.ws.rs.HeaderParam
+
 
 /* Useful notes:
  * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
@@ -127,20 +130,15 @@ class UserController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findByHcpartyId", value = "Get the list of users by healthcare party id")
     @GetMapping("/byHealthcarePartyId/{id}")
-    fun findByHcpartyId(@PathVariable id: String): Flux<String> {
-        return userLogic.findByHcpartyId(id).injectReactorContext()
-    }
+    fun findByHcpartyId(@PathVariable id: String) = userLogic.findByHcpartyId(id).injectReactorContext()
 
     @ApiOperation(nickname = "deleteUser", value = "Delete a User based on his/her ID.", notes = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
     @DeleteMapping("/{userId}")
-    fun deleteUser(@PathVariable userId: String): List<String> {
-        try {
-            userLogic.deleteByIds(setOf(userId))
-        } catch (e: Exception) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
-        }
-        return listOf(userId)
+    fun deleteUser(@PathVariable userId: String) = try {
+        userLogic.deleteByIds(setOf(userId)).injectReactorContext()
+    } catch (e: Exception) {
+        logger.warn(e.message, e)
+        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
     }
 
 
@@ -184,4 +182,7 @@ class UserController(private val mapper: MapperFacade,
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
 
     }
+
+    @GetMapping("/checkPassword")
+    suspend fun checkPassword(@RequestHeader("password") password: String)  = userLogic.checkPassword(password)
 }

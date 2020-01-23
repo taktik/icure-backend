@@ -66,7 +66,6 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val viewQuery = pagedViewQuery<HealthcareParty, ComplexKey>("by_speciality_postcode", ComplexKey.of(type, spec, firstCode), ComplexKey.of(type, spec, lastCode), PaginationOffset(10000), false)
-
         return client.queryView(viewQuery, String::class.java, String::class.java, HealthcareParty::class.java)
     }
 

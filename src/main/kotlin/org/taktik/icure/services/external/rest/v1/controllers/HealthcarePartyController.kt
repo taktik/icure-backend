@@ -145,8 +145,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
             @ApiParam(value = "The first postCode for the HCP") @PathVariable firstCode: String,
             @ApiParam(value = "The last postCode for the HCP") @PathVariable lastCode: String,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int) =
-            healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode)
-                    .paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, limit)
+            healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, limit)
 
     @ApiOperation(nickname = "createHealthcareParty", value = "Create a healthcare party", notes = "One of Name or Last name+First name, Nihii, and Public key are required.")
     @PostMapping
@@ -195,7 +194,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getHealthcareParty", value = "Get a healthcareParty by his ID", notes = "General information about the healthcare Party")
     @GetMapping("/{healthcarePartyId}")
-    suspend fun getHealthcareParty(@PathVariable healthcarePartyId: String): HealthcarePartyDto {
+    suspend fun getHealthcareParty(@PathVariable healthcarePartyId: String): HealthcarePartyDto? {
         val healthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the healthcare party. Probable reasons: no such party exists, or server error. Please try again or read the server log.")
         return mapper.map(healthcareParty, HealthcarePartyDto::class.java)

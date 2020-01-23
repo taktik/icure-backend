@@ -91,7 +91,6 @@ class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDA
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
         }
-        val createdHealthcareParties: List<HealthcareParty> = ArrayList(1)
         try {
             if (healthcareParty.id == null) {
                 val newId = uuidGenerator.newGUID().toString()
