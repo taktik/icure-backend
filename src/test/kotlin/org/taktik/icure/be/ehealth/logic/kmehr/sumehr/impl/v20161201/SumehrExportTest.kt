@@ -414,25 +414,6 @@ class SumehrExportTest {
     }
 
     @Test
-    fun getAllServicesPlusPlus() {
-        // Arrange
-        val hcPartyId = "1"
-        val sfks = listOf("")
-        val excludedIds = emptyList<String>()
-        sumehrExport.contactLogic = this.contactLogic
-        sumehrExport.mapper = this.mapper
-        this.resetServices()
-        this.services.add(listOf(validService, encryptedService, lifeEndedService, wrongStatusService, inactiveService, emptyService, oldService, closedService))
-
-        // Execute
-        val services = sumehrExport.getAllServicesPlusPlus(setOf(hcPartyId), sfks, excludedIds, false, decryptor).groupBy { it.id }
-
-        // Tests
-        assertNotNull(services)
-        assertEquals(4, services.size)
-    }
-
-    @Test
     fun getNonPassiveIrrelevantServices() {
         //Arrange
         val hcPartyId = "1"
