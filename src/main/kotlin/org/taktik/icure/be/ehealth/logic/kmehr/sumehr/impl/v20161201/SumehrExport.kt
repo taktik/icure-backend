@@ -368,28 +368,11 @@ class SumehrExport : KmehrExport() {
 		addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
 
 		values.forEach { value ->
-			nonConfidentialItems.filter { s -> null != s.codes.find { it.type.replace("-", "") == type.value().replace("-", "") && value == it.code } }.forEach {
-                val svc = it
-				if(svc.content.any{it.value.stringValue!!.contains("|consent")}) {
-                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }), language = language)?.let {
-                        assessment.headingsAndItemsAndTexts.add(it)
-                    }
+            nonConfidentialItems.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
+                createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = value }) }), language = language)?.let {
+                    assessment.headingsAndItemsAndTexts.add(it)
                 }
-                if(svc.content.any{it.value.stringValue!!.contains("|hos")}) {
-                    var stringValue = svc.content.filter{it.value.stringValue!!.contains("|hos")}.values.first().stringValue
-                    var itmValue = stringValue!!.split("|")[1]
-                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }), language = language)?.let {
-                        assessment.headingsAndItemsAndTexts.add(it)
-                    }
-                }
-                if(svc.content.any{it.value.stringValue!!.contains("|dnr")}) {
-                    var stringValue = svc.content.filter{it.value.stringValue!!.contains("|dnr")}.values.first().stringValue
-                    var itmValue = stringValue!!.split("|")[1]
-                    createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.0"; this.value = itmValue }) }), language = language)?.let {
-                        assessment.headingsAndItemsAndTexts.add(it)
-                    }
-                }
-			}
+            }
 		}
 	}
 
