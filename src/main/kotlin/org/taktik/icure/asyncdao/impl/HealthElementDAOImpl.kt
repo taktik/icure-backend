@@ -18,10 +18,8 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -40,6 +38,7 @@ import java.net.URI
 /**
  * Created by aduchate on 18/07/13, 13:36
  */
+@ExperimentalCoroutinesApi
 @Repository("healthElementDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) emit( doc.patientId, doc._id )}")
 internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<HealthElement>(HealthElement::class.java, couchDbDispatcher, idGenerator), HealthElementDAO {
