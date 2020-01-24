@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
@@ -44,6 +45,7 @@ import java.net.URI
 /**
  * Created by aduchate on 18/07/13, 13:36
  */
+@ExperimentalCoroutinesApi
 @FlowPreview
 @Repository("contactDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Contact' && !doc.deleted) emit( null, doc._id )}")
@@ -112,7 +114,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val viewQuery = createQuery<Contact>("by_hcparty_patientfk").keys(keys).includeDocs(true)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
+        return client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
     }
 
     @View(name = "by_hcparty_formid", map = "classpath:js/contact/By_hcparty_formid_map.js")
@@ -120,7 +122,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val viewQuery = createQuery<Contact>("by_hcparty_formid").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)
-        val result = client.queryViewIncludeDocs<ComplexKey, String, Contact>(viewQuery).map { it.doc }
+        val result = client.queryViewIncludeDocs<Array<String>, String, Contact>(viewQuery).map { it.doc }
         return relink(result)
     }
 
@@ -130,7 +132,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val viewQuery = createQuery<Contact>("by_hcparty_formid")
                 .includeDocs(false)
                 .keys(ids.map { k -> ComplexKey.of(hcPartyId, k) })
-        val result = client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }.distinct()
+        val result = client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
 
         return relink(get(dbInstanceUrl, groupId, result))
     }

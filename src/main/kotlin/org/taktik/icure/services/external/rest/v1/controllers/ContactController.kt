@@ -239,10 +239,9 @@ class ContactController(private val mapper: MapperFacade,
     suspend fun modifyContact(@RequestBody contactDto: ContactDto): ContactDto {
         handleServiceIndexes(contactDto)
 
-        contactLogic.modifyContact(mapper.map(contactDto, Contact::class.java))
-        val modifiedContact = contactLogic.getContact(contactDto.id)
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact modification failed.")
-        return mapper.map(modifiedContact, ContactDto::class.java)
+        return contactLogic.modifyContact(mapper.map(contactDto, Contact::class.java))?.let {
+            mapper.map(it, ContactDto::class.java)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact modification failed.")
     }
 
     @ApiOperation(nickname = "modifyContacts", value = "Modify a batch of contacts", notes = "Returns the modified contacts.")
