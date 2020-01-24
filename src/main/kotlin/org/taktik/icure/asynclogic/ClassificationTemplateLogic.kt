@@ -26,5 +26,5 @@ interface ClassificationTemplateLogic : EntityPersister<ClassificationTemplate, 
     fun getClassificationTemplateByIds(ids: List<String>): Flow<ClassificationTemplate>
     fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate>
 
-    suspend fun listClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun listClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }

@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl.filter
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
@@ -26,6 +27,7 @@ import org.taktik.icure.entities.base.Identifiable
 import java.io.Serializable
 import java.util.*
 
+@ExperimentalCoroutinesApi
 class Filters : ApplicationContextAware {
     private var applicationContext: ApplicationContext? = null
     private val filters: MutableMap<String, Filter<*, *, *>> = HashMap()
@@ -34,34 +36,37 @@ class Filters : ApplicationContextAware {
         this.applicationContext = applicationContext
     }
 
-    suspend fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.dto.filter.Filter<T, O>): Flow<T> {
+    fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.dto.filter.Filter<T, O>) = flow<T> {
         val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.".toRegex(), "")
-        return (filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>? ?: try {
-            ((applicationContext!!.autowireCapableBeanFactory.createBean(
-                    Class.forName("org.taktik.icure.asynclogic.impl.filter.$truncatedFullClassName"),
-                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                    false
-            )) as? Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>)?.also { filters[truncatedFullClassName] = it }
-        } catch (e: ClassNotFoundException) {
-            throw IllegalStateException(e)
-        })?.resolve(filter, this) ?: throw IllegalStateException("Invalid filter")
+        val filterToBeResolved =
+                filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>?
+                        ?: try {
+                            ((applicationContext!!.autowireCapableBeanFactory.createBean(
+                                    Class.forName("org.taktik.icure.asynclogic.impl.filter.$truncatedFullClassName"),
+                                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                    false
+                            )) as? Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>)?.also { filters[truncatedFullClassName] = it }
+                        } catch (e: ClassNotFoundException) {
+                            throw IllegalStateException(e)
+                        }
+        emitAll(filterToBeResolved?.resolve(filter, this@Filters) ?: throw IllegalStateException("Invalid filter"))
     }
 
     class ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>> {
-        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>, context: Filters): Flow<T> {
+        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>, context: Filters): Flow<T> {
             return filter.getConstant().asFlow()
         }
     }
 
     @FlowPreview
     class UnionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.UnionFilter<T, O>> {
-        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.UnionFilter<T, O>, context: Filters): Flow<T> {
+        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.UnionFilter<T, O>, context: Filters): Flow<T> {
             return filter.getFilters().asFlow().flatMapConcat { context.resolve(it) }
         }
     }
 
     class IntersectionFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.IntersectionFilter<T, O>> {
-        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.IntersectionFilter<T, O>, context: Filters): Flow<T> = flow {
+        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.IntersectionFilter<T, O>, context: Filters): Flow<T> = flow {
             val filters = filter.getFilters()
             val result = mutableSetOf<T>()
             for (i in filters.indices) {
@@ -76,7 +81,7 @@ class Filters : ApplicationContextAware {
     }
 
     class ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>> {
-        override suspend fun resolve(filter: org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {
+        override fun resolve(filter: org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {
             //if (filter.getSuperSet() == null) throw NoSuperSetException() // not necessary anymore since the superSet is not-nullable
             val superFlow: Flow<T> = context.resolve(filter.getSuperSet())
             val subList: List<T> = context.resolve(filter.getSubSet()).toList()

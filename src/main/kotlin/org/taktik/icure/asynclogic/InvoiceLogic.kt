@@ -51,6 +51,6 @@ interface InvoiceLogic : EntityPersister<Invoice, String> {
     fun listIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
     fun listInvoiceIdsByTarificationsByCode(hcPartyId: String, codeCode: String, startValueDate: Long, endValueDate: Long): Flow<String>
 
-    suspend fun filter(filter: FilterChain<Invoice>): Flow<Invoice>
+    fun filter(filter: FilterChain<Invoice>): Flow<Invoice>
     fun getGenericDAO(): InvoiceDAO
 }

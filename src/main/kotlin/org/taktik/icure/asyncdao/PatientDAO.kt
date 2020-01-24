@@ -62,9 +62,9 @@ interface PatientDAO : GenericDAO<Patient> {
 
     suspend fun getHcPartyKeysForDelegate(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String): Map<String, String>
 
-    suspend fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+    fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
-    suspend fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
+    fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
     fun getForPagination(dbInstanceUrl: URI, groupId: String, ids: Collection<String>):  Flow<ViewQueryResultEvent>
 

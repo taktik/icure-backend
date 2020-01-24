@@ -182,7 +182,7 @@ suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginate
 }
 
 @ExperimentalCoroutinesApi
-suspend fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow<List<T>> {
+fun <T> Flow<T>.bufferedChunks(min: Int, max: Int): Flow<List<T>> = channelFlow<List<T>> {
     require(min >= 1 && max >= 1 && max >= min) {
         "Min and max chunk sizes should be greater than 0, and max >= min"
     }

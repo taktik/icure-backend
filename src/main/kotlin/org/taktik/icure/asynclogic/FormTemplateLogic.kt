@@ -6,7 +6,7 @@ import org.taktik.icure.dto.gui.layout.FormLayout
 import org.taktik.icure.entities.FormTemplate
 
 interface FormTemplateLogic : EntityPersister<FormTemplate, String> {
-    suspend fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>): Flow<FormTemplate>
+    fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>): Flow<FormTemplate>
 
     suspend fun createFormTemplate(entity: FormTemplate): FormTemplate
 

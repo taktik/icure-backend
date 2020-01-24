@@ -20,6 +20,7 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20110701
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
@@ -91,7 +92,7 @@ class SumehrExport(
         return DigestUtils.md5Hex(sorted.joinToString(","))
     }
 
-    suspend fun createSumehr(
+    fun createSumehr(
             pat : Patient,
             sfks : List<String>,
             sender : HealthcareParty,
@@ -108,7 +109,7 @@ class SumehrExport(
 		                        clinicalSummaryType = "",
 		                        defaultLanguage = "en"
 		                       )
-    ): Flow<DataBuffer> {
+    ) = flow<DataBuffer> {
 		val message = initializeMessage(sender, config)
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let {createParty(it, emptyList())} ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0"}), "gp-software-migration"))
@@ -118,7 +119,7 @@ class SumehrExport(
         folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
 		folder.patient = makePerson(pat, config)
 		fillPatientFolder(folder, pat, sfks, sender, language, config, comment, excludedIds, includeIrrelevantInformation, decryptor)
-        return emitMessage(folder, message)
+        emitMessage(folder, message)
     }
 
 	internal suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {

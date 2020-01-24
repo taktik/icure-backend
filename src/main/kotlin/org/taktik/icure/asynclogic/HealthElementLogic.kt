@@ -30,5 +30,5 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun solveConflicts()
 
-    suspend fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement>
+    fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement>
 }

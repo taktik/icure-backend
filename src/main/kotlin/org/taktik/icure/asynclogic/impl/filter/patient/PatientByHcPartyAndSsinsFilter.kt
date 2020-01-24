@@ -18,21 +18,24 @@
 package org.taktik.icure.asynclogic.impl.filter.patient
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dto.filter.patient.PatientByHcPartyAndSsinsFilter
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.utils.getLoggedHealthCarePartyId
 import javax.security.auth.login.LoginException
 
 class PatientByHcPartyAndSsinsFilter(private val patientLogic: PatientLogic,
                                      private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, PatientByHcPartyAndSsinsFilter> {
 
-    override suspend fun resolve(filter: PatientByHcPartyAndSsinsFilter, context: Filters): Flow<String> {
-        return try {
-            patientLogic.listByHcPartyAndSsinsIdsOnly(filter.ssins, if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic))
+    override fun resolve(filter: PatientByHcPartyAndSsinsFilter, context: Filters) = flow<String> {
+        try {
+            emitAll(patientLogic.listByHcPartyAndSsinsIdsOnly(filter.ssins, if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

@@ -1,8 +1,6 @@
 package org.taktik.icure.asynclogic.impl.filter.healthelement
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.*
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -16,7 +14,7 @@ import javax.security.auth.login.LoginException
 class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: HealthElementLogic,
                                           private val sessionLogic: AsyncSessionLogic) : Filter<String, HealthElement, HealthElementByHcPartyTagCodeFilter> {
 
-    override suspend fun resolve(filter: HealthElementByHcPartyTagCodeFilter, context: Filters): Flow<String> {
+    override fun resolve(filter: HealthElementByHcPartyTagCodeFilter, context: Filters) = flow<String> {
         try {
             val hcPartyId = if (filter.healthCarePartyId != null) filter.healthCarePartyId else getLoggedHealthCarePartyId(sessionLogic)
             var ids: HashSet<String>? = null
@@ -39,7 +37,7 @@ class HealthElementByHcPartyTagCodeFilter(private val healthElementLogic: Health
                     ids.retainAll(byStatus)
                 }
             }
-            return (ids ?: HashSet()).asFlow()
+            ids?.forEach { emit(it) }
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

@@ -197,7 +197,6 @@ public class HealthElement extends StoredICureDocument {
 		this.idService = idService;
 	}
 
-
     public List<CareTeamMember> getCareTeam() { return careTeam; }
 
     public void setCareTeam(List<CareTeamMember> careTeam) { this.careTeam = careTeam; }

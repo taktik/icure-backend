@@ -69,11 +69,10 @@ internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") co
     }
 
     @View(name = "by_hcparty_and_tags", map = "classpath:js/healthelement/By_hcparty_tag_map.js")
-    override fun findByHCPartyAndTags(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, tagType: String, tagCode: String): Flow<String> {
+    override fun findByHCPartyAndTags(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, tagType: String, tagCode: String) = flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
-        return client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value }
-    }
+        emitAll(client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value })
+   }
 
     @View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")
     override fun findByHCPartyAndStatus(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, status: Int?): Flow<String> {
@@ -103,7 +102,7 @@ internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") co
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val result = client.queryViewIncludeDocs<ComplexKey, String, HealthElement>(createQuery<HealthElement>("by_hcparty_patient").keys(keys).includeDocs(true)).map { it.doc }
+        val result = client.queryViewIncludeDocs<Array<String>, String, HealthElement>(createQuery<HealthElement>("by_hcparty_patient").keys(keys).includeDocs(true)).map { it.doc }
         return result.distinctUntilChangedBy { it.id }
     }
 

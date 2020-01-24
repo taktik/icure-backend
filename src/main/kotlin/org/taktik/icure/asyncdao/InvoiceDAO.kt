@@ -13,7 +13,7 @@ import java.net.URI
 interface InvoiceDAO: GenericDAO<Invoice> {
     fun findByHcParty(dbInstanceUrl: URI, groupId: String, hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent>
 
-    suspend fun listByHcPartyContacts(dbInstanceUrl: URI, groupId: String, hcParty: String, contactId: Set<String>): Flow<Invoice>
+    fun listByHcPartyContacts(dbInstanceUrl: URI, groupId: String, hcParty: String, contactId: Set<String>): Flow<Invoice>
 
     fun listByHcPartyReferences(dbInstanceUrl: URI, groupId: String, hcParty: String, invoiceReferences: Set<String>?): Flow<Invoice>
 
@@ -35,7 +35,7 @@ interface InvoiceDAO: GenericDAO<Invoice> {
 
     fun listByServiceIds(dbInstanceUrl: URI, groupId: String, serviceIds: Set<String>): Flow<Invoice>
 
-    suspend fun listAllHcpsByStatus(dbInstanceUrl: URI, groupId: String, status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
+    fun listAllHcpsByStatus(dbInstanceUrl: URI, groupId: String, status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice>
 
     fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Invoice>
 

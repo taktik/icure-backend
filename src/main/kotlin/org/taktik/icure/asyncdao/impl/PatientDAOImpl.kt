@@ -486,11 +486,11 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return resultMap
     }
 
-    override suspend fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsBySsin(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         return this.getDuplicatesFromView(dbInstanceUrl, groupId, "by_hcparty_ssin", healthcarePartyId, paginationOffset)
     }
 
-    override suspend fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
+    override fun getDuplicatePatientsByName(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         return this.getDuplicatesFromView(dbInstanceUrl, groupId, "by_hcparty_name", healthcarePartyId, paginationOffset)
     }
 
@@ -504,7 +504,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         return client.getForPagination(ids, Patient::class.java)
     }
 
-    private suspend fun getDuplicatesFromView(dbInstanceUrl: URI, groupId: String, viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
+    private fun getDuplicatesFromView(dbInstanceUrl: URI, groupId: String, viewName: String, healthcarePartyId: String, paginationOffset: PaginationOffset<ComplexKey>) = flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val from = if (paginationOffset.startKey == null) ComplexKey.of(healthcarePartyId, "") else ComplexKey.of(*paginationOffset.startKey as Array<Any>)
@@ -523,7 +523,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val duplicatePatients = client.queryViewIncludeDocs<ComplexKey, String, Patient>(createQuery<Patient>(viewName).keys(keysWithDuplicates).reduce(false).includeDocs(true))
                 .filter { it.doc.active }
                 .distinct()
-        return duplicatePatients
+        emitAll(duplicatePatients)
         //duplicatePatients.onEach { emit(it) }.collect()
     }
 }

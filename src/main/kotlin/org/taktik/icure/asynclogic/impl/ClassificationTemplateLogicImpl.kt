@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -40,6 +41,7 @@ import java.util.function.Consumer
 /**
  * Created by dlm on 16-07-18
  */
+@ExperimentalCoroutinesApi
 @Service
 class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: ClassificationTemplateDAO,
                                       private val uuidGenerator: UUIDGenerator,
@@ -118,9 +120,9 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         emitAll(classificationTemplateDAO.findByHCPartySecretPatientKeys(dbInstanceUri, groupId, hcPartyId, secretPatientKeys))
     }
 
-    override suspend fun listClassificationTemplates(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
+    override fun listClassificationTemplates(paginationOffset: PaginationOffset<String>) =flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return classificationTemplateDAO.listClassificationTemplates(dbInstanceUri, groupId, paginationOffset)
+        emitAll(classificationTemplateDAO.listClassificationTemplates(dbInstanceUri, groupId, paginationOffset))
     }
 
     companion object {

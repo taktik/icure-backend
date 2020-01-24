@@ -55,7 +55,7 @@ class HealthElementLogicImpl(private val filters: Filters,
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Healthcare problem attributes
-            healthElement.id = uuidGenerator.newGUID().toString()
+            healthElement.id = healthElement.id ?: uuidGenerator.newGUID().toString()
             if (healthElement.openingDate == null) {
                 healthElement.openingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)
             }
@@ -90,12 +90,12 @@ class HealthElementLogicImpl(private val filters: Filters,
                 .groupBy { it.healthElementId }.values.mapNotNull { value -> value.maxBy { it.modified ?: it.created ?: 0L } }
     }
 
-    override fun findByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String): Flow<String> = flow {
+    override fun findByHCPartyAndCodes(hcPartyId: String, codeType: String, codeNumber: String) = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(healthElementDAO.findByHCPartyAndCodes(dbInstanceUri, groupId, hcPartyId, codeType, codeNumber))
     }
 
-    override fun findByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String): Flow<String> = flow {
+    override fun findByHCPartyAndTags(hcPartyId: String, tagType: String, tagCode: String) = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(healthElementDAO.findByHCPartyAndTags(dbInstanceUri, groupId, hcPartyId, tagType, tagCode))
     }
@@ -116,8 +116,7 @@ class HealthElementLogicImpl(private val filters: Filters,
 
     override suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement? {
         return try {
-            updateEntities(setOf(healthElement))
-            getHealthElement(healthElement.id)
+            updateEntities(setOf(healthElement)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Health problem", e)
         }
@@ -149,11 +148,11 @@ class HealthElementLogicImpl(private val filters: Filters,
         }
     }
 
-    override suspend fun filter(filter: FilterChain<HealthElement>): Flow<HealthElement> {
+    override fun filter(filter: FilterChain<HealthElement>) = flow<HealthElement> {
         val ids = filters.resolve(filter.getFilter()).toList()
-        val healthElements = getHealthElements(ids)
+        val healthElements = getHealthElements(ids) //TODO MBB implement get elements flow
         val predicate = filter.predicate
-        return if (predicate != null) healthElements.filter { predicate.apply(it) } else healthElements
+        emitAll(if (predicate != null) healthElements.filter { predicate.apply(it) } else healthElements)
     }
 
     companion object {

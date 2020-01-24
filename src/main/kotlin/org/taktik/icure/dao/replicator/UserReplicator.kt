@@ -28,7 +28,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
         //TODO userDAO.initStandardDesignDocument(group)
     }
 
-    override suspend fun replicate(client: Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev> {
+    override fun replicate(client: Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev> {
         val dbInstanceUri = URI(couchDbProperties.url)
         return entityIds.onEach { idAndRev ->
             withContext(IO) {

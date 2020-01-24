@@ -62,11 +62,11 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     }
 
     @View(name = "by_hcparty_contact", map = "classpath:js/invoice/By_hcparty_contact_map.js")
-    override suspend fun listByHcPartyContacts(dbInstanceUrl: URI, groupId: String, hcParty: String, contactId: Set<String>): Flow<Invoice> {
+    override fun listByHcPartyContacts(dbInstanceUrl: URI, groupId: String, hcParty: String, contactId: Set<String>): Flow<Invoice> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val invoiceIds = client.queryView<ComplexKey, String>(createQuery<Invoice>("by_hcparty_contact").keys(contactId.map { ComplexKey.of(hcParty, it) }).includeDocs(false)).mapNotNull { it.value }
-        return getList(dbInstanceUrl, groupId, invoiceIds.distinct().toList())
+        return getList(dbInstanceUrl, groupId, invoiceIds.distinct())
     }
 
     @View(name = "by_hcparty_reference", map = "classpath:js/invoice/By_hcparty_reference_map.js")
@@ -169,7 +169,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     }
 
     @View(name = "by_status_hcps_sentdate", map = "classpath:js/invoice/By_status_hcps_sentdate_map.js")
-    override suspend fun listAllHcpsByStatus(dbInstanceUrl: URI, groupId: String, status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice> {
+    override fun listAllHcpsByStatus(dbInstanceUrl: URI, groupId: String, status: String, from: Long?, to: Long?, hcpIds: List<String>): Flow<Invoice> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val result = hcpIds.map {
@@ -178,7 +178,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                     .endKey(ComplexKey.of(status, it, to ?: ComplexKey.emptyObject()))).mapNotNull { it.value }
         }.asFlow().flattenConcat().distinct()
 
-        return getList(dbInstanceUrl, groupId, result.toList())
+        return getList(dbInstanceUrl, groupId, result)
     }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Invoice' && !doc.deleted && doc._conflicts) emit(doc._id )}")

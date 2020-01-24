@@ -29,7 +29,7 @@ import org.taktik.icure.dto.filter.service.ServiceByContactsAndSubcontactsFilter
 @Service
 class ServiceByContactsAndSubcontactsFilter(private val contactLogic: ContactLogic) : Filter<String, org.taktik.icure.entities.embed.Service, ServiceByContactsAndSubcontactsFilter> {
 
-    override suspend fun resolve(filter: ServiceByContactsAndSubcontactsFilter, context: Filters): Flow<String> {
+    override fun resolve(filter: ServiceByContactsAndSubcontactsFilter, context: Filters): Flow<String> {
         val contacts = contactLogic.getContacts(filter.contacts)
         return if (filter.subContacts != null) {
             contacts.flatMapConcat { c -> c.subContacts.flatMap { sc -> if (filter.subContacts.contains(sc.id) && sc.services != null) sc.services.mapNotNull { it.serviceId } else listOf() }.asFlow() }

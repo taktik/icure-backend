@@ -73,7 +73,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
 
     protected abstract suspend fun prepareReplication(client:Client, group: Group)
 
-    protected abstract suspend fun replicate(client:Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev>
+    protected abstract fun replicate(client:Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev>
 
     private fun client(group: Group):Client {
         val groupDb = GroupDBUrl(couchDbUrl)

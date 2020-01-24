@@ -47,12 +47,12 @@ class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: Co
     }
 
     @View(name = "all_by_name", map = "classpath:js/insurance/all_by_name_map.js")
-    override suspend fun listByName(dbInstanceUrl: URI, groupId: String, name: String): Flow<Insurance> {
+    override fun listByName(dbInstanceUrl: URI, groupId: String, name: String): Flow<Insurance> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val sanitizedName = StringUtils.sanitizeString(name)
 
-        val ids = client.queryView<ComplexKey, String>(createQuery<Insurance>("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }.toList()
+        val ids = client.queryView<ComplexKey, String>(createQuery<Insurance>("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
         return getList(dbInstanceUrl, groupId, ids)
     }
 }

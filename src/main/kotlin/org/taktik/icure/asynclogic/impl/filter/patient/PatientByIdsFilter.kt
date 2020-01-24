@@ -28,7 +28,7 @@ import org.taktik.icure.entities.Patient
 @Service
 class PatientByIdsFilter : Filter<String, Patient, PatientByIdsFilter> {
 
-    override suspend fun resolve(filter: PatientByIdsFilter, context: Filters): Flow<String> {
+    override fun resolve(filter: PatientByIdsFilter, context: Filters): Flow<String> {
         return filter.ids.asFlow()
     }
 }

@@ -18,6 +18,8 @@
 package org.taktik.icure.asynclogic.impl.filter.patient
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -33,9 +35,9 @@ import javax.security.auth.login.LoginException
 class PatientByHcPartyGenderEducationProfession(private val patientLogic: PatientLogic,
                                                 private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, PatientByHcPartyGenderEducationProfession> {
 
-    override suspend fun resolve(filter: PatientByHcPartyGenderEducationProfession, context: Filters): Flow<String> {
-        return try {
-            patientLogic.listByHcPartyGenderEducationProfessionIdsOnly(if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic), filter.gender, filter.education, filter.profession)
+    override fun resolve(filter: PatientByHcPartyGenderEducationProfession, context: Filters) = flow<String> {
+        try {
+            emitAll(patientLogic.listByHcPartyGenderEducationProfessionIdsOnly(if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic), filter.gender, filter.education, filter.profession))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

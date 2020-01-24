@@ -1,8 +1,7 @@
 package org.taktik.icure.asynclogic.impl
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.*
@@ -44,6 +43,7 @@ import java.util.UUID
 import javax.security.auth.login.LoginException
 import kotlin.math.roundToLong
 
+@ExperimentalCoroutinesApi
 @Service
 class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: AsyncSessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
     private val LSB_MASK = BigInteger("ffffffffffffffff", 16)
@@ -332,7 +332,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
     }
 
     @Throws(LoginException::class, MissingRequirementsException::class)
-    private suspend fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): Flow<Invoice> {
+    private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?) = flow<Invoice> {
         msg.status = msg.status or Message.STATUS_FULL_ERROR
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
@@ -347,19 +347,20 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
                         parentParent.status = parentParent.status or Message.STATUS_REJECTED
                         parentParent.status = parentParent.status or Message.STATUS_FULL_ERROR
                         messageLogic.modifyMessage(parentParent)
-                        return invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.invoiceIds).orElse(LinkedList())).map {iv ->
-                            for (ic in iv.invoicingCodes) {
-                                val uuid = UUID.fromString(ic.id)
-                                ic.canceled = true
-                                ic.error = rejectedIcErrorCodes?.get(uuid)?.joinToString(",")
-                                ic.pending = false
-                            }
-                            iv
-                        }
+                        emitAll(
+                                invoiceLogic.getInvoices(Optional.of<List<String>>(parentParent.invoiceIds).orElse(LinkedList())).map {iv ->
+                                    for (ic in iv.invoicingCodes) {
+                                        val uuid = UUID.fromString(ic.id)
+                                        ic.canceled = true
+                                        ic.error = rejectedIcErrorCodes?.get(uuid)?.joinToString(",")
+                                        ic.pending = false
+                                    }
+                                    iv
+                                }
+                        )
                     }
                 }
             }
         }
-        return flowOf()
     }
 }

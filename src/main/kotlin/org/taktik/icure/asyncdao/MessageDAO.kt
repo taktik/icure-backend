@@ -41,5 +41,5 @@ interface MessageDAO: GenericDAO<Message> {
     fun getByTransportGuids(dbInstanceUrl: URI, groupId: String, hcPartyId: String, transportGuids: Collection<String>): Flow<Message>
     fun getByExternalRefs(dbInstanceUrl: URI, groupId: String, hcPartyId: String, externalRefs: Set<String>): Flow<Message>
     fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Message>
-    suspend fun getChildren(dbInstanceUrl: URI, groupId: String,parentIds: List<String>): Flow<List<Message>>
+    fun getChildren(dbInstanceUrl: URI, groupId: String,parentIds: List<String>): Flow<List<Message>>
 }

@@ -27,9 +27,8 @@ import java.io.OutputStream
 import java.io.OutputStreamWriter
 
 import be.fgov.ehealth.ehvalidator.core.EhValidator
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.be.ehealth.dto.SumehrStatus
@@ -51,6 +50,7 @@ import java.io.InputStream
 import java.lang.Exception
 import java.nio.ByteBuffer
 
+@ExperimentalCoroutinesApi
 @org.springframework.stereotype.Service("sumehrLogicV1")
 class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: HealthcarePartyLogic, @Qualifier("sumehrExportV1") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV1") val sumehrImport: SumehrImport) : SumehrLogic {
 
@@ -85,10 +85,10 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
         return sumehrImport.importSumehrByItemId(inputData, itemId, author, language, mappings, saveToDatabase, dest)
     }
 
-    override suspend fun createSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
+    override fun createSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?) = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
 
     @Throws(IOException::class)
-    override suspend fun validateSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): Flow<DataBuffer> {
+    override fun validateSumehr(pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?)  =flow<DataBuffer> {
         val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
 
         val sos = sumehrExport.createSumehr(pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor)
@@ -102,7 +102,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
             throw IOException(e)
         }
 
-        return sos
+        emitAll(sos)
 
     }
 

@@ -44,13 +44,13 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
                             private val sessionLogic: AsyncSessionLogic,
                             private val gsonMapper: Gson) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
-    override suspend fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>): Flow<FormTemplate> {
+    override fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
         entities.forEach { e: FormTemplate ->
             if (e.author == null) {
                 e.author = sessionLogic.getCurrentUserId()
             }
         }
-        return super.createEntities(entities)
+        emitAll(super.createEntities(entities))
     }
 
     override suspend fun createFormTemplate(entity: FormTemplate): FormTemplate {

@@ -18,6 +18,8 @@
 package org.taktik.icure.asynclogic.impl.filter.service
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
@@ -29,10 +31,10 @@ import javax.security.auth.login.LoginException
 
 class ServiceBySecretForeignKeys(private val contactLogic: ContactLogic,
                                  private val sessionLogic: AsyncSessionLogic) : Filter<String, Service, ServiceBySecretForeignKeys> {
-    override suspend fun resolve(filter: ServiceBySecretForeignKeys, context: Filters): Flow<String> {
+    override fun resolve(filter: ServiceBySecretForeignKeys, context: Filters) = flow<String> {
         try {
             val hcPartyId = if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)
-            return contactLogic.findServicesBySecretForeignKeys(hcPartyId, filter.patientSecretForeignKeys)
+            emitAll(contactLogic.findServicesBySecretForeignKeys(hcPartyId, filter.patientSecretForeignKeys))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

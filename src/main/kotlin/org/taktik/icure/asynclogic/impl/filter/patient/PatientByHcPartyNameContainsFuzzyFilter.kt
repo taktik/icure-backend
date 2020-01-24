@@ -18,6 +18,8 @@
 package org.taktik.icure.asynclogic.impl.filter.patient
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.impl.filter.Filter
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -30,9 +32,9 @@ import javax.security.auth.login.LoginException
 class PatientByHcPartyNameContainsFuzzyFilter(private val patientLogic: PatientLogic,
                                               private val sessionLogic: AsyncSessionLogic) : Filter<String, Patient, PatientByHcPartyNameContainsFuzzyFilter> {
 
-    override suspend fun resolve(filter: PatientByHcPartyNameContainsFuzzyFilter, context: Filters): Flow<String> {
-        return try {
-            patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(filter.searchString, if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic))
+    override fun resolve(filter: PatientByHcPartyNameContainsFuzzyFilter, context: Filters) = flow<String> {
+        try {
+            emitAll(patientLogic.listByHcPartyNameContainsFuzzyIdsOnly(filter.searchString, if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

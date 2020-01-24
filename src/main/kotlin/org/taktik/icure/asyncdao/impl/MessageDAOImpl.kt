@@ -155,10 +155,10 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return client.queryViewIncludeDocs<String, Int, Message>(createQuery<Message>("by_parent_id").includeDocs(true).key(messageId)).map { it.doc }
     }
 
-    override suspend fun getChildren(dbInstanceUrl: URI, groupId: String, parentIds: List<String>): Flow<List<Message>> {
+    override fun getChildren(dbInstanceUrl: URI, groupId: String, parentIds: List<String>)= flow<List<Message>> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val byParentId = client.queryViewIncludeDocs<String, Int, Message>(createQuery<Message>("by_parent_id").includeDocs(true).keys(parentIds)).map { it.doc }.toList()
-        return parentIds.asFlow().map { parentId -> byParentId.filter { message -> message.id == parentId } }
+        emitAll( parentIds.asFlow().map { parentId -> byParentId.filter { message -> message.id == parentId } })
     }
 
     @View(name = "by_invoice_id", map = "classpath:js/message/By_invoice_id_map.js")

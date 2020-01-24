@@ -8,7 +8,7 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.asynclogic.CodeLogic
 
 class CodeByRegionTypeLabelLanguageFilter(private val codeLogic: CodeLogic) : Filter<String, Code, CodeByRegionTypeLabelLanguageFilter> {
-    override suspend fun resolve(filter: CodeByRegionTypeLabelLanguageFilter, context: Filters): Flow<String> {
+    override fun resolve(filter: CodeByRegionTypeLabelLanguageFilter, context: Filters): Flow<String> {
         return codeLogic.listCodeIdsByLabel(filter.region, filter.language, filter.type, filter.label)
     }
 }

@@ -321,11 +321,11 @@ class InvoiceLogicImpl(private val filters: Filters,
         emitAll(invoiceDAO.listInvoiceIdsByTarificationsByCode(dbInstanceUri, groupId, hcPartyId, codeCode, startValueDate, endValueDate))
     }
 
-    override suspend fun filter(filter: FilterChain<Invoice>): Flow<Invoice> { // TODO MB flowify here?
+    override fun filter(filter: FilterChain<Invoice>) = flow<Invoice> {
         val ids = filters.resolve(filter.getFilter()).toList()
         val invoices = getInvoices(ids)
         val predicate = filter.predicate
-        return if (predicate != null) invoices.filter { predicate.apply(it) } else invoices
+        emitAll(if (predicate != null) invoices.filter { predicate.apply(it) } else invoices)
     }
 
     override fun getGenericDAO(): InvoiceDAO {

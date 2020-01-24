@@ -199,7 +199,7 @@ interface Client {
     suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T
     fun <T : CouchDbDocument> bulkUpdate(entities: Collection<T>, clazz: Class<T>): Flow<BulkUpdateResult>
     suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier
-    suspend fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult>
+    fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult>
     // Query
     fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
     // Changes observing
@@ -459,7 +459,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     @FlowPreview
     @ExperimentalCoroutinesApi
-    override suspend fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult> = flow {
+    override fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
             val requestAdapter = moshi.adapter<BulkDeleteRequest>(BulkDeleteRequest::class.java)
             val resultAdapter = moshi.adapter<BulkUpdateResult>(BulkUpdateResult::class.java)

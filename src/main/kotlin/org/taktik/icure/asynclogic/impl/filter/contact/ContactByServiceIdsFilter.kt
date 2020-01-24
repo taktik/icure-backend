@@ -26,7 +26,7 @@ import org.taktik.icure.asynclogic.impl.filter.Filters
 
 class ContactByServiceIdsFilter(private val contactLogic: ContactLogic) : Filter<String, Contact, ContactByServiceIdsFilter> {
 
-    override suspend fun resolve(filter: ContactByServiceIdsFilter, context: Filters): Flow<String> {
+    override fun resolve(filter: ContactByServiceIdsFilter, context: Filters): Flow<String> {
         return contactLogic.findByServices(filter.ids)
     }
 }

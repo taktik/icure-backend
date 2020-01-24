@@ -37,7 +37,7 @@ import java.nio.ByteBuffer
  * @author Bernard Paulus on 24/05/17.
  */
 interface SoftwareMedicalFileLogic {
-	suspend fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): Flow<DataBuffer>
+	fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): Flow<DataBuffer>
     suspend fun importSmfFile(inputData : Flow<ByteBuffer>,
                               author: User,
                               language: String,

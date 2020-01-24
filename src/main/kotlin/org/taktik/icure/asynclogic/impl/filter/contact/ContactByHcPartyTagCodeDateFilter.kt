@@ -17,8 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl.filter.contact
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
@@ -34,7 +33,7 @@ import javax.security.auth.login.LoginException
 class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
                                         private val sessionLogic: AsyncSessionLogic) : Filter<String, Contact, ContactByHcPartyTagCodeDateFilter> {
 
-    override suspend fun resolve(filter: ContactByHcPartyTagCodeDateFilter, context: Filters): Flow<String> {
+    override fun resolve(filter: ContactByHcPartyTagCodeDateFilter, context: Filters) = flow<String> {
         try {
             val hcPartyId = if (filter.healthcarePartyId != null) filter.healthcarePartyId else getLoggedHealthCarePartyId(sessionLogic)
             var ids: HashSet<String>? = null
@@ -57,11 +56,7 @@ class ContactByHcPartyTagCodeDateFilter(private val contactLogic: ContactLogic,
                     ids.retainAll(byCode)
                 }
             }
-            return if (ids == null) {
-                contactLogic.listContactIds(hcPartyId)
-            } else {
-                contactLogic.findByServices(ids)
-            }
+            emitAll(if (ids == null) contactLogic.listContactIds(hcPartyId) else contactLogic.findByServices(ids))
         } catch (e: LoginException) {
             throw IllegalArgumentException(e)
         }

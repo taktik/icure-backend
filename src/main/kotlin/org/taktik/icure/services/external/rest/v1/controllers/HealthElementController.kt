@@ -116,8 +116,7 @@ class HealthElementController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "modifyHealthElement", value = "Modify a health element", notes = "Returns the modified health element.")
     @PutMapping
     suspend fun modifyHealthElement(@RequestBody healthElementDto: HealthElementDto): HealthElementDto {
-        healthElementLogic.modifyHealthElement(mapper.map(healthElementDto, HealthElement::class.java))
-        val modifiedHealthElement = healthElementLogic.getHealthElement(healthElementDto.id)
+        val modifiedHealthElement = healthElementLogic.modifyHealthElement(mapper.map(healthElementDto, HealthElement::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element modification failed.")
         return mapper.map(modifiedHealthElement, HealthElementDto::class.java)
     }
@@ -150,10 +149,8 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "filterBy", value = "Filter health elements for the current user (HcParty)", notes = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    suspend fun filterBy(@RequestBody filterChain: FilterChain): Flux<HealthElementDto> {
-        val healthElements = healthElementLogic.filter(org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, HealthElement>, mapper.map(filterChain.predicate, Predicate::class.java)))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Listing and filtering of healthElements failed.")
-
-        return healthElements.map { mapper.map(it, HealthElementDto::class.java) }.injectReactorContext()
-    }
+    fun filterBy(@RequestBody filterChain: FilterChain) =
+            healthElementLogic.filter(org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, HealthElement>, mapper.map(filterChain.predicate, Predicate::class.java)))
+                    .map { mapper.map(it, HealthElementDto::class.java) }
+                    .injectReactorContext()
 }
