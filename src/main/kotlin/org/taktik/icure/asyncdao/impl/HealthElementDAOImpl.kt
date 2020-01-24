@@ -65,14 +65,14 @@ internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") co
     override fun findByHCPartyAndCodes(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, codeType: String, codeNumber: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryView<ComplexKey, String>(createQuery<HealthElement>("by_hcparty_and_codes").key(ComplexKey.of(healthCarePartyId, "$codeType:$codeNumber")).includeDocs(false)).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_codes").key(ComplexKey.of(healthCarePartyId, "$codeType:$codeNumber")).includeDocs(false)).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_and_tags", map = "classpath:js/healthelement/By_hcparty_tag_map.js")
     override fun findByHCPartyAndTags(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, tagType: String, tagCode: String): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryView<ComplexKey, String>(createQuery<HealthElement>("by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_tags").key(ComplexKey.of(healthCarePartyId, "$tagType:$tagCode")).includeDocs(false)).mapNotNull { it.value }
     }
 
     @View(name = "by_hcparty_and_status", map = "classpath:js/healthelement/By_hcparty_status_map.js")

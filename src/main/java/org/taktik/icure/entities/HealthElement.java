@@ -66,8 +66,6 @@ public class HealthElement extends StoredICureDocument {
 
     private List<CareTeamMember> careTeam = new java.util.ArrayList<>();
 
-    private String encryptedSelf;
-
 	public HealthElement solveConflictWith(HealthElement other) {
 		super.solveConflictsWith(other);
 
@@ -199,15 +197,6 @@ public class HealthElement extends StoredICureDocument {
 		this.idService = idService;
 	}
 
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
 
     public List<CareTeamMember> getCareTeam() { return careTeam; }
 
