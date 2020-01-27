@@ -97,7 +97,7 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV1.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation, null, null,
                     new Config(
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
@@ -120,7 +120,7 @@ public class KmehrWsFacade {
 	public void validateSumehr(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogicV1.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+			sumehrLogicV1.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation, null, null,
                     new Config(
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
@@ -144,7 +144,7 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation, null, null,
                     new Config(
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
@@ -168,7 +168,7 @@ public class KmehrWsFacade {
 		try {
 			sumehrLogicV2.createSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
 					healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+					mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation, null, null,
                     new Config(
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),
@@ -190,7 +190,7 @@ public class KmehrWsFacade {
 	public void validateSumehrV2(@WebSocketParam("patientId") String patientId, @WebSocketParam("language") String language, @WebSocketParam("info") SumehrExportInfoDto info, KmehrFileOperation operation) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
 		try {
-			sumehrLogicV2.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,
+			sumehrLogicV2.validateSumehr(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(), healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()), mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getComment(), info.getExcludedIds(), info.getIncludeIrrelevantInformation() == null ? false : info.getIncludeIrrelevantInformation(), operation,  null, null,
                     new Config(
                             ""+System.currentTimeMillis(),
                             org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),

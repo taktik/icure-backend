@@ -41,9 +41,9 @@ import java.io.*
 
 @org.springframework.stereotype.Service("sumehrLogicV2")
 class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: HealthcarePartyLogic, @Qualifier("sumehrExportV2") val sumehrExport: SumehrExport, @Qualifier("sumehrImportV2") val sumehrImport: SumehrImport) : SumehrLogic {
-    override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): SumehrStatus {
+    override fun isSumehrValid(hcPartyId: String, patient: Patient, patientSecretForeignKeys: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>?, healthElements: List<HealthElement>?): SumehrStatus {
         val sumehrServiceIds = ArrayList<String>()
-       sumehrServiceIds.addAll(contactLogic!!.listServiceIdsByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null))
+       sumehrServiceIds.addAll(contactLogic.listServiceIdsByTag(hcPartyId, patientSecretForeignKeys, "CD-TRANSACTION", "sumehr", null, null))
 
         if (sumehrServiceIds.isEmpty()) {
             return SumehrStatus.absent
@@ -72,14 +72,14 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
         return sumehrImport.importSumehrByItemId(inputStream, itemId, author, language, mappings, saveToDatabase, dest)
     }
 
-    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, config: Config) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, config)
+    override fun createSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config) = sumehrExport.createSumehr(os, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, config)
 
 	@Throws(IOException::class)
-    override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, config: Config) {
+    override fun validateSumehr(os: OutputStream, pat: Patient, sfks: List<String>, sender: HealthcareParty, recipient: HealthcareParty, language: String, comment: String, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, services: List<Service>?, healthElements: List<HealthElement>?, config: Config) {
         val temp = File.createTempFile("temp", java.lang.Long.toString(System.nanoTime()))
 
         val sos = BufferedOutputStream(FileOutputStream(temp))
-        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, config)
+        sumehrExport.createSumehr(sos, pat, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, config)
         sos.close()
 
         try {
@@ -90,24 +90,20 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
         } catch (e: SAXException) {
             throw IOException(e)
         }
-
     }
 
 	override fun getAllServices(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServices(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
-
-	override fun getAllServicesPlusPlus(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?)
-        = sumehrExport.getAllServicesPlusPlus(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
+        = sumehrExport.getAllServices(healthcarePartyLogic.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, decryptor)
 
 	override fun getHealthElements(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean): List<HealthElement> {
-        return sumehrExport.getHealthElements(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, HashSet())
+        return sumehrExport.getHealthElements(healthcarePartyLogic.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, includeIrrelevantInformation, HashSet())
     }
 
     override fun getContactPeople(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<Partnership> {
-        return sumehrExport.getContactPeople(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
+        return sumehrExport.getContactPeople(healthcarePartyLogic.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
     }
 
     override fun getPatientHealthcareParties(hcPartyId: String, sfks: List<String>, excludedIds: List<String>, patientId: String): List<PatientHealthCareParty> {
-        return sumehrExport.getPatientHealthCareParties(sumehrExport.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
+        return sumehrExport.getPatientHealthCareParties(healthcarePartyLogic.getHcpHierarchyIds(healthcarePartyLogic.getHealthcareParty(hcPartyId)), sfks, excludedIds, patientId)
     }
 }

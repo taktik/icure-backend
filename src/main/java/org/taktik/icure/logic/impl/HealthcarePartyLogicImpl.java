@@ -35,6 +35,7 @@ import org.taktik.icure.validation.aspect.Check;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -194,5 +195,20 @@ public class HealthcarePartyLogicImpl extends GenericLogicImpl<HealthcareParty, 
 
 	@Override
 	public  List<HealthcareParty> getHealthcarePartiesByParentId(String parentId){ return healthcarePartyDAO.findByParentId(parentId); }
+
+    @Override
+    public HashSet<String> getHcpHierarchyIds(HealthcareParty sender)  {
+        HashSet<String> hcpartyIds = new HashSet<>();
+        hcpartyIds.add(sender.getId());
+
+        HealthcareParty hcpInHierarchy = sender;
+
+        while (hcpInHierarchy.getParentId() != null) {
+            hcpInHierarchy = this.getHealthcareParty(hcpInHierarchy.getParentId());
+            hcpartyIds.add(hcpInHierarchy.getId());
+        }
+        return hcpartyIds;
+    }
+
 
 }
