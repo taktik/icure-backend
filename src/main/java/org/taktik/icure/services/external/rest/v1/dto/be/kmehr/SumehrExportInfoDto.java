@@ -22,11 +22,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.entities.HealthElement;
+import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
 
 public class SumehrExportInfoDto extends ExportInfoDto implements Serializable {
     private String comment;
 	private Boolean includeIrrelevantInformation;
+    @Nullable
+    public List<Service> services;
+    @Nullable
+    public List<HealthElement> healthElements;
 
     public String getComment() {
 		return comment;
@@ -35,6 +42,23 @@ public class SumehrExportInfoDto extends ExportInfoDto implements Serializable {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(@Nullable List<Service> services) {
+        this.services = services;
+    }
+
+    @Nullable
+    public List<HealthElement> getHealthElements() {
+        return healthElements;
+    }
+
+    public void setHealthElements(@Nullable List<HealthElement> healthElements) {
+        this.healthElements = healthElements;
+    }
 
     public Boolean getIncludeIrrelevantInformation() {
         return includeIrrelevantInformation;

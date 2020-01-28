@@ -275,7 +275,7 @@ publishing {
 			from components.java
 		}
 	}
-
+/*
 	repositories {
 		maven {
 			url "https://maven.taktik.be/content/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}/"
@@ -285,4 +285,5 @@ publishing {
 			}
 		}
 	}
+ */
 }
