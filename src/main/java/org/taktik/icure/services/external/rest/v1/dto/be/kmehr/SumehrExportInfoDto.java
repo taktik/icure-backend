@@ -25,15 +25,17 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.entities.embed.Service;
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
 
 public class SumehrExportInfoDto extends ExportInfoDto implements Serializable {
     private String comment;
 	private Boolean includeIrrelevantInformation;
     @Nullable
-    public List<Service> services;
+    public List<ServiceDto> services;
     @Nullable
-    public List<HealthElement> healthElements;
+    public List<HealthElementDto> healthElements;
 
     public String getComment() {
 		return comment;
@@ -43,20 +45,20 @@ public class SumehrExportInfoDto extends ExportInfoDto implements Serializable {
 		this.comment = comment;
 	}
 
-    public List<Service> getServices() {
+    public List<ServiceDto> getServices() {
         return services;
     }
 
-    public void setServices(@Nullable List<Service> services) {
+    public void setServices(@Nullable List<ServiceDto> services) {
         this.services = services;
     }
 
     @Nullable
-    public List<HealthElement> getHealthElements() {
+    public List<HealthElementDto> getHealthElements() {
         return healthElements;
     }
 
-    public void setHealthElements(@Nullable List<HealthElement> healthElements) {
+    public void setHealthElements(@Nullable List<HealthElementDto> healthElements) {
         this.healthElements = healthElements;
     }
 
