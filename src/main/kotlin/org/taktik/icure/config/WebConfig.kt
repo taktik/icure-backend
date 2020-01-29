@@ -35,6 +35,6 @@ class WebConfig : WebFluxConfigurer {
 	}
 
 	override fun addCorsMappings(registry: CorsRegistry) {
-		registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*")
+		registry.addMapping("/**").allowCredentials(true).allowedOrigins("*").allowedMethods("*").allowedHeaders("*")
 	}
 }
