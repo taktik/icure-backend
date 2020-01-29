@@ -124,7 +124,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
                 .keys(keys)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, Document>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocs<Array<String>, String, Document>(viewQuery).map { it.doc }
     }
 
     @View(name = "without_delegations", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && (!doc.delegations || Object.keys(doc.delegations).length === 0)) emit(doc._id )}")
@@ -148,7 +148,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
                 .keys(keys)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, Document>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocs<Array<String>, String, Document>(viewQuery).map { it.doc }
     }
 
     override fun readAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String?): Flow<ByteBuffer> {

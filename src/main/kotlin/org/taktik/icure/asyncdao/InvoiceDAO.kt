@@ -19,7 +19,7 @@ interface InvoiceDAO: GenericDAO<Invoice> {
 
     fun listByHcPartyReferences(dbInstanceUrl: URI, groupId: String, hcParty: String, from: String?, to: String?, descending: Boolean, limit: Int): Flow<Invoice>
 
-    fun listByHcPartyGroupId(dbInstanceUrl: URI, groupId: String, hcParty: String): Flow<Invoice>
+    fun listByHcPartyGroupId(dbInstanceUrl: URI, groupId: String, inputGroupId: String, hcParty: String): Flow<Invoice>
 
     fun listByHcPartyRecipientIds(dbInstanceUrl: URI, groupId: String, hcParty: String, recipientIds: Set<String?>): Flow<Invoice>
 

@@ -60,7 +60,7 @@ class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatc
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
-        return client.queryViewIncludeDocs<ComplexKey, ComplexKey, TimeTable>(viewQuery).map{it.doc}
+        return client.queryViewIncludeDocs<Array<String>, ComplexKey, TimeTable>(viewQuery).map{it.doc}
 	}
 
 	@View(name = "by_agenda_and_enddate", map = "classpath:js/timeTable/by_agenda_and_enddate.js")
@@ -78,7 +78,7 @@ class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatc
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
-        return client.queryViewIncludeDocs<ComplexKey, ComplexKey, TimeTable>(viewQuery).map{it.doc}
+        return client.queryViewIncludeDocs<Array<String>, ComplexKey, TimeTable>(viewQuery).map{it.doc}
 	}
 
 	override fun listTimeTableByPeriodAndAgendaId(dbInstanceUrl: URI, groupId:String, startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {

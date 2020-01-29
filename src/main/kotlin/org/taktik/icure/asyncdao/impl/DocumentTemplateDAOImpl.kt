@@ -50,7 +50,7 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
         val from = ComplexKey.of(userId, "")
         val to = ComplexKey.of(userId, "\ufff0")
         val viewQuery = createQuery<DocumentTemplate>("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)
-        val documentTemplates = client.queryViewIncludeDocsNoValue<ComplexKey, DocumentTemplate>(viewQuery).map { it.doc }
+        val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
         documentTemplates.onEach {
@@ -67,12 +67,12 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
         val documentTemplates = if (guid != null) {
             val key = ComplexKey.of(healthcarePartyId, guid)
             val viewQuery = createQuery<DocumentTemplate>("by_specialty_code_and_guid").key(key).includeDocs(true)
-            client.queryViewIncludeDocsNoValue<ComplexKey, DocumentTemplate>(viewQuery).map { it.doc }
+            client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
         } else {
             val from = ComplexKey.of(healthcarePartyId, "")
             val to = ComplexKey.of(healthcarePartyId, "\ufff0")
             val viewQuery = createQuery<DocumentTemplate>("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)
-            client.queryViewIncludeDocsNoValue<ComplexKey, DocumentTemplate>(viewQuery).map { it.doc }
+            client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
         }
 
         // invoke postLoad()
@@ -99,7 +99,7 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
             val to = ComplexKey.of(documentTypeCode, "\ufff0", "\ufff0")
             createQuery<DocumentTemplate>("by_document_type_code_and_user_id_and_guid").startKey(from).endKey(to).includeDocs(true)
         }
-        val documentTemplates = client.queryViewIncludeDocsNoValue<ComplexKey, DocumentTemplate>(viewQuery).map { it.doc }
+        val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
         documentTemplates.onEach {

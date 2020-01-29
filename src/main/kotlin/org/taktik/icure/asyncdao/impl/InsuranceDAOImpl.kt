@@ -52,7 +52,7 @@ class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: Co
 
         val sanitizedName = StringUtils.sanitizeString(name)
 
-        val ids = client.queryView<ComplexKey, String>(createQuery<Insurance>("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
+        val ids = client.queryView<Array<String>, String>(createQuery<Insurance>("all_by_name").startKey(ComplexKey.of(sanitizedName)).endKey(ComplexKey.of(sanitizedName + "\uFFF0")).includeDocs(false)).mapNotNull { it.value }
         return getList(dbInstanceUrl, groupId, ids)
     }
 }

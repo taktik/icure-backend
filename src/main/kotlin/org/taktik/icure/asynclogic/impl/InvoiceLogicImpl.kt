@@ -135,8 +135,8 @@ class InvoiceLogicImpl(private val filters: Filters,
     }
 
     override fun listByHcPartyGroupId(hcParty: String, inputGroupId: String): Flow<Invoice> = flow {
-        val (dbInstanceUri, _) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(invoiceDAO.listByHcPartyGroupId(dbInstanceUri, inputGroupId, hcParty))
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        emitAll(invoiceDAO.listByHcPartyGroupId(dbInstanceUri, groupId, inputGroupId ,hcParty))
     }
 
     override fun listByHcPartyRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {

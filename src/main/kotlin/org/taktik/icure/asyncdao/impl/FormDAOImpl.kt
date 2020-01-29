@@ -60,7 +60,7 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
     override fun findByHcPartyParentId(dbInstanceUrl: URI, groupId: String, hcPartyId: String, formId: String): Flow<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, Form>(createQuery<Form>("by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery<Form>("by_hcparty_parentId").key(ComplexKey.of(hcPartyId, formId)).includeDocs(true)).map { it.doc }
     }
 
     override fun findAll(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
@@ -73,6 +73,6 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
     override fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Form> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, Form>(createQuery<Form>("conflicts").includeDocs(true)).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, Form>(createQuery<Form>("conflicts").includeDocs(true)).map { it.doc }
     }
 }

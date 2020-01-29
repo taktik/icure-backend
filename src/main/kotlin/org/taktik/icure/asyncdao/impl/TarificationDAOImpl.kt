@@ -61,7 +61,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
     @View(name = "by_region_type_code_version", map = "classpath:js/tarif/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findTarifications(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?): Flow<Tarification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocs<ComplexKey, String, Tarification>(
+        return client.queryViewIncludeDocs<Array<String>, String, Tarification>(
                 createQuery<Tarification>("by_region_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
@@ -122,7 +122,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
         val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
-        return client.queryView(viewQuery, ComplexKey::class.java, Integer::class.java, Tarification::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java)
     }
 
     @View(name = "by_language_type_label", map = "classpath:js/tarif/By_language_label.js")
@@ -150,6 +150,6 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
         val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
-        return client.queryView(viewQuery, ComplexKey::class.java, Integer::class.java, Tarification::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java)
     }
 }
