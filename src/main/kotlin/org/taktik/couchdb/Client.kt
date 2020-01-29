@@ -573,15 +573,18 @@ class ClientImpl(private val httpClient: HttpClient,
                                             else -> error("Expected EndObject or FieldName")
                                         }
                                     }
-                                    check(id != null) { "Doc Id shouldn't be null" }
                                     // We finished parsing a row, emit the result
-                                    val row = if (query.isIncludeDocs) {
-                                        check(doc != null) { "Doc shouldn't be null" }
-                                        ViewRowWithDoc(id, key, value, doc)
-                                    } else {
-                                        ViewRowNoDoc(id, key, value)
-                                    }
-                                    emit(row)
+
+                                    id?.let {
+                                        val row = if (query.isIncludeDocs) {
+                                            check(doc != null) { "Doc shouldn't be null" }
+                                            ViewRowWithDoc(id, key, value, doc)
+                                        } else {
+                                            ViewRowNoDoc(id, key, value)
+                                        }
+                                        emit(row)
+                                    } ?: if( value is Int) {emit(ViewRowNoDoc("", key, value))} //TODO MB ask if ok here
+
                                 }
                             }
                             TOTAL_ROWS_FIELD_NAME -> {

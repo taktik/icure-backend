@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
+import net.bytebuddy.implementation.bytecode.Throw
 import org.ektorp.ComplexKey
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -201,7 +202,7 @@ class ContactController(private val mapper: MapperFacade,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> contact.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        contactLogic.updateEntities(contacts.toList())
+        contactLogic.updateEntities(contacts.toList()).collect()
     }
 
 
@@ -294,9 +295,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    suspend fun matchBy(@RequestBody filter: FilterDto<*>): Flux<String> {
-        return filters.resolve(filter).injectReactorContext()
-    }
+    fun matchBy(@RequestBody filter: FilterDto<*>) = filters.resolve(filter).injectReactorContext()
 
     // TODO SH MB test this for PaginatedList construction...
     @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

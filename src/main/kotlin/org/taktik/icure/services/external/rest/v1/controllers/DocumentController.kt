@@ -21,10 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
@@ -205,7 +202,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "modifyDocuments", value = "Updates a batch of documents", notes = "Returns the modified documents.")
     @PutMapping("/batch")
-    suspend fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> {
+    fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> = flow{
         try {
             val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }
             for (i in documentDtos.indices) {
@@ -219,14 +216,16 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 }
             }
 
-            val docs = documentLogic.updateEntities(indocs)
-            return docs.map { f -> mapper.map(f, DocumentDto::class.java) }.injectReactorContext()
+            emitAll(
+                    documentLogic.updateEntities(indocs)
+                            .map { f -> mapper.map(f, DocumentDto::class.java) }
+            )
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
 
-    }
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "findByHCPartyMessageSecretFKeys", value = "List documents found By Healthcare Party and secret foreign keys.", notes = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")

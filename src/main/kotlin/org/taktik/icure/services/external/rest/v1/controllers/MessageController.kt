@@ -80,7 +80,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @ApiOperation(nickname = "deleteMessages", value = "Deletes multiple messages")
     @DeleteMapping("/{messageIds}")
-    suspend fun deleteMessages(@PathVariable messageIds: String): Flux<DocIdentifier> {
+    fun deleteMessages(@PathVariable messageIds: String): Flux<DocIdentifier> {
         return messageIds.split(',').takeIf { it.isNotEmpty() }
                 ?.let {
                     try {
@@ -94,7 +94,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @ApiOperation(nickname = "deleteMessagesBatch", value = "Deletes multiple messages")
     @PostMapping("/delete/byIds")
-    suspend fun deleteMessagesBatch(@RequestBody messagesIds: ListOfIdsDto): Flux<DocIdentifier>? {
+    fun deleteMessagesBatch(@RequestBody messagesIds: ListOfIdsDto): Flux<DocIdentifier>? {
         return messagesIds.ids?.takeIf { it.isNotEmpty() }
                 ?.let {
                     try {

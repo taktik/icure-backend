@@ -72,7 +72,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val startKey = if (pagination.startKey != null) ComplexKey.of(hcPartyId, startOpeningDate) else ComplexKey.of(hcPartyId, pagination.startKey)
         val endKey = ComplexKey.of(hcPartyId, endOpeningDate)
         val viewQuery = pagedViewQuery<Contact,ComplexKey>("by_hcparty_openingdate", startKey, endKey, pagination, false)
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Contact::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Contact::class.java)
     }
 
     @View(name = "by_hcparty", map = "classpath:js/contact/By_hcparty.js")

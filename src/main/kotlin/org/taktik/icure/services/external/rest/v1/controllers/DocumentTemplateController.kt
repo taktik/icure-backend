@@ -22,6 +22,8 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.IOUtils
@@ -63,7 +65,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "deleteDocumentTemplate", value = "Deletes a document template")
     @DeleteMapping("/{documentTemplateIds}")
-    suspend fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String): Flux<DocIdentifier> {
+    fun deleteDocumentTemplate(@PathVariable documentTemplateIds: String): Flux<DocIdentifier> {
         val documentTemplateIdsList = documentTemplateIds.split(',')
         return try {
             documentTemplateLogic.deleteByIds(documentTemplateIdsList).injectReactorContext()
@@ -90,19 +92,23 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findDocumentTemplatesByDocumentTypeForCurrentUser", value = "Gets all document templates by Type For currentUser")
     @GetMapping("/byDocumentTypeForCurrentUser/{documentTypeCode}")
-    suspend fun findDocumentTemplatesByDocumentTypeForCurrentUser(@PathVariable documentTypeCode: String): Flux<DocumentTemplateDto> {
+    fun findDocumentTemplatesByDocumentTypeForCurrentUser(@PathVariable documentTypeCode: String): Flux<DocumentTemplateDto> = flow{
         DocumentType.fromName(documentTypeCode)
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot retrieve document templates: provided Document Type Code doesn't exists")
-        val documentTemplates = documentTemplateLogic.getDocumentTemplatesByDocumentTypeAndUser(documentTypeCode, sessionLogic.getCurrentUserId())
-        return documentTemplates.map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }.injectReactorContext()
-    }
+        emitAll(
+                documentTemplateLogic.getDocumentTemplatesByDocumentTypeAndUser(documentTypeCode, sessionLogic.getCurrentUserId())
+                        .map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }
+        )
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "findDocumentTemplates", value = "Gets all document templates for current user")
     @GetMapping
-    suspend fun findDocumentTemplates(): Flux<DocumentTemplateDto> {
-        val documentTemplates = documentTemplateLogic.getDocumentTemplatesByUser(sessionLogic.getCurrentUserId())
-        return documentTemplates.map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }.injectReactorContext()
-    }
+    fun findDocumentTemplates(): Flux<DocumentTemplateDto> = flow {
+        emitAll(
+                documentTemplateLogic.getDocumentTemplatesByUser(sessionLogic.getCurrentUserId())
+                .map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }
+        )
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "findAllDocumentTemplates", value = "Gets all document templates for all users")
     @GetMapping("/find/all")

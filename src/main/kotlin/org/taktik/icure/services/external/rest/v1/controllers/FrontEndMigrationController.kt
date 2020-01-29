@@ -2,7 +2,10 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
@@ -16,6 +19,7 @@ import org.taktik.icure.services.external.rest.v1.dto.FrontEndMigrationDto
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/frontendmigration")
 @Api(tags = ["frontendmigration"])
@@ -25,14 +29,14 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
     @ApiOperation(nickname = "getFrontEndMigrations", value = "Gets a front end migration")
     @GetMapping
-    suspend fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> {
+    fun getFrontEndMigrations(): Flux<FrontEndMigrationDto> = flow{
         val userId = sessionLogic.getCurrentSessionContext().getUser().id
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Not authorized")
-
-        val migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
-
-        return migrations.map { mapper.map(it, FrontEndMigrationDto::class.java) }.injectReactorContext()
-    }
+        emitAll(
+                frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
+                        .map { mapper.map(it, FrontEndMigrationDto::class.java) }
+        )
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "createFrontEndMigration", value = "Creates a front end migration")
     @PostMapping
@@ -59,12 +63,14 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
     @ApiOperation(nickname = "getFrontEndMigrationByName", value = "Gets an front end migration")
     @GetMapping("/byName/{frontEndMigrationName}")
-    suspend fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flux<FrontEndMigrationDto> {
+    fun getFrontEndMigrationByName(@PathVariable frontEndMigrationName: String): Flux<FrontEndMigrationDto> = flow{
         val userId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
 
-        val migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
-        return migrations.map { mapper.map(it, FrontEndMigrationDto::class.java) }.injectReactorContext()
-    }
+        emitAll(
+                frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
+                        .map { mapper.map(it, FrontEndMigrationDto::class.java) }
+        )
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "modifyFrontEndMigration", value = "Modifies a front end migration")
     @PutMapping

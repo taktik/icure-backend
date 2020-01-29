@@ -57,7 +57,7 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getArticles", value = "Gets all articles")
     @GetMapping
-    suspend fun getArticles(): Flux<ArticleDto> {
+    fun getArticles(): Flux<ArticleDto> {
         return articleLogic.getAllEntities().map { a -> mapper.map(a, ArticleDto::class.java) }.injectReactorContext()
     }
 }

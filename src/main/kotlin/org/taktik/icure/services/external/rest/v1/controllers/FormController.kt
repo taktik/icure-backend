@@ -21,10 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -196,10 +193,12 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getFormTemplatesByGuid", value = "Gets a form template")
     @GetMapping("/template/{specialityCode}/guid/{formTemplateGuid}")
-    suspend fun getFormTemplatesByGuid(@PathVariable formTemplateGuid: String, @PathVariable specialityCode: String): Flux<FormTemplateDto> {
-        val formTemplates = formTemplateLogic.getFormTemplatesByGuid(sessionLogic.getCurrentUserId(), specialityCode, formTemplateGuid)
-        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }.injectReactorContext()
-    }
+    fun getFormTemplatesByGuid(@PathVariable formTemplateGuid: String, @PathVariable specialityCode: String): Flux<FormTemplateDto> = flow{
+        emitAll(
+                formTemplateLogic.getFormTemplatesByGuid(sessionLogic.getCurrentUserId(), specialityCode, formTemplateGuid)
+                        .map { mapper.map(it, FormTemplateDto::class.java) }
+        )
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "findFormTemplatesBySpeciality", value = "Gets all form templates")
     @GetMapping("/template/bySpecialty/{specialityCode}")
@@ -210,15 +209,17 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findFormTemplates", value = "Gets all form templates for current user")
     @GetMapping("/template")
-    suspend fun findFormTemplates(@RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> {
+    fun findFormTemplates(@RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> = flow{
         val formTemplates = try {
             formTemplateLogic.getFormTemplatesByUser(sessionLogic.getCurrentUserId(), loadLayout ?: true)
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }.injectReactorContext()
-    }
+        emitAll(
+                formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }
+        )
+    }.injectReactorContext()
 
     @ApiOperation(nickname = "createFormTemplate", value = "Create a form template with the current user", notes = "Returns an instance of created form template.")
     @PostMapping("/template")

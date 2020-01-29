@@ -122,11 +122,13 @@ class PatientController(
 
     @ApiOperation(nickname = "listOfPatientsModifiedAfter", value = "List patients that have been modified after the provided date", notes = "Returns a list of patients that have been modified after the provided date")
     @GetMapping("/modifiedAfter/{date}")
-    fun listOfPatientsModifiedAfter(@PathVariable date: Long,
+    suspend fun listOfPatientsModifiedAfter(@PathVariable date: Long,
                                     @ApiParam(value = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) =
-            patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, limit).also { mapper.map(it, PatientPaginatedList::class.java) }.injectReactorContext()
+            PatientPaginatedList(patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, (limit  ?: DEFAULT_LIMIT) + 1).paginatedList<Patient, PatientDto>(mapper, limit ?: DEFAULT_LIMIT))
+//            patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, limit).map { mapper.map(it, PatientPaginatedList::class.java) }.injectReactorContext()
+    // return PatientPaginatedList(patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(mapper, realLimit))
 
     @ApiOperation(nickname = "listPatientsByHcParty", value = "List patients for a specific HcParty or for the current HcParty ", notes = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/hcParty/{hcPartyId}")
