@@ -59,7 +59,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @ApiOperation(nickname = "isPatientReady", value = "Check if a patient exists")
     @GetMapping("/pok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    suspend fun isPatientReady(): String = if (patientLogic.hasEntities()) "true" else "false"
+    suspend fun isPatientReady() = "true"
 
     @ApiOperation(nickname = "getUsers", value = "Get users stubs")
     @GetMapping("/u")
