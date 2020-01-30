@@ -64,7 +64,7 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
             val endKey = ComplexKey.of(userId, accessType ?: ComplexKey.emptyObject(), java.lang.Long.MAX_VALUE)
             pagedViewQuery<AccessLog, ComplexKey>("all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
         }
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, AccessLog::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, AccessLog::class.java)
     }
 
     @View(name = "by_hcparty_patient", map = "classpath:js/accesslog/By_hcparty_patient_map.js")
@@ -75,6 +75,6 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
 
         val viewQuery = createQuery<AccessLog>("by_hcparty_patient").includeDocs(true).keys(keys)
 
-        return client.queryViewIncludeDocs<ComplexKey, String, AccessLog>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocs<Array<String>, String, AccessLog>(viewQuery).map { it.doc }
     }
 }

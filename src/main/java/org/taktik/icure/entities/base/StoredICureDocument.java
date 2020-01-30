@@ -126,7 +126,7 @@ public abstract class StoredICureDocument extends StoredDocument implements Vers
         this.responsible = responsible;
     }
 
-	private String encryptedSelf;
+	protected String encryptedSelf;
 	@Override
 	public String getEncryptedSelf() {
 		return encryptedSelf;

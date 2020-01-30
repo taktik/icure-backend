@@ -44,7 +44,7 @@ class DesignDocument(
         private var _id: String,
         private var _rev: String?,
         private val _revHistory: Map<String, String>,
-        val views: Map<String, View>,
+        val views: Map<String, View?>,
         val lists: Map<String, String>,
         val shows: Map<String, String>,
         val updateHandlers: Map<String, String>,
