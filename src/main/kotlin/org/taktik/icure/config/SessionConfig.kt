@@ -47,4 +47,6 @@ class SessionConfig {
     @Bean
     fun webSocketService() = HandshakeWebSocketService(JettyRequestUpgradeStrategy())
 
+    @Bean
+    fun cookieSerializer() = DefaultCookieSerializer().apply { setSameSite("None") }
 }
