@@ -19,10 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -58,7 +55,7 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
                 .endKey(to)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, CalendarItem>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<Array<String>, CalendarItem>(viewQuery).map { it.doc }
     }
 
     @View(name = "by_hcparty_and_enddate", map = "classpath:js/calendarItem/by_hcparty_and_enddate.js")
@@ -79,7 +76,7 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
                 .endKey(to)
                 .includeDocs(true)
 
-        return client.queryViewIncludeDocsNoValue<ComplexKey, CalendarItem>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<Array<String>, CalendarItem>(viewQuery).map { it.doc }
     }
 
     override fun listCalendarItemByPeriodAndHcPartyId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> {

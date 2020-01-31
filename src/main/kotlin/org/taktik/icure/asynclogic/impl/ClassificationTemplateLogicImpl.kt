@@ -56,7 +56,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Classification Template attributes
-            classificationTemplate.id = uuidGenerator.newGUID().toString()
+            classificationTemplate.id = classificationTemplate.id ?: uuidGenerator.newGUID().toString()
             classificationTemplate.author = healthcarePartyId
             classificationTemplate.responsible = healthcarePartyId
             return createEntities(setOf(classificationTemplate)).firstOrNull()

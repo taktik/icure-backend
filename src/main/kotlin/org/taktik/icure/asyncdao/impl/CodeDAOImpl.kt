@@ -22,10 +22,7 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -50,7 +47,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findCodes(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Code> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocsNoValue<String, Code>(
+        return client.queryViewIncludeDocsNoValue<Array<String>, Code>(
                 createQuery<Code>("by_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
@@ -80,7 +77,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     @View(name = "by_region_type_code_version", map = "classpath:js/code/By_region_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findCodes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?): Flow<Code> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryViewIncludeDocsNoValue<String, Code>(
+        return client.queryViewIncludeDocsNoValue<Array<String>, Code>(
                 createQuery<Code>("by_region_type_code_version")
                         .includeDocs(true)
                         .reduce(false)
@@ -133,7 +130,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
                 false
         )
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
     }
 
     @ExperimentalCoroutinesApi
@@ -164,7 +161,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
                 false
         )
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
     }
 
     @ExperimentalCoroutinesApi
@@ -197,7 +194,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
                 false
         )
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
     }
 
     @ExperimentalCoroutinesApi
@@ -223,7 +220,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
                 false
         )
-        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Code::class.java)
+        return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
     }
 
     override fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?): Flow<String> {
@@ -314,7 +311,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label.let { StringUtils.sanitizeString(it) }
         for (lang in labelLang) {
-            val codeFlow = client.queryViewIncludeDocsNoValue<String, Code>(
+            val codeFlow = client.queryViewIncludeDocsNoValue<Array<String>, Code>(
                     createQuery<Code>("by_region_type_code_version")
                             .includeDocs(true)
                             .key(ComplexKey.of(
