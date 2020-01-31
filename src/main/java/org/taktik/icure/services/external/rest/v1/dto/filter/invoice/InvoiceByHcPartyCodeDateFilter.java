@@ -18,11 +18,14 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.invoice;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.Invoice;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 @JsonPolymorphismRoot(FilterDto.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class InvoiceByHcPartyCodeDateFilter extends FilterDto<Invoice> implements org.taktik.icure.dto.filter.invoice.InvoiceByHcPartyCodeDateFilter {
 
     private String healthcarePartyId;

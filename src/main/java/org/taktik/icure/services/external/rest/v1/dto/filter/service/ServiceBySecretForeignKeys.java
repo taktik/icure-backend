@@ -19,6 +19,8 @@
 package org.taktik.icure.services.external.rest.v1.dto.filter.service;
 
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
@@ -26,6 +28,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 import java.util.Set;
 
 @JsonPolymorphismRoot(FilterDto.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class ServiceBySecretForeignKeys extends FilterDto<Service> implements org.taktik.icure.dto.filter.service.ServiceBySecretForeignKeys {
 	String healthcarePartyId;
     Set<String> patientSecretForeignKeys;

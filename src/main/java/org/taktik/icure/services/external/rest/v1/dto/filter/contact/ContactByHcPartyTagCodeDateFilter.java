@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.contact;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.Contact;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
@@ -26,6 +28,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 import java.util.List;
 
 @JsonPolymorphismRoot(FilterDto.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class ContactByHcPartyTagCodeDateFilter extends FilterDto<Contact> implements org.taktik.icure.dto.filter.contact.ContactByHcPartyTagCodeDateFilter {
 	String healthcarePartyId;
 	String tagType;
