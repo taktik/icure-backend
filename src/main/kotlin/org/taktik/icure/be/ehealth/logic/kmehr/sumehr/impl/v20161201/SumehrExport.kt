@@ -147,10 +147,10 @@ class SumehrExport : KmehrExport() {
             "organdonationconsent", "vaccinationrefusal"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
-            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+            "hos0", "hos1", "hos2"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
-            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+            "dnr0", "dnr1", "dnr2", "dnr3"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         //vac/med
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, language)
