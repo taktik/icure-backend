@@ -1,5 +1,6 @@
 package org.taktik.icure.db.be.icure
 
+import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.ektorp.CouchDbInstance
@@ -9,7 +10,6 @@ import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.taktik.icure.db.Importer
 import org.taktik.icure.entities.Insurance
-import org.taktik.icure.logic.impl.GsonSerializerFactory
 
 import java.security.Security
 
@@ -59,7 +59,7 @@ class InsuranceImporter extends Importer{
 
     def doScan(Reader r) {
         def insurances
-            insurances = new GsonSerializerFactory().gsonSerializer.fromJson(r, new TypeToken<ArrayList<Insurance>>() {
+            insurances = new Gson().fromJson(r, new TypeToken<ArrayList<Insurance>>() {
             }.getType())
         def current = []
 
