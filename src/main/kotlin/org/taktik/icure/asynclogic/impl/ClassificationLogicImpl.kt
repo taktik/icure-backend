@@ -50,7 +50,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Classification attributes
-            classification.id = uuidGenerator.newGUID().toString()
+            classification.id = classification.id ?: uuidGenerator.newGUID().toString()
             classification.author = healthcarePartyId
             classification.responsible = healthcarePartyId
             return createEntities(setOf(classification)).firstOrNull()

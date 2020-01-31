@@ -44,7 +44,7 @@ class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
 
     override suspend fun createKeyword(keyword: Keyword): Keyword? {
         val createdKeywords = try { // Setting Keyword attributes
-            keyword.id = uuidGenerator.newGUID().toString()
+            keyword.id = keyword.id ?: uuidGenerator.newGUID().toString()
             createEntities(setOf(keyword))
         } catch (e: Exception) {
             log.error("createKeyword: " + e.message)

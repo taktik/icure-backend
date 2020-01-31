@@ -16,9 +16,9 @@ import java.lang.reflect.Modifier
 import java.util.*
 
 
-class JacksonFilterDeserializer<T : FilterDto<*>> : JsonObjectDeserializer<T>() {
+class JacksonFilterDeserializer : JsonObjectDeserializer<FilterDto<*>>() {
     private val discriminator = FilterDto::class.java.getAnnotation(JsonDiscriminator::class.java)?.value ?: "\$type"
-    private val subclasses: MutableMap<String, Class<*>> = HashMap()
+    private val subclasses: MutableMap<String, Class<FilterDto<*>>> = HashMap()
     private val reverseSubclasses: MutableMap<Class<*>, String> = HashMap()
     private val scanner = Reflections(FilterDto::class.java, TypeAnnotationsScanner(), SubTypesScanner())
 
@@ -29,18 +29,15 @@ class JacksonFilterDeserializer<T : FilterDto<*>> : JsonObjectDeserializer<T>() 
         for (subClass in classes) {
             val discriminated = subClass.getAnnotation(JsonDiscriminated::class.java)
             val discriminatedString = discriminated?.value ?: subClass.simpleName
-            subclasses[discriminatedString] = subClass
+            subclasses[discriminatedString] = subClass as Class<FilterDto<*>>
             reverseSubclasses[subClass] = discriminatedString
         }
 
     }
 
-    override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): T {
-        val discr = tree[discriminator].textValue()
-                ?: throw JsonParseException("Missing discriminator $discriminator in object")
-        val selectedSubClass = subclasses[discr]
-                ?: throw JsonParseException("Invalid subclass " + discr + " in object")
-        val gson = Gson()
-        return gson.fromJson<T>(tree.toString(), selectedSubClass)
+    override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): FilterDto<*> {
+        val discr = tree[discriminator].textValue() ?: throw JsonParseException("Missing discriminator $discriminator in object")
+        val selectedSubClass = subclasses[discr] ?: throw JsonParseException("Invalid subclass $discr in object")
+        return codec.treeToValue(tree, selectedSubClass)
     }
 }

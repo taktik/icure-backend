@@ -20,12 +20,15 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.patient;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 @JsonPolymorphismRoot(FilterDto.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class PatientByIdsFilter extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByIdsFilter {
     List<String> ids;
 

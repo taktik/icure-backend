@@ -52,7 +52,7 @@ internal class FormDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDisp
 
         val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
 
-        val result = client.queryViewIncludeDocs<ComplexKey, String, Form>(createQuery<Form>("by_hcparty_patientfk").keys(keys).includeDocs(true)).map { it.doc }
+        val result = client.queryViewIncludeDocs<Array<String>, String, Form>(createQuery<Form>("by_hcparty_patientfk").keys(keys).includeDocs(true)).map { it.doc }
         return result.distinctUntilChangedBy { it.id }
     }
 

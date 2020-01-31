@@ -17,6 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot
 
@@ -38,6 +42,7 @@ object Filters {
     }
 
     @JsonPolymorphismRoot(FilterDto::class)
+    @JsonDeserialize(using = JsonDeserializer.None::class)
     class ConstantFilter<O : Identifiable<String>>(private var constant: Set<String>) : FilterDto<O>(), org.taktik.icure.dto.filter.Filters.ConstantFilter<String, O> {
 
         override fun getConstant(): Set<String> {
@@ -50,6 +55,7 @@ object Filters {
     }
 
     @JsonPolymorphismRoot(FilterDto::class)
+    @JsonDeserialize(using = JsonDeserializer.None::class)
     class UnionFilter<O : Identifiable<String>> : FilterDto<O>, org.taktik.icure.dto.filter.Filters.UnionFilter<String, O> {
         private var filters: List<FilterDto<O>>
 
@@ -57,7 +63,8 @@ object Filters {
             this.filters = filters.toList()
         }
 
-        constructor(filters: List<FilterDto<O>>) {
+        @JsonCreator
+        constructor(@JsonProperty filters: List<FilterDto<O>>) {
             this.filters = filters
         }
 
@@ -76,6 +83,7 @@ object Filters {
     }
 
     @JsonPolymorphismRoot(FilterDto::class)
+    @JsonDeserialize(using = JsonDeserializer.None::class)
     class IntersectionFilter<O : Identifiable<String>> : FilterDto<O>, org.taktik.icure.dto.filter.Filters.IntersectionFilter<String, O> {
         private val filters: List<FilterDto<O>>
 
@@ -83,7 +91,8 @@ object Filters {
             this.filters = filters.toList()
         }
 
-        constructor(filters: List<FilterDto<O>>) {
+        @JsonCreator
+        constructor(@JsonProperty filters: List<FilterDto<O>>) {
             this.filters = filters
         }
 
@@ -102,6 +111,7 @@ object Filters {
     }
 
     @JsonPolymorphismRoot(FilterDto::class)
+    @JsonDeserialize(using = JsonDeserializer.None::class)
     class ComplementFilter<O : Identifiable<String>>(private val superSet: FilterDto<O>, private val subSet: FilterDto<O>) : FilterDto<O>(), org.taktik.icure.dto.filter.Filters.ComplementFilter<String, O> {
 
         override fun getSuperSet(): org.taktik.icure.dto.filter.Filter<String, O> {

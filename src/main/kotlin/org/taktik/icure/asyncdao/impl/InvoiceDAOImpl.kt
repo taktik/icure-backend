@@ -138,7 +138,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
             }
         }
 
-        return client.queryViewIncludeDocs<Array<String>, String, Invoice>(createQuery<Invoice>("by_hcparty_sentmediumtype_invoicetype_sent_date").includeDocs(true).startKey(startKey).endKey(endKey)).map { it.doc }
+        return client.queryViewIncludeDocs<Array<Any>, String, Invoice>(createQuery<Invoice>("by_hcparty_sentmediumtype_invoicetype_sent_date").includeDocs(true).startKey(startKey).endKey(endKey)).map { it.doc }
     }
 
     @View(name = "by_hcparty_sending_mode_status_date", map = "classpath:js/invoice/By_hcparty_sending_mode_status_date.js")
