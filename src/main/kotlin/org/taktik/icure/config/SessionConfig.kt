@@ -16,6 +16,7 @@ import org.springframework.web.reactive.socket.server.WebSocketService
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import org.springframework.web.reactive.socket.server.upgrade.JettyRequestUpgradeStrategy
+import org.springframework.web.server.session.CookieWebSessionIdResolver
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.services.external.http.WebSocketOperationHandler
 import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
@@ -25,6 +26,7 @@ import org.taktik.icure.spring.ReactiveHazelcastSessionRepository
 @Configuration
 @EnableSpringWebSession
 class SessionConfig {
+
     @Bean
     fun reactiveSessionRepository(@Qualifier("hazelcast") hazelcastInstance: HazelcastInstance): ReactiveSessionRepository<MapSession> {
         return ReactiveHazelcastSessionRepository(hazelcastInstance.getMap("spring:session:sessions"))
@@ -48,5 +50,5 @@ class SessionConfig {
     fun webSocketService() = HandshakeWebSocketService(JettyRequestUpgradeStrategy())
 
     @Bean
-    fun cookieSerializer() = DefaultCookieSerializer().apply { setSameSite("None") }
+    fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer {cb -> cb.sameSite("None")} }
 }
