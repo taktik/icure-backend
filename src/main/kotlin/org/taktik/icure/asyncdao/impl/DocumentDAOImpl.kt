@@ -19,9 +19,12 @@
 package org.taktik.icure.asyncdao.impl
 
 import com.google.common.io.ByteStreams
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import org.apache.commons.codec.digest.DigestUtils
-import org.ektorp.AttachmentInputStream
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -34,12 +37,14 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Document
 import org.taktik.icure.utils.createQuery
 import java.io.BufferedInputStream
-import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.io.IOException
 import java.net.URI
 import java.nio.ByteBuffer
+import java.nio.charset.CharsetEncoder
+import java.nio.charset.StandardCharsets
 import java.util.*
+
 
 @Repository("documentDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted) emit( null, doc._id )}")
@@ -84,22 +89,28 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
         }
     }
 
-    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: Document) {
+    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: Document?) {
         super.postLoad(dbInstanceUrl, groupId, entity)
+        val encoder: CharsetEncoder = StandardCharsets.UTF_8.newEncoder()
 
-        if (entity.attachmentId != null) {
-            try {
-                if (entity.attachmentId.contains("|")) {
-                    val attachmentIs = BufferedInputStream(FileInputStream(entity.attachmentId.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]))
-                    entity.attachment = ByteStreams.toByteArray(attachmentIs)
-                } else {
-                    val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev)
-                    entity.attachment = attachmentIs.reduce { acc, value -> acc.put(value) }.array()
+        entity?.let {
+            if (entity.attachmentId != null) {
+                try {
+                    if (entity.attachmentId.contains("|")) {
+                        val attachmentIs = BufferedInputStream(FileInputStream(entity.attachmentId.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]))
+                        entity.attachment = ByteStreams.toByteArray(attachmentIs)
+                    } else {
+                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev)
+//                        entity.attachment = attachmentIs.reduce { acc, value -> acc.add(value) }.array()
+                        ByteArrayOutputStream().use {attachment ->
+                            attachmentIs.collect { attachment.write(it.array()) }
+                            entity.attachment = attachment.toByteArray()
+                        }
+                    }
+                } catch (e: IOException) {
+                    //Could not load
                 }
-            } catch (e: IOException) {
-                //Could not load
             }
-
         }
     }
 
