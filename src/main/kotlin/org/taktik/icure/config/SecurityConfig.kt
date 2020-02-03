@@ -23,30 +23,20 @@ import CustomAuthenticationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.support.MessageSourceAccessor
-import org.springframework.core.annotation.Order
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.ProviderManager
-import org.springframework.security.authentication.ReactiveAuthenticationManager
-import org.springframework.security.authentication.ReactiveAuthenticationManagerAdapter
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.PermissionLogic
-import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.properties.AuthenticationProperties
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 
@@ -86,7 +76,7 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
                 .csrf().disable()
-                .httpBasic()
+                .httpBasic().securityContextRepository(WebSessionServerSecurityContextRepository())
                 //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
                 .authenticationManager(authenticationManager)
                 .and()
