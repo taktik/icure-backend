@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.asMono
+import kotlinx.coroutines.reactor.mono
 import org.apache.commons.logging.LogFactory
 import org.jboss.aerogear.security.otp.Totp
 import org.springframework.context.support.MessageSourceAccessor
@@ -41,7 +42,7 @@ class CustomAuthenticationProvider(
     private val dbInstanceUri = URI(couchDbProperties.url)
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
 
-    override fun authenticate(authentication: Authentication?): Mono<Authentication> = scope.async {
+    override fun authenticate(authentication: Authentication?): Mono<Authentication> = mono {
         authentication?.principal ?: throw BadCredentialsException("Invalid username or password")
         Assert.isInstanceOf(UsernamePasswordAuthenticationToken::class.java, authentication,
                 messageSourceAccessor.getMessage(
@@ -142,7 +143,7 @@ class CustomAuthenticationProvider(
                 authentication,
                 authorities
         )
-    }.asMono(Dispatchers.Default)
+    }
 
     private fun isPasswordValid(u: User, password: String): Boolean {
         if (u.applicationTokens.containsValue(password)) {
