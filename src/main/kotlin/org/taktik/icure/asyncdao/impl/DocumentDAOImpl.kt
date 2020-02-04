@@ -101,7 +101,6 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
                         entity.attachment = ByteStreams.toByteArray(attachmentIs)
                     } else {
                         val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev)
-//                        entity.attachment = attachmentIs.reduce { acc, value -> acc.add(value) }.array()
                         ByteArrayOutputStream().use {attachment ->
                             attachmentIs.collect { attachment.write(it.array()) }
                             entity.attachment = attachment.toByteArray()

@@ -21,6 +21,7 @@ package org.taktik.icure.asyncdao.impl
 import com.google.common.io.ByteStreams
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.ektorp.AttachmentInputStream
 import org.ektorp.ComplexKey
 import org.ektorp.DocumentNotFoundException
@@ -140,10 +141,9 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         if (entity != null && entity.layoutAttachmentId != null) {
             try {
                 val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId, entity.rev)
-                try {
-                    entity.layout = attachmentIs.reduce { acc, value -> acc.put(value) }.array()
-                } catch (e: IOException) {
-                    //Could not load
+                ByteArrayOutputStream().use { attachment ->
+                    attachmentIs.collect { attachment.write(it.array()) }
+                    entity.layout = attachment.toByteArray()
                 }
             } catch (e: IOException) {
                 log.warn("Failed to obtain attachment(" + entity.id + ") for the doc id (" + entity.layoutAttachmentId + ").")
