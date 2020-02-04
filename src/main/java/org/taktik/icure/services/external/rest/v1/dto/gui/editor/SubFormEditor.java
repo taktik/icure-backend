@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.editor;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -30,6 +32,8 @@ import java.util.List;
  * Created by aduchate on 03/12/13, 17:42
  */
 @XStreamAlias("SubFormEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class SubFormEditor extends Editor {
     @XStreamImplicit(itemFieldName = "OptionalForm")
     List<String> optionalFormGuids;
@@ -39,7 +43,7 @@ public class SubFormEditor extends Editor {
     Boolean growsHorizontally;
     @XStreamAsAttribute
     Boolean collapsed;
-    
+
     @XStreamAsAttribute
     Boolean showHeader=true;
 

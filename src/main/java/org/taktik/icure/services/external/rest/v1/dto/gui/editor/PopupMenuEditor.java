@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.editor;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -28,6 +30,8 @@ import org.taktik.icure.services.external.rest.v1.dto.gui.type.MenuOption;
 import java.util.List;
 
 @XStreamAlias("PopupMenuEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class PopupMenuEditor extends Editor implements ValueDateEditor {
 
     @XStreamImplicit(itemFieldName = "menuOption")

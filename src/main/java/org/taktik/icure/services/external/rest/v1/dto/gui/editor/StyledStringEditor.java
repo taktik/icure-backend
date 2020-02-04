@@ -19,11 +19,16 @@
 package org.taktik.icure.services.external.rest.v1.dto.gui.editor;
 
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 import org.taktik.icure.services.external.rest.v1.dto.gui.Editor;
 
 @XStreamAlias("StyledStringEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class StyledStringEditor extends Editor {
 
 	public StyledStringEditor() {
