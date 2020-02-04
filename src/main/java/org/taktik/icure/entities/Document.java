@@ -122,8 +122,7 @@ public class Document extends StoredICureDocument implements Serializable {
 				bb.putLong(uuid.getLeastSignificantBits());
 				try {
 					return CryptoUtils.decryptAES(attachment, bb.array());
-				} catch (NoSuchPaddingException | NoSuchAlgorithmException | IllegalArgumentException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) {
-				}
+				} catch (NoSuchPaddingException | NoSuchAlgorithmException | IllegalArgumentException | BadPaddingException | InvalidKeyException | IllegalBlockSizeException | InvalidAlgorithmParameterException ignored) { }
 			}
 		}
 

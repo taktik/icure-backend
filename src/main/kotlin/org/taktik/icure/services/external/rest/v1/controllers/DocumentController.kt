@@ -25,8 +25,11 @@ import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.commons.uti.UTI
@@ -44,12 +47,16 @@ import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toFlux
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.*
 import javax.servlet.http.HttpServletResponse
+import javax.xml.transform.Result
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 
 @ExperimentalCoroutinesApi
@@ -87,32 +94,32 @@ class DocumentController(private val documentLogic: DocumentLogic,
                       @PathVariable attachmentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestParam(required = false) fileName: String?,
-                      response: HttpServletResponse) {
-        val document = documentLogic.get(documentId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+                      response: ServerHttpResponse) : ByteArrayResource {
+        val document = documentLogic.get(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         val attachment = document.decryptAttachment(if (enckeys.isNullOrBlank()) null else enckeys.split(','))
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
         val uti = UTI.get(document.mainUti)
         val mimeType = if (uti != null && uti.mimeTypes.size > 0) uti.mimeTypes[0] else "application/octet-stream"
 
-        response.setHeader("Content-Type", mimeType)
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + (fileName ?: document.name) + "\"")
+        response.headers["Content-Type"] = mimeType
+        response.headers["Content-Disposition"] = "attachment; filename=\"${fileName ?: document.name}\""
         if (StringUtils.equals(document.mainUti, "org.taktik.icure.report")) {
             val styleSheet = "DocumentTemplateLegacyToNew.xml"
 
             val xmlSource = StreamSource(ByteArrayInputStream(attachment))
             val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream(styleSheet))
-            val result = javax.xml.transform.stream.StreamResult(response.outputStream)
             val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
             try {
                 val trans = transFact.newTransformer(xsltSource)
-                trans.transform(xmlSource, result)
+                val r : Result = StreamResult()
+                trans.transform(xmlSource, r)
+                return ByteArrayResource(attachment)
             } catch (e: TransformerException) {
                 throw IllegalStateException("Could not convert legacy document")
             }
 
         } else {
-            IOUtils.write(attachment, response.outputStream)
+            return ByteArrayResource(attachment)
         }
     }
 

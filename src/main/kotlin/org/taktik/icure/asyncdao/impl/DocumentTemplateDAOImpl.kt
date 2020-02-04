@@ -20,6 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -30,6 +31,7 @@ import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentTemplateDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
+import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.utils.createQuery
 import java.io.IOException
 import java.net.URI
@@ -160,7 +162,10 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
         if (entity != null && entity.attachmentId != null) {
             val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev)
             try {
-                entity.attachment = attachmentIs.reduce { acc, value -> acc.put(value) }.array()
+                ByteArrayOutputStream().use { attachment ->
+                    attachmentIs.collect { attachment.write(it.array()) }
+                    entity.attachment = attachment.toByteArray()
+                }
             } catch (e: IOException) {
                 //Could not load
             }

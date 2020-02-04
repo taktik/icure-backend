@@ -27,8 +27,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.IOUtils
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.InputStreamResource
+import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpResponse
+import org.springframework.util.StreamUtils
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
@@ -41,7 +46,9 @@ import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto
 import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import reactor.core.publisher.toMono
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import javax.servlet.http.HttpServletResponse
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
@@ -140,23 +147,26 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     @GetMapping("/{documentTemplateId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     suspend fun getAttachment(@PathVariable documentTemplateId: String,
                       @PathVariable attachmentId: String,
-                      response: HttpServletResponse) {
+                      response: ServerHttpResponse): Resource {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         if (document.attachment != null) {
             if (document.version == null) {
                 val xmlSource = StreamSource(ByteArrayInputStream(document.attachment))
                 val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream("DocumentTemplateLegacyToNew.xml"))
-                val result = javax.xml.transform.stream.StreamResult(response.outputStream)
+                val byteOutputStream = ByteArrayOutputStream()
+                val result = javax.xml.transform.stream.StreamResult(byteOutputStream)
                 val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
                 try {
                     val trans = transFact.newTransformer(xsltSource)
                     trans.transform(xmlSource, result)
+                    // TODO MB : implement return here
+                    return ByteArrayResource(byteOutputStream.toByteArray())
                 } catch (e: TransformerException) {
                     throw IllegalStateException("Could not convert legacy document")
                 }
             } else {
-                IOUtils.write(document.attachment, response.outputStream)
+                return ByteArrayResource(document.attachment)
             }
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
