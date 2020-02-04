@@ -150,7 +150,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	@View(name = "by_hcparty_contains_name", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
 	public List<String> listIdsByHcPartyAndNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit) {
 		String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
-		ViewQuery viewQuery = createQuery("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).limit(limit).includeDocs(false);
+		ViewQuery viewQuery = (limit != null ? createQuery("of_hcparty_contains_name").limit(limit) : createQuery("of_hcparty_contains_name")).startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).includeDocs(false);
 		return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
 	}
 
@@ -158,7 +158,7 @@ class PatientDAOImpl extends GenericIcureDAOImpl<Patient> implements PatientDAO 
 	@View(name = "of_hcparty_contains_name", map = "classpath:js/patient/Of_hcparty_contains_name_map.js")
 	public List<String> listIdsOfHcPartyNameContainsFuzzy(String searchString, String healthcarePartyId, Integer limit) {
 		String name = (searchString!=null)? StringUtils.sanitizeString(searchString):null;
-		ViewQuery viewQuery = createQuery("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).limit(limit).includeDocs(false);
+		ViewQuery viewQuery = (limit != null ? createQuery("of_hcparty_contains_name").limit(limit) : createQuery("of_hcparty_contains_name")).startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, name == null ? ComplexKey.emptyObject() : name + "\ufff0")).includeDocs(false);
 		return new ArrayList<>(new TreeSet<>(db.queryView(viewQuery, String.class)));
 	}
 
