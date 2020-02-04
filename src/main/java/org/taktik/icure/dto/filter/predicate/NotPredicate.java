@@ -20,8 +20,13 @@ package org.taktik.icure.dto.filter.predicate;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.base.Identifiable;
+import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 
+@JsonPolymorphismRoot(Predicate.class)
+@JsonDeserialize(using = JsonDeserializer.None.class)
 public class NotPredicate implements Predicate {
 	Predicate predicate;
 

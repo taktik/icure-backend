@@ -23,12 +23,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.xstream.NumberConverter;
 
 @JsonPolymorphismRoot(Predicate.class)
+@JsonDeserialize(using = JsonDeserializer.None.class)
 public class KeyValuePredicate implements Predicate {
 	private String key;
 	private Operator operator;
