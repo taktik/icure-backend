@@ -84,7 +84,7 @@ class CustomAuthenticationProvider(
 
             if (gId != null) {
                 val g = groupDAO.get(gId)
-                val candidate = g?.dbInstanceUrl()?.let { userDAO.findUserOnUserDb(URI.create(it), gId, userId, false) }
+                val candidate = (g?.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()) ?.let { userDAO.findUserOnUserDb(URI.create(it), gId, userId, false) }
                 if (candidate != null && isPasswordValid(candidate, password)) {
                     if (groupId == null) {
                         user = candidate
@@ -125,7 +125,7 @@ class CustomAuthenticationProvider(
 
         val userDetails = DatabaseUserDetails(permissionSetIdentifier, authorities, user.passwordHash, user.secret, user.isUse2fa)
         if (group != null) {
-            userDetails.dbInstanceUrl = group.dbInstanceUrl()
+            userDetails.dbInstanceUrl = group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()
         }
         userDetails.groupId = groupId
         userDetails.rev = user.rev
