@@ -54,7 +54,7 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
                     }
                 });
             }
-            this.sessions.putAsync(session.getId(), new MapSession(session)).whenCompleteAsync((response, throwable) -> {
+            this.sessions.setAsync(session.getId(), new MapSession(session)).whenCompleteAsync((response, throwable) -> {
                 if (throwable != null) {
                     sink.error(throwable);
                 } else {
