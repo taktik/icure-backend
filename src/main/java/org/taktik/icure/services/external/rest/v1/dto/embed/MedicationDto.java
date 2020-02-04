@@ -60,6 +60,8 @@ public class MedicationDto implements Serializable {
 	Map<String, ContentDto> options;
 	Map<String, ParagraphAgreementDto> agreements;
 
+    private List<SuspensionDto> suspension;
+
 	String medicationSchemeIdOnSafe;
 	Integer medicationSchemeSafeVersion;
 	Long medicationSchemeTimeStampOnSafe;
@@ -303,4 +305,8 @@ public class MedicationDto implements Serializable {
     public Integer getStatus() { return status; }
 
     public void setStatus(Integer status) { this.status = status; }
+
+    public List<SuspensionDto> getSuspension() { return suspension; }
+
+    public void setSuspension(List<SuspensionDto> suspension) { this.suspension = suspension; }
 }
