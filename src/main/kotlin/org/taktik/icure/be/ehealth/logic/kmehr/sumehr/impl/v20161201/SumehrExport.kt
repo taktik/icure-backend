@@ -144,13 +144,13 @@ class SumehrExport : KmehrExport() {
 		addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL, listOf(
             "bloodtransfusionrefusal", "clinicaltrialparticipationconsent", "datareuseforclinicalresearchconsent",
             "datareuseforclinicaltrialsconsent", "euthanasiarequest", "intubationrefusal",
-            "organdonationconsent", "vaccinationrefusal"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+            "organdonationconsent", "vaccinationrefusal", "ntbr"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
-            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+            "hos0", "hos1", "hos2"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
-            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+            "dnr0", "dnr1", "dnr2", "dnr3"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         //vac/med
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, language)
@@ -644,7 +644,7 @@ class SumehrExport : KmehrExport() {
                                         val version = if (c.type == "CD-ATC") "1.0" else c.version
                                         // BE-THESAURUS (IBUI) are in fact CD-CLINICAL (https://www.ehealth.fgov.be/standards/kmehr/en/tables/ibui)
                                         val type = if (c.type == "BE-THESAURUS") "CD-CLINICAL" else c.type
-                                        this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
+                                        if(c.type != "CD-HCPARTY") this.cds.add(CDCONTENT().apply { s(cdt); sl = type; dn = type; sv = version; value = c.code })
                                     } catch (ignored: IllegalArgumentException) {
                                         log.error(ignored)
                                     }
