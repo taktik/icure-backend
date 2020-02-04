@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.CareTeamMember;
 import org.taktik.icure.entities.embed.Episode;
+import org.taktik.icure.entities.embed.Laterality;
 import org.taktik.icure.entities.embed.PlanOfAction;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
@@ -58,6 +59,9 @@ public class HealthElement extends StoredICureDocument {
 	private String idService; //When a service is used to create the healthElement
 
 	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
+
+
+    private Laterality laterality;
 
     @Valid
     private List<PlanOfAction> plansOfAction = new ArrayList<>();
@@ -200,4 +204,8 @@ public class HealthElement extends StoredICureDocument {
     public List<CareTeamMember> getCareTeam() { return careTeam; }
 
     public void setCareTeam(List<CareTeamMember> careTeam) { this.careTeam = careTeam; }
+
+    public Laterality getLaterality() { return laterality; }
+
+    public void setLaterality(Laterality laterality) { this.laterality = laterality; }
 }
