@@ -43,15 +43,15 @@ typealias CouchDbDocument = Versionable<String>
 class DesignDocument(
         private var _id: String,
         private var _rev: String?,
-        private val _revHistory: Map<String, String>,
+        private val _revHistory: Map<String, String>?,
         val views: Map<String, View?>,
         val lists: Map<String, String>,
         val shows: Map<String, String>,
-        val updateHandlers: Map<String, String>,
+        val updateHandlers: Map<String, String>?,
         val filters: Map<String, String>
 ) : CouchDbDocument {
     @Json(name = "rev_history")
-    override fun getRevHistory(): Map<String, String> = _revHistory
+    override fun getRevHistory()= _revHistory
 
     @Json(name = "_rev")
     override fun setRev(rev: String?) {
@@ -105,7 +105,7 @@ class ReplicationTask(
         val checkpointInterval: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
 
 class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
-data class View(val map: String, val reduce: String)
+data class View(val map: String, val reduce: String?)
 data class AttachmentResult(val id: String, val rev: String, val ok: Boolean)
 
 /**
