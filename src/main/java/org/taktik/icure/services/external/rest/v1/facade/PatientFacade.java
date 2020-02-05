@@ -30,6 +30,7 @@ import org.ektorp.ComplexKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.db.PaginatedList;
 import org.taktik.icure.db.PaginationOffset;
@@ -135,7 +136,7 @@ public class PatientFacade implements OpenApiFacade{
         @SuppressWarnings("unchecked") PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null, limit);
 
 	    HealthcareParty hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId());
-	    PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcp.getParentId() != null ? hcp.getParentId() : hcp.getId(), paginationOffset, filterValue, new Sorting(null, sortDirection));
+	    PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(!StringUtils.isEmpty(hcp.getParentId()) ? hcp.getParentId() : hcp.getId(), paginationOffset, filterValue, new Sorting(null, sortDirection));
 
 	    if (patients != null) {
 		    response = buildPaginatedListResponse(patients);
@@ -312,11 +313,10 @@ public class PatientFacade implements OpenApiFacade{
 			limit);
 
 		HealthcareParty hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId());
-		PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcp.getParentId() != null ? hcp.getParentId() : hcp.getId(), paginationOffset, null, new Sorting(sortField, sortDirection));
+		PaginatedList<Patient> patients = patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(!StringUtils.isEmpty(hcp.getParentId()) ? hcp.getParentId() : hcp.getId(), paginationOffset, null, new Sorting(sortField, sortDirection));
 
 		if (patients != null) {
 			response = buildPaginatedListResponse(patients);
-
 		} else {
 			response = ResponseUtils.internalServerError("Listing patients failed.");
 		}
@@ -918,7 +918,7 @@ public class PatientFacade implements OpenApiFacade{
       response = ResponseUtils.ok(paginatedPatientDtoList);
       return response;
     }
-    
+
     @Context
     public void setMapper(MapperFacade mapper) {
         this.mapper = mapper;

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.CareTeamMember;
 import org.taktik.icure.entities.embed.Episode;
+import org.taktik.icure.entities.embed.Laterality;
 import org.taktik.icure.entities.embed.PlanOfAction;
 import org.taktik.icure.entities.utils.MergeUtil;
 import org.taktik.icure.validation.AutoFix;
@@ -59,14 +60,15 @@ public class HealthElement extends StoredICureDocument {
 
 	protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
+
+    private Laterality laterality;
+
     @Valid
     private List<PlanOfAction> plansOfAction = new ArrayList<>();
     @Valid
     private List<Episode> episodes = new ArrayList<>();
 
     private List<CareTeamMember> careTeam = new java.util.ArrayList<>();
-
-    private String encryptedSelf;
 
 	public HealthElement solveConflictWith(HealthElement other) {
 		super.solveConflictsWith(other);
@@ -199,17 +201,11 @@ public class HealthElement extends StoredICureDocument {
 		this.idService = idService;
 	}
 
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
     public List<CareTeamMember> getCareTeam() { return careTeam; }
 
     public void setCareTeam(List<CareTeamMember> careTeam) { this.careTeam = careTeam; }
+
+    public Laterality getLaterality() { return laterality; }
+
+    public void setLaterality(Laterality laterality) { this.laterality = laterality; }
 }

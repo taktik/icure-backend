@@ -15,8 +15,6 @@ public class ReceiptDto extends IcureDto {
 	private String category;
 	private String subCategory;
 
-	private String encryptedSelf;
-
 	public Map<ReceiptBlobType, String> getAttachmentIds() {
 		return attachmentIds;
 	}
@@ -39,14 +37,6 @@ public class ReceiptDto extends IcureDto {
 
 	public void setDocumentId(String documentId) {
 		this.documentId = documentId;
-	}
-
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
 	}
 
 	public String getCategory() {

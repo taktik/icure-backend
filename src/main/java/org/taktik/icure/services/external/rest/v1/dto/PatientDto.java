@@ -395,15 +395,6 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 		this.warning = warning;
 	}
 
-	private String encryptedSelf;
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
     public List<MedicalHouseContractDto> getMedicalHouseContracts() {
         return medicalHouseContracts;
     }

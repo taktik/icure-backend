@@ -103,13 +103,13 @@ class KmehrExportTest {
                 ContentType()
         )
 
-
+        val language = "fr"
         // Execution
-        val res1 = kmehrExport.createItemWithContent(svc1, idx, cdItem1, contents)
-        val res2 = kmehrExport.createItemWithContent(svc2, idx, cdItem1, contents, "Other Name")
-        val res3 = kmehrExport.createItemWithContent(svc3, idx, cdItem1, contents)
-        val res4 = kmehrExport.createItemWithContent(svc4, idx, cdItem1, contents)
-        val res5 = kmehrExport.createItemWithContent(svc4, idx, cdItem2, contents)
+        val res1 = kmehrExport.createItemWithContent(svc1, idx, cdItem1, contents, language = language)
+        val res2 = kmehrExport.createItemWithContent(svc2, idx, cdItem1, contents, "Other Name", language)
+        val res3 = kmehrExport.createItemWithContent(svc3, idx, cdItem1, contents, language = language)
+        val res4 = kmehrExport.createItemWithContent(svc4, idx, cdItem1, contents, language = language)
+        val res5 = kmehrExport.createItemWithContent(svc4, idx, cdItem2, contents, language = language)
 
         // Tests
         Assert.assertNotNull(res1)

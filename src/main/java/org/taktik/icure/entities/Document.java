@@ -191,17 +191,6 @@ public class Document extends StoredICureDocument implements Serializable {
 		this.documentStatus = documentStatus;
 	}
 
-	private String encryptedSelf;
-	@Override
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	@Override
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
     public DocumentLocation getDocumentLocation() {
         return documentLocation;
     }

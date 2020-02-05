@@ -24,12 +24,16 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.HealthElement
@@ -51,6 +55,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePar
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import org.taktik.icure.utils.ResponseUtils
+import java.time.Instant
 import java.util.stream.Collectors
 import javax.ws.rs.Consumes
 import javax.ws.rs.POST
@@ -79,12 +84,23 @@ class KmehrFacade(
         val patientLogic: PatientLogic,
         val documentLogic: DocumentLogic
 ) : OpenApiFacade {
+
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
+
+
     @ApiOperation(value = "Generate diarynote", httpMethod = "POST", notes = "")
     @POST
     @Path("/diarynote/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateDiaryNote(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: DiaryNoteExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null) })
+        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null, Config(_kmehrId = System.currentTimeMillis().toString(),
+                date = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                time = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                clinicalSummaryType = "",
+                defaultLanguage = "en"
+        )) })
     }
 
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
@@ -92,7 +108,18 @@ class KmehrFacade(
     @Path("/sumehr/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateSumehr(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV1.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false,  null) })
+        return ResponseUtils.ok(StreamingOutput { output ->
+            sumehrLogicV1.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
+                    ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
+                    Config(_kmehrId = System.currentTimeMillis().toString(),
+                            date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                            time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                            soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                            clinicalSummaryType = "",
+                            defaultLanguage = "en",
+                            format = Config.Format.SUMEHR
+                    ))
+        })
     }
 
 	@ApiOperation(value = "Validate sumehr", httpMethod = "POST", notes = "")
@@ -101,7 +128,18 @@ class KmehrFacade(
     @Produces("application/octet-stream")
     fun validateSumehr(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto
 	): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV1.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) } as StreamingOutput)
+        return ResponseUtils.ok(StreamingOutput { output ->
+            sumehrLogicV1.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
+                    ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
+                    Config(_kmehrId = System.currentTimeMillis().toString(),
+                            date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                            time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                            soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                            clinicalSummaryType = "",
+                            defaultLanguage = "en",
+                            format = Config.Format.SUMEHR
+                    ))
+        })
     }
 
 	@ApiOperation(value = "Get sumehr elements", response = SumehrContentDto::class, httpMethod = "POST", notes = "")
@@ -127,7 +165,7 @@ class KmehrFacade(
     @POST
     @Path("/sumehr/{patientId}/valid")
     fun isSumehrValid(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV1.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, false).name)))
+        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV1.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name)))
     }
 
     @ApiOperation(value = "Generate sumehr", httpMethod = "POST", notes = "")
@@ -135,7 +173,15 @@ class KmehrFacade(
     @Path("/sumehrv2/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateSumehrV2(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) })
+        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.createSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                        date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                        soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                        clinicalSummaryType = "",
+                        defaultLanguage = "en",
+                        format = Config.Format.SUMEHR
+                )) })
     }
 
     @ApiOperation(value = "Validate sumehr", httpMethod = "POST", notes = "")
@@ -143,7 +189,15 @@ class KmehrFacade(
     @Path("/sumehrv2/{patientId}/validate")
     @Produces("application/octet-stream")
     fun validateSumehrV2(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null) } as StreamingOutput)
+        return ResponseUtils.ok(StreamingOutput { output -> sumehrLogicV2.validateSumehr(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
+                Config(_kmehrId = System.currentTimeMillis().toString(),
+                        date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                        soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                        clinicalSummaryType = "",
+                        defaultLanguage = "en",
+                        format = Config.Format.SUMEHR
+                )) } as StreamingOutput)
     }
 
     @ApiOperation(value = "Get sumehr elements", response = SumehrContentDto::class, httpMethod = "POST", notes = "")
@@ -170,7 +224,7 @@ class KmehrFacade(
     @POST
     @Path("/sumehrv2/{patientId}/valid")
     fun isSumehrV2Valid(@PathParam("patientId") patientId: String, info: SumehrExportInfoDto): Response {
-        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV2.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false).name)))
+        return ResponseUtils.ok(SumehrValidityDto(SumehrStatus.valueOf(sumehrLogicV2.isSumehrValid(sessionLogic.currentSessionContext.user.healthcarePartyId, patientLogic.getPatient(patientId), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation ?: false, mapServices(info.services), mapHealthElements(info.healthElements)).name)))
     }
 
     @ApiOperation(value = "Get SMF (Software Medical File) export")
@@ -186,15 +240,15 @@ class KmehrFacade(
 	@POST
 	@Path("/medicationscheme/{patientId}/export")
 	@Produces("application/octet-stream")
-	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("version") recipientSafe: String, @QueryParam("version") version: Int, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
+	fun generateMedicationSchemeExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?, @QueryParam("recipientSafe") recipientSafe: String, @QueryParam("version") version: Int, medicationSchemeExportParams: MedicationSchemeExportInfoDto) : Response {
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
 
-		return if (medicationSchemeExportParams?.services?.isEmpty() == true)
-            ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", recipientSafe, version, null, null) })
-        else
+		return if (medicationSchemeExportParams.services?.isNotEmpty() == true)
             ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), userHealthCareParty, language ?: "fr", recipientSafe, version, medicationSchemeExportParams.services!!.map {
                 s -> mapper.map(s, Service::class.java) as Service
             }, null) })
+        else
+            ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", recipientSafe, version, null, null) })
 	}
 
     @ApiOperation(value = "Get Kmehr contactreport")
@@ -333,4 +387,10 @@ class KmehrFacade(
                 mappings ?: HashMap(),
                 dryRun != true).map {mapper.map(it, ImportResultDto::class.java)})
 	}
+
+    private fun mapServices(services: List<ServiceDto>?) =
+            services?.map { s -> mapper.map(s, Service::class.java) as Service }
+
+    private fun mapHealthElements(healthElements: List<HealthElementDto>?) =
+            healthElements?.map { s -> mapper.map(s, HealthElement::class.java) as HealthElement }
 }

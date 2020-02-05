@@ -4,6 +4,8 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Duration
 import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.utils.FuzzyValues
@@ -11,18 +13,19 @@ import java.math.BigDecimal
 import java.time.temporal.ChronoUnit
 
 object KmehrPrescriptionHelper {
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?): Period? {
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
         if (intakes == null) {
             return null
         }
         intakes.forEach { assertValidRegimen(it) }
         return when (intakes.size) {
-            0 -> null
+            0 -> inferPeriodFromFrequency(frequency)
             1 -> intakes[0].let { intake -> if (isDaily(intake)) {
                 Period(ChronoUnit.DAYS, 1)
             } else if (intake.weekday?.weekday?.code != null && intake.weekday?.weekNumber == null && intake.weekday?.weekday?.type == "CD-WEEKDAY") {
                 Period(ChronoUnit.WEEKS, 1)
-            } else null}
+                } else inferPeriodFromFrequency(frequency)
+            }
             else -> when (getCommonField(intakes)) {
                 "date" -> getPeriodByDate(intakes)
                 "dayNumber" -> getPeriodByDayNumber(intakes)
@@ -31,8 +34,70 @@ object KmehrPrescriptionHelper {
                         ChronoUnit.DAYS,
                         1
                 ) // not looking into the intake hours: currently supporting >= DAYS (see precisionBelowDaysNotSupportedDaily test)
-                else -> null
+                else -> inferPeriodFromFrequency(frequency)
             }
+        }
+    }
+
+    fun inferPeriodFromFrequency(frequency: Code?): Period? {
+        return when (frequency?.code) {
+            "UH" -> Period(ChronoUnit.MINUTES, 30)
+            "U" -> Period(ChronoUnit.HOURS, 1)
+            "UT" -> Period(ChronoUnit.HOURS, 2)
+            "UD" -> Period(ChronoUnit.HOURS, 3)
+            "UV" -> Period(ChronoUnit.HOURS, 4)
+            "UQ" -> Period(ChronoUnit.HOURS, 5)
+            "UZ" -> Period(ChronoUnit.HOURS, 6)
+            "US" -> Period(ChronoUnit.HOURS, 7)
+            "UA" -> Period(ChronoUnit.HOURS, 8)
+            "UN" -> Period(ChronoUnit.HOURS, 9)
+            "UX" -> Period(ChronoUnit.HOURS, 10)
+            "UE" -> Period(ChronoUnit.HOURS, 11)
+            "UW" -> Period(ChronoUnit.HOURS, 12)
+            "D" -> Period(ChronoUnit.DAYS, 1)
+            "DT" -> Period(ChronoUnit.DAYS, 2)
+            "DD" -> Period(ChronoUnit.DAYS, 3)
+            "DV" -> Period(ChronoUnit.DAYS, 4)
+            "DQ" -> Period(ChronoUnit.DAYS, 5)
+            "DZ" -> Period(ChronoUnit.DAYS, 6)
+            "W" -> Period(ChronoUnit.WEEKS, 1)
+            "DA" -> Period(ChronoUnit.DAYS, 8)
+            "DN" -> Period(ChronoUnit.DAYS, 9)
+            "DX" -> Period(ChronoUnit.DAYS, 10)
+            "DE" -> Period(ChronoUnit.DAYS, 11)
+            "DW" -> Period(ChronoUnit.DAYS, 12)
+            "WT" -> Period(ChronoUnit.WEEKS, 2)
+            "WD" -> Period(ChronoUnit.WEEKS, 3)
+            "WV" -> Period(ChronoUnit.WEEKS, 4)
+            "M" -> Period(ChronoUnit.MONTHS, 1)
+            "WQ" -> Period(ChronoUnit.WEEKS, 5)
+            "WZ" -> Period(ChronoUnit.WEEKS, 6)
+            "WS" -> Period(ChronoUnit.WEEKS, 7)
+            "WA" -> Period(ChronoUnit.WEEKS, 8)
+            "MT" -> Period(ChronoUnit.MONTHS, 2)
+            "WN" -> Period(ChronoUnit.WEEKS, 9)
+            "WX" -> Period(ChronoUnit.WEEKS, 10)
+            "WE" -> Period(ChronoUnit.WEEKS, 11)
+            "WW" -> Period(ChronoUnit.WEEKS, 12)
+            "MD" -> Period(ChronoUnit.MONTHS, 3)
+            "MV" -> Period(ChronoUnit.MONTHS, 4)
+            "MQ" -> Period(ChronoUnit.MONTHS, 5)
+            "WP" -> Period(ChronoUnit.WEEKS, 24)
+            "JH2" -> Period(ChronoUnit.DAYS, 183)
+            "MZ2" -> Period(ChronoUnit.MONTHS, 6)
+            "MS" -> Period(ChronoUnit.MONTHS, 7)
+            "MA" -> Period(ChronoUnit.MONTHS, 8)
+            "MN" -> Period(ChronoUnit.MONTHS, 9)
+            "MX" -> Period(ChronoUnit.MONTHS, 10)
+            "ME" -> Period(ChronoUnit.MONTHS, 11)
+            "J" -> Period(ChronoUnit.YEARS, 1)
+            "MC" -> Period(ChronoUnit.MONTHS, 18)
+            "JT" -> Period(ChronoUnit.YEARS, 2)
+            "JD" -> Period(ChronoUnit.YEARS, 3)
+            "JV" -> Period(ChronoUnit.YEARS, 4)
+            "JQ" -> Period(ChronoUnit.YEARS, 5)
+            "JZ" -> Period(ChronoUnit.YEARS, 6)
+            else -> null
         }
     }
 

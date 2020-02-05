@@ -22,35 +22,22 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+import org.taktik.icure.entities.HealthElement;
+import org.taktik.icure.entities.embed.Service;
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto;
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto;
 
-public class SumehrExportInfoDto implements Serializable {
-	List<String> secretForeignKeys;
-	List<String> excludedIds;
-	HealthcarePartyDto recipient;
-	String comment;
-	Boolean includeIrrelevantInformation;
+public class SumehrExportInfoDto extends ExportInfoDto implements Serializable {
+    private String comment;
+	private Boolean includeIrrelevantInformation;
+    @Nullable
+    public List<ServiceDto> services;
+    @Nullable
+    public List<HealthElementDto> healthElements;
 
-	public List<String> getSecretForeignKeys() {
-		return secretForeignKeys;
-	}
-
-	public void setSecretForeignKeys(List<String> secretForeignKeys) {
-		this.secretForeignKeys = secretForeignKeys;
-	}
-
-	public List<String> getExcludedIds() {
-		if(excludedIds != null)
-			return excludedIds;
-		else
-			return new ArrayList<>();
-	}
-
-	public void setExcludedIds(List<String> excludedIds) {
-		this.excludedIds = excludedIds;
-	}
-
-	public String getComment() {
+    public String getComment() {
 		return comment;
 	}
 
@@ -58,13 +45,22 @@ public class SumehrExportInfoDto implements Serializable {
 		this.comment = comment;
 	}
 
-	public HealthcarePartyDto getRecipient() {
-		return recipient;
-	}
+    public List<ServiceDto> getServices() {
+        return services;
+    }
 
-	public void setRecipient(HealthcarePartyDto recipient) {
-		this.recipient = recipient;
-	}
+    public void setServices(@Nullable List<ServiceDto> services) {
+        this.services = services;
+    }
+
+    @Nullable
+    public List<HealthElementDto> getHealthElements() {
+        return healthElements;
+    }
+
+    public void setHealthElements(@Nullable List<HealthElementDto> healthElements) {
+        this.healthElements = healthElements;
+    }
 
     public Boolean getIncludeIrrelevantInformation() {
         return includeIrrelevantInformation;
