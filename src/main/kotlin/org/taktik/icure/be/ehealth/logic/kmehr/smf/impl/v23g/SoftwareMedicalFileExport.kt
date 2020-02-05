@@ -226,7 +226,10 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
             // newestServicesById should point to decrypted services
             contact.services.toList().forEach {
-                svc -> newestServicesById[svc.id!!] = svc
+                svc ->
+                    if (newestServicesById.containsKey(svc.id) && compareValues(svc.modified, newestServicesById[svc.id]?.modified) == 0) {
+                        newestServicesById[svc.id!!] = svc
+                    }
             }
 
 			folder.transactions.add(
@@ -273,7 +276,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 												when(it.guid) {
 													"FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" ->  { // ITT
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)} // remove form services from main list
-														trn.headingsAndItemsAndTexts.add( makeIncapacityItem(contact, subcon, form) )
+														trn.headingsAndItemsAndTexts.add( makeIncapacityItem
+                                                        (contact, subcon, form) )
 													}
 													"AEFED10A-9A72-4B40-981B-1D79ADB05516" ->  { // Prescription Kine
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)}
