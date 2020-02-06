@@ -18,15 +18,39 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers
 
+import com.squareup.moshi.Moshi
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.reactor.ReactorContext
+import kotlinx.coroutines.reactor.asCoroutineContext
+import kotlinx.coroutines.withContext
 import ma.glasnost.orika.MapperFacade
-import org.springframework.web.bind.annotation.*
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.WebSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
 import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.nio.CharBuffer
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
 
+
+@ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/auth")
 @Api(tags = ["auth"])
@@ -34,15 +58,34 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
 
     @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
     @PostMapping("/login")
-    suspend fun login(@RequestBody loginInfo: LoginCredentials): AuthenticationResponse {
-        val response = AuthenticationResponse()
-        val sessionContext = sessionLogic.login(loginInfo.username, loginInfo.password)
-        response.isSuccessful = sessionContext != null && sessionContext.isAuthenticated()
-        if (response.isSuccessful) {
-            response.healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            response.username = loginInfo.username
+    suspend fun login(request : ServerHttpRequest, session: WebSession): AuthenticationResponse {
+        val body: Flux<DataBuffer> = request.body
+        val bodyRef = AtomicReference<String>()
+        body.subscribe { buffer: DataBuffer ->
+            val charBuffer: CharBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer())
+            DataBufferUtils.release(buffer)
+            bodyRef.set(charBuffer.toString())
         }
-        return mapper.map(response, AuthenticationResponse::class.java)
+
+        return withContext(Dispatchers.Default) {
+            val loginInfo = Moshi.Builder().build().adapter(LoginCredentials::class.java).fromJson(bodyRef.get())
+            return@withContext loginInfo?.let {
+                val response = AuthenticationResponse()
+                val authentication = sessionLogic.login(loginInfo.username, loginInfo.password, request, session)
+                response.isSuccessful = authentication != null && authentication.isAuthenticated
+                if (response.isSuccessful) {
+                    val secContext =  SecurityContextImpl(authentication)
+                    val securityContext = kotlin.coroutines.coroutineContext[ReactorContext]?.context?.put(SecurityContext::class.java, Mono.just(secContext))
+                    withContext(kotlin.coroutines.coroutineContext.plus(securityContext?.asCoroutineContext() as CoroutineContext)){
+                        response.healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
+                        response.username = loginInfo.username
+
+                        session.attributes["SPRING_SECURITY_CONTEXT"] = secContext
+                    }
+                }
+                mapper.map(response, AuthenticationResponse::class.java)
+            } ?: throw BadCredentialsException("bad credentials")
+        }
     }
 
     @ApiOperation(nickname = "logout", value = "logout", notes = "Logout")
