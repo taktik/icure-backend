@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.toList
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.CacheManager
+
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
@@ -31,13 +31,14 @@ import org.taktik.icure.asyncdao.EntityTemplateDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.EntityTemplate
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinctById
 import java.net.URI
 
 @Repository("entityTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityTemplate' && !doc.deleted) emit( null, doc._id )}")
-class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<EntityTemplate>(EntityTemplate::class.java, couchDbDispatcher, idGenerator, cacheManager), EntityTemplateDAO {
+class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<EntityTemplate>(EntityTemplate::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager), EntityTemplateDAO {
 
     @View(name = "by_user_type_descr", map = "classpath:js/entitytemplate/By_user_type_descr.js")
     override suspend fun getByUserIdTypeDescr(dbInstanceUrl: URI, groupId: String, userId: String, type: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {

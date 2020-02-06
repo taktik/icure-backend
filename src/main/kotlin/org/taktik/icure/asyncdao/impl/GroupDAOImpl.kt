@@ -29,7 +29,7 @@ import org.ektorp.support.View
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.Cache
-import org.springframework.cache.CacheManager
+
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.queryView
@@ -38,6 +38,7 @@ import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Group
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.getFullId
 import java.net.URI
 
@@ -45,8 +46,8 @@ import java.net.URI
 @FlowPreview
 @Repository("groupDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Group' && !doc.deleted) emit( null, doc._id )}")
-class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configCouchDbDispatcher") val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") final val cacheManager: CacheManager) : GroupDAO {
-    private val cache: Cache = cacheManager.getCache(Group::class.java.name)
+class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configCouchDbDispatcher") val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator, @Qualifier("asyncCacheManager") final val AsyncCacheManager: AsyncCacheManager) : GroupDAO {
+    private val cache = AsyncCacheManager.getCache<String, Group>(Group::class.java.name)
             ?: throw UnsupportedOperationException("No cache found for: ${Group::class.java.name}")
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -63,7 +64,7 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
                     }
                     batch.clear()
                 }
-                val o = value.get() as Group?
+                val o = value
                 if (o != null) {
                     log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
                     emit(o)

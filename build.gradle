@@ -231,8 +231,8 @@ dependencies {
     compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
 
 	//Cloud version
-    compile group: 'com.hazelcast', name: 'hazelcast', version: '4.0-BETA-2'
-	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '4.0-BETA-2'
+    compile group: 'com.hazelcast', name: 'hazelcast', version: '4.0'
+	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '4.0'
     compile group: 'com.hazelcast', name: 'hazelcast-kubernetes', version: '2.0'
 
 	// Runtime

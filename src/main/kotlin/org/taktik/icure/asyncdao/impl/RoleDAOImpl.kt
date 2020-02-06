@@ -21,19 +21,20 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.flow.map
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.CacheManager
+
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Role
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 
 @Repository("roleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted) emit( null, doc._id )}")
-class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Role>(Role::class.java, couchDbDispatcher, idGenerator, cacheManager), RoleDAO {
+class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Role>(Role::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager), RoleDAO {
 
     @View(name = "by_name", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted && doc.name) {\n" +

@@ -39,6 +39,7 @@ import org.taktik.icure.asyncdao.replicator.Replicator
 import org.taktik.icure.asyncdao.replicator.ReplicationManager
 import org.taktik.icure.asyncdao.replicator.UserReplicator
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.spring.asynccache.AsyncHazelCastCacheManager
 
 @Configuration
 class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
@@ -53,7 +54,7 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
             .url(couchDbProperties.url)
             .build())
 
-    @Bean fun entitiesCacheManager(hazelcastInstance: HazelcastInstance) = HazelcastCacheManager(hazelcastInstance)
+    @Bean fun asyncCacheManager(hazelcastInstance: HazelcastInstance) = AsyncHazelCastCacheManager(hazelcastInstance)
 
     @Bean fun sslContextFactory() = SslContextFactory()
     @Bean fun userReplicator(couchDbProperties: CouchDbProperties, sslContextFactory: SslContextFactory, userDAO: UserDAO) = UserReplicator(couchDbProperties, sslContextFactory, userDAO)
