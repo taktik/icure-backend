@@ -23,6 +23,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.ReactorContext
 import org.slf4j.LoggerFactory
+import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import org.springframework.web.server.WebSession
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.constants.PropertyTypes
@@ -67,30 +69,37 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         return null
     }
 
-    override suspend fun login(username: String, password: String): AsyncSessionLogic.AsyncSessionContext? {
+    override suspend fun login(username: String, password: String, request : ServerHttpRequest, session: WebSession): Authentication? {
         try {
-            // Try to authenticate using given username and password
             val token = UsernamePasswordAuthenticationToken(username, password)
             val authentication = authenticationManager.authenticate(token).awaitFirstOrNull()
-
-            // Set current authentication
-            setCurrentAuthentication(authentication)
-
-            // Check if authentication succeeded
-            if (authentication != null && authentication.isAuthenticated) {
-                var httpRequest: HttpServletRequest? = null
-                val requestAttributes = RequestContextHolder.getRequestAttributes()
-                if (requestAttributes is ServletRequestAttributes) {
-                    httpRequest = requestAttributes.request
-                }
-            }
-            return getSessionContext(authentication)
+            session.attributes[SESSION_LOCALE_ATTRIBUTE] = "fr" // TODO MB : add locale support
+            return authentication
         } catch (e: AuthenticationException) {
             // Ignore
         }
 
         return null
     }
+
+//    fun onAuthenticationSuccess(httpRequest: ServerHttpRequest, authentication: Authentication) {
+//		// Get UserDetails
+//		val userDetails = extractUserDetails(authentication);
+//		if (userDetails != null) {
+//			// Get user if any
+//			val permissionSetIdentifier = userDetails.getPermissionSetIdentifier();
+//			val userId = permissionSetIdentifier?.getPrincipalIdOfClass(User::class.java)
+//			val user : User?
+//            user?.let {
+//                val authLocale = userDetails.getLocale();
+//
+//                // Determine locale and save it
+//                httpRequest.
+//                val locale = determineLocale(user, httpRequest, authLocale);
+//                httpRequest.getSession().setAttribute(SESSION_LOCALE_ATTRIBUTE, locale);
+//            }
+//		}
+//	}
 
     override suspend fun logout() {
         // Remove current session context
@@ -193,6 +202,8 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
     }
 
     companion object {
+        val SESSION_LOCALE_ATTRIBUTE = "locale";
+
         private val log = LoggerFactory.getLogger(AsyncSessionLogicImpl::class.java)
 
         /* Static methods */

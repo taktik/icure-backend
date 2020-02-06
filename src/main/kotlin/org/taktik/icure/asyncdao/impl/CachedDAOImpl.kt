@@ -18,9 +18,11 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import com.hazelcast.spring.cache.HazelcastCache
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.Validate
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
@@ -221,8 +223,9 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             cache.evict(fullId)
             throw e
         }
-
-        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), savedEntity)
+        val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
+        // TODO MB ask here
+       putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
         return entity
     }
 

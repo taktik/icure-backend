@@ -1,6 +1,8 @@
 package org.taktik.icure.asynclogic
 
+import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.core.Authentication
+import org.springframework.web.server.WebSession
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.UserDetails
 import java.net.URI
@@ -10,7 +12,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
 
 interface AsyncSessionLogic {
-    suspend fun login(username: String, password: String): AsyncSessionContext?
+    suspend fun login(username: String, password: String, request : ServerHttpRequest, session: WebSession): Authentication?
 
     suspend fun logout()
 

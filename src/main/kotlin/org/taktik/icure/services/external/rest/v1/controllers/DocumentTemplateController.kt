@@ -128,7 +128,6 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     @PostMapping
     suspend fun createDocumentTemplate(@RequestBody ft: DocumentTemplateDto): DocumentTemplateDto {
         val documentTemplate = documentTemplateLogic.createDocumentTemplate(mapper.map(ft, DocumentTemplate::class.java))
-                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document Template creation failed")
         return mapper.map(documentTemplate, DocumentTemplateDto::class.java)
     }
 
