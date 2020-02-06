@@ -18,14 +18,12 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.hazelcast.spring.cache.HazelcastCache
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import org.apache.commons.lang3.Validate
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
-
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
@@ -58,14 +56,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                     }
                     batch.clear()
                 }
-                val o = value
-                if (o != null) {
-                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-                    emit(o)
-                } else {
-                    log.trace("Cache HIT  = {}, Null value", fullId)
-                }
+                log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+                emit(value)
             } else {
+                log.trace("Cache HIT  = {}, Null value", fullId)
                 batch.add(id)
             }
         }
@@ -77,62 +71,52 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-//    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>): Flow<T> {
-//        val missingKeys = mutableListOf<String>()
-//        val cachedKeys = mutableListOf<Pair<String, T>>()
-//
-//        // Get cached values
-//        for (id in ids) {
-//            val fullId = getFullId(dbInstanceUrl, groupId, id)
-//            val value = cache.get(fullId)
-//
-//            if (value != null) {
-//                val o = value
-//                if (o != null) {
-//                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-//                    cachedKeys.add(Pair(id, o))
-//                } else {
-//                    log.trace("Cache HIT  = {}, Null value", fullId)
-//                }
-//            } else {
-//                log.debug("Cache MISS = {}", fullId)
-//                missingKeys.add(id)
-//            }
-//        }
-//
-//        if (missingKeys.isEmpty()) {
-//            return cachedKeys.map { it.second }.asFlow()
-//        } else {
-//            return flow {
-//                // Get missing values from storage
-//                val entities = super.getList(dbInstanceUrl, groupId, missingKeys).filter { Objects.nonNull(it) }
-//                // Interleave missing and cached values to preserve original ordering
-//                var currentIndex = 0 // index of current element in [ids]
-//                var currentCachedIndex = 0 // index of current element in [cachedKeys]
-//                entities.collect { e ->
-//                    // if [e] doesn't match current element, it means it's cached
-//                    // The 2 first conditions should never match, but will avoid IndexOutOfBoundExceptions in case of odd data.
-//                    while (currentIndex < ids.size && currentCachedIndex < cachedKeys.size && e.id != ids.elementAt(currentIndex)) {
-//                        emit(cachedKeys[currentCachedIndex].second)
-//                        currentIndex++
-//                        currentCachedIndex++
-//                    }
-//                    // We are finally on [e], cache and emit it, and process next flow element
-//                    val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(e))
-//                    log.debug("Cache SAVE = {}, {} - {}", fullId, e.id, e.rev)
-//                    cache.put(fullId, e)
-//
-//                    emit(e)
-//                    currentIndex++
-//                }
-//                while (currentCachedIndex < cachedKeys.size) {
-//                    emit(cachedKeys[currentCachedIndex].second)
-//                    currentCachedIndex++
-//                    currentIndex++
-//                }
-//            }
-//        }
-//    }
+    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>) = flow<T> {
+        val missingKeys = mutableListOf<String>()
+        val cachedKeys = mutableListOf<Pair<String, T>>()
+
+        // Get cached values
+        for (id in ids) {
+            val fullId = getFullId(dbInstanceUrl, groupId, id)
+            val value = cache.get(fullId)
+            value?.let {
+                log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+                cachedKeys.add(Pair(id, value))
+            } ?: log.debug("Cache MISS = {}", fullId).also { missingKeys.add(id) }
+
+        }
+
+        if (missingKeys.isEmpty()) {
+            emitAll(cachedKeys.map { it.second }.asFlow())
+        } else {
+                // Get missing values from storage
+                val entities = super.getList(dbInstanceUrl, groupId, missingKeys).filter { Objects.nonNull(it) }
+                // Interleave missing and cached values to preserve original ordering
+                var currentIndex = 0 // index of current element in [ids]
+                var currentCachedIndex = 0 // index of current element in [cachedKeys]
+                entities.collect { e ->
+                    // if [e] doesn't match current element, it means it's cached
+                    // The 2 first conditions should never match, but will avoid IndexOutOfBoundExceptions in case of odd data.
+                    while (currentIndex < ids.size && currentCachedIndex < cachedKeys.size && e.id != ids.elementAt(currentIndex)) {
+                        emit(cachedKeys[currentCachedIndex].second)
+                        currentIndex++
+                        currentCachedIndex++
+                    }
+                    // We are finally on [e], cache and emit it, and process next flow element
+                    val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(e))
+                    log.debug("Cache SAVE = {}, {} - {}", fullId, e.id, e.rev)
+                    cache.put(fullId, e)
+
+                    emit(e)
+                    currentIndex++
+                }
+                while (currentCachedIndex < cachedKeys.size) {
+                    emit(cachedKeys[currentCachedIndex].second)
+                    currentCachedIndex++
+                    currentIndex++
+                }
+        }
+    }
 
     override suspend fun get(dbInstanceUrl: URI, groupId: String, id: String, vararg options: Option): T? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
@@ -146,15 +130,11 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                 log.debug("Cache Save  = {}, Null value", fullId)
             }
             e?.let { cache.put(fullId, e) }
+            log.trace("Cache HIT  = {}, Null value", fullId)
             return e
         } else {
-            val o = value
-            if (o != null) {
-                log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-            } else {
-                log.trace("Cache HIT  = {}, Null value", fullId)
-            }
-            return o
+            log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+            return value
         }
     }
 
@@ -165,13 +145,8 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             log.debug("Cache MISS = {}", fullId)
             null
         } else {
-            val o = value
-            if (o != null) {
-                log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-            } else {
-                log.trace("Cache HIT  = {}, Null value", fullId)
-            }
-            o
+            log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+            value
         }
     }
 
