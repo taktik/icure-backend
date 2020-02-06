@@ -12,6 +12,6 @@ interface PropertyTypeDAO: GenericDAO<PropertyType> {
             "}")
     suspend fun getByIdentifier(dbInstanceUrl: URI, groupId: String, propertyTypeIdentifier: String): PropertyType?
 
-    fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: PropertyType)
-    fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, entity: PropertyType)
+    suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: PropertyType)
+    suspend fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, entity: PropertyType)
 }

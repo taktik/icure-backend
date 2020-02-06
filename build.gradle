@@ -41,11 +41,11 @@ configure(allprojects) {
     apply plugin: 'propdeps-eclipse'
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_11
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
@@ -59,7 +59,7 @@ compileJava {
 compileTestKotlin {
     kotlinOptions {
         freeCompilerArgs = ["-Xjsr305=strict"]
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
@@ -235,6 +235,7 @@ dependencies {
 	compile group: 'com.hazelcast', name: 'hazelcast-spring'
     compile group: 'com.hazelcast', name: 'hazelcast-kubernetes', version: '1.3'
 
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
 
 	// Runtime
 	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'

@@ -20,6 +20,7 @@ import org.ektorp.http.URI
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
 import org.taktik.icure.dao.Option
+import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
 import org.taktik.jetty.getResponseBytesFlow
@@ -51,7 +52,7 @@ class DesignDocument(
         val filters: Map<String, String>
 ) : CouchDbDocument {
     @Json(name = "rev_history")
-    override fun getRevHistory()= _revHistory
+    override fun getRevHistory() = _revHistory
 
     @Json(name = "_rev")
     override fun setRev(rev: String?) {
@@ -78,6 +79,7 @@ class DatabaseCompactionTask(
         val databaseName: String?,
         val totalChanges: Long,
         val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+
 @Suppress("unused")
 class Indexer(
         pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
@@ -85,6 +87,7 @@ class Indexer(
         val designDocumentId: String?,
         val totalChanges: Long,
         val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+
 @Suppress("unused")
 class ReplicationTask(
         pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
@@ -144,7 +147,7 @@ data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, ove
 private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
 private data class BulkDeleteRequest(val docs: Collection<DeleteRequest>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
 
-data class DeleteRequest(@Json(name = "_id") val id: String, @Json(name = "_id") val rev: String?, @Json(name = "_deleted") val deleted: Boolean = true )
+data class DeleteRequest(@Json(name = "_id") val id: String, @Json(name = "_id") val rev: String?, @Json(name = "_deleted") val deleted: Boolean = true)
 data class BulkUpdateResult(val id: String, val rev: String, val ok: Boolean?, val error: String?, val reason: String?)
 data class DocIdentifier(val id: String, val rev: String)
 
@@ -189,6 +192,7 @@ interface Client {
 
     // CRUD methods
     suspend fun <T : CouchDbDocument> get(id: String, clazz: Class<T>, vararg options: Option): T?
+
     suspend fun <T : CouchDbDocument> get(id: String, rev: String, clazz: Class<T>, vararg options: Option): T?
     fun <T : CouchDbDocument> get(ids: Collection<String>, clazz: Class<T>): Flow<T>
     fun <T : CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent>
@@ -202,12 +206,16 @@ interface Client {
     fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult>
     // Query
     fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
+
     // Changes observing
     fun <T : CouchDbDocument> subscribeForChanges(clazz: Class<T>, since: String = "now", initialBackOffDelay: Long = 100, backOffFactor: Int = 2, maxDelay: Long = 10000): Flow<Change<T>>
+
     fun <T : CouchDbDocument> get(ids: Flow<String>, clazz: Class<T>): Flow<T>
     fun <T : CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent>
 
     suspend fun activeTasks(): List<ActiveTask>
+    suspend fun create(q: Int?, n: Int?): Boolean
+    suspend fun security(security: Security): Boolean
 }
 
 private const val NOT_FOUND_ERROR = "not_found"
@@ -226,11 +234,30 @@ class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
                  private val password: String,
-                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).add(Base64Adapter()).add(SortedSetAdapterFactory()).build()) : Client {
+                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).add(Base64Adapter()).add(SortedSetAdapterFactory()).build()
+) : Client {
     private val log = LoggerFactory.getLogger(javaClass.name)
     // Create a copy and set to prototype to avoid unwanted mutation
     // (the URI class is mutable)
     private val dbURI = URI.prototype(dbURI.toString())
+
+    override suspend fun create(q: Int?, n: Int?): Boolean {
+        val request = newRequest(dbURI.let { q?.let { q -> it.param("q",q) } ?: it }.let { n?.let { n -> it.param("n",n) } ?: it }, "", HttpMethod.PUT)
+        val result = request
+                .timeout(5, TimeUnit.SECONDS)
+                .getCouchDbResponse<Map<String, *>?>(true)
+        return result?.get("ok") == true
+    }
+
+    override suspend fun security(security: Security): Boolean {
+        val doc = moshi.adapter<Security>(Security::class.java).toJson(security)
+
+        val request = newRequest(dbURI.append("_security"), doc, HttpMethod.PUT)
+        val result = request
+                .timeout(5, TimeUnit.SECONDS)
+                .getCouchDbResponse<Map<String, *>?>(true)
+        return result?.get("ok") == true
+    }
 
     override suspend fun exists(): Boolean {
         val request = newRequest(dbURI)
@@ -242,7 +269,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     override suspend fun <T : CouchDbDocument> get(id: String, clazz: Class<T>, vararg options: Option): T? {
         require(id.isNotBlank()) { "Id cannot be blank" }
-        val uri = dbURI.append(id).apply { params(options.map { Pair<String,String>(it.paramName(), "true") }.toMap()) }
+        val uri = dbURI.append(id).apply { params(options.map { Pair<String, String>(it.paramName(), "true") }.toMap()) }
         val request = newRequest(uri)
         return request.getCouchDbResponse(clazz, nullIf404 = true)
     }
@@ -250,7 +277,7 @@ class ClientImpl(private val httpClient: HttpClient,
     override suspend fun <T : CouchDbDocument> get(id: String, rev: String, clazz: Class<T>, vararg options: Option): T? {
         require(id.isNotBlank()) { "Id cannot be blank" }
         require(rev.isNotBlank()) { "Rev cannot be blank" }
-        val uri = dbURI.append(id).apply { param("rev", rev).params(options.map { Pair<String,String>(it.paramName(), "true") }.toMap()) }
+        val uri = dbURI.append(id).apply { param("rev", rev).params(options.map { Pair<String, String>(it.paramName(), "true") }.toMap()) }
         val request = newRequest(uri)
         return request.getCouchDbResponse(clazz, nullIf404 = true)
     }
@@ -276,7 +303,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     @FlowPreview
     @ExperimentalCoroutinesApi
-    override fun <T: CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
+    override fun <T : CouchDbDocument> getForPagination(ids: Collection<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> {
         val viewQuery = ViewQuery()
                 .allDocs()
                 .includeDocs(true)
@@ -287,7 +314,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     @FlowPreview
     @ExperimentalCoroutinesApi
-    override fun <T: CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> = flow {
+    override fun <T : CouchDbDocument> getForPagination(ids: Flow<String>, clazz: Class<T>): Flow<ViewQueryResultEvent> = flow {
         ids.fold(Pair(persistentListOf<String>(), Triple(0, Integer.MAX_VALUE, 0L)), { acc, id ->
             if (acc.first.size == 100) {
                 getForPagination(acc.first, clazz).fold(Pair(persistentListOf(id), acc.second)) { res, it ->
@@ -314,29 +341,29 @@ class ClientImpl(private val httpClient: HttpClient,
         }).let { remainder ->
             if (remainder.first.isNotEmpty())
                 getForPagination(remainder.first, clazz).fold(remainder.second) { counters, it ->
-                when (it) {
-                    is ViewRowWithDoc<*, *, *> -> {
-                        emit(it)
-                        counters
+                    when (it) {
+                        is ViewRowWithDoc<*, *, *> -> {
+                            emit(it)
+                            counters
+                        }
+                        is TotalCount -> {
+                            Triple(counters.first + it.total, counters.second, counters.third)
+                        }
+                        is Offset -> {
+                            Triple(counters.first, min(counters.second, it.offset), counters.third)
+                        }
+                        is UpdateSequence -> {
+                            Triple(counters.first, counters.second, max(counters.third, it.seq))
+                        }
+                        else -> counters
                     }
-                    is TotalCount -> {
-                        Triple(counters.first + it.total, counters.second, counters.third)
-                    }
-                    is Offset -> {
-                        Triple(counters.first, min(counters.second, it.offset), counters.third)
-                    }
-                    is UpdateSequence -> {
-                        Triple(counters.first, counters.second, max(counters.third, it.seq))
-                    }
-                    else -> counters
-                }
-            } else remainder.second
+                } else remainder.second
         }.let {
             emit(TotalCount(it.first))
-            if (it.second<Integer.MAX_VALUE) {
+            if (it.second < Integer.MAX_VALUE) {
                 emit(Offset(it.second))
             }
-            if (it.third>0L) {
+            if (it.third > 0L) {
                 emit(UpdateSequence(it.third))
             }
         }
@@ -362,7 +389,7 @@ class ClientImpl(private val httpClient: HttpClient,
     }
 
 
-    override suspend fun createAttachment(id: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String  = coroutineScope {
+    override suspend fun createAttachment(id: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String = coroutineScope {
         require(id.isNotBlank()) { "Id cannot be blank" }
         require(attachmentId.isNotBlank()) { "attachmentId cannot be blank" }
         require(rev.isNotBlank()) { "rev cannot be blank" }
@@ -463,7 +490,7 @@ class ClientImpl(private val httpClient: HttpClient,
         coroutineScope {
             val requestAdapter = moshi.adapter<BulkDeleteRequest>(BulkDeleteRequest::class.java)
             val resultAdapter = moshi.adapter<BulkUpdateResult>(BulkUpdateResult::class.java)
-            val updateRequest = BulkDeleteRequest(entities.map {DeleteRequest(it.id, it.rev)})
+            val updateRequest = BulkDeleteRequest(entities.map { DeleteRequest(it.id, it.rev) })
             val uri = dbURI.append("_bulk_docs")
             val request = newRequest(uri, requestAdapter.toJson(updateRequest))
 
@@ -583,7 +610,9 @@ class ClientImpl(private val httpClient: HttpClient,
                                             ViewRowNoDoc(id, key, value)
                                         }
                                         emit(row)
-                                    } ?: if( value is Int) {emit(ViewRowNoDoc("", key, value))} //TODO MB ask if ok here
+                                    } ?: if (value is Int) {
+                                        emit(ViewRowNoDoc("", key, value))
+                                    } //TODO MB ask if ok here
 
                                 }
                             }

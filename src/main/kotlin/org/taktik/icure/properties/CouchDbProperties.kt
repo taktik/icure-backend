@@ -28,6 +28,7 @@ data class CouchDbProperties(
 	var autoUpdateViewOnChange: Boolean  = false,
 	var prefix: String = "",
 	var url:String = "http://127.0.0.1:5984",
+    var altUrls:String = "",
 	var maxConnections:Int = 500,
 	var socketTimeout:Int = 60_000,
 	var username :String? = "icure",
@@ -66,5 +67,7 @@ data class CouchDbProperties(
 			return String(buf)
 		}
 	}.toString()
-)
+) {
+    fun altUrlsList() = if (altUrls.isNullOrBlank()) listOf() else altUrls.split(";")
+}
 

@@ -46,14 +46,6 @@ class CouchDbCloudConfig(val couchDbProperties: CouchDbProperties) {
     @Value("\${icure.couchdb.prefix}")
     private val couchDbPrefix: String? = null
 
-    @Bean fun couchdbInstance() = StdCouchDbInstance(StdHttpClient.Builder()
-            .maxConnections(couchDbProperties.maxConnections)
-            .socketTimeout(couchDbProperties.socketTimeout)
-            .username(couchDbProperties.username)
-            .password(couchDbProperties.password)
-            .url(couchDbProperties.url)
-            .build())
-
     @Bean fun asyncCacheManager(hazelcastInstance: HazelcastInstance) = AsyncHazelCastCacheManager(hazelcastInstance)
 
     @Bean fun sslContextFactory() = SslContextFactory()

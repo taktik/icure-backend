@@ -150,7 +150,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    fun putInCache(dbInstanceUrl: URI, groupId: String?, key: String, value: T?) {
+    suspend fun putInCache(dbInstanceUrl: URI, groupId: String?, key: String, value: T?) {
         val fullId = getFullId(dbInstanceUrl, groupId, key)
         if (value != null) {
             log.debug("Cache SAVE = {}, {} - {}", fullId, value.id, value.rev)
@@ -160,13 +160,13 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         value?.let { cache.put(fullId, value) }
     }
 
-    open fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: T) {
+    open suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: T) {
         val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
         log.debug("Cache EVICT= {}", fullId)
         cache.evict(fullId)
     }
 
-    fun evictFromCache(dbInstanceUrl: URI, groupId: String?, id: String) {
+    suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String?, id: String) {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         log.debug("Cache EVICT= {}", fullId)
         cache.evict(fullId)
@@ -237,7 +237,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> {
+    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> {
         val savedEntities = try {
             super.save(dbInstanceUrl, groupId, newEntity, entities)
         } catch (e: UpdateConflictException) {

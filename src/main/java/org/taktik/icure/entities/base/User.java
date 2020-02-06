@@ -20,14 +20,24 @@ package org.taktik.icure.entities.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.squareup.moshi.Json;
+import org.ektorp.support.CouchDbDocument;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User implements Serializable {
+public class User implements Versionable<String> {
+    @JsonProperty("_id")
+    @Json(name = "_id")
+    String id;
+    @JsonProperty("_rev")
+    @Json(name = "_rev")
+    String rev;
 	String name;
 	String password;
 	String type = "user";
@@ -36,7 +46,8 @@ public class User implements Serializable {
 	public User() {
 	}
 
-	public User(String name, String password) {
+	public User(String id, String name, String password) {
+	    this.id = id;
 		this.name = name;
 		this.password = password;
 	}
@@ -72,4 +83,29 @@ public class User implements Serializable {
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
+
+    @Override
+    public Map<String, String> getRevHistory() {
+        return null;
+    }
+
+    @Override
+    public String getRev() {
+        return rev;
+    }
+
+    @Override
+    public void setRev(String rev) {
+        this.rev = rev;
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public void setId(String id) {
+
+    }
 }

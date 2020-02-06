@@ -54,7 +54,6 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
                             @Override
                             public void onResponse(MapSession response) {
                                 sink.success();
-
                             }
 
                             @Override
@@ -88,8 +87,7 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
                     new ExecutionCallback<MapSession>() {
                         @Override
                         public void onResponse(MapSession response) {
-                            sink.success();
-
+                            sink.success(response);
                         }
 
                         @Override

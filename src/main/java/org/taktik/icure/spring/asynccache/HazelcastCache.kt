@@ -1,9 +1,16 @@
 package org.taktik.icure.spring.asynccache
 
-import com.hazelcast.map.IMap
+import com.hazelcast.core.ExecutionCallback
+import com.hazelcast.core.IMap
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.cache.support.SimpleValueWrapper
+import org.taktik.icure.utils.firstOrNull
 import reactor.core.publisher.Mono
+import reactor.core.publisher.MonoSink
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class HazelcastCache<K, V>(private val map: IMap<K, V>) : Cache<K, V> {
 
@@ -18,8 +25,11 @@ class HazelcastCache<K, V>(private val map: IMap<K, V>) : Cache<K, V> {
         }
     }
 
-    override suspend fun get(key: K): V? {
-        return Mono.fromCompletionStage(map.getAsync(key)).awaitFirstOrNull()
+    override suspend fun get(key: K): V? = suspendCoroutine { continuation ->
+        map.getAsync(key).andThen(object : ExecutionCallback<V> {
+            override fun onFailure(t: Throwable) = continuation.resumeWithException(t)
+            override fun onResponse(response: V?) = continuation.resume(response)
+        })
     }
 
     override fun clear() {
@@ -31,12 +41,18 @@ class HazelcastCache<K, V>(private val map: IMap<K, V>) : Cache<K, V> {
         return false
     }
 
-    override fun evict(key: K) {
-        key?.let { map.removeAsync(key) }
+    override suspend fun evict(key: K?) = suspendCoroutine<Unit> { continuation ->
+        map.removeAsync(key).andThen(object : ExecutionCallback<V> {
+            override fun onFailure(t: Throwable) = continuation.resumeWithException(t)
+            override fun onResponse(response: V?) = continuation.resume(Unit)
+        })
     }
 
-    override fun put(key: K, value: V) {
-        key?.let { map.putAsync(key, value) }
+    override suspend fun put(key: K, value: V) = suspendCoroutine<Unit> { continuation ->
+        map.putAsync(key, value).andThen(object : ExecutionCallback<V> {
+            override fun onFailure(t: Throwable) = continuation.resumeWithException(t)
+            override fun onResponse(response: V?) = continuation.resume(Unit)
+        })
     }
 
     override fun getNativeCache(): IMap<K, V>? {

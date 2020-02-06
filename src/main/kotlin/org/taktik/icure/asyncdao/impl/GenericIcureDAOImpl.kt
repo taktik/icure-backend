@@ -35,7 +35,7 @@ open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, c
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? =
             super.save(dbInstanceUrl, groupId, newEntity, entity.apply { setTimestamps(this) })
 
-    override fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> =
+    override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> =
             super.save(dbInstanceUrl, groupId, newEntity, entities.map { it.apply { setTimestamps(this) } })
 
     override suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T) =

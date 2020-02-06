@@ -34,8 +34,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun createAttachment(dbInstanceUrl: URI, groupId: String, documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
     suspend fun deleteAttachment(dbInstanceUrl:URI, groupId:String, documentId: String, rev: String, attachmentId: String): String
 
-    fun <K : Collection<T>> create(dbInstanceUrl: URI, groupId:String, entities: K): Flow<T>
-    fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, entities: K): Flow<T>
+    suspend fun <K : Collection<T>> create(dbInstanceUrl: URI, groupId:String, entities: K): Flow<T>
+    suspend fun <K : Collection<T>> save(dbInstanceUrl:URI, groupId:String, entities: K): Flow<T>
 
     suspend fun contains(dbInstanceUrl:URI, groupId:String, id: String): Boolean
     suspend fun hasAny(dbInstanceUrl:URI, groupId:String): Boolean

@@ -21,12 +21,16 @@ class GroupController(private val groupLogic: GroupLogic,
     @ApiOperation(nickname = "createGroup", value = "Create a group", notes = "Create a new gorup with associated dbs")
     @PostMapping("/{id}")
     suspend fun createGroup(@PathVariable id: String,
-                    @RequestParam name: String,
-                    @RequestParam password: String,
-                    @RequestBody initialReplication: ReplicationDto): GroupDto {
+                            @RequestParam name: String,
+                            @RequestParam password: String,
+                            @RequestParam(required = false) server: String?,
+                            @RequestParam(required = false) q: Int?,
+                            @RequestParam(required = false) n: Int?,
+                            @RequestBody initialReplication: ReplicationDto): GroupDto {
         return try {
             val newGroup = Group(id, name, password)
-            val group = groupLogic.createGroup(newGroup, mapper.map(initialReplication, Replication::class.java)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Group creation failed")
+            val group = groupLogic.createGroup(id, name, password, server, q, n, mapper.map(initialReplication, Replication::class.java))
+                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Group creation failed")
             mapper.map(group, GroupDto::class.java)
         } catch (e: IllegalAccessException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access.")

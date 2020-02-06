@@ -30,5 +30,6 @@
     <logger name="org.apache.jasper" level="WARN" />
     <logger name="org.apache.commons" level="WARN" />
     <logger name="org.elasticsearch" level="WARN" />
+    <logger name="com.hazelcast" level="DEBUG" />
     <!--logger name="ma.glasnost.orika" level="DEBUG" /-->
 </configuration>

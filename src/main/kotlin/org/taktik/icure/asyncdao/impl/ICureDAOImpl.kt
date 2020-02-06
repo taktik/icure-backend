@@ -37,7 +37,7 @@ import java.util.*
 
 @ExperimentalCoroutinesApi
 @Repository("iCureDAO")
-class ICureDAOImpl(couchDbProperties: CouchDbProperties, private val httpClient: HttpClient, private val couchdbInstance: CouchDbInstance) : ICureDAO {
+class ICureDAOImpl(couchDbProperties: CouchDbProperties, private val httpClient: HttpClient) : ICureDAO {
     private val client = ClientImpl(httpClient, org.ektorp.http.URI.of(URI(couchDbProperties.url).toString()), couchDbProperties.username!!, couchDbProperties.password!!)
     private val gson = GsonBuilder().create()
 

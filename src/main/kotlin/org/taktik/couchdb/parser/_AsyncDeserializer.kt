@@ -1,7 +1,6 @@
 package org.taktik.couchdb.parser
 
 import org.taktik.couchdb.parser._AsyncDeserializer.JsonValue.Partial
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl
 import java.beans.PropertyDescriptor
 import java.lang.reflect.*
 import java.math.BigDecimal
@@ -330,8 +329,6 @@ internal class _AsyncDeserializer<T> : AsyncDeserializer {
         private fun getCurrentBuildPathString(objectsBeingBuilt: LinkedList<Partial>): String {
             return objectsBeingBuilt.map { partial -> "${partial.parentAttribute ?: ""}(${partial.inferredType.rawClass.simpleName})" }.joinToString("/")
         }
-
-        private fun stringToAnyMap() = ParameterizedTypeImpl.make(MutableMap::class.java, arrayOf(String::class.java, Any::class.java), null)!!
     }
 
     override fun clean() {

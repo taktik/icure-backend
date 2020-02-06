@@ -51,11 +51,11 @@ class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: C
         return wrappedValue.get() as Property
     }
 
-    override fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: Property) {
+    override suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: Property) {
         super.evictFromCache(dbInstanceUrl, groupId, entity)
     }
 
-    override fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, entity: Property) {
+    override suspend fun putInCache(dbInstanceUrl: URI, groupId: String, key: String, entity: Property) {
         super.putInCache(dbInstanceUrl, groupId, key, entity)
     }
 

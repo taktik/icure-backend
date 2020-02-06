@@ -1,8 +1,12 @@
 package org.taktik.icure.asynclogic.impl
 
+import org.eclipse.jetty.client.HttpClient
 import org.ektorp.CouchDbInstance
 import org.springframework.core.task.TaskExecutor
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.ClientImpl
+import org.taktik.couchdb.create
+import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
@@ -17,22 +21,30 @@ import java.net.URI
 import java.net.URISyntaxException
 
 @Service
-class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
+class GroupLogicImpl(private val httpClient: HttpClient,
+                     private val sessionLogic: AsyncSessionLogic,
                      private val groupDAO: GroupDAO,
-                     private val couchdbInstance: CouchDbInstance,
                      private val userLogic: UserLogic,
                      private val couchDbProperties: CouchDbProperties,
                      private val threadPoolTaskExecutor: TaskExecutor) : GroupLogic {
 
-    override suspend fun createGroup(group: Group, initialReplication: Replication): Group? {
-        val id = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
-        if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(id)?.groupId) {
+    override suspend fun createGroup(
+            id: String,
+            name: String,
+            password: String,
+            server: String?,
+            q: Int?,
+            n: Int?,
+            initialReplication: Replication
+    ): Group? {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(groupUserId)?.groupId) {
             throw IllegalAccessException("No registered user")
         }
         val paths = listOf(
-                "icure-" + group.id + "-base",
-                "icure-" + group.id + "-patient",
-                "icure-" + group.id + "-healthdata"
+                "icure-$id-base",
+                "icure-$id-patient",
+                "icure-$id-healthdata"
         )
         val sanitizedDatabaseSynchronizations = initialReplication.databaseSynchronizations?.filter { ds: DatabaseSynchronization ->
             try {
@@ -46,13 +58,21 @@ class GroupLogicImpl(private val sessionLogic: AsyncSessionLogic,
                 throw IllegalArgumentException("Cannot start replication: invalid target")
             }
         }
-        val dbUser = User(group.id, group.password)
-        couchdbInstance.createConnector("_users", false).create("org.couchdb.user:" + group.id, dbUser)
-        val security = Security(group.id)
-        paths.forEach { c ->
-            val connector = couchdbInstance.createConnector(c, true)
-            connector.create("_security", security)
+        val dbUser = User("org.couchdb.user:$id", id, password)
+        val security = Security(id)
+        val group = Group(id, name, password).apply { server?.let { sv -> servers = couchDbProperties.altUrlsList().filter { it.contains(sv) } } }
+
+        val servers = if (group.servers?.isNotEmpty() == true) group.servers else listOf(couchDbProperties.url)
+        servers.forEach {
+            ClientImpl(httpClient, org.ektorp.http.URI.of(it).append("_users"), couchDbProperties.username!!, couchDbProperties.password!!).create(dbUser)
+            paths.forEach { c ->
+                val client = ClientImpl(httpClient, org.ektorp.http.URI.of(it).append(c), couchDbProperties.username!!, couchDbProperties.password!!)
+                if (client.create(if (c.endsWith("-base")) 1 else q, n)) {
+                    client.security(security)
+                }
+            }
         }
+
         val result = groupDAO.save(group)
         return if (result?.rev != null) result else null
     }
