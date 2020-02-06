@@ -65,7 +65,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected PersonalStatusDto personalStatus = PersonalStatusDto.unknown;
     protected Integer dateOfBirth; //YYYYMMDD if unknown, 00, ex:20010000 or
     protected Integer dateOfDeath; //YYYYMMDD if unknown, 00, ex:20010000 or
-    protected Integer lastTimeEidReaded;
+    protected Integer lastTimeEidRead;
     protected String placeOfBirth;
     protected String placeOfDeath;
     protected String education;
@@ -533,11 +533,11 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setProperties(Set<Property> properties) { this.properties = properties; }
 
-    public Integer getLastTimeEidReaded() {
-        return lastTimeEidReaded;
+    public Integer getLastTimeEidRead() {
+        return lastTimeEidRead;
     }
 
-    public void setLastTimeEidReaded(Integer lastTimeEidReaded) {
-        this.lastTimeEidReaded = lastTimeEidReaded;
+    public void setLastTimeEidRead(Integer lastTimeEidRead) {
+        this.lastTimeEidRead = lastTimeEidRead;
     }
 }
