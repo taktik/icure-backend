@@ -19,18 +19,22 @@
 package org.taktik.icure.services.external.rest.v1.dto.gui.editor;
 
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 import org.taktik.icure.services.external.rest.v1.dto.gui.Editor;
 
 @XStreamAlias("IntegerSliderEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class IntegerSliderEditor extends Editor {
     @XStreamAsAttribute
 	int maxValue;
     @XStreamAsAttribute
 	int minValue;
-    
+
     @XStreamAsAttribute
     Integer increment;
 
@@ -56,5 +60,5 @@ public class IntegerSliderEditor extends Editor {
 	public void setIncrement(Integer increment) {
 		this.increment = increment;
 	}
-	
+
 }

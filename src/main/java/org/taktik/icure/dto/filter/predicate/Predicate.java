@@ -18,8 +18,11 @@
 
 package org.taktik.icure.dto.filter.predicate;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.base.Identifiable;
+import org.taktik.icure.services.external.rest.handlers.JacksonPredicateDeserializer;
 
+@JsonDeserialize(using = JacksonPredicateDeserializer.class)
 public interface Predicate {
 
 	boolean apply(Identifiable<String> input);

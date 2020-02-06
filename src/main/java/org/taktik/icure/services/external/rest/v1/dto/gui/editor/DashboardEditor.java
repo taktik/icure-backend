@@ -18,6 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.editor;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
@@ -27,8 +29,10 @@ import org.taktik.icure.services.external.rest.v1.dto.gui.Editor;
  * Created by aduchate on 03/12/13, 17:42
  */
 @XStreamAlias("DashboardEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class DashboardEditor extends Editor {
-   
+
     @XStreamAsAttribute
     String guid;
 
@@ -43,6 +47,6 @@ public class DashboardEditor extends Editor {
 	public void setGuid(String guid) {
 		this.guid = guid;
 	}
-   
-  
+
+
 }
