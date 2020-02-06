@@ -73,7 +73,7 @@ class HazelcastConfiguration {
 
     }
 
-    @Bean
+    @Bean("hazelcast")
     @ConditionalOnMissingBean
     fun hazelcastInstance(configuration: Config): HazelcastInstance {
         if (kubernetesNamespace != null && kubernetesServiceName != null) {
@@ -95,33 +95,6 @@ class HazelcastConfiguration {
     @ConditionalOnClass(name = ["com.hazelcast.spring.context.SpringManagedContext"])
     @ConditionalOnProperty("taktik.boot.hazelcast.springAware.enabled", havingValue = "true", matchIfMissing = true)
     class HazelcastSpringAutoConfiguration {
-        /*@Bean
-        fun springManagedContext() = SpringManagedContext()
-
-        @Bean
-        fun springManagedContextConfigurer() = object : HazelcastInstanceConfigurer {
-            override fun configure(config: Config) {
-                config.managedContext = springManagedContext()
-            }
-        }*/
-
-        /*@Bean
-        fun springSessionConfigurer() = object : HazelcastInstanceConfigurer {
-            override fun configure(config: Config) {
-                config.getMapConfig("spring:session:sessions")
-                    .addMapAttributeConfig(MapAttributeConfig()
-                                               .setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-                                               .setExtractor(PrincipalNameExtractor::class.java.name))
-                    .addMapIndexConfig(MapIndexConfig(
-                        HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false))
-            }
-        }*/
-
-        /*@Bean
-        fun httpSessionStrategy(): HttpSessionStrategy {
-            return CustomHttpSessionStrategy()
-        }*/
-
         @Bean
         fun replicatorJobsConfigurer() = object : HazelcastInstanceConfigurer {
             override fun configure(config: Config) {
