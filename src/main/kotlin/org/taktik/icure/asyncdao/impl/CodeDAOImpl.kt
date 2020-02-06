@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.*
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.CacheManager
+
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.queryView
@@ -36,6 +36,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.pagedViewQuery
@@ -43,7 +44,7 @@ import java.net.URI
 
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
-class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<Code>(Code::class.java, couchDbDispatcher, idGenerator, cacheManager), CodeDAO {
+class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Code>(Code::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager), CodeDAO {
     @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findCodes(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Code> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

@@ -24,7 +24,7 @@ import org.ektorp.DocumentNotFoundException
 import org.ektorp.ViewQuery
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.CacheManager
+
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.*
 import org.taktik.icure.asyncdao.UserDAO
@@ -33,6 +33,7 @@ import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.pagedViewQuery
 import java.net.URI
@@ -40,7 +41,7 @@ import java.time.Instant
 
 @Repository("userDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc._rev )}")
-class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("entitiesCacheManager") cacheManager: CacheManager) : CachedDAOImpl<User>(User::class.java, couchDbDispatcher, idGenerator, cacheManager), UserDAO {
+class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<User>(User::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager), UserDAO {
     @View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond,doc)  }}")
     override fun getExpiredUsers(dbInstanceUrl: URI, groupId: String, fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

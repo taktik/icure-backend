@@ -18,33 +18,30 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.hazelcast.spring.cache.HazelcastCache
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
-import org.apache.commons.lang3.Validate
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
-import org.springframework.cache.CacheManager
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.getFullId
 import java.net.URI
 import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, cacheManager: CacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
-    private val cache: Cache = cacheManager.getCache(entityClass.name) ?: throw UnsupportedOperationException("No cache found for: $entityClass")
+abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, AsyncCacheManager: AsyncCacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
+    private val cache = AsyncCacheManager.getCache<String, T>(entityClass.name) ?: throw UnsupportedOperationException("No cache found for: $entityClass")
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {
-        log.debug("Cache impl = {}", this.cache.nativeCache)
+        log.debug("Cache impl = {}", this.cache.getNativeCache())
     }
 
     override fun getList(dbInstanceUrl: URI, groupId: String, ids: Flow<String>) = flow<T> {
@@ -59,14 +56,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                     }
                     batch.clear()
                 }
-                val o = value.get() as T?
-                if (o != null) {
-                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-                    emit(o)
-                } else {
-                    log.trace("Cache HIT  = {}, Null value", fullId)
-                }
+                log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+                emit(value)
             } else {
+                log.trace("Cache HIT  = {}, Null value", fullId)
                 batch.add(id)
             }
         }
@@ -78,7 +71,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>): Flow<T> {
+    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>) = flow<T> {
         val missingKeys = mutableListOf<String>()
         val cachedKeys = mutableListOf<Pair<String, T>>()
 
@@ -86,25 +79,16 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         for (id in ids) {
             val fullId = getFullId(dbInstanceUrl, groupId, id)
             val value = cache.get(fullId)
+            value?.let {
+                log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+                cachedKeys.add(Pair(id, value))
+            } ?: log.debug("Cache MISS = {}", fullId).also { missingKeys.add(id) }
 
-            if (value != null) {
-                val o = value.get() as T?
-                if (o != null) {
-                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-                    cachedKeys.add(Pair(id, o))
-                } else {
-                    log.trace("Cache HIT  = {}, Null value", fullId)
-                }
-            } else {
-                log.debug("Cache MISS = {}", fullId)
-                missingKeys.add(id)
-            }
         }
 
         if (missingKeys.isEmpty()) {
-            return cachedKeys.map { it.second }.asFlow()
+            emitAll(cachedKeys.map { it.second }.asFlow())
         } else {
-            return flow {
                 // Get missing values from storage
                 val entities = super.getList(dbInstanceUrl, groupId, missingKeys).filter { Objects.nonNull(it) }
                 // Interleave missing and cached values to preserve original ordering
@@ -131,7 +115,6 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                     currentCachedIndex++
                     currentIndex++
                 }
-            }
         }
     }
 
@@ -146,33 +129,24 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             } else {
                 log.debug("Cache Save  = {}, Null value", fullId)
             }
-            cache.put(fullId, e)
+            e?.let { cache.put(fullId, e) }
+            log.trace("Cache HIT  = {}, Null value", fullId)
             return e
         } else {
-            val o = value.get() as T?
-            if (o != null) {
-                log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-            } else {
-                log.trace("Cache HIT  = {}, Null value", fullId)
-            }
-            return o
+            log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+            return value
         }
     }
 
-    fun getFromCache(dbInstanceUrl: URI, groupId: String?, id: String): T? {
+    suspend fun getFromCache(dbInstanceUrl: URI, groupId: String?, id: String): T? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         val value = cache.get(fullId)
         return if (value == null) {
             log.debug("Cache MISS = {}", fullId)
             null
         } else {
-            val o = value.get() as T?
-            if (o != null) {
-                log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-            } else {
-                log.trace("Cache HIT  = {}, Null value", fullId)
-            }
-            o
+            log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+            value
         }
     }
 
@@ -183,7 +157,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         } else {
             log.debug("Cache SAVE = {}, null placeholder", fullId)
         }
-        cache.put(fullId, value)
+        value?.let { cache.put(fullId, value) }
     }
 
     open fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: T) {
@@ -198,9 +172,9 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         cache.evict(fullId)
     }
 
-    protected fun getWrapperFromCache(dbInstanceUrl: URI, groupId: String?, id: String): Cache.ValueWrapper? {
+    protected suspend fun getWrapperFromCache(dbInstanceUrl: URI, groupId: String?, id: String): Cache.ValueWrapper? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
-        val value = cache.get(fullId)
+        val value = cache.getWrapper(fullId)
         if (value != null) {
             log.trace("Cache HIT  = {}, WRAPPER", fullId)
         } else {
@@ -216,7 +190,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? {
         var savedEntity: T? = entity
         try {
-            savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity)
+            savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity) // TODO MB : the saved entity should have the rev
         } catch (e: UpdateConflictException) {
             val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
             log.info("Cache EVICT= {}", fullId)
@@ -224,7 +198,6 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             throw e
         }
         val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
-        // TODO MB ask here
        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
         return entity
     }
