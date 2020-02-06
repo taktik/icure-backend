@@ -77,7 +77,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         GlobalScope.launch {
             val lockName = "${ReplicationManager::class.java.canonicalName}.lock"
             log.debug("Using distributed lock $lockName")
-            val lock = hazelcast.cpSubsystem.getLock(lockName)
+            val lock = hazelcast.getLock(lockName)
             // This should block forever
             doPeriodicallyOnOneReplicaForever(lock, globalCheckIntervalMillis, delayAfterErrorMillis, {
                 ensureGroupObserverStarted()

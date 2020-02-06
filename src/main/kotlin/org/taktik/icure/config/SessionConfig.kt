@@ -2,15 +2,14 @@ package org.taktik.icure.config
 
 import com.google.gson.Gson
 import com.hazelcast.core.HazelcastInstance
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.session.MapSession
+import org.springframework.session.ReactiveMapSessionRepository
 import org.springframework.session.ReactiveSessionRepository
+import org.springframework.session.Session
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession
-import org.springframework.session.web.http.CookieSerializer
-import org.springframework.session.web.http.DefaultCookieSerializer
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 import org.springframework.web.reactive.socket.server.WebSocketService
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
@@ -20,7 +19,6 @@ import org.springframework.web.server.session.CookieWebSessionIdResolver
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.services.external.http.WebSocketOperationHandler
 import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
-import org.taktik.icure.spring.ReactiveHazelcastSessionRepository
 
 
 @Configuration
@@ -28,10 +26,13 @@ import org.taktik.icure.spring.ReactiveHazelcastSessionRepository
 class SessionConfig {
 
     @Bean
-    fun reactiveSessionRepository(@Qualifier("hazelcast") hazelcastInstance: HazelcastInstance): ReactiveSessionRepository<MapSession> {
-        return ReactiveHazelcastSessionRepository(hazelcastInstance.getMap("spring:session:sessions"))
+    fun reactiveSessionRepository(hazelcastInstance: HazelcastInstance): ReactiveSessionRepository<MapSession> {
+        val mapName = "sessionsMap"
+        val config = hazelcastInstance.config // TODO SH later: configure TTL to purge expired sessions
+        val map = hazelcastInstance.getMap<String, Session>(mapName)
+        return ReactiveMapSessionRepository(map)
     }
-
+    
     @Bean
     fun webSocketHandler(kmehrWsController: KmehrWsController, sessionLogic: AsyncSessionLogic) =
             WebSocketOperationHandler(kmehrWsController, Gson(), sessionLogic)

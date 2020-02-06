@@ -1,7 +1,6 @@
 package org.taktik.icure.concurrency
 
-
-import com.hazelcast.cp.lock.FencedLock
+import com.hazelcast.core.ILock
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory
     If there is any exception thrown by [block], it is caught and logged, but the
     loop continues.
  */
-suspend fun doPeriodicallyOnOneReplicaForever(lock: FencedLock, intervalMillis: Long, delayAfterErrorMillis: Long, block: suspend () -> Unit, onLockLost: suspend () -> Unit = {}) {
+suspend fun doPeriodicallyOnOneReplicaForever(lock: ILock, intervalMillis: Long, delayAfterErrorMillis: Long, block: suspend () -> Unit, onLockLost: suspend () -> Unit = {}) {
     val log = LoggerFactory.getLogger(lock.name)
     while (true) {
         try {
@@ -27,7 +26,7 @@ suspend fun doPeriodicallyOnOneReplicaForever(lock: FencedLock, intervalMillis: 
                         delay(intervalMillis)
                     }
                 } finally {
-                    lock.unlock()
+                    lock.forceUnlock()
                 }
             } else {
                 log.debug("Failed to acquire lock, retrying in $delayAfterErrorMillis ms")
