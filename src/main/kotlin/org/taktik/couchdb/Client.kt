@@ -234,7 +234,19 @@ class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
                  private val password: String,
-                 private val moshi: Moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).add(InstantAdapter()).add(Base64Adapter()).add(SortedSetAdapterFactory()).build()
+                 private val moshi: Moshi = Moshi.Builder()
+                         .add(KotlinJsonAdapterFactory())
+                         .add(Boolean::class.java, object : JsonAdapter<Boolean>() {
+                             override fun fromJson(reader: JsonReader): Boolean =
+                                     if (reader.peek() == JsonReader.Token.STRING) reader.nextString() == "true" else reader.nextBoolean()
+
+                             override fun toJson(writer: JsonWriter, value: Boolean?) {
+                                 writer.value(value)
+                             }
+                         })
+                         .add(InstantAdapter())
+                         .add(Base64Adapter())
+                         .add(SortedSetAdapterFactory()).build()
 ) : Client {
     private val log = LoggerFactory.getLogger(javaClass.name)
     // Create a copy and set to prototype to avoid unwanted mutation

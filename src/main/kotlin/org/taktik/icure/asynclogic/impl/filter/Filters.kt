@@ -20,10 +20,12 @@ package org.taktik.icure.asynclogic.impl.filter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import org.taktik.icure.utils.distinctById
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.taktik.icure.entities.base.Identifiable
+import org.taktik.icure.utils.distinct
 import java.io.Serializable
 import java.util.*
 
@@ -49,7 +51,13 @@ class Filters : ApplicationContextAware {
                         } catch (e: ClassNotFoundException) {
                             throw IllegalStateException(e)
                         }
-        emitAll(filterToBeResolved?.resolve(filter, this@Filters) ?: throw IllegalStateException("Invalid filter"))
+        val ids = hashSetOf<Serializable>()
+        (filterToBeResolved?.resolve(filter, this@Filters)?: throw IllegalStateException("Invalid filter")).collect {
+            if (!ids.contains(it)) {
+                emit(it)
+                ids.add(it)
+            }
+        }
     }
 
     class ConstantFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ConstantFilter<T, O>> {
@@ -82,7 +90,6 @@ class Filters : ApplicationContextAware {
 
     class ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>> {
         override fun resolve(filter: org.taktik.icure.dto.filter.Filters.ComplementFilter<T, O>, context: Filters): Flow<T> = flow {
-            //if (filter.getSuperSet() == null) throw NoSuperSetException() // not necessary anymore since the superSet is not-nullable
             val superFlow: Flow<T> = context.resolve(filter.getSuperSet())
             val subList: List<T> = context.resolve(filter.getSubSet()).toList()
             superFlow.collect {

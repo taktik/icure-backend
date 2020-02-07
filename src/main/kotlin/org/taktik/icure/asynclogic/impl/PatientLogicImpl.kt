@@ -178,9 +178,9 @@ class PatientLogicImpl(
     override fun listPatients(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         var ids = filters.resolve(filterChain.getFilter()).toSet().sorted()
-        val forPagination = patientDAO.getForPagination(dbInstanceUri, groupId, ids)
+        var forPagination = patientDAO.getForPagination(dbInstanceUri, groupId, ids)
         if (filterChain.predicate != null) {
-            forPagination.filterIsInstance<ViewRowWithDoc<*, *, *>>()
+            forPagination = forPagination.filterIsInstance<ViewRowWithDoc<*, *, *>>()
                     .filter { filterChain.predicate.apply(it.doc as Patient) }
         }
         if (sort != null && sort != "id") { // TODO MB is this the correct way to sort here ?
@@ -212,8 +212,9 @@ class PatientLogicImpl(
                     }
             )
             emitAll(patientsListToSort.asFlow())
+        } else {
+            emitAll(forPagination)
         }
-        emitAll(forPagination)
     }
 
     override fun findByHcPartyNameContainsFuzzy(searchString: String?, healthcarePartyId: String, offset: PaginationOffset<*>, descending: Boolean) = flow<ViewQueryResultEvent> {

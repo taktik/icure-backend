@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.Serializable
 import java.util.*
+import kotlin.collections.HashSet
 
 
 fun <T> Flow<T>.distinct(): Flow<T> = flow {
@@ -31,11 +32,11 @@ fun <T> Flow<T>.distinct(): Flow<T> = flow {
     }
 }
 
-fun <T : StoredDocument> Flow<T>.distinctById(): Flow<T> = flow {
-    val previous = TreeSet<T>(compareBy { it.id })
+fun <T : Identifiable<*>> Flow<T>.distinctById(): Flow<T> = flow {
+    val previous = HashSet<Any>()
     collect { value: T ->
-        if (!previous.contains(value)) {
-            previous.add(value)
+        if (!previous.contains(value.id)) {
+            previous.add(value.id)
             emit(value)
         }
     }
