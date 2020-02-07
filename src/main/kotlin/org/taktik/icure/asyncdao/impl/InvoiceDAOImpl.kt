@@ -237,7 +237,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 endValueDate ?: ComplexKey.emptyObject()
         )
 
-        return client.queryView<ComplexKey, String>(createQuery<Invoice>("tarification_by_hcparty_code").includeDocs(false).startKey(from).endKey(to).reduce(false)).mapNotNull { it.id }
+        return client.queryView<Array<String>, String>(createQuery<Invoice>("tarification_by_hcparty_code").includeDocs(false).startKey(from).endKey(to).reduce(false)).mapNotNull { it.id }
     }
 
     override fun listTarificationsFrequencies(dbInstanceUrl: URI, groupId: String, hcPartyId: String): Flow<ViewRowNoDoc<ComplexKey, Long>> {
