@@ -155,7 +155,8 @@ suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginate
     val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
-    result.rows = this.mapNotNull { viewQueryResultEvent ->
+    val resultRows = mutableListOf<T>()
+    this.mapNotNull { viewQueryResultEvent ->
         when (viewQueryResultEvent) {
             is TotalCount -> {
                 result.totalSize = viewQueryResultEvent.total
@@ -184,7 +185,13 @@ suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginate
                 null
             }
         }
-    }.toList()
+    }.toCollection(resultRows)
+    if(result.totalSize < realLimit){
+        (lastProcessedViewRow?.doc as? T)?.let {
+            resultRows.add(it)
+        }
+    }
+    result.rows = resultRows
     return result
 }
 
