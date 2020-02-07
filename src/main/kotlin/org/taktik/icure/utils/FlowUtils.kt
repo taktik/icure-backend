@@ -144,7 +144,7 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
         mapper.map(it, T::class.java)
     }.toCollection(resultRows)
 
-    if(result.totalSize < realLimit){
+    if(resultRows.size < realLimit){
         resultRows.add(mapper.map(lastProcessedViewRow?:lastProcessedViewRowNoDoc, T::class.java))
     }
     result.rows = resultRows
@@ -186,7 +186,7 @@ suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginate
             }
         }
     }.toCollection(resultRows)
-    if(result.totalSize < realLimit){
+    if(resultRows.size < realLimit){
         (lastProcessedViewRow?.doc as? T)?.let {
             resultRows.add(it)
         }
