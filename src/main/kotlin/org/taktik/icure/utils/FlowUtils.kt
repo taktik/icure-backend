@@ -91,7 +91,8 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
     var lastProcessedViewRowNoDoc: ViewRowNoDoc<*, *>? = null
-    result.rows = this.mapNotNull { viewQueryResultEvent ->
+    val resultRows = mutableListOf<T>()
+    this.mapNotNull { viewQueryResultEvent ->
         when (viewQueryResultEvent) {
             is TotalCount -> {
                 result.totalSize = viewQueryResultEvent.total
@@ -141,7 +142,12 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
         }
     }.map {
         mapper.map(it, T::class.java)
-    }.toList()
+    }.toCollection(resultRows)
+
+    if(result.totalSize < realLimit){
+        resultRows.add(mapper.map(lastProcessedViewRow?:lastProcessedViewRowNoDoc, T::class.java))
+    }
+    result.rows = resultRows
     return result
 }
 
