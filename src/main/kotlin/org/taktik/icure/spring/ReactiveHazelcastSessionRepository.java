@@ -29,6 +29,7 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
      * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
      *                                   should be kept alive between client requests.
      */
+    @SuppressWarnings("unused")
     public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
         this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
     }
@@ -50,7 +51,7 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
         return Mono.create(sink -> {
             if (!session.getId().equals(session.getOriginalId())) {
                 this.sessions.removeAsync(session.getOriginalId()).andThen(
-                        new ExecutionCallback<MapSession>() {
+                        new ExecutionCallback<>() {
                             @Override
                             public void onResponse(MapSession response) {
                                 sink.success();
@@ -64,7 +65,7 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
                 );
             }
             this.sessions.setAsync(session.getId(), new MapSession(session)).andThen(
-                    new ExecutionCallback<Void>() {
+                    new ExecutionCallback<>() {
                         @Override
                         public void onResponse(Void response) {
                             sink.success();
@@ -82,21 +83,19 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
 
     @Override
     public Mono<MapSession> findById(String id) {
-        return Mono.create((MonoSink<MapSession> sink) -> {
-            this.sessions.getAsync(id).andThen(
-                    new ExecutionCallback<MapSession>() {
-                        @Override
-                        public void onResponse(MapSession response) {
-                            sink.success(response);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-                            sink.error(t);
-                        }
+        return Mono.create((MonoSink<MapSession> sink) -> this.sessions.getAsync(id).andThen(
+                new ExecutionCallback<>() {
+                    @Override
+                    public void onResponse(MapSession response) {
+                        sink.success(response);
                     }
-            );
-        })
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        sink.error(t);
+                    }
+                }
+        ))
                 .filter((session) -> !session.isExpired())
                 .map(MapSession::new)
                 .switchIfEmpty(deleteById(id).then(Mono.empty()));
@@ -105,7 +104,7 @@ public class ReactiveHazelcastSessionRepository implements ReactiveSessionReposi
     @Override
     public Mono<Void> deleteById(String id) {
         return Mono.create(sink -> this.sessions.removeAsync(id).andThen(
-                new ExecutionCallback<MapSession>() {
+                new ExecutionCallback<>() {
                     @Override
                     public void onResponse(MapSession response) {
                         sink.success();
