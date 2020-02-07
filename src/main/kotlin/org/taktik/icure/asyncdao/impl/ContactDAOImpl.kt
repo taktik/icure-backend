@@ -168,7 +168,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 .endKey(to)
                 .includeDocs(false)
 
-        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
     @View(name = "service_by_hcparty_patient_tag", map = "classpath:js/contact/Service_by_hcparty_patient_tag.js")
@@ -205,7 +205,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                     .endKey(to)
                     .includeDocs(false)
 
-            idFlows.add(client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value })
+            idFlows.add(client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value })
         }
         return idFlows.asFlow().flattenConcat().distinct()
     }
@@ -241,7 +241,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                 .reduce(false)
                 .includeDocs(false)
 
-        return client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
     override fun listCodesFrequencies(dbInstanceUrl: URI, groupId: String, hcPartyId: String, codeType: String): Flow<CouchKeyValue<Long?>> {
@@ -260,7 +260,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val viewQuery = createQuery<Contact>("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
-        return client.queryView<ComplexKey, Long>(viewQuery).map { CouchKeyValue(it.id, it.key, it.value) }
+        return client.queryView<Array<String>, Long>(viewQuery).map { CouchKeyValue(it.id, ComplexKey.of(it.key), it.value) }
     }
 
 
@@ -297,7 +297,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
                     .startKey(from)
                     .endKey(to)
                     .includeDocs(false)
-            val result = client.queryView<ComplexKey, String>(viewQuery).mapNotNull { it.value }
+            val result = client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
             ids += result
         }
         return ids.asFlow().flattenConcat().distinct()

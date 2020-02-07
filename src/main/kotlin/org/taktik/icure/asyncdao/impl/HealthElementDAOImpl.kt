@@ -77,7 +77,7 @@ internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") co
     override fun findByHCPartyAndStatus(dbInstanceUrl: URI, groupId: String, healthCarePartyId: String, status: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        return client.queryView<ComplexKey, String>(createQuery<HealthElement>("by_hcparty_and_status").key(ComplexKey.of(healthCarePartyId, status)).includeDocs(false)).mapNotNull { it.value }
+        return client.queryView<Array<String>, String>(createQuery<HealthElement>("by_hcparty_and_status").key(ComplexKey.of(healthCarePartyId, status)).includeDocs(false)).mapNotNull { it.value }
     }
 
     @View(name = "by_planOfActionId", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) {\n" +
