@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.web.server.WebSession
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.UserDetails
+import java.io.Serializable
 import java.net.URI
 import java.util.concurrent.Callable
 import javax.servlet.http.HttpServletRequest
@@ -30,7 +31,7 @@ interface AsyncSessionLogic {
     suspend fun getCurrentUserId(): String
     suspend fun getCurrentHealthcarePartyId(): String
 
-    interface AsyncSessionContext {
+    interface AsyncSessionContext : Serializable {
         fun getAuthentication(): Authentication
         fun getUserDetails(): UserDetails
         fun isAuthenticated(): Boolean

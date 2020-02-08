@@ -29,23 +29,24 @@ import kotlinx.coroutines.withContext
 import ma.glasnost.orika.MapperFacade
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.http.HttpMethod
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.WebSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.security.SecurityToken
 import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
 import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets
+import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 
@@ -54,7 +55,8 @@ import kotlin.coroutines.CoroutineContext
 @RestController
 @RequestMapping("/rest/v1/auth")
 @Api(tags = ["auth"])
-class LoginController(private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic, private val healthcarePartyLogic: HealthcarePartyLogic) {
+class LoginController(private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic, asyncCacheManager: AsyncCacheManager, private val healthcarePartyLogic: HealthcarePartyLogic) {
+    val cache = asyncCacheManager.getCache<String, SecurityToken>("spring.security.tokens")
 
     @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
     @PostMapping("/login")
@@ -100,6 +102,14 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
     suspend fun logoutPost(): AuthenticationResponse {
         sessionLogic.logout()
         return mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
+    }
+
+    @ApiOperation(nickname = "logoutPost", value = "logout", notes = "Logout")
+    @PostMapping("/token/{method}/{path}")
+    suspend fun registerToken(@PathVariable method: String, @PathVariable path: String): String {
+        val token = UUID.randomUUID().toString()
+        cache.put(token, SecurityToken(HttpMethod.valueOf(method), path, sessionLogic.getCurrentSessionContext().getAuthentication()))
+        return token
     }
 
 }

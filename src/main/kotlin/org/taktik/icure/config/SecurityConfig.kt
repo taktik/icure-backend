@@ -21,6 +21,8 @@ package org.taktik.icure.config
 
 import CustomAuthenticationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -33,12 +35,18 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
+import org.springframework.web.server.ServerWebExchange
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PermissionLogic
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.security.TokenWebExchangeMatcher
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
+import reactor.core.publisher.Mono
+import kotlin.coroutines.suspendCoroutine
 
 
 @ExperimentalCoroutinesApi
@@ -73,7 +81,7 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     @Bean
-    fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    fun securityWebFilterChain(http: ServerHttpSecurity, asyncCacheManager: AsyncCacheManager): SecurityWebFilterChain {
         return http
                 .csrf().disable()
                 .httpBasic().securityContextRepository(WebSessionServerSecurityContextRepository())
@@ -92,9 +100,9 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                 .pathMatchers("/rest/*/icure/c").permitAll()
                 .pathMatchers("/rest/*/icure/ok").permitAll()
                 .pathMatchers("/rest/*/icure/pok").permitAll()
-                .pathMatchers("/rest/**").hasRole("USER")
                 .pathMatchers("/").permitAll()
                 .pathMatchers("/ping.json").permitAll()
+                .matchers(TokenWebExchangeMatcher(asyncCacheManager)).permitAll()
                 .pathMatchers("/**").hasRole("USER")
                 .and().build()
     }

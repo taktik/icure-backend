@@ -45,6 +45,7 @@ import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.UserDetails
 import org.taktik.icure.security.database.DatabaseUserDetails
 import reactor.core.publisher.Mono
+import java.io.Serializable
 import java.net.URI
 import java.util.concurrent.Callable
 import javax.servlet.http.HttpServletRequest
@@ -167,7 +168,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
                 ?: throw AuthenticationServiceException("Failed extracting current healthCareParty id")
     }
 
-    private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext {
+    private inner class SessionContextImpl(private val authentication: Authentication) : AsyncSessionLogic.AsyncSessionContext, Serializable {
         private var userDetails: UserDetails = extractUserDetails(authentication)
         private var permissionSetIdentifier: PermissionSetIdentifier
 

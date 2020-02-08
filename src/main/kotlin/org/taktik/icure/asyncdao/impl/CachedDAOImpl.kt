@@ -37,7 +37,7 @@ import java.util.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, AsyncCacheManager: AsyncCacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
-    private val cache = AsyncCacheManager.getCache<String, T>(entityClass.name) ?: throw UnsupportedOperationException("No cache found for: $entityClass")
+    private val cache = AsyncCacheManager.getCache<String, T>(entityClass.name)
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {
@@ -71,7 +71,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
     }
 
-    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>) = flow<T> {
+    override fun getList(dbInstanceUrl: URI, groupId: String, ids: Collection<String>) = flow {
         val missingKeys = mutableListOf<String>()
         val cachedKeys = mutableListOf<Pair<String, T>>()
 
@@ -121,7 +121,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
     override suspend fun get(dbInstanceUrl: URI, groupId: String, id: String, vararg options: Option): T? {
         val fullId = getFullId(dbInstanceUrl, groupId, id)
         val value = cache.get(fullId)
-        if (value == null) {
+        return if (value == null) {
             log.debug("Cache MISS = {}", fullId)
             val e = super.get(dbInstanceUrl, groupId, id, *options)
             if (e != null) {
@@ -131,10 +131,10 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             }
             e?.let { cache.put(fullId, e) }
             log.trace("Cache HIT  = {}, Null value", fullId)
-            return e
+            e
         } else {
             log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
-            return value
+            value
         }
     }
 
