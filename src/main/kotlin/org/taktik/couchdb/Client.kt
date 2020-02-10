@@ -143,6 +143,10 @@ data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, ove
     override val doc: Nothing?
         get() = error("Row has no doc")
 }
+data class ViewRowMissingDoc<K, V>(override val id: String, override val key: K?, override val value: V?) : ViewRow<K, V, Nothing>() {
+    override val doc: Nothing?
+        get() = error("Doc is missing for this row")
+}
 
 private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
 private data class BulkDeleteRequest(val docs: Collection<DeleteRequest>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
@@ -614,9 +618,9 @@ class ClientImpl(private val httpClient: HttpClient,
                                     }
                                     // We finished parsing a row, emit the result
                                     id?.let {
-                                        val row = if (query.isIncludeDocs && doc != null) {
+                                        val row = if (query.isIncludeDocs) {
                                             //check(doc != null) { "Doc shouldn't be null" }
-                                            ViewRowWithDoc(id, key, value, doc)
+                                            if (doc != null) ViewRowWithDoc(id, key, value, doc) else ViewRowWithMissingDoc(id, key, value)
                                         } else {
                                             ViewRowNoDoc(id, key, value)
                                         }
