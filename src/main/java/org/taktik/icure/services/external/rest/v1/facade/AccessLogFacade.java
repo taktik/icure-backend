@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.metadata.TypeBuilder;
+import org.ektorp.ComplexKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -155,7 +156,8 @@ public class AccessLogFacade implements OpenApiFacade{
                                         @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") Integer limit,
 										@ApiParam(value = "Descending order", required = false) @QueryParam("descending") Boolean descending) {
 
-        List<String> startKeyElements = startKey == null ? null : new Gson().fromJson(startKey, List.class);
+        ComplexKey startKeyElements = startKey != null ? ComplexKey.of(new Gson().fromJson(startKey, List.class).toArray()) : null;
+
         PaginationOffset paginationOffset = new PaginationOffset(startKeyElements, startDocumentId, null, limit);
         org.taktik.icure.db.PaginatedList<AccessLog> accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate != null ? Instant.ofEpochMilli(startDate) : null, paginationOffset, descending!=null?descending:false);
 
