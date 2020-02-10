@@ -30,23 +30,4 @@ class SessionConfig {
         return ReactiveHazelcastSessionRepository(hazelcastInstance.getMap("spring:session:sessions"))
     }
 
-    @Bean
-    fun webSocketHandler(kmehrWsController: KmehrWsController, sessionLogic: AsyncSessionLogic) =
-            WebSocketOperationHandler(kmehrWsController, Gson(), sessionLogic)
-
-    @Bean
-    fun handlerMapping(webSocketHandler: WebSocketOperationHandler) = SimpleUrlHandlerMapping().apply {
-        urlMap = mapOf("/ws/*" to webSocketHandler)
-        order = Ordered.HIGHEST_PRECEDENCE
-    }
-
-    @Bean
-    fun handlerAdapter(webSocketService: WebSocketService) =
-            WebSocketHandlerAdapter(webSocketService)
-
-    @Bean
-    fun webSocketService() = HandshakeWebSocketService(JettyRequestUpgradeStrategy())
-
-    @Bean
-    fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer {cb -> cb.sameSite("None")} }
 }

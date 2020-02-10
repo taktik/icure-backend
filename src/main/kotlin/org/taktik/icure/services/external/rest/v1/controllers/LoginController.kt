@@ -104,9 +104,9 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
         return mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
     }
 
-    @ApiOperation(nickname = "logoutPost", value = "logout", notes = "Logout")
-    @PostMapping("/token/{method}/{path}")
-    suspend fun registerToken(@PathVariable method: String, @PathVariable path: String): String {
+    @ApiOperation(nickname = "token", value = "token", notes = "Get token for subsequent operation")
+    @GetMapping("/token/{method}/{path}")
+    suspend fun token(@PathVariable method: String, @PathVariable path: String): String {
         val token = UUID.randomUUID().toString()
         cache.put(token, SecurityToken(HttpMethod.valueOf(method), path, sessionLogic.getCurrentSessionContext().getAuthentication()))
         return token

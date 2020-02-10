@@ -12,6 +12,7 @@ interface DocumentDAO: GenericDAO<Document> {
     suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document)
 
     suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document)
+
     fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Document>
 
     fun findDocumentsByHCPartySecretMessageKeys(dbInstanceUrl: URI, groupId: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>

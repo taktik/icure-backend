@@ -613,10 +613,9 @@ class ClientImpl(private val httpClient: HttpClient,
                                         }
                                     }
                                     // We finished parsing a row, emit the result
-
                                     id?.let {
-                                        val row = if (query.isIncludeDocs) {
-                                            check(doc != null) { "Doc shouldn't be null" }
+                                        val row = if (query.isIncludeDocs && doc != null) {
+                                            //check(doc != null) { "Doc shouldn't be null" }
                                             ViewRowWithDoc(id, key, value, doc)
                                         } else {
                                             ViewRowNoDoc(id, key, value)

@@ -28,7 +28,7 @@ class TokenWebExchangeMatcher(val asyncCacheManager: AsyncCacheManager) : Server
             token.let {
                 if (it.contains('=')) {
                     val (key, value) = it.split('=')
-                    if (key == "tokenId") {
+                    if (key == "tokenid") {
                         cache.get(value)?.let { restriction ->
                             cache.evict(value)
                             if (

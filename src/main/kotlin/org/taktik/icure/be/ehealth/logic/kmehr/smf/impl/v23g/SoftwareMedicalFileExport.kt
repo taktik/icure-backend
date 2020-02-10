@@ -94,7 +94,7 @@ class SoftwareMedicalFileExport(
 	private var itemByServiceId: MutableMap<String, ItemType> = HashMap()
 	private var oldestHeByHeId: Map<String?, HealthElement> = HashMap()
 
-	suspend fun exportSMF(
+	fun exportSMF(
 			patient: Patient,
 			sfks: List<String>,
 			sender: HealthcareParty,
@@ -108,7 +108,7 @@ class SoftwareMedicalFileExport(
 					clinicalSummaryType = "TODO", // not used
 					defaultLanguage = "en",
 					exportAsPMF = true
-			)) : Flow<DataBuffer> {
+			)) : Flow<DataBuffer> = flow {
 
 		val sfksUniq = sfks.toSet().toList() // duplicated sfk cause couchDb views to return duplicated results
 
@@ -125,7 +125,7 @@ class SoftwareMedicalFileExport(
 		})
 
         val folder = makePatientFolder(1, patient, sfksUniq, sender, config, language, decryptor, progressor)
-        return emitMessage(folder, message)
+        emitMessage(folder, message).collect { emit(it) }
 	}
 
 

@@ -24,14 +24,12 @@ import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.bind.JAXBContext
-import com.sun.xml.internal.ws.util.NoCloseInputStream
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
-import org.springframework.context.annotation.Bean
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.entities.samv2.embed.AmppComponent
 import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
@@ -39,6 +37,7 @@ import org.taktik.icure.be.samv2.entities.ExportReimbursements
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.NoCloseInputStream
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet

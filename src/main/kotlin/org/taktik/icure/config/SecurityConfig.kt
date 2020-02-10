@@ -35,7 +35,9 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.web.server.ServerWebExchange
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
@@ -102,9 +104,17 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                 .pathMatchers("/rest/*/icure/pok").permitAll()
                 .pathMatchers("/").permitAll()
                 .pathMatchers("/ping.json").permitAll()
-                .matchers(TokenWebExchangeMatcher(asyncCacheManager)).permitAll()
+                .matchers(
+                        TokenWebExchangeMatcher(asyncCacheManager).paths(
+                                        "/rest/v1/document/*/attachment/*",
+                                        "/rest/v1/form/template/*/attachment/*",
+                                        "/ws/**"
+                                        )).hasRole("USER")
                 .pathMatchers("/**").hasRole("USER")
                 .and().build()
     }
 
 }
+
+private fun ServerWebExchangeMatcher.and(matcher: ServerWebExchangeMatcher): ServerWebExchangeMatcher = AndServerWebExchangeMatcher(this, matcher)
+private fun ServerWebExchangeMatcher.paths(vararg antPatterns: String): ServerWebExchangeMatcher = AndServerWebExchangeMatcher(this, ServerWebExchangeMatchers.pathMatchers(*antPatterns))

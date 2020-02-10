@@ -19,11 +19,23 @@
 
 package org.taktik.icure.config
 
+import com.google.gson.Gson
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered
 import org.springframework.web.reactive.config.CorsRegistry
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
+import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
+import org.springframework.web.reactive.socket.server.WebSocketService
+import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
+import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
+import org.springframework.web.reactive.socket.server.upgrade.JettyRequestUpgradeStrategy
+import org.springframework.web.server.session.CookieWebSessionIdResolver
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.services.external.http.WebSocketOperationHandler
+import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
 
 @Configuration
 @EnableWebFlux
@@ -37,4 +49,24 @@ class WebConfig : WebFluxConfigurer {
 	override fun addCorsMappings(registry: CorsRegistry) {
 		registry.addMapping("/**").allowCredentials(true).allowedOrigins("*").allowedMethods("*").allowedHeaders("*")
 	}
+
+    @Bean
+    fun webSocketHandler(kmehrWsController: KmehrWsController, sessionLogic: AsyncSessionLogic) =
+            WebSocketOperationHandler(kmehrWsController, Gson(), sessionLogic)
+
+    @Bean
+    fun handlerMapping(webSocketHandler: WebSocketOperationHandler) = SimpleUrlHandlerMapping().apply {
+        urlMap = mapOf("/ws/**" to webSocketHandler)
+        order = Ordered.HIGHEST_PRECEDENCE
+    }
+
+    @Bean
+    fun handlerAdapter(webSocketService: WebSocketService) =
+            WebSocketHandlerAdapter(webSocketService)
+
+    @Bean
+    fun webSocketService() = HandshakeWebSocketService()
+
+    @Bean
+    fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer { cb -> cb.sameSite("None")} }
 }

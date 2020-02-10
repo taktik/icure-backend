@@ -23,9 +23,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -46,17 +49,18 @@ import java.util.concurrent.Callable
 class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
     var prefix: String? = null
     val methods = scanBeanMethods(kmehrWsController)
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun scanBeanMethods(bean: Any): Map<String, WebSocketInvocation> {
-        return bean.javaClass.getAnnotation(RequestMapping::class.java)?.let {
-            if (it.path.isNotEmpty()) {
-                val basePath: String = it.path[0]
+        return bean.javaClass.getAnnotation(RestController::class.java)?.let {
+            if (it.value.isNotEmpty()) {
+                val basePath: String = it.value
                 bean.javaClass.methods.filter { m: Method ->
                     m.getAnnotation(WebSocketOperation::class.java)?.let { _ ->
-                        m.getAnnotation(RequestMapping::class.java)?.path?.isNotEmpty()
+                        m.getAnnotation(RequestMapping::class.java)?.value?.isNotEmpty()
                     } == true
                 }.fold(mutableMapOf<String, WebSocketInvocation>()) { methods, m ->
-                    methods[(basePath + "/" + m.getAnnotation(RequestMapping::class.java).path[0]).replace("//".toRegex(), "/")] =
+                    methods[(basePath + "/" + m.getAnnotation(RequestMapping::class.java).value[0]).replace("//".toRegex(), "/")] =
                             WebSocketInvocation(m.getAnnotation(WebSocketOperation::class.java).adapterClass.java, bean, m)
                     methods
                 }
@@ -69,37 +73,33 @@ class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController
     override fun handle(session: WebSocketSession): Mono<Void> {
         var operation: Operation? = null
         return mono {
-            session.receive().asFlow().map {
+            session.receive().doOnNext { wsm -> wsm.retain() }.asFlow().collect {
                 if (operation == null) {
                     val parameters = JsonParser.parseString(it.payloadAsText).asJsonObject["parameters"].asJsonObject
-                    val path = session.handshakeInfo.uri.path.replaceFirst("^" + (prefix?.toRegex() ?: ""), "").replaceFirst(";jsessionid=.*".toRegex(), "")
+                    val path = session.handshakeInfo.uri.path.replaceFirst("^" + (prefix?.toRegex() ?: ""), "").replaceFirst(";.+?=.*".toRegex(), "")
                     val invocation = methods[path]
                     operation = try {
                         invocation!!.operationClass.getConstructor(WebSocketSession::class.java, Gson::class.java).newInstance(session, gsonMapper)
-                    } catch (e: InstantiationException) {
-                        throw IllegalStateException(e)
-                    } catch (e: IllegalAccessException) {
-                        throw IllegalStateException(e)
-                    } catch (e: NoSuchMethodException) {
-                        throw IllegalStateException(e)
-                    } catch (e: InvocationTargetException) {
+                    } catch (e: Exception) {
+                        log.error("WS error",e);
                         throw IllegalStateException(e)
                     }
 
                     try {
-                        invocation.method.invoke(invocation.bean, invocation.method.parameters.map { p: Parameter ->
+                        val parameters = invocation.method.parameters.map { p: Parameter ->
                             val paramAnnotation = p.getAnnotation(WebSocketParam::class.java)
                             if (paramAnnotation == null) operation else gsonMapper.fromJson(parameters[paramAnnotation.value], p.type)
-                        }.toTypedArray())
-                    } catch (e: IllegalAccessException) {
-                        throw IllegalArgumentException(e)
-                    } catch (e: InvocationTargetException) {
+                        }.toTypedArray()
+                        val res = invocation.method.invoke(invocation.bean, *parameters) as Mono<*>
+                        res.awaitFirstOrNull()
+                    } catch (e: Exception) {
+                        log.error("WS error",e);
                         throw IllegalArgumentException(e)
                     }
-                    null
                 } else {
                     operation!!.handle<Serializable>(it.payloadAsText)
                 }
+                it.release()
             }
             null
         }

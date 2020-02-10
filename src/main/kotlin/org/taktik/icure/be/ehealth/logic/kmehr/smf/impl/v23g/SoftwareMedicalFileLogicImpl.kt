@@ -64,5 +64,5 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
         return softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
     }
 
-    override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) = flow { emitAll(softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor)) }
+    override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) = softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor)
 }
