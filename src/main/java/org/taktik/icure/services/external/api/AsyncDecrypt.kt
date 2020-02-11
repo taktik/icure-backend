@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.services.external.api
 
-package org.taktik.icure.services.external.api;
+import java.io.IOException
+import java.io.Serializable
+import java.util.concurrent.CompletionStage
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.concurrent.Future;
-
-public interface AsyncDecrypt {
-	<K extends Serializable> Future<List<K>> decrypt(List<K> encrypted, Class<K> clazz) throws IOException;
+interface AsyncDecrypt {
+    @Throws(IOException::class)
+    suspend fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): CompletionStage<List<K>>
 }

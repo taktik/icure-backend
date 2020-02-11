@@ -308,13 +308,14 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
 	override suspend fun isValid(dbInstanceUrl: URI, groupId: String,code: Code, ofType: String?) = findCodes(dbInstanceUrl, groupId,ofType ?: code.type, code.code, code.version).firstOrNull() != null
 
 	@InternalCoroutinesApi
-    override suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String>) : Code {
+    override suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String>) : Code? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label.let { StringUtils.sanitizeString(it) }
         for (lang in labelLang) {
             val codeFlow = client.queryViewIncludeDocsNoValue<Array<String>, Code>(
                     createQuery<Code>("by_region_type_code_version")
                             .includeDocs(true)
+                            .reduce(false)
                             .key(ComplexKey.of(
                                     region,
                                     lang,
@@ -327,6 +328,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
             }
         }
 
-		throw IllegalArgumentException("code of type $ofType not found for label $label in languages $labelLang")
+		//throw IllegalArgumentException("code of type $ofType not found for label $label in languages $labelLang")
+        return null
 	}
 }

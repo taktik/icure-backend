@@ -20,23 +20,27 @@ package org.taktik.icure.services.external.http.websocket
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.asFlux
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import java.io.IOException
 import java.io.Serializable
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
+import java.util.concurrent.CompletionStage
 
 class KmehrFileOperation(webSocket: WebSocketSession, gsonMapper: Gson) : BinaryOperation(webSocket, gsonMapper), AsyncDecrypt {
     private val decodingSessions: MutableMap<String?, DecodingSession<*>> = HashMap()
     @Throws(IOException::class)
-    override fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): Future<List<K>> {
+    override suspend fun <K : Serializable?> decrypt(encrypted: List<K>, clazz: Class<K>): CompletionStage<List<K>> {
         val message: Message<*> = Message("decrypt", clazz.simpleName, UUID.randomUUID().toString(), encrypted)
         val future = CompletableFuture<List<K>>()
         val decodingSession = DecodingSession(future, clazz)
         decodingSessions[message.uuid] = decodingSession
-        webSocket.textMessage(gsonMapper.toJson(message))
+        val textMessage  = webSocket.textMessage(gsonMapper.toJson(message))
+        webSocket.send(flow { emit(textMessage) }.asFlux()).awaitFirstOrNull()
         return future
     }
 
@@ -45,16 +49,16 @@ class KmehrFileOperation(webSocket: WebSocketSession, gsonMapper: Gson) : Binary
         val dto = parser.parse(message).asJsonObject
         if (dto["command"].asString == "decryptResponse") {
             val decodingSession = decodingSessions[dto["uuid"].asString] as DecodingSession<K>
-            decodingSession.future.complete(
-                    dto["body"].asJsonArray.map { e ->
+            decodingSession.future.thenRunAsync {
+                    dto["body"].asJsonArray.mapNotNull { e ->
                         try {
                             gsonMapper.fromJson<K>(e.asJsonObject, decodingSession.clazz)
                         } catch (ee: JsonSyntaxException) {
                             null
                         }
-            }.filterNotNull())
+            }}
         }
     }
 
-    private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
+    private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletionStage<List<K>>, var clazz: Class<K>)
 }

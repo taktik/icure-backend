@@ -23,10 +23,11 @@ import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.Mustache
 import com.github.mustachejava.MustacheFactory
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
@@ -56,20 +57,17 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
-import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.utils.FuzzyValues
-import java.io.OutputStream
-import java.io.OutputStreamWriter
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeConstants
 
 /**
@@ -143,8 +141,9 @@ class SoftwareMedicalFileExport(
 			date = config.date
 			time = config.time
 			author = AuthorType().apply {
-				hcparties.add(healthcarePartyLogic.getHealthcareParty(patient.author?.let { userLogic.getUser(it)?.healthcarePartyId }
-                        ?: healthcareParty.id)?.let { createParty(it) })
+				hcparties.add(
+                        healthcarePartyLogic.getHealthcareParty(patient.author?.let { userLogic.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)?.let { createParty(it) }
+                )
 			}
 			isIscomplete = true
 			isIsvalidated = true
@@ -194,10 +193,10 @@ class SoftwareMedicalFileExport(
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
-				val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
-				ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
+				val ctcDto = mapper.map(encContact, ContactDto::class.java)
+				ctcDto.services = toBeDecryptedServices.map { mapper.map(it, ServiceDto::class.java) }
 
-				decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) }?.let {
+				Mono.fromCompletionStage (decryptor.decrypt(listOf(ctcDto), ContactDto::class.java) ).awaitFirstOrNull()?.let { mapper!!.map(it, Contact::class.java) }?.let {
 					it.apply {
 						this.services = HashSet(encContact.services.map {
 							this.services.find { o -> o.id == it.id } ?: it
@@ -643,7 +642,7 @@ class SoftwareMedicalFileExport(
 	}
 
 	private suspend fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
-		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate }
+		val isActive: (ReferralPeriod) -> Boolean = { r -> (r.startDate?.isBefore(Instant.now()) ?: false) && null == r.endDate }
 		val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any(isActive) ?: false }
                 ?: return Pair(null, null)
         val gmd = gmdRelationship.healthcarePartyId?.let { healthcarePartyLogic.getHealthcareParty(it) }
@@ -1083,10 +1082,9 @@ class SoftwareMedicalFileExport(
 		val toBeDecryptedServices = services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 		return if (decryptor != null && toBeDecryptedServices.size ?: 0 > 0) {
-			val decryptedServices = decryptor.decrypt(toBeDecryptedServices.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper.map(it, Service::class.java) }
-			services?.map {
-				if (toBeDecryptedServices?.contains(it)
-								?: false) decryptedServices[toBeDecryptedServices!!.indexOf(it)] else it
+			val decryptedServices = Mono.fromCompletionStage(decryptor.decrypt(toBeDecryptedServices.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java)).awaitFirst().map { mapper.map(it, Service::class.java)  }
+			services.map {
+				if (toBeDecryptedServices?.contains(it) ?: false) decryptedServices[toBeDecryptedServices!!.indexOf(it)] else it
 			}
 		} else services
 	}
@@ -1106,7 +1104,7 @@ class SoftwareMedicalFileExport(
 		val toBeDecryptedServices = services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
 		return if (decryptor != null && toBeDecryptedServices.size ?: 0 > 0) {
-			val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
+			val decryptedServices = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java) ).awaitFirst().map { mapper.map(it, Service::class.java) }
 			services.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
 		} else services
 	}

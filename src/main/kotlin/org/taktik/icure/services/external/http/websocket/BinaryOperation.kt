@@ -20,6 +20,8 @@ package org.taktik.icure.services.external.http.websocket
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.asFlux
 import org.apache.commons.logging.LogFactory
 import org.springframework.core.io.buffer.DataBuffer
@@ -32,8 +34,8 @@ abstract class BinaryOperation(protected var webSocket: WebSocketSession, protec
     private val log = LogFactory.getLog(BinaryOperation::class.java)
 
     @Throws(IOException::class)
-    fun binaryResponse(response: Flow<DataBuffer>) {
-        webSocket.send(response.map { WebSocketMessage(WebSocketMessage.Type.BINARY, it)}.asFlux())
+    suspend fun binaryResponse(response: Flow<DataBuffer>) {
+        webSocket.send(response.map { WebSocketMessage(WebSocketMessage.Type.BINARY, it)}.asFlux()).awaitFirstOrNull()
     }
 
     @Throws(IOException::class)

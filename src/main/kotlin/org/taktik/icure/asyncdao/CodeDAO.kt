@@ -38,7 +38,7 @@ interface CodeDAO : GenericDAO<Code> {
     fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?): Flow<String>
 	suspend fun ensureValid(dbInstanceUrl: URI, groupId: String, code : Code, ofType : String? = null, orDefault : Code? = null) : Code
     suspend fun isValid(dbInstanceUrl: URI, groupId: String, code: Code, ofType: String? = null): Boolean
-    suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code
+    suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code?
     fun findCodesByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun listCodeIdsByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, linkType: String, linkedId: String?): Flow<String>
     fun getForPagination(dbInstanceUri: URI, groupId: String, ids: List<String>): Flow<ViewQueryResultEvent>

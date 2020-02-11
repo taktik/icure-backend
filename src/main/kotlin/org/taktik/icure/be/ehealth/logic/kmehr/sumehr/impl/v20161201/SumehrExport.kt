@@ -22,6 +22,8 @@ package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
@@ -51,12 +53,15 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.utils.FuzzyValues
+import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.CompletionStage
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
@@ -237,7 +242,7 @@ class SumehrExport(
 			val chunkedToBeDecryptedServices = toBeDecryptedServices.chunked(50)
 
 			chunkedToBeDecryptedServices.forEach { itt ->
-				val decryptedServicesChunk = decryptor.decrypt(itt.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper.map(it, Service::class.java) }
+				val decryptedServicesChunk = Mono.fromCompletionStage ( decryptor.decrypt(itt.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java) ).awaitFirst().map { mapper.map(it, Service::class.java) }
 				decryptedServices.addAll(decryptedServicesChunk)
 			}
             services?.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
@@ -587,8 +592,8 @@ class SumehrExport(
 		val toBeDecryptedHcElements = nonConfidentialItems.filter { it.encryptedSelf?.length ?: 0 > 0 }
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
-            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper.map(it, HealthElement::class.java)}
-			nonConfidentialItems = nonConfidentialItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
+            val decryptedHcElements = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedHcElements.map {mapper.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java) ).awaitFirst().map {mapper.map(it, HealthElement::class.java)}
+			nonConfidentialItems = nonConfidentialItems.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
 		}
 
 		for (healthElement in nonConfidentialItems) {

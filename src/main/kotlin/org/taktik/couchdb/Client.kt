@@ -143,7 +143,7 @@ data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, ove
     override val doc: Nothing?
         get() = error("Row has no doc")
 }
-data class ViewRowMissingDoc<K, V>(override val id: String, override val key: K?, override val value: V?) : ViewRow<K, V, Nothing>() {
+data class ViewRowWithMissingDoc<K, V>(override val id: String, override val key: K?, override val value: V?) : ViewRow<K, V, Nothing>() {
     override val doc: Nothing?
         get() = error("Doc is missing for this row")
 }

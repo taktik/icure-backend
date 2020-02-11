@@ -19,32 +19,20 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.awaitFirst
 import ma.glasnost.orika.MapperFacade
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
-import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -54,12 +42,8 @@ import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
-import java.io.OutputStream
-import java.io.OutputStreamWriter
+import reactor.core.publisher.Mono
 import java.time.Instant
-import java.util.*
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.Marshaller
 
 /**
  * @author Bernard Paulus on 29/05/17.
@@ -264,7 +248,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
         val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }?.toList()
 
         return if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
-            val decryptedServices = decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
+            val decryptedServices = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java) ).awaitFirst().map { mapper!!.map(it, Service::class.java) }
             services.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
         } else services
     }
