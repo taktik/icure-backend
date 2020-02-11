@@ -196,17 +196,16 @@ class SoftwareMedicalFileExport(
 				val ctcDto = mapper.map(encContact, ContactDto::class.java)
 				ctcDto.services = toBeDecryptedServices.map { mapper.map(it, ServiceDto::class.java) }
 
-				Mono.fromCompletionStage (decryptor.decrypt(listOf(ctcDto), ContactDto::class.java) ).awaitFirstOrNull()?.let { mapper!!.map(it, Contact::class.java) }?.let {
-					it.apply {
-						this.services = HashSet(encContact.services.map {
-							this.services.find { o -> o.id == it.id } ?: it
-						})
-					}
-				} ?: encContact
+				Mono.fromCompletionStage (decryptor.decrypt(listOf(ctcDto), ContactDto::class.java) ).awaitFirstOrNull()?.let { ctcs ->
+                    ctcs.firstOrNull()?.let { mapper!!.map(it, Contact::class.java) }
+                }?.apply {
+                    this.services = HashSet(encContact.services.map {
+                        this.services.find { o -> o.id == it.id } ?: it
+                    })
+                } ?: encContact
 			} else {
 				encContact
 			}
-
 
 			folder.transactions.add(
 					TransactionType().apply {
@@ -294,7 +293,6 @@ class SoftwareMedicalFileExport(
 							}
 
 							if(!isDocument) {
-
 								var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
 								svc.tags.find { it.type == "ICURE" && it.code == "PRESC" }?.let {
 									svcCdItem = CodeStub("CD-ITEM", "medication", "1") // FIXME: this is really a prescription, but no medication concept yet in topaz
@@ -363,7 +361,7 @@ class SoftwareMedicalFileExport(
 												this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
 											}
 										}
-										itemByServiceId[svc.id!!] = this
+                                        svc.id?.let { itemByServiceId[it] = this }
 										headingsAndItemsAndTexts.add(this)
 									}
 								}

@@ -20,11 +20,10 @@ package org.taktik.icure.services.external.http.websocket
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactor.asFlux
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.taktik.icure.services.external.api.AsyncDecrypt
+import reactor.core.publisher.Mono
 import java.io.IOException
 import java.io.Serializable
 import java.util.*
@@ -39,26 +38,24 @@ class KmehrFileOperation(webSocket: WebSocketSession, gsonMapper: Gson) : Binary
         val future = CompletableFuture<List<K>>()
         val decodingSession = DecodingSession(future, clazz)
         decodingSessions[message.uuid] = decodingSession
-        val textMessage  = webSocket.textMessage(gsonMapper.toJson(message))
-        webSocket.send(flow { emit(textMessage) }.asFlux()).awaitFirstOrNull()
+        webSocket.send(Mono.just(webSocket.textMessage(gsonMapper.toJson(message)))).awaitFirstOrNull()
         return future
     }
 
-    override fun <K: Serializable>handle(message: String?) {
-        val parser = JsonParser()
-        val dto = parser.parse(message).asJsonObject
+    override fun <K : Serializable> handle(message: String?) {
+        val dto = JsonParser.parseString(message).asJsonObject
         if (dto["command"].asString == "decryptResponse") {
             val decodingSession = decodingSessions[dto["uuid"].asString] as DecodingSession<K>
-            decodingSession.future.thenRunAsync {
+            decodingSession.future.complete(
                     dto["body"].asJsonArray.mapNotNull { e ->
                         try {
                             gsonMapper.fromJson<K>(e.asJsonObject, decodingSession.clazz)
                         } catch (ee: JsonSyntaxException) {
                             null
                         }
-            }}
+                    })
         }
     }
 
-    private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletionStage<List<K>>, var clazz: Class<K>)
+    private inner class DecodingSession<K : Serializable?> internal constructor(var future: CompletableFuture<List<K>>, var clazz: Class<K>)
 }

@@ -19,9 +19,10 @@ package org.taktik.icure.services.external.http
 
 import com.google.gson.Gson
 import com.google.gson.JsonParser
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -37,13 +38,9 @@ import org.taktik.icure.services.external.http.websocket.WebSocketOperation
 import org.taktik.icure.services.external.http.websocket.WebSocketParam
 import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
 import java.io.Serializable
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
-import java.util.*
-import java.util.concurrent.Callable
 
 @Component
 class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
@@ -73,9 +70,9 @@ class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController
     override fun handle(session: WebSocketSession): Mono<Void> {
         var operation: Operation? = null
         return mono {
-            session.receive().doOnNext { wsm -> wsm.retain() }.asFlow().collect {
-                if (operation == null) {
-                    val parameters = JsonParser.parseString(it.payloadAsText).asJsonObject["parameters"].asJsonObject
+            session.receive().doOnNext { wsm -> wsm.retain() }.asFlow().mapNotNull { wsm ->
+                (if (operation == null) {
+                    val jsonParameters = JsonParser.parseString(wsm.payloadAsText).asJsonObject["parameters"].asJsonObject
                     val path = session.handshakeInfo.uri.path.replaceFirst("^" + (prefix?.toRegex() ?: ""), "").replaceFirst(";.+?=.*".toRegex(), "")
                     val invocation = methods[path]
                     operation = try {
@@ -88,19 +85,21 @@ class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController
                     try {
                         val parameters = invocation.method.parameters.map { p: Parameter ->
                             val paramAnnotation = p.getAnnotation(WebSocketParam::class.java)
-                            if (paramAnnotation == null) operation else gsonMapper.fromJson(parameters[paramAnnotation.value], p.type)
+                            if (paramAnnotation == null) operation else gsonMapper.fromJson(jsonParameters[paramAnnotation.value], p.type)
                         }.toTypedArray()
-                        val res = invocation.method.invoke(invocation.bean, *parameters) as Mono<*>
-                        res.awaitFirstOrNull()
+
+                        async(Dispatchers.Default) {
+                            (invocation.method.invoke(invocation.bean, *parameters) as Mono<*>).awaitFirstOrNull()
+                        }
                     } catch (e: Exception) {
                         log.error("WS error",e);
                         throw IllegalArgumentException(e)
                     }
                 } else {
-                    operation!!.handle<Serializable>(it.payloadAsText)
-                }
-                it.release()
-            }
+                    operation!!.handle<Serializable>(wsm.payloadAsText)
+                    null
+                }).also { wsm.release() }
+            }.toList().filterIsInstance<Deferred<Unit>>().first().await()
             null
         }
     }
