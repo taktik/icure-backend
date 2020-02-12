@@ -22,6 +22,8 @@ package org.taktik.icure.be.ehealth.logic.kmehr.v20131001
 import kotlinx.coroutines.flow.collect
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.springframework.cache.Cache
+import org.springframework.cache.support.SimpleValueWrapper
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -66,12 +68,14 @@ open class KmehrExport(
         val userLogic: UserLogic,
         val filters: Filters
 ) {
-	val unitCodes = HashMap<String,Code>()
+	internal val unitCodes = HashMap<String,Code>()
+    internal val codesMap = hashMapOf<String,Cache.ValueWrapper>()
 
     internal val STANDARD = "20131001"
     internal val ICUREVERSION = "4.0.0" // TODO fetch actual version here or delete and fetch elsewhere
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
+
 
     fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType  {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
@@ -165,7 +169,7 @@ open class KmehrExport(
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
                     CDLIFECYCLEvalues.INACTIVE
                 } else {
-                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
+                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { try { CDLIFECYCLEvalues.fromValue(it.code) } catch(e:java.lang.IllegalArgumentException) { null } }
                             ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
                 }
             } }
@@ -516,15 +520,23 @@ open class KmehrExport(
 
     private suspend fun mapToCountryCode(country: String?): String? {
 		if (country == null) {return null }
-        return if (codeLogic.isValid(Code("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
-            country.toLowerCase()
+        val key = "COUNTRY|$country"
+        val cachedCode = codesMap[key]
+        if (cachedCode != null) {
+            return (cachedCode.get() as Code?)?.code
+        }
+        val code = Code("CD-FED-COUNTRY", country.toLowerCase(), "1")
+        return (if (codeLogic.isValid(code)) {
+            code
 		} else {
 			try {
-                codeLogic.getCodeByLabel("be", country, "CD-FED-COUNTRY")?.code
+                codeLogic.getCodeByLabel("be", country, "CD-FED-COUNTRY")
 			} catch (e:IllegalArgumentException) {
                 null
 			}
-		}
+		}).also {
+            codesMap[key] = SimpleValueWrapper(it)
+        }?.code
 	}
 
     suspend fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {

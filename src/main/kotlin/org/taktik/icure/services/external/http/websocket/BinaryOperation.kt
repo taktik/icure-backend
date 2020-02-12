@@ -35,7 +35,9 @@ abstract class BinaryOperation(protected var webSocket: WebSocketSession, protec
 
     @Throws(IOException::class)
     suspend fun binaryResponse(response: Flow<DataBuffer>) {
-        webSocket.send(response.map { WebSocketMessage(WebSocketMessage.Type.BINARY, it)}.asFlux()).awaitFirstOrNull()
+        webSocket.send(response.map {
+            WebSocketMessage(WebSocketMessage.Type.BINARY, it)
+        }.asFlux()).awaitFirstOrNull()
     }
 
     @Throws(IOException::class)

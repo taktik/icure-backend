@@ -32,6 +32,7 @@ import org.springframework.web.reactive.socket.server.WebSocketService
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import org.springframework.web.reactive.socket.server.upgrade.JettyRequestUpgradeStrategy
+import org.springframework.web.reactive.socket.server.upgrade.ReactorNettyRequestUpgradeStrategy
 import org.springframework.web.server.session.CookieWebSessionIdResolver
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.services.external.http.WebSocketOperationHandler
@@ -65,7 +66,7 @@ class WebConfig : WebFluxConfigurer {
             WebSocketHandlerAdapter(webSocketService)
 
     @Bean
-    fun webSocketService() = HandshakeWebSocketService()
+    fun webSocketService() = HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy().apply { maxFramePayloadLength = 8*1024*1024 })
 
     @Bean
     fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer { cb -> cb.sameSite("None")} }

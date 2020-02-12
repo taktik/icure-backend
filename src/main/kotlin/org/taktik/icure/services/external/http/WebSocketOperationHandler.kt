@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.socket.WebSocketHandler
+import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.services.external.http.websocket.Operation
@@ -41,6 +42,7 @@ import reactor.core.publisher.Mono
 import java.io.Serializable
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
+import java.nio.charset.Charset
 
 @Component
 class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
@@ -96,7 +98,11 @@ class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController
                         throw IllegalArgumentException(e)
                     }
                 } else {
-                    operation!!.handle<Serializable>(wsm.payloadAsText)
+                    if (wsm.type == WebSocketMessage.Type.TEXT) {
+                        operation!!.handle<Serializable>(wsm.payloadAsText)
+                    } else {
+                        operation!!.handle<Serializable>(wsm.payload.asByteBuffer().array().toString(Charsets.UTF_8))
+                    }
                     null
                 }).also { wsm.release() }
             }.toList().filterIsInstance<Deferred<Unit>>().first().await()

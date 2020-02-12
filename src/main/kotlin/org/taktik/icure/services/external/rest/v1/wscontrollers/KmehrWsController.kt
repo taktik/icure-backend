@@ -199,13 +199,13 @@ class KmehrWsController(private var mapper: MapperFacade,
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let {
-                healthcareParty?.let { it1 ->
+            patient?.let { pat ->
+                healthcareParty?.let { hcp ->
                     operation.binaryResponse(
                             softwareMedicalFileLogic.createSmfExport(
-                                    it,
+                                    pat,
                                     info.secretForeignKeys,
-                                    it1,
+                                    hcp,
                                     language,
                                     operation,
                                     operation
