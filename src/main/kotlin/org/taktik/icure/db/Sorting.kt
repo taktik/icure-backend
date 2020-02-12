@@ -17,4 +17,4 @@
  */
 package org.taktik.icure.db
 
-class Sorting(val field: String?, val direction: String)
+class Sorting(val field: String?, val direction: String?)
