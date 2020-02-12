@@ -19,7 +19,8 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
@@ -78,7 +79,7 @@ class DiaryNoteExport(mapper: MapperFacade,
             clinicalSummaryType = "",
             defaultLanguage = "en"
         )
-    ): Flow<DataBuffer> {
+    ) = flow<DataBuffer> {
         val message = initializeMessage(sender, config)
         message.header.recipients.add(RecipientType().apply {
             hcparties.add(recipient?.let { createParty(it, emptyList()) } ?: createParty(emptyList(), listOf(CDHCPARTY().apply { s = CDHCPARTYschemes.CD_APPLICATION; sv = "1.0" }), "gp-software-migration"))
@@ -89,7 +90,7 @@ class DiaryNoteExport(mapper: MapperFacade,
         folder.patient = makePerson(pat, config)
 
         fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
-        return emitMessage(folder, message)
+        emitMessage(folder, message).collect { emit(it) }
     }
 
 

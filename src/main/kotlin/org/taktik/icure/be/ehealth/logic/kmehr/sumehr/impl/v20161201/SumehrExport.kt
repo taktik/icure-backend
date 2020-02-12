@@ -19,11 +19,10 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.sumehr.impl.v20161201
 
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
@@ -126,7 +125,7 @@ class SumehrExport(
 		folder.patient = makePerson(pat, config)
 		fillPatientFolder(folder, pat, sfks, sender, language, config, comment, excludedIds, includeIrrelevantInformation, decryptor)
 		message.folders.add(folder)
-        emitMessage(folder, message)
+        emitMessage(folder, message).collect { emit(it) }
 	}
 
 	internal suspend fun fillPatientFolder(folder: FolderType, p: Patient, sfks: List<String>, sender: HealthcareParty, language: String, config: Config, comment: String?, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?): FolderType {

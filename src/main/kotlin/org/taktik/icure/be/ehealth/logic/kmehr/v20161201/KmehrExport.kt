@@ -278,7 +278,7 @@ open class KmehrExport(
 
             certainty = he.tags.find { t -> t.type == "CD-CERTAINTY" }?.let {
                 CertaintyType().apply {
-                    cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = CDCERTAINTYvalues.fromValue(it.code) }
+                    cd = CDCERTAINTY().apply { s = "CD-CERTAINTY"; value = try{CDCERTAINTYvalues.fromValue(it.code)} catch (e: Exception) {null} }
                 }
             }
             isIsrelevant = ServiceStatus.isRelevant(he.status)

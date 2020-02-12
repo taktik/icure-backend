@@ -19,9 +19,7 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.awaitFirst
 import ma.glasnost.orika.MapperFacade
 import org.springframework.core.io.buffer.DataBuffer
@@ -76,7 +74,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
                                          soft = Config.Software(name = "iCure", version = ICUREVERSION),
                                          clinicalSummaryType = "",
                                          defaultLanguage = "en"
-                                        )): Flow<DataBuffer> {
+                                        )) = flow<DataBuffer> {
 
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
@@ -87,7 +85,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
 		})
 
         val folder = makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), decryptor, progressor)
-		return emitMessage(folder, message)
+		emitMessage(folder, message).collect { emit(it) }
 	}
 
 

@@ -32,6 +32,7 @@ import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
@@ -192,8 +193,7 @@ class KmehrController(
     @ApiOperation(nickname = "getSumehrV2Content", value = "Get sumehr elements")
     @PostMapping("/sumehrv2/{patientId}/content")
     suspend fun getSumehrV2Content(@PathVariable patientId: String,
-                                   @RequestBody info: SumehrExportInfoDto,
-                                   response: HttpServletResponse): SumehrContentDto {
+                                   @RequestBody info: SumehrExportInfoDto): SumehrContentDto {
         val result = SumehrContentDto()
 
         result.services = sumehrLogicV2.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
