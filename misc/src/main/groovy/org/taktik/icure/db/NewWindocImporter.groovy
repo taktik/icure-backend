@@ -92,6 +92,7 @@ class NewWindocImporter extends Importer {
     }
 
     Date dateParse(format, date) {
+        if (!date) return null
         return (date instanceof Timestamp) ? date : Date.parse(format, date)
     }
 
@@ -364,6 +365,7 @@ class NewWindocImporter extends Importer {
         println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
 
         if (!this.limit) {
+            /*
             startImport = System.currentTimeMillis()
             print("Importing thesaurus... ")
 
@@ -375,12 +377,10 @@ class NewWindocImporter extends Importer {
 
             startImport = System.currentTimeMillis()
             print("Importing ICPC... ")
-            /*Importer.class.getResourceAsStream("codes/ICPC.xml").withReader("UTF8") { r ->
+            Importer.class.getResourceAsStream("codes/ICPC.xml").withReader("UTF8") { r ->
                 new ICPCCodeImporter().doScan(r, "ICPC")
-            }*/
-            println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")
-
-
+            }
+            println("" + (System.currentTimeMillis() - startImport) / 1000 + " s.")*/
         }
     }
 
@@ -397,6 +397,7 @@ class NewWindocImporter extends Importer {
         def zips = [:]
         def drs = [:]
         def pats = [:]
+        def pats_old = [:]
         def patients = [:]
         def ctcs = [:]
         def healthElements = [:]
@@ -411,6 +412,9 @@ class NewWindocImporter extends Importer {
         def curTemplates = [:]
         def invoices = [:]
         def allSvcs = [:]
+        def missingPatients = new HashSet()
+        def foundPatients = new HashSet()
+        def heByWid = [:]
 
         couchdbBase.queryView(new ViewQuery(includeDocs: true).dbPath(couchdbBase.path()).designDocId("_design/FormTemplate").viewName("all"), FormTemplate.class).each {
             curTemplates[it.guid] = it
@@ -583,9 +587,39 @@ class NewWindocImporter extends Importer {
                             ])]
 
                     pats[(r['Patient_id']?:r['patient_id'])] = p
+                    if ((r['Old_id']?:r['old_id'])) pats_old[(r['Old_id']?:r['old_id'])] = p
                     patients[p.id] = p
                     (r['PAntec']?:r['pantec'])?.length() && (antecs[p.id] = (r['PAntec']?:r['pantec'])?.split(/\n/))
                     (r['FAntec']?:r['fantec'])?.length() && (fantecs[p.id] = (r['FAntec']?:r['fantec'])?.split(/\n/))
+
+                    antecs[p.id]?.eachWithIndex { String aa, i ->
+                        aa.eachLine { String a ->
+                            if (a.trim().length()) {
+                                healthElements[p.id] << new HealthElement(
+                                        id: idg.newGUID().toString(), healthElementId: idg.newGUID().toString(),
+                                        descr: a,
+                                        valueDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                                        openingDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                                        tags: [new Code('CD-ITEM', 'healthcareelement', '1')],
+                                        status: 1,
+                                        created: p.created, modified: p.modified, responsible: p.responsible, author: p.author)
+                            }
+                        }
+                    }
+
+                    fantecs[p.id]?.eachWithIndex { String aa, i ->
+                        aa.eachLine { String a ->
+                            if (a.trim().length()) {
+                                healthElements[p.id] << new HealthElement(
+                                        id: idg.newGUID().toString(), healthElementId: idg.newGUID().toString(),
+                                        descr: a,
+                                        valueDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                                        openingDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(p.created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                                        tags: [new Code('CD-ITEM', 'familyrisk', '1')],
+                                        created: p.created, modified: p.modified, responsible: p.responsible, author: p.author)
+                            }
+                        }
+                    }
             }
 
             println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
@@ -597,7 +631,7 @@ class NewWindocImporter extends Importer {
             print("Scanning contacts... ")
 
             src.eachRow("select * from TContact") { r ->
-                def realPat = pats[(r['Patient_id']?:r['patient_id'])]
+                def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
                 if (realPat) {
                     def c = new Contact(
                             id: idg.newGUID().toString(),
@@ -644,39 +678,42 @@ class NewWindocImporter extends Importer {
                 )
 
                 frms[pId] << (forms[pId] = mf)
+            }
 
-                antecs[pId].eachWithIndex { String aa, i ->
-                    aa.eachLine { String a ->
-                        if (a.trim().length()) {
-                            def sid = idg.newGUID().toString()
-                            healthElements[pId] << new HealthElement(
-                                    id: sid,
-                                    descr: a,
-                                    valueDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(pCtcs[0].created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
-                                    openingDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(pCtcs[0].created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
-                                    tags: [new Code('CD-ITEM', 'healthcareelement', '1')],
-                                    status: 1,
-                                    idOpeningContact: pCtcs[0].id,
-                                    created: mf.created, modified: mf.modified, responsible: mf.responsible, author: mf.author)
-                        }
-                    }
-                }
+            println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
+        }
 
-                fantecs[pId].eachWithIndex { String aa, i ->
-                    aa.eachLine { String a ->
-                        if (a.trim().length()) {
-                            def sid = idg.newGUID().toString()
-                            healthElements[pId] << new HealthElement(
-                                    id: sid,
-                                    descr: a,
-                                    valueDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(pCtcs[0].created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
-                                    openingDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(pCtcs[0].created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
-                                    tags: [new Code('CD-ITEM', 'familyrisk', '1')],
-                                    idOpeningContact: pCtcs[0].id,
-                                    created: mf.created, modified: mf.modified, responsible: mf.responsible, author: mf.author)
-                        }
+        if (!limit) {
+            startScan = System.currentTimeMillis()
+            print("Scanning patient healthelements... ")
+            src.eachRow("select * from thealtelement") { r ->
+                def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
+                if (!pId) {
+                    if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
+                        //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
+                        missingPatients << (r['Patient_id']?:r['patient_id'])
                     }
+                    return
                 }
+                foundPatients << (r['Patient_id']?:r['patient_id'])
+
+                Contact c = !(r['Contact_id']?:r['contact_id']) ? ctcs[pId][0] : contacts[(r['Contact_id']?:r['contact_id'])] ?: ctcs[pId][0]
+                def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
+
+                def date = (r['Create_dt']?:r['create_dt']) ?: (r['Start_date']?:r['start_date'])
+                def crDateTime = date ? dateParse("yyyy-MM-dd HH:mm:ss", date).time : System.currentTimeMillis()
+
+                def openingDate = dateParse("yyyy-MM-dd HH:mm:ss", (r['Date']?:r['date']))?.time ?: crDateTime
+                def closingDate = dateParse("yyyy-MM-dd HH:mm:ss", (r['Closedate']?:r['closedate']))?.time
+
+                healthElements[pId] << (heByWid[r['Healtel_id']?:r['healtel_id']] = new HealthElement(
+                        id: idg.newGUID().toString(), healthElementId: idg.newGUID().toString(),
+                        descr: r['Description']?:r['description'],
+                        valueDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(openingDate ?: realPat.created), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                        openingDate: closingDate ? FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(closingDate), ZoneId.systemDefault()), ChronoUnit.SECONDS) : null,
+                        tags: [new Code('CD-ITEM', 'healthcareelement', '1')],
+                        created: realPat.created, modified: realPat.modified, responsible: realPat.responsible, author: realPat.author
+                ))
             }
 
             println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
@@ -686,7 +723,7 @@ class NewWindocImporter extends Importer {
             startScan = System.currentTimeMillis()
             print("Scanning tpanteced... ")
             src.eachRow("select * from tpanteced") { r ->
-                def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                 if (pId == null) {
                     return
                 }
@@ -713,7 +750,7 @@ class NewWindocImporter extends Importer {
             startScan = System.currentTimeMillis()
             print("Scanning patient allergies... ")
             src.eachRow("select * from TAllergiePat") { r ->
-                def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                 if (pId == null) {
                     return
                 }
@@ -737,7 +774,7 @@ class NewWindocImporter extends Importer {
             print("Scanning patient chronical meds... ")
             src.eachRow("select * from TChronMed") { r ->
 
-                def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                 if (pId == null) {
                     return
                 }
@@ -778,7 +815,7 @@ class NewWindocImporter extends Importer {
             print("Scanning patient intolerances... ")
             src.eachRow("select * from TIntolPat") { r ->
                 try {
-                    def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                    def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                     if (pId == null) {
                         return
                     }
@@ -849,18 +886,16 @@ class NewWindocImporter extends Importer {
             }
             println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
         }
-        def missingPatients = new HashSet()
-        def foundPatients = new HashSet()
 
         int count = 0
         if (!limit) {
             startScan = System.currentTimeMillis()
             println("Scanning journal... ")
 
-            src.eachRow("select * from tjournal order by Create_dt") {
+            src.eachRow("select * from tjournal j inner join thealt2jour h2j on h2j.journal_id = j.journal_id order by j.Create_dt") {
                 r ->
                     try {
-                        def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                        def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                         if (!pId) {
                             if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
                                 //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
@@ -871,7 +906,7 @@ class NewWindocImporter extends Importer {
                         foundPatients << (r['Patient_id']?:r['patient_id'])
 
                         Contact c = !(r['Contact_id']?:r['contact_id']) ? ctcs[pId][0] : contacts[(r['Contact_id']?:r['contact_id'])] ?: ctcs[pId][0]
-                        def realPat = pats[(r['Patient_id']?:r['patient_id'])]
+                        def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
                         def crDateTime = dateParse("yyyy-MM-dd HH:mm:ss", (r['Consult_dt']?:r['consult_dt']) ?: (r['Create_dt']?:r['create_dt'])).time
                         if (realPat && Math.abs(FuzzyValues.getDateTime(c.openingDate).atZone(ZoneId.systemDefault()).toEpochSecond() - crDateTime / 1000) > 48 * 3600) {
                             c = new Contact(
@@ -888,15 +923,16 @@ class NewWindocImporter extends Importer {
                             ctcPatMap[(r['Contact_id']?:r['contact_id'])] = realPat
                         }
 
+                        HealthElement he = heByWid[r['Healtel_id']?:r['healtel_id']]
                         Form mf = new Form(
                                 id: idg.newGUID().toString(), descr: "Consultation", formTemplateId: formTemplates['FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION']?.id,
                                 contactId: c.id, planOfActionId: healthElements[pId][0].plansOfAction[1].id,
                                 parent: null, created: crDateTime, modified: crDateTime, responsible: c.responsible, author: c.author)
-                        def sc = c.subContacts.find { s -> s.planOfActionId == mf.planOfActionId && s.formId == mf.id }
+                        def sc = c.subContacts.find { s -> s.planOfActionId == mf.planOfActionId && s.healthElementId == he.id && s.formId == mf.id }
                         if (!sc) {
                             c.subContacts << (sc = new SubContact(
                                     id: idg.newGUID().toString(), formId: mf.id, created: c.created, modified: c.modified,
-                                    responsible: c.responsible, author: c.author, planOfActionId: mf.planOfActionId, services: []
+                                    responsible: c.responsible, author: c.author, planOfActionId: mf.planOfActionId,  healthElementId: he.id, services: []
                             ))
                         }
 
@@ -1036,7 +1072,7 @@ class NewWindocImporter extends Importer {
             startScan = System.currentTimeMillis()
             print("Scanning patient prescriptions... ")
             src.eachRow("select * from TPrescLines l inner join TPresc p on l.Presc_id = p.Presc_id") { r ->
-                def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                 if (!pId) {
                     if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
                         //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
@@ -1047,7 +1083,7 @@ class NewWindocImporter extends Importer {
                 foundPatients << (r['Patient_id']?:r['patient_id'])
 
                 Contact c = !(r['Contact_id']?:r['contact_id']) ? ctcs[pId][0] : contacts[(r['Contact_id']?:r['contact_id'])] ?: ctcs[pId][0]
-                def realPat = pats[(r['Patient_id']?:r['patient_id'])]
+                def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
 
                 def date = (r['Create_dt']?:r['create_dt']) ?: (r['PrescDate']?:r['prescdate']) ?: (r['ActDate']?:r['actdate'])
                 def crDateTime = date ? dateParse("yyyy-MM-dd HH:mm:ss", date).time : System.currentTimeMillis()
@@ -1085,6 +1121,56 @@ class NewWindocImporter extends Importer {
             println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
         }
 
+        if (!limit) {
+            startScan = System.currentTimeMillis()
+            print("Scanning patient procedures... ")
+            src.eachRow("select * from twork") { r ->
+                def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
+                if (!pId) {
+                    if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
+                        //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
+                        missingPatients << (r['Patient_id']?:r['patient_id'])
+                    }
+                    return
+                }
+                foundPatients << (r['Patient_id']?:r['patient_id'])
+
+                Contact c = !(r['Contact_id']?:r['contact_id']) ? ctcs[pId][0] : contacts[(r['Contact_id']?:r['contact_id'])] ?: ctcs[pId][0]
+                def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
+
+                def date = (r['Create_dt']?:r['create_dt']) ?: (r['Start_date']?:r['start_date'])
+                def crDateTime = date ? dateParse("yyyy-MM-dd HH:mm:ss", date).time : System.currentTimeMillis()
+
+                if (realPat && Math.abs(FuzzyValues.getDateTime(c.openingDate).atZone(ZoneId.systemDefault()).toEpochSecond() - crDateTime / 1000) > 48 * 3600) {
+                    c = ctcs[pId].find { Contact cc -> Math.abs(FuzzyValues.getDateTime(cc.openingDate).atZone(ZoneId.systemDefault()).toEpochSecond() - crDateTime / 1000) < 24 * 3600 } ?: c
+                }
+
+                def sid = idg.newGUID().toString()
+
+                def bm = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateParse("yyyy-MM-dd HH:mm:ss", (r['Start_date']?:r['start_date']))?.time ?: dateParse("yyyy-MM-dd HH:mm:ss", (r['Pend_dt']?:r['pend_dt']))?.time ?: crDateTime), ZoneId.systemDefault()), ChronoUnit.SECONDS)
+
+                Form mf = frms[pId].find { Form f -> Math.abs(f.created - crDateTime) < 24 * 3600 } ?: frms[pId][0]
+
+                c.services << new Service(
+                        id: sid,
+                        label: "Actes",
+                        index: 5000,
+                        valueDate: bm,
+                        content: [fr: new Content(stringValue: r['Description'] ?: r['description'] ?: "TODO")],
+                        tags: [new Code('CD-ITEM', 'acts', '1'),new Code('CD-LIFECYCLE', 'pending', '1.0')],
+                        created: crDateTime, modified: crDateTime, responsible: mf.responsible, author: mf.author)
+                def sc = c.subContacts.find { s -> s.planOfActionId == mf.planOfActionId && s.formId == mf.id }
+                if (!sc) {
+                    c.subContacts << (sc = new SubContact(
+                            id: idg.newGUID().toString(), formId: mf.id, created: c.created, modified: c.modified,
+                            responsible: c.responsible, author: c.author, planOfActionId: mf.planOfActionId, services: []
+                    ))
+                }
+                sc.services << new ServiceLink(sid)
+            }
+
+            println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
+        }
 
         if (!limit) {
             startScan = System.currentTimeMillis()
@@ -1096,7 +1182,7 @@ class NewWindocImporter extends Importer {
                     def file = (r['Location']?:r['location']) && (r['Filename']?:r['filename']) ? new File(new File(DATA, (r['Location']?:r['location']).replaceAll('\\\\', '/')), (r['Filename']?:r['filename'])) : null
 
                     if (file && file.exists()) {
-                        def pId = pats[(r['Patient_id']?:r['patient_id'])]?.id
+                        def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                         if (!pId) {
                             if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
                                 //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
@@ -1157,7 +1243,7 @@ class NewWindocImporter extends Importer {
                     }
 
                     if (file && file.exists()) {
-                        def pId = pats[(r['Patient_id']?:r['patient_id'])].id
+                        def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                         if (!pId) {
                             if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
                                 //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
@@ -1212,7 +1298,7 @@ class NewWindocImporter extends Importer {
                     return
                 }
 
-                def realPat = pats[(r['Patient_id']?:r['patient_id'])]
+                def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
 
                 if (realPat) {
                     def pId = realPat?.id
@@ -1300,7 +1386,7 @@ class NewWindocImporter extends Importer {
 
             src.eachRow("select * from TPreventive") {
                 r ->
-                    def pId = pats[(r['Patient_id']?:r['patient_id'])].id
+                    def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                     if (!pId) {
                         if (!missingPatients.contains((r['Patient_id']?:r['patient_id']))) {
                             //println("Patient ${(r['Patient_id']?:r['patient_id'])} does not exist")
