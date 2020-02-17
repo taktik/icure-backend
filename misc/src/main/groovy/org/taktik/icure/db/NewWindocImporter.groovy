@@ -892,7 +892,7 @@ class NewWindocImporter extends Importer {
             startScan = System.currentTimeMillis()
             println("Scanning journal... ")
 
-            src.eachRow("select * from tjournal j inner join thealt2jour h2j on h2j.journal_id = j.journal_id order by j.Create_dt") {
+            src.eachRow("select * from tjournal j left outer join thealt2jour h2j on h2j.journal_id = j.journal_id order by j.Create_dt") {
                 r ->
                     try {
                         def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
@@ -923,10 +923,10 @@ class NewWindocImporter extends Importer {
                             ctcPatMap[(r['Contact_id']?:r['contact_id'])] = realPat
                         }
 
-                        HealthElement he = heByWid[r['Healtel_id']?:r['healtel_id']]
+                        HealthElement he = ((r['Healtel_id']?:r['healtel_id']) ? heByWid[r['Healtel_id']?:r['healtel_id']] : healthElements[pId][0]) ?: healthElements[pId][0]
                         Form mf = new Form(
                                 id: idg.newGUID().toString(), descr: "Consultation", formTemplateId: formTemplates['FFFFFFFF-FFFF-FFFF-FFFF-CONSULTATION']?.id,
-                                contactId: c.id, planOfActionId: healthElements[pId][0].plansOfAction[1].id,
+                                contactId: c.id, planOfActionId: he.plansOfAction?.size()>1?he.plansOfAction[1].id:he.plansOfAction?.size()>0?he.plansOfAction[0]:null,
                                 parent: null, created: crDateTime, modified: crDateTime, responsible: c.responsible, author: c.author)
                         def sc = c.subContacts.find { s -> s.planOfActionId == mf.planOfActionId && s.healthElementId == he.id && s.formId == mf.id }
                         if (!sc) {
