@@ -176,7 +176,7 @@ public class InvoiceLogicImpl extends GenericLogicImpl<Invoice, InvoiceDAO> impl
 			if (refScheme == null) {
 				refScheme = "yyyy00000";
 			}
-			LocalDateTime ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(invoice.getInvoiceDate()), ZoneId.systemDefault());
+			LocalDateTime ldt = FuzzyValues.getDateTime(invoice.getInvoiceDate());
 
 			NumberFormat f = new DecimalFormat("00");
 

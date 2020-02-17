@@ -425,6 +425,13 @@
     <DESCRIPTION L='nl'>Par 13 années</DESCRIPTION>
   </VALUE>
   <VALUE>
+    <CODE>JA</CODE>
+    <DESCRIPTION L='de'>Pro 13 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 13 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 13 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 13 années et demi</DESCRIPTION>
+  </VALUE>
+  <VALUE>
     <CODE>JF</CODE>
     <DESCRIPTION L='de'>Pro 15 Jahren</DESCRIPTION>
     <DESCRIPTION L='fr'>per 15 jaar</DESCRIPTION>
@@ -444,6 +451,13 @@
     <DESCRIPTION L='fr'>per 12 jaar</DESCRIPTION>
     <DESCRIPTION L='en'>Per 12 years</DESCRIPTION>
     <DESCRIPTION L='nl'>Par 12 années</DESCRIPTION>
+  </VALUE>
+  <VALUE>
+    <CODE>JC</CODE>
+    <DESCRIPTION L='de'>Pro 12 Jahren</DESCRIPTION>
+    <DESCRIPTION L='fr'>per 12 jaar</DESCRIPTION>
+    <DESCRIPTION L='en'>Per 12 years</DESCRIPTION>
+    <DESCRIPTION L='nl'>Par 12 années et demi</DESCRIPTION>
   </VALUE>
   <VALUE>
     <CODE>JB</CODE>

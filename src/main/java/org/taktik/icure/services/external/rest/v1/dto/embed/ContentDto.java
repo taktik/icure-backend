@@ -18,7 +18,10 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
+import org.taktik.icure.entities.embed.Service;
+
 import java.io.Serializable;
+import java.util.List;
 
 public class ContentDto implements Serializable {
     String stringValue;
@@ -29,6 +32,7 @@ public class ContentDto implements Serializable {
     String documentId;
     MeasureDto measureValue;
     MedicationDto medicationValue;
+    List<ServiceDto> compoundValue;
     byte[] binaryValue;
 
     public ContentDto() {
@@ -106,7 +110,15 @@ public class ContentDto implements Serializable {
         this.measureValue = measureValue;
     }
 
-	public static ContentDto fromNumberValue(Integer numberValue) {
+    public List<ServiceDto> getCompoundValue() {
+        return compoundValue;
+    }
+
+    public void setCompoundValue(List<ServiceDto> compoundValue) {
+        this.compoundValue = compoundValue;
+    }
+
+    public static ContentDto fromNumberValue(Integer numberValue) {
 		ContentDto contentDto = new ContentDto();
 		if (numberValue != null) { contentDto.setNumberValue(numberValue.doubleValue()); }
 

@@ -173,7 +173,14 @@ open class KmehrExport {
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
 					CDLIFECYCLEvalues.INACTIVE
                 } else {
-                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
+                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let {
+                        try {
+                            CDLIFECYCLEvalues.fromValue(it.code)
+
+                        } catch (e: java.lang.IllegalArgumentException) {
+                            CDLIFECYCLEvalues.CORRECTED
+                        }
+                    }
                             ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
                 }
 			} }
