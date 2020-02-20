@@ -1,4 +1,4 @@
-package org.taktik.icure.asyncdao.replicator
+package org.taktik.icure.dao.replicator
 
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi

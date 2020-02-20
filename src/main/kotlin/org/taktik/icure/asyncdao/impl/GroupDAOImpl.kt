@@ -50,7 +50,7 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
     private val cache = AsyncCacheManager.getCache<String, Group>(Group::class.java.name)
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun getList(ids: Flow<String>) = flow<Group> {
+    override fun    getList(ids: Flow<String>) = flow<Group> {
         val dbInstanceUri = URI(couchDbProperties.url)
         val batch = mutableListOf<String>()
         ids.collect { id ->
@@ -132,7 +132,5 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
     }
 
     internal fun getListInternal(dbInstanceUri: URI, ids: List<String>) =
-            couchDbDispatcher.getClient(dbInstanceUri, null).queryView(ViewQuery()
-                    .designDocId(NameConventions.designDocName(Group::class.java))
-                    .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, Group::class.java).map { (it as? ViewRowWithDoc<*, *, Group?>)?.doc }.filterNotNull()
+            couchDbDispatcher.getClient(dbInstanceUri, null).get(ids, Group::class.java).filterNotNull()
 }

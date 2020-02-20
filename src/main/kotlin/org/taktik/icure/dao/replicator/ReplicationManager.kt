@@ -1,4 +1,4 @@
-package org.taktik.icure.asyncdao.replicator
+package org.taktik.icure.dao.replicator
 
 import com.hazelcast.core.HazelcastInstance
 import kotlinx.coroutines.*

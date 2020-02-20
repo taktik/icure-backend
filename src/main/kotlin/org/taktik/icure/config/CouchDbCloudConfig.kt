@@ -23,9 +23,6 @@ import com.hazelcast.core.HazelcastInstance
 import com.hazelcast.spring.cache.HazelcastCacheManager
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
-import org.ektorp.CouchDbInstance
-import org.ektorp.http.StdHttpClient
-import org.ektorp.impl.StdCouchDbInstance
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -34,10 +31,9 @@ import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
-import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
-import org.taktik.icure.asyncdao.replicator.Replicator
-import org.taktik.icure.asyncdao.replicator.ReplicationManager
-import org.taktik.icure.asyncdao.replicator.UserReplicator
+import org.taktik.icure.dao.replicator.Replicator
+import org.taktik.icure.dao.replicator.ReplicationManager
+import org.taktik.icure.dao.replicator.UserReplicator
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncHazelCastCacheManager
 

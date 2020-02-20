@@ -1,9 +1,10 @@
-package org.taktik.icure.asyncdao.replicator
+package org.taktik.icure.dao.replicator
 
 import org.taktik.icure.entities.Group
 
 import java.net.URI
 import java.net.URISyntaxException
+import java.net.URL
 
 class GroupDBUrl(couchDbUrl: String) {
     private val couchDbUrl = URI(couchDbUrl)
@@ -14,35 +15,14 @@ class GroupDBUrl(couchDbUrl: String) {
 
     fun getInstanceUrl(group: Group): String =
         try {
-            URI(couchDbUrl.scheme,
+            val server = group.servers?.firstOrNull()?.let { URI(it) } ?: couchDbUrl
+
+            URI(server.scheme,
                 null,
-                couchDbUrl.host,
-                couchDbUrl.port, null, null, null).toString()
+                    server.host,
+                    server.port, null, null, null).toString()
         } catch (e: URISyntaxException) {
             throw IllegalArgumentException("failed to build url", e)
         }
-
-    fun getDbUrl(group: Group): String =
-        try {
-            URI(couchDbUrl.scheme,
-                group.id + ":" + group.password,
-                couchDbUrl.host,
-                couchDbUrl.port,
-                "/" + getDbName(group), null, null).toString()
-        } catch (e: URISyntaxException) {
-            throw IllegalArgumentException("failed to build url", e)
-        }
-
-    fun getLocalDbUrl(group: Group): String =
-        try {
-            URI(couchDbUrl.scheme,
-                group.id + ":" + group.password,
-                "127.0.0.1",
-                couchDbUrl.port,
-                "/" + getDbName(group), null, null).toString()
-        } catch (e: URISyntaxException) {
-            throw IllegalArgumentException("failed to build url", e)
-        }
-
 
 }
