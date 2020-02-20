@@ -188,15 +188,6 @@ public class MessageDto extends IcureDto {
 		this.externalRef = externalRef;
 	}
 
-	private String encryptedSelf;
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
-
 	public Map<String, String> getSenderReferences() {
 		return senderReferences;
 	}

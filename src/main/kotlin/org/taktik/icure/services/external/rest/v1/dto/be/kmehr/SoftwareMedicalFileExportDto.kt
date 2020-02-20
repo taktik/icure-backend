@@ -22,6 +22,10 @@ package org.taktik.icure.services.external.rest.v1.dto.be.kmehr
 import java.io.Serializable
 
 data class SoftwareMedicalFileExportDto(
-	var secretForeignKeys: List<String>,
-	var comment: String
-) : Serializable
+        var secretForeignKeys: List<String>,
+        var comment: String,
+        var exportAsPMF: Boolean,
+        var softwareName: String? = null,
+        var softwareVersion: String? = null
+        ) : Serializable {
+}

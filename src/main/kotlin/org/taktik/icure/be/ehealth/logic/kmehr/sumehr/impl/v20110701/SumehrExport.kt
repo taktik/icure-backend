@@ -34,6 +34,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20110701.KmehrExport
 import org.taktik.icure.constants.ServiceStatus
@@ -91,16 +92,16 @@ class SumehrExport(
     }
 
     fun createSumehr(
-            pat : Patient,
-            sfks : List<String>,
-            sender : HealthcareParty,
-            recipient : HealthcareParty?,
-            language : String,
-            comment : String?,
-			excludedIds: List<String>,
+            pat: Patient,
+            sfks: List<String>,
+            sender: HealthcareParty,
+            recipient: HealthcareParty?,
+            language: String,
+            comment: String?,
+            excludedIds: List<String>,
             includeIrrelevantInformation: Boolean,
-		    decryptor: AsyncDecrypt?,
-		    config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
+            decryptor: AsyncDecrypt?,
+            config: org.taktik.icure.be.ehealth.logic.kmehr.Config = Config(_kmehrId = System.currentTimeMillis().toString(),
 		                        date = makeXGC(Instant.now().toEpochMilli())!!,
 		                        time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
 		                        soft = Config.Software(name = "iCure", version = ICUREVERSION),

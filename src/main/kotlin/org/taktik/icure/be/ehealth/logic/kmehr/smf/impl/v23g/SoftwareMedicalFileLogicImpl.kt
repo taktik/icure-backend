@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
@@ -49,20 +50,19 @@ class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedica
     override suspend fun importSmfFile(inputData : Flow<ByteBuffer>,
                                        author: User,
                                        language: String,
-                                       dest: Patient?,
+                                       dryRun: Boolean,dest: Patient?,
                                        mappings: Map<String, List<ImportMapping>>
-                              ) : List<ImportResult> {
-        return softwareMedicalFileImport.importSMF(inputData, author, language, mappings, dest)
-    }
+                              ) : List<ImportResult> =
+            softwareMedicalFileImport.importSMF(inputData, author, language, !dryRun, mappings, dest)
 
     override suspend fun checkIfSMFPatientsExists(inputData : Flow<ByteBuffer>,
                                                   author: User,
                                                   language: String,
                                                   dest: Patient?,
                                                   mappings: Map<String, List<ImportMapping>>
-    ) : List<CheckSMFPatientResult> {
-        return softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
-    }
+    ) : List<CheckSMFPatientResult> =
+            softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
 
-    override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?) = softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor)
+    override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, config: Config): Flow<DataBuffer> =
+            softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor, config)
 }

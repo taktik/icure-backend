@@ -25,6 +25,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.mikrono.MikronoLogic
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -32,15 +34,17 @@ import org.taktik.icure.dto.message.EmailOrSmsMessage
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.icure.asynclogic.SessionLogic
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto
 import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
+import org.taktik.icure.utils.ResponseUtils
 import java.io.IOException
 import java.util.function.Supplier
+import javax.ws.rs.POST
+import javax.ws.rs.Path
+import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/be_mikrono")
@@ -208,6 +212,19 @@ class MikronoController(private val mapper: MapperFacade,
 
         return if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             mikronoLogic.createAppointments(null, loggedMikronoUser, loggedMikronoPassword, appointments)
-        } else listOf("Missing Mikrono username/password for user")
+        } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Mikrono username/password for user")
     }
+
+    @PostMapping("/appointmentTypes")
+    @Throws(IOException::class)
+    suspend fun createAppointmentTypes(appointmentTypes: List<MikronoAppointmentTypeRestDto?>?): List<MikronoAppointmentTypeRestDto?> {
+        val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
+        val loggedMikronoUser = loggedUser.properties.stream().filter { p: Property -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p: Property -> p.typedValue.stringValue }.orElse(null)
+        val loggedMikronoPassword = loggedUser.properties.stream().filter { p: Property -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p: Property -> p.typedValue.stringValue }.orElse(null)
+        return if (loggedMikronoUser != null && loggedMikronoPassword != null) {
+            mikronoLogic.createAppointmentTypes(null, loggedMikronoUser, loggedMikronoPassword, appointmentTypes)
+        } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Mikrono username/password for user")
+    }
+
+
 }

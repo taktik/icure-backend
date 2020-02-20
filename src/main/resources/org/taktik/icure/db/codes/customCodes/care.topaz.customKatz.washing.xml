@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <NAME>Katz washing</NAME>
+    <VALUE>
+        <CODE>abletowash</CODE>
+        <DESCRIPTION L="fr">Est capable de se laver complètement sans aucune aide</DESCRIPTION>
+        <DESCRIPTION L="nl">Kan zichzelf helemaal wassen zonder enige hulp </DESCRIPTION>
+        <DESCRIPTION L="en">Is able to wash completely without any help</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>partialhelpaboveorbelow</CODE>
+        <DESCRIPTION L="fr">A besoin d'une aide partielle pour se laver au dessus ou en dessous de la ceinture</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft gedeeltelijke hulp nodig om zich te wassen boven of onder de gordel </DESCRIPTION>
+        <DESCRIPTION L="en">Needs partial help to wash above or below the belt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>partialhelpaboveandbelow</CODE>
+        <DESCRIPTION L="fr">A besoin d'une aide partielle pour se laver tant au-dessus qu'en-dessous de la ceinture</DESCRIPTION>
+        <DESCRIPTION L="nl">Heeft gedeeltelijke hulp nodig om zich te wassen zowel boven als onder de gordel </DESCRIPTION>
+        <DESCRIPTION L="en">Needs partial help to wash both above and below the waist</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>fullyassisted</CODE>
+        <DESCRIPTION L="fr">Doit être entièrement aidé pour se laver tant au-dessus qu'en-dessous de la ceinture</DESCRIPTION>
+        <DESCRIPTION L="nl">Moet volledig worden geholpen om zich te wassen zowel boven als onder de gordel </DESCRIPTION>
+        <DESCRIPTION L="en">Must be fully assisted to wash both above and below the waist</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>

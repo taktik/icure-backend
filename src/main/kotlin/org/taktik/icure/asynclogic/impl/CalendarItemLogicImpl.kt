@@ -19,6 +19,7 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Service
@@ -61,6 +62,12 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(calendarItemDAO.listCalendarItemByPeriodAndAgendaId(dbInstanceUri, groupId, startDate, endDate, agendaId))
     }
+
+    override fun getCalendarItemByIds(ids: List<String>): Flow<CalendarItem> = flow {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        calendarItemDAO.getList(dbInstanceUri, groupId, ids).collect { emit(it) }
+    }
+
 
     override suspend fun modifyCalendarItem(calendarItem: CalendarItem): CalendarItem? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()

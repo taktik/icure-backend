@@ -44,10 +44,11 @@ import java.time.Instant
 class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<AccessLog>(AccessLog::class.java, couchDbDispatcher, idGenerator), AccessLogDAO {
 
     @View(name = "all_by_date", map = "classpath:js/accesslog/all_by_date_map.js")
-    override fun list(dbInstanceUrl: URI, groupId: String, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> {
+    override fun list(dbInstanceUrl: URI, groupId: String, fromEpoch:Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = pagedViewQuery<AccessLog, Long>("all_by_date", paginationOffset.startKey, null, paginationOffset, descending)
+ 	   val startKey = paginationOffset.startKey ?: fromEpoch
+       val viewQuery = pagedViewQuery<AccessLog, Long>("all_by_date", startKey, toEpoch, paginationOffset, descending)
 
         return client.queryView(viewQuery, Long::class.java, String::class.java, AccessLog::class.java)
     }
@@ -60,7 +61,7 @@ class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher:
             val key = if (pagination.startKey == null) ComplexKey.of(userId, accessType, 0L) else ComplexKey.of(listOf(pagination.startKey))
             pagedViewQuery<AccessLog, ComplexKey>("all_by_user_date", key, null, pagination, descending)
         } else {
-            val startKey = if (pagination.startKey == null) ComplexKey.of(userId, accessType, startDate.toEpochMilli()) else pagination.startKey as ComplexKey
+            val startKey = if (pagination.startKey == null) ComplexKey.of(userId, accessType, startDate.toEpochMilli()) else pagination.startKey
             val endKey = ComplexKey.of(userId, accessType ?: ComplexKey.emptyObject(), java.lang.Long.MAX_VALUE)
             pagedViewQuery<AccessLog, ComplexKey>("all_by_user_date", if (descending) endKey else startKey, if (descending) startKey else endKey, pagination, descending)
         }

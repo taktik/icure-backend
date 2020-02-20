@@ -28,6 +28,23 @@ import java.net.URI
 @Repository("ampDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
 class AmpDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : InternalDAOImpl<Amp>(Amp::class.java, couchDbProperties, couchDbDispatcher, idGenerator), AmpDAO {
+
+    @View(name = "by_dmppcode", map = "classpath:js/amp/By_dmppcode.js")
+    override fun findAmpsByDmppCode(dmppCode: String): Flow<ViewQueryResultEvent> {
+        val dbInstanceUri = URI(couchDbProperties.url)
+        val client = couchDbDispatcher.getClient(dbInstanceUri, null)
+
+        val from = dmppCode
+        val to = dmppCode
+
+        val viewQuery = createQuery<Amp>("by_dmppcode")
+                .startKey(from)
+                .endKey(to)
+                .includeDocs(true)
+        return client.queryView(viewQuery, String::class.java, String::class.java, Amp::class.java)
+    }
+
+
     @View(name = "by_groupcode", map = "classpath:js/amp/By_groupcode.js")
     override fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val dbInstanceUri = URI(couchDbProperties.url)

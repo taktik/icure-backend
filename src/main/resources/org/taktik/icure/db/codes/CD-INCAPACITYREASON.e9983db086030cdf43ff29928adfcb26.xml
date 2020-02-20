@@ -26,7 +26,7 @@
   </VALUE>
   <VALUE>
     <CODE>illness</CODE>
-    <DESCRIPTION L='fr'>maladie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Raison médicale</DESCRIPTION>
     <DESCRIPTION L='en'>Illness</DESCRIPTION>
   </VALUE>
   <VALUE>
@@ -46,7 +46,7 @@
   </VALUE>
   <VALUE>
     <CODE>sickness</CODE>
-    <DESCRIPTION L='fr'>maladie</DESCRIPTION>
+    <DESCRIPTION L='fr'>Maladie</DESCRIPTION>
     <DESCRIPTION L='en'>Sickness</DESCRIPTION>
   </VALUE>
   <VALUE>

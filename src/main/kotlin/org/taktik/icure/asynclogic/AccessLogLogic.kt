@@ -17,7 +17,7 @@ interface AccessLogLogic : EntityPersister<AccessLog, String> {
 
     suspend fun getAccessLog(accessLogId: String): AccessLog?
 
-    fun listAccessLogs(paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
+    fun listAccessLogs(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent>
 
     fun findByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<String>>, descending: Boolean): Flow<ViewQueryResultEvent>
 

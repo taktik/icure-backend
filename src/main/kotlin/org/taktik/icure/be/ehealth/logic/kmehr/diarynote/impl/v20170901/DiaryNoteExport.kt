@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.flow
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils
@@ -31,6 +32,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170901.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
@@ -88,12 +90,12 @@ class DiaryNoteExport(mapper: MapperFacade,
         val folder = FolderType()
         folder.ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
         folder.patient = makePerson(pat, config)
+        fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
+        message.folders.add(folder)
 
         fillPatientFolder(folder, pat, sfks, sender, language, config, note, tags, contexts, isPsy, documentId, attachmentId, decryptor)
         emitMessage(folder, message).collect { emit(it) }
     }
-
-
 
     private fun dnFromContext(context: String) : String{
         return when (context) {
@@ -116,7 +118,7 @@ class DiaryNoteExport(mapper: MapperFacade,
                 })}
             }
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = "1" })
-            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = ICUREVERSION; value = p.id.replace("-".toRegex(), "").substring(0, 8) + "." + System.currentTimeMillis() })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "iCure-Item"; sv = config.soft?.version ?: "1.0"; value = p.id.replace("-".toRegex(), "").substring(0, 8) + "." + System.currentTimeMillis() })
             tags.forEach { tag -> cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_DIARY); value = tag }) }
             contexts.forEach {context -> cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.LOCAL; sv = "1.0"; sl = "CD-RSW-CONTEXT"; value = context; dn = dnFromContext(context) })}
             makeXGC(System.currentTimeMillis()).let { date = it; time = it }

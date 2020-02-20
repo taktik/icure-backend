@@ -1,9 +1,7 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import org.taktik.icure.entities.Place;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
 
-import java.util.List;
 import java.util.Set;
 
 public class CalendarItemDto extends IcureDto {
@@ -31,6 +29,10 @@ public class CalendarItemDto extends IcureDto {
     protected Long startTime;
 
     protected Long endTime;
+
+    protected Long confirmationTime;
+
+    protected String confirmationId;
 
     protected Long duration;
 
@@ -193,4 +195,20 @@ public class CalendarItemDto extends IcureDto {
     public Boolean getWasMigrated() { return wasMigrated; }
 
     public void setWasMigrated(Boolean wasMigrated) { this.wasMigrated = wasMigrated; }
+
+    public Long getConfirmationTime() {
+        return confirmationTime;
+    }
+
+    public void setConfirmationTime(Long confirmationTime) {
+        this.confirmationTime = confirmationTime;
+    }
+
+    public String getConfirmationId() {
+        return confirmationId;
+    }
+
+    public void setConfirmationId(String confirmationId) {
+        this.confirmationId = confirmationId;
+    }
 }

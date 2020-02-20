@@ -2,11 +2,11 @@ package org.taktik.icure.asyncdao.replicator
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Semaphore
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.ektorp.ViewQuery
 import org.ektorp.http.URI
-import org.ektorp.impl.NameConventions
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.taktik.couchdb.Client
@@ -14,6 +14,7 @@ import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.queryView
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.utils.retry
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -34,6 +35,8 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     protected var couchDbPrefix: String? = null
     @Value("\${icure.couchdb.url}")
     protected lateinit var couchDbUrl: String
+
+    protected val replicationSemaphore = Semaphore(8)
 
     private data class SyncKey(val groupId: String, val id: String)
     protected data class IdAndRev(val id: String, val rev: String)
@@ -65,7 +68,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
                 .viewName("revs")
                 .key(entityType.canonicalName)
                 .includeDocs(false)
-        return client.queryView<String,String>(viewQuery).map {
+        return retry(10) { client.queryView<String,String>(viewQuery) }.map {
             // The value of the "all" view should be the document rev
             IdAndRev(it.id, checkNotNull(it.value))
         }
@@ -86,7 +89,10 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
         require(client.exists()) { "Cannot start replication : the group db doesnt exist for ${group.id}" }
         log.info("Db exists for ${group.id}")
         prepareReplication(client, group)
-        doReplicate(client, group)
+
+        try {
+            doReplicate(client, group)
+        } catch(e:Exception) {}
         return GlobalScope.launch {
             coroutineScope {
                 launch { observeChanges(client, group) }
@@ -116,8 +122,13 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     }
 
     private suspend fun doReplicate(client:Client, group: Group): Boolean {
+        val id = (Math.random()*1000).toInt()
         val startTime = System.currentTimeMillis()
         try {
+            log.warn("Thread {} acquiring semaphore with {} slots available", id, replicationSemaphore.availablePermits)
+            replicationSemaphore.acquire()
+            log.warn("Thread {} semaphore acquired", id)
+
             val allIds = this.getAllIdsAndRevs(client)
             // Only sync outdated docs
             val idsToSync = allIds.filter {
@@ -132,6 +143,9 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
         } catch (e: Exception) {
             log.error("Exception during replication of group ${group.id} (${group.name})", e)
             return false
+        } finally {
+            replicationSemaphore.release()
+            log.warn("Thread {} semaphore released with {} slots available", id, replicationSemaphore.availablePermits)
         }
 
         val endTime = System.currentTimeMillis()

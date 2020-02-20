@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
@@ -14,7 +15,13 @@ import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpDto
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpDto
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpGroupDto
+import org.taktik.icure.utils.ResponseUtils
+import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
+import javax.ws.rs.GET
+import javax.ws.rs.Path
+import javax.ws.rs.PathParam
+import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/be_samv2")
@@ -149,6 +156,13 @@ class SamV2Controller(val mapper: MapperFacade,
         return samV2Logic.findAmpsByVmpId(vmpId, paginationOffset).paginatedList<Amp, AmpDto>(mapper, realLimit)
 
     }
+
+    @ApiOperation(value = "Finding AMPs by dmpp code", responseContainer = "Array", response = AmpDto::class, httpMethod = "GET", notes = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
+    @GetMapping("/amp/byDmppCode/{dmppCode}")
+    fun findAmpsByDmppCode(
+            @ApiParam(value = "dmppCode", required = true) @PathVariable dmppCode: String
+    ) = samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) }.injectReactorContext()
+
 
     @ApiOperation(nickname = "findPaginatedVmpGroupsByLabel", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmpgroup")

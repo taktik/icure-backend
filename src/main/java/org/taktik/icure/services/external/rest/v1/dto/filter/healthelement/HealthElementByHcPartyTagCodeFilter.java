@@ -10,7 +10,7 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 @JsonPolymorphismRoot(FilterDto.class)
 @JsonDeserialize(using= JsonDeserializer.None.class)
 public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement> implements org.taktik.icure.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter {
-	String healthCarePartyId;
+	String healthcarePartyId;
 	String codeType;
 	String codeNumber;
 	String tagType;
@@ -20,8 +20,8 @@ public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement
 	public HealthElementByHcPartyTagCodeFilter() {
 	}
 
-	public HealthElementByHcPartyTagCodeFilter(String healthCarePartyId, String codeType, String codeNumber, String tagType, String tagCode) {
-		this.healthCarePartyId = healthCarePartyId;
+	public HealthElementByHcPartyTagCodeFilter(String healthcarePartyId, String codeType, String codeNumber, String tagType, String tagCode) {
+		this.healthcarePartyId = healthcarePartyId;
 		this.codeType = codeType;
 		this.codeNumber = codeNumber;
 		this.tagType = tagType;
@@ -30,7 +30,7 @@ public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement
 
 	@Override
 	public String getHealthCarePartyId() {
-		return healthCarePartyId;
+		return healthcarePartyId;
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement
 		return this.status;
 	}
 
-	public void setHealthCarePartyId(String healthCarePartyId) {
-		this.healthCarePartyId = healthCarePartyId;
+	public void setHealthCarePartyId(String healthcarePartyId) {
+		this.healthcarePartyId = healthcarePartyId;
 	}
 
 	public void setCodeType(String codeType) {
@@ -84,7 +84,7 @@ public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(healthCarePartyId, codeType, codeNumber, tagType, tagCode, status);
+		return Objects.hashCode(healthcarePartyId, codeType, codeNumber, tagType, tagCode, status);
 	}
 
 	@Override
@@ -96,13 +96,13 @@ public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement
 			return false;
 		}
 		final HealthElementByHcPartyTagCodeFilter other = (HealthElementByHcPartyTagCodeFilter) obj;
-		return Objects.equal(this.healthCarePartyId, other.healthCarePartyId) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeNumber, other.codeNumber)
+		return Objects.equal(this.healthcarePartyId, other.healthcarePartyId) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeNumber, other.codeNumber)
 				&& Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.status, other.status);
 	}
 
 	@Override
 	public boolean matches(HealthElement item) {
-		return (healthCarePartyId == null || item.getDelegations().keySet().contains(healthCarePartyId))
+		return (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
 				&& (codeType == null || (item.getCodes().stream().filter(code -> codeType.equals(code.getType()) && codeNumber.equals(code.getCode())).findAny().isPresent())
 				&& (tagType == null || item.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent())
 				&& (status == null || item.getStatus() == status));

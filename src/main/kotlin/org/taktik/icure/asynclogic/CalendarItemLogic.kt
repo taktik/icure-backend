@@ -15,4 +15,5 @@ interface CalendarItemLogic : EntityPersister<CalendarItem, String> {
 
     suspend fun modifyCalendarItem(calendarItem: CalendarItem): CalendarItem?
     fun getGenericDAO(): CalendarItemDAO
+    fun getCalendarItemByIds(ids: List<String>): Flow<CalendarItem>
 }

@@ -58,6 +58,7 @@ public class HealthcarePartyDto extends StoredDto {
     protected byte[] picture;
 
     protected String cbe;
+    protected String ehp;
 	protected Integer convention; //0,1,2,9
     protected String userId;
     protected String parentId;
@@ -203,7 +204,15 @@ public class HealthcarePartyDto extends StoredDto {
 		this.cbe = cbe;
 	}
 
-	public String getInvoiceHeader() {
+    public String getEhp() {
+        return ehp;
+    }
+
+    public void setEhp(String ehp) {
+        this.ehp = ehp;
+    }
+
+    public String getInvoiceHeader() {
         return invoiceHeader;
     }
 

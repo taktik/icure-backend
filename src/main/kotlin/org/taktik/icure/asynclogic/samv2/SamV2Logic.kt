@@ -18,7 +18,7 @@ interface SamV2Logic {
     fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
-
+    fun findAmpsByDmppCode(dmppCode: String): Flow<ViewQueryResultEvent>
 
     fun listAmpIdsByLabel(language: String?, label: String?): Flow<String>
     fun listVmpIdsByLabel(language: String?, label: String?): Flow<String>

@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.collect
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.ehealth.dto.kmehr.v20150901.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20150901.be.fgov.ehealth.standards.kmehr.cd.v1.*
@@ -70,7 +71,8 @@ open class KmehrExport(
     val unitCodes = HashMap<String,Code>()
 
     internal val STANDARD = "20150901"
-    internal val ICUREVERSION = "4.0.0"
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
     internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 

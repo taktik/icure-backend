@@ -19,17 +19,17 @@
 package org.taktik.icure.services.external.rest.v1.wscontrollers
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.mono
 import kotlinx.coroutines.withContext
 import ma.glasnost.orika.MapperFacade
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.reactive.function.client.WebClient
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.Utils.makeXGC
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
@@ -43,9 +43,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.DiaryNoteExportIn
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeExportInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
-import reactor.core.publisher.toFlux
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
+import java.time.Instant
 
 @RestController("/ws/be_kmehr")
 class KmehrWsController(private var mapper: MapperFacade,
@@ -57,6 +55,9 @@ class KmehrWsController(private var mapper: MapperFacade,
                         private val medicationSchemeLogic: MedicationSchemeLogic,
                         private val healthcarePartyLogic: HealthcarePartyLogic,
                         private val patientLogic: PatientLogic) {
+
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
 
     @RequestMapping("/generateDiaryNote")
     @WebSocketOperation(adapterClass = KmehrFileOperation::class)
@@ -86,7 +87,15 @@ class KmehrWsController(private var mapper: MapperFacade,
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(sumehrLogicV1.createSumehr( it, info.secretForeignKeys,
                             it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
+                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, Config(
+                            "" + System.currentTimeMillis(),
+                            makeXGC(Instant.now().toEpochMilli(), true),
+                            makeXGC(Instant.now().toEpochMilli(), true),
+                            Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                            "",
+                            "en",
+                            Config.Format.SUMEHR
+                    ))
                     )
                 }
             }
@@ -103,7 +112,15 @@ class KmehrWsController(private var mapper: MapperFacade,
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)) } }
+            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, Config(
+                    "" + System.currentTimeMillis(),
+                    makeXGC(Instant.now().toEpochMilli(), true),
+                    makeXGC(Instant.now().toEpochMilli(), true),
+                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                    "",
+                    "en",
+                    Config.Format.SUMEHR
+            ))) } }
         } catch (e: Exception) {
             withContext(Dispatchers.IO) {
                 operation.errorResponse(e)
@@ -122,7 +139,15 @@ class KmehrWsController(private var mapper: MapperFacade,
                     operation.binaryResponse(
                             sumehrLogicV2.createSumehr( it, info.secretForeignKeys,
                                     it1,
-                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation)
+                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, Config(
+                                    "" + System.currentTimeMillis(),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                                    "",
+                                    "en",
+                                    Config.Format.SUMEHR
+                            ))
                     )
                 }
             }
@@ -151,7 +176,15 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     info.comment,
                                     info.excludedIds,
                                     if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
-                                    operation
+                                    operation, Config(
+                                    "" + System.currentTimeMillis(),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                                    "",
+                                    "en",
+                                    Config.Format.SUMEHR
+                            )
                             )
                     )
                 }
@@ -181,7 +214,15 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     info.comment,
                                     info.excludedIds,
                                     if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
-                                    operation
+                                    operation, Config(
+                                    "" + System.currentTimeMillis(),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                                    "",
+                                    "en",
+                                    Config.Format.SUMEHR
+                            )
                             )
                     )
                 }
@@ -208,7 +249,15 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     hcp,
                                     language,
                                     operation,
-                                    operation
+                                    operation, Config(
+                                    "" + System.currentTimeMillis(),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    makeXGC(Instant.now().toEpochMilli(), true),
+                                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION!!),
+                                    "",
+                                    "en",
+                                    Config.Format.SUMEHR
+                            )
                             )
 
                     )
@@ -239,7 +288,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     recipientSafe,
                                     version,
                                     operation,
-                                    null
+                                    operation
                             )
                     )
                 }

@@ -36,6 +36,7 @@ import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
+import javax.ws.rs.QueryParam
 
 @ExperimentalCoroutinesApi
 @Service
@@ -68,9 +69,9 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         return accessLogDAO.get(dbInstanceUri, groupId, accessLogId)
     }
 
-    override fun listAccessLogs(paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
+    override fun listAccessLogs(fromEpoch: Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(accessLogDAO.list(dbInstanceUri, groupId, paginationOffset, descending))
+        emitAll(accessLogDAO.list(dbInstanceUri, groupId, fromEpoch, toEpoch, paginationOffset, descending))
     }
 
     override fun findByUserAfterDate(userId: String, accessType: String?, startDate: Instant?, pagination: PaginationOffset<List<String>>, descending: Boolean): Flow<ViewQueryResultEvent> = flow {

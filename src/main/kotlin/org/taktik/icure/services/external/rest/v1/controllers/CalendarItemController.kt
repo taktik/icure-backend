@@ -21,18 +21,22 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.asynclogic.CalendarItemLogic
+import org.taktik.icure.entities.CalendarItem
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
+import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import java.util.stream.Collectors
+import javax.ws.rs.POST
+import javax.ws.rs.Path
+import javax.ws.rs.core.Response
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -106,4 +110,16 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         val calendars = calendarItemLogic.getCalendarItemByPeriodAndAgendaId(startDate, endDate, agendaId)
         return calendars.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
     }
+
+    @ApiOperation(value = "Get calendarItems by id", responseContainer = "Array", response = CalendarItemDto::class, httpMethod = "POST")
+    @POST
+    @Path("/byIds")
+    fun getCalendarItemsWithIds(calendarItemIds: ListOfIdsDto?): Flux<CalendarItemDto> {
+        if (calendarItemIds == null) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "calendarItemIds was empty")
+        }
+        val calendars = calendarItemLogic.getCalendarItemByIds(calendarItemIds.ids)
+        return calendars.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
+    }
+
 }

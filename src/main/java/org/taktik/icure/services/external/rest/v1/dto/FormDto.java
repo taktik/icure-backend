@@ -126,13 +126,4 @@ public class FormDto extends IcureDto {
     public void setHasBeenInitialized(Boolean hasBeenInitialized) {
         this.hasBeenInitialized = hasBeenInitialized;
     }
-
-	private String encryptedSelf;
-	public String getEncryptedSelf() {
-		return encryptedSelf;
-	}
-
-	public void setEncryptedSelf(String encryptedSelf) {
-		this.encryptedSelf = encryptedSelf;
-	}
 }

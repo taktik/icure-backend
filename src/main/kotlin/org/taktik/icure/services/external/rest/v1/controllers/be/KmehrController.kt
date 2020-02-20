@@ -19,25 +19,22 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream
-import com.google.common.io.ByteSource
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.reduce
-import kotlinx.coroutines.flow.toList
 import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.MediaType
-import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
+import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
@@ -60,7 +57,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePar
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.nio.ByteBuffer
+import java.time.Instant
 import java.util.stream.Collectors
 import javax.servlet.http.HttpServletResponse
 
@@ -81,6 +78,9 @@ class KmehrController(
         val patientLogic: PatientLogic,
         val documentLogic: DocumentLogic
 ) {
+    @Value("\${icure.version}")
+    internal val ICUREVERSION: String = "4.0.0"
+
     @ApiOperation(nickname = "generateDiaryNote", value = "Generate diarynote")
     @PostMapping("/diarynote/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     suspend fun generateDiaryNote(@PathVariable patientId: String,
@@ -114,7 +114,15 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                  sumehrLogicV1.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null).injectReactorContext()
+                        ?: false, null,
+                         Config(_kmehrId = System.currentTimeMillis().toString(),
+                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                                 time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                                 soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                                 clinicalSummaryType = "",
+                                 defaultLanguage = "en",
+                                 format = Config.Format.SUMEHR
+                         )).injectReactorContext()
             }
         }
     }
@@ -127,7 +135,15 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
              healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                 sumehrLogicV1.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null).injectReactorContext()
+                        ?: false, null,
+                        Config(_kmehrId = System.currentTimeMillis().toString(),
+                                date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                                time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                                soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                                clinicalSummaryType = "",
+                                defaultLanguage = "en",
+                                format = Config.Format.SUMEHR
+                        )).injectReactorContext()
 
             }
         }
@@ -172,7 +188,15 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                 sumehrLogicV2.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null).injectReactorContext()
+                        ?: false, null,
+                        Config(_kmehrId = System.currentTimeMillis().toString(),
+                                date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                                time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                                soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                                clinicalSummaryType = "",
+                                defaultLanguage = "en",
+                                format = Config.Format.SUMEHR
+                        )).injectReactorContext()
             }
         }
     }
@@ -185,7 +209,15 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                 sumehrLogicV2.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null).injectReactorContext()
+                        ?: false, null,
+                        Config(_kmehrId = System.currentTimeMillis().toString(),
+                                date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                                time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                                soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
+                                clinicalSummaryType = "",
+                                defaultLanguage = "en",
+                                format = Config.Format.SUMEHR
+                        )).injectReactorContext()
             }
         }
     }
@@ -237,7 +269,15 @@ class KmehrController(
                     healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
                             ?.let { it1 ->
                                 softwareMedicalFileLogic.createSmfExport(it, smfExportParams.secretForeignKeys, it1, language
-                                        ?: "fr", null, null).injectReactorContext()
+                                        ?: "fr", null, null,
+                                        Config(_kmehrId = System.currentTimeMillis().toString(),
+                                                date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
+                                                time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
+                                                soft = Config.Software(name = smfExportParams.softwareName ?: "iCure", version = smfExportParams.softwareVersion ?: ICUREVERSION),
+                                                clinicalSummaryType = "",
+                                                defaultLanguage = "en",
+                                                format = Config.Format.SMF
+                                        )).injectReactorContext()
                             }
                 }
     }
@@ -399,6 +439,7 @@ class KmehrController(
         return attachmentId?.let {
             softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
                     ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
+                    false,
                     patientId?.let { patientLogic.getPatient(patientId) },
                     mappings ?: HashMap())
         }?.map { mapper.map(it, ImportResultDto::class.java) }
