@@ -67,10 +67,7 @@ public class Content implements Serializable {
     Medication medicationValue;
 
 	@JsonProperty("c")
-	Map<String, Service> compoundValue;
-
-	@JsonProperty("l")
-	List<Service> multipleValue;
+    List<Service> compoundValue;
 
 	@JsonIgnore
 	byte[] compressedStringValue;
@@ -178,20 +175,12 @@ public class Content implements Serializable {
         this.medicationValue = medicationValue;
     }
 
-	public Map<String, Service> getCompoundValue() {
+	public List<Service> getCompoundValue() {
 		return compoundValue;
 	}
 
-	public void setCompoundValue(Map<String, Service> compoundValue) {
+	public void setCompoundValue(List<Service> compoundValue) {
 		this.compoundValue = compoundValue;
-	}
-
-	public List<Service> getMultipleValue() {
-		return multipleValue;
-	}
-
-	public void setMultipleValue(List<Service> multipleValue) {
-		this.multipleValue = multipleValue;
 	}
 
 	public byte[] getCompressedStringValue() {

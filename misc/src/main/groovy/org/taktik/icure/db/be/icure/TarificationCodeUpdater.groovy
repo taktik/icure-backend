@@ -4,6 +4,9 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import org.slf4j.LoggerFactory
 
+import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
+
 class TarificationCodeUpdater {
     /**
      * Program arguments:
@@ -29,6 +32,8 @@ class TarificationCodeUpdater {
         def codes = null
         def subset = (args.length == 4) ? Arrays.asList(args[2].split(',')) : null
 
+        def executors = Executors.newFixedThreadPool(32)
+        def semaphore = new Semaphore(32)
 
         new File(args[0]).withReader { it.eachLine {
             String[] fields = it.split("\\s")
@@ -39,9 +44,20 @@ class TarificationCodeUpdater {
                     new TarificationCodeImporter(db_protocol, db_host, db_port, "icure-"+db_group_name, db_group_name, password, lang) :
                     new TarificationCodeImporter(db_protocol, db_host, db_port, db_group_name, null,null,null, "template","804e5824-8d79-4074-89be-def87278b51f", db_group_name.replaceAll(".+-",""))
             def type = 'INAMI-RIZIV'
-            println "Importing ${db_group_name}"
 
-            codes = importer.doScan(root, type, codes, subset)
+            if (codes == null) {
+                println "Importing ${db_group_name}"
+                codes = importer.doScan(root, type, codes, subset)
+            } else {
+                semaphore.acquire()
+                executors.submit {
+                    synchronized (this) {
+                        println "Importing ${db_group_name}"
+                    }
+                    importer.doScan(root, type, codes, subset)
+                    semaphore.release()
+                }
+            }
         }}
         println "Process completed in ${(System.currentTimeMillis() - start) / 1000.0} seconds"
     }

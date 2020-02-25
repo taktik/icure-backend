@@ -6,5 +6,11 @@ map = function(doc) {
 		if (doc.nihii) {
 			emit(doc.nihii, doc._id)
 		}
+        if (doc.cbe) {
+            emit(doc.cbe, doc._id)
+        }
+        if (doc.ehp) {
+            emit(doc.ehp, doc._id)
+        }
 	}
 }

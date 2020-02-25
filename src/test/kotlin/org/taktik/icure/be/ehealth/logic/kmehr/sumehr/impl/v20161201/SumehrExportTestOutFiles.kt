@@ -986,7 +986,7 @@ private fun generateMinimalist() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1071,7 +1071,7 @@ private fun generateEveryItemsSumehr() {
     healthElements.addAll(listOf(MyHealthElements.historyHealthElementProblem, MyHealthElements.assessmentHealthElementProblem, MyHealthElements.assessmentHealthElementAdr, MyHealthElements.historyHealthElementAllergy))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1128,7 +1128,7 @@ private fun generateFullPatientSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1227,7 +1227,7 @@ private fun generateFullSenderSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1362,7 +1362,7 @@ private fun generateFullRecipientSumehr() {
     val excludedIds = emptyList<String>()
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1430,7 +1430,7 @@ private fun generateDecryptedSumehr() {
     ))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1489,7 +1489,7 @@ private fun generateFullAdrItemSumehr() { // same structure as 'allergy', 'risk'
     healthElements.addAll(listOf(MyHealthElements.assessmentHealthElementAdr))
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1551,7 +1551,7 @@ private fun generateFullGmdManagerItemSumehr() {
     hcparties["4"] = MyHealthcareParties.retirementhomeGMD
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1612,7 +1612,7 @@ private fun generateFullContactPersonItemSumehr() {
     patients["Sister"] = MyPatients.sisterPatient
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -1674,7 +1674,7 @@ private fun generateFullContactHcPartyItemSumehr() {
     hcparties["4"] = MyHealthcareParties.retirementhomeGMD
 
     // Execution
-    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor,
+    sumehrExport.createSumehr(os, patient, sfks, sender, recipient, language, comment, excludedIds, includeIrrelevantInformation, decryptor, null, null,
                 Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = makeXGC(Instant.now().toEpochMilli())!!,
                 time = makeXGC(Instant.now().toEpochMilli(), true)!!,

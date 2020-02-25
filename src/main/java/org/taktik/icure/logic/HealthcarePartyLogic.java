@@ -26,6 +26,7 @@ import org.taktik.icure.exceptions.MissingRequirementsException;
 import org.taktik.icure.db.PaginationOffset;
 
 import javax.security.auth.login.LoginException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -66,4 +67,5 @@ public interface HealthcarePartyLogic extends EntityPersister<HealthcareParty, S
 
 	PaginatedList<HealthcareParty> findHealthcarePartiesBySsinOrNihii(String searchValue, PaginationOffset<String> paginationOffset, Boolean desc);
 
+    HashSet<String> getHcpHierarchyIds(HealthcareParty sender);
 }
