@@ -282,6 +282,12 @@ public class MikronoFacade implements OpenApiFacade {
 		return ResponseUtils.ok("Missing Mikrono username/password for user");
 	}
 
+    @ApiOperation(
+            value = "Create appointmentTypess for owner",
+            response = MikronoAppointmentTypeRestDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST"
+    )
     @Path("/appointmentTypes")
     @POST
     public Response createAppointmentTypes(List<MikronoAppointmentTypeRestDto> appointmentTypes) throws IOException {
