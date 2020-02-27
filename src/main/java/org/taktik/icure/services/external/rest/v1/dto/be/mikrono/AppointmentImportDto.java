@@ -26,6 +26,10 @@ public class AppointmentImportDto implements Serializable{
 
 	private String type;
 
+    private String appointmentTypeId;
+
+    private String ownerRef;
+
 	private String customerName;
 
 	private String customerFirstname;
@@ -247,4 +251,19 @@ public class AppointmentImportDto implements Serializable{
 		this.customerFixPhone = customerFixPhone;
 	}
 
+    public String getAppointmentTypeId() {
+        return appointmentTypeId;
+    }
+
+    public void setAppointmentTypeId(String appointmentTypeId) {
+        this.appointmentTypeId = appointmentTypeId;
+    }
+
+    public String getOwnerRef() {
+        return ownerRef;
+    }
+
+    public void setOwnerRef(String ownerRef) {
+        this.ownerRef = ownerRef;
+    }
 }
