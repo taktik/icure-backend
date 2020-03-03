@@ -911,13 +911,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         listOf(CDCONTENTschemes.CD_DRUG_CNK,
                                 CDCONTENTschemes.ICD,
                                 CDCONTENTschemes.ICPC,
-                                CDCONTENTschemes.CD_CLINICAL,
                                 CDCONTENTschemes.CD_ATC,
                                 CDCONTENTschemes.CD_PATIENTWILL,
                                 CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
                     }.map { CodeStub(it.s.value(), it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.LOCAL && it.sl == "BE-THESAURUS-PROCEDURES")
-                    }.map { CodeStub(it.sl, it.value, it.sv) }
+                    }.map { CodeStub(it.sl, it.value, it.sv) } + it.cds.filter {
+                        (it.s == CDCONTENTschemes.CD_CLINICAL)
+                    }.map { CodeStub("BE-THESAURUS", it.value, it.sv) }
                 }).toSet()
     }
 

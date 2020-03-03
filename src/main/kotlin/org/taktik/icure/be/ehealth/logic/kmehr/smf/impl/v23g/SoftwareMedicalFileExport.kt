@@ -224,6 +224,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
 				encContact
 			}
 
+            // newestServicesById should point to decrypted services
+            contact.services.toList().forEach {
+                svc ->
+                    if (newestServicesById.containsKey(svc.id) && compareValues(svc.modified, newestServicesById[svc.id]?.modified) == 0) {
+                        newestServicesById[svc.id!!] = svc
+                    }
+            }
 
 			folder.transactions.add(
 					TransactionType().apply {
@@ -269,7 +276,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 												when(it.guid) {
 													"FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" ->  { // ITT
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)} // remove form services from main list
-														trn.headingsAndItemsAndTexts.add( makeIncapacityItem(contact, subcon, form) )
+														trn.headingsAndItemsAndTexts.add( makeIncapacityItem
+                                                        (contact, subcon, form) )
 													}
 													"AEFED10A-9A72-4B40-981B-1D79ADB05516" ->  { // Prescription Kine
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)}
@@ -410,26 +418,30 @@ class SoftwareMedicalFileExport : KmehrExport() {
 							}
 						}
 
+                        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
+                        val subContactServicesByFormId = subContactsByFormId.mapValues {
+                            it.value.flatMap { subContact -> subContact.services }
+                        }
 
 						// add link from items to HEs
 						contact.subContacts.forEach { subcon ->
 							if (subcon.healthElementId != null) {
-								subcon.services.forEach {
-									itemByServiceId[it.serviceId]?.lnks?.let {
-										val lnk = LnkType().apply {
-											type = CDLNKvalues.ISASERVICEFOR
-											// link should point to He.healthElementId and not He.id
-											subcon.healthElementId?.let {
-												heById[it]?.firstOrNull()?.let {
-													url = makeLnkUrl(it.healthElementId)
-												}
-											}
-										}
-										if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
-											it.add(lnk)
-										}
-									}
-								}
+                                subContactServicesByFormId[subcon.formId]?.forEach {
+                                    itemByServiceId[it.serviceId]?.lnks?.let {
+                                        val lnk = LnkType().apply {
+                                            type = CDLNKvalues.ISASERVICEFOR
+                                            // link should point to He.healthElementId and not He.id
+                                            subcon.healthElementId?.let {
+                                                heById[it]?.firstOrNull()?.let {
+                                                    url = makeLnkUrl(it.healthElementId)
+                                                }
+                                            }
+                                        }
+                                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                                            it.add(lnk)
+                                        }
+                                    }
+                                }
 							}
 						}
 					}
@@ -537,7 +549,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return folder
 	}
 
-	private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
+	private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType
+    {
 		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servlist = listOf(
 				"incapacité de",
@@ -861,7 +874,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     (
                         svc.tags.any { // is tagged active
                             it.type == "CD-LIFECYCLE" && (
-                                    listOf("active", "pending").contains(it.code) // "administrated" because vaccines should be included
+                                    listOf("active", "pending", "planned").contains(it.code) // "administrated" because vaccines should be included
                             )
                         }
                         || ( // or administrated vaccine
