@@ -23,6 +23,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.ReactorContext
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.withContext
@@ -37,13 +38,13 @@ import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.WebSession
 import org.taktik.icure.asynclogic.AsyncSessionLogic
-import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.security.SecurityToken
 import org.taktik.icure.services.external.rest.v1.dto.AuthenticationResponse
 import org.taktik.icure.services.external.rest.v1.dto.LoginCredentials
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.lang.IllegalArgumentException
 import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -55,22 +56,22 @@ import kotlin.coroutines.CoroutineContext
 @RestController
 @RequestMapping("/rest/v1/auth")
 @Api(tags = ["auth"])
-class LoginController(private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic, asyncCacheManager: AsyncCacheManager, private val healthcarePartyLogic: HealthcarePartyLogic) {
+class LoginController(private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic, asyncCacheManager: AsyncCacheManager) {
     val cache = asyncCacheManager.getCache<String, SecurityToken>("spring.security.tokens")
 
     @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
     @PostMapping("/login")
     suspend fun login(request : ServerHttpRequest, session: WebSession): AuthenticationResponse {
         val body: Flux<DataBuffer> = request.body
-        val bodyRef = AtomicReference<String>()
-        body.subscribe { buffer: DataBuffer ->
+        val bodyText =
+        body.awaitFirstOrNull()?.let { buffer: DataBuffer ->
             val charBuffer: CharBuffer = StandardCharsets.UTF_8.decode(buffer.asByteBuffer())
             DataBufferUtils.release(buffer)
-            bodyRef.set(charBuffer.toString())
-        }
+            charBuffer.toString()
+        } ?: throw IllegalArgumentException("Missing body")
 
         return withContext(Dispatchers.Default) {
-            val loginInfo = Moshi.Builder().build().adapter(LoginCredentials::class.java).fromJson(bodyRef.get())
+            val loginInfo = Moshi.Builder().build().adapter(LoginCredentials::class.java).fromJson(bodyText)
             return@withContext loginInfo?.let {
                 val response = AuthenticationResponse()
                 val authentication = sessionLogic.login(loginInfo.username, loginInfo.password, request, session)

@@ -14,7 +14,6 @@ import org.ektorp.http.HttpClient
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.slf4j.LoggerFactory
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder
 import org.taktik.commons.io.CircularByteBuffer
 import org.taktik.commons.uti.UTI
 import org.taktik.commons.uti.impl.SimpleUTIDetector
@@ -22,11 +21,11 @@ import org.taktik.icure.constants.Permissions
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.constants.Users
 import org.taktik.icure.db.be.icure.ClinicalCodeImporter
-import org.taktik.icure.db.be.icure.TarificationCodeImporter
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 import org.taktik.icure.services.external.rest.handlers.GsonMessageBodyHandler
 import org.taktik.icure.utils.FuzzyValues
 
@@ -504,7 +503,7 @@ class NewWindocImporter extends Importer {
                             login: r.Name.toLowerCase(),
                             name: "${m.firstName} ${m.lastName}", healthcarePartyId: m.id,
                             email: r.EMail,
-                            passwordHash: new ShaPasswordEncoder(256).encodePassword(r.User_Code, null),
+                            passwordHash: new ShaAndVerificationCodePasswordEncoder("SHA-256").encode(r.User_Code),
                             type: Users.Type.database,
                             status: Users.Status.ACTIVE,
                             createdDate: Instant.now()
