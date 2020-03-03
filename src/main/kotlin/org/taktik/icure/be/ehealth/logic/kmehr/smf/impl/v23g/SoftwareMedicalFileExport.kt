@@ -313,6 +313,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 						services.forEach { svc ->
 							var forSeparateTransaction = false
+                            var isIncapacity = false
 
                             // documents are in separate transaction in *MF
 							svc.content.values.find{ it.documentId != null }?.let {
@@ -330,7 +331,33 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 forSeparateTransaction = true
                             }
 
-							if(!forSeparateTransaction) {
+                            svc.tags.find {
+                                (it.type == "CD-ITEM" && it.code == "incapacity")
+                            }?.let {
+                                isIncapacity = true
+                            }
+
+                            if (isIncapacity) {
+                                var hasIncapacityTag = false
+                                var hasIncapacityReasonTag = false
+
+                                svc.tags.find {
+                                    (it.type == "CD-INCAPACITY")
+                                }?.let {
+                                    hasIncapacityTag = true
+                                }
+
+                                svc.tags.find {
+                                    (it.type == "CD-INCAPACITYREASON")
+                                }?.let {
+                                    hasIncapacityReasonTag = true
+                                }
+
+                                if (hasIncapacityTag && hasIncapacityReasonTag) {
+                                    trn.headingsAndItemsAndTexts.add(makeIncapacityItemFromService(svc))
+                                }
+                            }
+							else if(!forSeparateTransaction) {
 
 								var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
 								val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
@@ -641,6 +668,51 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			recorddatetime = Utils.makeXGC(form.modified, true)
 		}
 	}
+
+    private fun makeIncapacityItemFromService(service: Service, index: Number = 0): ItemType
+    {
+        val tagsMap = service.tags.associateBy({ it.type }, { it })
+
+        val content = ContentType().apply {
+            incapacity = IncapacityType().apply {
+                cds.add(
+                        CDINCAPACITY().apply {
+                            val cdIncapacityValue = tagsMap["CD-INCAPACITY"]?.code
+                            value = CDINCAPACITYvalues.fromValue(cdIncapacityValue)
+                        }
+                )
+                incapacityreason = IncapacityreasonType().apply {
+                    cd = CDINCAPACITYREASON().apply {
+                        val reasonValue = tagsMap["CD-INCAPACITYREASON"]?.code
+                        value = CDINCAPACITYREASONvalues.fromValue(reasonValue)
+                    }
+                }
+                isOutofhomeallowed = service.content?.let {
+                    (it["outing"] ?: it.values.firstOrNull())?.booleanValue
+                }
+            }
+        }
+
+        return ItemType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
+
+            this.contents.add(content)
+            lifecycle = LifecycleType().apply {
+                cd = CDLIFECYCLE().apply {
+                    value = CDLIFECYCLEvalues.ACTIVE
+                }
+            }
+            isIsrelevant = true
+            beginmoment = Utils.makeMomentTypeFromFuzzyLong(service.content?.let {
+                (it["startDate"] ?: it.values.firstOrNull())?.fuzzyDateValue
+            } ?: 0)
+            endmoment = Utils.makeMomentTypeFromFuzzyLong(service.content?.let {
+                (it["endDate"] ?: it.values.firstOrNull())?.fuzzyDateValue
+            } ?: 0)
+            recorddatetime = Utils.makeXGC(service.modified, true)
+        }
+    }
 
 
 	private fun makeEncounterDateTime(index: Int, yyyymmddhhmmss: Long): ItemType {
