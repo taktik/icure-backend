@@ -145,7 +145,7 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
     }.toCollection(resultRows)
 
     if(resultRows.size < realLimit){
-        resultRows.add(mapper.map((lastProcessedViewRow?.doc as? U)?:lastProcessedViewRowNoDoc?.id, T::class.java))
+        ((lastProcessedViewRow?.doc as? U) ?: lastProcessedViewRowNoDoc?.id)?.let { resultRows.add(mapper.map(it, T::class.java)) }
     }
     result.rows = resultRows
     return result
