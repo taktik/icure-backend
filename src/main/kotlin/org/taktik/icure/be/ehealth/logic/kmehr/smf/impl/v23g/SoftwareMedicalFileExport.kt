@@ -180,8 +180,7 @@ class SoftwareMedicalFileExport(
         // in PMF, we only want the last version, older versions are removed from servicesByContactId
         servicesByContactId = contacts.map { con ->
             con.id to con.services.toList().map { svc ->
-                newestServicesById[svc.id!!] = svc
-                svc
+                svc.also { it.id?.let { svcId -> newestServicesById[svcId] = svc } }
             }
         }.toMap()
 
@@ -393,20 +392,12 @@ class SoftwareMedicalFileExport(
                                         }
                                     }
                                     svc.comment?.let {
-                                        (it != "") && it.let{
-                                            this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })}
-										}
-                                        if(itemByServiceId[svc.id!!] != null && config.format != Config.Format.PMF) {
-                                            // this is a new version of and older service, add a link
-                                            // no history in PMF
-                                            lnks.add(
-                                                    LnkType().apply {
-                                                        type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(svc.id!!)
-                                                    }
-                                            )
+                                        (it != "") && it.let {
+                                            this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
                                         }
+                                    }
 
-                                    svc.id?.let { itemByServiceId[it] = this }
+                                    addHistoryLinkAndCacheService(this, svc, config)
                                     headingsAndItemsAndTexts.add(this)
                                 }
                             }
@@ -497,7 +488,7 @@ class SoftwareMedicalFileExport(
                                 this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
                             }
                         }
-                        itemByServiceId[svc.id!!] = this
+                        addHistoryLinkAndCacheService(this, svc, config)
                         headingsAndItemsAndTexts.add(this)
                     }
                 }
@@ -545,7 +536,22 @@ class SoftwareMedicalFileExport(
 		return folder
 	}
 
-	private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
+    private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
+        svc.id?.let { svcId ->
+            if (itemByServiceId[svcId] != null && config.format != Config.Format.PMF) {
+                // this is a new version of and older service, add a link
+                // no history in PMF
+                item.lnks.add(
+                        LnkType().apply {
+                            type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(svcId)
+                        }
+                )
+            }
+            itemByServiceId[svcId] = item
+        }
+    }
+
+    private fun makeIncapacityItem(contact: Contact, subcon: SubContact, form: Form, index: Number = 0): ItemType {
 		val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 		val servlist = listOf(
 				"incapacité de",
