@@ -756,11 +756,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 "incapacité de" to
                         item.contents.find { it.incapacity != null }?.let {
                             //TODO Dorian fix that
-                            it.cds.find { it.s is CDINCAPACITY }?.value
+                            it.incapacity.cds.find { it is CDINCAPACITY }?.value
                         }?.let {
                             Pair(
-                                    Content().apply { stringValue = it },
-                                    listOf(CodeStub("CD-INCAPACITY", it, "1"))
+                                    Content().apply { stringValue = it.value() },
+                                    listOf(CodeStub("CD-INCAPACITY", it.value(), "1"))
                             )
                         },
                 "du" to  Content().apply{
@@ -773,13 +773,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 "pour cause de" to
                         item.contents.find { it.incapacity != null }?.let {
                             //TODO Dorian fix that
-                            it.cds.find { it.s is CDINCAPACITYREASON }?.value
+                            it.incapacity.incapacityreason?.cd?.value
                         }?.let {
                             Pair(
                                     Content().apply {
-                                        stringValue = it
+                                        stringValue = it.value()
                                     },
-                                    listOf(CodeStub("CD-INCAPACITYREASON", it, "1"))
+                                    listOf(CodeStub("CD-INCAPACITYREASON", it.value(), "1"))
                             )
 
                         },
@@ -811,7 +811,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         content = mapOf(
                                 language to (it as Pair<Content,List<CodeStub>>).first
                         )
-                        tags = it.second as Set<CodeStub>
+                        tags = HashSet<CodeStub>(it.second)
                     } else {
                         content = mapOf(language to it as Content)
                     }
