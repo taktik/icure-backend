@@ -456,6 +456,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     stringValue = docname
                 }
                 label = "document"
+                tags.add(CodeStub( "CD-ITEM-EXT", "document", "1"))
                 valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                         trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
                             it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }

@@ -516,7 +516,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
             folder.transactions.add( TransactionType().apply {
                 ids.add(idKmehr(startIndex))
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = svc.id })
-                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
+                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content["fr"]?.stringValue })
                 (svc.modified ?: svc.created) ?.let {
                     date = makeXGC(it)
                     time = makeXGC(it, unsetMillis = true)
