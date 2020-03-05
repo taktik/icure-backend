@@ -5,7 +5,9 @@ import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.Address;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MedicalLocation extends StoredDocument {
     protected String name;
@@ -19,6 +21,7 @@ public class MedicalLocation extends StoredDocument {
     protected String ssin;
     protected Address address;
     protected List<String> agendaIds;
+    protected Map<String, String> options = new HashMap<>();
 
     public String getName() {
         return name;
@@ -98,6 +101,14 @@ public class MedicalLocation extends StoredDocument {
 
     public void setSsin(String ssin) {
         this.ssin = ssin;
+    }
+
+    public @Nullable Map<String, String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
     }
 
     public List<String> getAgendaIds() { return agendaIds; }
