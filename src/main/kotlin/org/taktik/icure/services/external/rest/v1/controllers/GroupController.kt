@@ -40,7 +40,7 @@ class GroupController(couchDbProperties: CouchDbProperties,
                             @RequestParam(required = false) n: Int?,
                             @RequestBody initialisationData: DatabaseInitialisationDto): GroupDto {
         return try {
-            val group = groupLogic.createGroup(id, name, password, server, q, n, mapper.map(initialisationData.replication, Replication::class.java))
+            val group = groupLogic.createGroup(id, name, password, server, q, n, initialisationData.replication?.let { mapper.map(it, Replication::class.java) })
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Group creation failed")
             (group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString())?.let { uri ->
                 initialisationData.users?.forEach {

@@ -11,7 +11,7 @@ interface GroupLogic {
             server: String?,
             q: Int?,
             n: Int?,
-            initialReplication: Replication
+            initialReplication: Replication?
     ): Group?
 
     suspend fun findGroup(groupId: String): Group?

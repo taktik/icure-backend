@@ -35,7 +35,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
             server: String?,
             q: Int?,
             n: Int?,
-            initialReplication: Replication
+            initialReplication: Replication?
     ): Group? {
         val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
         if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(groupUserId)?.groupId) {
@@ -46,7 +46,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
                 "icure-$id-patient",
                 "icure-$id-healthdata"
         )
-        val sanitizedDatabaseSynchronizations = initialReplication.databaseSynchronizations?.filter { ds: DatabaseSynchronization ->
+        val sanitizedDatabaseSynchronizations = initialReplication?.databaseSynchronizations?.filter { ds: DatabaseSynchronization ->
             try {
                 val couch = URI(couchDbProperties.url)
                 val dest = URI(ds.target)
@@ -57,7 +57,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
             } catch (e: URISyntaxException) {
                 throw IllegalArgumentException("Cannot start replication: invalid target")
             }
-        }
+        } ?: listOf()
         val dbUser = User("org.couchdb.user:$id", id, password)
         val security = Security(id)
         val group = Group(id, name, password).apply { server?.let { sv -> servers = couchDbProperties.altUrlsList().filter { it.contains(sv) } } }
