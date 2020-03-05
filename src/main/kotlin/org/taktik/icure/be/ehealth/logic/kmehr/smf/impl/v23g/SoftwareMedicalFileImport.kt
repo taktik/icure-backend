@@ -756,11 +756,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 "incapacité de" to
                         item.contents.find { it.incapacity != null }?.let {
                             //TODO Dorian fix that
-                            it.incapacity.cds.find { it is CDINCAPACITY }?.value
+                            it.incapacity.cds.filterIsInstance<CDINCAPACITY>()?.map{ it -> it.value }
                         }?.let {
                             Pair(
-                                    Content().apply { stringValue = it.value() },
-                                    listOf(CodeStub("CD-INCAPACITY", it.value(), "1"))
+                                    Content().apply { stringValue = it.map{ incapacityValue -> incapacityValue.value() }.joinToString("|") },
+                                    it.map{ CodeStub("CD-INCAPACITY", it.value(), "1")}
                             )
                         },
                 "du" to  Content().apply{

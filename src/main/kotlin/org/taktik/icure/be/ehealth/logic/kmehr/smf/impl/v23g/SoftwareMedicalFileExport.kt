@@ -671,19 +671,22 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
     private fun makeIncapacityItemFromService(service: Service, index: Number = 0): ItemType
     {
-        val tagsMap = service.tags.associateBy({ it.type }, { it })
+        val tagsMap = service.tags.groupBy({ it.type }, { it })
 
         val content = ContentType().apply {
             incapacity = IncapacityType().apply {
-                cds.add(
-                        CDINCAPACITY().apply {
-                            val cdIncapacityValue = tagsMap["CD-INCAPACITY"]?.code
-                            value = CDINCAPACITYvalues.fromValue(cdIncapacityValue)
-                        }
-                )
+                tagsMap["CD-INCAPACITY"]?.map {
+                    CDINCAPACITY().apply {
+                        value = CDINCAPACITYvalues.fromValue(it.code)
+                    }
+                }?.let {
+                    cds.addAll(
+                            it
+                    )
+                }
                 incapacityreason = IncapacityreasonType().apply {
                     cd = CDINCAPACITYREASON().apply {
-                        val reasonValue = tagsMap["CD-INCAPACITYREASON"]?.code
+                        val reasonValue = tagsMap["CD-INCAPACITYREASON"]?.first()?.code
                         value = CDINCAPACITYREASONvalues.fromValue(reasonValue)
                     }
                 }
@@ -695,6 +698,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
         return ItemType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = service.id })
             cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
 
             this.contents.add(content)
