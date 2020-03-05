@@ -563,9 +563,31 @@ class UserLogicImpl(
         return userDAO.getOnFallback(dbInstanceUri, userId, false)
     }
 
+    override suspend fun createUserOnUserDb(user: User, groupId: String, dbInstanceUrl: URI): User? {
+        if (user.login != null || user.email == null) {
+            throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
+        }
+        try { // check whether user exists
+            val userByEmail = getUserByEmailOnUserDb(user.email, groupId, dbInstanceUrl)
+            userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
+            user.id = user.id ?: uuidGenerator.newGUID().toString()
+            user.createdDate = Instant.now()
+            user.login = user.email
+
+            return getGenericDAO().create(dbInstanceUrl, groupId, user)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid User", e)
+        }
+    }
+
+    override suspend fun getUserByEmailOnUserDb(email: String, groupId: String, dbInstanceUrl: URI): User? {
+        return userDAO.findByEmail(dbInstanceUrl, groupId, email).singleOrNull()?.also { fillGroup(it) }
+    }
+
     override suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User {
         return fillGroup(userDAO.getUserOnUserDb(dbInstanceUrl, groupId, userId, false))
     }
+
 
     override suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User? {
         return userDAO.findUserOnUserDb(dbInstanceUrl, groupId, userId, false)?.also { fillGroup(it) }

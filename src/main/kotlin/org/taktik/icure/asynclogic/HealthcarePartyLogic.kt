@@ -6,6 +6,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
+import java.net.URI
 
 interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
     fun getGenericDAO(): HealthcarePartyDAO
@@ -32,4 +33,6 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
     fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty>
     fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent>
     fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty>
+
+    suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, groupId: String, HealthcareParty: URI): HealthcareParty?
 }

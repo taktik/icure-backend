@@ -76,7 +76,9 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun setProperties(user: User, properties: List<Property>): User?
     fun getUsers(ids: List<String>): Flow<User>
     suspend fun getUserOnFallbackDb(userId: String): User?
+    suspend fun createUserOnUserDb(user: User, groupId: String, dbInstanceUrl: URI): User?
     suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
     suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
     fun findByHcpartyId(hcpartyId: String): Flow<String>
+    suspend fun getUserByEmailOnUserDb(email: String, groupId: String, dbInstanceUrl: URI): User?
 }

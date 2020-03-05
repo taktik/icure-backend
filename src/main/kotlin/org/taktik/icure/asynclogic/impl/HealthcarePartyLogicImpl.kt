@@ -38,6 +38,7 @@ import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.validation.aspect.Check
+import java.net.URI
 import java.util.*
 import javax.validation.constraints.NotNull
 
@@ -166,6 +167,21 @@ class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDA
     override fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(healthcarePartyDAO.findByParentId(dbInstanceUri, groupId, parentId))
+    }
+
+    override suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, groupId: String, dbInstanceUri: URI): HealthcareParty? {
+        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
+            throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
+        }
+        try {
+            if (healthcareParty.id == null) {
+                val newId = uuidGenerator.newGUID().toString()
+                healthcareParty.id = newId
+            }
+            return getGenericDAO().create(dbInstanceUri, groupId, healthcareParty)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid healthcare party", e)
+        }
     }
 
     companion object {
