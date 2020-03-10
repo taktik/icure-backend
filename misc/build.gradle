@@ -64,7 +64,7 @@ configurations.all {
 }
 
 // for pricare migration
-/*
+
 springBoot {
     mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
 }
@@ -75,4 +75,4 @@ jar {
         attributes 'Main-Class': 'org.taktik.icure.db.TopazImporter.PricareImporter'
     }
 }
-*/
+
