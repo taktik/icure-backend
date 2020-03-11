@@ -20,6 +20,7 @@ package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator;
 import org.taktik.icure.entities.base.StoredICureDocument;
 import org.taktik.icure.entities.embed.InvoiceInterventionType;
@@ -106,6 +107,8 @@ public class Invoice extends StoredICureDocument {
     //eattest cancel
     protected String cancelReason;
     protected Long cancelDate;
+
+    protected Map<String, String> options = new HashMap<>();
 
 	public Invoice solveConflictWith(Invoice other) {
 		super.solveConflictsWith(other);
@@ -578,6 +581,14 @@ public class Invoice extends StoredICureDocument {
 	public void setPayments(List<Payment> payments) {
 		this.payments = payments;
 	}
+
+    public @Nullable Map<String, String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
+    }
 
 	@Override
 	public boolean equals(Object o) {
