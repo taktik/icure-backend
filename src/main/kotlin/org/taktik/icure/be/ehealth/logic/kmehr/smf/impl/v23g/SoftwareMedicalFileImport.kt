@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.db.StringUtils
+import org.taktik.icure.dto.message.Attachment
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.logic.*
@@ -434,6 +435,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         modified = created
                         attachment = lnk.value
                         name = docname
+
+                        v.attachments.put(id, Attachment().apply {
+                            data = lnk.value
+                        })
 
                         var utis : List<UTI> = emptyList()
                         lnk.mediatype?.value()?.let {
