@@ -75,10 +75,10 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
     @GetMapping
-    suspend fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long, @RequestParam(required = false) toEpoch: Long, @RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean = false): PaginatedList<AccessLogDto> {
+    suspend fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: String?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?): PaginatedList<AccessLogDto> {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset<Long>(null, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
-        val accessLogs = accessLogLogic.listAccessLogs(fromEpoch, toEpoch, paginationOffset, descending)
+        val accessLogs = accessLogLogic.listAccessLogs(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
         return accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
     }
 
