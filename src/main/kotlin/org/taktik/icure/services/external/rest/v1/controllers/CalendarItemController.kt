@@ -112,8 +112,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @ApiOperation(value = "Get calendarItems by id", responseContainer = "Array", response = CalendarItemDto::class, httpMethod = "POST")
-    @POST
-    @Path("/byIds")
+    @PostMapping("/byIds")
     fun getCalendarItemsWithIds(calendarItemIds: ListOfIdsDto?): Flux<CalendarItemDto> {
         if (calendarItemIds == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "calendarItemIds was empty")
