@@ -58,9 +58,7 @@ internal class ClassificationTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher")
 
     override fun listClassificationTemplates(dbInstanceUrl: URI, groupId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val startKey = if (paginationOffset.startKey != null) paginationOffset.startKey.toString() else "\u0000"
-        val endKey = "\ufff0"
-        val viewQuery = pagedViewQuery<ClassificationTemplate,String>("all", startKey, endKey, paginationOffset, false)
+        val viewQuery = pagedViewQuery<ClassificationTemplate,String>("all", null, "\ufff0", paginationOffset, false)
         return client.queryView(viewQuery, String::class.java, String::class.java, ClassificationTemplate::class.java)
     }
 }

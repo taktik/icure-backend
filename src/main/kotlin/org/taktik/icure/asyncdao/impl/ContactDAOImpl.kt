@@ -31,7 +31,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.dao.impl.ektorp.CouchKeyValue
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator<>
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Message
@@ -69,7 +69,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun listContactsByOpeningDate(dbInstanceUrl: URI, groupId: String, hcPartyId: String, startOpeningDate: Long?, endOpeningDate: Long?, pagination: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val startKey = if (pagination.startKey != null) ComplexKey.of(hcPartyId, startOpeningDate) else ComplexKey.of(hcPartyId, pagination.startKey)
+        val startKey = ComplexKey.of(hcPartyId, startOpeningDate)
         val endKey = ComplexKey.of(hcPartyId, endOpeningDate)
         val viewQuery = pagedViewQuery<Contact,ComplexKey>("by_hcparty_openingdate", startKey, endKey, pagination, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Contact::class.java)
@@ -78,10 +78,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     @View(name = "by_hcparty", map = "classpath:js/contact/By_hcparty.js")
     override fun listContacts(dbInstanceUrl: URI, groupId: String, hcPartyId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
-        val key = if (pagination.startKey == null) hcPartyId else pagination.startKey
-
-        val viewQuery = pagedViewQuery<Contact,String>("by_hcparty", key, key, pagination, false)
+        val viewQuery = pagedViewQuery<Contact,String>("by_hcparty", hcPartyId, hcPartyId, pagination, false)
         return client.queryView(viewQuery, String::class.java, String::class.java, Contact::class.java)
     }
 

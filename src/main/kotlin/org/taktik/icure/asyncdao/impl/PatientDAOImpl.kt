@@ -280,11 +280,11 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val startKey: ComplexKey
         val endKey: ComplexKey
         if (name == null) {
-            startKey = if (pagination.startKey == null) ComplexKey.of(healthcarePartyId, smallestKey) else ComplexKey.of(*pagination.startKey as Array<Any>)
+            startKey = ComplexKey.of(healthcarePartyId, smallestKey)
             endKey = ComplexKey.of(healthcarePartyId, largestKey)
         } else {
             name = StringUtils.sanitizeString(name)
-            startKey = if (pagination.startKey == null) ComplexKey.of(healthcarePartyId, name!! + startKeyNameKeySuffix) else ComplexKey.of(*pagination.startKey as Array<Any>)
+            startKey = ComplexKey.of(healthcarePartyId, name!! + startKeyNameKeySuffix)
             endKey = ComplexKey.of(healthcarePartyId, name!! + endKeyNameKeySuffix)
         }
 
@@ -300,7 +300,6 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
 //        }.filterIsInstance<ViewRow<ComplexKey, String, Patient>>().map { it.doc }.filterNotNull().toList()
 
         val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, startKey, endKey, pagination, descending)
-//        return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Patient::class.java)
     }
 
@@ -315,11 +314,11 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val startKey: ComplexKey
         val endKey: ComplexKey
         if (ssin == null) {
-            startKey = if (pagination.startKey == null) ComplexKey.of(healthcarePartyId, smallestKey) else ComplexKey.of(*pagination.startKey as Array<Any>)
+            startKey = ComplexKey.of(healthcarePartyId, smallestKey)
             endKey = ComplexKey.of(healthcarePartyId, largestKey)
         } else {
             val ssinSearchString = ssin.replace(" ".toRegex(), "").replace("\\W".toRegex(), "")
-            startKey = if (pagination.startKey == null) ComplexKey.of(healthcarePartyId, ssinSearchString + startKeyNameKeySuffix) else ComplexKey.of(*pagination.startKey as Array<Any>)
+            startKey = ComplexKey.of(healthcarePartyId, ssinSearchString + startKeyNameKeySuffix)
             endKey = ComplexKey.of(healthcarePartyId, ssinSearchString + endKeyNameKeySuffix)
         }
 
@@ -335,18 +334,8 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val smallestKey = if (descending) ComplexKey.emptyObject() else null
         val largestKey = if (descending) null else ComplexKey.emptyObject()
 
-        val from: ComplexKey
-        if (pagination.startKey == null) {
-            //If both keys are null, search for null
-            from = ComplexKey.of(healthcarePartyId, if (startKeyStartDate == null && endKeyEndDate == null) null else startKeyStartDate
-                    ?: smallestKey)
-        } else {
-            from = ComplexKey.of(*pagination.startKey as Array<Any>)
-        }
-
-        //If both keys are null, search for null
-        val to = ComplexKey.of(healthcarePartyId, if (startKeyStartDate == null && endKeyEndDate == null) null else endKeyEndDate
-                ?: largestKey)
+        val from = ComplexKey.of(healthcarePartyId, if (startKeyStartDate == null && endKeyEndDate == null) null else startKeyStartDate ?: smallestKey)
+        val to = ComplexKey.of(healthcarePartyId, if (startKeyStartDate == null && endKeyEndDate == null) null else endKeyEndDate ?: largestKey)
 
         val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, from, to, pagination, descending)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Patient::class.java)
@@ -360,13 +349,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
         val smallestKey = if (descending) ComplexKey.emptyObject() else null
         val largestKey = if (descending) null else ComplexKey.emptyObject()
 
-        val from: ComplexKey
-        if (pagination.startKey == null) {
-            from = ComplexKey.of(healthcarePartyId, startKeyStartDate ?: smallestKey)
-        } else {
-            from = ComplexKey.of(*pagination.startKey as Array<Any>)
-        }
-
+        val from = ComplexKey.of(healthcarePartyId, startKeyStartDate ?: smallestKey)
         val to = ComplexKey.of(healthcarePartyId, endKeyEndDate ?: largestKey)
 
         val viewQuery = pagedViewQuery<Patient, ComplexKey>(viewName, from, to, pagination, descending)
@@ -400,7 +383,6 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
             "}")
     override fun findDeletedPatientsByDeleteDate(dbInstanceUrl: URI, groupId: String, start: Long, end: Long?, descending: Boolean, paginationOffset: PaginationOffset<Long>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
         val viewQuery = pagedViewQuery<Patient, Long>("deleted_by_delete_date", start, end, paginationOffset, descending)
         return client.queryView(viewQuery, Long::class.java, Any::class.java, Patient::class.java)
     }

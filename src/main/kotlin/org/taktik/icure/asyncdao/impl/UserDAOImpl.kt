@@ -72,7 +72,7 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     override fun listUsers(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val viewQuery = pagedViewQuery<User,String>("allForPagination", if (pagination.startKey != null) pagination.startKey.toString() else "\u0000", "\ufff0", pagination, false)
+        val viewQuery = pagedViewQuery<User,String>("allForPagination", null, "\ufff0", pagination, false)
         return client.queryView(viewQuery, String::class.java, String::class.java, User::class.java)
     }
 

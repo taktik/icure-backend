@@ -79,10 +79,9 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                         ))).map { it.doc }
     }
 
-    override fun findTarifications(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>?>): Flow<ViewQueryResultEvent> {
+    override fun findTarifications(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, pagination: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val from = pagination?.startKey?.let { ComplexKey.of(it) }
-                ?: ComplexKey.of(
+        val from = ComplexKey.of(
                         region ?: "\u0000",
                         type ?: "\u0000",
                         code ?: "\u0000",
@@ -94,7 +93,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 code?.let { it + "" } ?: ComplexKey.emptyObject(),
                 version?.let { it + "" } ?: ComplexKey.emptyObject()
         )
-        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_region_type_code_version", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_region_type_code_version", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Tarification::class.java)
 
     }
@@ -107,21 +106,18 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
 
         val startKey = pagination.startKey?.toMutableList()
         startKey?.takeIf { it.size > 2 }?.get(2)?.let { startKey[2] = StringUtils.sanitizeString(it) }
-        val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
-                ?.takeIf { it.components.isEmpty() }.let {
-                    ComplexKey.of(
-                            region ?: "\u0000",
-                            language ?: "\u0000",
-                            label ?: "\u0000"
-                    )
-                }
+        val from = ComplexKey.of(
+                region ?: "\u0000",
+                language ?: "\u0000",
+                label ?: "\u0000"
+        )
 
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
                 if (language == null) ComplexKey.emptyObject() else if (label == null) language + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java)
     }
 
@@ -133,15 +129,12 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
 
         val startKey = pagination.startKey?.toMutableList()
         startKey?.takeIf { it.size > 3 }?.get(3)?.let { startKey[3] = StringUtils.sanitizeString(it) }
-        val from = startKey?.let { ComplexKey.of(*startKey.toTypedArray()) }
-                ?.takeIf { it.components.isEmpty() }.let {
-                    ComplexKey.of(
-                            region ?: "\u0000",
-                            language ?: "\u0000",
-                            type ?: "\u0000",
-                            label ?: "\u0000"
-                    )
-                }
+        val from = ComplexKey.of(
+                region ?: "\u0000",
+                language ?: "\u0000",
+                type ?: "\u0000",
+                label ?: "\u0000"
+        )
 
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
@@ -149,7 +142,7 @@ class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher:
                 if (type == null) ComplexKey.emptyObject() else if (label == null) type + "\ufff0" else language,
                 if (label == null) ComplexKey.emptyObject() else label + "\ufff0"
         )
-        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, PaginationOffset(pagination.limit, pagination.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Tarification, ComplexKey>("by_language_label", from, to, pagination.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, Integer::class.java, Tarification::class.java)
     }
 }

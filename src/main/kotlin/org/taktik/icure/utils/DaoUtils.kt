@@ -28,7 +28,7 @@ fun<T> createQuery(viewName: String, entityClass: Class<T>): ViewQuery = ViewQue
 
 inline fun<reified T, P> pagedViewQuery(viewName: String, startKey: P?, endKey: P?, pagination: PaginationOffset<P>, descending: Boolean): ViewQuery {
     var viewQuery = createQuery<T>(viewName)
-            .startKey(startKey) // NB: pagination.startKey is ignored, but should always be null or the same as startKey
+            .startKey(pagination.startKey ?: startKey) // NB: pagination.startKey is preferred when present
             .includeDocs(true)
             .reduce(false)
             .startDocId(pagination.startDocumentId)

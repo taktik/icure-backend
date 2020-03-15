@@ -92,7 +92,7 @@ internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchD
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val isDesc = desc != null && desc
-        val from = if (offset.startKey == null) if (isDesc) searchValue!! + "\ufff0" else searchValue else offset.startKey
+        val from = if (isDesc) searchValue!! + "\ufff0" else searchValue
         val to = if (searchValue != null) if (isDesc) searchValue else searchValue + "\ufff0" else if (isDesc) null else "\ufff0"
 
         val viewQuery = pagedViewQuery<HealthcareParty, String>("by_ssin_or_nihii", from, to, offset, isDesc)

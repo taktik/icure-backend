@@ -45,4 +45,6 @@ class PaginationOffset<K> : Serializable {
         this.offset = offset
         this.limit = limit
     }
+
+    fun <L>toPaginationOffset(startKeyConverter: (k:K) -> L) = PaginationOffset(this.startKey?.let { startKeyConverter(it) }, this.startDocumentId, this.offset, this.limit)
 }

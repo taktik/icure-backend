@@ -29,6 +29,7 @@ import org.taktik.jetty.getResponseTextFlow
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.math.BigDecimal
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -247,6 +248,10 @@ class ClientImpl(private val httpClient: HttpClient,
                              override fun toJson(writer: JsonWriter, value: Boolean?) {
                                  writer.value(value)
                              }
+                         })
+                         .add(object {
+                             @FromJson fun fromJson(string: String) = BigDecimal(string)
+                             @ToJson fun toJson(value: BigDecimal) = value.toString()
                          })
                          .add(InstantAdapter())
                          .add(Base64Adapter())

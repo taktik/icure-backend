@@ -54,7 +54,7 @@ class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun findByHcParty(dbInstanceUrl: URI, groupId: String, hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val startKey = if (paginationOffset.startKey == null) ComplexKey.of(hcParty, fromDate) else paginationOffset.startKey
+        val startKey = ComplexKey.of(hcParty, fromDate)
         val endKey = ComplexKey.of(hcParty, toDate ?: ComplexKey.emptyObject())
 
         val viewQuery = pagedViewQuery<Invoice, ComplexKey>("by_hcparty_date", startKey, endKey, paginationOffset, false)

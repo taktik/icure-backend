@@ -5,19 +5,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
-import org.taktik.icure.asyncdao.impl.GenericDAOImpl
 import org.taktik.icure.asyncdao.impl.InternalDAOImpl
-import org.taktik.icure.asyncdao.samv2.AmpDAO
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.asyncdao.samv2.VmpGroupDAO
-import org.taktik.icure.db.PaginatedList
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
@@ -37,14 +32,10 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
         val client = couchDbDispatcher.getClient(dbInstanceUri, null)
 
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
-        val startKey = paginationOffset.startKey
-        val from = if (startKey == null)
-            ComplexKey.of(
+        val from = ComplexKey.of(
                     language ?: "\u0000",
                     sanitizedLabel ?: "\u0000"
             )
-        else
-            ComplexKey.of(*startKey.mapIndexed { i, s -> if (i==1) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray())
         val to = ComplexKey.of(
                 language ?: ComplexKey.emptyObject(),
                 if (sanitizedLabel == null) ComplexKey.emptyObject() else sanitizedLabel + "\ufff0"
@@ -53,7 +44,7 @@ class VmpGroupDAOImpl(couchDbProperties: CouchDbProperties, @Qualifier("drugCouc
                 "by_language_label",
                 from,
                 to,
-                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i==1) s.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
                 false
         )
         return client.queryView(viewQuery, ComplexKey::class.java, String::class.java, Amp::class.java)

@@ -72,10 +72,10 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     @View(name = "by_hcparty_from_address", map = "classpath:js/message/By_hcparty_from_address_map.js")
     override fun findByFromAddress(dbInstanceUrl: URI, groupId: String, partyId: String, fromAddress: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, fromAddress, null)
+        val startKey = ComplexKey.of(partyId, fromAddress, null)
         val endKey: ComplexKey = ComplexKey.of(startKey.components[0], startKey.components[1], ComplexKey.emptyObject())
 
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_from_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_from_address", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 
@@ -83,9 +83,9 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun findByToAddress(dbInstanceUrl: URI, groupId: String, partyId: String, toAddress: String, paginationOffset: PaginationOffset<List<Any>>, reverse: Boolean?): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val reverse = reverse ?: false
-        val startKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, toAddress, null)
+        val startKey = ComplexKey.of(partyId, toAddress, null)
         val endKey = ComplexKey.of(partyId, toAddress, if (reverse) null else ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_to_address", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_to_address", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 
@@ -95,14 +95,14 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
-            paginationOffset?.let { ComplexKey.of(paginationOffset.startKey) } ?: ComplexKey.of(partyId, prefix, null)
-        } ?: paginationOffset?.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, transportGuid, null)
+            ComplexKey.of(partyId, prefix, null)
+        } ?: ComplexKey.of(partyId, transportGuid, null)
 
         val endKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 
@@ -112,33 +112,31 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val startKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
-            paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, prefix, null)
-        }
-                ?: if (paginationOffset.startKey == null) ComplexKey.of(partyId, transportGuid, null) else ComplexKey.of(*paginationOffset.startKey.toTypedArray())
+            ComplexKey.of(partyId, prefix, null)
+        } ?: ComplexKey.of(partyId, transportGuid, null)
         val endKey = transportGuid?.takeIf { it.endsWith(":*") }?.let {
             val prefix = transportGuid.substring(0, transportGuid.length - 1)
             ComplexKey.of(partyId, prefix + "\ufff0", ComplexKey.emptyObject())
         } ?: ComplexKey.of(partyId, transportGuid, ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty_transport_guid_sent_date", map = "classpath:js/message/By_hcparty_transport_guid_sent_date.js")
     override fun findByTransportGuidSentDate(dbInstanceUrl: URI, groupId: String, partyId: String, transportGuid: String, fromDate: Long, toDate: Long, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val startKey = paginationOffset?.startKey?.let { ComplexKey.of(it) }
-                ?: ComplexKey.of(partyId, transportGuid, fromDate)
+        val startKey = ComplexKey.of(partyId, transportGuid, fromDate)
         val endKey = ComplexKey.of(partyId, transportGuid, toDate)
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 
     @View(name = "by_hcparty", map = "classpath:js/message/By_hcparty_map.js")
     override fun findByHcParty(dbInstanceUrl: URI, groupId: String, partyId: String, paginationOffset: PaginationOffset<List<Any>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val startKey: ComplexKey = paginationOffset.startKey?.let { ComplexKey.of(it) } ?: ComplexKey.of(partyId, null)
-        val endKey: ComplexKey = ComplexKey.of(startKey.components[0], ComplexKey.emptyObject())
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty", startKey, endKey, PaginationOffset(paginationOffset.limit, paginationOffset.startDocumentId), false)
+        val startKey: ComplexKey = ComplexKey.of(partyId, null)
+        val endKey: ComplexKey = ComplexKey.of(partyId, ComplexKey.emptyObject())
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 

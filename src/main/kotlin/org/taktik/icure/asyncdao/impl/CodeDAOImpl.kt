@@ -113,10 +113,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     override fun findCodes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?, code: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
-        val from = if (paginationOffset.startKey == null)
-            ComplexKey.of(region, type, code, version)
-        else
-            ComplexKey.of(*paginationOffset.startKey.toTypedArray())
+        val from = ComplexKey.of(region, type, code, version)
         val to = ComplexKey.of(
                 region ?: ComplexKey.emptyObject(),
                 type ?: ComplexKey.emptyObject(),
@@ -128,7 +125,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 "by_region_type_code_version",
                 from,
                 to,
-                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) },
                 false
         )
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
@@ -141,14 +138,13 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
         val startKey = paginationOffset.startKey
-        val from = if (startKey == null)
+        val from =
             ComplexKey.of(
                     region ?: "\u0000",
                     language ?: "\u0000",
                     sanitizedLabel ?: "\u0000"
             )
-        else
-            ComplexKey.of(*startKey.mapIndexed { i, s -> if (i==2) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray())
+
         val to = ComplexKey.of(
                 if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
                 if (language == null) ComplexKey.emptyObject() else if (sanitizedLabel == null) language + "\ufff0" else language,
@@ -159,7 +155,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 "by_language_label",
                 from,
                 to,
-                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i==2) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
                 false
         )
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
@@ -171,16 +167,13 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     override fun findCodesByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val sanitizedLabel= label?.let { StringUtils.sanitizeString(it) }
-        val startKey = paginationOffset.startKey
-        val from = if (startKey == null)
-            ComplexKey.of(
+        val from = ComplexKey.of(
                     region ?: "\u0000",
                     language ?: "\u0000",
                     type ?: "\u0000",
                     sanitizedLabel ?: "\u0000"
             )
-        else
-            ComplexKey.of(*startKey.mapIndexed { i, s -> if (i==3) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray())
+
         val to = ComplexKey.of(
 			if (region == null) ComplexKey.emptyObject() else if (language == null) region + "\ufff0" else region,
 			language ?: ComplexKey.emptyObject(),
@@ -192,7 +185,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 "by_language_type_label",
                 from,
                 to,
-                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                paginationOffset.toPaginationOffset { sk -> ComplexKey.of(*sk.mapIndexed { i, s -> if (i==3) s?.let { StringUtils.sanitizeString(it)} else s }.toTypedArray()) },
                 false
         )
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
@@ -203,8 +196,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
     @View(name = "by_qualifiedlink_id", map = "classpath:js/code/By_qualifiedlink_id.js")
     override fun findCodesByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val startKey = paginationOffset.startKey
-        val from = startKey?.let { ComplexKey.of(*it.toTypedArray()) } ?:
+        val from =
             ComplexKey.of(
                     linkType,
                     linkedId
@@ -218,7 +210,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 "by_qualifiedlink_id",
                 from,
                 to,
-                PaginationOffset(from, paginationOffset.startDocumentId, paginationOffset.offset, paginationOffset.limit),
+                paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) },
                 false
         )
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Code::class.java)
