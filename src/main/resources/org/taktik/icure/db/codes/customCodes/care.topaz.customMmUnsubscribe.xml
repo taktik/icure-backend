@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+    <VERSION>1</VERSION>
+    <DATE>2020-03-12</DATE>
+    <NAME>Custom-Mm-Unsubscribe</NAME>
+    <VALUE>
+        <CODE>100</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Désinscription est le choix de la maison médicale</DESCRIPTION>
+        <DESCRIPTION L='nl'>Uitschrijving door het medisch huis</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>101</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Déménagement : le patient n'habite plus dans la zone d'activité (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Verhuis: de patiënt woont niet meer in de activiteitengebied</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>102</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Conflit avec le patient ou un membre de sa famille (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Conflict met de patiënt of een familielid van de patiënt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>103</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Admission dans une institution (soins pédiatrique, soins pour personnes agées ou autre) en dehors de la zone géographique (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Opname in een instelling (ouderenzorg of andere) buiten het geografische gebied</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>104</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Non respect de la maison médicale (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Niet naleving van de regels van het MH</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>105</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Absence de contact prolongé avec le patient (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Langdurige afwezigheid van contact met de patiënt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>106</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Le patient consulte régulièrement et sans accord des dispensateurs de soins extérieurs à la maison médicale et reclame le remboursements de ces frais (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>De patiënt raadpleegt regelmatig en zonder toestemming van externe zorgverleners en vraagt de terugbetaling van zijn kosten</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>107</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>continuité des soins trop difficile à assumer pour la maison médicale (désinscr. par la MM)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Continuïteit van de zorgen te moeilijk over te nemen voor het MH</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>200</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Désinscription est le choix du patient</DESCRIPTION>
+        <DESCRIPTION L='nl'>Uitschrijving op verzoek van de patiënt</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>201</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Déménagement : le patient n'habite plus dans la zone d'activité (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Verhuis : de patiënt woont niet meer in de activiteitengebied</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>202</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Conflit avec un dispensateur de soins ou un membre de la maison médicale (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Conflict met de zorgverlener of een personeelslid van het MM</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>203</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Admission dans une institution (soins pédiatrique, soins pour personnes agées ou autre) en dehors de la zone géographique (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Opname in een instelling (ouderenzorg of andere) </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>204</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Déssacord avec les règles de la maison médicale (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Niet naleving van de regels van het MH</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>205</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Le patient souhaite consulter des dispensateurs de soins autres que ceux de la maison médicale (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>De patiënt wenst andere zorgverleners dan die van het MH raadplegen</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>206</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Prise en charge alternée où l'un des parents n'habite pas dans la zone d'activité (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Alternatieve ondersteuning waarbij één ouder niet in het activiteitengebied leeft </DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>207</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Le patient souhaite un dispensateur de soins attitré au sain de la maison médicale mais ne parvient pas à l'obtenir (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>De patiënt wenst een aangestelde zorgverlener binnen het MH maar het is niet mogelijk</DESCRIPTION>
+    </VALUE>
+    <VALUE>
+        <CODE>208</CODE>
+        <DESCRIPTION L='en'></DESCRIPTION>
+        <DESCRIPTION L='fr'>Raisons personnelles (désinscr. par le patient)</DESCRIPTION>
+        <DESCRIPTION L='nl'>Persoonlijke redenen</DESCRIPTION>
+    </VALUE>
+</kmehr-cd>
