@@ -807,9 +807,9 @@ class SoftwareMedicalFileExport(
 						texts.add(TextType().apply { l = "fr"; value = eds.descr })
 					},
 					ContentType().apply {
-						cds.addAll(codesToKmehr(eds.codes).cds)
-					}
-			)
+                        cds.addAll(codesToKmehr(eds.codes).cds)
+                    }
+            )
 			val itemtype = eds.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "healthcareelement"
 			createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")?.let {
 				if(isHeANewVersionOf(eds) && config.format != Config.Format.PMF) { // no versioning in PMF

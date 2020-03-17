@@ -114,7 +114,7 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                  sumehrLogicV1.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null,
+                        ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                          Config(_kmehrId = System.currentTimeMillis().toString(),
                                  date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                                  time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -135,7 +135,7 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
              healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                 sumehrLogicV1.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null,
+                        ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                                 time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -177,7 +177,7 @@ class KmehrController(
     @PostMapping("/sumehr/{patientId}/valid")
     suspend fun isSumehrValid(@PathVariable patientId: String,
                               @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
-        return SumehrValidityDto(patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false).name }?.let { SumehrStatus.valueOf(it) })
+        return SumehrValidityDto(patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) })
     }
 
     @ApiOperation(nickname = "generateSumehrV2", value = "Generate sumehr")
@@ -188,7 +188,7 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                 sumehrLogicV2.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null,
+                        ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                                 time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -209,7 +209,7 @@ class KmehrController(
         return patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
                 sumehrLogicV2.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
-                        ?: false, null,
+                        ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
                                 time = Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
@@ -254,7 +254,7 @@ class KmehrController(
         return SumehrValidityDto(patientLogic.getPatient(patientId)
                 ?.let {
                     sumehrLogicV2.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                            ?: false).name
+                            ?: false, mapServices(info.services), mapHealthElements(info.healthElements)).name
                 }
                 ?.let { SumehrStatus.valueOf(it) })
     }
@@ -547,5 +547,11 @@ class KmehrController(
             )
         }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
+
+    private fun mapServices(services: List<ServiceDto>?) =
+            services?.map { s -> mapper.map(s, Service::class.java) as Service }
+
+    private fun mapHealthElements(healthElements: List<HealthElementDto>?) =
+            healthElements?.map { s -> mapper.map(s, HealthElement::class.java) as HealthElement }
 
 }

@@ -14,7 +14,7 @@ interface TarificationLogic {
 
     fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification>
     fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?): Flow<Tarification>
-    fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>?>): Flow<ViewQueryResultEvent>
+    fun findTarificationsBy(region: String?, type: String?, tarification: String?, version: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun findTarificationsByLabel(region: String?, language: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun findTarificationsByLabel(region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     suspend fun getOrCreateTarification(type: String, tarification: String): Tarification?

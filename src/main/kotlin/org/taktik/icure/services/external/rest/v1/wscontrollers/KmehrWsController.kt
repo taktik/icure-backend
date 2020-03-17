@@ -87,7 +87,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(sumehrLogicV1.createSumehr( it, info.secretForeignKeys,
                             it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, Config(
+                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, null, null, Config(
                             "" + System.currentTimeMillis(),
                             makeXGC(Instant.now().toEpochMilli(), true),
                             makeXGC(Instant.now().toEpochMilli(), true),
@@ -112,7 +112,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, Config(
+            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, null, null, Config(
                     "" + System.currentTimeMillis(),
                     makeXGC(Instant.now().toEpochMilli(), true),
                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -139,7 +139,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                     operation.binaryResponse(
                             sumehrLogicV2.createSumehr( it, info.secretForeignKeys,
                                     it1,
-                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, Config(
+                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -176,7 +176,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     info.comment,
                                     info.excludedIds,
                                     if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
-                                    operation, Config(
+                                    operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -214,7 +214,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     info.comment,
                                     info.excludedIds,
                                     if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
-                                    operation, Config(
+                                    operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),

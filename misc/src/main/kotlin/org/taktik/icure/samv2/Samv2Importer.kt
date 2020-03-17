@@ -5,15 +5,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.sun.xml.internal.ws.util.NoCloseInputStream
-import org.ektorp.http.StdHttpClient
-import org.ektorp.impl.StdCouchDbInstance
 import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2.entities.ExportActualMedicines
 import org.taktik.icure.be.samv2.entities.ExportReimbursements
 import org.taktik.icure.be.samv2.entities.ExportVirtualMedicines
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
-import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.asyncdao.samv2.impl.AmpDAOImpl
 import org.taktik.icure.asyncdao.samv2.impl.VmpDAOImpl
@@ -23,8 +18,6 @@ import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.entities.samv2.embed.*
-import org.taktik.icure.entities.samv2.stub.VmpGroupStub
-import org.taktik.icure.entities.samv2.stub.VmpStub
 import java.math.BigInteger
 import java.net.URI
 import java.security.MessageDigest
@@ -40,13 +33,10 @@ import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.entities.samv2.embed.AmppComponent
-import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
-import org.taktik.icure.be.samv2.entities.ExportReimbursements
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.NoCloseInputStream
-import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 

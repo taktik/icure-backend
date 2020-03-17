@@ -31,11 +31,9 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.ContactDAO
 import org.taktik.icure.dao.impl.ektorp.CouchKeyValue
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator<>
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.Message
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinct

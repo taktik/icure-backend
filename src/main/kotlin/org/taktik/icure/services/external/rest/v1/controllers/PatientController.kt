@@ -88,7 +88,7 @@ class PatientController(
 
         return sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
-            (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
+            (hcp?.parentId?.let { if (it.isNotEmpty()) it else null } ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
                     hcpId,
                     paginationOffset,

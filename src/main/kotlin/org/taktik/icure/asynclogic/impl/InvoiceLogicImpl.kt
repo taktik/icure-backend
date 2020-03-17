@@ -20,7 +20,6 @@ package org.taktik.icure.asynclogic.impl
 import com.google.common.base.Strings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import org.ektorp.ComplexKey
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -47,9 +46,6 @@ import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.function.Consumer
@@ -176,7 +172,7 @@ class InvoiceLogicImpl(private val filters: Filters,
             if (refScheme == null) {
                 refScheme = "yyyy00000"
             }
-            val ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(invoice.invoiceDate), ZoneId.systemDefault())
+            val ldt = FuzzyValues.getDateTime(invoice.invoiceDate)
             val f: NumberFormat = DecimalFormat("00")
             val startScheme = refScheme.replace("yyyy".toRegex(), "" + ldt.year).replace("MM".toRegex(), f.format(ldt.monthValue.toLong())).replace("dd".toRegex(), "" + f.format(ldt.dayOfMonth.toLong()))
             val endScheme = refScheme.replace("0".toRegex(), "9").replace("yyyy".toRegex(), "" + ldt.year).replace("MM".toRegex(), "" + f.format(ldt.monthValue.toLong())).replace("dd".toRegex(), "" + f.format(ldt.dayOfMonth.toLong()))

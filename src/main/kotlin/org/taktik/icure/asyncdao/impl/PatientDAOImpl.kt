@@ -140,8 +140,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun listIdsByHcPartyAndNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<Patient>("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).limit(limit
-                ?: 10000).includeDocs(false)
+        val viewQuery = createQuery<Patient>("by_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 
@@ -149,8 +148,7 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun listIdsOfHcPartyNameContainsFuzzy(dbInstanceUrl: URI, groupId: String, searchString: String?, healthcarePartyId: String, limit: Int?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val name = if (searchString != null) StringUtils.sanitizeString(searchString) else null
-        val viewQuery = createQuery<Patient>("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).limit(limit
-                ?: 10000).includeDocs(false)
+        val viewQuery = createQuery<Patient>("of_hcparty_contains_name").startKey(ComplexKey.of(healthcarePartyId, name)).endKey(ComplexKey.of(healthcarePartyId, if (name == null) ComplexKey.emptyObject() else name + "\ufff0")).also { q -> limit?.let { q.limit(it)} ?: q }.includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }.distinct()
     }
 

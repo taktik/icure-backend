@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 
 import org.taktik.icure.services.external.rest.v1.dto.embed.EpisodeDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.CareTeamMemberDto;
+import org.taktik.icure.services.external.rest.v1.dto.embed.LateralityDto;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PlanOfActionDto;
 
 import java.util.ArrayList;
@@ -48,6 +49,8 @@ public class HealthElementDto extends IcureDto {
     protected Integer status; //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
 
 	protected String idService; //When a service is used to create the healthElement
+
+    private LateralityDto laterality;
 
     protected List<PlanOfActionDto> plansOfAction;
     protected List<EpisodeDto> episodes;
@@ -176,7 +179,9 @@ public class HealthElementDto extends IcureDto {
 		return idService;
 	}
 
-	public void setIdService(String idService) {
-		this.idService = idService;
-	}
+	public void setIdService(String idService) { this.idService = idService; }
+
+    public LateralityDto getLaterality() { return laterality; }
+
+    public void setLaterality(LateralityDto laterality) { this.laterality = laterality; }
 }

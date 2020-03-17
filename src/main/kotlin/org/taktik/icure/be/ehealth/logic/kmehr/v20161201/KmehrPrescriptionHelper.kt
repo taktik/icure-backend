@@ -19,6 +19,10 @@ object KmehrPrescriptionHelper {
         if (intakes == null) {
             return null
         }
+        if (frequency != null) {
+            return inferPeriodFromFrequency(frequency)
+        }
+
         intakes.forEach { assertValidRegimen(it) }
         return when (intakes.size) {
             0 -> inferPeriodFromFrequency(frequency)

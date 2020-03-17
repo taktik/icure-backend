@@ -29,6 +29,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDa
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
 import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.FuzzyValues
 import java.math.BigInteger
 import java.time.Instant
 import java.time.ZoneId
@@ -255,7 +256,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
     override suspend fun prepareBatch(messageId: String, numericalRef: Long, hcp: HealthcareParty, insurance: Insurance, b: Boolean, invoices: HashMap<String, List<Invoice>>): MessageWithBatch? {
             var zonedDateTime = ZonedDateTime.now().minusDays(1)
             for (invoice in invoices.values.flatten()) {
-                val invoiceDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(invoice.invoiceDate!!), ZoneId.systemDefault())
+                val invoiceDateTime = ZonedDateTime.of(FuzzyValues.getDateTime(invoice.invoiceDate!!), ZoneId.systemDefault())
                 if (invoiceDateTime.isAfter(zonedDateTime)) {
                     zonedDateTime = invoiceDateTime
                 }

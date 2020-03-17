@@ -30,17 +30,14 @@ import org.taktik.icure.asyncdao.HealthcarePartyDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.utils.firstOrNull
-import org.taktik.icure.validation.aspect.Check
 import java.net.URI
 import java.util.*
-import javax.validation.constraints.NotNull
 
 @ExperimentalCoroutinesApi
 @Service
@@ -167,6 +164,19 @@ class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDA
     override fun getHealthcarePartiesByParentId(parentId: String): Flow<HealthcareParty> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(healthcarePartyDAO.findByParentId(dbInstanceUri, groupId, parentId))
+    }
+
+    override suspend fun getHcpHierarchyIds(hcParty: HealthcareParty): HashSet<String> {
+        val hcpartyIds = HashSet<String>()
+        hcpartyIds.add(hcParty.id)
+
+        var hcpInHierarchy: HealthcareParty? = hcParty
+
+        while (hcpInHierarchy?.parentId != null) {
+            hcpInHierarchy = getHealthcareParty(hcpInHierarchy.parentId)
+            hcpInHierarchy?.id?.let { hcpartyIds.add(it) }
+        }
+        return hcpartyIds
     }
 
     override suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, groupId: String, dbInstanceUri: URI): HealthcareParty? {
