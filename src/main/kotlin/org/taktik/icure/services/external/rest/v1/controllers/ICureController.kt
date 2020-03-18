@@ -65,7 +65,6 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     @GetMapping("/u")
     fun getUsers() = userLogic.getAllEntities().map { u -> mapper.map(u, UserStubDto::class.java) }.injectReactorContext()
 
-
     @ApiOperation(nickname = "getProcessInfo", value = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])
     fun getProcessInfo(): String = java.lang.management.ManagementFactory.getRuntimeMXBean().name
@@ -75,6 +74,10 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     suspend fun getIndexingInfo(): IndexingInfoDto =
             IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.getCurrentSessionContext().getGroupId()))
 
+    @ApiOperation(nickname = "getIndexingInfo", value = "Get index info")
+    @GetMapping("/r")
+    suspend fun getReplicationInfo(): ReplicationInfoDto = iCureLogic.getReplicationInfo(sessionLogic.getCurrentSessionContext().getGroupId())
+
     @ApiOperation(nickname = "getPropertyTypes", value = "Get property types")
     @GetMapping("/propertytypes/{type}")
     fun getPropertyTypes(@PathVariable type: String): List<String> {
@@ -82,9 +85,9 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
     }
 
     @ApiOperation(nickname = "updateDesignDoc", value = "Force update design doc")
-    @GetMapping("/dd/{entityName}")
+    @PostMapping("/dd/{entityName}")
     suspend fun updateDesignDoc(@PathVariable entityName: String): Boolean {
-        iCureLogic.updateDesignDoc(sessionLogic.getCurrentSessionContext().getGroupId(), entityName)
+        iCureLogic.updateDesignDoc(entityName)
         return true
     }
 

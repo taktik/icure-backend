@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -28,4 +29,4 @@ import org.taktik.icure.entities.Article
 
 @Repository("articleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Article' && !doc.deleted) emit( null, doc._id )}")
-class ArticleDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Article>(Article::class.java, couchDbDispatcher, idGenerator), ArticleDAO
+class ArticleDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<Article>(Article::class.java, couchDbDispatcher, idGenerator, mapper), ArticleDAO

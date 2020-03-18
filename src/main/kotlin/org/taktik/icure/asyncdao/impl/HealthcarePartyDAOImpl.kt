@@ -19,6 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -41,7 +42,7 @@ import java.util.*
 /** Created by aduchate on 18/07/13, 13:36  */
 @Repository("healthcarePartyDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit( doc.lastName, doc._id )}")
-internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<HealthcareParty>(HealthcareParty::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager), HealthcarePartyDAO {
+internal class HealthcarePartyDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<HealthcareParty>(HealthcareParty::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), HealthcarePartyDAO {
 
     @View(name = "by_nihii", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthcareParty' && !doc.deleted) emit(doc.nihii.substr(0,8), doc._id )}")
     override fun findByNihii(dbInstanceUrl: URI, groupId: String, nihii: String?): Flow<HealthcareParty> {

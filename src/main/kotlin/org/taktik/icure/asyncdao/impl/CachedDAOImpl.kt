@@ -21,6 +21,7 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
@@ -36,7 +37,7 @@ import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, AsyncCacheManager: AsyncCacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
+abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator, mapper) {
     private val cache = AsyncCacheManager.getCache<String, T>(entityClass.name)
     private val log = LoggerFactory.getLogger(javaClass)
 

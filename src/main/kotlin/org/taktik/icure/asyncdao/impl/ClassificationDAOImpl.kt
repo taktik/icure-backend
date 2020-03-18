@@ -22,6 +22,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -39,7 +40,7 @@ import java.net.URI
 @FlowPreview
 @Repository("classificationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Classification' && !doc.deleted) emit( doc.patientId, doc._id )}")
-internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbDispatcher, idGenerator), ClassificationDAO {
+internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbDispatcher, idGenerator, mapper), ClassificationDAO {
 
     override fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<Classification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

@@ -29,6 +29,7 @@ import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.Indexer
 import org.taktik.couchdb.ReplicationTask
 import org.taktik.icure.asyncdao.ICureDAO
+import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
 import java.io.InputStreamReader
 import java.io.UnsupportedEncodingException
@@ -42,8 +43,15 @@ class ICureDAOImpl(couchDbProperties: CouchDbProperties, private val httpClient:
     private val gson = GsonBuilder().create()
 
     override suspend fun getIndexingStatus(groupId: String?): Map<String, Int> {
-        return client.activeTasks().filterIsInstance<Indexer>().fold(mutableMapOf<String,Int>()) { map, at ->
-            map["${at.databaseName}/${at.designDocumentId}"] = at.progress
+        return client.activeTasks().filterIsInstance<Indexer>().filter { i -> groupId?.let { i.database?.contains(it) == true } ?: true }.fold(mutableMapOf()) { map, at ->
+            map["${at.database}/${at.design_document}"] = at.progress ?: 0
+            map
+        }
+    }
+
+    override suspend fun getPendingChanges(groupId: String?): Map<DatabaseSynchronization, Long> {
+        return client.activeTasks().filterIsInstance<ReplicationTask>().filter { i -> groupId?.let { i.source?.contains(it) == true || i.target?.contains(it) == true } ?: true }.fold(mutableMapOf()) { map, at ->
+            map[DatabaseSynchronization(at.source, at.target)] = at.changes_pending?.toLong() ?: 0
             map
         }
     }

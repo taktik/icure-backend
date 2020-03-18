@@ -19,6 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -33,7 +34,7 @@ import java.net.URI
 
 @Repository("timeTableDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.TimeTable' && !doc.deleted) emit( null, doc._id )}")
-class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
+class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<TimeTable>(TimeTable::class.java, couchDbDispatcher, idGenerator, mapper), TimeTableDAO {
 
 	@View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
 	override fun listTimeTableByAgendaId(dbInstanceUrl: URI, groupId:String, agendaId: String): Flow<TimeTable> {

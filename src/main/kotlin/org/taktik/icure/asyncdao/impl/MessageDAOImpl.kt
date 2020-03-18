@@ -20,6 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.ViewQuery
 import org.ektorp.support.View
@@ -40,7 +41,7 @@ import java.net.URI
 @FlowPreview
 @Repository("messageDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Message' && !doc.deleted) emit( null, doc._id )}")
-class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Message>(Message::class.java, couchDbDispatcher, idGenerator), MessageDAO {
+class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericIcureDAOImpl<Message>(Message::class.java, couchDbDispatcher, idGenerator, mapper), MessageDAO {
 
     @View(name = "by_hcparty_from_address_actor", map = "classpath:js/message/By_hcparty_from_address_actor_map.js")
     override fun findByFromAddressActor(dbInstanceUrl: URI, groupId: String, partyId: String, fromAddress: String, actorKeys: List<String>?): Flow<Message> {

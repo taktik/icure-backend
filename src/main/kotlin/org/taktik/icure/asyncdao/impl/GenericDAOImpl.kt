@@ -21,18 +21,17 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.apache.commons.lang3.ArrayUtils
 import org.ektorp.DocumentNotFoundException
-import org.ektorp.ViewQuery
 import org.ektorp.impl.NameConventions
+import org.ektorp.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.*
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
-import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
@@ -44,7 +43,7 @@ import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
+abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator, protected val mapper: MapperFacade) : GenericDAO<T> {
     protected val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
     private val log = LoggerFactory.getLogger(this.javaClass)
 
@@ -358,5 +357,28 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
             throw BulkUpdateConflictException(conflicts, orderedEntities)
         }
         emitAll(results.asFlow().mapNotNull { r -> updatedEntities.firstOrNull { u -> r.id == u.id } ?: entities.firstOrNull { u -> r.id == u.id } }.onEach { afterSave(dbInstanceUrl, groupId, it) })
+    }
+
+    override suspend fun forceInitStandardDesignDocument(dbInstanceUrl: URI, groupId: String) {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
+        val designDocId = NameConventions.designDocName(this.entityClass)
+        val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let { org.ektorp.support.DesignDocument(it.id)?.apply {
+            revision = it.rev
+            views = it.views.mapValues { mapper.map(it.value, org.ektorp.support.DesignDocument.View::class.java) }
+            updates = it.updateHandlers
+            lists = it.lists
+            shows = it.shows
+        } }
+        val generated = StdDesignDocumentFactory().generateFrom(this)
+        val changed: Boolean = fromDatabase?.mergeWith(generated, true) ?: true
+        if (changed) {
+            client.update((fromDatabase ?: generated).let {
+                DesignDocument(_id = it.id, _rev = it.revision,
+                    views = it.views.mapValues { mapper.map(it.value, View::class.java) },
+                    updateHandlers = it.updates,
+                    lists = it.lists,
+                    shows = it.shows)
+            })
+        }
     }
 }

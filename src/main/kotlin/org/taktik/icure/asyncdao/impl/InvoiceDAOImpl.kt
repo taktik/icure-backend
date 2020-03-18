@@ -19,6 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,7 +49,7 @@ import java.util.stream.Collectors
 
 @Repository("invoiceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Invoice' && !doc.deleted) emit( null, doc._id )}")
-class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Invoice>(Invoice::class.java, couchDbDispatcher, idGenerator), InvoiceDAO {
+class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericIcureDAOImpl<Invoice>(Invoice::class.java, couchDbDispatcher, idGenerator, mapper), InvoiceDAO {
 
     @View(name = "by_hcparty_date", map = "classpath:js/invoice/By_hcparty_date_map.js")
     override fun findByHcParty(dbInstanceUrl: URI, groupId: String, hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {

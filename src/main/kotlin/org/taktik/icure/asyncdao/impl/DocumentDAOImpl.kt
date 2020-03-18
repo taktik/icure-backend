@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.ektorp.ComplexKey
@@ -48,7 +49,7 @@ import java.util.*
 
 @Repository("documentDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted) emit( null, doc._id )}")
-class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Document>(Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
+class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<Document>(Document::class.java, couchDbDispatcher, idGenerator, mapper), DocumentDAO {
 
     override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document) {
         super.beforeSave(dbInstanceUrl, groupId, entity)

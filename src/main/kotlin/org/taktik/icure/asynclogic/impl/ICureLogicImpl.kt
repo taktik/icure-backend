@@ -22,25 +22,44 @@ import org.taktik.icure.applications.utils.JarUtils
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.ICureDAO
-import org.taktik.icure.asynclogic.GroupLogic
-import org.taktik.icure.asynclogic.ICureLogic
-import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.asynclogic.*
+import org.taktik.icure.entities.embed.DatabaseSynchronization
+import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
+import java.net.URI
 
 @Service
-class ICureLogicImpl(private val iCureDAO: ICureDAO,
-                     private val groupLogic: GroupLogic,
+class ICureLogicImpl(couchDbProperties: CouchDbProperties,
+                     private val sessionLogic: AsyncSessionLogic,
+                     private val iCureDAO: ICureDAO,
                      private val propertyLogic: PropertyLogic,
                      private val allDaos: List<GenericDAO<*>>) : ICureLogic {
+
+    private val dbInstanceUri = URI(couchDbProperties.url)
 
     override suspend fun getIndexingStatus(groupId: String): Map<String, Number>? {
         return iCureDAO.getIndexingStatus(groupId)
     }
 
-    override suspend fun updateDesignDoc(groupId: String, daoEntityName: String) {
-        val group = groupLogic.findGroup(groupId) ?: throw IllegalArgumentException("Cannot load group $groupId")
+    override suspend fun getReplicationInfo(groupId: String): ReplicationInfoDto {
+        val changes: Map<DatabaseSynchronization, Long> = iCureDAO.getPendingChanges(groupId)
+        return changes.toList().fold(ReplicationInfoDto()) { r, (db, pending) ->
+            r.active = true
+            if (db.source.contains(dbInstanceUri.host)) {
+                r.pendingFrom += pending
+            }
+            if (db.target.contains(dbInstanceUri.host)) {
+                r.pendingTo += pending
+            }
+            r
+        }
+    }
+
+    override suspend fun updateDesignDoc(daoEntityName: String) {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         allDaos
                 .firstOrNull { dao: GenericDAO<*> -> dao.javaClass.simpleName.startsWith(daoEntityName + "DAO") }
-                //?.let { dao: GenericDAO<*> -> dao.forceInitStandardDesignDocument(group) } // TODO AD: missing function from GenericLogic
+                ?.let { dao: GenericDAO<*> -> dao.forceInitStandardDesignDocument(dbInstanceUri, groupId) } // TODO AD: missing function from GenericLogic
     }
 
     override fun getVersion(): String {

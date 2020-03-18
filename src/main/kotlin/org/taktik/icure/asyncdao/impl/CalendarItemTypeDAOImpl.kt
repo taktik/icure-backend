@@ -20,6 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -32,7 +33,7 @@ import java.net.URI
 
 @Repository("calendarItemTypeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType' && !doc.deleted) emit( null, doc._id )}")
-class CalendarItemTypeDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<CalendarItemType>(CalendarItemType::class.java, couchDbDispatcher, idGenerator), CalendarItemTypeDAO {
+class CalendarItemTypeDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<CalendarItemType>(CalendarItemType::class.java, couchDbDispatcher, idGenerator, mapper), CalendarItemTypeDAO {
 
     @View(name = "all_and_deleted", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItemType') emit( doc._id , null )}")
     override fun getAllEntitiesIncludeDelete(dbInstanceUrl: URI, groupId: String): Flow<CalendarItemType> {

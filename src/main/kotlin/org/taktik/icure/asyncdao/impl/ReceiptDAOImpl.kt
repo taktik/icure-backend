@@ -2,6 +2,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.ViewQuery
 import org.ektorp.support.View
@@ -17,7 +18,7 @@ import java.net.URI
 
 @Repository("receiptDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type === 'org.taktik.icure.entities.Receipt' && !doc.deleted) emit(doc._id)}")
-class ReceiptDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Receipt>(Receipt::class.java, couchDbDispatcher, idGenerator), ReceiptDAO {
+class ReceiptDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericIcureDAOImpl<Receipt>(Receipt::class.java, couchDbDispatcher, idGenerator, mapper), ReceiptDAO {
     @View(name = "by_reference", map = "classpath:js/receipt/By_ref.js")
     override fun listByReference(dbInstanceUrl: URI, groupId: String, ref: String): Flow<Receipt> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

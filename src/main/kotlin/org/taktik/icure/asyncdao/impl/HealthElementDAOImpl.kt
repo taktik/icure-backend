@@ -20,6 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -41,7 +42,7 @@ import java.net.URI
 @ExperimentalCoroutinesApi
 @Repository("healthElementDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) emit( doc.patientId, doc._id )}")
-internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<HealthElement>(HealthElement::class.java, couchDbDispatcher, idGenerator), HealthElementDAO {
+internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<HealthElement>(HealthElement::class.java, couchDbDispatcher, idGenerator, mapper), HealthElementDAO {
 
     override fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<HealthElement> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

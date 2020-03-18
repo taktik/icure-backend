@@ -24,8 +24,8 @@ public class ReplicationInfoDto implements Serializable {
 	private static final long serialVersionUID = 1L;
 	Boolean active = false;
 	Boolean running = false;
-	Integer pendingFrom;
-	Integer pendingTo;
+    Long pendingFrom = 0L;
+	Long pendingTo = 0L;
 
 	public Boolean getActive() {
 		return active;
@@ -43,19 +43,19 @@ public class ReplicationInfoDto implements Serializable {
 		this.running = running;
 	}
 
-	public Integer getPendingFrom() {
+	public Long getPendingFrom() {
 		return pendingFrom;
 	}
 
-	public void setPendingFrom(Integer pendingFrom) {
+	public void setPendingFrom(Long pendingFrom) {
 		this.pendingFrom = pendingFrom;
 	}
 
-	public Integer getPendingTo() {
+	public Long getPendingTo() {
 		return pendingTo;
 	}
 
-	public void setPendingTo(Integer pendingTo) {
+	public void setPendingTo(Long pendingTo) {
 		this.pendingTo = pendingTo;
 	}
 }

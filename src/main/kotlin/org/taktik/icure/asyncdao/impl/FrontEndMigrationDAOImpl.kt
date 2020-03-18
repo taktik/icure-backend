@@ -2,6 +2,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -15,7 +16,7 @@ import java.net.URI
 
 @Repository("frontEndMigrationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && !doc.deleted) emit( null, doc._id )}")
-class FrontEndMigrationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<FrontEndMigration>(FrontEndMigration::class.java, couchDbDispatcher, idGenerator), FrontEndMigrationDAO {
+class FrontEndMigrationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<FrontEndMigration>(FrontEndMigration::class.java, couchDbDispatcher, idGenerator, mapper), FrontEndMigrationDAO {
 
     @View(name = "by_userid_name", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && !doc.deleted && doc.name && doc.userId) {\n" +

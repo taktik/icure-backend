@@ -2,6 +2,7 @@ package org.taktik.couchdb
 
 import com.squareup.moshi.*
 import com.squareup.moshi.Types.newParameterizedType
+import com.squareup.moshi.internal.Util
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.*
@@ -31,6 +32,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.math.BigDecimal
 import java.nio.ByteBuffer
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
@@ -38,19 +40,21 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
 
 typealias CouchDbDocument = Versionable<String>
 
 class DesignDocument(
         private var _id: String,
-        private var _rev: String?,
-        private val _revHistory: Map<String, String>?,
-        val views: Map<String, View?>,
-        val lists: Map<String, String>,
-        val shows: Map<String, String>,
-        val updateHandlers: Map<String, String>?,
-        val filters: Map<String, String>
+        private var _rev: String? = null,
+        private val _revHistory: Map<String, String>? = null,
+        val views: Map<String, View?> = mapOf(),
+        val lists: Map<String, String> = mapOf(),
+        val shows: Map<String, String> = mapOf(),
+        val updateHandlers: Map<String, String>? = null,
+        val filters: Map<String, String> = mapOf()
 ) : CouchDbDocument {
     @Json(name = "rev_history")
     override fun getRevHistory() = _revHistory
@@ -73,40 +77,79 @@ class DesignDocument(
 }
 
 
-sealed class ActiveTask(val pid: String? = null, val progress: Int, val startedOn: Date? = null, val updatedOn: Date? = null)
+sealed class ActiveTask(val pid: String? = null, val started_on: Instant? = null, val updated_on: Instant? = null)
+@Suppress("unused")
+class UnsupportedTask(
+        pid: String? = null, progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null) : ActiveTask(pid, started_on, updated_on)
+
 @Suppress("unused")
 class DatabaseCompactionTask(
-        pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
-        val databaseName: String?,
-        val totalChanges: Long,
-        val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+        pid: String? = null, val progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null,
+        val database: String?,
+        val total_changes: Long,
+        val completed_changes: Long) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
 class Indexer(
-        pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
-        val databaseName: String?,
-        val designDocumentId: String?,
-        val totalChanges: Long,
-        val completedChanges: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+        pid: String? = null, val progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null,
+        val database: String?,
+        val design_document: String?,
+        val total_changes: Long,
+        val completedChanges: Long) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
 class ReplicationTask(
-        pid: String? = null, progress: Int, startedOn: Date? = null, updatedOn: Date? = null,
-        val replicationId: String?,
-        val replicationDocumentId: String?,
+        pid: String? = null, started_on: Instant? = null, updated_on: Instant? = null,
+        val replication_id: String?,
+        val doc_id: String?,
         val node: String?,
-        val isContinuous: Boolean,
-        val changesPending: Long,
-        val writeFailures: Long,
-        val totalReads: Long,
-        val totalWrites: Long,
-        val totalMissingRevisions: Long,
-        val totalRevisionsChecked: Long,
-        val sourceDatabaseName: String?,
-        val targetDatabaseName: String?,
-        val sourceSequenceId: String?,
-        val checkpointedSourceSequenceId: String?,
-        val checkpointInterval: Long) : ActiveTask(pid, progress, startedOn, updatedOn)
+        val continuous: Boolean,
+        val changes_pending: Double?,
+        val doc_write_failures: Double,
+        val docs_read: Double,
+        val docs_written: Double,
+        val missing_revisions_found: Double,
+        val revisions_checked: Double,
+        val source: String?,
+        val target: String?,
+        val source_seq: String?,
+        val checkpointed_source_seq: String?,
+        val checkpoint_interval: Double) : ActiveTask(pid, started_on, updated_on)
+
+class ActiveTaskAdapterFactory : JsonAdapter.Factory {
+    override fun create(type: Type, annotations: MutableSet<out Annotation>, moshi: Moshi): JsonAdapter<*>? {
+        return if (Types.getRawType(type) != ActiveTask::class.java || !annotations.isEmpty()) {
+            null
+        } else {
+            object : JsonAdapter<ActiveTask>() {
+                val adapters : Map<Type, JsonAdapter<out ActiveTask>> = mapOf(
+                        DatabaseCompactionTask::class.java to moshi.adapter(DatabaseCompactionTask::class.java),
+                        Indexer::class.java to moshi.adapter(Indexer::class.java),
+                        ReplicationTask::class.java to moshi.adapter(ReplicationTask::class.java)
+                )
+
+                override fun fromJson(reader: JsonReader): ActiveTask {
+                    val jsonMap = reader.readJsonValue() as? Map<String, *>
+                    return jsonMap?.let { params ->
+                        when {
+                            params["type"] == "indexer" -> adapters[Indexer::class.java]?.fromJsonValue(jsonMap)
+                            params["type"] == "replication" -> adapters[ReplicationTask::class.java]?.fromJsonValue(jsonMap)
+                            else -> adapters[DatabaseCompactionTask::class.java]?.fromJsonValue(jsonMap)
+                        }
+                    } ?: UnsupportedTask()
+                }
+
+                override fun toJson(writer: JsonWriter, value: ActiveTask?) {
+                    value?.let { at ->
+                        adapters[at.javaClass]?.let {
+                            (it as JsonAdapter<ActiveTask>).toJson(writer, at)
+                        }
+                    } ?: writer.nullValue()
+                }
+            }
+        }
+    }
+}
 
 class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
 data class View(val map: String, val reduce: String?)
@@ -240,6 +283,7 @@ class ClientImpl(private val httpClient: HttpClient,
                  private val username: String,
                  private val password: String,
                  private val moshi: Moshi = Moshi.Builder()
+                         .add(ActiveTaskAdapterFactory())
                          .add(KotlinJsonAdapterFactory())
                          .add(Boolean::class.java, object : JsonAdapter<Boolean>() {
                              override fun fromJson(reader: JsonReader): Boolean =
@@ -689,7 +733,7 @@ class ClientImpl(private val httpClient: HttpClient,
     override suspend fun activeTasks(): List<ActiveTask> {
         val uri = dbURI.append("_active_tasks")
         val request = newRequest(uri)
-        return request.getCouchDbResponse(listOf<ActiveTask>()::class.java, nullIf404 = true)
+        return request.getCouchDbResponseWithType(newParameterizedType(List::class.java, ActiveTask::class.java), nullIf404 = true)
     }
 
     @ExperimentalCoroutinesApi
@@ -749,7 +793,9 @@ class ClientImpl(private val httpClient: HttpClient,
         return query.isIgnoreNotFound && NOT_FOUND_ERROR == error
     }
 
-    private suspend fun <T> Request.getCouchDbResponse(clazz: Class<T>, emptyResponseAsNull: Boolean = false, nullIf404: Boolean = false): T = suspendCoroutine { continuation ->
+
+    private suspend fun <T> Request.getCouchDbResponse(clazz: Class<T>, emptyResponseAsNull: Boolean = false, nullIf404: Boolean = false): T = this.getCouchDbResponseWithType(clazz, emptyResponseAsNull, nullIf404)
+    private suspend fun <T> Request.getCouchDbResponseWithType(type: Type, emptyResponseAsNull: Boolean = false, nullIf404: Boolean = false): T = suspendCoroutine { continuation ->
         val buffer = Buffer()
         this
                 .onResponseContent { _, byteBuffer ->
@@ -769,12 +815,16 @@ class ClientImpl(private val httpClient: HttpClient,
                                         continuation.resumeWithException(CouchDbException("Null result not allowed", statusCode, result.response.reason))
                                     }
                                 } else {
-                                    val deserializedObject = moshi.adapter(clazz).fromJson(buffer)
-                                    buffer.clear()
-                                    if (deserializedObject == null) {
-                                        continuation.resumeWithException(CouchDbException("Null result not allowed", statusCode, result.response.reason))
-                                    } else {
-                                        continuation.resume(deserializedObject)
+                                    try {
+                                        val deserializedObject = moshi.adapter<T>(type).fromJson(buffer)
+                                        buffer.clear()
+                                        if (deserializedObject == null) {
+                                            continuation.resumeWithException(CouchDbException("Null result not allowed", statusCode, result.response.reason))
+                                        } else {
+                                            continuation.resume(deserializedObject)
+                                        }
+                                    } catch(e:Exception) {
+                                        continuation.resumeWithException(e)
                                     }
                                 }
                             }

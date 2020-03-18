@@ -20,6 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -38,7 +39,7 @@ import java.net.URI
 
 @Repository("entityTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityTemplate' && !doc.deleted) emit( null, doc._id )}")
-class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<EntityTemplate>(EntityTemplate::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager), EntityTemplateDAO {
+class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<EntityTemplate>(EntityTemplate::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), EntityTemplateDAO {
 
     @View(name = "by_user_type_descr", map = "classpath:js/entitytemplate/By_user_type_descr.js")
     override suspend fun getByUserIdTypeDescr(dbInstanceUrl: URI, groupId: String, userId: String, type: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {

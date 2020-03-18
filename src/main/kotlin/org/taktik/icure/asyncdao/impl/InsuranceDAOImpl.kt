@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
+import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -37,7 +38,7 @@ import java.net.URI
 
 @Repository("insuranceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Insurance' && !doc.deleted) emit( null, doc._id )}")
-class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Insurance>(Insurance::class.java, couchDbDispatcher, idGenerator), InsuranceDAO {
+class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<Insurance>(Insurance::class.java, couchDbDispatcher, idGenerator, mapper), InsuranceDAO {
 
     @View(name = "all_by_code", map = "classpath:js/insurance/all_by_code_map.js")
     override fun listByCode(dbInstanceUrl: URI, groupId: String, code: String): Flow<Insurance> {
