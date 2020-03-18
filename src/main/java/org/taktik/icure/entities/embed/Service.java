@@ -21,6 +21,8 @@ package org.taktik.icure.entities.embed;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.squareup.moshi.Json;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
@@ -43,6 +45,8 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Service implements ICureDocument, Serializable, Comparable<Service> {
 	@NotNull(autoFix = AutoFix.UUID)
+    @JsonProperty("_id")
+    @Json(name = "_id")
 	protected String id; //Two version of the same service in two separate contacts have the same id
 	@JsonIgnore
 	private String contactId; //Only used when the Service is emitted outside of its contact

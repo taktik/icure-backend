@@ -3,7 +3,6 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.ektorp.ComplexKey
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.dao.impl.ektorp.CouchKeyValue
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
 import java.net.URI
@@ -23,7 +22,7 @@ interface ContactDAO: GenericDAO<Contact> {
     fun listServiceIdsByTag(dbInstanceUrl: URI, groupId: String, hcPartyId: String, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByPatientTag(dbInstanceUrl: URI, groupId: String, hcPartyId: String, patientSecretForeignKeys: List<String>, tagType: String?, tagCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun listServiceIdsByCode(dbInstanceUrl: URI, groupId: String, hcPartyId: String, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
-    fun listCodesFrequencies(dbInstanceUrl: URI, groupId: String, hcPartyId: String, codeType: String): Flow<CouchKeyValue<Long?>>
+    fun listCodesFrequencies(dbInstanceUrl: URI, groupId: String, hcPartyId: String, codeType: String): Flow<Pair<ComplexKey, Long?>>
     fun findServicesByForeignKeys(dbInstanceUrl: URI, groupId: String, hcPartyId: String, patientSecretForeignKeys: List<String>, codeType: String?, codeCode: String?, startValueDate: Long?, endValueDate: Long?): Flow<String>
     fun findServicesByForeignKeys(dbInstanceUrl: URI, groupId: String, hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String>
     fun findByServices(dbInstanceUrl: URI, groupId: String, services: Collection<String>): Flow<String>

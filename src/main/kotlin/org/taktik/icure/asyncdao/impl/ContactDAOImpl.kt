@@ -31,7 +31,6 @@ import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.ContactDAO
-import org.taktik.icure.dao.impl.ektorp.CouchKeyValue
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Contact
@@ -240,7 +239,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }
 
-    override fun listCodesFrequencies(dbInstanceUrl: URI, groupId: String, hcPartyId: String, codeType: String): Flow<CouchKeyValue<Long?>> {
+    override fun listCodesFrequencies(dbInstanceUrl: URI, groupId: String, hcPartyId: String, codeType: String): Flow<Pair<ComplexKey,Long?>> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
 
         val from = ComplexKey.of(
@@ -256,7 +255,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
 
         val viewQuery = createQuery<Contact>("service_by_hcparty_code").startKey(from).endKey(to).includeDocs(false).reduce(true).group(true).groupLevel(3)
 
-        return client.queryView<Array<String>, Long>(viewQuery).map { CouchKeyValue(it.id, ComplexKey.of(it.key), it.value) }
+        return client.queryView<Array<String>, Long>(viewQuery).map { Pair(ComplexKey.of(it.key), it.value) }
     }
 
 

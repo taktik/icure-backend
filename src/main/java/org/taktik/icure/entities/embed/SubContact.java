@@ -20,6 +20,8 @@ package org.taktik.icure.entities.embed;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.squareup.moshi.Json;
 import org.jetbrains.annotations.Nullable;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.entities.base.CodeStub;
@@ -53,6 +55,8 @@ public class SubContact implements ICureDocument, Serializable {
 	public final static int STATUS_UPLOADED_FILES = 64;
 
     @NotNull
+    @JsonProperty("_id")
+    @Json(name = "_id")
     protected String id;
 
     protected String descr;

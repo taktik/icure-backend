@@ -40,8 +40,6 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
 
 
 typealias CouchDbDocument = Versionable<String>
@@ -308,6 +306,9 @@ class ClientImpl(private val httpClient: HttpClient,
 
     override suspend fun create(q: Int?, n: Int?): Boolean {
         val request = newRequest(dbURI.let { q?.let { q -> it.param("q",q) } ?: it }.let { n?.let { n -> it.param("n",n) } ?: it }, "", HttpMethod.PUT)
+
+        log.debug("Executing $request")
+
         val result = request
                 .timeout(5, TimeUnit.SECONDS)
                 .getCouchDbResponse<Map<String, *>?>(true)
@@ -336,6 +337,9 @@ class ClientImpl(private val httpClient: HttpClient,
         require(id.isNotBlank()) { "Id cannot be blank" }
         val uri = dbURI.append(id).apply { params(options.map { Pair<String, String>(it.paramName(), "true") }.toMap()) }
         val request = newRequest(uri)
+
+        log.debug("Executing $request")
+
         return request.getCouchDbResponse(clazz, nullIf404 = true)
     }
 
@@ -344,6 +348,9 @@ class ClientImpl(private val httpClient: HttpClient,
         require(rev.isNotBlank()) { "Rev cannot be blank" }
         val uri = dbURI.append(id).apply { param("rev", rev).params(options.map { Pair<String, String>(it.paramName(), "true") }.toMap()) }
         val request = newRequest(uri)
+
+        log.debug("Executing $request")
+
         return request.getCouchDbResponse(clazz, nullIf404 = true)
     }
 
@@ -440,6 +447,9 @@ class ClientImpl(private val httpClient: HttpClient,
         require(attachmentId.isNotBlank()) { "attachmentId cannot be blank" }
         val uri = dbURI.append(id).append(attachmentId).let { u -> rev?.let { u.param("rev", it) } ?: u }
         val request = newRequest(uri)
+
+        log.debug("Executing $request")
+
         return request.getResponseBytesFlow()
     }
 
@@ -450,6 +460,9 @@ class ClientImpl(private val httpClient: HttpClient,
 
         val uri = dbURI.append(id).append(attachmentId).param("rev", rev)
         val request = newRequest(uri, HttpMethod.DELETE)
+
+        log.debug("Executing $request")
+
         return request.getCouchDbResponse<AttachmentResult>().rev
     }
 
@@ -462,6 +475,8 @@ class ClientImpl(private val httpClient: HttpClient,
         val uri = dbURI.append(id).append(attachmentId).param("rev", rev)
         val contentProvider = DeferredContentProvider()
         val request = newRequest(uri, HttpMethod.PUT).header("Content-type", contentType).content(contentProvider)
+
+        log.debug("Executing $request")
 
         launch(Dispatchers.Default) {
             data.onEach { contentProvider.offer(it) }.collect()
@@ -479,6 +494,9 @@ class ClientImpl(private val httpClient: HttpClient,
         val adapter = moshi.adapter<T>(clazz)
         val serializedDoc = adapter.toJson(entity)
         val request = newRequest(uri, serializedDoc)
+
+        log.debug("Executing $request")
+
         val createResponse = request.getCouchDbResponse<CUDResponse>().also {
             check(it.ok)
         }
@@ -497,6 +515,9 @@ class ClientImpl(private val httpClient: HttpClient,
         val adapter = moshi.adapter<T>(clazz)
         val serializedDoc = adapter.toJson(entity)
         val request = newRequest(updateURI, serializedDoc, HttpMethod.PUT)
+
+        log.debug("Executing $request")
+
         val updateResponse = request.getCouchDbResponse<CUDResponse>().also {
             check(it.ok)
         }
@@ -514,6 +535,9 @@ class ClientImpl(private val httpClient: HttpClient,
         require(!entity.rev.isNullOrBlank()) { "Revision cannot be blank" }
         val uri = dbURI.append(id).param("rev", entity.rev)
         val request = newRequest(uri).method(HttpMethod.DELETE)
+
+        log.debug("Executing $request")
+
         return request.getCouchDbResponse<CUDResponse>().also {
             check(it.ok)
         }.let { DocIdentifier(it.id, it.rev) }

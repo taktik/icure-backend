@@ -21,9 +21,6 @@ package org.taktik.icure.asyncdao.impl
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.eclipse.jetty.client.HttpClient
-import org.ektorp.CouchDbConnector
-import org.ektorp.CouchDbInstance
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.Indexer
@@ -31,10 +28,7 @@ import org.taktik.couchdb.ReplicationTask
 import org.taktik.icure.asyncdao.ICureDAO
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
-import java.io.InputStreamReader
-import java.io.UnsupportedEncodingException
 import java.net.URI
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Repository("iCureDAO")

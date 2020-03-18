@@ -203,8 +203,8 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     override suspend fun getServiceCodesOccurences(hcPartyId: String, codeType: String, minOccurences: Long): List<LabelledOccurence> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val mapped = contactDAO.listCodesFrequencies(dbInstanceUri, groupId, hcPartyId, codeType)
-                .filter { v -> v.value?.let { it >= minOccurences } == true }
-                .map { v -> LabelledOccurence(v.key.components[2] as String, v.value) }.toList()
+                .filter { v -> v.second?.let { it >= minOccurences } == true }
+                .map { v -> LabelledOccurence(v.first.components[2] as String, v.second) }.toList()
           return mapped.sortedByDescending { obj: LabelledOccurence -> obj.occurence }
     }
 

@@ -28,10 +28,8 @@ import org.ektorp.impl.NameConventions
 import org.ektorp.support.View
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.Cache
 
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.queryView
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.dao.Option
@@ -50,7 +48,7 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
     private val cache = AsyncCacheManager.getCache<String, Group>(Group::class.java.name)
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun    getList(ids: Flow<String>) = flow<Group> {
+    override fun getList(ids: Flow<String>) = flow<Group> {
         val dbInstanceUri = URI(couchDbProperties.url)
         val batch = mutableListOf<String>()
         ids.collect { id ->
@@ -63,13 +61,8 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
                     }
                     batch.clear()
                 }
-                val o = value
-                if (o != null) {
-                    log.trace("Cache HIT  = {}, {} - {}", fullId, o.id, o.rev)
-                    emit(o)
-                } else {
-                    log.trace("Cache HIT  = {}, Null value", fullId)
-                }
+                log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+                emit(value)
             } else {
                 batch.add(id)
             }
@@ -100,14 +93,33 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
     override suspend fun get(id: String, rev: String?, vararg options: Option): Group? {
         val dbInstanceUri = URI(couchDbProperties.url)
         val client = couchDbDispatcher.getClient(dbInstanceUri, null)
-        if (log.isDebugEnabled) {
-            log.debug(Group::class.java.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
-        }
-        return try {
-            return rev?.let{ client.get(id, Group::class.java, *options) } ?: client.get(id, Group::class.java, *options)
-        } catch (e: DocumentNotFoundException) {
-            log.warn("Document not found", e)
-            null
+
+        if (rev == null) {
+            val fullId = getFullId(dbInstanceUri, null, id)
+            val value = cache.get(fullId)
+            if (value != null) {
+                log.trace("Cache HIT  = {}, {} - {}", fullId, value.id, value.rev)
+                return value
+            }
+            if (log.isDebugEnabled) {
+                log.debug(Group::class.java.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
+            }
+            return try {
+                client.get(id, Group::class.java, *options)?.also { cache.put(fullId, it) }
+            } catch (e: DocumentNotFoundException) {
+                log.warn("Document not found", e)
+                null
+            }
+        } else {
+            if (log.isDebugEnabled) {
+                log.debug(Group::class.java.simpleName + ".get: " + id + " [" + ArrayUtils.toString(options) + "]")
+            }
+            return try {
+                client.get(id, rev, Group::class.java, *options)
+            } catch (e: DocumentNotFoundException) {
+                log.warn("Document not found", e)
+                null
+            }
         }
     }
 
@@ -117,16 +129,18 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
         if (log.isDebugEnabled) {
             log.debug(Group::class.java.simpleName + ".save: " + group.id + ":" + group.rev)
         }
+        val fullId = getFullId(dbInstanceUri, null, group.id)
+        cache.evict(fullId)
         return when {
             group.id == null -> {
                 group.id = idGenerator.newGUID().toString()
-                client.create(group, Group::class.java)
+                client.create(group, Group::class.java).also { cache.put(fullId, it) }
             }
             group.rev == null -> {
-                client.create(group, Group::class.java)
+                client.create(group, Group::class.java).also { cache.put(fullId, it) }
             }
             else -> {
-                client.update(group, Group::class.java)
+                client.update(group, Group::class.java).also { cache.put(fullId, it) }
             }
         }
     }

@@ -1,12 +1,10 @@
 package org.taktik.icure.asynclogic.impl
 
 import org.eclipse.jetty.client.HttpClient
-import org.ektorp.CouchDbInstance
 import org.springframework.core.task.TaskExecutor
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.create
-import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic

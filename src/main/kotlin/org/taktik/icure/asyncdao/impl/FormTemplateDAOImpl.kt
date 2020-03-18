@@ -18,20 +18,16 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.google.common.io.ByteStreams
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
-import org.ektorp.AttachmentInputStream
 import org.ektorp.ComplexKey
 import org.ektorp.DocumentNotFoundException
 import org.ektorp.support.View
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.FormTemplateDAO
@@ -40,7 +36,6 @@ import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
 import java.nio.ByteBuffer

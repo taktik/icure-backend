@@ -19,10 +19,15 @@
 
 package org.taktik.icure.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
+import org.springframework.http.codec.ServerCodecConfigurer
+import org.springframework.http.codec.json.Jackson2JsonDecoder
+import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.web.reactive.config.CorsRegistry
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
@@ -31,12 +36,12 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 import org.springframework.web.reactive.socket.server.WebSocketService
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
-import org.springframework.web.reactive.socket.server.upgrade.JettyRequestUpgradeStrategy
 import org.springframework.web.reactive.socket.server.upgrade.ReactorNettyRequestUpgradeStrategy
 import org.springframework.web.server.session.CookieWebSessionIdResolver
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.services.external.http.WebSocketOperationHandler
 import org.taktik.icure.services.external.rest.v1.wscontrollers.KmehrWsController
+
 
 @Configuration
 @EnableWebFlux
@@ -50,6 +55,11 @@ class WebConfig : WebFluxConfigurer {
 	override fun addCorsMappings(registry: CorsRegistry) {
 		registry.addMapping("/**").allowCredentials(true).allowedOrigins("*").allowedMethods("*").allowedHeaders("*")
 	}
+
+    override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
+        configurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(ObjectMapper().apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }))
+        configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(ObjectMapper()))
+    }
 
     @Bean
     fun webSocketHandler(kmehrWsController: KmehrWsController, sessionLogic: AsyncSessionLogic) =

@@ -19,19 +19,19 @@
 
 package org.taktik.icure.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.hazelcast.cache.HazelcastCacheManager
 import com.hazelcast.core.HazelcastInstance
 import org.springframework.cache.CacheManager
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.converter.json.GsonFactoryBean
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.taktik.icure.asynclogic.impl.filter.Filters
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.services.external.rest.handlers.GsonMessageBodyHandler
 import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1MapperFactory
+
 
 @Configuration
 class CoreConfig {
