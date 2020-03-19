@@ -132,7 +132,7 @@ class CustomAuthenticationProvider(
         userDetails.groupIdUserIdMatching = matchingUsers.stream().map { obj: User -> obj.id }.collect(Collectors.toList())
 
         for ((key, value) in user.applicationTokens) {
-            if (value == authentication.getCredentials()) {
+            if (value == authentication.credentials) {
                 userDetails.application = key
             }
         }

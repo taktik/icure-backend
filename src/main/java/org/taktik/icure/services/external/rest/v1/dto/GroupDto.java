@@ -25,6 +25,8 @@ import java.io.Serializable;
 public class GroupDto extends StoredDocument implements Cloneable, Serializable {
 	String name;
 	String password;
+    public boolean superAdmin;
+    public String superGroup;
 
 	public GroupDto() {
 	}
@@ -50,4 +52,20 @@ public class GroupDto extends StoredDocument implements Cloneable, Serializable 
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+    public boolean isSuperAdmin() {
+        return superAdmin;
+    }
+
+    public void setSuperAdmin(boolean superAdmin) {
+        this.superAdmin = superAdmin;
+    }
+
+    public String getSuperGroup() {
+        return superGroup;
+    }
+
+    public void setSuperGroup(String superGroup) {
+        this.superGroup = superGroup;
+    }
 }

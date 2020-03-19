@@ -1,11 +1,16 @@
 package org.taktik.icure.asynclogic.impl
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
 import org.eclipse.jetty.client.HttpClient
 import org.springframework.core.task.TaskExecutor
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.create
 import org.taktik.icure.asyncdao.GroupDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.entities.Group
@@ -13,7 +18,6 @@ import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.User
 import org.taktik.icure.entities.embed.DatabaseSynchronization
-import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI
 import java.net.URISyntaxException
@@ -22,9 +26,11 @@ import java.net.URISyntaxException
 class GroupLogicImpl(private val httpClient: HttpClient,
                      private val sessionLogic: AsyncSessionLogic,
                      private val groupDAO: GroupDAO,
-                     private val userLogic: UserLogic,
+                     private val userDAO: UserDAO,
                      private val couchDbProperties: CouchDbProperties,
                      private val threadPoolTaskExecutor: TaskExecutor) : GroupLogic {
+
+    private val dbInstanceUri = URI(couchDbProperties.url)
 
     override suspend fun createGroup(
             id: String,
@@ -36,8 +42,10 @@ class GroupLogicImpl(private val httpClient: HttpClient,
             initialReplication: Replication?
     ): Group? {
         val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
-        if (ADMIN_GROUP != userLogic.getUserOnFallbackDb(groupUserId)?.groupId) {
-            throw IllegalAccessException("No registered user")
+        val groupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
+        val userGroup = this.groupDAO.get(groupId)
+        if (userGroup == null || (groupId != ADMIN_GROUP && !userGroup.isSuperAdmin)) {
+            throw IllegalAccessException("No registered super admin user")
         }
         val paths = listOf(
                 "icure-$id-base",
@@ -58,7 +66,11 @@ class GroupLogicImpl(private val httpClient: HttpClient,
         } ?: listOf()
         val dbUser = User("org.couchdb.user:$id", id, password)
         val security = Security(id)
-        val group = Group(id, name, password).apply { server?.let { sv -> servers = couchDbProperties.altUrlsList().filter { it.contains(sv) } } }
+        val group = Group(id, name, password).apply {
+            superGroup = groupId
+            superAdmin = groupId == ADMIN_GROUP
+            server?.let { sv -> servers = couchDbProperties.altUrlsList().filter { it.contains(sv) } }
+        }
 
         val servers = if (group.servers?.isNotEmpty() == true) group.servers else listOf(couchDbProperties.url)
         servers.forEach {
@@ -75,8 +87,15 @@ class GroupLogicImpl(private val httpClient: HttpClient,
         return if (result?.rev != null) result else null
     }
 
-    override suspend fun findGroup(groupId: String): Group? {
+    override suspend fun getGroup(groupId: String): Group? {
         return groupDAO.get(groupId)
+    }
+
+    override fun listGroups(): Flow<Group> = flow {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val groupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
+
+        emitAll(groupDAO.getAll().filter { it.superGroup == groupId  })
     }
 
     companion object {

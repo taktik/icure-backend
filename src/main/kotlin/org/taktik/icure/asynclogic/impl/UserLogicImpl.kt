@@ -20,17 +20,13 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.collect.Sets
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitSingle
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.apache.commons.lang3.Validate
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
-import org.taktik.icure.asyncdao.AccessLogDAO
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asyncdao.RoleDAO
 import org.taktik.icure.asyncdao.UserDAO
@@ -39,7 +35,6 @@ import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.constants.Users
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.embed.Permission
@@ -48,6 +43,7 @@ import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
+import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.time.Duration
@@ -58,14 +54,17 @@ import java.util.regex.Pattern
 @Transactional
 @Service
 class UserLogicImpl(
+        couchDbProperties: CouchDbProperties,
         roleDao: RoleDAO,
         sessionLogic: AsyncSessionLogic,
         private val userDAO: UserDAO,
         private val healthcarePartyLogic: HealthcarePartyLogic,
         private val propertyLogic: PropertyLogic,
+        private val groupLogic: GroupLogic,
         private val passwordEncoder: PasswordEncoder,
         private val uuidGenerator: UUIDGenerator) : PrincipalLogicImpl<User>(roleDao, sessionLogic), UserLogic {
 
+    private val dbInstanceUri = URI(couchDbProperties.url)
     private val listeners: MutableSet<UserLogicListener> = HashSet()
 
     override fun addListener(listener: UserLogicListener) {
@@ -536,9 +535,21 @@ class UserLogicImpl(
         }
     }
 
-    override fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
+    override fun listUsers(paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(userDAO.listUsers(dbInstanceUri, groupId, pagination))
+        emitAll(userDAO.listUsers(dbInstanceUri, groupId, paginationOffset))
+    }
+
+    override fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>) = flow {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val userGroupId = getUserOnFallbackDb(groupUserId)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
+        val group = groupLogic.getGroup(groupId)
+
+        if (group?.superGroup != userGroupId) {
+            throw IllegalAccessException("You are not allowed to access this group database")
+        }
+
+        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), groupId, paginationOffset))
     }
 
     override suspend fun setProperties(user: User, properties: List<Property>): User? {
@@ -559,7 +570,6 @@ class UserLogicImpl(
     }
 
     override suspend fun getUserOnFallbackDb(userId: String): User? {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return userDAO.getOnFallback(dbInstanceUri, userId, false)
     }
 

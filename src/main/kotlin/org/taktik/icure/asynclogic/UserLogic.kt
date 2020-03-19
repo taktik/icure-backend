@@ -81,4 +81,5 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
     fun findByHcpartyId(hcpartyId: String): Flow<String>
     suspend fun getUserByEmailOnUserDb(email: String, groupId: String, dbInstanceUrl: URI): User?
+    fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
 }

@@ -21,6 +21,7 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jetbrains.annotations.NotNull;
 import org.taktik.icure.entities.base.StoredDocument;
 
 import java.io.Serializable;
@@ -32,8 +33,10 @@ public class Group extends StoredDocument implements Cloneable, Serializable {
 	private String name;
 	private String password;
 	private List<String> servers;
+    public boolean superAdmin = false;
+    public String superGroup;
 
-	public Group() {
+    public Group() {
 	}
 
 	public Group(String groupId, String name, String password) {
@@ -66,7 +69,23 @@ public class Group extends StoredDocument implements Cloneable, Serializable {
 		this.servers = servers;
 	}
 
-	@JsonIgnore
+    public boolean isSuperAdmin() {
+        return superAdmin;
+    }
+
+    public void setSuperAdmin(boolean superAdmin) {
+        this.superAdmin = superAdmin;
+    }
+
+    public String getSuperGroup() {
+        return superGroup;
+    }
+
+    public void setSuperGroup(String superGroup) {
+        this.superGroup = superGroup;
+    }
+
+    @JsonIgnore
 	public String dbInstanceUrl() {
 		return this.getServers() != null && this.getServers().size() > 0 ? this.getServers().get(0) : null;
 	}

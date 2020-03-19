@@ -1,5 +1,6 @@
 package org.taktik.icure.asynclogic
 
+import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Replication
 
@@ -14,5 +15,6 @@ interface GroupLogic {
             initialReplication: Replication?
     ): Group?
 
-    suspend fun findGroup(groupId: String): Group?
+    suspend fun getGroup(groupId: String): Group?
+    fun listGroups(): Flow<Group>
 }

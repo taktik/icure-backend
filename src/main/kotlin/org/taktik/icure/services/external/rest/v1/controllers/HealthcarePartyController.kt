@@ -42,10 +42,7 @@ import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
-import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
-import org.taktik.icure.services.external.rest.v1.dto.PublicKeyDto
-import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto
-import org.taktik.icure.services.external.rest.v1.dto.SignUpDto
+import org.taktik.icure.services.external.rest.v1.dto.*
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -204,6 +201,13 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @GetMapping("/byIds/{healthcarePartyIds}")
     fun getHealthcareParties(@PathVariable healthcarePartyIds: String) =
             healthcarePartyLogic.getHealthcareParties(healthcarePartyIds.split(','))
+                    .map { mapper.map(it, HealthcarePartyDto::class.java) }
+                    .injectReactorContext()
+
+    @ApiOperation(nickname = "getHealthcareParties", value = "Get healthcareParties by their IDs", notes = "General information about the healthcare Party")
+    @PostMapping("/{groupId}/byIds")
+    fun getHealthcareParties(@PathVariable groupId: String, @RequestBody healthcarePartyIds: ListOfIdsDto) =
+            healthcarePartyLogic.getHealthcareParties(groupId, healthcarePartyIds.ids)
                     .map { mapper.map(it, HealthcarePartyDto::class.java) }
                     .injectReactorContext()
 

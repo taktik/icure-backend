@@ -27,23 +27,33 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asyncdao.HealthcarePartyDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
+import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.firstOrNull
 import java.net.URI
 import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
-class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDAO,
-                               private val uuidGenerator: UUIDGenerator,
-                               private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
+class HealthcarePartyLogicImpl(
+        couchDbProperties: CouchDbProperties,
+        private val healthcarePartyDAO: HealthcarePartyDAO,
+        private val uuidGenerator: UUIDGenerator,
+        private val userDAO: UserDAO,
+        private val groupLogic: GroupLogic,
+        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<HealthcareParty, HealthcarePartyDAO>(sessionLogic), HealthcarePartyLogic {
+
+    private val dbInstanceUri = URI(couchDbProperties.url)
 
     override fun getGenericDAO(): HealthcarePartyDAO {
         return healthcarePartyDAO
@@ -154,6 +164,18 @@ class HealthcarePartyLogicImpl(private val healthcarePartyDAO: HealthcarePartyDA
     override fun getHealthcareParties(ids: List<String>): Flow<HealthcareParty> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(healthcarePartyDAO.getList(dbInstanceUri, groupId, ids))
+    }
+
+    override fun getHealthcareParties(groupId: String, ids: List<String>) = flow {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
+        val group = groupLogic.getGroup(groupId)
+
+        if (group?.superGroup != userGroupId) {
+            throw IllegalAccessException("You are not allowed to access this group database")
+        }
+
+        emitAll(healthcarePartyDAO.getList(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), groupId, ids))
     }
 
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {

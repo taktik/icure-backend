@@ -37,4 +37,5 @@ interface HealthcarePartyLogic : EntityPersister<HealthcareParty, String> {
     suspend fun getHcpHierarchyIds(sender: HealthcareParty): HashSet<String>
 
     suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, groupId: String, HealthcareParty: URI): HealthcareParty?
+    fun getHealthcareParties(groupId: String, ids: List<String>): Flow<HealthcareParty>
 }
