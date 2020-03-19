@@ -59,7 +59,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
                              userLogic: UserLogic,
                              filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
-	suspend fun exportMedicationScheme(
+	fun exportMedicationScheme(
 			patient: Patient,
 			sfks: List<String>,
 			sender: HealthcareParty,
@@ -75,7 +75,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
                                          soft = Config.Software(name = "iCure", version = ICUREVERSION),
                                          clinicalSummaryType = "",
                                          defaultLanguage = "en"
-                                        )) = flow<DataBuffer> {
+                                        )) = flow {
 
 		val message = initializeMessage(sender, config)
 		message.header.recipients.add(RecipientType().apply {
@@ -226,7 +226,6 @@ class MedicationSchemeExport(mapper: MapperFacade,
         })
         return folder
 	}
-
 
     private suspend fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
         val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) } ?: HashSet()

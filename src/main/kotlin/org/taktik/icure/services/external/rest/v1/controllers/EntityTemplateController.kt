@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -43,15 +44,15 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findEntityTemplates", value = "Finding entityTemplates by userId, entityTemplate, type and version with pagination.", notes = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}")
-    suspend fun findEntityTemplates(
+    fun findEntityTemplates(
             @PathVariable userId: String,
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
-            @RequestParam(required = false) includeEntities: Boolean?): List<EntityTemplateDto> {
+            @RequestParam(required = false) includeEntities: Boolean?) = mono {
 
         val entityTemplatesList = entityTemplateLogic.findEntityTemplates(userId, type, searchString, includeEntities)
 
-        return entityTemplatesList.map { e ->
+        entityTemplatesList.map { e ->
             val dto = mapper.map(e, EntityTemplateDto::class.java)
             if (includeEntities != null && includeEntities) {
                 dto.entity = e.entity
@@ -62,14 +63,14 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "findAllEntityTemplates", value = "Finding entityTemplates by entityTemplate, type and version with pagination.", notes = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/findAll/{type}")
-    suspend fun findAllEntityTemplates(
+    fun findAllEntityTemplates(
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
-            @RequestParam(required = false) includeEntities: Boolean?): List<EntityTemplateDto> {
+            @RequestParam(required = false) includeEntities: Boolean?) = mono {
 
         val entityTemplatesList = entityTemplateLogic.findAllEntityTemplates(type, searchString, includeEntities)
 
-        return entityTemplatesList.map { e ->
+        entityTemplatesList.map { e ->
             val dto = mapper.map(e, EntityTemplateDto::class.java)
             if (includeEntities != null && includeEntities) {
                 dto.entity = e.entity
@@ -80,14 +81,14 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createEntityTemplate", value = "Create a EntityTemplate", notes = "Type, EntityTemplate and Version are required.")
     @PostMapping
-    suspend fun createEntityTemplate(@RequestBody c: EntityTemplateDto): EntityTemplateDto {
+    fun createEntityTemplate(@RequestBody c: EntityTemplateDto) = mono {
         val et = mapper.map(c, EntityTemplate::class.java)
         et.entity = c.entity
 
         val entityTemplate = entityTemplateLogic.createEntityTemplate(et)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "EntityTemplate creation failed.")
 
-        return mapper.map(entityTemplate, EntityTemplateDto::class.java)
+        mapper.map(entityTemplate, EntityTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "getEntityTemplates", value = "Get a list of entityTemplates by ids", notes = "Keys must be delimited by coma")
@@ -103,18 +104,18 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getEntityTemplate", value = "Get a entityTemplate", notes = "Get a entityTemplate based on ID or (entityTemplate,type,version) as query strings. (entityTemplate,type,version) is unique.")
     @GetMapping("/{entityTemplateId}")
-    suspend fun getEntityTemplate(@ApiParam(value = "EntityTemplate id", required = true) @PathVariable entityTemplateId: String): EntityTemplateDto {
+    fun getEntityTemplate(@ApiParam(value = "EntityTemplate id", required = true) @PathVariable entityTemplateId: String) = mono {
         val c = entityTemplateLogic.getEntityTemplate(entityTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the entityTemplate. Read the app logs.")
 
         val et = mapper.map(c, EntityTemplateDto::class.java)
         et.entity = c.entity
-        return et
+        et
     }
 
     @ApiOperation(nickname = "modifyEntityTemplate", value = "Modify a entityTemplate", notes = "Modification of (type, entityTemplate, version) is not allowed.")
     @PutMapping
-    suspend fun modifyEntityTemplate(@RequestBody entityTemplateDto: EntityTemplateDto): EntityTemplateDto {
+    fun modifyEntityTemplate(@RequestBody entityTemplateDto: EntityTemplateDto) = mono {
         val modifiedEntityTemplate = try {
             val et = mapper.map(entityTemplateDto, EntityTemplate::class.java)
             et.entity = entityTemplateDto.entity
@@ -124,7 +125,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
         }
 
         val succeed = modifiedEntityTemplate != null
-        return if (succeed) {
+        if (succeed) {
             mapper.map(modifiedEntityTemplate, EntityTemplateDto::class.java)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the entityTemplate failed. Read the server log.")

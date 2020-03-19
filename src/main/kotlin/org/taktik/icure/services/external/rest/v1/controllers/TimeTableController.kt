@@ -22,7 +22,6 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -112,7 +111,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
     fun getTimeTablesByPeriodAndAgendaId(@ApiParam(required = true) @RequestParam startDate: Long,
                                          @ApiParam(required = true) @RequestParam endDate: Long,
                                          @ApiParam(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
-            flow<TimeTableDto> {
+            flow {
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
@@ -122,7 +121,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
     @ApiOperation(nickname = "getTimeTablesByAgendaId", value = "Get TimeTables by AgendaId")
     @PostMapping("/byAgendaId")
     fun getTimeTablesByAgendaId(@ApiParam(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
-            flow<TimeTableDto> {
+            flow {
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }

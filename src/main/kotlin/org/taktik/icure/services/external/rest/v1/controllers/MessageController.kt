@@ -153,7 +153,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @ApiOperation(nickname = "listMessagesByInvoiceIds", value = "Get children messages of provided message")
     @PostMapping("byInvoiceId")
     fun listMessagesByInvoiceIds(@RequestBody ids: ListOfIdsDto) =
-            messageLogic.listMessagesByInvoiceIds(ids.ids).map { mapper.map(it, MessageDto::class.java) }
+            messageLogic.listMessagesByInvoiceIds(ids.ids).map { mapper.map(it, MessageDto::class.java) }.injectReactorContext()
 
     @ApiOperation(nickname = "findMessagesByTransportGuid", value = "Get all messages (paginated) for current HC Party and provided transportGuid")
     @GetMapping("/byTransportGuid")

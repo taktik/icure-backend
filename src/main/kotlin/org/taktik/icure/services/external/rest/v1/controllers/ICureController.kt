@@ -22,6 +22,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -29,7 +30,6 @@ import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.ICureLogicImpl
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
-import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.UserStubDto
 import org.taktik.icure.utils.injectReactorContext
 
@@ -55,11 +55,11 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @ApiOperation(nickname = "isReady", value = "Check if a user exists")
     @GetMapping("/ok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    suspend fun isReady() = "true"
+    fun isReady() = "true"
 
     @ApiOperation(nickname = "isPatientReady", value = "Check if a patient exists")
     @GetMapping("/pok", produces = [MediaType.TEXT_PLAIN_VALUE])
-    suspend fun isPatientReady() = "true"
+    fun isPatientReady() = "true"
 
     @ApiOperation(nickname = "getUsers", value = "Get users stubs")
     @GetMapping("/u")
@@ -71,12 +71,15 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @ApiOperation(nickname = "getIndexingInfo", value = "Get index info")
     @GetMapping("/i")
-    suspend fun getIndexingInfo(): IndexingInfoDto =
-            IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.getCurrentSessionContext().getGroupId()))
+    fun getIndexingInfo() = mono {
+        IndexingInfoDto(iCureLogic.getIndexingStatus(sessionLogic.getCurrentSessionContext().getGroupId()))
+    }
 
     @ApiOperation(nickname = "getIndexingInfo", value = "Get index info")
     @GetMapping("/r")
-    suspend fun getReplicationInfo(): ReplicationInfoDto = iCureLogic.getReplicationInfo(sessionLogic.getCurrentSessionContext().getGroupId())
+    fun getReplicationInfo() = mono {
+        iCureLogic.getReplicationInfo(sessionLogic.getCurrentSessionContext().getGroupId())
+    }
 
     @ApiOperation(nickname = "getPropertyTypes", value = "Get property types")
     @GetMapping("/propertytypes/{type}")
@@ -86,50 +89,50 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @ApiOperation(nickname = "updateDesignDoc", value = "Force update design doc")
     @PostMapping("/dd/{entityName}")
-    suspend fun updateDesignDoc(@PathVariable entityName: String): Boolean {
+    fun updateDesignDoc(@PathVariable entityName: String) = mono {
         iCureLogic.updateDesignDoc(entityName)
-        return true
+        true
     }
 
     @ApiOperation(nickname = "resolvePatientsConflicts", value = "Resolve patients conflicts")
     @PostMapping("/conflicts/patient")
-    suspend fun resolvePatientsConflicts() {
+    fun resolvePatientsConflicts() = mono {
         patientLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveContactsConflicts", value = "Resolve contacts conflicts")
     @PostMapping("/conflicts/contact")
-    suspend fun resolveContactsConflicts() {
+    fun resolveContactsConflicts() = mono {
         contactLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveFormsConflicts", value = "resolve forms conflicts")
     @PostMapping("/conflicts/form")
-    suspend fun resolveFormsConflicts() {
+    fun resolveFormsConflicts() = mono {
         formLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveHealthElementsConflicts", value = "resolve health elements conflicts")
     @PostMapping("/conflicts/healthelement")
-    suspend fun resolveHealthElementsConflicts() {
+    fun resolveHealthElementsConflicts() = mono {
         healthElementLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveInvoicesConflicts", value = "resolve invoices conflicts")
     @PostMapping("/conflicts/invoice")
-    suspend fun resolveInvoicesConflicts() {
+    fun resolveInvoicesConflicts() = mono {
         invoiceLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveMessagesConflicts", value = "resolve messages conflicts")
     @PostMapping("/conflicts/message")
-    suspend fun resolveMessagesConflicts() {
+    fun resolveMessagesConflicts() = mono {
         messageLogic.solveConflicts()
     }
 
     @ApiOperation(nickname = "resolveDocumentsConflicts", value = "resolve documents conflicts")
     @PostMapping("/conflicts/document")
-    suspend fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) {
+    fun resolveDocumentsConflicts(@RequestParam(required = false) ids: String?) = mono {
         documentLogic.solveConflicts(ids?.split(','))
     }
 }

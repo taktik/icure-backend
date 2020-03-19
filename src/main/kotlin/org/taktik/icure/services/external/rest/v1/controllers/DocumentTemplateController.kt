@@ -21,19 +21,14 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
-import org.apache.commons.io.IOUtils
-import org.springframework.core.io.ByteArrayResource
-import org.springframework.core.io.InputStreamResource
-import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
-import org.springframework.util.StreamUtils
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
@@ -46,10 +41,8 @@ import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto
 import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import reactor.core.publisher.toMono
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import javax.servlet.http.HttpServletResponse
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
@@ -64,10 +57,10 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getDocumentTemplate", value = "Gets a document template")
     @GetMapping("/{documentTemplateId}")
-    suspend fun getDocumentTemplate(@PathVariable documentTemplateId: String): DocumentTemplateDto {
+    fun getDocumentTemplate(@PathVariable documentTemplateId: String) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "DocumentTemplate fetching failed")
-        return mapper.map(documentTemplate, DocumentTemplateDto::class.java)
+        mapper.map(documentTemplate, DocumentTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteDocumentTemplate", value = "Deletes a document template")
@@ -126,27 +119,27 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createDocumentTemplate", value = "Create a document template with the current user", notes = "Returns an instance of created document template.")
     @PostMapping
-    suspend fun createDocumentTemplate(@RequestBody ft: DocumentTemplateDto): DocumentTemplateDto {
+    fun createDocumentTemplate(@RequestBody ft: DocumentTemplateDto) = mono {
         val documentTemplate = documentTemplateLogic.createDocumentTemplate(mapper.map(ft, DocumentTemplate::class.java))
-        return mapper.map(documentTemplate, DocumentTemplateDto::class.java)
+        mapper.map(documentTemplate, DocumentTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "updateDocumentTemplate", value = "Modify a document template with the current user", notes = "Returns an instance of created document template.")
     @PutMapping("/{documentTemplateId}")
-    suspend fun updateDocumentTemplate(@PathVariable documentTemplateId: String, @RequestBody ft: DocumentTemplateDto): DocumentTemplateDto {
+    fun updateDocumentTemplate(@PathVariable documentTemplateId: String, @RequestBody ft: DocumentTemplateDto) = mono {
         val template = mapper.map(ft, DocumentTemplate::class.java)
         template.id = documentTemplateId
         val documentTemplate = documentTemplateLogic.modifyDocumentTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document Template update failed")
 
-        return mapper.map(documentTemplate, DocumentTemplateDto::class.java)
+        mapper.map(documentTemplate, DocumentTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "getAttachment", value = "Download a the document template attachment")
     @GetMapping("/{documentTemplateId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun getAttachment(@PathVariable documentTemplateId: String,
+    fun getAttachment(@PathVariable documentTemplateId: String,
                       @PathVariable attachmentId: String,
-                      response: ServerHttpResponse): Resource {
+                      response: ServerHttpResponse) = mono {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         if (document.attachment != null) {
@@ -159,13 +152,12 @@ class DocumentTemplateController(private val mapper: MapperFacade,
                 try {
                     val trans = transFact.newTransformer(xsltSource)
                     trans.transform(xmlSource, result)
-                    // TODO MB : implement return here
-                    return ByteArrayResource(byteOutputStream.toByteArray())
+                    byteOutputStream.toByteArray()
                 } catch (e: TransformerException) {
                     throw IllegalStateException("Could not convert legacy document")
                 }
             } else {
-                return ByteArrayResource(document.attachment)
+                document.attachment
             }
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
@@ -174,11 +166,11 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getAttachmentText", value = "Download a the document template attachment")
     @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String): ByteArray {
+    fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String) = mono {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         if (document.attachment != null) {
-            return document.attachment
+            document.attachment
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
         }
@@ -186,19 +178,19 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a document's attachment")
     @PutMapping("/{documentTemplateId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun setAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray): DocumentTemplateDto {
+    fun setAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentTemplate.attachment = payload
-        return mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto::class.java)
+        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "setAttachmentJson", value = "Creates a document's attachment")
     @PutMapping("/{documentTemplateId}/attachmentJson", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun setAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto): DocumentTemplateDto {
+    fun setAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentTemplate.attachment = payload.data
-        return mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto::class.java)
+        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto::class.java)
     }
 }

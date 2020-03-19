@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -25,11 +26,11 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createArticle", value = "Creates a article")
     @PostMapping
-    suspend fun createArticle(@RequestBody articleDto: ArticleDto): ArticleDto {
+    fun createArticle(@RequestBody articleDto: ArticleDto) = mono {
         val article = articleLogic.createArticle(mapper.map(articleDto, Article::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article creation failed")
 
-        return mapper.map(article, ArticleDto::class.java)
+        mapper.map(article, ArticleDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteArticle", value = "Deletes an article")
@@ -40,19 +41,19 @@ class ArticleController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getArticle", value = "Gets an article")
     @GetMapping("/{articleId}")
-    suspend fun getArticle(@PathVariable articleId: String): ArticleDto {
+    fun getArticle(@PathVariable articleId: String) = mono {
         val article = articleLogic.getArticle(articleId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
 
-        return mapper.map(article, ArticleDto::class.java)
+        mapper.map(article, ArticleDto::class.java)
     }
 
     @ApiOperation(nickname = "modifyArticle", value = "Modifies an article")
     @PutMapping
-    suspend fun modifyArticle(@RequestBody articleDto: ArticleDto): ArticleDto {
+    fun modifyArticle(@RequestBody articleDto: ArticleDto) = mono {
         val article = articleLogic.modifyArticle(mapper.map(articleDto, Article::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-        return mapper.map(article, ArticleDto::class.java)
+        mapper.map(article, ArticleDto::class.java)
     }
 
     @ApiOperation(nickname = "getArticles", value = "Gets all articles")

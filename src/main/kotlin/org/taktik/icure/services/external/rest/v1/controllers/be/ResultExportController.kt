@@ -20,6 +20,9 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.mono
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.be.format.logic.HealthOneLogic
@@ -28,7 +31,6 @@ import org.taktik.icure.be.format.logic.MedidocLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.utils.FuzzyValues
-import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/rest/v1/be_result_export")
@@ -41,14 +43,14 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
 
     @ApiOperation(nickname = "exportMedidoc", value = "Export data")
     @PostMapping("/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun exportMedidoc(@PathVariable fromHcpId: String,
+    fun exportMedidoc(@PathVariable fromHcpId: String,
                       @PathVariable toHcpId: String,
                       @PathVariable patId: String,
                       @PathVariable date: Long,
                       @PathVariable ref: String,
-                      @RequestBody bodyText: ByteArray,
-                      response: HttpServletResponse) {
-        medidocLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8), response.outputStream)
+                      @RequestBody bodyText: ByteArray
+    ) = mono {
+        DefaultDataBufferFactory().join(medidocLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
 
     @ApiOperation(nickname = "exportHealthOne", value = "Export data")
@@ -58,9 +60,9 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
                         @PathVariable patId: String,
                         @PathVariable date: Long,
                         @PathVariable ref: String,
-                        @RequestBody bodyText: ByteArray,
-                        response: HttpServletResponse) {
-        healthOneLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8), response.outputStream)
+                        @RequestBody bodyText: ByteArray
+    ) = mono {
+        DefaultDataBufferFactory().join(healthOneLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
 
     @ApiOperation(nickname = "exportKmehrReport", value = "Export data")
@@ -71,8 +73,8 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
                           @PathVariable date: Long,
                           @PathVariable ref: String,
                           @RequestParam(required = false) mimeType: Boolean?,
-                          @RequestBody bodyText: ByteArray,
-                          response: HttpServletResponse) {
-        kmehrReportLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8), response.outputStream)
+                          @RequestBody bodyText: ByteArray
+    ) = mono {
+        DefaultDataBufferFactory().join(kmehrReportLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
 }

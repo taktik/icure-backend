@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -45,26 +46,26 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "createInsurance", value = "Creates an insurance")
     @PostMapping
-    suspend fun createInsurance(@RequestBody insuranceDto: InsuranceDto): InsuranceDto {
+    fun createInsurance(@RequestBody insuranceDto: InsuranceDto) = mono {
         val insurance = insuranceLogic.createInsurance(mapper.map(insuranceDto, Insurance::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance creation failed")
 
-        return mapper.map(insurance, InsuranceDto::class.java)
+        mapper.map(insurance, InsuranceDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteInsurance", value = "Deletes an insurance")
     @DeleteMapping("/{insuranceId}")
-    suspend fun deleteInsurance(@PathVariable insuranceId: String): DocIdentifier {
-        return insuranceLogic.deleteInsurance(insuranceId)
+    fun deleteInsurance(@PathVariable insuranceId: String) = mono {
+        insuranceLogic.deleteInsurance(insuranceId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance deletion failed")
     }
 
     @ApiOperation(nickname = "getInsurance", value = "Gets an insurance")
     @GetMapping("/{insuranceId}")
-    suspend fun getInsurance(@PathVariable insuranceId: String): InsuranceDto {
+    fun getInsurance(@PathVariable insuranceId: String) = mono {
         val insurance = insuranceLogic.getInsurance(insuranceId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Insurance fetching failed")
-        return mapper.map(insurance, InsuranceDto::class.java)
+        mapper.map(insurance, InsuranceDto::class.java)
     }
 
     @ApiOperation(nickname = "getInsurances", value = "Gets insurances by id")
@@ -91,10 +92,10 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
 
     @ApiOperation(nickname = "modifyInsurance", value = "Modifies an insurance")
     @PutMapping
-    suspend fun modifyInsurance(@RequestBody insuranceDto: InsuranceDto): InsuranceDto {
+    fun modifyInsurance(@RequestBody insuranceDto: InsuranceDto) = mono {
         val insurance = insuranceLogic.modifyInsurance(mapper.map(insuranceDto, Insurance::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance modification failed")
 
-        return mapper.map(insurance, InsuranceDto::class.java)
+        mapper.map(insurance, InsuranceDto::class.java)
     }
 }

@@ -22,11 +22,10 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
-import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ByteArrayResource
-import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -47,12 +46,9 @@ import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.core.publisher.toFlux
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.*
-import javax.servlet.http.HttpServletResponse
 import javax.xml.transform.Result
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
@@ -70,11 +66,11 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "createDocument", value = "Creates a document")
     @PostMapping
-    suspend fun createDocument(@RequestBody documentDto: DocumentDto): DocumentDto {
+    fun createDocument(@RequestBody documentDto: DocumentDto) = mono {
         val document = mapper.map(documentDto, Document::class.java)
         val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document creation failed")
-        return mapper.map(createdDocument, DocumentDto::class.java)
+        mapper.map(createdDocument, DocumentDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteDocument", value = "Deletes a document")
@@ -90,11 +86,11 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "getAttachment", value = "Creates a document")
     @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun getAttachment(@PathVariable documentId: String,
+    fun getAttachment(@PathVariable documentId: String,
                       @PathVariable attachmentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestParam(required = false) fileName: String?,
-                      response: ServerHttpResponse) : ByteArrayResource {
+                      response: ServerHttpResponse) = mono {
         val document = documentLogic.get(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         val attachment = document.decryptAttachment(if (enckeys.isNullOrBlank()) null else enckeys.split(','))
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
@@ -113,33 +109,33 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 val trans = transFact.newTransformer(xsltSource)
                 val r : Result = StreamResult()
                 trans.transform(xmlSource, r)
-                return ByteArrayResource(attachment)
+                ByteArrayResource(attachment)
             } catch (e: TransformerException) {
                 throw IllegalStateException("Could not convert legacy document")
             }
 
         } else {
-            return ByteArrayResource(attachment)
+            ByteArrayResource(attachment)
         }
     }
 
     @ApiOperation(nickname = "deleteAttachment", value = "Deletes a document's attachment")
     @DeleteMapping("/{documentId}/attachment")
-    suspend fun deleteAttachment(@PathVariable documentId: String): DocumentDto {
+    fun deleteAttachment(@PathVariable documentId: String) = mono {
 
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 
         document.attachment = null
         documentLogic.modifyDocument(document)
-        return mapper.map(document, DocumentDto::class.java)
+        mapper.map(document, DocumentDto::class.java)
     }
 
     @ApiOperation(nickname = "setAttachment", value = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun setAttachment(@PathVariable documentId: String,
+    fun setAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
-                      @RequestBody payload: ByteArray): DocumentDto {
+                      @RequestBody payload: ByteArray) = mono {
         var newPayload = payload
         if (enckeys != null && enckeys.isNotEmpty()) {
             for (sfk in enckeys.split(',')) {
@@ -159,23 +155,23 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         document.attachment = newPayload
         documentLogic.modifyDocument(document)
-        return mapper.map(document, DocumentDto::class.java)
+        mapper.map(document, DocumentDto::class.java)
     }
 
     @ApiOperation(nickname = "setAttachmentMulti", value = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    suspend fun setAttachmentMulti(@PathVariable documentId: String,
+    fun setAttachmentMulti(@PathVariable documentId: String,
                            @RequestParam(required = false) enckeys: String?,
-                           @RequestPart("attachment") payload: ByteArray): DocumentDto {
-        return setAttachment(documentId, enckeys, payload)
+                           @RequestPart("attachment") payload: ByteArray) = mono {
+        setAttachment(documentId, enckeys, payload)
     }
 
     @ApiOperation(nickname = "getDocument", value = "Gets a document")
     @GetMapping("/{documentId}")
-    suspend fun getDocument(@PathVariable documentId: String): DocumentDto {
+    fun getDocument(@PathVariable documentId: String) = mono {
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
-        return mapper.map(document, DocumentDto::class.java)
+        mapper.map(document, DocumentDto::class.java)
     }
 
     @ApiOperation(nickname = "getDocuments", value = "Gets a document")
@@ -187,7 +183,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "modifyDocument", value = "Updates a document")
     @PutMapping
-    suspend fun modifyDocument(@RequestBody documentDto: DocumentDto): DocumentDto {
+    fun modifyDocument(@RequestBody documentDto: DocumentDto) = mono {
         if (documentDto.id == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify document with no id")
         }
@@ -204,7 +200,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         }
 
         documentLogic.modifyDocument(document)
-        return mapper.map(document, DocumentDto::class.java)
+        mapper.map(document, DocumentDto::class.java)
     }
 
     @ApiOperation(nickname = "modifyDocuments", value = "Updates a batch of documents", notes = "Returns the modified documents.")
@@ -269,7 +265,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @ApiOperation(nickname = "setDocumentsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    suspend fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
         val invoices = documentLogic.getDocuments(stubs.map { it.id })
         invoices.onEach { healthElement ->
             stubs.find { it.id == healthElement.id }?.let { stub ->

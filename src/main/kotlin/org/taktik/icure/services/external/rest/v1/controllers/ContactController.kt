@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import net.bytebuddy.implementation.bytecode.Throw
 import org.ektorp.ComplexKey
@@ -75,7 +76,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createContact", value = "Create a contact with the current user", notes = "Returns an instance of created contact.")
     @PostMapping
-    suspend fun createContact(@RequestBody c: ContactDto): ContactDto {
+    fun createContact(@RequestBody c: ContactDto) = mono {
         val contact = try {
             // handling services' indexes
             handleServiceIndexes(c)
@@ -85,7 +86,7 @@ class ContactController(private val mapper: MapperFacade,
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        return mapper.map(contact, ContactDto::class.java)
+        mapper.map(contact, ContactDto::class.java)
     }
 
     protected fun handleServiceIndexes(c: ContactDto) {
@@ -116,10 +117,10 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getContact", value = "Get a contact")
     @GetMapping("/{contactId}")
-    suspend fun getContact(@PathVariable contactId: String): ContactDto {
+    fun getContact(@PathVariable contactId: String) = mono {
         val contact = contactLogic.getContact(contactId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
-        return mapper.map(contact, ContactDto::class.java)
+        mapper.map(contact, ContactDto::class.java)
     }
 
     @ApiOperation(nickname = "getContacts", value = "Get contacts")
@@ -131,9 +132,9 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getServiceCodesOccurences", value = "Get the list of all used codes frequencies in services")
     @GetMapping("/service/codes/{codeType}/{minOccurences}")
-    suspend fun getServiceCodesOccurences(@PathVariable codeType: String,
-                                  @PathVariable minOccurences: Long): List<LabelledOccurenceDto> {
-        return contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, codeType, minOccurences)
+    fun getServiceCodesOccurences(@PathVariable codeType: String,
+                                  @PathVariable minOccurences: Long) = mono {
+        contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, codeType, minOccurences)
                 .map { mapper.map(it, LabelledOccurenceDto::class.java) }
     }
 
@@ -193,7 +194,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "setContactsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    suspend fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+    fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
         val contacts = contactLogic.getContacts(stubs.map { it.id })
         contacts.onEach { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->
@@ -237,10 +238,10 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "modifyContact", value = "Modify a contact", notes = "Returns the modified contact.")
     @PutMapping
-    suspend fun modifyContact(@RequestBody contactDto: ContactDto): ContactDto {
+    fun modifyContact(@RequestBody contactDto: ContactDto) = mono {
         handleServiceIndexes(contactDto)
 
-        return contactLogic.modifyContact(mapper.map(contactDto, Contact::class.java))?.let {
+        contactLogic.modifyContact(mapper.map(contactDto, Contact::class.java))?.let {
             mapper.map(it, ContactDto::class.java)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact modification failed.")
     }
@@ -262,7 +263,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "newDelegations", value = "Delegates a contact to a healthcare party", notes = "It delegates a contact to a healthcare party (By current healthcare party). Returns the contact with new delegations.")
     @PostMapping("/{contactId}/delegate")
-    suspend fun newDelegations(@PathVariable contactId: String, @RequestBody d: DelegationDto): ContactDto {
+    fun newDelegations(@PathVariable contactId: String, @RequestBody d: DelegationDto) = mono {
         contactLogic.addDelegation(contactId, mapper.map(d, Delegation::class.java))
         val contactWithDelegation = contactLogic.getContact(contactId)
 
@@ -270,7 +271,7 @@ class ContactController(private val mapper: MapperFacade,
         // TODO: kind of adding new secretForeignKeys and cryptedForeignKeys
 
         val succeed = contactWithDelegation != null && contactWithDelegation.delegations != null && contactWithDelegation.delegations.isNotEmpty()
-        return if (succeed) {
+        if (succeed) {
             mapper.map(contactWithDelegation, ContactDto::class.java)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for Contact failed.")
@@ -279,10 +280,10 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "filterBy", value = "List contacts for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    suspend fun filterBy(
+    fun filterBy(
             @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @RequestBody filterChain: FilterChain): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto> {
+            @RequestBody filterChain: FilterChain) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
@@ -290,7 +291,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val contacts = contactLogic.filterContacts(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Contact>, mapper.map(filterChain.predicate, Predicate::class.java)))
 
-        return contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)
+        contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)
     }
 
     @ApiOperation(nickname = "matchBy", value = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
@@ -300,10 +301,10 @@ class ContactController(private val mapper: MapperFacade,
     // TODO SH MB test this for PaginatedList construction...
     @ApiOperation(nickname = "filterServicesBy", value = "List services for the current user (HcParty) or the given hcparty in the filter ", notes = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/service/filter")
-    suspend fun filterServicesBy(
+    fun filterServicesBy(
             @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @RequestBody filterChain: FilterChain): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto> {
+            @RequestBody filterChain: FilterChain) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
@@ -315,7 +316,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
 
-        return if (services.size <= realLimit) {
+        if (services.size <= realLimit) {
             org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>(services.size, totalSize, services, null)
         } else {
             val nextKeyPair = services.lastOrNull()?.let { PaginatedDocumentKeyIdPair(null, it.id) }
@@ -326,18 +327,18 @@ class ContactController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "listContactsByOpeningDate", value = "List contacts bu opening date parties with(out) pagination", notes = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
-    suspend fun listContactsByOpeningDate(
+    fun listContactsByOpeningDate(
             @ApiParam(value = "The contact openingDate", required = true) @RequestParam startKey: Long,
             @ApiParam(value = "The contact max openingDate", required = true) @RequestParam endKey: Long,
             @ApiParam(value = "hcpartyid", required = true) @RequestParam hcpartyid: String,
             @ApiParam(value = "A contact party document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?): org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ContactDto> {
+            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
         val paginationOffset = PaginationOffset<List<String>>(null, startDocumentId, null, realLimit+1) // startKey is null since it is already a parameter of the subsequent function
         val contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset)
 
-        return contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)
+        contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)
     }
 }

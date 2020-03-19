@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.springframework.http.HttpStatus
@@ -52,10 +53,10 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createAccessLog", value = "Creates an access log")
     @PostMapping
-    suspend fun createAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
+    fun createAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
         val accessLog = accessLogLogic.createAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog creation failed")
-        return mapper.map(accessLog, AccessLogDto::class.java)
+        mapper.map(accessLog, AccessLogDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteAccessLog", value = "Deletes an access log")
@@ -66,45 +67,45 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getAccessLog", value = "Gets an access log")
     @GetMapping("/{accessLogId}")
-    suspend fun getAccessLog(@PathVariable accessLogId: String): AccessLogDto {
+    fun getAccessLog(@PathVariable accessLogId: String) = mono {
         val accessLog = accessLogLogic.getAccessLog(accessLogId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AccessLog fetching failed")
 
-        return mapper.map(accessLog, AccessLogDto::class.java)
+        mapper.map(accessLog, AccessLogDto::class.java)
     }
 
     @ApiOperation(nickname = "listAccessLogs", value = "Lists access logs")
     @GetMapping
-    suspend fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?): PaginatedList<AccessLogDto> {
+    fun listAccessLogs(@RequestParam(required = false) fromEpoch: Long?, @RequestParam(required = false) toEpoch: Long?, @RequestParam(required = false) startKey: Long?, @RequestParam(required = false) startDocumentId: String?, @RequestParam(required = false) limit: Int?, @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
         val accessLogs = accessLogLogic.listAccessLogs(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
-        return accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
+        accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
     }
 
     @ApiOperation(nickname = "findByUserAfterDate", value = "Get Paginated List of Access logs")
     @GetMapping("/byUser")
-    suspend fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
+    fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
                                     @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                                    @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?): PaginatedList<AccessLogDto> {
+                                    @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
         val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
                 ?: false)
 
-        return accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
+        accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
     }
 
     @ApiOperation(nickname = "modifyAccessLog", value = "Modifies an access log")
     @PutMapping
-    suspend fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto): AccessLogDto {
+    fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
         val accessLog = accessLogLogic.modifyAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-        return mapper.map(accessLog, AccessLogDto::class.java)
+        mapper.map(accessLog, AccessLogDto::class.java)
     }
 }

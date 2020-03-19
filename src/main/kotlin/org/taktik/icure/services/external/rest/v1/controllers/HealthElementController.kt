@@ -22,6 +22,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -50,20 +51,20 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createHealthElement", value = "Create a health element with the current user", notes = "Returns an instance of created health element.")
     @PostMapping
-    suspend fun createHealthElement(@RequestBody c: HealthElementDto): HealthElementDto {
+    fun createHealthElement(@RequestBody c: HealthElementDto) = mono {
         val element = healthElementLogic.createHealthElement(mapper.map(c, HealthElement::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
 
-        return mapper.map(element, HealthElementDto::class.java)
+        mapper.map(element, HealthElementDto::class.java)
     }
 
     @ApiOperation(nickname = "getHealthElement", value = "Get a health element")
     @GetMapping("/{healthElementId}")
-    suspend fun getHealthElement(@PathVariable healthElementId: String): HealthElementDto {
+    fun getHealthElement(@PathVariable healthElementId: String) = mono {
         val element = healthElementLogic.getHealthElement(healthElementId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting health element failed. Possible reasons: no such health element exists, or server error. Please try again or read the server log.")
 
-        return mapper.map(element, HealthElementDto::class.java)
+        mapper.map(element, HealthElementDto::class.java)
     }
 
     @ApiOperation(nickname = "findByHCPartyPatientSecretFKeys", value = "List health elements found By Healthcare Party and secret foreign keyelementIds.", notes = "Keys hast to delimited by coma")
@@ -89,7 +90,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "setHealthElementsDelegations", value = "Update delegations in healthElements.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    suspend fun setHealthElementsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+    fun setHealthElementsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
         val healthElements = healthElementLogic.getHealthElements(stubs.map { it.id })
         healthElements.onEach { healthElement ->
             stubs.find { s -> s.id == healthElement.id }?.let { stub ->
@@ -115,10 +116,10 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "modifyHealthElement", value = "Modify a health element", notes = "Returns the modified health element.")
     @PutMapping
-    suspend fun modifyHealthElement(@RequestBody healthElementDto: HealthElementDto): HealthElementDto {
+    fun modifyHealthElement(@RequestBody healthElementDto: HealthElementDto) = mono {
         val modifiedHealthElement = healthElementLogic.modifyHealthElement(mapper.map(healthElementDto, HealthElement::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element modification failed.")
-        return mapper.map(modifiedHealthElement, HealthElementDto::class.java)
+        mapper.map(modifiedHealthElement, HealthElementDto::class.java)
     }
 
     @ApiOperation(nickname = "modifyHealthElements", value = "Modify a batch of health elements", notes = "Returns the modified health elements.")
@@ -135,12 +136,12 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "newDelegations", value = "Delegates a health element to a healthcare party", notes = "It delegates a health element to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{healthElementId}/delegate")
-    suspend fun newDelegations(@PathVariable healthElementId: String, @RequestBody ds: List<DelegationDto>): HealthElementDto {
+    fun newDelegations(@PathVariable healthElementId: String, @RequestBody ds: List<DelegationDto>) = mono {
         healthElementLogic.addDelegations(healthElementId, ds.map { d -> mapper.map(d, Delegation::class.java) })
         val healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId)
 
         val succeed = healthElementWithDelegation != null && healthElementWithDelegation.delegations != null && healthElementWithDelegation.delegations.isNotEmpty()
-        return if (succeed) {
+        if (succeed) {
             mapper.map(healthElementWithDelegation, HealthElementDto::class.java)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for health element failed.")

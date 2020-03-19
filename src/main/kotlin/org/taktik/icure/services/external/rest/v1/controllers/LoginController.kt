@@ -26,6 +26,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.ReactorContext
 import kotlinx.coroutines.reactor.asCoroutineContext
+import kotlinx.coroutines.reactor.mono
 import kotlinx.coroutines.withContext
 import ma.glasnost.orika.MapperFacade
 import org.springframework.core.io.buffer.DataBuffer
@@ -48,7 +49,6 @@ import java.lang.IllegalArgumentException
 import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 
 
@@ -61,7 +61,7 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
 
     @ApiOperation(nickname = "login", value = "login", notes = "Login using username and password")
     @PostMapping("/login")
-    suspend fun login(request : ServerHttpRequest, session: WebSession): AuthenticationResponse {
+    fun login(request : ServerHttpRequest, session: WebSession) = mono {
         val body: Flux<DataBuffer> = request.body
         val bodyText =
         body.awaitFirstOrNull()?.let { buffer: DataBuffer ->
@@ -70,7 +70,7 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
             charBuffer.toString()
         } ?: throw IllegalArgumentException("Missing body")
 
-        return withContext(Dispatchers.Default) {
+        withContext(Dispatchers.Default) {
             val loginInfo = Moshi.Builder().build().adapter(LoginCredentials::class.java).fromJson(bodyText)
             return@withContext loginInfo?.let {
                 val response = AuthenticationResponse()
@@ -93,24 +93,24 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
 
     @ApiOperation(nickname = "logout", value = "logout", notes = "Logout")
     @GetMapping("/logout")
-    suspend fun logout(): AuthenticationResponse {
+    fun logout() = mono {
         sessionLogic.logout()
-        return mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
+        mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
     }
 
     @ApiOperation(nickname = "logoutPost", value = "logout", notes = "Logout")
     @PostMapping("/logout")
-    suspend fun logoutPost(): AuthenticationResponse {
+    fun logoutPost() = mono {
         sessionLogic.logout()
-        return mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
+        mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
     }
 
     @ApiOperation(nickname = "token", value = "token", notes = "Get token for subsequent operation")
     @GetMapping("/token/{method}/{path}")
-    suspend fun token(@PathVariable method: String, @PathVariable path: String): String {
+    fun token(@PathVariable method: String, @PathVariable path: String) = mono {
         val token = UUID.randomUUID().toString()
         cache.put(token, SecurityToken(HttpMethod.valueOf(method), path, sessionLogic.getCurrentSessionContext().getAuthentication()))
-        return token
+        token
     }
 
 }

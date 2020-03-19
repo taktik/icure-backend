@@ -1,7 +1,13 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactive.asFlow
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.filter.Filters
@@ -17,6 +23,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
@@ -47,8 +54,18 @@ class KmehrNoteLogicImpl(mapper: MapperFacade,
     )
 
     override suspend fun createNote(
-            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
-    ) {
+            id: String,
+            author: HealthcareParty,
+            date: Long,
+            recipientNihii: String,
+            recipientFirstName: String,
+            recipientLastName: String,
+            patient: Patient,
+            lang: String,
+            transactionType: String,
+            mimeType: String,
+            document: ByteArray
+    ) = flow {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD } }
@@ -91,11 +108,13 @@ class KmehrNoteLogicImpl(mapper: MapperFacade,
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
+        val os = ByteArrayOutputStream(10000)
         // output pretty printed
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
         jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8.toString())
 
-        jaxbMarshaller.marshal(message, OutputStreamWriter(output, UTF_8))
+        jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+        emitAll(DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow())
     }
 
 }

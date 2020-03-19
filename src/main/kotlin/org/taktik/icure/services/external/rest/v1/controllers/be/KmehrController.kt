@@ -23,10 +23,12 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -55,8 +57,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PartnershipDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePartyDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
-import org.taktik.icure.utils.injectReactorContext
-import reactor.core.publisher.Flux
 import java.time.Instant
 import java.util.stream.Collectors
 import javax.servlet.http.HttpServletResponse
@@ -83,12 +83,12 @@ class KmehrController(
 
     @ApiOperation(nickname = "generateDiaryNote", value = "Generate diarynote")
     @PostMapping("/diarynote/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateDiaryNote(@PathVariable patientId: String,
+    fun generateDiaryNote(@PathVariable patientId: String,
                                   @RequestParam language: String,
-                                  @RequestBody info: DiaryNoteExportInfoDto): Flux<DataBuffer>? {
-        return patientLogic.getPatient(patientId)?.let {
+                                  @RequestBody info: DiaryNoteExportInfoDto) = mono {
+        patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { it1 ->
-                diaryNoteLogic.createDiaryNote(
+                DefaultDataBufferFactory().join(diaryNoteLogic.createDiaryNote(
                         it,
                         info.secretForeignKeys,
                         it1,
@@ -101,19 +101,19 @@ class KmehrController(
                         info.documentId,
                         info.attachmentId,
                         null
-                ).injectReactorContext()
+                ).toList()).asByteBuffer()
             }
         }
     }
 
     @ApiOperation(nickname = "generateSumehr", value = "Generate sumehr")
     @PostMapping("/sumehr/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateSumehr(@PathVariable patientId: String,
+    fun generateSumehr(@PathVariable patientId: String,
                                @RequestParam language: String,
-                               @RequestBody info: SumehrExportInfoDto): Flux<DataBuffer>? {
-        return patientLogic.getPatient(patientId)?.let {
+                               @RequestBody info: SumehrExportInfoDto) = mono {
+        patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-                 sumehrLogicV1.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
+                DefaultDataBufferFactory().join(sumehrLogicV1.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                         ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                          Config(_kmehrId = System.currentTimeMillis().toString(),
                                  date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
@@ -122,19 +122,19 @@ class KmehrController(
                                  clinicalSummaryType = "",
                                  defaultLanguage = "en",
                                  format = Config.Format.SUMEHR
-                         )).injectReactorContext()
+                         )).toList()).asByteBuffer()
             }
         }
     }
 
     @ApiOperation(nickname = "validateSumehr", value = "Validate sumehr")
     @PostMapping("/sumehr/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun validateSumehr(@PathVariable patientId: String,
+    fun validateSumehr(@PathVariable patientId: String,
                                @RequestParam language: String,
-                               @RequestBody info: SumehrExportInfoDto): Flux<DataBuffer>? {
-        return patientLogic.getPatient(patientId)?.let {
+                               @RequestBody info: SumehrExportInfoDto) = mono {
+        patientLogic.getPatient(patientId)?.let {
              healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-                sumehrLogicV1.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
+                 DefaultDataBufferFactory().join(sumehrLogicV1.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                         ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
@@ -143,7 +143,8 @@ class KmehrController(
                                 clinicalSummaryType = "",
                                 defaultLanguage = "en",
                                 format = Config.Format.SUMEHR
-                        )).injectReactorContext()
+                        )
+                 ).toList()).asByteBuffer()
 
             }
         }
@@ -151,23 +152,22 @@ class KmehrController(
 
     @ApiOperation(nickname = "getSumehrContent", value = "Get sumehr elements")
     @PostMapping("/sumehr/{patientId}/content")
-    suspend fun getSumehrContent(@PathVariable patientId: String,
-                                 @RequestBody info: SumehrExportInfoDto): SumehrContentDto {
-        val result = SumehrContentDto()
+    fun getSumehrContent(@PathVariable patientId: String,
+                                 @RequestBody info: SumehrExportInfoDto) = mono {
+        SumehrContentDto().apply {
+            services = sumehrLogicV1.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
+                    ?: false, null).stream().map { s -> mapper.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
+            healthElements = sumehrLogicV1.getHealthElements(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
+                    ?: false).stream().map { h -> mapper.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
 
-        result.services = sumehrLogicV1.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                ?: false, null).stream().map { s -> mapper.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
-        result.healthElements = sumehrLogicV1.getHealthElements(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                ?: false).stream().map { h -> mapper.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
-
-        return result
+        }
     }
 
     @ApiOperation(nickname = "getSumehrMd5", value = "Check sumehr signature")
     @PostMapping("/sumehr/{patientId}/md5")
-    suspend fun getSumehrMd5(@PathVariable patientId: String,
-                             @RequestBody info: SumehrExportInfoDto): ContentDto {
-        return ContentDto.fromStringValue(patientLogic.getPatient(patientId)?.let {
+    fun getSumehrMd5(@PathVariable patientId: String,
+                             @RequestBody info: SumehrExportInfoDto) = mono {
+        ContentDto.fromStringValue(patientLogic.getPatient(patientId)?.let {
             sumehrLogicV1.getSumehrMd5(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                     ?: false)
         })
@@ -175,19 +175,19 @@ class KmehrController(
 
     @ApiOperation(nickname = "isSumehrValid", value = "Get sumehr validity")
     @PostMapping("/sumehr/{patientId}/valid")
-    suspend fun isSumehrValid(@PathVariable patientId: String,
-                              @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
-        return SumehrValidityDto(patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) })
+    fun isSumehrValid(@PathVariable patientId: String,
+                              @RequestBody info: SumehrExportInfoDto) = mono {
+        SumehrValidityDto(patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) })
     }
 
     @ApiOperation(nickname = "generateSumehrV2", value = "Generate sumehr")
     @PostMapping("/sumehrv2/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateSumehrV2(@PathVariable patientId: String,
+    fun generateSumehrV2(@PathVariable patientId: String,
                                  @RequestParam language: String,
-                                 @RequestBody info: SumehrExportInfoDto): Flux<DataBuffer>? {
-        return patientLogic.getPatient(patientId)?.let {
+                                 @RequestBody info: SumehrExportInfoDto) = mono {
+        patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-                sumehrLogicV2.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
+                DefaultDataBufferFactory().join(sumehrLogicV2.createSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                         ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
@@ -196,19 +196,19 @@ class KmehrController(
                                 clinicalSummaryType = "",
                                 defaultLanguage = "en",
                                 format = Config.Format.SUMEHR
-                        )).injectReactorContext()
+                        )).toList()).asByteBuffer()
             }
         }
     }
 
     @ApiOperation(nickname = "validateSumehrV2", value = "Validate sumehr")
     @PostMapping("/sumehrv2/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun validateSumehrV2(@PathVariable patientId: String,
+    fun validateSumehrV2(@PathVariable patientId: String,
                                  @RequestParam language: String,
-                                 @RequestBody info: SumehrExportInfoDto): Flux<DataBuffer>? {
-        return patientLogic.getPatient(patientId)?.let {
+                                 @RequestBody info: SumehrExportInfoDto) = mono {
+        patientLogic.getPatient(patientId)?.let {
             healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())?.let { hcp ->
-                sumehrLogicV2.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
+                DefaultDataBufferFactory().join(sumehrLogicV2.validateSumehr(it, info.secretForeignKeys, hcp, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation
                         ?: false, null, mapServices(info.services), mapHealthElements(info.healthElements),
                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
@@ -217,31 +217,31 @@ class KmehrController(
                                 clinicalSummaryType = "",
                                 defaultLanguage = "en",
                                 format = Config.Format.SUMEHR
-                        )).injectReactorContext()
+                        )).toList()
+                ).asByteBuffer()
             }
         }
     }
 
     @ApiOperation(nickname = "getSumehrV2Content", value = "Get sumehr elements")
     @PostMapping("/sumehrv2/{patientId}/content")
-    suspend fun getSumehrV2Content(@PathVariable patientId: String,
-                                   @RequestBody info: SumehrExportInfoDto): SumehrContentDto {
-        val result = SumehrContentDto()
-
-        result.services = sumehrLogicV2.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                ?: false, null).stream().map { s -> mapper.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
-        result.healthElements = sumehrLogicV2.getHealthElements(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
-                ?: false).stream().map { h -> mapper.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
-        result.patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).stream().map { h -> mapper.map<PatientHealthCareParty, PatientHealthCarePartyDto>(h, PatientHealthCarePartyDto::class.java) }.collect(Collectors.toList<PatientHealthCarePartyDto>())
-        result.partnerships = sumehrLogicV2.getContactPeople(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).stream().map { h -> mapper.map<Partnership, PartnershipDto>(h, PartnershipDto::class.java) }.collect(Collectors.toList<PartnershipDto>())
-        return result
+    fun getSumehrV2Content(@PathVariable patientId: String,
+                                   @RequestBody info: SumehrExportInfoDto) = mono {
+        SumehrContentDto().apply {
+            services = sumehrLogicV2.getAllServices(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
+                    ?: false, null).stream().map { s -> mapper.map<Service, ServiceDto>(s, ServiceDto::class.java) }.collect(Collectors.toList<ServiceDto>())
+            healthElements = sumehrLogicV2.getHealthElements(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
+                    ?: false).stream().map { h -> mapper.map<HealthElement, HealthElementDto>(h, HealthElementDto::class.java) }.collect(Collectors.toList<HealthElementDto>())
+            patientHealthcareParties = sumehrLogicV2.getPatientHealthcareParties(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).stream().map { h -> mapper.map<PatientHealthCareParty, PatientHealthCarePartyDto>(h, PatientHealthCarePartyDto::class.java) }.collect(Collectors.toList<PatientHealthCarePartyDto>())
+            partnerships = sumehrLogicV2.getContactPeople(sessionLogic.getCurrentHealthcarePartyId(), info.secretForeignKeys, info.excludedIds, patientId).stream().map { h -> mapper.map<Partnership, PartnershipDto>(h, PartnershipDto::class.java) }.collect(Collectors.toList<PartnershipDto>())
+        }
     }
 
     @ApiOperation(nickname = "getSumehrV2Md5", value = "Check sumehr signature")
     @PostMapping("/sumehrv2/{patientId}/md5")
-    suspend fun getSumehrV2Md5(@PathVariable patientId: String,
-                               @RequestBody info: SumehrExportInfoDto): ContentDto {
-        return ContentDto.fromStringValue(patientLogic.getPatient(patientId)?.let {
+    fun getSumehrV2Md5(@PathVariable patientId: String,
+                               @RequestBody info: SumehrExportInfoDto) = mono {
+        ContentDto.fromStringValue(patientLogic.getPatient(patientId)?.let {
             sumehrLogicV2.getSumehrMd5(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                     ?: false)
         })
@@ -249,9 +249,9 @@ class KmehrController(
 
     @ApiOperation(nickname = "isSumehrV2Valid", value = "Get sumehr validity")
     @PostMapping("/sumehrv2/{patientId}/valid")
-    suspend fun isSumehrV2Valid(@PathVariable patientId: String,
-                                @RequestBody info: SumehrExportInfoDto): SumehrValidityDto {
-        return SumehrValidityDto(patientLogic.getPatient(patientId)
+    fun isSumehrV2Valid(@PathVariable patientId: String,
+                                @RequestBody info: SumehrExportInfoDto) = mono {
+        SumehrValidityDto(patientLogic.getPatient(patientId)
                 ?.let {
                     sumehrLogicV2.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                             ?: false, mapServices(info.services), mapHealthElements(info.healthElements)).name
@@ -261,14 +261,14 @@ class KmehrController(
 
     @ApiOperation(nickname = "generateSmfExport", value = "Get SMF (Software Medical File) export")
     @PostMapping("/smf/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateSmfExport(@PathVariable patientId: String,
+    fun generateSmfExport(@PathVariable patientId: String,
                                   @RequestParam(required = false) language: String?,
-                                  @RequestBody smfExportParams: SoftwareMedicalFileExportDto): Flux<DataBuffer>? {
-        return patientLogic.getPatient(patientId)
+                                  @RequestBody smfExportParams: SoftwareMedicalFileExportDto) = mono {
+        patientLogic.getPatient(patientId)
                 ?.let {
                     healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
                             ?.let { it1 ->
-                                softwareMedicalFileLogic.createSmfExport(it, smfExportParams.secretForeignKeys, it1, language
+                                DefaultDataBufferFactory().join(softwareMedicalFileLogic.createSmfExport(it, smfExportParams.secretForeignKeys, it1, language
                                         ?: "fr", null, null,
                                         Config(_kmehrId = System.currentTimeMillis().toString(),
                                                 date = Utils.makeXGC(Instant.now().toEpochMilli())!!,
@@ -277,35 +277,38 @@ class KmehrController(
                                                 clinicalSummaryType = "",
                                                 defaultLanguage = "en",
                                                 format = Config.Format.SMF
-                                        )).injectReactorContext()
+                                        )).toList()).asByteBuffer()
                             }
                 }
     }
 
     @ApiOperation(nickname = "generateMedicationSchemeExport", value = "Get Medicationscheme export")
     @PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateMedicationSchemeExport(@PathVariable patientId: String,
+    fun generateMedicationSchemeExport(@PathVariable patientId: String,
                                                @RequestParam(required = false) language: String?,
                                                @RequestParam recipientSafe: String,
                                                @RequestParam version: Int,
-                                               @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto) {
+                                               @RequestBody medicationSchemeExportParams: MedicationSchemeExportInfoDto) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
 
         patient?.let {
             userHealthCareParty?.let {
-                if (medicationSchemeExportParams.services?.isEmpty() == true)
-                    medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language
-                            ?: "fr", recipientSafe, version, null, null).injectReactorContext()
-                else
-                    medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language ?: "fr", recipientSafe, version, medicationSchemeExportParams.services!!.map { s -> mapper.map(s, Service::class.java) as Service }, null)
+                DefaultDataBufferFactory().join((
+                        if (medicationSchemeExportParams.services?.isEmpty() == true)
+                            medicationSchemeLogic.createMedicationSchemeExport(patient, medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language
+                                    ?: "fr", recipientSafe, version, null, null)
+                        else
+                            medicationSchemeLogic.createMedicationSchemeExport(patient, userHealthCareParty, language
+                                    ?: "fr", recipientSafe, version, medicationSchemeExportParams.services!!.map { s -> mapper.map(s, Service::class.java) as Service }, null)
+                        ).toList()).asByteBuffer()
             }
         }
     }
 
     @ApiOperation(nickname = "generateContactreportExport", value = "Get Kmehr contactreport")
     @PostMapping("/contactreport/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateContactreportExport(@PathVariable patientId: String,
+    fun generateContactreportExport(@PathVariable patientId: String,
                                             @PathVariable id: String,
                                             @RequestParam date: Long,
                                             @RequestParam language: String,
@@ -314,15 +317,15 @@ class KmehrController(
                                             @RequestParam recipientLastName: String,
                                             @RequestParam mimeType: String,
                                             @RequestBody document: ByteArray,
-                                            response: HttpServletResponse) {
+                                            response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "contactreport", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "contactreport", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "generateLabresultExport", value = "Get Kmehr labresult")
     @PostMapping("/labresult/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateLabresultExport(@PathVariable patientId: String,
+    fun generateLabresultExport(@PathVariable patientId: String,
                                         @PathVariable id: String,
                                         @RequestParam date: Long,
                                         @RequestParam language: String,
@@ -331,16 +334,16 @@ class KmehrController(
                                         @RequestParam recipientLastName: String,
                                         @RequestParam mimeType: String,
                                         @RequestBody document: ByteArray,
-                                        response: HttpServletResponse) {
+                                        response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
 
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "labresult", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "labresult", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "generateNoteExport", value = "Get Kmehr note")
     @PostMapping("/note/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateNoteExport(@PathVariable patientId: String,
+    fun generateNoteExport(@PathVariable patientId: String,
                                    @PathVariable id: String,
                                    @RequestParam date: Long,
                                    @RequestParam language: String,
@@ -349,15 +352,15 @@ class KmehrController(
                                    @RequestParam recipientLastName: String,
                                    @RequestParam mimeType: String,
                                    @RequestBody document: ByteArray,
-                                   response: HttpServletResponse) {
+                                   response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "note", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "note", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "generatePrescriptionExport", value = "Get Kmehr prescription")
     @PostMapping("/prescription/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generatePrescriptionExport(@PathVariable patientId: String,
+    fun generatePrescriptionExport(@PathVariable patientId: String,
                                            @PathVariable id: String,
                                            @RequestParam date: Long,
                                            @RequestParam language: String,
@@ -366,15 +369,15 @@ class KmehrController(
                                            @RequestParam recipientLastName: String,
                                            @RequestParam mimeType: String,
                                            @RequestBody document: ByteArray,
-                                           response: HttpServletResponse) {
+                                           response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "prescription", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "prescription", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "generateReportExport", value = "Get Kmehr report")
     @PostMapping("/report/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateReportExport(@PathVariable patientId: String,
+    fun generateReportExport(@PathVariable patientId: String,
                                      @PathVariable id: String,
                                      @RequestParam date: Long,
                                      @RequestParam language: String,
@@ -383,15 +386,15 @@ class KmehrController(
                                      @RequestParam recipientLastName: String,
                                      @RequestParam mimeType: String,
                                      @RequestBody document: ByteArray,
-                                     response: HttpServletResponse) {
+                                     response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "report", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "report", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "generateRequestExport", value = "Get Kmehr request")
     @PostMapping("/request/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateRequestExport(@PathVariable patientId: String,
+    fun generateRequestExport(@PathVariable patientId: String,
                                       @PathVariable id: String,
                                       @RequestParam date: Long,
                                       @RequestParam language: String,
@@ -400,15 +403,15 @@ class KmehrController(
                                       @RequestParam recipientLastName: String,
                                       @RequestParam mimeType: String,
                                       @RequestBody document: ByteArray,
-                                      response: HttpServletResponse) {
+                                      response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "request", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "request", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "generateResultExport", value = "Get Kmehr result")
     @PostMapping("/result/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    suspend fun generateResultExport(@PathVariable patientId: String,
+    fun generateResultExport(@PathVariable patientId: String,
                                      @PathVariable id: String,
                                      @RequestParam date: Long,
                                      @RequestParam language: String,
@@ -417,26 +420,26 @@ class KmehrController(
                                      @RequestParam recipientLastName: String,
                                      @RequestParam mimeType: String,
                                      @RequestBody document: ByteArray,
-                                     response: HttpServletResponse) {
+                                     response: HttpServletResponse) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val patient = patientLogic.getPatient(patientId)
 
-        userHealthCareParty?.let { patient?.let { it1 -> kmehrNoteLogic.createNote(response.outputStream, id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "result", mimeType, document) } }
+        userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "result", mimeType, document).toList()).asByteBuffer() } }
     }
 
     @ApiOperation(nickname = "importSmf", value = "Import SMF into patient(s) using existing document")
     @PostMapping("/smf/{documentId}/import")
-    suspend fun importSmf(@PathVariable documentId: String,
+    fun importSmf(@PathVariable documentId: String,
                           @RequestParam(required = false) documentKey: String?,
                           @RequestParam(required = false) patientId: String?,
                           @RequestParam(required = false) language: String?,
-                          @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
+                          @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
         val attachmentId = document?.attachmentId
 
-        return attachmentId?.let {
+        attachmentId?.let {
             softwareMedicalFileLogic.importSmfFile(documentLogic.readAttachment(documentId, attachmentId), sessionLogic.getCurrentSessionContext().getUser(), language
                     ?: userHealthCareParty?.languages?.firstOrNull() ?: "fr",
                     false,
@@ -447,17 +450,17 @@ class KmehrController(
 
     @ApiOperation(nickname = "checkIfSMFPatientsExists", value = "Check whether patients in SMF already exists in DB")
     @PostMapping("/smf/{documentId}/checkIfSMFPatientsExists")
-    suspend fun checkIfSMFPatientsExists(@PathVariable documentId: String,
+    fun checkIfSMFPatientsExists(@PathVariable documentId: String,
                                          @RequestParam(required = false) documentKey: String?,
                                          @RequestParam(required = false) patientId: String?,
                                          @RequestParam(required = false) language: String?,
-                                         @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<CheckSMFPatientResult>? {
+                                         @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
         val attachmentId = document?.attachmentId
 
-        return attachmentId?.let {
+        attachmentId?.let {
             softwareMedicalFileLogic.checkIfSMFPatientsExists(
                     documentLogic.readAttachment(documentId, attachmentId),
                     sessionLogic.getCurrentSessionContext().getUser(),
@@ -470,19 +473,19 @@ class KmehrController(
 
     @ApiOperation(nickname = "importSumehr", value = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/import")
-    suspend fun importSumehr(@PathVariable documentId: String,
+    fun importSumehr(@PathVariable documentId: String,
                              @RequestParam(required = false) documentKey: String?,
                              @ApiParam(value = "Dry run: do not save in database")
                              @RequestParam(required = false) dryRun: Boolean?,
                              @RequestParam(required = false) patientId: String?,
                              @RequestParam(required = false) language: String?,
-                             @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
+                             @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
         val attachmentId = document?.attachmentId
 
-        return attachmentId?.let {
+        attachmentId?.let {
             sumehrLogicV1.importSumehr(
                     documentLogic.readAttachment(documentId, attachmentId),
                     sessionLogic.getCurrentSessionContext().getUser(),
@@ -496,19 +499,19 @@ class KmehrController(
 
     @ApiOperation(nickname = "importSumehrByItemId", value = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/importbyitemid")
-    suspend fun importSumehrByItemId(@PathVariable documentId: String,
+    fun importSumehrByItemId(@PathVariable documentId: String,
                                      @RequestParam(required = false) documentKey: String?,
                                      @ApiParam(value = "Dry run: do not save in database")
                                      @RequestParam(required = false) dryRun: Boolean?,
                                      @RequestParam itemId: String,
                                      @RequestParam(required = false) patientId: String?,
                                      @RequestParam(required = false) language: String?,
-                                     @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
+                                     @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
         val attachmentId = document?.attachmentId
-        return attachmentId?.let {
+        attachmentId?.let {
             sumehrLogicV2.importSumehrByItemId(
                     documentLogic.readAttachment(documentId, attachmentId),
                     itemId,
@@ -523,19 +526,18 @@ class KmehrController(
 
     @ApiOperation(nickname = "importMedicationScheme", value = "Import MedicationScheme into patient(s) using existing document")
     @PostMapping("/medicationscheme/{documentId}/import")
-    suspend fun importMedicationScheme(@PathVariable documentId: String,
+    fun importMedicationScheme(@PathVariable documentId: String,
                                        @RequestParam(required = false) documentKey: String?,
                                        @ApiParam(value = "Dry run: do not save in database")
                                        @RequestParam(required = false) dryRun: Boolean?,
                                        @RequestParam(required = false) patientId: String?,
                                        @RequestParam(required = false) language: String?,
-                                       @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?): List<ImportResultDto>? {
-
+                                       @RequestBody(required = false) mappings: HashMap<String, List<ImportMapping>>?) = mono {
         val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val document = documentLogic.get(documentId)
 
         val attachmentId = document?.attachmentId
-        return attachmentId?.let {
+        attachmentId?.let {
             medicationSchemeLogic.importMedicationSchemeFile(
                     documentLogic.readAttachment(documentId, attachmentId),
                     sessionLogic.getCurrentSessionContext().getUser(),

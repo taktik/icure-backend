@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.be.format.logic.impl
 
+import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.format.logic.MultiFormatLogic
 import org.taktik.icure.be.format.logic.ResultFormatLogic
@@ -64,11 +66,11 @@ class MultiFormatLogicImpl(var engines: List<ResultFormatLogic>) : MultiFormatLo
         throw IllegalArgumentException("Invalid format")
     }
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) : Flow<DataBuffer> {
         throw UnsupportedOperationException()
     }
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?) : Flow<DataBuffer> {
         throw UnsupportedOperationException()
     }
 

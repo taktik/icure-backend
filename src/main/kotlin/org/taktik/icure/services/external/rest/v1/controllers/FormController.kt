@@ -22,6 +22,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -65,10 +66,10 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getForm", value = "Gets a form")
     @GetMapping("/{formId}")
-    suspend fun getForm(@PathVariable formId: String): FormDto {
+    fun getForm(@PathVariable formId: String) = mono {
         val form = formLogic.getForm(formId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form fetching failed")
-        return mapper.map(form, FormDto::class.java)
+        mapper.map(form, FormDto::class.java)
     }
 
     @ApiOperation(nickname = "getForms", value = "Get a list of forms by ids", notes = "Keys must be delimited by coma")
@@ -88,7 +89,7 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createForm", value = "Create a form with the current user", notes = "Returns an instance of created form.")
     @PostMapping
-    suspend fun createForm(@RequestBody ft: FormDto): FormDto {
+    fun createForm(@RequestBody ft: FormDto) = mono {
         val form = try {
             formLogic.createForm(mapper.map(ft, Form::class.java))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form creation failed")
@@ -96,17 +97,17 @@ class FormController(private val mapper: MapperFacade,
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        return mapper.map(form, FormDto::class.java)
+        mapper.map(form, FormDto::class.java)
     }
 
     @ApiOperation(nickname = "newDelegations", value = "Delegates a form to a healthcare party", notes = "It delegates a form to a healthcare party. Returns the form with the new delegations.")
     @PostMapping("/delegate/{formId}")
-    suspend fun newDelegations(@PathVariable formId: String,
-                       @RequestBody ds: List<DelegationDto>): FormDto {
+    fun newDelegations(@PathVariable formId: String,
+                       @RequestBody ds: List<DelegationDto>) = mono {
         formLogic.addDelegations(formId, ds.map { d -> mapper.map(d, Delegation::class.java) })
         val formWithDelegation = formLogic.getForm(formId)
 
-        return if (formWithDelegation != null && formWithDelegation.delegations != null && formWithDelegation.delegations.isNotEmpty()) {
+        if (formWithDelegation != null && formWithDelegation.delegations != null && formWithDelegation.delegations.isNotEmpty()) {
             mapper.map(formWithDelegation, FormDto::class.java)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for Form failed")
@@ -115,8 +116,8 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "modifyForm", value = "Modify a form", notes = "Returns the modified form.")
     @PutMapping
-    suspend fun modifyForm(@RequestBody formDto: FormDto): FormDto {
-        return try {
+    fun modifyForm(@RequestBody formDto: FormDto) = mono {
+        try {
             formLogic.modifyForm(mapper.map(formDto, Form::class.java))
             val modifiedForm = formLogic.getForm(formDto.id)
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form modification failed")
@@ -171,7 +172,7 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(value = "Update delegations in form.", notes = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    suspend fun setFormsDelegations(@RequestBody stubs: List<IcureStubDto>) {
+    fun setFormsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
         val forms = formLogic.getForms(stubs.map { it.id })
         forms.onEach { form ->
             stubs.find { s -> s.id == form.id }?.let { stub ->
@@ -185,10 +186,10 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getFormTemplate", value = "Gets a form template by guid")
     @GetMapping("/template/{formTemplateId}")
-    suspend fun getFormTemplate(@PathVariable formTemplateId: String): FormTemplateDto {
+    fun getFormTemplate(@PathVariable formTemplateId: String) = mono {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate fetching failed")
-        return mapper.map(formTemplate, FormTemplateDto::class.java)
+        mapper.map(formTemplate, FormTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "getFormTemplatesByGuid", value = "Gets a form template")
@@ -223,36 +224,36 @@ class FormController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createFormTemplate", value = "Create a form template with the current user", notes = "Returns an instance of created form template.")
     @PostMapping("/template")
-    suspend fun createFormTemplate(@RequestBody ft: FormTemplateDto): FormTemplateDto {
+    fun createFormTemplate(@RequestBody ft: FormTemplateDto) = mono {
         val formTemplate = formTemplateLogic.createFormTemplate(mapper.map(ft, FormTemplate::class.java))
-        return mapper.map(formTemplate, FormTemplateDto::class.java)
+        mapper.map(formTemplate, FormTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteFormTemplate", value = "Delete a form template")
     @DeleteMapping("/template/{formTemplateId}")
-    suspend fun deleteFormTemplate(@PathVariable formTemplateId: String): DocIdentifier {
-        return formTemplateLogic.deleteByIds(listOf(formTemplateId)).firstOrNull()
+    fun deleteFormTemplate(@PathVariable formTemplateId: String) = mono {
+        formTemplateLogic.deleteByIds(listOf(formTemplateId)).firstOrNull()
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form deletion failed")
     }
 
     @ApiOperation(nickname = "updateFormTemplate", value = "Modify a form template with the current user", notes = "Returns an instance of created form template.")
     @PutMapping("/template/{formTemplateId}")
-    suspend fun updateFormTemplate(@PathVariable formTemplateId: String, @RequestBody ft: FormTemplateDto): FormTemplateDto {
+    fun updateFormTemplate(@PathVariable formTemplateId: String, @RequestBody ft: FormTemplateDto) = mono {
         val template = mapper.map(ft, FormTemplate::class.java)
         template.id = formTemplateId
         val formTemplate = formTemplateLogic.modifyFormTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form modification failed")
-        return mapper.map(formTemplate, FormTemplateDto::class.java)
+        mapper.map(formTemplate, FormTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "setAttachmentMulti", value = "Update a form template's layout")
     @PutMapping("/template/{formTemplateId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    suspend fun setAttachmentMulti(@PathVariable formTemplateId: String,
-                                   @RequestPart("attachment") payload: ByteArray): String {
+    fun setAttachmentMulti(@PathVariable formTemplateId: String,
+                                   @RequestPart("attachment") payload: ByteArray) = mono {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate with id $formTemplateId not found")
         formTemplate.layout = payload
-        return formTemplateLogic.modifyFormTemplate(formTemplate)?.rev ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form Template modification failed")
+        formTemplateLogic.modifyFormTemplate(formTemplate)?.rev ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form Template modification failed")
     }
 
     @ApiOperation(nickname = "convertLegacyFormTemplates", value = "Convert legacy format layouts to a list of FormLayout", notes = "Returns the converted layouts.")

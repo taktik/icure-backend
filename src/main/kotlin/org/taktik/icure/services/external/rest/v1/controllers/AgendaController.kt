@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -51,11 +52,11 @@ class AgendaController(private val agendaLogic: AgendaLogic,
 
     @ApiOperation(nickname = "createAgenda", value = "Creates a agenda")
     @PostMapping
-    suspend fun createAgenda(@RequestBody agendaDto: AgendaDto): AgendaDto {
+    fun createAgenda(@RequestBody agendaDto: AgendaDto) = mono {
         val agenda = agendaLogic.createAgenda(mapper.map(agendaDto, Agenda::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda creation failed")
 
-        return mapper.map(agenda, AgendaDto::class.java)
+        mapper.map(agenda, AgendaDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteAgenda", value = "Deletes an agenda")
@@ -66,16 +67,16 @@ class AgendaController(private val agendaLogic: AgendaLogic,
 
     @ApiOperation(nickname = "getAgenda", value = "Gets an agenda")
     @GetMapping("/{agendaId}")
-    suspend fun getAgenda(@PathVariable agendaId: String): AgendaDto {
+    fun getAgenda(@PathVariable agendaId: String) = mono {
         val agenda = agendaLogic.getAgenda(agendaId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda fetching failed")
-        return mapper.map(agenda, AgendaDto::class.java)
+        mapper.map(agenda, AgendaDto::class.java)
     }
 
     @ApiOperation(nickname = "getAgendasForUser", value = "Gets all agendas for user")
     @GetMapping("/byUser")
-    suspend fun getAgendasForUser(@RequestParam userId: String): AgendaDto {
-        return agendaLogic.getAllAgendaForUser(userId).firstOrNull()?.let { mapper.map(it, AgendaDto::class.java) }
+    fun getAgendasForUser(@RequestParam userId: String) = mono {
+        agendaLogic.getAllAgendaForUser(userId).firstOrNull()?.let { mapper.map(it, AgendaDto::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Agendas fetching failed")
     }
 
@@ -90,10 +91,10 @@ class AgendaController(private val agendaLogic: AgendaLogic,
 
     @ApiOperation(nickname = "modifyAgenda", value = "Modifies an agenda")
     @PutMapping
-    suspend fun modifyAgenda(@RequestBody agendaDto: AgendaDto): AgendaDto {
+    fun modifyAgenda(@RequestBody agendaDto: AgendaDto) = mono {
         val agenda = agendaLogic.modifyAgenda(mapper.map(agendaDto, Agenda::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Agenda modification failed")
 
-        return mapper.map(agenda, AgendaDto::class.java)
+        mapper.map(agenda, AgendaDto::class.java)
     }
 }

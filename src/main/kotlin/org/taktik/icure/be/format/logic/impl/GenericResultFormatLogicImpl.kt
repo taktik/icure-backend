@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.be.format.logic.impl
 
+import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.be.format.logic.ResultFormatLogic
@@ -47,7 +49,7 @@ import javax.xml.parsers.ParserConfigurationException
 abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: HealthcarePartyLogic, val formLogic: FormLogic) : ResultFormatLogic {
     protected var uuidGen = UUIDGenerator()
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?) : Flow<DataBuffer> {
         throw UnsupportedOperationException("Not implemented")
     }
 

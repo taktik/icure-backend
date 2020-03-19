@@ -17,8 +17,15 @@
  */
 package org.taktik.icure.be.format.logic.impl
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.reactive.asFlow
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.format.logic.HealthOneLogic
@@ -614,10 +621,12 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
         return pal
     }
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?): Flow<DataBuffer> {
         val pw: PrintWriter
+        val os = ByteArrayOutputStream(10000)
+
         pw = try {
-            PrintWriter(OutputStreamWriter(output, "UTF-8"))
+            PrintWriter(OutputStreamWriter(os, "UTF-8"))
         } catch (e: UnsupportedEncodingException) {
             throw IllegalStateException(e)
         }
@@ -656,9 +665,12 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
             pw.print("L5\\$ref\\DIVER\\\\\\\\\\$line\\\r\n")
         }
         pw.flush()
+
+        return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
     }
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {}
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?) = flowOf<DataBuffer>()
+
     fun splitLine(line: String): Array<String> {
         val m = headerCompiledPrefix.matcher(line)
         return if (m.matches()) {

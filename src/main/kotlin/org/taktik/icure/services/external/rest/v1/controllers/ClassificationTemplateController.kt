@@ -22,8 +22,8 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -35,8 +35,6 @@ import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplateDto
-import org.taktik.icure.services.external.rest.v1.dto.ClassificationTemplatePaginatedList
-import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -54,18 +52,18 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createClassificationTemplate", value = "Create a classification Template with the current user", notes = "Returns an instance of created classification Template.")
     @PostMapping
-    suspend fun createClassificationTemplate(@RequestBody c: ClassificationTemplateDto): ClassificationTemplateDto {
+    fun createClassificationTemplate(@RequestBody c: ClassificationTemplateDto) = mono {
         val element = classificationTemplateLogic.createClassificationTemplate(mapper.map(c, ClassificationTemplate::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification Template creation failed.")
-        return mapper.map(element, ClassificationTemplateDto::class.java)
+        mapper.map(element, ClassificationTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "getClassificationTemplate", value = "Get a classification Template")
     @GetMapping("/{classificationTemplateId}")
-    suspend fun getClassificationTemplate(@PathVariable classificationTemplateId: String): ClassificationTemplateDto {
+    fun getClassificationTemplate(@PathVariable classificationTemplateId: String) = mono {
         val element = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification Template failed. Possible reasons: no such classification Template exists, or server error. Please try again or read the server log.")
-        return mapper.map(element, ClassificationTemplateDto::class.java)
+        mapper.map(element, ClassificationTemplateDto::class.java)
     }
 
     @ApiOperation(nickname = "getClassificationTemplateByIds", value = "Get a list of classifications Templates", notes = "Ids are seperated by a coma")
@@ -94,24 +92,24 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "mosifyClassificationTemplate", value = "Modify a classification Template", notes = "Returns the modified classification Template.")
     @PutMapping
-    suspend fun modifyClassificationTemplate(@RequestBody classificationTemplateDto: ClassificationTemplateDto): ClassificationTemplateDto {
+    fun modifyClassificationTemplate(@RequestBody classificationTemplateDto: ClassificationTemplateDto) = mono {
         //TODO Ne modifier que le label
         classificationTemplateLogic.modifyClassificationTemplate(mapper.map(classificationTemplateDto, ClassificationTemplate::class.java))
         val modifiedClassificationTemplate = classificationTemplateLogic.getClassificationTemplate(classificationTemplateDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification Template modification failed")
-        return mapper.map(modifiedClassificationTemplate, ClassificationTemplateDto::class.java)
+        mapper.map(modifiedClassificationTemplate, ClassificationTemplateDto::class.java)
     }
 
 
     @ApiOperation(nickname = "newDelegations", value = "Delegates a classification Template to a healthcare party", notes = "It delegates a classification Template to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{classificationTemplateId}/delegate")
-    suspend fun newDelegations(@PathVariable classificationTemplateId: String, @RequestBody ds: List<DelegationDto>): ClassificationTemplateDto {
+    fun newDelegations(@PathVariable classificationTemplateId: String, @RequestBody ds: List<DelegationDto>) = mono {
         classificationTemplateLogic.addDelegations(classificationTemplateId, ds.map { mapper.map(it, Delegation::class.java) })
         val classificationTemplateWithDelegation = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
 
         val succeed = classificationTemplateWithDelegation != null && classificationTemplateWithDelegation.delegations != null && classificationTemplateWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            return mapper.map(classificationTemplateWithDelegation, ClassificationTemplateDto::class.java)
+            mapper.map(classificationTemplateWithDelegation, ClassificationTemplateDto::class.java)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for classification Template failed.")
         }
@@ -119,14 +117,14 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "listClassificationTemplates", value = "List all classification templates with pagination", notes = "Returns a list of classification templates.")
     @GetMapping
-    suspend fun listClassificationTemplates(
+    fun listClassificationTemplates(
             @ApiParam(value = "A label") @RequestBody(required = false) startKey: String?,
             @ApiParam(value = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?): PaginatedList<ClassificationTemplateDto> {
+            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         val classificationTemplates = classificationTemplateLogic.listClassificationTemplates(paginationOffset)
-        return classificationTemplates.paginatedList<ClassificationTemplate, ClassificationTemplateDto>(mapper, realLimit)
+        classificationTemplates.paginatedList<ClassificationTemplate, ClassificationTemplateDto>(mapper, realLimit)
     }
 }

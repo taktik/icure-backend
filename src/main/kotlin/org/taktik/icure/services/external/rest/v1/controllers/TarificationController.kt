@@ -120,7 +120,7 @@ class TarificationController(private val mapper: MapperFacade,
     @ApiOperation(nickname = "getTarifications", value = "Get a list of tarifications by ids", notes = "Keys must be delimited by coma")
     @PostMapping("/byIds")
     fun getTarifications(@RequestBody tarificationIds: ListOfIdsDto) =
-            tarificationLogic.get(tarificationIds.ids).map { f -> mapper.map(f, TarificationDto::class.java) }
+            tarificationLogic.get(tarificationIds.ids).map { f -> mapper.map(f, TarificationDto::class.java) }.injectReactorContext()
 
 
     @ApiOperation(nickname = "getTarification", value = "Get a tarification", notes = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")

@@ -18,9 +18,15 @@
 package org.taktik.icure.be.format.logic.impl
 
 import com.google.common.base.Strings
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.FormLogic
@@ -239,10 +245,11 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
         return i
     }
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) : Flow<DataBuffer> {
         val pw: PrintWriter
+        val os = ByteArrayOutputStream(10000)
         pw = try {
-            PrintWriter(OutputStreamWriter(output, "UTF-8"))
+            PrintWriter(OutputStreamWriter(os, "UTF-8"))
         } catch (e: UnsupportedEncodingException) {
             throw IllegalStateException(e)
         }
@@ -316,6 +323,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
             pw.print("#/\r\n")
         }
         pw.flush()
+        return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
     }
 
     private fun computeProtocolCode(name: String, first: String, birth: Long, req: Long, code: String): String {

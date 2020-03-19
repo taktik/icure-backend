@@ -3,6 +3,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.entities.Invoice
@@ -26,10 +27,10 @@ class EfactController(val mapper: MapperFacade,
 
     @ApiOperation(nickname = "createBatchAndMessage", value = "create batch and message")
     @PostMapping("/{insuranceId}/{newMessageId}/{numericalRef}")
-    suspend fun createBatchAndMessage(@PathVariable insuranceId: String,
+    fun createBatchAndMessage(@PathVariable insuranceId: String,
                               @PathVariable newMessageId: String,
                               @PathVariable numericalRef: Long,
-                              @RequestBody ids: MapOfIdsDto): MessageWithBatch? {
+                              @RequestBody ids: MapOfIdsDto) = mono {
         val hcp = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
         val ins = insuranceLogic.getInsurance(insuranceId)
 
@@ -38,7 +39,7 @@ class EfactController(val mapper: MapperFacade,
             invoices[key] = invoiceLogic.getInvoices(value).toList()
         }
 
-        return if (hcp != null && ins != null) {
+        if (hcp != null && ins != null) {
             efactLogic.prepareBatch(newMessageId, numericalRef, hcp, ins, false, invoices)
         }else null
     }

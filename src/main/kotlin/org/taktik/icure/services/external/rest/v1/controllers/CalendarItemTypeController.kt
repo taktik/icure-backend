@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -58,10 +59,10 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
 
     @ApiOperation(nickname = "createCalendarItemType", value = "Creates a calendarItemType")
     @PostMapping
-    suspend fun createCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto): CalendarItemTypeDto {
+    fun createCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
         val calendarItemType = calendarItemTypeLogic.createCalendarItemType(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType creation failed")
-        return mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
+        mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteCalendarItemType", value = "Deletes an calendarItemType")
@@ -72,20 +73,20 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
 
     @ApiOperation(nickname = "getCalendarItemType", value = "Gets an calendarItemType")
     @GetMapping("/{calendarItemTypeId}")
-    suspend fun getCalendarItemType(@PathVariable calendarItemTypeId: String): CalendarItemTypeDto {
+    fun getCalendarItemType(@PathVariable calendarItemTypeId: String) = mono {
         val calendarItemType = calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
 
-        return mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
+        mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
     }
 
 
     @ApiOperation(nickname = "modifyCalendarItemType", value = "Modifies an calendarItemType")
     @PutMapping
-    suspend fun modifyCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto?): CalendarItemTypeDto {
+    fun modifyCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto?) = mono {
         val calendarItemType = calendarItemTypeLogic.modifyCalendarTypeItem(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType modification failed")
 
-        return mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
+        mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
     }
 }

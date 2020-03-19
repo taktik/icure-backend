@@ -29,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Place
 import org.taktik.icure.asynclogic.PlaceLogic
 import org.taktik.icure.services.external.rest.v1.dto.PlaceDto
+import org.taktik.icure.utils.injectReactorContext
 
 @RestController
 @RequestMapping("/rest/v1/place")
@@ -43,7 +44,7 @@ class PlaceController(private val placeLogic: PlaceLogic, private val mapper: Ma
 
     @ApiOperation(nickname = "deletePlace", value = "Deletes an place")
     @DeleteMapping("/{placeIds}")
-    fun deletePlace(@PathVariable placeIds: String) = placeLogic.deletePlace(placeIds.split(','))
+    fun deletePlace(@PathVariable placeIds: String) = placeLogic.deletePlace(placeIds.split(',')).injectReactorContext()
 
     @ApiOperation(nickname = "getPlace", value = "Gets an place")
     @GetMapping("/{placeId}")
@@ -54,7 +55,7 @@ class PlaceController(private val placeLogic: PlaceLogic, private val mapper: Ma
     @ApiOperation(nickname = "getPlaces", value = "Gets all places")
     @GetMapping
     fun getPlaces() =
-            placeLogic.getAllEntities().let { it.map { c -> mapper.map(c, PlaceDto::class.java) } }
+            placeLogic.getAllEntities().let { it.map { c -> mapper.map(c, PlaceDto::class.java) } }.injectReactorContext()
 
     @ApiOperation(nickname = "modifyPlace", value = "Modifies an place")
     @PutMapping

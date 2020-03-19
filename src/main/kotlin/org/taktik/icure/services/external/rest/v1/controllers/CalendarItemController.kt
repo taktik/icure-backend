@@ -22,6 +22,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -54,11 +55,11 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "createCalendarItem", value = "Creates a calendarItem")
     @PostMapping
-    suspend fun createCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
+    fun createCalendarItem(@RequestBody calendarItemDto: CalendarItemDto) = mono {
         val calendarItem = calendarItemLogic.createCalendarItem(mapper.map(calendarItemDto, CalendarItem::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem creation failed")
 
-        return mapper.map(calendarItem, CalendarItemDto::class.java)
+        mapper.map(calendarItem, CalendarItemDto::class.java)
     }
 
     @ApiOperation(nickname = "deleteCalendarItem", value = "Deletes an calendarItem")
@@ -69,21 +70,21 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @ApiOperation(nickname = "getCalendarItem", value = "Gets an calendarItem")
     @GetMapping("/{calendarItemId}")
-    suspend fun getCalendarItem(@PathVariable calendarItemId: String): CalendarItemDto {
+    fun getCalendarItem(@PathVariable calendarItemId: String) = mono {
         val calendarItem = calendarItemLogic.getCalendarItem(calendarItemId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItem fetching failed")
 
-        return mapper.map(calendarItem, CalendarItemDto::class.java)
+        mapper.map(calendarItem, CalendarItemDto::class.java)
     }
 
 
     @ApiOperation(nickname = "modifyCalendarItem", value = "Modifies an calendarItem")
     @PutMapping
-    suspend fun modifyCalendarItem(@RequestBody calendarItemDto: CalendarItemDto): CalendarItemDto {
+    fun modifyCalendarItem(@RequestBody calendarItemDto: CalendarItemDto) = mono {
         val calendarItem = calendarItemLogic.modifyCalendarItem(mapper.map(calendarItemDto, CalendarItem::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItem modification failed")
 
-        return mapper.map(calendarItem, CalendarItemDto::class.java)
+        mapper.map(calendarItem, CalendarItemDto::class.java)
     }
 
 

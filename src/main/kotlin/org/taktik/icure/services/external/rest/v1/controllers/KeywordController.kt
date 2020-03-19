@@ -54,7 +54,7 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
     @ApiOperation(nickname = "getKeywordsByUser", value = "Get keywords by user")
     @GetMapping("/byUser/{userId}")
     fun getKeywordsByUser(@PathVariable userId: String) =
-            keywordLogic.getKeywordsByUser(userId).let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }
+            keywordLogic.getKeywordsByUser(userId).let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }.injectReactorContext()
 
     @ApiOperation(nickname = "getKeywords", value = "Gets all keywords")
     @GetMapping

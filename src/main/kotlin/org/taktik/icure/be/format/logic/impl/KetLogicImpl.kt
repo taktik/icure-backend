@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.be.format.logic.impl
 
+import kotlinx.coroutines.flow.flowOf
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
@@ -109,5 +111,5 @@ class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLo
         return null
     }
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {}
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) = flowOf<DataBuffer>()
 }

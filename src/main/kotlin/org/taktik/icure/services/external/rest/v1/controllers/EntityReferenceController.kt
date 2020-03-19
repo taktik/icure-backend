@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -34,19 +35,19 @@ class EntityReferenceController(private val entityReferenceLogic: EntityReferenc
 
     @ApiOperation(nickname = "getLatest", value = "Find latest reference for a prefix ")
     @GetMapping("/latest/{prefix}")
-    suspend fun getLatest(@PathVariable prefix: String): EntityReference {
-        return entityReferenceLogic.getLatest(prefix)
+    fun getLatest(@PathVariable prefix: String) = mono {
+        entityReferenceLogic.getLatest(prefix)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Failed to fetch Entity Reference")
     }
 
     @ApiOperation(nickname = "createEntityReference", value = "Create an entity reference")
     @PostMapping
-    suspend fun createEntityReference(@RequestBody er: EntityReference): EntityReference {
+    fun createEntityReference(@RequestBody er: EntityReference) = mono {
         val created = try {
             entityReferenceLogic.createEntities(listOf(er))
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference failed.")
         }
-        return created.firstOrNull() ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
+        created.firstOrNull() ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity reference creation failed.")
     }
 }

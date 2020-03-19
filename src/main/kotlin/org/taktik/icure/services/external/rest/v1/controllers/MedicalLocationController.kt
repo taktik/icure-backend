@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -28,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.MedicalLocation
 import org.taktik.icure.asynclogic.MedicalLocationLogic
 import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto
+import org.taktik.icure.utils.injectReactorContext
 
 @RestController
 @RequestMapping("/rest/v1/medicallocation")
@@ -36,29 +38,32 @@ class MedicalLocationController(private val medicalLocationLogic: MedicalLocatio
 
     @ApiOperation(nickname = "createMedicalLocation", value = "Creates a medical location")
     @PostMapping
-    suspend fun createMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) =
-            medicalLocationLogic.createMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
+    fun createMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
+        medicalLocationLogic.createMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
+    }
 
     @ApiOperation(nickname = "deleteMedicalLocation", value = "Deletes a medical location")
     @DeleteMapping("/{locationIds}")
     fun deleteMedicalLocation(@PathVariable locationIds: String) =
-            medicalLocationLogic.deleteMedicalLocations(locationIds.split(','))
+            medicalLocationLogic.deleteMedicalLocations(locationIds.split(',')).injectReactorContext()
 
 
     @ApiOperation(nickname = "getMedicalLocation", response = MedicalLocationDto::class, value = "Gets a medical location")
     @GetMapping("/{locationId}")
-    suspend fun getMedicalLocation(@PathVariable locationId: String) =
-            medicalLocationLogic.getMedicalLocation(locationId)?.let { mapper.map(it, MedicalLocationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
+    fun getMedicalLocation(@PathVariable locationId: String) = mono {
+        medicalLocationLogic.getMedicalLocation(locationId)?.let { mapper.map(it, MedicalLocationDto::class.java) }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
+    }
 
     @ApiOperation(nickname = "getMedicalLocations", value = "Gets all medical locations")
     @GetMapping
-    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> mapper.map(c, MedicalLocationDto::class.java) }
+    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> mapper.map(c, MedicalLocationDto::class.java) }.injectReactorContext()
 
     @ApiOperation(nickname = "modifyMedicalLocation", value = "Modifies a medical location")
     @PutMapping
-    suspend fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) =
-            medicalLocationLogic.modifyMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
+    fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
+        medicalLocationLogic.modifyMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
+    }
 }

@@ -1,24 +1,54 @@
 package org.taktik.icure.config
 
+import com.fasterxml.classmate.ResolvedType
+import com.fasterxml.classmate.TypeResolver
+import com.fasterxml.classmate.types.ResolvedArrayType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.web.method.HandlerMethod
 import org.springframework.web.server.WebSession
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.service.AuthorizationScope
 import springfox.documentation.service.BasicAuth
 import springfox.documentation.service.SecurityReference
-import springfox.documentation.spi.DocumentationType
 import springfox.documentation.service.Tag
+import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
+import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
+
 
 @Configuration
 @EnableSwagger2WebFlux
 class SwaggerConfig {
+    @Bean
+    @Primary
+    fun fluxMethodResolver(resolver: TypeResolver?): HandlerMethodResolver? {
+        return object : HandlerMethodResolver(resolver) {
+            override fun methodReturnType(handlerMethod: HandlerMethod): ResolvedType {
+                var retType = super.methodReturnType(handlerMethod)
+                // we unwrap Mono, Flux, and as a bonus - ResponseEntity
+                while (retType.erasedType == Mono::class.java || retType.erasedType == Flux::class.java || retType.erasedType == ResponseEntity::class.java) {
+                    retType = if (retType.erasedType == Flux::class.java) { // treat it as an array
+                        val type = retType.typeBindings.getBoundType(0)
+                        ResolvedArrayType(type.erasedType, type.typeBindings, type)
+                    } else {
+                        retType.typeBindings.getBoundType(0)
+                    }
+                }
+                return retType
+            }
+        }
+    }
+
     @Bean
     fun api(): Docket {
         val securityReference = SecurityReference.builder()
@@ -65,7 +95,7 @@ class SwaggerConfig {
                         Tag("be_result_import", "API for belgian Result_import service"),
                         Tag("be_result_export", "API for belgian Result_export service")
                 )
-                .select().apis(RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1"))
-                .paths(PathSelectors.none()).build()
+                .select().apis(RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1.controllers"))
+                .paths(PathSelectors.any()).build()
     }
 }

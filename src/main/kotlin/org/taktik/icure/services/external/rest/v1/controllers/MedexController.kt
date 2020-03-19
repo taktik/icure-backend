@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
@@ -38,19 +39,21 @@ class MedexController(private val medexLogic: MedexLogic, private val mapperFaca
 
     @ApiOperation(nickname = "generateMedex", value = "Generate a Medex XML String", produces = MediaType.APPLICATION_XML_VALUE)
     @PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
-    suspend fun generateMedex(@RequestBody infos: MedexInfoDto) = medexLogic.createMedex(
-            mapperFacade.map(infos.author, HealthcareParty::class.java),
-            mapperFacade.map(infos.patient, Patient::class.java),
-            infos.patientLanguage,
-            infos.incapacityType,
-            infos.incapacityReason,
-            infos.outOfHomeAllowed,
-            infos.certificateDate,
-            infos.contentDate,
-            infos.beginDate,
-            infos.endDate,
-            infos.diagnosisICD,
-            infos.diagnosisICPC,
-            infos.diagnosisDescr
-    )
+    fun generateMedex(@RequestBody infos: MedexInfoDto) = mono {
+        medexLogic.createMedex(
+                mapperFacade.map(infos.author, HealthcareParty::class.java),
+                mapperFacade.map(infos.patient, Patient::class.java),
+                infos.patientLanguage,
+                infos.incapacityType,
+                infos.incapacityReason,
+                infos.outOfHomeAllowed,
+                infos.certificateDate,
+                infos.contentDate,
+                infos.beginDate,
+                infos.endDate,
+                infos.diagnosisICD,
+                infos.diagnosisICPC,
+                infos.diagnosisDescr
+        )
+    }
 }

@@ -17,7 +17,7 @@ import java.nio.ByteBuffer
 interface MedicationSchemeLogic {
 
     suspend fun importMedicationSchemeFile(inputData : Flow<ByteBuffer>, author: User, language: String, dest: Patient?, mappings: Map<String, List<ImportMapping>>, saveToDatabase: Boolean): List<ImportResult>
-    suspend fun createMedicationSchemeExport(
+    fun createMedicationSchemeExport(
             patient: Patient,
             sfks: List<String>,
             sender: HealthcareParty,
@@ -27,7 +27,7 @@ interface MedicationSchemeLogic {
             decryptor: AsyncDecrypt?,
             progressor: AsyncProgress?
     ): Flow<DataBuffer>
-    suspend fun createMedicationSchemeExport(
+    fun createMedicationSchemeExport(
             patient: Patient,
             sender: HealthcareParty,
             language: String,
@@ -35,5 +35,5 @@ interface MedicationSchemeLogic {
             version: Int,
             services: List<Service>,
             progressor: AsyncProgress?
-    )
+    ): Flow<DataBuffer>
 }

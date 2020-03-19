@@ -61,13 +61,13 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
 
     @ApiOperation(nickname = "deleteReceipt", value = "Deletes a receipt")
     @DeleteMapping("/{receiptIds}")
-    fun deleteReceipt(@PathVariable receiptIds: String) = with(receiptIds.split(',')) {
+    fun deleteReceipt(@PathVariable receiptIds: String) =
         try {
-            receiptLogic.deleteByIds(this)
+            receiptLogic.deleteByIds(receiptIds.split(',')).injectReactorContext()
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed")
         }
-    }
+
 
     @ApiOperation(nickname = "getAttachment", value = "Get an attachment")
     @GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])

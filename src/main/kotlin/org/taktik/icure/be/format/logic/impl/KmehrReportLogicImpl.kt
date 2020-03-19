@@ -19,7 +19,9 @@
 
 package org.taktik.icure.be.format.logic.impl
 
+import kotlinx.coroutines.flow.Flow
 import org.apache.commons.logging.LogFactory
+import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGEvalues
@@ -58,11 +60,11 @@ import javax.xml.bind.JAXBContext
 class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic, val documentLogic: DocumentLogic, val contactLogic: ContactLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), KmehrReportLogic {
     internal var log = LogFactory.getLog(this.javaClass)
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) : Flow<DataBuffer> {
 		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?) : Flow<DataBuffer> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
