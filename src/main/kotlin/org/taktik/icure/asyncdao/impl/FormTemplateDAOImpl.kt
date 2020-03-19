@@ -57,13 +57,12 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         val formTemplates = client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery<FormTemplate>("by_userId_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
 
         // invoke postLoad()
-        if (loadLayout) {
-            formTemplates.onEach {
+        return if (loadLayout) {
+            formTemplates.map {
                 this.postLoad(dbInstanceUrl, groupId, it)
+                it
             }
-        }
-
-        return formTemplates
+        } else formTemplates
     }
 
     @View(name = "by_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc.guid, null )}")
@@ -72,14 +71,12 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
 
         val formTemplates = client.queryViewIncludeDocsNoValue<String, FormTemplate>(createQuery<FormTemplate>("by_guid").key(guid).includeDocs(true)).map { it.doc }
 
-        // invoke postLoad()
-        if (loadLayout) {
-            formTemplates.onEach {
+        return if (loadLayout) {
+            formTemplates.map {
                 this.postLoad(dbInstanceUrl, groupId, it)
+                it
             }
-        }
-
-        return formTemplates
+        } else formTemplates
     }
 
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
@@ -95,12 +92,12 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
             client.queryViewIncludeDocsNoValue<Array<String>, FormTemplate>(createQuery<FormTemplate>("by_specialty_code_and_guid").startKey(from).endKey(to).includeDocs(true)).map { it.doc }
         }
 
-        // invoke postLoad()
-        formTemplates.onEach {
-            this.postLoad(dbInstanceUrl, groupId, it)
-        }
-
-        return formTemplates
+        return if (loadLayout) {
+            formTemplates.map {
+                this.postLoad(dbInstanceUrl, groupId, it)
+                it
+            }
+        } else formTemplates
     }
 
 

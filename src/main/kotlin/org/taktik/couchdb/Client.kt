@@ -84,16 +84,16 @@ class UnsupportedTask(
 class DatabaseCompactionTask(
         pid: String? = null, val progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null,
         val database: String?,
-        val total_changes: Long,
-        val completed_changes: Long) : ActiveTask(pid, started_on, updated_on)
+        val total_changes: Double?,
+        val completed_changes: Double?) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
 class Indexer(
         pid: String? = null, val progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null,
         val database: String?,
         val design_document: String?,
-        val total_changes: Long,
-        val completedChanges: Long) : ActiveTask(pid, started_on, updated_on)
+        val total_changes: Double?,
+        val completedChanges: Double?) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
 class ReplicationTask(

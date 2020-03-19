@@ -100,14 +100,14 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
 
     override fun findCodeTypes(dbInstanceUrl: URI, groupId: String, region: String?, type: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        return client.queryView<String,String>(
+        return client.queryView<List<String>,String>(
                 createQuery<Code>("by_region_type_code_version")
                         .includeDocs(false)
                         .group(true)
                         .groupLevel(2)
                         .startKey(ComplexKey.of(region, type ?: "", null, null))
                         .endKey(ComplexKey.of(region, if (type == null) ComplexKey.emptyObject() else type + "\ufff0", null, null))
-        ).mapNotNull { it.key }
+        ).mapNotNull { it.key?.get(1) }
     }
 
     @ExperimentalCoroutinesApi
