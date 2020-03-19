@@ -3,6 +3,8 @@ package org.taktik.icure.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
+import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.web.server.WebSession
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.service.AuthorizationScope
@@ -32,6 +34,7 @@ class SwaggerConfig {
                 .securityContexts(securityContexts)
                 .consumes(setOf(MediaType.APPLICATION_JSON_VALUE))
                 .produces(setOf(MediaType.APPLICATION_JSON_VALUE))
+                .ignoredParameterTypes(ServerHttpRequest::class.java, WebSession::class.java)
                 .tags(
                         Tag("accesslog", "Access logs base API"),
                         Tag("code", "Codes CRUD and advanced API"),
@@ -62,6 +65,7 @@ class SwaggerConfig {
                         Tag("be_result_import", "API for belgian Result_import service"),
                         Tag("be_result_export", "API for belgian Result_export service")
                 )
-                .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build()
+                .select().apis(RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1"))
+                .paths(PathSelectors.none()).build()
     }
 }

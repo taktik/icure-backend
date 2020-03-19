@@ -206,7 +206,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
 
     @ApiOperation(nickname = "getHealthcareParties", value = "Get healthcareParties by their IDs", notes = "General information about the healthcare Party")
     @PostMapping("/{groupId}/byIds")
-    fun getHealthcareParties(@PathVariable groupId: String, @RequestBody healthcarePartyIds: ListOfIdsDto) =
+    fun getHealthcarePartiesWithGroupId(@PathVariable groupId: String, @RequestBody healthcarePartyIds: ListOfIdsDto) =
             healthcarePartyLogic.getHealthcareParties(groupId, healthcarePartyIds.ids)
                     .map { mapper.map(it, HealthcarePartyDto::class.java) }
                     .injectReactorContext()
