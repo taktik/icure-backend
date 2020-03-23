@@ -25,10 +25,12 @@ import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.CalendarItem
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.distinctById
 import java.net.URI
@@ -134,5 +136,13 @@ class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispa
         val calendarItemsEnd = this.listCalendarItemByEndDateAndAgendaId(dbInstanceUrl, groupId, startDate, endDate, agendaId)
 
         return flowOf(calendarItems, calendarItemsEnd).flattenConcat().distinctById()
+    }
+
+    @View(name = "by_hcparty_patient", map = "classpath:js/calendarItem/by_hcparty_patient_map.js")
+    override fun findByHcPartyPatient(dbInstanceUri: URI, groupId: String, hcPartyId: String, secretPatientKeys: List<String>): Flow<CalendarItem> {
+        val client = couchDbDispatcher.getClient(dbInstanceUri, groupId)
+        val keys = secretPatientKeys.map { fk -> ComplexKey.of(hcPartyId, fk) }
+        val viewQuery = createQuery<CalendarItem>("by_hcparty_patient").keys(keys).includeDocs(true)
+        return client.queryViewIncludeDocs<Array<String>, String, CalendarItem>(viewQuery).distinctUntilChangedBy { it.id }.map { it.doc }
     }
 }

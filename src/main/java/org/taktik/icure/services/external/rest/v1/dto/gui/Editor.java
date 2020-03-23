@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto.gui;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -129,4 +130,9 @@ public abstract class Editor implements Serializable {
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 	}
+
+	@JsonProperty("key")
+    private String includeDiscriminator() {
+	    return this.getClass().getSimpleName();
+    }
 }

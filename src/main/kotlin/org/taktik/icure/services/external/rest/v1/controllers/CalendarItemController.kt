@@ -18,10 +18,11 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers
 
+import com.google.common.collect.Lists
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
@@ -30,13 +31,21 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.CalendarItemLogic
 import org.taktik.icure.entities.CalendarItem
+import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
+import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
+import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import java.util.*
+import java.util.function.Consumer
 import java.util.stream.Collectors
+import javax.ws.rs.GET
 import javax.ws.rs.POST
 import javax.ws.rs.Path
+import javax.ws.rs.QueryParam
 import javax.ws.rs.core.Response
 
 @ExperimentalCoroutinesApi
@@ -120,6 +129,31 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
         }
         val calendars = calendarItemLogic.getCalendarItemByIds(calendarItemIds.ids)
         return calendars.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
+    }
+
+    @ApiOperation(value = "Find CalendarItems by hcparty and patient", response = CalendarItemDto::class, responseContainer = "Array", httpMethod = "GET", notes = "")
+    @GetMapping("/byHcPartySecretForeignKeys")
+    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,@RequestParam secretFKeys: String): Flux<CalendarItemDto> {
+        val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
+        val elementList = calendarItemLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
+
+        return elementList.map { mapper.map(it, CalendarItemDto::class.java) }.injectReactorContext()
+    }
+
+    @ApiOperation(value = "Update delegations in calendarItems", httpMethod = "POST")
+    @POST
+    @Path("/delegations")
+    @Throws(Exception::class)
+    fun setCalendarItemsDelegations(stubs: List<IcureStubDto>) = flow {
+        val calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.stream().map { obj: IcureStubDto -> obj.id }.collect(Collectors.toList()))
+        calendarItems.onEach { calendarItem: CalendarItem ->
+            stubs.stream().filter { s: IcureStubDto -> s.id == calendarItem.id }.findFirst().ifPresent { stub: IcureStubDto ->
+                stub.delegations.forEach { (s: String?, delegationDtos: List<DelegationDto?>) -> calendarItem.delegations[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
+                stub.encryptionKeys.forEach { (s: String?, delegationDtos: Set<DelegationDto?>) -> calendarItem.encryptionKeys[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
+                stub.cryptedForeignKeys.forEach { (s: String?, delegationDtos: List<DelegationDto?>) -> calendarItem.cryptedForeignKeys[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
+            }
+        }
+        emitAll(calendarItemLogic.updateEntities(calendarItems.toList()))
     }
 
 }

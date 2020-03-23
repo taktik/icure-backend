@@ -120,12 +120,13 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         }
     }
 
-    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate) {
-        super.afterSave(dbInstanceUrl, groupId, entity)
-
-        if (entity.isAttachmentDirty && entity.layout != null && entity.layoutAttachmentId != null) {
-            entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId, entity.rev, "application/json", flowOf(ByteBuffer.wrap(entity.layout)))
-            entity.isAttachmentDirty = false
+    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate): FormTemplate {
+        return super.afterSave(dbInstanceUrl, groupId, entity).let {entity ->
+            if (entity.isAttachmentDirty && entity.layout != null && entity.layoutAttachmentId != null) {
+                entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId, entity.rev, "application/json", flowOf(ByteBuffer.wrap(entity.layout)))
+                entity.isAttachmentDirty = false
+            }
+            entity
         }
     }
 

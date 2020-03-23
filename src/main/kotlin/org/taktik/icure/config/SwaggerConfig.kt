@@ -6,6 +6,7 @@ import com.fasterxml.classmate.types.ResolvedArrayType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
+import org.springframework.core.annotation.Order
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -15,14 +16,14 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
-import springfox.documentation.service.AuthorizationScope
-import springfox.documentation.service.BasicAuth
-import springfox.documentation.service.SecurityReference
-import springfox.documentation.service.Tag
+import springfox.documentation.service.*
 import springfox.documentation.spi.DocumentationType
+import springfox.documentation.spi.service.ParameterBuilderPlugin
+import springfox.documentation.spi.service.contexts.ParameterContext
 import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver
+import springfox.documentation.swagger.common.SwaggerPluginSupport
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
 
 
@@ -31,22 +32,29 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
 class SwaggerConfig {
     @Bean
     @Primary
-    fun fluxMethodResolver(resolver: TypeResolver?): HandlerMethodResolver? {
-        return object : HandlerMethodResolver(resolver) {
-            override fun methodReturnType(handlerMethod: HandlerMethod): ResolvedType {
-                var retType = super.methodReturnType(handlerMethod)
-                // we unwrap Mono, Flux, and as a bonus - ResponseEntity
-                while (retType.erasedType == Mono::class.java || retType.erasedType == Flux::class.java || retType.erasedType == ResponseEntity::class.java) {
-                    retType = if (retType.erasedType == Flux::class.java) { // treat it as an array
-                        val type = retType.typeBindings.getBoundType(0)
-                        ResolvedArrayType(type.erasedType, type.typeBindings, type)
-                    } else {
-                        retType.typeBindings.getBoundType(0)
-                    }
+    fun fluxMethodResolver(resolver: TypeResolver?) = object : HandlerMethodResolver(resolver) {
+        override fun methodReturnType(handlerMethod: HandlerMethod): ResolvedType {
+            var retType = super.methodReturnType(handlerMethod)
+            // we unwrap Mono, Flux, and as a bonus - ResponseEntity
+            while (retType.erasedType == Mono::class.java || retType.erasedType == Flux::class.java || retType.erasedType == ResponseEntity::class.java) {
+                retType = if (retType.erasedType == Flux::class.java) { // treat it as an array
+                    val type = retType.typeBindings.getBoundType(0)
+                    ResolvedArrayType(type.erasedType, type.typeBindings, type)
+                } else {
+                    retType.typeBindings.getBoundType(0)
                 }
-                return retType
             }
+            return retType
         }
+    }
+
+    @Bean
+    @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
+    fun customParameterBuilderPlugin() = object : ParameterBuilderPlugin {
+        override fun apply(parameterContext: ParameterContext) {
+            parameterContext.parameterBuilder().order(parameterContext.resolvedMethodParameter().parameterIndex)
+        }
+        override fun supports(delimiter: DocumentationType) = true
     }
 
     @Bean
@@ -60,6 +68,7 @@ class SwaggerConfig {
 
         val auth = listOf(BasicAuth("basicAuth"))
         return Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(ApiInfo("iCure Cloud API Documentation", "", "1.0", "", Contact("Antoine Duchâteau", "", ""), "", "", listOf()))
                 .securitySchemes(auth)
                 .securityContexts(securityContexts)
                 .consumes(setOf(MediaType.APPLICATION_JSON_VALUE))

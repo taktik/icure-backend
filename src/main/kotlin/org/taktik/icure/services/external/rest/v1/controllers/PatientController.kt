@@ -242,12 +242,12 @@ class PatientController(
     @PostMapping("/filter")
     fun filterBy(
             @ApiParam(value = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
+            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
             @ApiParam(value = "Skip rows") @RequestParam(required = false) skip: Int?,
-            @ApiParam(value = "Sort key") @RequestParam(required = false) sort: String,
+            @ApiParam(value = "Sort key") @RequestParam(required = false) sort: String?,
             @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
-            @RequestBody(required = false) filterChain: FilterChain?) = mono {
+            @RequestBody filterChain: FilterChain) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { ArrayList(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it)) }

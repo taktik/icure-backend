@@ -74,19 +74,20 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
         }
     }
 
-    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document) {
-        super.afterSave(dbInstanceUrl, groupId, entity)
-
-        if (entity.isAttachmentDirty) {
-            if (entity.attachment != null && entity.attachmentId != null) {
-                val uti = UTI.get(entity.mainUti)
-                var mimeType = "application/xml"
-                if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
-                    mimeType = uti.mimeTypes[0]
+    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document) : Document {
+        return super.afterSave(dbInstanceUrl, groupId, entity).let { entity ->
+            if (entity.isAttachmentDirty) {
+                if (entity.attachment != null && entity.attachmentId != null) {
+                    val uti = UTI.get(entity.mainUti)
+                    var mimeType = "application/xml"
+                    if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
+                        mimeType = uti.mimeTypes[0]
+                    }
+                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
+                    entity.isAttachmentDirty = false
                 }
-                entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
-                entity.isAttachmentDirty = false
             }
+            entity
         }
     }
 

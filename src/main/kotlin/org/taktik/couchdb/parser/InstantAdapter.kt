@@ -12,13 +12,13 @@ internal class InstantAdapter {
 
 
     @FromJson
-    fun fromJson(instant: String): Instant {
+    fun fromJson(instant: Long): Instant {
         return getInstant(BigDecimal(instant))
     }
 
     @ToJson
-    fun toJson(instant: Instant): String {
-        return getBigDecimal(instant).toString()
+    fun toJson(instant: Instant) : Long {
+        return getBigDecimal(instant).toLong()
     }
 
     private fun getBigDecimal(value: Instant): BigDecimal {

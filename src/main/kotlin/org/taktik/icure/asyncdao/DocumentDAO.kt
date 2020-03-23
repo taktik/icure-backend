@@ -11,7 +11,7 @@ import java.util.ArrayList
 interface DocumentDAO: GenericDAO<Document> {
     suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document)
 
-    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document)
+    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document) : Document
 
     fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Document>
 

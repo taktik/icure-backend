@@ -32,7 +32,6 @@ import org.taktik.icure.utils.InstantSerializer;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

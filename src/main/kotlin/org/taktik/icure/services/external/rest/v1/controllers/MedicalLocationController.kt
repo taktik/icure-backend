@@ -32,8 +32,8 @@ import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto
 import org.taktik.icure.utils.injectReactorContext
 
 @RestController
-@RequestMapping("/rest/v1/medicallocation")
-@Api(tags = ["medicallocation"])
+@RequestMapping("/rest/v1/medicalLocation")
+@Api(tags = ["medicalLocation"])
 class MedicalLocationController(private val medicalLocationLogic: MedicalLocationLogic, private val mapper: MapperFacade) {
 
     @ApiOperation(nickname = "createMedicalLocation", value = "Creates a medical location")

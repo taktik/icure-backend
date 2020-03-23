@@ -28,6 +28,7 @@ import org.taktik.icure.asyncdao.CalendarItemDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.CalendarItemLogic
 import org.taktik.icure.entities.CalendarItem
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.exceptions.DeletionException
 
 @ExperimentalCoroutinesApi
@@ -61,6 +62,11 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
     override fun getCalendarItemByPeriodAndAgendaId(startDate: Long, endDate: Long, agendaId: String): Flow<CalendarItem> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(calendarItemDAO.listCalendarItemByPeriodAndAgendaId(dbInstanceUri, groupId, startDate, endDate, agendaId))
+    }
+
+    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: List<String>) = flow {
+            val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+            emitAll(calendarItemDAO.findByHcPartyPatient(dbInstanceUri, groupId, hcPartyId, secretPatientKeys))
     }
 
     override fun getCalendarItemByIds(ids: List<String>): Flow<CalendarItem> = flow {

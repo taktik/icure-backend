@@ -178,20 +178,17 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
             }
         }
 
-        if (newEntity) {
+        return if (newEntity) {
             client.create(entity, entityClass)
         } else {
             client.update(entity, entityClass)
             //saveRevHistory(entity, null);
-        }
-        afterSave(dbInstanceUrl, groupId, entity)
-
-        return entity
+        }.let { afterSave(dbInstanceUrl, groupId, it) }
     }
 
     protected open suspend fun beforeSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
-    protected open suspend fun afterSave(dbInstanceUrl:URI, groupId:String, entity: T) {}
+    protected open suspend fun afterSave(dbInstanceUrl:URI, groupId:String, entity: T): T { return entity }
 
     protected fun beforeDelete(dbInstanceUrl:URI, groupId:String, entity: T) {}
 
@@ -356,7 +353,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         if (conflicts.isNotEmpty()) {
             throw BulkUpdateConflictException(conflicts, orderedEntities)
         }
-        emitAll(results.asFlow().mapNotNull { r -> updatedEntities.firstOrNull { u -> r.id == u.id } ?: entities.firstOrNull { u -> r.id == u.id } }.onEach { afterSave(dbInstanceUrl, groupId, it) })
+        emitAll(results.asFlow().mapNotNull { r -> (updatedEntities.firstOrNull { u -> r.id == u.id } ?: entities.firstOrNull { u -> r.id == u.id })?.also { it.rev = r.rev } }.map { afterSave(dbInstanceUrl, groupId, it) })
     }
 
     override suspend fun forceInitStandardDesignDocument(dbInstanceUrl: URI, groupId: String) {

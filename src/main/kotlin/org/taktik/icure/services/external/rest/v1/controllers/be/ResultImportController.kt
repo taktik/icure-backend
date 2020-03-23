@@ -69,7 +69,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                  @RequestParam protocolIds: String,
                  @RequestParam formIds: String,
                  @RequestParam planOfActionId: String,
-                 @RequestParam enckeys: String, ctc: ContactDto) = mono {
+                 @RequestParam enckeys: String, @RequestBody ctc: ContactDto) = mono {
         val doc = documentLogic.get(documentId)
         mapper.map(doc?.let {
             multiFormatLogic.doImport(

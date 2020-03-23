@@ -17,6 +17,6 @@ interface DocumentTemplateDAO: GenericDAO<DocumentTemplate> {
 
     suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate)
 
-    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate)
+    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate): DocumentTemplate
     suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate?)
 }

@@ -58,7 +58,7 @@ class WebConfig : WebFluxConfigurer {
 
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
         configurer.defaultCodecs().jackson2JsonEncoder(Jackson2JsonEncoder(ObjectMapper().apply { setSerializationInclusion(JsonInclude.Include.NON_NULL) }))
-        configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder(ObjectMapper()))
+        configurer.defaultCodecs().jackson2JsonDecoder(Jackson2JsonDecoder().apply { maxInMemorySize = 8*1024*1024 })
     }
 
     @Bean

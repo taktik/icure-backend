@@ -18,6 +18,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.handlers.JacksonFilterDeserializer

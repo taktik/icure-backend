@@ -237,7 +237,7 @@ class FormController(private val mapper: MapperFacade,
     }
 
     @ApiOperation(nickname = "updateFormTemplate", value = "Modify a form template with the current user", notes = "Returns an instance of created form template.")
-    @PutMapping("/template/{formTemplateId}")
+    @PutMapping("/template/{formTemplateId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun updateFormTemplate(@PathVariable formTemplateId: String, @RequestBody ft: FormTemplateDto) = mono {
         val template = mapper.map(ft, FormTemplate::class.java)
         template.id = formTemplateId

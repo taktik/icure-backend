@@ -15,7 +15,7 @@ interface FormTemplateDAO: GenericDAO<FormTemplate> {
 
     suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate)
 
-    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate)
+    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate) : FormTemplate
 
     suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: FormTemplate?)
 }
