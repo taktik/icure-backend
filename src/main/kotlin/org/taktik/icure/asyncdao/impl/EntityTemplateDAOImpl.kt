@@ -61,7 +61,7 @@ class EntityTemplateDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDis
         val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
-        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<Array<String>, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView<ComplexKey, EntityTemplate>(viewQuery)
+        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView<ComplexKey, EntityTemplate>(viewQuery)
         return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
     }
 

@@ -15,6 +15,7 @@ import org.eclipse.jetty.client.util.StringContentProvider
 import org.eclipse.jetty.http.HttpHeader
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.http.HttpStatus
+import org.ektorp.ComplexKey
 import org.ektorp.ViewQuery
 import org.ektorp.ViewResultException
 import org.ektorp.http.URI
@@ -28,6 +29,7 @@ import org.taktik.jetty.getResponseBytesFlow
 import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
 import java.io.IOException
+import java.lang.IllegalStateException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.math.BigDecimal
@@ -142,6 +144,31 @@ class ActiveTaskAdapterFactory : JsonAdapter.Factory {
                         adapters[at.javaClass]?.let {
                             (it as JsonAdapter<ActiveTask>).toJson(writer, at)
                         }
+                    } ?: writer.nullValue()
+                }
+            }
+        }
+    }
+}
+
+class ComplexKeyAdapterFactory : JsonAdapter.Factory {
+    override fun create(type: Type, annotations: MutableSet<out Annotation>, moshi: Moshi): JsonAdapter<*>? {
+        return if (Types.getRawType(type) != ComplexKey::class.java || !annotations.isEmpty()) {
+            null
+        } else {
+            object : JsonAdapter<ComplexKey>() {
+                override fun fromJson(reader: JsonReader): ComplexKey {
+                    val jsonList = reader.readJsonValue() as? List<*> ?: throw IllegalStateException("Invalid complex key format detected during deserialisation")
+                    return ComplexKey.of(*jsonList.map { it?.let { moshi.adapter(it.javaClass).fromJsonValue(it)} }.toTypedArray())
+                }
+
+                override fun toJson(writer: JsonWriter, value: ComplexKey?) {
+                    value?.let { ck ->
+                        writer.beginArray()
+                        ck.components.forEach {
+                            it?.let { moshi.adapter(it.javaClass).toJson(writer, it) } ?: writer.nullValue()
+                        }
+                        writer.endArray()
                     } ?: writer.nullValue()
                 }
             }
@@ -281,6 +308,7 @@ class ClientImpl(private val httpClient: HttpClient,
                  private val username: String,
                  private val password: String,
                  private val moshi: Moshi = Moshi.Builder()
+                         .add(ComplexKeyAdapterFactory())
                          .add(ActiveTaskAdapterFactory())
                          .add(KotlinJsonAdapterFactory())
                          .add(Boolean::class.java, object : JsonAdapter<Boolean>() {
