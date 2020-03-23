@@ -49,6 +49,7 @@ import org.taktik.icure.logic.InsuranceLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
@@ -164,10 +165,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 		val startIndex = folder.transactions.size
 
-		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
-			it.idOpeningContact
-		}
-
         // in PMF, we only want the last version, older versions are removed from servicesByContactId
         servicesByContactId = contacts.map { con ->
             con.id to con.services.toList().map { svc ->
@@ -176,7 +173,18 @@ class SoftwareMedicalFileExport : KmehrExport() {
             }
         }.toMap()
 
-		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+
+        var nonConfidentialHealthItems = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config))
+        val toBeDecryptedHcElements = nonConfidentialHealthItems
+
+        if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
+            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
+            nonConfidentialHealthItems = nonConfidentialHealthItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
+        }
+
+        hesByContactId = nonConfidentialHealthItems.groupBy {it.idOpeningContact }
+
+		val hesByHeIdSortedByDate = nonConfidentialHealthItems.groupBy {
 			it.healthElementId
 		}.mapValues {
 			it.value.sortedWith(compareBy({ it.created },{ it.modified })) // created is the key, but use modified for backward compat
@@ -313,6 +321,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 						services.forEach { svc ->
 							var forSeparateTransaction = false
+                            var isIncapacity = false
 
                             // documents are in separate transaction in *MF
 							svc.content.values.find{ it.documentId != null }?.let {
@@ -330,7 +339,33 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 forSeparateTransaction = true
                             }
 
-							if(!forSeparateTransaction) {
+                            svc.tags.find {
+                                (it.type == "CD-ITEM" && it.code == "incapacity")
+                            }?.let {
+                                isIncapacity = true
+                            }
+
+                            if (isIncapacity) {
+                                var hasIncapacityTag = false
+                                var hasIncapacityReasonTag = false
+
+                                svc.tags.find {
+                                    (it.type == "CD-INCAPACITY")
+                                }?.let {
+                                    hasIncapacityTag = true
+                                }
+
+                                svc.tags.find {
+                                    (it.type == "CD-INCAPACITYREASON")
+                                }?.let {
+                                    hasIncapacityReasonTag = true
+                                }
+
+                                if (hasIncapacityTag && hasIncapacityReasonTag) {
+                                    trn.headingsAndItemsAndTexts.add(makeIncapacityItemFromService(svc))
+                                }
+                            }
+							else if(!forSeparateTransaction) {
 
 								var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
 								val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
@@ -516,7 +551,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
             folder.transactions.add( TransactionType().apply {
                 ids.add(idKmehr(startIndex))
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = svc.id })
-                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
+                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content["fr"]?.stringValue })
                 (svc.modified ?: svc.created) ?.let {
                     date = makeXGC(it)
                     time = makeXGC(it, unsetMillis = true)
@@ -641,6 +676,55 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			recorddatetime = Utils.makeXGC(form.modified, true)
 		}
 	}
+
+    private fun makeIncapacityItemFromService(service: Service, index: Number = 0): ItemType
+    {
+        val tagsMap = service.tags.groupBy({ it.type }, { it })
+
+        val content = ContentType().apply {
+            incapacity = IncapacityType().apply {
+                tagsMap["CD-INCAPACITY"]?.map {
+                    CDINCAPACITY().apply {
+                        value = CDINCAPACITYvalues.fromValue(it.code)
+                    }
+                }?.let {
+                    cds.addAll(
+                            it
+                    )
+                }
+                incapacityreason = IncapacityreasonType().apply {
+                    cd = CDINCAPACITYREASON().apply {
+                        val reasonValue = tagsMap["CD-INCAPACITYREASON"]?.first()?.code
+                        value = CDINCAPACITYREASONvalues.fromValue(reasonValue)
+                    }
+                }
+                isOutofhomeallowed = service.content?.let {
+                    (it["outing"] ?: it.values.firstOrNull())?.booleanValue
+                }
+            }
+        }
+
+        return ItemType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = service.id })
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
+
+            this.contents.add(content)
+            lifecycle = LifecycleType().apply {
+                cd = CDLIFECYCLE().apply {
+                    value = CDLIFECYCLEvalues.ACTIVE
+                }
+            }
+            isIsrelevant = true
+            beginmoment = Utils.makeMomentTypeFromFuzzyLong(service.content?.let {
+                (it["startDate"] ?: it.values.firstOrNull())?.fuzzyDateValue
+            } ?: 0)
+            endmoment = Utils.makeMomentTypeFromFuzzyLong(service.content?.let {
+                (it["endDate"] ?: it.values.firstOrNull())?.fuzzyDateValue
+            } ?: 0)
+            recorddatetime = Utils.makeXGC(service.modified, true)
+        }
+    }
 
 
 	private fun makeEncounterDateTime(index: Int, yyyymmddhhmmss: Long): ItemType {
