@@ -151,7 +151,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
     override fun listCodeIdsByQualifiedLinkId(linkType: String, linkedId: String?) = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        codeDAO.listCodeIdsByQualifiedLinkId(dbInstanceUri, groupId, linkType, linkedId)
+        emitAll(codeDAO.listCodeIdsByQualifiedLinkId(dbInstanceUri, groupId, linkType, linkedId))
     }
 
 

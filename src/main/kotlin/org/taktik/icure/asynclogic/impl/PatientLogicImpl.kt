@@ -242,24 +242,34 @@ class PatientLogicImpl(
     override fun findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(healthcarePartyId: String, offset: PaginationOffset<List<String>>, searchString: String?, sorting: Sorting) = flow<ViewQueryResultEvent> {
         val descending = "desc" == sorting.direction
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        if (searchString == null || searchString.isEmpty()) {
-            if ("ssin" == sorting.field) {
-                patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
-            } else if ("dateOfBirth" == sorting.field) {
-                patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, null, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
-            } else {
-                patientDAO.findPatientsOfHcPartyAndName(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
-            }
-        } else {
-            if (FuzzyValues.isSsin(searchString)) {
-                patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, searchString, healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
-            } else if (FuzzyValues.isDate(searchString)) {
-                patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, FuzzyValues.toYYYYMMDD(searchString),
-                        FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
-            } else {
-                findOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending)
-            }
-        }
+        emitAll(
+                if (searchString == null || searchString.isEmpty()) {
+                    when (sorting.field) {
+                        "ssin" -> {
+                            patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
+                        }
+                        "dateOfBirth" -> {
+                            patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, null, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
+                        }
+                        else -> {
+                            patientDAO.findPatientsOfHcPartyAndName(dbInstanceUri, groupId, null, healthcarePartyId, offset.toComplexKeyPaginationOffset(), descending)
+                        }
+                    }
+                } else {
+                    when {
+                        FuzzyValues.isSsin(searchString) -> {
+                            patientDAO.findPatientsOfHcPartyAndSsin(dbInstanceUri, groupId, searchString, healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
+                        }
+                        FuzzyValues.isDate(searchString) -> {
+                            patientDAO.findPatientsOfHcPartyDateOfBirth(dbInstanceUri, groupId, FuzzyValues.toYYYYMMDD(searchString),
+                                    FuzzyValues.getMaxRangeOf(searchString), healthcarePartyId, offset.toComplexKeyPaginationOffset(), false)
+                        }
+                        else -> {
+                            findOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, offset, descending)
+                        }
+                    }
+                }
+        )
     }
 
     override fun findByHcPartyAndSsin(ssin: String?, healthcarePartyId: String, paginationOffset: PaginationOffset<List<String>>) = flow<ViewQueryResultEvent> {
