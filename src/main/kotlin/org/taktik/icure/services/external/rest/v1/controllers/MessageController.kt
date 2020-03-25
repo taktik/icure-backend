@@ -25,28 +25,37 @@ import io.swagger.annotations.ApiOperation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.MessageLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.asynclogic.MessageLogic
-import org.taktik.icure.asynclogic.SessionLogic
-import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v1.dto.MessageDto
+import org.taktik.icure.services.external.rest.v1.dto.MessagePaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.MessagesReadStatusUpdate
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
-import java.util.*
 import kotlin.streams.toList
 
 
@@ -88,7 +97,8 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                     } catch (e: java.lang.Exception) {
                         throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message).also { logger.error(it.message) }
                     }
-                } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Messages deletion failed").also { logger.error(it.message) }
+                }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Messages deletion failed").also { logger.error(it.message) }
 
     }
 
@@ -126,14 +136,12 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @GetMapping
     fun findMessages(@RequestParam(required = false) startKey: String?,
                      @RequestParam(required = false) startDocumentId: String?,
-                     @RequestParam(required = false) limit: Int?): MessagePaginatedList {
+                     @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit+1)
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
 
-        return messageLogic.findForCurrentHcParty(paginationOffset)?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
-                        .also { logger.error(it.message) }
+        MessagePaginatedList(messageLogic.findForCurrentHcParty(paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @ApiOperation(nickname = "getChildren", value = "Get children messages of provided message")
@@ -157,76 +165,74 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @ApiOperation(nickname = "findMessagesByTransportGuid", value = "Get all messages (paginated) for current HC Party and provided transportGuid")
     @GetMapping("/byTransportGuid")
-    suspend fun findMessagesByTransportGuid(
+    fun findMessagesByTransportGuid(
             @RequestParam(required = false) transportGuid: String?,
             @RequestParam(required = false) received: Boolean?,
             @RequestParam(required = false) startKey: String?,
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
-            @RequestParam(required = false) hcpId: String?): PaginatedList<MessageDto> {
+            @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit+1)
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         val messages = received?.takeIf { it }?.let { messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
                 ?: messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset)
-        return messages.paginatedList<Message, MessageDto>(mapper, realLimit)
+        MessagePaginatedList(messages.paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @ApiOperation(nickname = "findMessagesByTransportGuidSentDate", value = "Get all messages starting by a prefix between two date")
     @GetMapping("/byTransportGuidSentDate")
-    suspend fun findMessagesByTransportGuidSentDate(
+    fun findMessagesByTransportGuidSentDate(
             @RequestParam(required = false) transportGuid: String,
             @RequestParam(required = false, value = "from") fromDate: Long,
             @RequestParam(required = false, value = "to") toDate: Long,
             @RequestParam(required = false) startKey: String?,
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
-            @RequestParam(required = false) hcpId: String?): PaginatedList<MessageDto> {
+            @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
-        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit+1)
-        return messageLogic.findByTransportGuidSentDate(
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
+        MessagePaginatedList(messageLogic.findByTransportGuidSentDate(
                 hcpId ?: sessionLogic.getCurrentHealthcarePartyId(),
                 transportGuid,
                 fromDate,
                 toDate,
                 paginationOffset
-        ).paginatedList<Message, MessageDto>(mapper, realLimit)
+        ).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
 
     @ApiOperation(nickname = "findMessagesByToAddress", value = "Get all messages (paginated) for current HC Party and provided to address")
     @GetMapping("/byToAddress")
-    suspend fun findMessagesByToAddress(
+    fun findMessagesByToAddress(
             @RequestParam(required = false) toAddress: String,
             @RequestParam(required = false) startKey: String?,
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) reverse: Boolean?,
-            @RequestParam(required = false) hcpId: String?): MessagePaginatedList {
+            @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
-        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit+1)
+        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        return messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse)?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
+        MessagePaginatedList(messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @ApiOperation(nickname = "findMessagesByFromAddress", value = "Get all messages (paginated) for current HC Party and provided from address")
     @GetMapping("/byFromAddress")
-    suspend fun findMessagesByFromAddress(
+    fun findMessagesByFromAddress(
             @RequestParam(required = false) fromAddress: String,
             @RequestParam(required = false) startKey: String?,
             @RequestParam(required = false) startDocumentId: String?,
             @RequestParam(required = false) limit: Int?,
-            @RequestParam(required = false) hcpId: String?): MessagePaginatedList {
+            @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
-        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit+1)
+        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        return messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset)?.let { mapper.map(it, MessagePaginatedList::class.java) }
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message listing failed")
+        MessagePaginatedList(messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @ApiOperation(nickname = "modifyMessage", value = "Updates a message")

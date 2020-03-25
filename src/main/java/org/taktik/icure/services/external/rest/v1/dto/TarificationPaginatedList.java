@@ -21,6 +21,14 @@ package org.taktik.icure.services.external.rest.v1.dto;
 import java.util.List;
 
 public class TarificationPaginatedList extends PaginatedList<TarificationDto> {
+
+    public TarificationPaginatedList(PaginatedList<TarificationDto> plist) {
+        this.setPageSize(plist.getPageSize());
+        this.setTotalSize(plist.getTotalSize());
+        this.setRows(plist.getRows());
+        this.setNextKeyPair(plist.getNextKeyPair());
+    }
+
     @Override
     public List<TarificationDto> getRows() {
         return super.getRows();
