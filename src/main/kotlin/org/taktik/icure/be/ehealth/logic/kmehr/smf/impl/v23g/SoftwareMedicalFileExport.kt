@@ -382,7 +382,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 									makeContent(it.key, it.value)?.let { c ->
 										listOf(c.apply {
 											if (svcCdItem == null && texts.size > 0) {
-												texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                if(svc.label != null) {
+                                                    texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                }
 											}
 										})
 									} ?: emptyList()
@@ -510,7 +512,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     makeContent(it.key, it.value)?.let { c ->
                         listOf(c.apply {
                             if (svcCdItem == null && texts.size > 0) {
-                                texts.first().value = "${svc.label}: ${texts.first().value}"
+                                if(svc.label != null) {
+                                    texts.first().value = "${svc.label}: ${texts.first().value}"
+                                }
                             }
                         })
                     } ?: emptyList()
@@ -842,20 +846,21 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	private fun codesToKmehr(codes: Set<CodeStub>): ContentType {
 		return ContentType().apply {
 			cds.addAll(codes.map { code ->
-				when (code.type) {
-					"ICPC" -> CDCONTENT().apply { s = CDCONTENTschemes.ICPC; sv = code.version; value = code.code }
-					"ICD" -> CDCONTENT().apply { s = CDCONTENTschemes.ICD; sv = code.version; value = code.code }
-					"CD-ATC" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_ATC; sv = code.version; value = code.code }
-					"CD-PATIENTWILL" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_PATIENTWILL; sv = code.version; value = code.code }
-					"BE-THESAURUS" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_CLINICAL; sv = code.version; value = code.code } // FIXME: no spec for version can be found regarding thesaurus
-					"BE-THESAURUS-PROCEDURES" -> CDCONTENT().apply {
+				when  {
+                    code.type == "ICPC" -> CDCONTENT().apply { s = CDCONTENTschemes.ICPC; sv = code.version; value = code.code }
+					code.type =="ICD" -> CDCONTENT().apply { s = CDCONTENTschemes.ICD; sv = code.version; value = code.code }
+					code.type =="CD-ATC" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_ATC; sv = code.version; value = code.code }
+					code.type =="CD-PATIENTWILL" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_PATIENTWILL; sv = code.version; value = code.code }
+					code.type =="BE-THESAURUS" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_CLINICAL; sv = code.version; value = code.code } // FIXME: no spec for version can be found regarding thesaurus
+					code.type =="BE-THESAURUS-PROCEDURES" -> CDCONTENT().apply {
                         // FIXME: this is specific to pricare and icure, what format should we use ?
 						s = CDCONTENTschemes.LOCAL
 						sl = "BE-THESAURUS-PROCEDURES"
 						sv = code.version
 						value = "${code.code}"
 					}
-					"CD-VACCINEINDICATION" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_VACCINEINDICATION; sv = code.version; value = code.code }
+					code.type =="CD-VACCINEINDICATION" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_VACCINEINDICATION; sv = code.version; value = code.code }
+                    code.type.startsWith("MS-EXTRADATA") -> CDCONTENT().apply { s = CDCONTENTschemes.LOCAL; sv = code.version; sl = code.type; dn = code.type; value = code.code }
 					else -> CDCONTENT().apply {
 						s = CDCONTENTschemes.LOCAL
 						sl = "ICURE.MEDICALCODEID"
