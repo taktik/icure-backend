@@ -22,6 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
@@ -34,6 +35,7 @@ import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.exceptions.DocumentNotFoundException
@@ -92,6 +94,45 @@ class HealthcarePartyLogicImpl(
         } catch (e: Exception) {
             log.error(e.message, e)
             throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
+        }
+    }
+
+    override fun deleteHealthcareParties(groupId: String, healthcarePartyIds: List<String>) = flow {
+        val group = getDestinationGroup(groupId)
+
+        try {
+            emitAll(healthcarePartyDAO.remove(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, healthcarePartyDAO.getList(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), groupId, healthcarePartyIds).toList()))
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            throw DeletionException("The healthcare party (" + healthcarePartyIds + ") not found or " + e.message, e)
+        }
+    }
+
+    override suspend fun createHealthcareParty(groupId: String, healthcareParty: HealthcareParty): HealthcareParty? {
+        val group = getDestinationGroup(groupId)
+        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
+            throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
+        }
+        try {
+            if (healthcareParty.id == null) {
+                val newId = uuidGenerator.newGUID().toString()
+                healthcareParty.id = newId
+            }
+            return getGenericDAO().create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, listOf(healthcareParty)).firstOrNull()
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid healthcare party", e)
+        }
+    }
+
+    override suspend fun modifyHealthcareParty(groupId: String, healthcareParty: HealthcareParty): HealthcareParty? {
+        val group = getDestinationGroup(groupId)
+        if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
+            throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")
+        }
+        return try {
+            healthcarePartyDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, listOf(healthcareParty)).firstOrNull()
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid healthcare party", e)
         }
     }
 
@@ -167,15 +208,8 @@ class HealthcarePartyLogicImpl(
     }
 
     override fun getHealthcareParties(groupId: String, ids: List<String>) = flow {
-        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
-        val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
-        val group = groupLogic.getGroup(groupId)
-
-        if (group?.superGroup != userGroupId) {
-            throw IllegalAccessException("You are not allowed to access this group database")
-        }
-
-        emitAll(healthcarePartyDAO.getList(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), groupId, ids))
+        val group = getDestinationGroup(groupId)
+        emitAll(healthcarePartyDAO.getList(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, ids))
     }
 
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {
@@ -215,6 +249,19 @@ class HealthcarePartyLogicImpl(
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
     }
+
+    protected suspend fun getDestinationGroup(groupId: String): Group {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId
+                ?: throw IllegalAccessException("Invalid user, no group")
+        val group = groupLogic.getGroup(groupId)
+
+        if (group?.superGroup != userGroupId) {
+            throw IllegalAccessException("You are not allowed to access this group database")
+        }
+        return group
+    }
+
 
     companion object {
         private val log = LoggerFactory.getLogger(HealthcarePartyLogicImpl::class.java)

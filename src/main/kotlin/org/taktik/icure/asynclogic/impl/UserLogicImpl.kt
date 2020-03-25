@@ -77,7 +77,7 @@ class UserLogicImpl(
 
     override suspend fun getUser(id: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, true).also { fillGroup(it) } //TODO MB : bypassCache because we need the rev for the test, maybe false when done with tests
+        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, false).also { fillGroup(it) }
     }
 
     private suspend fun fillGroup(user: User): User =
@@ -86,6 +86,11 @@ class UserLogicImpl(
     override suspend fun getUserByEmail(email: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return userDAO.findByEmail(dbInstanceUri, groupId, email).singleOrNull()?.also { fillGroup(it) }
+    }
+
+    suspend fun getUserByEmail(groupId: String, email: String): User? {
+        val group = getDestinationGroup(groupId)
+        return userDAO.findByEmail(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, email).singleOrNull()?.also { fillGroup(it) }
     }
 
     override fun findByHcpartyId(hcpartyId: String): Flow<String> = flow {
@@ -146,6 +151,13 @@ class UserLogicImpl(
     override suspend fun deleteUser(userId: String) {
         val user = getUser(userId)
         user?.let { deleteUser(it) }
+    }
+
+    override suspend fun deleteUser(groupId: String, userId: String) {
+        val group = getDestinationGroup(groupId)
+        userDAO.remove(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id,
+                userDAO.getUserOnUserDb(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, userId, false)
+        )
     }
 
     override suspend fun undeleteUser(userId: String) {
@@ -243,6 +255,24 @@ class UserLogicImpl(
         }
     }
 
+    override suspend fun createUser(groupId: String, user: User): User? {
+        val group = getDestinationGroup(groupId)
+
+        if (user.login != null || user.email == null) {
+            throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
+        }
+        try { // check whether user exists
+            val userByEmail = getUserByEmail(groupId, user.email)
+            userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
+            user.id = user.id ?: uuidGenerator.newGUID().toString()
+            user.createdDate = Instant.now()
+            user.login = user.email
+            return createEntities(group, setOf(user)).firstOrNull()
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid User", e)
+        }
+    }
+
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
         val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
@@ -252,6 +282,17 @@ class UserLogicImpl(
                 user.passwordHash = encodePassword(user.passwordHash)
             }
             userDAO.create(dbInstanceUri, groupId, user)?.also { emit(it) }
+        }
+    }
+
+    private fun createEntities(group: Group, users: Collection<User>): Flow<User> = flow {
+        val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
+        for (user in users) {
+            fillDefaultProperties(user)
+            if (user.passwordHash != null && !user.passwordHash.matches(regex)) {
+                user.passwordHash = encodePassword(user.passwordHash)
+            }
+            userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, user)?.also { emit(it) }
         }
     }
 
@@ -368,8 +409,16 @@ class UserLogicImpl(
         }
         // Save user
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        userDAO.save(dbInstanceUri, groupId, modifiedUser)
-        return getUser(modifiedUser.id)
+        return userDAO.save(dbInstanceUri, groupId, modifiedUser)
+    }
+
+    override suspend fun modifyUser(groupId: String, modifiedUser: User): User? {
+        if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
+            modifiedUser.passwordHash = encodePassword(modifiedUser.passwordHash)
+        }
+
+        val group = getDestinationGroup(groupId)
+        return userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, modifiedUser)
     }
 
     override suspend fun addPermissions(userId: String, permissions: Set<Permission>) {
@@ -541,15 +590,8 @@ class UserLogicImpl(
     }
 
     override fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>) = flow {
-        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
-        val userGroupId = getUserOnFallbackDb(groupUserId)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
-        val group = groupLogic.getGroup(groupId)
-
-        if (group?.superGroup != userGroupId) {
-            throw IllegalAccessException("You are not allowed to access this group database")
-        }
-
-        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), groupId, paginationOffset))
+        val group = getDestinationGroup(groupId)
+        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, paginationOffset))
     }
 
     override suspend fun setProperties(user: User, properties: List<Property>): User? {
@@ -620,5 +662,18 @@ class UserLogicImpl(
     override fun getGenericDAO(): GenericDAO<User> {
         return userDAO
     }
+
+    protected suspend fun getDestinationGroup(groupId: String): Group {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId
+                ?: throw IllegalAccessException("Invalid user, no group")
+        val group = groupLogic.getGroup(groupId)
+
+        if (group?.superGroup != userGroupId) {
+            throw IllegalAccessException("You are not allowed to access this group database")
+        }
+        return group
+    }
+
 
 }

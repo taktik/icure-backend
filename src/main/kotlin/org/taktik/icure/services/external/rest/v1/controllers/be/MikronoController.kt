@@ -18,8 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.tags.Tag
+import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
@@ -49,7 +49,7 @@ import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/be_mikrono")
-@Api(tags = ["be_mikrono"])
+@Tag(name = "bemikrono")
 class MikronoController(private val mapper: MapperFacade,
                         private val mikronoLogic: MikronoLogic,
                         private val patientLogic: PatientLogic,
@@ -58,7 +58,7 @@ class MikronoController(private val mapper: MapperFacade,
 
     private val uuidGenerator = UUIDGenerator()
 
-    @ApiOperation(nickname = "setUserCredentials", value = "Set credentials for provided user")
+    @Operation(summary = "Set credentials for provided user")
     @PutMapping("/user/{userId}/credentials")
     fun setUserCredentials(@PathVariable userId: String,
                            @RequestBody(required = false) credentials: MikronoCredentialsDto?) = mono {
@@ -104,7 +104,7 @@ class MikronoController(private val mapper: MapperFacade,
         }
     }
 
-    @ApiOperation(nickname = "register", value = "Set credentials for provided user")
+    @Operation(summary = "Set credentials for provided user")
     @PutMapping("/user/{userId}/register")
     fun register(@PathVariable userId: String,
                  @RequestBody credentials: MikronoCredentialsDto) = mono {
@@ -153,7 +153,7 @@ class MikronoController(private val mapper: MapperFacade,
 
     }
 
-    @ApiOperation(nickname = "sendMessage", value = "Send message using mikrono from logged user")
+    @Operation(summary = "Send message using mikrono from logged user")
     @PostMapping("/sendMessage")
     fun sendMessage(@RequestBody message: EmailOrSmsMessageDto) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
@@ -169,13 +169,13 @@ class MikronoController(private val mapper: MapperFacade,
         }
     }
 
-    @ApiOperation(nickname = "notify", value = "Notify of an appointment change")
+    @Operation(summary = "Notify of an appointment change")
     @GetMapping("/notify/{appointmentId}/{action}")
     fun notify(@PathVariable appointmentId: String,
                @PathVariable action: String) {
     }
 
-    @ApiOperation(nickname = "appointmentsByDate", value = "Get appointments for patient")
+    @Operation(summary = "Get appointments for patient")
     @GetMapping("/appointments/byDate/{calendarDate}")
     fun appointmentsByDate(@PathVariable calendarDate: Long) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
@@ -188,7 +188,7 @@ class MikronoController(private val mapper: MapperFacade,
         } else listOf()
     }
 
-    @ApiOperation(nickname = "appointmentsByPatient", value = "Get appointments for patient")
+    @Operation(summary = "Get appointments for patient")
     @GetMapping("/appointments/byPatient/{patientId}")
     fun appointmentsByPatient(@PathVariable patientId: String,
                               @RequestParam(required = false) from: Long?,
@@ -203,7 +203,7 @@ class MikronoController(private val mapper: MapperFacade,
         } else listOf()
     }
 
-    @ApiOperation(nickname = "createAppointments", value = "Create appointments for owner")
+    @Operation(summary = "Create appointments for owner")
     @PostMapping("/appointments")
     fun createAppointments(@RequestBody appointments: List<AppointmentImportDto>) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()

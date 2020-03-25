@@ -197,11 +197,9 @@ dependencies {
 	compile group:'org.jboss.aerogear', name:'aerogear-otp-java', version:'1.0.0'
 
 	// Swagger
-	compile('io.springfox:springfox-swagger2:3.0.0-SNAPSHOT') {
-		// Temporary fix for the NumberFormatException bug (see https://github.com/springfox/springfox/issues/2265)
-		exclude module: 'swagger-annotations'
-		exclude module: 'swagger-models'
-	}
+    compile "org.springdoc:springdoc-openapi-webflux-ui:1.3.0"
+    compile "org.springdoc:springdoc-openapi-kotlin:1.3.0"
+
 	compile "io.swagger:swagger-annotations:1.5.21"
 	compile "io.swagger:swagger-models:1.5.21"
 	compile 'io.springfox:springfox-spring-webflux:3.0.0-SNAPSHOT'

@@ -3,6 +3,10 @@ package org.taktik.icure.config
 import com.fasterxml.classmate.ResolvedType
 import com.fasterxml.classmate.TypeResolver
 import com.fasterxml.classmate.types.ResolvedArrayType
+import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -16,20 +20,19 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
-import springfox.documentation.service.*
 import springfox.documentation.spi.DocumentationType
+import springfox.documentation.spi.service.OperationBuilderPlugin
 import springfox.documentation.spi.service.ParameterBuilderPlugin
+import springfox.documentation.spi.service.contexts.OperationContext
 import springfox.documentation.spi.service.contexts.ParameterContext
 import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver
-import springfox.documentation.swagger.common.SwaggerPluginSupport
-import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
 
 
 @Configuration
-@EnableSwagger2WebFlux
 class SwaggerConfig {
+    /*
     @Bean
     @Primary
     fun fluxMethodResolver(resolver: TypeResolver?) = object : HandlerMethodResolver(resolver) {
@@ -104,7 +107,26 @@ class SwaggerConfig {
                         Tag("be_result_import", "API for belgian Result_import service"),
                         Tag("be_result_export", "API for belgian Result_export service")
                 )
-                .select().apis(RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1.controllers"))
+                .select().apis(
+                        RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1.controllers.be")
+                                .or(RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1.controllers.core"))
+                                .or(RequestHandlerSelectors.basePackage("org.taktik.icure.services.external.rest.v1.controllers.support"))
+                )
                 .paths(PathSelectors.any()).build()
     }
+    */
+
+    @Bean
+    fun springShopOpenAPI(): OpenAPI? {
+        return OpenAPI()
+                .components(Components()
+                        .addSecuritySchemes("basicScheme", SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP).scheme("basic")))
+                .info(Info().title("iCure Cloud API Documentation")
+                .description("Spring shop sample application")
+                .version("v0.0.1"));
+    }
+
+
+
 }

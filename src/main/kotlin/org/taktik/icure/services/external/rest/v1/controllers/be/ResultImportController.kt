@@ -18,8 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.tags.Tag
+import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.lang3.StringUtils.isBlank
@@ -32,19 +32,19 @@ import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto
 
 @RestController
 @RequestMapping("/rest/v1/be_result_import")
-@Api(tags = ["be_result_import"])
+@Tag(name = "beresultimport")
 class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                              private val documentLogic: DocumentLogic,
                              private val mapper: MapperFacade) {
 
-    @ApiOperation(nickname = "canHandle", value = "Can we handle this document")
+    @Operation(summary = "Can we handle this document")
     @GetMapping("/canhandle/{id}")
     fun canHandle(@PathVariable id: String,
                   @RequestParam enckeys: String) = mono {
         documentLogic.get(id)?.let { multiFormatLogic.canHandle(it, if (isBlank(enckeys)) null else enckeys.split(',')) }
     }
 
-    @ApiOperation(nickname = "getInfos", value = "Extract general infos from document")
+    @Operation(summary = "Extract general infos from document")
     @GetMapping("/infos/{id}")
     fun getInfos(@PathVariable id: String,
                  @RequestParam(required = false) full: Boolean?,
@@ -61,7 +61,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
         }
     }
 
-    @ApiOperation(nickname = "doImport", value = "import document")
+    @Operation(summary = "import document")
     @GetMapping("/import/{documentId}/{hcpId}/{language}")
     fun doImport(@PathVariable documentId: String,
                  @PathVariable hcpId: String,

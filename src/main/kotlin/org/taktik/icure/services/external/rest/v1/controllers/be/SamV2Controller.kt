@@ -1,8 +1,8 @@
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import com.google.gson.Gson
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.tags.Tag
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.annotations.ApiParam
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
@@ -26,12 +26,12 @@ import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/be_samv2")
-@Api(tags = ["be_samv2"])
+@Tag(name = "besamv2")
 class SamV2Controller(val mapper: MapperFacade,
                       val samV2Logic: SamV2Logic) {
     private val DEFAULT_LIMIT = 1000
 
-    @ApiOperation(nickname = "findPaginatedAmpsByLabel", value = "Finding AMPs by label with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding AMPs by label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp")
     fun findPaginatedAmpsByLabel(
             @ApiParam(value = "language") @RequestParam(required = false) language: String?,
@@ -46,7 +46,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findAmpsByLabel(language, label, paginationOffset).paginatedList<Amp, AmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedVmpsByLabel", value = "Finding VMPs by label with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding VMPs by label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmp")
     fun findPaginatedVmpsByLabel(
             @ApiParam(value = "language") @RequestParam(required = false) language: String?,
@@ -63,7 +63,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findVmpsByLabel(language, label, paginationOffset).paginatedList<Vmp, VmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedVmpsByGroupCode", value = "Finding VMPs by group with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding VMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmp/byGroupCode/{vmpgCode}")
     fun findPaginatedVmpsByGroupCode(
             @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpgCode: String,
@@ -78,7 +78,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findVmpsByGroupCode(vmpgCode, paginationOffset).paginatedList<Vmp, VmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedVmpsByGroupId", value = "Finding VMPs by group with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding VMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmp/byGroupId/{vmpgId}")
     fun findPaginatedVmpsByGroupId(
             @ApiParam(value = "vmpgId", required = true) @PathVariable vmpgId: String,
@@ -93,7 +93,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findVmpsByGroupId(vmpgId, paginationOffset).paginatedList<Vmp, VmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedAmpsByGroupCode", value = "Finding AMPs by group with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding AMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byGroupCode/{vmpgCode}")
     fun findPaginatedAmpsByGroupCode(
             @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpgCode: String,
@@ -108,7 +108,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findAmpsByVmpGroupCode(vmpgCode, paginationOffset).paginatedList<Amp, AmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedAmpsByGroupId", value = "Finding AMPs by group with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding AMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byGroupId/{vmpgId}")
     fun findPaginatedAmpsByGroupId(
             @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpgId: String,
@@ -123,7 +123,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findAmpsByVmpGroupId(vmpgId, paginationOffset).paginatedList<Amp, AmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedAmpsByVmpCode", value = "Finding AMPs by vmp code with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding AMPs by vmp code with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byVmpCode/{vmpCode}")
     fun findPaginatedAmpsByVmpCode(
             @ApiParam(value = "vmpCode", required = true) @PathVariable vmpCode: String,
@@ -138,7 +138,7 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findAmpsByVmpCode(vmpCode, paginationOffset).paginatedList<Amp, AmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(nickname = "findPaginatedAmpsByVmpId", value = "Finding AMPs by vmp id with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding AMPs by vmp id with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byVmpId/{vmpId}")
     fun findPaginatedAmpsByVmpId(
             @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpId: String,
@@ -153,14 +153,14 @@ class SamV2Controller(val mapper: MapperFacade,
         samV2Logic.findAmpsByVmpId(vmpId, paginationOffset).paginatedList<Amp, AmpDto>(mapper, realLimit)
     }
 
-    @ApiOperation(value = "Finding AMPs by dmpp code", responseContainer = "Array", response = AmpDto::class, httpMethod = "GET", notes = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding AMPs by dmpp code", description = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byDmppCode/{dmppCode}")
     fun findAmpsByDmppCode(
             @ApiParam(value = "dmppCode", required = true) @PathVariable dmppCode: String
     ) = samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) }.injectReactorContext()
 
 
-    @ApiOperation(nickname = "findPaginatedVmpGroupsByLabel", value = "Finding codes by code, type and version with pagination.", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmpgroup")
     fun findPaginatedVmpGroupsByLabel(
             @ApiParam(value = "language") @RequestParam(required = false) language: String?,

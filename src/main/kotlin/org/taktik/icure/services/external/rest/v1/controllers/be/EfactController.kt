@@ -1,7 +1,7 @@
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.v3.oas.annotations.tags.Tag
+import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.*
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.services.external.rest.v1.dto.MapOfIdsDto
-import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
 import java.util.*
 
 
 @RestController
 @RequestMapping("/rest/v1/be_efact")
-@Api(tags = ["be_efact"])
+@Tag(name = "beefact")
 class EfactController(val mapper: MapperFacade,
                       val efactLogic: EfactLogic,
                       val sessionLogic: AsyncSessionLogic,
@@ -25,7 +24,7 @@ class EfactController(val mapper: MapperFacade,
                       val documentLogic: DocumentLogic,
                       val insuranceLogic: InsuranceLogic) {
 
-    @ApiOperation(nickname = "createBatchAndMessage", value = "create batch and message")
+    @Operation(summary = "create batch and message")
     @PostMapping("/{insuranceId}/{newMessageId}/{numericalRef}")
     fun createBatchAndMessage(@PathVariable insuranceId: String,
                               @PathVariable newMessageId: String,

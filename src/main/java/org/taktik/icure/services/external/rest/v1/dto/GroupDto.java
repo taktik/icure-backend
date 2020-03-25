@@ -18,11 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.entities.base.ICureDocument;
 import org.taktik.icure.entities.base.StoredDocument;
 
 import java.io.Serializable;
 
-public class GroupDto extends StoredDocument implements Cloneable, Serializable {
+public class GroupDto extends IcureDto {
 	String name;
 	String password;
     public boolean superAdmin;

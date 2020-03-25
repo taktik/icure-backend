@@ -19,9 +19,9 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
@@ -64,7 +64,7 @@ import javax.servlet.http.HttpServletResponse
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/be_kmehr")
-@Api(tags = ["be_kmehr"])
+@Tag(name = "bekmehr")
 class KmehrController(
         val mapper: MapperFacade,
         val sessionLogic: AsyncSessionLogic,
@@ -81,7 +81,7 @@ class KmehrController(
     @Value("\${icure.version}")
     internal val ICUREVERSION: String = "4.0.0"
 
-    @ApiOperation(nickname = "generateDiaryNote", value = "Generate diarynote")
+    @Operation(summary = "Generate diarynote")
     @PostMapping("/diarynote/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateDiaryNote(@PathVariable patientId: String,
                                   @RequestParam language: String,
@@ -106,7 +106,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "generateSumehr", value = "Generate sumehr")
+    @Operation(summary = "Generate sumehr")
     @PostMapping("/sumehr/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateSumehr(@PathVariable patientId: String,
                                @RequestParam language: String,
@@ -127,7 +127,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "validateSumehr", value = "Validate sumehr")
+    @Operation(summary = "Validate sumehr")
     @PostMapping("/sumehr/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun validateSumehr(@PathVariable patientId: String,
                                @RequestParam language: String,
@@ -150,7 +150,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "getSumehrContent", value = "Get sumehr elements")
+    @Operation(summary = "Get sumehr elements")
     @PostMapping("/sumehr/{patientId}/content")
     fun getSumehrContent(@PathVariable patientId: String,
                                  @RequestBody info: SumehrExportInfoDto) = mono {
@@ -163,7 +163,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "getSumehrMd5", value = "Check sumehr signature")
+    @Operation(summary = "Check sumehr signature")
     @PostMapping("/sumehr/{patientId}/md5")
     fun getSumehrMd5(@PathVariable patientId: String,
                              @RequestBody info: SumehrExportInfoDto) = mono {
@@ -173,14 +173,14 @@ class KmehrController(
         })
     }
 
-    @ApiOperation(nickname = "isSumehrValid", value = "Get sumehr validity")
+    @Operation(summary = "Get sumehr validity")
     @PostMapping("/sumehr/{patientId}/valid")
     fun isSumehrValid(@PathVariable patientId: String,
                               @RequestBody info: SumehrExportInfoDto) = mono {
         SumehrValidityDto(patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) })
     }
 
-    @ApiOperation(nickname = "generateSumehrV2", value = "Generate sumehr")
+    @Operation(summary = "Generate sumehr")
     @PostMapping("/sumehrv2/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateSumehrV2(@PathVariable patientId: String,
                                  @RequestParam language: String,
@@ -201,7 +201,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "validateSumehrV2", value = "Validate sumehr")
+    @Operation(summary = "Validate sumehr")
     @PostMapping("/sumehrv2/{patientId}/validate", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun validateSumehrV2(@PathVariable patientId: String,
                                  @RequestParam language: String,
@@ -223,7 +223,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "getSumehrV2Content", value = "Get sumehr elements")
+    @Operation(summary = "Get sumehr elements")
     @PostMapping("/sumehrv2/{patientId}/content")
     fun getSumehrV2Content(@PathVariable patientId: String,
                                    @RequestBody info: SumehrExportInfoDto) = mono {
@@ -237,7 +237,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "getSumehrV2Md5", value = "Check sumehr signature")
+    @Operation(summary = "Check sumehr signature")
     @PostMapping("/sumehrv2/{patientId}/md5")
     fun getSumehrV2Md5(@PathVariable patientId: String,
                                @RequestBody info: SumehrExportInfoDto) = mono {
@@ -247,7 +247,7 @@ class KmehrController(
         })
     }
 
-    @ApiOperation(nickname = "isSumehrV2Valid", value = "Get sumehr validity")
+    @Operation(summary = "Get sumehr validity")
     @PostMapping("/sumehrv2/{patientId}/valid")
     fun isSumehrV2Valid(@PathVariable patientId: String,
                                 @RequestBody info: SumehrExportInfoDto) = mono {
@@ -259,7 +259,7 @@ class KmehrController(
                 ?.let { SumehrStatus.valueOf(it) })
     }
 
-    @ApiOperation(nickname = "generateSmfExport", value = "Get SMF (Software Medical File) export")
+    @Operation(summary = "Get SMF (Software Medical File) export")
     @PostMapping("/smf/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateSmfExport(@PathVariable patientId: String,
                                   @RequestParam(required = false) language: String?,
@@ -282,7 +282,7 @@ class KmehrController(
                 }
     }
 
-    @ApiOperation(nickname = "generateMedicationSchemeExport", value = "Get Medicationscheme export")
+    @Operation(summary = "Get Medicationscheme export")
     @PostMapping("/medicationscheme/{patientId}/export", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateMedicationSchemeExport(@PathVariable patientId: String,
                                                @RequestParam(required = false) language: String?,
@@ -306,7 +306,7 @@ class KmehrController(
         }
     }
 
-    @ApiOperation(nickname = "generateContactreportExport", value = "Get Kmehr contactreport")
+    @Operation(summary = "Get Kmehr contactreport")
     @PostMapping("/contactreport/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateContactreportExport(@PathVariable patientId: String,
                                             @PathVariable id: String,
@@ -323,7 +323,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "contactreport", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "generateLabresultExport", value = "Get Kmehr labresult")
+    @Operation(summary = "Get Kmehr labresult")
     @PostMapping("/labresult/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateLabresultExport(@PathVariable patientId: String,
                                         @PathVariable id: String,
@@ -341,7 +341,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "labresult", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "generateNoteExport", value = "Get Kmehr note")
+    @Operation(summary = "Get Kmehr note")
     @PostMapping("/note/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateNoteExport(@PathVariable patientId: String,
                                    @PathVariable id: String,
@@ -358,7 +358,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "note", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "generatePrescriptionExport", value = "Get Kmehr prescription")
+    @Operation(summary = "Get Kmehr prescription")
     @PostMapping("/prescription/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generatePrescriptionExport(@PathVariable patientId: String,
                                            @PathVariable id: String,
@@ -375,7 +375,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "prescription", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "generateReportExport", value = "Get Kmehr report")
+    @Operation(summary = "Get Kmehr report")
     @PostMapping("/report/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateReportExport(@PathVariable patientId: String,
                                      @PathVariable id: String,
@@ -392,7 +392,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "report", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "generateRequestExport", value = "Get Kmehr request")
+    @Operation(summary = "Get Kmehr request")
     @PostMapping("/request/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateRequestExport(@PathVariable patientId: String,
                                       @PathVariable id: String,
@@ -409,7 +409,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "request", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "generateResultExport", value = "Get Kmehr result")
+    @Operation(summary = "Get Kmehr result")
     @PostMapping("/result/{patientId}/export/{id}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun generateResultExport(@PathVariable patientId: String,
                                      @PathVariable id: String,
@@ -427,7 +427,7 @@ class KmehrController(
         userHealthCareParty?.let { patient?.let { it1 -> DefaultDataBufferFactory().join(kmehrNoteLogic.createNote(id, it, date, recipientNihii, recipientFirstName, recipientLastName, it1, language, "result", mimeType, document).toList()).asByteBuffer() } }
     }
 
-    @ApiOperation(nickname = "importSmf", value = "Import SMF into patient(s) using existing document")
+    @Operation(summary = "Import SMF into patient(s) using existing document")
     @PostMapping("/smf/{documentId}/import")
     fun importSmf(@PathVariable documentId: String,
                           @RequestParam(required = false) documentKey: String?,
@@ -448,7 +448,7 @@ class KmehrController(
         }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
-    @ApiOperation(nickname = "checkIfSMFPatientsExists", value = "Check whether patients in SMF already exists in DB")
+    @Operation(summary = "Check whether patients in SMF already exists in DB")
     @PostMapping("/smf/{documentId}/checkIfSMFPatientsExists")
     fun checkIfSMFPatientsExists(@PathVariable documentId: String,
                                          @RequestParam(required = false) documentKey: String?,
@@ -471,7 +471,7 @@ class KmehrController(
         }?.map { mapper.map(it, CheckSMFPatientResult::class.java) }
     }
 
-    @ApiOperation(nickname = "importSumehr", value = "Import sumehr into patient(s) using existing document")
+    @Operation(summary = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/import")
     fun importSumehr(@PathVariable documentId: String,
                              @RequestParam(required = false) documentKey: String?,
@@ -497,7 +497,7 @@ class KmehrController(
         }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
-    @ApiOperation(nickname = "importSumehrByItemId", value = "Import sumehr into patient(s) using existing document")
+    @Operation(summary = "Import sumehr into patient(s) using existing document")
     @PostMapping("/sumehr/{documentId}/importbyitemid")
     fun importSumehrByItemId(@PathVariable documentId: String,
                                      @RequestParam(required = false) documentKey: String?,
@@ -524,7 +524,7 @@ class KmehrController(
         }?.map { mapper.map(it, ImportResultDto::class.java) }
     }
 
-    @ApiOperation(nickname = "importMedicationScheme", value = "Import MedicationScheme into patient(s) using existing document")
+    @Operation(summary = "Import MedicationScheme into patient(s) using existing document")
     @PostMapping("/medicationscheme/{documentId}/import")
     fun importMedicationScheme(@PathVariable documentId: String,
                                        @RequestParam(required = false) documentKey: String?,
