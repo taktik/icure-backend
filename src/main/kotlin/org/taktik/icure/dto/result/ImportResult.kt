@@ -1,5 +1,7 @@
 package org.taktik.icure.dto.result
 
+
+import org.taktik.icure.dto.message.Attachment
 import org.taktik.icure.entities.*
 import java.util.LinkedList
 
@@ -11,7 +13,8 @@ class ImportResult(
     val errors:LinkedList<String> = LinkedList(),
     val forms:LinkedList<Form> = LinkedList(),
     val hcps:LinkedList<HealthcareParty> = LinkedList(),
-    val documents:LinkedList<Document> = LinkedList()
+    val documents:LinkedList<Document> = LinkedList(),
+    val attachments: HashMap<String, Attachment> = HashMap()
                   ) {
     fun warning(w:String): ImportResult {
         warnings.add(w)
