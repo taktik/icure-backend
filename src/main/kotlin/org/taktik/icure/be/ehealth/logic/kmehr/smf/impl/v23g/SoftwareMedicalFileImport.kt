@@ -924,7 +924,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         (it.s == CDCONTENTschemes.LOCAL && it.sl == "BE-THESAURUS-PROCEDURES")
                     }.map { CodeStub(it.sl, it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.CD_CLINICAL)
-                    }.map { CodeStub("BE-THESAURUS", it.value, it.sv) }
+                    }.map { CodeStub("BE-THESAURUS", it.value, it.sv) } + it.cds.filter {
+                        (it.s == CDCONTENTschemes.LOCAL && it.sl.startsWith("MS-EXTRADATA"))
+                    }.map { CodeStub(it.sl, it.value, it.sv) }
                 }).toSet()
     }
 
