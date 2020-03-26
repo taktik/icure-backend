@@ -534,15 +534,22 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
     private fun makeNursePrescriptionTransaction(contact: Service): TransactionType {
-        val mf : MustacheFactory = DefaultMustacheFactory()
-        val m : Mustache = mf.compile("NursePrescription.mustache")
+        val data = renderNursePrescription(contact)
+        return makeSpecialPrescriptionTransaction(contact, data, "nursing")
+    }
+
+    private fun renderNursePrescription(contact: Service): ByteArray {
+        // TODO: not working yet, template and mapping need to be done
+
+        val mf: MustacheFactory = DefaultMustacheFactory()
+        val m: Mustache = mf.compile("NursePrescription.mustache")
         val writer = StringWriter()
 
-        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+        val lang = "fr" // FIXME: hardcoded "fr"
         val servkeys = mapOf(
-                "Communication par courrier"         to "contactMailPreference",
-                "Communication par téléphone"        to "contactPhonePreference",
-                "Communication autre"                to "contactOtherDetails" // NOTE: contactOtherPreference bit is not really relevant since text is filled
+                "Communication par courrier" to "contactMailPreference",
+                "Communication par téléphone" to "contactPhonePreference",
+                "Communication autre" to "contactOtherDetails" // NOTE: contactOtherPreference bit is not really relevant since text is filled
         )
 
         val keyserv = emptyMap<String, String>()
@@ -557,21 +564,28 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
         m.execute(writer, dat)
 
-        val html : String = writer.toString()
+        val html: String = writer.toString()
         println(html)
-        val data =  html.toByteArray()
-        return transactionType(contact, data, "nursing")
+        val data = html.toByteArray()
+        return data
     }
 
     private fun makeKinePrescriptionTransaction(contact: Service, healthcareParty: HealthcareParty, patient: Patient): TransactionType {
-        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+        val data = renderKinePrescription(contact, patient, healthcareParty)
+        return makeSpecialPrescriptionTransaction(contact, data, "physiotherapy")
+    }
+
+    private fun renderKinePrescription(contact: Service, patient: Patient, healthcareParty: HealthcareParty): ByteArray {
+        // TODO: not working yet, template and mapping need to be done
+
+        val lang = "fr" // FIXME: hardcoded "fr"
 
         fun getCompoundValueContent(label: String) = contact.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
         val instantFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 .withZone(ZoneId.of("GMT+1"))
 
-        val mf : MustacheFactory = DefaultMustacheFactory()
-        val m : Mustache = mf.compile("KinePrescription.mustache")
+        val mf: MustacheFactory = DefaultMustacheFactory()
+        val m: Mustache = mf.compile("KinePrescription.mustache")
         val writer = StringWriter()
 
         val kineMap = mutableMapOf<String, String?>()
@@ -602,14 +616,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
         m.execute(writer, prescriptionMapping)
 
-        val html : String = writer.toString()
+        val html: String = writer.toString()
         println(html)
-        val data =  html.toByteArray()
-
-        return transactionType(contact, data, "physiotherapy")
+        val data = html.toByteArray()
+        return data
     }
 
-    private fun transactionType(contact: Service, data: ByteArray, transactionType: String): TransactionType {
+    private fun makeSpecialPrescriptionTransaction(contact: Service, data: ByteArray, transactionType: String): TransactionType {
         return TransactionType().apply {
 
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
@@ -656,11 +669,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     (contact?.tags?.find { it.type == "CD-INCAPACITY" } ?: contact?.tags?.find { it.type == "CD-INCAPACITY-EXT" })?.let {incapacityTag ->
                         cds.add(
                                 CDINCAPACITY().apply {
-                                    value = try {
-                                        CDINCAPACITYvalues.fromValue(incapacityTag.code)
-                                    } catch(e : Exception) {
-                                        CDINCAPACITYvalues.fromValue("other") // TODO other not existing here ?
-                                    }
+                                    value = CDINCAPACITYvalues.fromValue(incapacityTag.code)
                                 }
                         )
                         getCompoundValueContent( "Percentage")?.numberValue?.let {
