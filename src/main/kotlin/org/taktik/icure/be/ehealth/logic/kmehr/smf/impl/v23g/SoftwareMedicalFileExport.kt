@@ -57,6 +57,8 @@ import java.io.OutputStreamWriter
 import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 import javax.xml.bind.JAXBContext
@@ -216,20 +218,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
-			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
-				val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
-				ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
-
-				decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) }?.let {
-					it.apply {
-						this.services = HashSet(encContact.services.map {
-							this.services.find { o -> o.id == it.id } ?: it
-						})
-					}
-				} ?: encContact
-			} else {
-				encContact
-			}
+            val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
+                val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
+                ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
+                decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) } ?: encContact
+            } else {
+                encContact
+            }
 
             // newestServicesById should point to decrypted services
             contact.services.toList().forEach {
@@ -315,6 +310,16 @@ class SoftwareMedicalFileExport : KmehrExport() {
 								}
 							}
 						}
+
+                        contact.services.filter { s-> s.tags.find { t->t.code == "incapacity"} != null }.forEach {  incapacityService ->
+                            headingsAndItemsAndTexts.add( makeIncapacityItem(incapacityService) )
+                        }
+                        contact.services.filter { s-> s.tags.find { t->t.code == "physiotherapy"} != null }.forEach {  kineService ->
+                            specialPrescriptions.add( makeKinePrescriptionTransaction(kineService, healthcareParty, patient) )
+                        }
+                        contact.services.filter { s-> s.tags.find { t->t.code == "medicalcares"} != null }.forEach {  nurseService ->
+                            specialPrescriptions.add( makeNursePrescriptionTransaction(nurseService) )
+                        }
 
 						// services
 
@@ -578,6 +583,189 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		renumberKmehrIds(folder)
 		return folder
 	}
+
+    private fun makeNursePrescriptionTransaction(contact: Service): TransactionType {
+        val data = renderNursePrescription(contact)
+        return makeSpecialPrescriptionTransaction(contact, data, "nursing")
+    }
+
+    private fun renderNursePrescription(contact: Service): ByteArray {
+        // TODO: not working yet, template and mapping need to be done
+
+        val mf: MustacheFactory = DefaultMustacheFactory()
+        val m: Mustache = mf.compile("NursePrescription.mustache")
+        val writer = StringWriter()
+
+        val lang = "fr" // FIXME: hardcoded "fr"
+        val servkeys = mapOf(
+                "Communication par courrier" to "contactMailPreference",
+                "Communication par téléphone" to "contactPhonePreference",
+                "Communication autre" to "contactOtherDetails" // NOTE: contactOtherPreference bit is not really relevant since text is filled
+        )
+
+        val keyserv = emptyMap<String, String>()
+
+        val dat = mapOf(
+                "nurse" to keyserv,
+                "pat" to mapOf(
+                        "lname" to "testLname",
+                        "fname" to "testFname"
+                )
+        )
+
+        m.execute(writer, dat)
+
+        val html: String = writer.toString()
+        println(html)
+        val data = html.toByteArray()
+        return data
+    }
+
+    private fun makeKinePrescriptionTransaction(contact: Service, healthcareParty: HealthcareParty, patient: Patient): TransactionType {
+        val data = renderKinePrescription(contact, patient, healthcareParty)
+        return makeSpecialPrescriptionTransaction(contact, data, "physiotherapy")
+    }
+
+    private fun renderKinePrescription(contact: Service, patient: Patient, healthcareParty: HealthcareParty): ByteArray {
+        // TODO: not working yet, template and mapping need to be done
+
+        val lang = "fr" // FIXME: hardcoded "fr"
+
+        fun getCompoundValueContent(label: String) = contact.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
+        val instantFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                .withZone(ZoneId.of("GMT+1"))
+
+        val mf: MustacheFactory = DefaultMustacheFactory()
+        val m: Mustache = mf.compile("KinePrescription.mustache")
+        val writer = StringWriter()
+
+        val kineMap = mutableMapOf<String, String?>()
+        kineMap["datemade"] = instantFormatter.format(getCompoundValueContent("InterventionDate")?.instantValue)
+        kineMap["comment"] = getCompoundValueContent("Note")?.stringValue
+        kineMap["numSession"] = getCompoundValueContent("PhysiotherapySessionsNo")?.numberValue?.toString()
+        kineMap["freq"] = getCompoundValueContent("Frequency")?.measureValue?.value?.toString()
+        kineMap["per"] = getCompoundValueContent("Frequency")?.measureValue?.unit
+
+        val prescriptionMapping = mapOf(
+                "kine" to kineMap,
+                "pat" to mapOf(
+                        "lname" to patient.lastName,
+                        "fname" to patient.firstName
+                ),
+                "user" to mapOf(
+                        "fname" to healthcareParty.firstName,
+                        "lname" to healthcareParty.lastName
+                ),
+                "site" to mapOf(
+                        "name" to healthcareParty.name,
+                        "address" to (healthcareParty.addresses?.firstOrNull()?.street + ", " + healthcareParty.addresses?.firstOrNull()?.houseNumber),
+                        "postcode" to healthcareParty.addresses?.firstOrNull()?.postalCode,
+                        "city" to healthcareParty.addresses?.firstOrNull()?.city,
+                        "phone" to healthcareParty.addresses?.firstOrNull()?.telecoms?.mapNotNull { it.telecomNumber }?.filter { it.isNotEmpty() }?.joinToString()
+                )
+        )
+
+        m.execute(writer, prescriptionMapping)
+
+        val html: String = writer.toString()
+        println(html)
+        val data = html.toByteArray()
+        return data
+    }
+
+    private fun makeSpecialPrescriptionTransaction(contact: Service, data: ByteArray, transactionType: String): TransactionType {
+        return TransactionType().apply {
+
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = contact.id })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "prescription" })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; value = transactionType })
+            contact.modified?.let {
+                date = makeXGC(it)
+                time = makeXGC(it, unsetMillis = true)
+            }
+            contact.responsible?.let {
+                author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+            }
+            contact.created?.let {
+                recorddatetime = Utils.makeXGC(it)
+            }
+            isIscomplete = true
+            isIsvalidated = true
+
+            headingsAndItemsAndTexts.add(
+                    LnkType().apply { type = CDLNKvalues.MULTIMEDIA; value = data }
+            )
+            contact.id?.let { contactId ->
+                headingsAndItemsAndTexts.add(
+                        LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(contactId) }
+                )
+            }
+
+        }
+    }
+
+    private fun makeIncapacityItem(contact: Service?, index: Number = 0): ItemType {
+        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+
+        fun getCompoundValueContent(label: String) = contact?.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
+        fun getCompoundValueTag(label: String, tagType: String) = contact?.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType }
+        return ItemType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = ICUREVERSION; value = contact?.formId })
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
+
+            this.contents.add(ContentType().apply {
+                incapacity = IncapacityType().apply {
+                    (contact?.tags?.find { it.type == "CD-INCAPACITY" } ?: contact?.tags?.find { it.type == "CD-INCAPACITY-EXT" })?.let {incapacityTag ->
+                        cds.add(
+                                CDINCAPACITY().apply {
+                                    value = CDINCAPACITYvalues.fromValue(incapacityTag.code)
+                                }
+                        )
+                        getCompoundValueContent( "Percentage")?.numberValue?.let {
+                            percentage = it.toBigDecimal()
+                        }
+                    }
+                    getCompoundValueContent("Reason")?.stringValue?.let {reasonValue ->
+                        incapacityreason = IncapacityreasonType().apply {
+                            cd = CDINCAPACITYREASON().apply {
+                                value = try {
+                                    CDINCAPACITYREASONvalues.fromValue(reasonValue)
+                                } catch (e: IllegalArgumentException) {
+                                    CDINCAPACITYREASONvalues.fromValue("other")
+                                }
+                            }
+                        }
+                    }
+                    getCompoundValueTag("Outing", "MS-INCAPACITYOUTING")?.code?.let { outingCode ->
+                        isOutofhomeallowed = when(outingCode){
+                            "allowed", "notrecommended" -> true
+                            else -> false
+                        }
+                    }
+                }
+            })
+
+            lifecycle = LifecycleType().apply {
+                cd = CDLIFECYCLE().apply {
+                    value = contact?.tags?.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
+                            ?: CDLIFECYCLEvalues.ACTIVE
+                }
+            }
+            isIsrelevant = true
+            getCompoundValueContent("StartDate")?.instantValue?.let {
+                beginmoment = makeMomentType(it)
+            }
+            getCompoundValueContent("EndDate")?.instantValue?.let {
+                endmoment = makeMomentType(it)
+            }
+            contact?.modified?.let {
+                recorddatetime = Utils.makeXGC(it, true)
+            }
+        }
+    }
+
 
     private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
         svc.id?.let { svcId ->
