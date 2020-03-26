@@ -27,7 +27,6 @@ import java.util.*;
 
 @SuppressWarnings("UnusedDeclaration")
 public class DocumentDto extends IcureDto {
-
 	protected String attachmentId;
 	protected DocumentLocation documentLocation;
 	protected DocumentType documentType;
@@ -49,7 +48,7 @@ public class DocumentDto extends IcureDto {
 		this.attachmentId = attachmentId;
 	}
 
-	public DocumentType getDocumentType() {
+    public DocumentType getDocumentType() {
 		return documentType;
 	}
 
