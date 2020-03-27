@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springdoc.core.customizers.OpenApiCustomiser
 import org.springdoc.core.customizers.OperationCustomizer
@@ -23,7 +24,8 @@ class SwaggerConfig {
                                 .type(SecurityScheme.Type.HTTP).scheme("basic")))
                 .info(Info().title("iCure Cloud API Documentation")
                 .description("Spring shop sample application")
-                .version("v0.0.1"));
+                .version("v0.0.1"))
+                .addSecurityItem(SecurityRequirement().addList("basicScheme"))
     }
 
     @Bean
