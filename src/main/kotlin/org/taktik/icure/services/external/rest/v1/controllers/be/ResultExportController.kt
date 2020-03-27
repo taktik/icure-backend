@@ -20,6 +20,9 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
@@ -41,7 +44,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
                              private val patientLogic: PatientLogic,
                              private val healthcarePartyLogic: HealthcarePartyLogic) {
 
-    @Operation(summary = "Export data")
+    @Operation(summary = "Export data", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/medidoc/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun exportMedidoc(@PathVariable fromHcpId: String,
                       @PathVariable toHcpId: String,
@@ -53,7 +56,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
         DefaultDataBufferFactory().join(medidocLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
 
-    @Operation(summary = "Export data")
+    @Operation(summary = "Export data", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/hl1/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun exportHealthOne(@PathVariable fromHcpId: String,
                         @PathVariable toHcpId: String,
@@ -65,7 +68,7 @@ class ResultExportController(private var healthOneLogic: HealthOneLogic,
         DefaultDataBufferFactory().join(healthOneLogic.doExport(healthcarePartyLogic.getHealthcareParty(fromHcpId), healthcarePartyLogic.getHealthcareParty(toHcpId), patientLogic.getPatient(patId), FuzzyValues.getDateTime(date), ref, String(bodyText, Charsets.UTF_8)).toList()).asByteBuffer()
     }
 
-    @Operation(summary = "Export data")
+    @Operation(summary = "Export data", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @PostMapping("/kmehrreport/{fromHcpId}/{toHcpId}/{patId}/{date}/{ref}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE], produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
     fun exportKmehrReport(@PathVariable fromHcpId: String,
                           @PathVariable toHcpId: String,

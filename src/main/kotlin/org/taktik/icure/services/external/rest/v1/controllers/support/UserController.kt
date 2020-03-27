@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.support
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
@@ -86,9 +86,9 @@ class UserController(private val mapper: MapperFacade,
     @Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
     @GetMapping
     fun listUsers(
-            @ApiParam(value = "An user email") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "An user email") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
@@ -101,9 +101,9 @@ class UserController(private val mapper: MapperFacade,
     @GetMapping("/inGroup/{groupId}")
     fun listUsersInGroup(
             @PathVariable groupId: String,
-            @ApiParam(value = "An user login") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "An user login") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)

@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
@@ -118,9 +118,9 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
     @Operation(summary = "List all classification templates with pagination", description = "Returns a list of classification templates.")
     @GetMapping
     fun listClassificationTemplates(
-            @ApiParam(value = "A label") @RequestBody(required = false) startKey: String?,
-            @ApiParam(value = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?) = mono {
+            @Parameter(description = "A label") @RequestBody(required = false) startKey: String?,
+            @Parameter(description = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestBody(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 

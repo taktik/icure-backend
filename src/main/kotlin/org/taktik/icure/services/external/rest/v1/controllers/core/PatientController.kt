@@ -22,7 +22,7 @@ import com.google.common.base.Splitter
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -76,12 +76,12 @@ class PatientController(
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/byNameBirthSsinAuto")
     fun findByNameBirthSsinAuto(
-            @ApiParam(value = "HealthcareParty Id, if unset will user user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
-            @ApiParam(value = "Optional value for filtering results") @RequestParam(required = false) filterValue: String?,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String
+            @Parameter(description = "HealthcareParty Id, if unset will user user's hcpId") @RequestParam(required = false) healthcarePartyId: String?,
+            @Parameter(description = "Optional value for filtering results") @RequestParam(required = false) filterValue: String?,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String
     ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
@@ -105,11 +105,11 @@ class PatientController(
     @Operation(summary = "List patients of a specific HcParty or of the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/ofHcParty/{hcPartyId}")
     fun listPatientsOfHcParty(@PathVariable hcPartyId: String,
-                              @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
-                              @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
-                              @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                              @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
+                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
+                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                              @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
@@ -124,9 +124,9 @@ class PatientController(
     @Operation(summary = "List patients that have been modified after the provided date", description = "Returns a list of patients that have been modified after the provided date")
     @GetMapping("/modifiedAfter/{date}")
     fun listOfPatientsModifiedAfter(@PathVariable date: Long,
-                                    @ApiParam(value = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
-                                    @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                    @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+                                    @Parameter(description = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
+                                    @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                                    @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         PatientPaginatedList(patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, (limit
                 ?: DEFAULT_LIMIT) + 1).paginatedList<Patient, PatientDto>(mapper, limit ?: DEFAULT_LIMIT))
     }
@@ -134,11 +134,11 @@ class PatientController(
     @Operation(summary = "List patients for a specific HcParty or for the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/hcParty/{hcPartyId}")
     fun listPatientsByHcParty(@PathVariable hcPartyId: String,
-                              @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
-                              @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
-                              @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
-                              @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                              @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.", defaultValue = "asc") @RequestParam(required = false) sortDirection: String) =
+                              @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String,
+                              @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String,
+                              @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String,
+                              @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                              @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false) sortDirection: String) =
             listPatients(hcPartyId, sortField, startKey, startDocumentId, limit, sortDirection)
 
     @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
@@ -149,18 +149,18 @@ class PatientController(
 
     @Operation(summary = "Get count of patients for a specific HcParty or for the current HcParty ", description = "Returns the count of patients")
     @GetMapping("/hcParty/{hcPartyId}/count")
-    fun countOfPatients(@ApiParam(value = "Healthcare party id") @PathVariable hcPartyId: String) = mono {
+    fun countOfPatients(@Parameter(description = "Healthcare party id") @PathVariable hcPartyId: String) = mono {
         ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId))
     }
 
     @Operation(summary = "List patients for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping
-    fun listPatients(@ApiParam(value = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
-                     @ApiParam(value = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
-                     @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
-                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                     @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                     @ApiParam(value = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
+    fun listPatients(@Parameter(description = "Healthcare party id") @RequestParam(required = false) hcPartyId: String?,
+                     @Parameter(description = "Optional value for sorting results by a given field ('name', 'ssin', 'dateOfBirth'). " + "Specifying this deactivates filtering") @RequestParam(required = false) sortField: String?,
+                     @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                     @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let {  Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
@@ -179,10 +179,10 @@ class PatientController(
 
     @Operation(summary = "List patients by pages for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/idsPages")
-    fun listPatientsIds(@ApiParam(value = "Healthcare party id")@RequestParam hcPartyId: String,
-                        @ApiParam(value = "The page first id") @RequestParam(required = false) startKey: String?,
-                        @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                        @ApiParam(value = "Page size") @RequestParam(required = false) limit: Int?) = mono {
+    fun listPatientsIds(@Parameter(description = "Healthcare party id")@RequestParam hcPartyId: String,
+                        @Parameter(description = "The page first id") @RequestParam(required = false) startKey: String?,
+                        @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                        @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
@@ -194,18 +194,18 @@ class PatientController(
     @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
     @GetMapping("/byExternalId/{externalId}")
     fun findByExternalId(@PathVariable("externalId")
-                         @ApiParam(value = "A external ID", required = true) externalId: String) = mono {
+                         @Parameter(description = "A external ID", required = true) externalId: String) = mono {
         mapper.map(patientLogic.getByExternalId(externalId), PatientDto::class.java)
     }
 
     @Operation(summary = "Get Paginated List of Patients sorted by Access logs descending")
     @GetMapping("/byAccess/{userId}")
-    fun findByAccessLogUserAfterDate(@ApiParam(value = "A User ID", required = true) @PathVariable userId: String,
-                                     @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-                                     @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
-                                     @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
-                                     @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                     @ApiParam(value = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int) = mono {
+    fun findByAccessLogUserAfterDate(@Parameter(description = "A User ID", required = true) @PathVariable userId: String,
+                                     @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+                                     @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
+                                     @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
+                                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                                     @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int) = mono {
 
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
@@ -241,12 +241,12 @@ class PatientController(
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterBy(
-            @ApiParam(value = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Skip rows") @RequestParam(required = false) skip: Int?,
-            @ApiParam(value = "Sort key") @RequestParam(required = false) sort: String?,
-            @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
+            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Skip rows") @RequestParam(required = false) skip: Int?,
+            @Parameter(description = "Sort key") @RequestParam(required = false) sort: String?,
+            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
             @RequestBody filterChain: FilterChain) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
@@ -276,9 +276,9 @@ class PatientController(
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients")
     @GetMapping("/fuzzy")
     fun fuzzySearch(
-            @ApiParam(value = "The first name") @RequestParam(required = false) firstName: String,
-            @ApiParam(value = "The last name") @RequestParam(required = false) lastName: String,
-            @ApiParam(value = "The date of birth") @RequestParam(required = false) dateOfBirth: Int?): Flux<PatientDto> {
+            @Parameter(description = "The first name") @RequestParam(required = false) firstName: String,
+            @Parameter(description = "The last name") @RequestParam(required = false) lastName: String,
+            @Parameter(description = "The date of birth") @RequestParam(required = false) dateOfBirth: Int?): Flux<PatientDto> {
 
         return try {
             patientLogic.fuzzySearchPatients(mapper, firstName, lastName, dateOfBirth)
@@ -313,11 +313,11 @@ class PatientController(
     @Operation(summary = "Find deleted patients", description = "Returns a list of deleted patients, within the specified time period, if any.")
     @GetMapping("/deleted/by_date")
     fun listDeletedPatients(
-            @ApiParam(value = "Filter deletions after this date (unix epoch), included") @RequestParam(required = false) startDate: Long,
-            @ApiParam(value = "Filter deletions before this date (unix epoch), included") @RequestParam(required = false) endDate: Long?,
-            @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
-            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "Filter deletions after this date (unix epoch), included") @RequestParam(required = false) startDate: Long,
+            @Parameter(description = "Filter deletions before this date (unix epoch), included") @RequestParam(required = false) endDate: Long?,
+            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startDate, startDocumentId, null, realLimit + 1) // TODO works with descending=true?
@@ -327,8 +327,8 @@ class PatientController(
     @Operation(summary = "Find deleted patients", description = "Returns a list of deleted patients, by name and/or firstname prefix, if any.")
     @GetMapping("/deleted/by_name")
     fun listDeletedPatientsByName(
-            @ApiParam(value = "First name prefix") @RequestParam(required = false) firstName: String?,
-            @ApiParam(value = "Last name prefix") @RequestParam(required = false) lastName: String?) =
+            @Parameter(description = "First name prefix") @RequestParam(required = false) firstName: String?,
+            @Parameter(description = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
                 patientLogic.findDeletedPatientsByNames(firstName, lastName).map { p -> mapper.map(p, PatientDto::class.java) }.injectReactorContext()
             } catch (e: Exception) {
@@ -399,9 +399,9 @@ class PatientController(
     @Operation(summary = "Set a patient referral doctor")
     @PutMapping("/{patientId}/referral/{referralId}")
     fun modifyPatientReferral(@PathVariable patientId: String,
-                              @ApiParam(value = "The referal id. Accepts 'none' for referral removal.") @PathVariable referralId: String,
-                              @ApiParam(value = "Optional value for start of referral") @RequestParam(required = false) start: Long?,
-                              @ApiParam(value = "Optional value for end of referral") @RequestParam(required = false) end: Long?) = mono {
+                              @Parameter(description = "The referal id. Accepts 'none' for referral removal.") @PathVariable referralId: String,
+                              @Parameter(description = "Optional value for start of referral") @RequestParam(required = false) start: Long?,
+                              @Parameter(description = "Optional value for end of referral") @RequestParam(required = false) end: Long?) = mono {
         patientLogic.getPatient(patientId)
                 ?.let {
                     mapper.map(patientLogic.modifyPatientReferral(it, if (referralId == "none") null else referralId, if (start == null) null else Instant.ofEpochMilli(start), if (end == null) null else Instant.ofEpochMilli(end)), PatientDto::class.java)

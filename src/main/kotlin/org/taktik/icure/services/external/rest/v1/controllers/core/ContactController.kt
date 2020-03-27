@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 import com.google.common.collect.Lists
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
@@ -279,8 +279,8 @@ class ContactController(private val mapper: MapperFacade,
     @Operation(summary = "List contacts for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterBy(
-            @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
@@ -300,8 +300,8 @@ class ContactController(private val mapper: MapperFacade,
     @Operation(summary = "List services for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/service/filter")
     fun filterServicesBy(
-            @ApiParam(value = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
@@ -326,11 +326,11 @@ class ContactController(private val mapper: MapperFacade,
     @Operation(summary = "List contacts bu opening date parties with(out) pagination", description = "Returns a list of contacts.")
     @GetMapping("/byOpeningDate")
     fun listContactsByOpeningDate(
-            @ApiParam(value = "The contact openingDate", required = true) @RequestParam startKey: Long,
-            @ApiParam(value = "The contact max openingDate", required = true) @RequestParam endKey: Long,
-            @ApiParam(value = "hcpartyid", required = true) @RequestParam hcpartyid: String,
-            @ApiParam(value = "A contact party document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "The contact openingDate", required = true) @RequestParam startKey: Long,
+            @Parameter(description = "The contact max openingDate", required = true) @RequestParam endKey: Long,
+            @Parameter(description = "hcpartyid", required = true) @RequestParam hcpartyid: String,
+            @Parameter(description = "A contact party document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 

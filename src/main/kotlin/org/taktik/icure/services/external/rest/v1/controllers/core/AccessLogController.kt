@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
@@ -82,13 +82,13 @@ class AccessLogController(private val mapper: MapperFacade,
 
     @Operation(summary = "Get Paginated List of Access logs")
     @GetMapping("/byUser")
-    fun findByUserAfterDate(@ApiParam(value = "A User ID", required = true) @RequestParam userId: String,
-                                    @ApiParam(value = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
-                                    @ApiParam(value = "The start search epoch") @RequestParam(required = false) startDate: Long?,
-                                    @ApiParam(value = "The start key for pagination") @RequestParam(required = false) startKey: String?,
-                                    @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                                    @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-                                    @ApiParam(value = "Descending order") @RequestParam(required = false) descending: Boolean?) = mono {
+    fun findByUserAfterDate(@Parameter(description = "A User ID", required = true) @RequestParam userId: String,
+                                    @Parameter(description = "The type of access (COMPUTER or USER)") @RequestParam(required = false) accessType: String?,
+                                    @Parameter(description = "The start search epoch") @RequestParam(required = false) startDate: Long?,
+                                    @Parameter(description = "The start key for pagination") @RequestParam(required = false) startKey: String?,
+                                    @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                                    @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+                                    @Parameter(description = "Descending order") @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)

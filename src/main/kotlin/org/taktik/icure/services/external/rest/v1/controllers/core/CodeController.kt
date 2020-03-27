@@ -21,7 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -62,9 +62,9 @@ class CodeController(private val mapper: MapperFacade,
             @RequestParam(required = false) types: String?,
             @RequestParam(required = false) language: String?,
             @RequestParam(required = false) label: String?,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
@@ -99,8 +99,8 @@ class CodeController(private val mapper: MapperFacade,
             @RequestParam(required = false) type: String?,
             @RequestParam(required = false) code: String?,
             @RequestParam(required = false) version: String?,
-            @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(
@@ -126,10 +126,10 @@ class CodeController(private val mapper: MapperFacade,
     fun findPaginatedCodesWithLink(
             @PathVariable linkType: String,
             @RequestParam(required = false) linkedId: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey")
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A code document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements : List<String>? = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
@@ -143,10 +143,10 @@ class CodeController(private val mapper: MapperFacade,
     @Operation(summary = "Finding codes by code, type and version", description = "Returns a list of codes matched with given input.")
     @GetMapping("/byRegionTypeCode")
     fun findCodes(
-            @ApiParam(value = "Code region") @RequestParam(required = false) region: String?,
-            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?,
-            @ApiParam(value = "Code code") @RequestParam(required = false) code: String?,
-            @ApiParam(value = "Code version") @RequestParam(required = false) version: String?): Flux<CodeDto> {
+            @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
+            @Parameter(description = "Code type") @RequestParam(required = false) type: String?,
+            @Parameter(description = "Code code") @RequestParam(required = false) code: String?,
+            @Parameter(description = "Code version") @RequestParam(required = false) version: String?): Flux<CodeDto> {
 
         return codeLogic.findCodesBy(region, type, code, version)
                 .map { c -> mapper.map(c, CodeDto::class.java) }
@@ -156,8 +156,8 @@ class CodeController(private val mapper: MapperFacade,
     @Operation(summary = "Finding code types.", description = "Returns a list of code types matched with given input.")
     @GetMapping("/codetype/byRegionType")
     fun findCodeTypes(
-            @ApiParam(value = "Code region") @RequestParam(required = false) region: String?,
-            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
+            @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
+            @Parameter(description = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
         return codeLogic.findCodeTypes(region, type)
                 .injectReactorContext()
     }
@@ -165,8 +165,8 @@ class CodeController(private val mapper: MapperFacade,
     @Operation(summary = "Finding tag types.", description = "Returns a list of tag types matched with given input.")
     @GetMapping("/tagtype/byRegionType")
     fun findTagTypes(
-            @ApiParam(value = "Code region") @RequestParam(required = false) region: String?,
-            @ApiParam(value = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
+            @Parameter(description = "Code region") @RequestParam(required = false) region: String?,
+            @Parameter(description = "Code type") @RequestParam(required = false) type: String?): Flux<String> {
         val tagTypeCandidates = codeLogic.getTagTypeCandidates()
         return codeLogic.findCodeTypes(region, type)
                 .filter { tagTypeCandidates.contains(it) }
@@ -191,7 +191,7 @@ class CodeController(private val mapper: MapperFacade,
 
     @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
     @GetMapping("/{codeId}")
-    fun getCode(@ApiParam(value = "Code id") @PathVariable codeId: String) = mono {
+    fun getCode(@Parameter(description = "Code id") @PathVariable codeId: String) = mono {
         val c = codeLogic.get(codeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code. Read the app logs.")
         mapper.map(c, CodeDto::class.java)
@@ -200,9 +200,9 @@ class CodeController(private val mapper: MapperFacade,
     @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
     @GetMapping("/{type}/{code}/{version}")
     fun getCodeWithParts(
-            @ApiParam(value = "Code type") @PathVariable type: String,
-            @ApiParam(value = "Code code") @PathVariable code: String,
-            @ApiParam(value = "Code version") @PathVariable version: String) = mono {
+            @Parameter(description = "Code type") @PathVariable type: String,
+            @Parameter(description = "Code code") @PathVariable code: String,
+            @Parameter(description = "Code version") @PathVariable version: String) = mono {
 
         val c = codeLogic.get(type, code, version)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code with parts. Read the app logs.")
@@ -223,12 +223,12 @@ class CodeController(private val mapper: MapperFacade,
     @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
     fun filterBy(
-            @ApiParam(value = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Skip rows") @RequestParam(required = false) skip: Int?,
-            @ApiParam(value = "Sort key") @RequestParam(required = false) sort: String?,
-            @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?,
+            @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Skip rows") @RequestParam(required = false) skip: Int?,
+            @Parameter(description = "Sort key") @RequestParam(required = false) sort: String?,
+            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
             @RequestBody(required = false) filterChain: FilterChain?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT

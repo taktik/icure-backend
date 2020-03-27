@@ -23,7 +23,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.taktik.commons.serialization.SerializableValue;
 import org.taktik.commons.service.rest.gson.JsonDiscriminator;
 
@@ -34,8 +34,8 @@ import org.taktik.commons.service.rest.gson.JsonDiscriminator;
 		@JsonSubTypes.Type(value = FilterTwoFilters.class)
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "$type")
-@ApiModel(description = "A filter",
-		discriminator = "$type",
+@Schema(title = "A filter",
+        discriminatorProperty = "$type",
 		subTypes = {
 				FilterListFilters.class, FilterOnProperty.class, FilterTwoFilters.class
 		})

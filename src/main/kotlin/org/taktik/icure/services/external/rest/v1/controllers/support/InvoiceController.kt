@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.support
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -173,11 +173,11 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byauthor/{hcPartyId}")
     fun findByAuthor(@PathVariable hcPartyId: String,
-                             @RequestParam(required = false) fromDate: Long?,
-                             @RequestParam(required = false) toDate: Long?,
-                             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
-                             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+                     @RequestParam(required = false) fromDate: Long?,
+                     @RequestParam(required = false) toDate: Long?,
+                     @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
+                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val sk: Array<String>
         var startKey1 = ""

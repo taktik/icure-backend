@@ -3,7 +3,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
@@ -34,11 +34,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding AMPs by label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp")
     fun findPaginatedAmpsByLabel(
-            @ApiParam(value = "language") @RequestParam(required = false) language: String?,
-            @ApiParam(value = "label") @RequestParam(required = false) label: String?,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "An amp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "language") @RequestParam(required = false) language: String?,
+            @Parameter(description = "label") @RequestParam(required = false) label: String?,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "An amp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements: List<String>? = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
@@ -49,12 +49,12 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding VMPs by label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmp")
     fun findPaginatedVmpsByLabel(
-            @ApiParam(value = "language") @RequestParam(required = false) language: String?,
-            @ApiParam(value = "label") @RequestParam(required = false) label: String?,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "language") @RequestParam(required = false) language: String?,
+            @Parameter(description = "label") @RequestParam(required = false) label: String?,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
@@ -66,11 +66,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding VMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmp/byGroupCode/{vmpgCode}")
     fun findPaginatedVmpsByGroupCode(
-            @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpgCode: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "vmpgCode", required = true) @PathVariable vmpgCode: String,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
@@ -81,11 +81,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding VMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmp/byGroupId/{vmpgId}")
     fun findPaginatedVmpsByGroupId(
-            @ApiParam(value = "vmpgId", required = true) @PathVariable vmpgId: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "vmpgId", required = true) @PathVariable vmpgId: String,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
@@ -96,11 +96,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding AMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byGroupCode/{vmpgCode}")
     fun findPaginatedAmpsByGroupCode(
-            @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpgCode: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "vmpgCode", required = true) @PathVariable vmpgCode: String,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
@@ -111,11 +111,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding AMPs by group with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byGroupId/{vmpgId}")
     fun findPaginatedAmpsByGroupId(
-            @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpgId: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "vmpgCode", required = true) @PathVariable vmpgId: String,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A vmp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
@@ -126,11 +126,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding AMPs by vmp code with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byVmpCode/{vmpCode}")
     fun findPaginatedAmpsByVmpCode(
-            @ApiParam(value = "vmpCode", required = true) @PathVariable vmpCode: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "vmpCode", required = true) @PathVariable vmpCode: String,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A amp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A amp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
@@ -141,11 +141,11 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding AMPs by vmp id with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byVmpId/{vmpId}")
     fun findPaginatedAmpsByVmpId(
-            @ApiParam(value = "vmpgCode", required = true) @PathVariable vmpId: String,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "vmpgCode", required = true) @PathVariable vmpId: String,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A amp document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A amp document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
@@ -156,19 +156,19 @@ class SamV2Controller(val mapper: MapperFacade,
     @Operation(summary = "Finding AMPs by dmpp code", description = "Returns a list of amps matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/amp/byDmppCode/{dmppCode}")
     fun findAmpsByDmppCode(
-            @ApiParam(value = "dmppCode", required = true) @PathVariable dmppCode: String
+            @Parameter(description = "dmppCode", required = true) @PathVariable dmppCode: String
     ) = samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) }.injectReactorContext()
 
 
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GetMapping("/vmpgroup")
     fun findPaginatedVmpGroupsByLabel(
-            @ApiParam(value = "language") @RequestParam(required = false) language: String?,
-            @ApiParam(value = "label") @RequestParam(required = false) label: String?,
-            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @Parameter(description = "language") @RequestParam(required = false) language: String?,
+            @Parameter(description = "label") @RequestParam(required = false) label: String?,
+            @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
             @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A vmpgroup document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+            @Parameter(description = "A vmpgroup document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, Array<String>::class.java).toList()
