@@ -70,7 +70,7 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 
 	protected Map<String, Content> content = new HashMap<>(); //Localized, in the case when the service contains a document, the document id is the SerializableValue
 
-	protected String encryptedContent; //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
+	protected String encryptedContent; //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead. Legacy, use encrypted self
 	protected Map<String, String> textIndexes = new HashMap<>(); //Same structure as content but used for full text indexation
 
 	@NotNull(autoFix = AutoFix.FUZZYNOW)
@@ -80,7 +80,7 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 	protected Long openingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 	protected Long closingDate; // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
 
-	protected String formId; //Used to group logically related services
+	protected String formId; //Used to group logically related services - legacy, use subContacts
 
 	@NotNull(autoFix = AutoFix.NOW)
 	protected Long created;
