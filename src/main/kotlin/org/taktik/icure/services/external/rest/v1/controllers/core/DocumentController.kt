@@ -48,6 +48,7 @@ import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.utils.FormUtils
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
@@ -90,7 +91,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Creates a document", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachment(@PathVariable documentId: String,
+    fun getDocumentAttachment(@PathVariable documentId: String,
                       @PathVariable attachmentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestParam(required = false) fileName: String?,
@@ -141,7 +142,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setAttachment(@PathVariable documentId: String,
+    fun setDocumentAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestBody payload: ByteArray) = mono {
         var newPayload = payload
@@ -168,9 +169,9 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun setAttachmentMulti(@PathVariable documentId: String,
+    fun setDocumentAttachmentMulti(@PathVariable documentId: String,
                            @RequestParam(required = false) enckeys: String?,
-                           @RequestPart("attachment") payload: ByteArray) = setAttachment(documentId, enckeys, payload)
+                           @RequestPart("attachment") payload: ByteArray) = setDocumentAttachment(documentId, enckeys, payload)
 
 
     @Operation(summary = "Gets a document")
@@ -239,7 +240,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyMessageSecretFKeys(@RequestParam hcPartyId: String,
+    fun findDocumentsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                         @RequestParam secretFKeys: String): Flux<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
@@ -272,7 +273,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
+    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val invoices = documentLogic.getDocuments(stubs.map { it.id })
         invoices.onEach { healthElement ->
             stubs.find { it.id == healthElement.id }?.let { stub ->
@@ -281,6 +282,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        documentLogic.updateDocuments(invoices.toList())
-    }
+        emitAll(documentLogic.updateDocuments(invoices.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+    }.injectReactorContext()
 }

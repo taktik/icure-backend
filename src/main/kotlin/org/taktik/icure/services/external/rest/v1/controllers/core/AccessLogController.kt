@@ -19,10 +19,13 @@
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
 import com.google.gson.Gson
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
@@ -37,6 +40,8 @@ import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
 import java.time.Instant
+import java.util.*
+import javax.ws.rs.QueryParam
 
 
 @ExperimentalCoroutinesApi
@@ -97,6 +102,13 @@ class AccessLogController(private val mapper: MapperFacade,
 
         accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
     }
+
+    @Operation(summary = "List access logs found By Healthcare Party and secret foreign keyelementIds.")
+    @GetMapping("/byHcPartySecretForeignKeys")
+    fun findAccessLogsByHCPartyPatientForeignKeys(@QueryParam("hcPartyId") hcPartyId: String, @QueryParam("secretFKeys") secretFKeys: String) = flow {
+        val secretPatientKeys = HashSet(secretFKeys.split(","))
+        emitAll(accessLogLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys)).map { mapper.map(it, AccessLogDto::class.java) } )
+    }.injectReactorContext()
 
     @Operation(summary = "Modifies an access log")
     @PutMapping

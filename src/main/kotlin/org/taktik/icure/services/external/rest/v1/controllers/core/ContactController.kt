@@ -50,6 +50,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.utils.FuzzyValues
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -156,7 +157,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @Operation(summary = "List contacts found By Healthcare Party and Patient foreign keys.")
     @PostMapping("/byHcPartyPatientForeignKeys")
-    fun findByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flux<ContactDto> {
+    fun findContactsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestBody patientForeignKeys: ListOfIdsDto): Flux<ContactDto> {
         if (patientForeignKeys.ids.size == 0) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "A required query parameter was not specified for this request.")
         }
@@ -184,7 +185,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+    fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
@@ -192,7 +193,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
+    fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val contacts = contactLogic.getContacts(stubs.map { it.id })
         contacts.onEach { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->
@@ -201,13 +202,13 @@ class ContactController(private val mapper: MapperFacade,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> contact.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        contactLogic.updateEntities(contacts.toList()).collect()
-    }
+        emitAll(contactLogic.updateEntities(contacts.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+    }.injectReactorContext()
 
 
     @Operation(summary = "Close contacts for Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @PutMapping("/byHcPartySecretForeignKeys/close")
-    fun closeForHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+    fun closeForHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                           @RequestParam secretFKeys: String): Flux<ContactDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val contactFlow = contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys)
@@ -261,7 +262,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @Operation(summary = "Delegates a contact to a healthcare party", description = "It delegates a contact to a healthcare party (By current healthcare party). Returns the contact with new delegations.")
     @PostMapping("/{contactId}/delegate")
-    fun newDelegations(@PathVariable contactId: String, @RequestBody d: DelegationDto) = mono {
+    fun newContactDelegations(@PathVariable contactId: String, @RequestBody d: DelegationDto) = mono {
         contactLogic.addDelegation(contactId, mapper.map(d, Delegation::class.java))
         val contactWithDelegation = contactLogic.getContact(contactId)
 
@@ -278,7 +279,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @Operation(summary = "List contacts for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterBy(
+    fun filterContactsBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
             @RequestBody filterChain: FilterChain) = mono {
@@ -294,7 +295,7 @@ class ContactController(private val mapper: MapperFacade,
 
     @Operation(summary = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(@RequestBody filter: FilterDto<*>) = filters.resolve(filter).injectReactorContext()
+    fun matchContactsBy(@RequestBody filter: FilterDto<*>) = filters.resolve(filter).injectReactorContext()
 
     // TODO SH MB test this for PaginatedList construction...
     @Operation(summary = "List services for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

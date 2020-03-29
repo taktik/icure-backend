@@ -916,7 +916,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
         @ToJson
         fun toJson(bytes: ByteArray?): String {
-            return Base64.getEncoder().withoutPadding().encodeToString(bytes)
+            return Base64.getEncoder().encodeToString(bytes)
         }
     }
 

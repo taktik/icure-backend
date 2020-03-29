@@ -127,7 +127,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @Operation(summary = "List messages found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam secretFKeys: String): Flux<MessageDto> {
+    fun findMessagesByHCPartyPatientForeignKeys(@RequestParam secretFKeys: String): Flux<MessageDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return messageLogic.listMessagesByHCPartySecretPatientKeys(secretPatientKeys)
                 .map { contact -> mapper.map(contact, MessageDto::class.java) }
@@ -148,13 +148,13 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @Operation(summary = "Get children messages of provided message")
     @GetMapping("/{messageId}/children")
-    fun getChildren(@PathVariable messageId: String) =
+    fun getChildrenMessages(@PathVariable messageId: String) =
             messageLogic.getChildren(messageId).map { mapper.map(it, MessageDto::class.java) }.injectReactorContext()
 
 
     @Operation(summary = "Get children messages of provided message")
     @PostMapping("/children/batch")
-    fun getChildrenOfList(@RequestBody parentIds: ListOfIdsDto) =
+    fun getChildrenMessagesOfList(@RequestBody parentIds: ListOfIdsDto) =
             messageLogic.getChildren(parentIds.ids)
                     .map { m -> m.stream().map { mm -> mapper.map(mm, MessageDto::class.java) }.toList().asFlow() }
                     .flattenConcat()
@@ -266,7 +266,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
 
     @Operation(summary = "Adds a delegation to a message")
     @PutMapping("/{messageId}/delegate")
-    fun newDelegations(
+    fun newMessageDelegations(
             @PathVariable messageId: String,
             @RequestBody ds: List<DelegationDto>) = mono {
         messageLogic.addDelegations(messageId, ds.map { mapper.map(it, Delegation::class.java) })?.takeIf { it.delegations.isNotEmpty() }?.let { mapper.map(it, MessageDto::class.java) }

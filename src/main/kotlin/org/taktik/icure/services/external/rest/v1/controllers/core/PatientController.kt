@@ -143,7 +143,7 @@ class PatientController(
 
     @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
     @GetMapping("/{healthcarePartyId}/keys")
-    fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {
+    fun getPatientHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {
         patientLogic.getHcPartyKeysForDelegate(healthcarePartyId)
     }
 
@@ -240,7 +240,7 @@ class PatientController(
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterBy(
+    fun filterPatientsBy(
             @Parameter(description = "The start key for pagination, depends on the filters used") @RequestParam(required = false) startKey: String?,
             @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
@@ -271,7 +271,7 @@ class PatientController(
 
     @Operation(summary = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchBy(@RequestBody filter: FilterDto<*>): Flux<String> = filters.resolve(filter).injectReactorContext()
+    fun matchPatientsBy(@RequestBody filter: FilterDto<*>): Flux<String> = filters.resolve(filter).injectReactorContext()
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients")
     @GetMapping("/fuzzy")
@@ -348,7 +348,7 @@ class PatientController(
 
     @Operation(summary = "Delegates a patients to a healthcare party", description = "It delegates a patient to a healthcare party (By current healthcare party). A modified patient with new delegation gets returned.")
     @PostMapping("/{patientId}/delegate")
-    fun newDelegations(@PathVariable patientId: String,
+    fun newPatientDelegations(@PathVariable patientId: String,
                        @RequestBody ds: List<DelegationDto>) = mono {
         try {
             patientLogic.addDelegations(patientId, ds.map { d -> mapper.map(d, Delegation::class.java) })

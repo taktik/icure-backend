@@ -81,7 +81,7 @@ class FormController(private val mapper: MapperFacade,
 
     @Operation(summary = "Get a list of forms by ids", description = "Keys must be delimited by coma")
     @GetMapping("/childrenOf/{formId}/{hcPartyId}")
-    fun getChildren(@PathVariable formId: String,
+    fun getChildrenForms(@PathVariable formId: String,
                     @PathVariable hcPartyId: String): Flux<FormDto> {
         val forms = formLogic.findByHcPartyParentId(hcPartyId, formId)
         return forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
@@ -102,7 +102,7 @@ class FormController(private val mapper: MapperFacade,
 
     @Operation(summary = "Delegates a form to a healthcare party", description = "It delegates a form to a healthcare party. Returns the form with the new delegations.")
     @PostMapping("/delegate/{formId}")
-    fun newDelegations(@PathVariable formId: String,
+    fun newFormDelegations(@PathVariable formId: String,
                        @RequestBody ds: List<DelegationDto>) = mono {
         formLogic.addDelegations(formId, ds.map { d -> mapper.map(d, Delegation::class.java) })
         val formWithDelegation = formLogic.getForm(formId)
@@ -152,7 +152,7 @@ class FormController(private val mapper: MapperFacade,
 
     @Operation(summary = "List forms found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+    fun findFormsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                         @RequestParam secretFKeys: String,
                                         @RequestParam(required = false) healthElementId: String?,
                                         @RequestParam(required = false) planOfActionId: String?,
@@ -164,7 +164,7 @@ class FormController(private val mapper: MapperFacade,
 
     @Operation(summary = "List form stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+    fun findFormsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
@@ -172,7 +172,7 @@ class FormController(private val mapper: MapperFacade,
 
     @Operation(summary = "Update delegations in form.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setFormsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
+    fun setFormsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val forms = formLogic.getForms(stubs.map { it.id })
         forms.onEach { form ->
             stubs.find { s -> s.id == form.id }?.let { stub ->
@@ -181,8 +181,8 @@ class FormController(private val mapper: MapperFacade,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> form.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        formLogic.updateEntities(forms.toList())
-    }
+        emitAll(formLogic.updateEntities(forms.toList()).map { mapper.map(it, IcureStubDto::class.java)})
+    }.injectReactorContext()
 
     @Operation(summary = "Gets a form template by guid")
     @GetMapping("/template/{formTemplateId}")
@@ -248,7 +248,7 @@ class FormController(private val mapper: MapperFacade,
 
     @Operation(summary = "Update a form template's layout")
     @PutMapping("/template/{formTemplateId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun setAttachmentMulti(@PathVariable formTemplateId: String,
+    fun setTemplateAttachmentMulti(@PathVariable formTemplateId: String,
                                    @RequestPart("attachment") payload: ByteArray) = mono {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate with id $formTemplateId not found")

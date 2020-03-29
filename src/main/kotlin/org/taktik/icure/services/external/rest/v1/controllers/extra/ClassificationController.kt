@@ -72,7 +72,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @Operation(summary = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationDto> {
+    fun findClassificationsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
 
@@ -103,7 +103,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
     @Operation(summary = "Delegates a classification to a healthcare party", description = "It delegates a classification to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{classificationId}/delegate")
-    fun newDelegations(@PathVariable classificationId: String, @RequestBody ds: List<DelegationDto>) = mono {
+    fun newClassificationDelegations(@PathVariable classificationId: String, @RequestBody ds: List<DelegationDto>) = mono {
         classificationLogic.addDelegations(classificationId, ds.map { mapper.map(it, Delegation::class.java) })
         val classificationWithDelegation = classificationLogic.getClassification(classificationId)
 
@@ -126,6 +126,6 @@ class ClassificationController(private val mapper: MapperFacade,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> classification.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
             }
         }
-        emitAll(classificationLogic.updateEntities(classifications.toList()))
+        emitAll(classificationLogic.updateEntities(classifications.toList()).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()
 }

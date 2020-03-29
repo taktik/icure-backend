@@ -35,6 +35,7 @@ import org.taktik.icure.services.external.rest.v1.dto.CalendarItemDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
@@ -127,7 +128,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
 
     @Operation(summary = "Find CalendarItems by hcparty and patient", description = "")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,@RequestParam secretFKeys: String): Flux<CalendarItemDto> {
+    fun findCalendarItemsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,@RequestParam secretFKeys: String): Flux<CalendarItemDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = calendarItemLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -135,9 +136,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     }
 
     @Operation(summary = "Update delegations in calendarItems")
-    @POST
-    @Path("/delegations")
-    @Throws(Exception::class)
+    @PostMapping("/delegations")
     fun setCalendarItemsDelegations(stubs: List<IcureStubDto>) = flow {
         val calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.stream().map { obj: IcureStubDto -> obj.id }.collect(Collectors.toList()))
         calendarItems.onEach { calendarItem: CalendarItem ->
@@ -147,7 +146,7 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                 stub.cryptedForeignKeys.forEach { (s: String?, delegationDtos: List<DelegationDto?>) -> calendarItem.cryptedForeignKeys[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
             }
         }
-        emitAll(calendarItemLogic.updateEntities(calendarItems.toList()))
-    }
+        emitAll(calendarItemLogic.updateEntities(calendarItems.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+    }.injectReactorContext()
 
 }
