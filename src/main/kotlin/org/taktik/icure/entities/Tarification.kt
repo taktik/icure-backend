@@ -41,7 +41,7 @@ class Tarification : Code {
     constructor(type: String?, code: String?, version: String?) : super(type!!, code!!, version!!) {}
     constructor(regions: Set<String?>?, type: String?, code: String?, version: String?) : super(regions, type, code, version) {}
     constructor(region: String?, type: String?, code: String?, version: String?) : super(region!!, type, code, version) {}
-    constructor(regions: Set<String?>?, type: String?, code: String?, version: String?, label: Map<String?, String?>?) : super(regions, type!!, code!!, version!!, label) {}
+    constructor(regions: Set<String>?, type: String?, code: String?, version: String?, label: Map<String, String>?) : super(regions, type!!, code!!, version!!, label) {}
 
     fun getnGroup(): String? {
         return nGroup

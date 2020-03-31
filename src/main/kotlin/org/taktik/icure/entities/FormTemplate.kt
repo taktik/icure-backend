@@ -31,7 +31,7 @@ import org.taktik.icure.entities.embed.FormGroup
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FormTemplate : StoredDocument() {
     @JsonIgnore
-    var layout: ByteArray
+    var layout: ByteArray? = null
     var layoutAttachmentId: String? = null
     var group: FormGroup? = null
     var name: String? = null

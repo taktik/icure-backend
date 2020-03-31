@@ -31,14 +31,5 @@ class HealthElementTemplate : StoredICureDocument() {
     var isRelevant = true
     var status //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
             : Int? = null
-    protected var plansOfAction: @Valid MutableList<PlanOfActionTemplate>? = ArrayList()
-
-    fun getPlansOfAction(): List<PlanOfActionTemplate>? {
-        return plansOfAction
-    }
-
-    fun setPlansOfAction(plansOfAction: List<PlanOfActionTemplate>?) {
-        this.plansOfAction = plansOfAction
-    }
-
+    var plansOfAction: @Valid MutableList<PlanOfActionTemplate>? = ArrayList()
 }

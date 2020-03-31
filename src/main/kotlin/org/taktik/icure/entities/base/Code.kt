@@ -35,16 +35,29 @@ open class Code : StoredDocument, CodeIdentification {
     var regions //ex: be,fr
             : Set<String>? = null
     var periodicity: List<Periodicity>? = null
-    protected var type //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
+    override var type //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
             : String? = null
-    protected var code //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
+    set(type) {
+        id = "$type|$code|$version"
+        field = type
+    }
+    override var code //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
             : String? = null
-    protected var version //ex: 10. Must be lexicographically searchable
+    set(code) {
+        id = "$type|$code|$version"
+        field = code
+    }
+    override var version //ex: 10. Must be lexicographically searchable
             : String? = null
+        set(version) {
+            id = "$type|$code|$version"
+            field = version
+        }
+
     var level //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
             : Int? = null
-    protected var label //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
-            : MutableMap<String?, String?>? = null
+    var label //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+            : MutableMap<String, String>? = null
 
     @Deprecated("")
     var links //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
@@ -65,7 +78,7 @@ open class Code : StoredDocument, CodeIdentification {
     constructor(region: String, type: String?, code: String?, version: String?) : this(setOf<String>(region), type!!, code!!, version!!) {}
 
     @JvmOverloads
-    constructor(regions: Set<String>?, type: String, code: String, version: String, label: MutableMap<String?, String?>? = HashMap()) {
+    constructor(regions: Set<String>?, type: String, code: String, version: String, label: Map<String, String>? = HashMap()) {
         this.regions = regions
         this.type = type
         this.code = code
@@ -73,6 +86,7 @@ open class Code : StoredDocument, CodeIdentification {
         this.label = label
         id = "$type|$code|$version"
     }
+
 
     override fun toString(): String {
         return type + ":" + code
@@ -101,49 +115,6 @@ open class Code : StoredDocument, CodeIdentification {
             }
             label!!["nl"] = descrNL
         }
-
-    override fun getCode(): String? {
-        return code
-    }
-
-    override fun setCode(code: String) {
-        id = "$type|$code|$version"
-        this.code = code
-    }
-
-    fun getLabel(): Map<String?, String?>? {
-        return label
-    }
-
-    fun setLabel(label: MutableMap<String?, String?>?) {
-        this.label = label
-    }
-
-    override fun getType(): String? {
-        return type
-    }
-
-    override fun setType(type: String) {
-        id = "$type|$code|$version"
-        this.type = type
-    }
-
-    override fun getVersion(): String? {
-        return version
-    }
-
-    override fun setVersion(version: String) {
-        id = "$type|$code|$version"
-        this.version = version
-    }
-
-    fun getData(): String? {
-        return data
-    }
-
-    fun setData(data: String?) {
-        this.data = data
-    }
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true

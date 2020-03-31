@@ -44,7 +44,7 @@ class Document : StoredICureDocument(), Serializable {
     @get:JsonIgnore
     @set:JsonIgnore
     @JsonIgnore
-    var attachment: ByteArray?
+    var attachment: ByteArray? = null
 
     @get:JsonIgnore
     @set:JsonIgnore
@@ -118,13 +118,4 @@ class Document : StoredICureDocument(), Serializable {
         }
         return attachment
     }
-
-    fun getOtherUtis(): Set<String> {
-        return otherUtis
-    }
-
-    fun setOtherUtis(otherUtis: MutableSet<String>) {
-        this.otherUtis = otherUtis
-    }
-
 }

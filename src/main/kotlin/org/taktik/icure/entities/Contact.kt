@@ -69,9 +69,9 @@ class Contact : StoredICureDocument {
                 BiFunction { a: SubContact, b: SubContact? ->
                     a.solveConflictWith(b!!)
                     a
-                })
+                })?.toMutableSet()
         services = mergeSets<Service, Set<Service>?>(services, other.services, TreeSet(),
-                BiFunction { a: Service?, b: Service? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: Service, other: Service? -> obj.solveConflictWith(other!!) })
+                BiFunction { a: Service?, b: Service? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: Service, other: Service? -> obj.solveConflictWith(other!!) })?.toMutableSet()
         return this
     }
 
@@ -80,22 +80,6 @@ class Contact : StoredICureDocument {
         this.healthcarePartyId = healthcarePartyId
         openingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)
         responsible = healthcarePartyId
-    }
-
-    fun getServices(): Set<Service>? {
-        return services
-    }
-
-    fun setServices(services: Set<Service>?) {
-        this.services = TreeSet(services)
-    }
-
-    fun getSubContacts(): Set<SubContact>? {
-        return subContacts
-    }
-
-    fun setSubContacts(subContacts: Set<SubContact>?) {
-        this.subContacts = subContacts
     }
 
 }

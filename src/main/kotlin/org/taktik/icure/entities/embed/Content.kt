@@ -56,7 +56,7 @@ class Content : Serializable {
 
     @JsonProperty("x")
     @Json(name = "x")
-    var binaryValue: ByteArray
+    var binaryValue: ByteArray? = null
 
     @JsonProperty("d")
     @Json(name = "d")
@@ -75,7 +75,7 @@ class Content : Serializable {
     var compoundValue: List<Service>? = null
 
     @JsonIgnore
-    var compressedStringValue: ByteArray
+    var compressedStringValue: ByteArray? = null
 
     constructor() {}
     constructor(stringValue: String?) {

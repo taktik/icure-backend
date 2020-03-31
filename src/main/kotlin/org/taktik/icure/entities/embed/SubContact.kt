@@ -62,10 +62,10 @@ class SubContact : ICureDocument, Serializable {
             : String? = null
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected var codes: MutableSet<CodeStub> = HashSet()
+    override var codes: MutableSet<CodeStub> = HashSet()
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected var tags: MutableSet<CodeStub> = HashSet()
+    override var tags: MutableSet<CodeStub> = HashSet()
     var formId // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
             : String? = null
     var planOfActionId: String? = null
@@ -82,28 +82,12 @@ class SubContact : ICureDocument, Serializable {
         healthElementId = if (healthElementId == null) other.healthElementId else healthElementId
         classificationId = if (classificationId == null) other.classificationId else classificationId
         services = MergeUtil.mergeListsDistinct(services, other.services,
-                { a: ServiceLink?, b: ServiceLink? -> a == null && b == null || a != null && b != null && a.getServiceId() == b.getServiceId() }
+                { a: ServiceLink?, b: ServiceLink? -> a == null && b == null || a != null && b != null && a.serviceId == b.serviceId }
         ) { a: ServiceLink?, b: ServiceLink? -> a }
         return this
     }
 
     override var encryptedSelf: String? = null
-
-    override fun getCodes(): Set<CodeStub> {
-        return codes
-    }
-
-    override fun setCodes(codes: MutableSet<CodeStub>) {
-        this.codes = codes
-    }
-
-    override fun getTags(): Set<CodeStub> {
-        return tags
-    }
-
-    override fun setTags(tags: MutableSet<CodeStub>) {
-        this.tags = tags
-    }
 
     companion object {
         private const val serialVersionUID = 1L

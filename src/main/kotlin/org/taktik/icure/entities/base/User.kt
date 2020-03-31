@@ -26,9 +26,11 @@ import java.util.ArrayList
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class User : Versionable<String?> {
+
     @JsonProperty("_id")
     @Json(name = "_id")
     override var id: String? = null
+        set(value) {}
 
     @JsonProperty("_rev")
     @Json(name = "_rev")
@@ -47,10 +49,4 @@ class User : Versionable<String?> {
 
     override val revHistory: Map<String, String>?
         get() = null
-
-    override fun getId(): String? {
-        return null
-    }
-
-    override fun setId(id: String?) {}
 }

@@ -30,7 +30,28 @@ import java.util.HashSet
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Permission : Cloneable, Serializable {
     protected var grant = 0
+    get() {
+        var grant = grant
+        // Remove invalid grant TYPE
+        for (permissionType in Permissions.Type.values()) {
+            if (!canBeUsedWith(permissionType)) {
+                grant = grant and permissionType.bitValue.inv()
+            }
+        }
+        return grant
+    }
     protected var revoke = 0
+    get() {
+        var revoke = revoke
+
+        // Remove invalid revoke TYPE
+        for (permissionType in Permissions.Type.values()) {
+            if (!canBeUsedWith(permissionType)) {
+                revoke = revoke and permissionType.bitValue.inv()
+            }
+        }
+        return revoke
+    }
     protected var criteria: MutableSet<PermissionCriterion?>? = HashSet()
     fun grant(permissionType: Permissions.Type) {
         // Grant TYPE
@@ -71,34 +92,10 @@ class Permission : Cloneable, Serializable {
         return !isGranted(permissionType) && !isRevoked(permissionType)
     }
 
-    fun getGrant(): Int {
-        var grant = grant
-
-        // Remove invalid grant TYPE
-        for (permissionType in Permissions.Type.values()) {
-            if (!canBeUsedWith(permissionType)) {
-                grant = grant and permissionType.bitValue.inv()
-            }
-        }
-        return grant
-    }
-
-    fun getRevoke(): Int {
-        var revoke = revoke
-
-        // Remove invalid revoke TYPE
-        for (permissionType in Permissions.Type.values()) {
-            if (!canBeUsedWith(permissionType)) {
-                revoke = revoke and permissionType.bitValue.inv()
-            }
-        }
-        return revoke
-    }
-
     protected fun canBeUsedWith(permissionType: Permissions.Type): Boolean {
-        if (getCriteria() != null && !getCriteria()!!.isEmpty()) {
-            for (criterion in getCriteria()!!) {
-                if (!permissionType.isCriterionTypeSupported(criterion.getType())) {
+        if (criteria != null && criteria!!.isNotEmpty()) {
+            for (criterion in criteria!!) {
+                if (!permissionType.isCriterionTypeSupported(criterion!!.type)) {
                     return false
                 }
             }
@@ -107,25 +104,14 @@ class Permission : Cloneable, Serializable {
         return permissionType.isNoCriterionSupported
     }
 
-    fun getCriteria(): Set<PermissionCriterion?>? {
-        return criteria
-    }
-
-    fun setGrant(grant: Int) {
-        this.grant = grant
-    }
-
-    fun setRevoke(revoke: Int) {
-        this.revoke = revoke
-    }
 
     @get:JsonIgnore
     val isUseless: Boolean
-        get() = getGrant() == 0 && getRevoke() == 0
+        get() = grant == 0 && revoke == 0
 
     fun conflictWith(permission: Permission): Boolean {
         return if (hasSameCriteriaAs(permission)) {
-            getGrant() and permission.getRevoke() != 0 || getRevoke() and permission.getGrant() != 0
+            grant and permission.revoke != 0 || revoke and permission.grant != 0
         } else false
     }
 
@@ -135,17 +121,13 @@ class Permission : Cloneable, Serializable {
 
     fun hasSameCriteriaAs(permission: Permission): Boolean {
         return if (criteria == null) {
-            permission.getCriteria() == null
-        } else permission.getCriteria() != null && criteria == permission.getCriteria()
+            permission.criteria == null
+        } else permission.criteria != null && criteria == permission.criteria
     }
 
     fun superScope(lookup: Permission): Boolean {
         // TODO improve this
         return hasNoCriteria() && !lookup.hasNoCriteria()
-    }
-
-    fun setCriteria(value: MutableSet<PermissionCriterion?>?) {
-        criteria = value
     }
 
     fun addToCriteria(value: PermissionCriterion?) {
@@ -175,8 +157,8 @@ class Permission : Cloneable, Serializable {
 
     public override fun clone(): Permission {
         val clone = Permission()
-        clone.setGrant(getGrant())
-        clone.setRevoke(getRevoke())
+        clone.grant = grant
+        clone.revoke = revoke
         if (criteria != null) {
             for (criterion in criteria!!) {
                 val criterionClone = criterion!!.clone()

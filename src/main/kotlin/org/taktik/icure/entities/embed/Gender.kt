@@ -27,8 +27,6 @@ import java.io.Serializable
 enum class Gender(val code: String) : Serializable {
     male("M"), female("F"), indeterminate("I"), changed("C"), changedToMale("Y"), changedToFemale("X"), unknown("U");
 
-    override val name: String
-
     override fun toString(): String {
         return code
     }

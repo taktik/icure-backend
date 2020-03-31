@@ -28,11 +28,11 @@ import java.util.HashSet
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Role : StoredDocument(), Principal, Cloneable, Serializable, Cloneable {
+class Role : StoredDocument(), Principal, Cloneable, Serializable {
     override var name: String? = null
     override var virtualHostDependency: VirtualHostDependency? = null
-    override var properties: Set<Property> = HashSet()
-    override var permissions: Set<Permission> = HashSet()
+    override var properties: Set<Property?>? = HashSet()
+    override var permissions: Set<Permission?>? = HashSet()
     var children: Set<String> = HashSet()
     override var parents: Set<String> = HashSet()
     var users: Set<String> = HashSet()

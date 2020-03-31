@@ -59,7 +59,15 @@ class HealthElement : StoredICureDocument() {
             : Int? = null
     var laterality: Laterality? = null
     private var plansOfAction: @Valid MutableList<PlanOfAction>? = ArrayList()
+    get() {
+        if (field == null) field = ArrayList()
+        return field!!
+    }
     private var episodes: @Valid MutableList<Episode>? = ArrayList()
+    get() {
+        if (field == null) field = ArrayList()
+        return field!!
+    }
     var careTeam: List<CareTeamMember> = ArrayList()
     fun solveConflictWith(other: HealthElement): HealthElement {
         super.solveConflictsWith(other)
@@ -73,29 +81,10 @@ class HealthElement : StoredICureDocument() {
         idService = if (idService == null) other.idService else idService
         status = if (status == null) other.status else status
         plansOfAction = mergeListsDistinct(plansOfAction, other.plansOfAction,
-                BiFunction { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictWith(other!!) })
+                BiFunction { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictWith(other!!) }).toMutableList()
         careTeam = mergeListsDistinct(careTeam, other.careTeam, BiFunction { a: CareTeamMember?, b: CareTeamMember? -> a == b }, BiFunction { a: CareTeamMember, b: CareTeamMember? -> a })
         episodes = mergeListsDistinct(episodes, other.episodes,
-                BiFunction { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: Episode, other: Episode? -> obj.solveConflictWith(other!!) })
+                BiFunction { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: Episode, other: Episode? -> obj.solveConflictWith(other!!) }).toMutableList()
         return this
     }
-
-    fun getPlansOfAction(): List<PlanOfAction> {
-        if (plansOfAction == null) plansOfAction = ArrayList()
-        return plansOfAction!!
-    }
-
-    fun setPlansOfAction(plansOfAction: List<PlanOfAction>?) {
-        this.plansOfAction = plansOfAction
-    }
-
-    fun getEpisodes(): List<Episode> {
-        if (episodes == null) episodes = ArrayList()
-        return episodes!!
-    }
-
-    fun setEpisodes(episodes: List<Episode>?) {
-        this.episodes = episodes
-    }
-
 }

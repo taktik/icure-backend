@@ -28,7 +28,7 @@ import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Property : StoredDocument, Identifiable<String?>, Cloneable, Serializable, Cloneable {
+class Property : StoredDocument, Identifiable<String?>, Cloneable, Serializable {
     var type: PropertyType? = null
     var typedValue: TypedValue? = null
 
@@ -45,32 +45,32 @@ class Property : StoredDocument, Identifiable<String?>, Cloneable, Serializable,
     }
 
     constructor(type: PropertyType?, value: Boolean?) {
-        type = type
+        this.type = type
         typedValue = TypedValue(value)
     }
 
     constructor(type: PropertyType?, value: Int?) {
-        type = type
+        this.type = type
         typedValue = TypedValue(value)
     }
 
     constructor(type: PropertyType?, value: Double?) {
-        type = type
+        this.type = type
         typedValue = TypedValue(value)
     }
 
     constructor(type: PropertyType?, value: String?) {
-        type = type
+        this.type = type
         typedValue = TypedValue(value)
     }
 
     constructor(type: PropertyType?, value: Instant?) {
-        type = type
+        this.type = type
         typedValue = TypedValue(value)
     }
 
     constructor(type: PropertyType?, value: Long?) {
-        type = type
+        this.type = type
         typedValue = TypedValue(value)
     }
 

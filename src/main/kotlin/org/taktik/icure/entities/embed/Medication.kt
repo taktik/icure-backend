@@ -101,11 +101,11 @@ class Medication : Serializable {
             if (regimen == null || regimen!!.size == 0) {
                 return posology
             }
-            var unit = if (regimen!![0].getAdministratedQuantity() == null) null else if (regimen!![0].getAdministratedQuantity().getAdministrationUnit() != null) regimen!![0].getAdministratedQuantity().getAdministrationUnit().getCode() else regimen!![0].getAdministratedQuantity().getUnit()
-            var quantity = if (regimen!![0].getAdministratedQuantity() == null) null else regimen!![0].getAdministratedQuantity().getQuantity()
+            var unit = if (regimen!![0].administratedQuantity == null) null else if (regimen!![0].administratedQuantity?.administrationUnit != null) regimen!![0].administratedQuantity?.administrationUnit?.code else regimen!![0].administratedQuantity?.unit
+            var quantity = if (regimen!![0].administratedQuantity == null) null else regimen!![0].administratedQuantity?.quantity
             for (ri in regimen!!.subList(1, regimen!!.size)) {
-                val oUnit = if (ri.getAdministratedQuantity() == null) null else if (ri.getAdministratedQuantity().getAdministrationUnit() != null) ri.getAdministratedQuantity().getAdministrationUnit().getCode() else ri.getAdministratedQuantity().getUnit()
-                val oQuantity = if (ri.getAdministratedQuantity() == null) null else ri.getAdministratedQuantity().getQuantity()
+                val oUnit = if (ri.administratedQuantity == null) null else if (ri.administratedQuantity!!.administrationUnit != null) ri.administratedQuantity!!.administrationUnit?.code else ri.administratedQuantity!!.unit
+                val oQuantity = if (ri.administratedQuantity == null) null else ri.administratedQuantity!!.quantity
                 if (!StringUtils.equals(unit, oUnit)) {
                     unit = "take(s)"
                 }

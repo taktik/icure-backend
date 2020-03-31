@@ -67,8 +67,8 @@ class HealthcareParty : StoredDocument(), Person, CryptoActor {
             : String? = null
     var ssin: String? = null
     override var addresses: MutableList<Address> = LinkedList()
-    override var languages: List<String> = LinkedList()
-    var picture: ByteArray?
+    override var languages: MutableList<String> = LinkedList()
+    var picture: ByteArray? = null
     var statuses: List<HealthcarePartyStatus>? = null
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
@@ -145,7 +145,7 @@ class HealthcareParty : StoredDocument(), Person, CryptoActor {
             notes = other.notes
         }
         hcPartyKeys = mergeMapsOfArraysDistinct(hcPartyKeys, other.hcPartyKeys, BiFunction { obj: String, anObject: String? -> obj.equals(anObject) }, BiFunction { a: String, b: String? -> a })
-        languages = mergeListsDistinct(languages, other.languages, BiFunction { obj: String, anotherString: String? -> obj.equals(anotherString, ignoreCase = true) }, BiFunction { a: String, b: String? -> a })
+        languages = mergeListsDistinct(languages, other.languages, BiFunction { obj: String, anotherString: String? -> obj.equals(anotherString, ignoreCase = true) }, BiFunction { a: String, b: String? -> a }).toMutableList()
         if (speciality == null && other.speciality != null) {
             speciality = other.speciality
         }

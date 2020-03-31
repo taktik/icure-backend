@@ -34,7 +34,7 @@ enum class AutoFix(private val fixer: suspend (b:Any?,v:Any?,sl:AsyncSessionLogi
     NORMALIZECODE({ b: Any?, v: Any?, sl: AsyncSessionLogic? ->
         val c = v as CodeIdentification
         if (c.id != null) {
-            val parts = c.id.split("|").toTypedArray()
+            val parts = c.id!!.split("|").toTypedArray()
             if (c.type == null) {
                 c.type = parts[0]
             }

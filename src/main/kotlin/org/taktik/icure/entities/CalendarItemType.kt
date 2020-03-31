@@ -13,7 +13,7 @@ class CalendarItemType : StoredDocument(), Serializable {
     var name: String? = null
     var color //"#123456"
             : String? = null
-    var duration // mikrono: int durationInMinutes; = 0
+    var duration = 0 // mikrono: int durationInMinutes; = 0
     var externalRef // same as topaz Id, to be used by mikrono
             : String? = null
     var mikronoId: String? = null

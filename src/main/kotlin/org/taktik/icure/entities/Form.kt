@@ -41,7 +41,11 @@ class Form : StoredICureDocument() {
     var parent: String? = null
 
     @JsonIgnore
-    protected var children: List<Form>? = ArrayList()
+    var children: List<Form>? = ArrayList()
+    get() {
+        if (field == null) field = ArrayList()
+        return field
+    }
     var isHasBeenInitialized: Boolean? = null
     fun solveConflictWith(other: Form): Form {
         super.solveConflictsWith(other)
@@ -53,16 +57,4 @@ class Form : StoredICureDocument() {
         isHasBeenInitialized = if (isHasBeenInitialized == null) other.isHasBeenInitialized else if (other.isHasBeenInitialized == null) isHasBeenInitialized else java.lang.Boolean.valueOf(isHasBeenInitialized!! || other.isHasBeenInitialized!!)
         return this
     }
-
-    @JsonIgnore
-    fun getChildren(): List<Form> {
-        if (children == null) children = ArrayList()
-        return children!!
-    }
-
-    @JsonIgnore
-    fun setChildren(children: List<Form>?) {
-        this.children = children
-    }
-
 }

@@ -43,7 +43,7 @@ class MedicalHouseContract {
             : Long? = null
     var suspensionReason: SuspensionReason? = null
     var suspensionSource: String? = null
-    var isForcedSuspension //no automatic unSuspension = false
+    var isForcedSuspension = false //no automatic unSuspension = false
 
     fun mergeFrom(other: MedicalHouseContract?) {
         //TODO: implement

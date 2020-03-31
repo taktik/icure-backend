@@ -118,11 +118,11 @@ class Service : ICureDocument, Serializable, Comparable<Service> {
 
     //For the content of the Service
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected var codes: MutableSet<CodeStub> = HashSet() //stub object of the Code
+    override var codes: MutableSet<CodeStub> = HashSet() //stub object of the Code
 
     //For the type of the Service
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected var tags: MutableSet<CodeStub> = HashSet() //stub object of the tag
+    override var tags: MutableSet<CodeStub> = HashSet() //stub object of the tag
     override var encryptedSelf: String? = null
     fun solveConflictWith(other: Service): Service {
         created = if (other.created == null) created else if (created == null) other.created else java.lang.Long.valueOf(Math.min(created!!, other.created!!))
@@ -135,30 +135,6 @@ class Service : ICureDocument, Serializable, Comparable<Service> {
         invoicingCodes.addAll(other.invoicingCodes)
         formId = if (formId == null) other.formId else formId
         return this
-    }
-
-    fun getInvoicingCodes(): Set<String> {
-        return invoicingCodes
-    }
-
-    fun setInvoicingCodes(invoicingCodes: MutableSet<String>) {
-        this.invoicingCodes = invoicingCodes
-    }
-
-    override fun getCodes(): Set<CodeStub> {
-        return codes
-    }
-
-    override fun setCodes(codes: MutableSet<CodeStub>) {
-        this.codes = codes
-    }
-
-    override fun getTags(): Set<CodeStub> {
-        return tags
-    }
-
-    override fun setTags(tags: MutableSet<CodeStub>) {
-        this.tags = tags
     }
 
     override fun toString(): String {

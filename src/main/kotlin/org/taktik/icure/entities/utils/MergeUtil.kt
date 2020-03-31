@@ -189,8 +189,8 @@ object MergeUtil {
         return result
     }
 
-    fun <K, V> mergeMapsOfSets(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: BiFunction<in V, in V, Boolean>, merger: BiFunction<in V, in V, out V>): Map<K, Set<V>> {
-        val result: MutableMap<K, Set<V>> = HashMap()
+    fun <K, V> mergeMapsOfSets(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: BiFunction<in V, in V, Boolean>, merger: BiFunction<in V, in V, out V>): MutableMap<K, MutableSet<V>> {
+        val result: MutableMap<K, Mut<V>> = HashMap()
         val leftOverAKeys: MutableSet<K> = HashSet(a.keys)
         b.forEach { (key: K, bvs: Set<V>) ->
             if (a.containsKey(key)) {

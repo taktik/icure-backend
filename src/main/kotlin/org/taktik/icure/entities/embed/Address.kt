@@ -74,7 +74,7 @@ class Address : Serializable, Comparable<Address>, Encryptable {
             encryptedSelf = other.encryptedSelf
         }
         for (fromTelecom in other.telecoms) {
-            val destTelecom = telecoms.stream().filter { telecom: Telecom -> telecom.getTelecomType() == fromTelecom.getTelecomType() }.findAny()
+            val destTelecom = telecoms.stream().filter { telecom: Telecom -> telecom.telecomType == fromTelecom.telecomType }.findAny()
             if (destTelecom.isPresent) {
                 destTelecom.orElseThrow { IllegalStateException() }.mergeFrom(fromTelecom)
             } else {
@@ -109,7 +109,7 @@ class Address : Serializable, Comparable<Address>, Encryptable {
             encryptedSelf = other.encryptedSelf
         }
         for (fromTelecom in other.telecoms) {
-            val destTelecom = telecoms.stream().filter { telecom: Telecom -> telecom.getTelecomType() == fromTelecom.getTelecomType() }.findAny()
+            val destTelecom = telecoms.stream().filter { telecom: Telecom -> telecom.telecomType == fromTelecom.telecomType }.findAny()
             if (destTelecom.isPresent) {
                 destTelecom.orElseThrow { IllegalStateException() }.forceMergeFrom(fromTelecom)
             } else {
@@ -121,8 +121,8 @@ class Address : Serializable, Comparable<Address>, Encryptable {
     @JsonIgnore
     fun findMobile(): String? {
         for (t in telecoms) {
-            if (TelecomType.mobile == t.getTelecomType()) {
-                return t.getTelecomNumber()
+            if (TelecomType.mobile == t.telecomType) {
+                return t.telecomNumber
             }
         }
         return null
@@ -131,8 +131,8 @@ class Address : Serializable, Comparable<Address>, Encryptable {
     @JsonIgnore
     fun setMobile(value: String?) {
         for (t in telecoms) {
-            if (TelecomType.mobile == t.getTelecomType()) {
-                t.setTelecomNumber(value)
+            if (TelecomType.mobile == t.telecomType) {
+                t.telecomNumber = value
             }
         }
         if (value != null) {

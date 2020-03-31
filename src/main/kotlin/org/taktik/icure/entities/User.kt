@@ -38,10 +38,10 @@ import java.util.HashSet
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class User : StoredDocument(), Principal, Cloneable, Serializable, Cloneable {
+class User : StoredDocument(), Principal, Cloneable, Serializable {
     override var name: String? = null
-    override var properties: Set<Property> = HashSet()
-    override var permissions: Set<Permission> = HashSet()
+    override var properties: Set<Property>? = HashSet()
+    override var permissions: Set<Permission>? = HashSet()
     var type: Users.Type? = null
     var status: Users.Status? = null
     var login: String? = null

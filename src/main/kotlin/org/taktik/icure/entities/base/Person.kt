@@ -26,6 +26,6 @@ interface Person : Serializable, Identifiable<String?> {
     var gender: Gender?
     var firstName: String?
     var lastName: String?
-    var addresses: List<Address?>?
-    var languages: List<String?>?
+    var addresses: MutableList<Address>
+    var languages: MutableList<String>
 }

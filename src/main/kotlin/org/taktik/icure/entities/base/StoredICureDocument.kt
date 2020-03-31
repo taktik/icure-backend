@@ -50,7 +50,7 @@ abstract class StoredICureDocument : StoredDocument(), Versionable<String?>, ICu
     override var codes: MutableSet<CodeStub> = HashSet()
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override protected var tags: MutableSet<CodeStub> = HashSet()
+    override var tags: MutableSet<CodeStub> = HashSet()
 
     //Those are typically filled in the contacts
     //Used when we want to find all contacts for a specific patient

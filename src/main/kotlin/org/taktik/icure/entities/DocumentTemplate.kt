@@ -43,7 +43,7 @@ class DocumentTemplate : StoredDocument(), Serializable {
     var attachmentId: String? = null
 
     @JsonIgnore
-    var attachment: ByteArray
+    var attachment: ByteArray? = null
 
     @JsonIgnore
     var isAttachmentDirty = false
@@ -54,5 +54,4 @@ class DocumentTemplate : StoredDocument(), Serializable {
     var descr: String? = null
     var disabled: String? = null
     var specialty: Code? = null
-
 }

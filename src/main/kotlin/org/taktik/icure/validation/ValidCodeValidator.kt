@@ -35,6 +35,6 @@ class ValidCodeValidator : ConstraintValidator<ValidCode?, Any?> {
     private fun isValidItem(`object`: Any?): Boolean {
         return (`object` == null
                 || (`object` is Code
-                && `object`.id != null && `object`.code != null && `object`.type != null && `object`.id.startsWith(`object`.type + "|" + `object`.code)))
+                && `object`.id != null && `object`.code != null && `object`.type != null && `object`.id!!.startsWith(`object`.type + "|" + `object`.code)))
     }
 }

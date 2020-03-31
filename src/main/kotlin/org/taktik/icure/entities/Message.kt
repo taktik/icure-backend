@@ -112,19 +112,19 @@ class Message : StoredICureDocument(), Serializable {
 
     @get:JsonIgnore
     @set:JsonIgnore
-    var secretContactKeys: Set<String>?
-        get() = super.getSecretForeignKeys()
+    var secretContactKeys: MutableSet<String>?
+        get() = super.secretForeignKeys
         set(secretContactKeys) {
-            super.setSecretForeignKeys(secretContactKeys)
+            super.secretForeignKeys = secretContactKeys
         }
 
     @get:JsonIgnore
     val cryptedContactIds: Map<String, Set<Delegation>>
-        get() = super.getCryptedForeignKeys()
+        get() = super.cryptedForeignKeys
 
     @JsonIgnore
-    fun setCryptedContactIds(cryptedContactIds: Map<String?, Set<Delegation?>?>?) {
-        super.setCryptedForeignKeys(cryptedContactIds)
+    fun setCryptedContactIds(cryptedContactIds: MutableMap<String, MutableSet<Delegation>>) {
+        super.cryptedForeignKeys = cryptedContactIds
     }
 
     fun getRecipients(): Set<String> {

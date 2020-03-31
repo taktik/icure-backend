@@ -31,7 +31,7 @@ import java.util.Date
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class TypedValue : Comparable<TypedValue>, Cloneable, Serializable, Cloneable {
+class TypedValue<T>  : Comparable<TypedValue<T>>, Cloneable, Serializable {
     var type: TypedValuesType? = null
     var booleanValue: Boolean? = null
     var integerValue: Int? = null
@@ -124,8 +124,8 @@ class TypedValue : Comparable<TypedValue>, Cloneable, Serializable, Cloneable {
         }
     }
 
-    override fun compareTo(other: TypedValue): Int {
-        return (getValue<Any>() as Comparable<*>).compareTo(other.getValue<Any>())
+    override fun compareTo(other: TypedValue<T>): Int? {
+        return other.getValue<T>()?.let { (getValue<Any>() as Comparable<*>).compareTo(it) }
     }
 
     override fun hashCode(): Int {
@@ -143,7 +143,7 @@ class TypedValue : Comparable<TypedValue>, Cloneable, Serializable, Cloneable {
     override fun equals(obj: Any?): Boolean {
         if (this === obj) return true
         if (javaClass != obj!!.javaClass) return false
-        val other = obj as TypedValue?
+        val other = obj as TypedValue<T>?
         if (booleanValue == null) {
             if (other!!.booleanValue != null) return false
         } else if (booleanValue != other!!.booleanValue) return false

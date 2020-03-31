@@ -18,9 +18,5 @@
 package org.taktik.icure.entities.base
 
 interface HasTags {
-    var tags: Set<CodeStub>
-    set(value:MutableSet<CodeStub>) =
-
-//    fun getTags(): Set<CodeStub>
-//    fun setTags(tags: MutableSet<CodeStub>)
+    var tags: MutableSet<CodeStub>
 }

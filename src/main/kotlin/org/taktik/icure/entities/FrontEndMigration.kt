@@ -7,7 +7,7 @@ import org.taktik.icure.entities.embed.FrontEndMigrationStatus
 import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FrontEndMigration : StoredDocument, Identifiable<String?>, Cloneable, Serializable, Cloneable {
+class FrontEndMigration : StoredDocument, Identifiable<String?>, Cloneable, Serializable {
     var name: String? = null
     var startDate: Long? = null
     var endDate: Long? = null
