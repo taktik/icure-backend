@@ -33,7 +33,6 @@ import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
-import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
 import org.taktik.icure.entities.HealthElement
@@ -86,7 +85,7 @@ class KmehrFacade(
 ) : OpenApiFacade {
 
     @Value("\${icure.version}")
-    internal val ICUREVERSION: String = "4.0.0"
+    val ICUREVERSION: String = "4.0.0"
 
 
     @ApiOperation(value = "Generate diarynote", httpMethod = "POST", notes = "")
@@ -94,7 +93,7 @@ class KmehrFacade(
     @Path("/diarynote/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateDiaryNote(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: DiaryNoteExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null, Config(_kmehrId = System.currentTimeMillis().toString(),
+        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.isPsy, info.documentId, info.attachmentId,null, Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli())!!,
                 time = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
                 soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),

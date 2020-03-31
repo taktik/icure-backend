@@ -72,7 +72,7 @@ open class KmehrExport {
 
     val unitCodes = HashMap<String,Code>()
 
-    internal val STANDARD = "20170901"
+    val STANDARD = "20170901"
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
 
     fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType {

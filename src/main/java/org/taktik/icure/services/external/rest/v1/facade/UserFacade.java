@@ -234,7 +234,19 @@ public class UserFacade implements OpenApiFacade{
 		return Response.ok().entity(userLogic.checkPassword(password)).build();
 	}
 
-	@ApiOperation(
+    @ApiOperation(
+            value = "Check the validity of the password for the logged user",
+            response = Boolean.class,
+            httpMethod = "GET",
+            notes = "General information about the user"
+    )
+    @GET
+    @Path("/encodePassword")
+    public Response encodePassword(@HeaderParam("password") String password) {
+        return Response.ok().entity(userLogic.encodePassword(password)).build();
+    }
+
+    @ApiOperation(
 			value = "Send a forgotten email message to an user",
 			response = Boolean.class,
 			httpMethod = "PUT"
