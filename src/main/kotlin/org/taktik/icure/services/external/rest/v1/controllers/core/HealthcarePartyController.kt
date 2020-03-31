@@ -260,9 +260,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @PutMapping("/inGroup/{groupId}")
     fun modifyHealthcarePartyInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyDto: HealthcarePartyDto) = mono {
         try {
-            healthcarePartyLogic.modifyHealthcareParty(groupId, mapper.map(healthcarePartyDto, HealthcareParty::class.java))
-            val modifiedHealthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyDto.id)
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
+            val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(groupId, mapper.map(healthcarePartyDto, HealthcareParty::class.java)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
             mapper.map(modifiedHealthcareParty, HealthcarePartyDto::class.java)
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)

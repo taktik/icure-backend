@@ -13,6 +13,7 @@ import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
+import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.base.Security
@@ -27,6 +28,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
                      private val sessionLogic: AsyncSessionLogic,
                      private val groupDAO: GroupDAO,
                      private val userDAO: UserDAO,
+                     private val iCureLogic: ICureLogic,
                      private val couchDbProperties: CouchDbProperties,
                      private val threadPoolTaskExecutor: TaskExecutor) : GroupLogic {
 
@@ -84,7 +86,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
         }
 
         val result = groupDAO.save(group)
-        return if (result?.rev != null) result else null
+        return if (result?.rev != null) result.also { iCureLogic.updateAllDesignDoc(it.id) } else null
     }
 
     override suspend fun getGroup(groupId: String): Group? {

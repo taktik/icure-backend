@@ -35,7 +35,7 @@ class GroupController(couchDbProperties: CouchDbProperties,
     @PostMapping("/{id}")
     fun createGroup(@PathVariable id: String,
                             @RequestParam name: String,
-                            @RequestParam password: String,
+                            @RequestHeader password: String,
                             @RequestParam(required = false) server: String?,
                             @RequestParam(required = false) q: Int?,
                             @RequestParam(required = false) n: Int?,

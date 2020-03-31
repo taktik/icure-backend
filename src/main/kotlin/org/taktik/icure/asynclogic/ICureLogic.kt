@@ -7,4 +7,5 @@ interface ICureLogic {
     suspend fun updateDesignDoc(daoEntityName: String)
     fun getVersion(): String
     suspend fun getReplicationInfo(groupId: String): ReplicationInfoDto
+    suspend fun updateAllDesignDoc(groupId: String)
 }

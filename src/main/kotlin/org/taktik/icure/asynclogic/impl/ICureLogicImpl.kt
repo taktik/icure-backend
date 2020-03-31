@@ -21,8 +21,11 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.applications.utils.JarUtils
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.asyncdao.GenericDAO
+import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.ICureDAO
+import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.*
+import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationInfoDto
@@ -33,7 +36,9 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
                      private val sessionLogic: AsyncSessionLogic,
                      private val iCureDAO: ICureDAO,
                      private val propertyLogic: PropertyLogic,
-                     private val allDaos: List<GenericDAO<*>>) : ICureLogic {
+                     private val allDaos: List<GenericDAO<*>>,
+                     private val userDAO: UserDAO,
+                     private val groupDAO: GroupDAO) : ICureLogic {
 
     private val dbInstanceUri = URI(couchDbProperties.url)
 
@@ -59,8 +64,20 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         allDaos
                 .firstOrNull { dao: GenericDAO<*> -> dao.javaClass.simpleName.startsWith(daoEntityName + "DAO") }
-                ?.let { dao: GenericDAO<*> -> dao.forceInitStandardDesignDocument(dbInstanceUri, groupId) } // TODO AD: missing function from GenericLogic
+                ?.let { dao: GenericDAO<*> -> dao.forceInitStandardDesignDocument(dbInstanceUri, groupId) }
     }
+
+    override suspend fun updateAllDesignDoc(groupId: String) {
+        val group = getDestinationGroup(groupId)
+        allDaos.forEach { dao: GenericDAO<*> ->
+            try {
+                dao.forceInitStandardDesignDocument(URI.create(group.dbInstanceUrl()
+                        ?: dbInstanceUri.toASCIIString()), group.id)
+            } catch (ignored: Throwable) {
+            }
+        }
+    }
+
 
     override fun getVersion(): String {
         val manifest = JarUtils.getManifest()
@@ -71,4 +88,17 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
             propertyLogic.getSystemPropertyValue<Any>(PropertyTypes.System.VERSION.identifier).toString().trim { it <= ' ' }
         }
     }
+
+    protected suspend fun getDestinationGroup(groupId: String): Group {
+        val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId
+                ?: throw IllegalAccessException("Invalid user, no group")
+        val group = groupDAO.get(groupId)
+
+        if (group?.superGroup != userGroupId) {
+            throw IllegalAccessException("You are not allowed to access this group database")
+        }
+        return group
+    }
+
 }
