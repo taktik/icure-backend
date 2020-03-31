@@ -296,22 +296,16 @@ class SoftwareMedicalFileExport : KmehrExport() {
 						}
 
                         contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
-                            headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService))
+                            headingsAndItemsAndTexts.add(makeIncapacityItem(healthcareParty, incapacityService))
                             incapacityService.content[language]?.documentId?.let { docId ->
                                 createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config)
                             }
                         }
                         contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
                             specialPrescriptions.add(makeKinePrescriptionTransaction(kineService))
-                            kineService.content[language]?.documentId?.let { docId ->
-                                createLinkToDocument(docId, healthcareParty, kineService, folder, language, config)
-                            }
                         }
                         contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
                             specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService))
-                            nurseService.content[language]?.documentId?.let { docId ->
-                                createLinkToDocument(docId, healthcareParty, nurseService, folder, language, config)
-                            }
                         }
 
 						// services
@@ -542,42 +536,42 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		return folder
 	}
 
-    private fun makeNursePrescriptionTransaction(service: Service): TransactionType {
-        return makeSpecialPrescriptionTransaction(service, "nursing")
+    private fun makeNursePrescriptionTransaction(contact: Service): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "nursing")
     }
 
-    private fun makeKinePrescriptionTransaction(service: Service): TransactionType {
-        return makeSpecialPrescriptionTransaction(service,"physiotherapy")
+    private fun makeKinePrescriptionTransaction(contact: Service): TransactionType {
+        return makeSpecialPrescriptionTransaction(contact, "physiotherapy")
     }
 
-    private fun makeSpecialPrescriptionTransaction(contact: Service, transactionType: String): TransactionType {
+    private fun makeSpecialPrescriptionTransaction(service: Service, transactionType: String): TransactionType {
+        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+
         return TransactionType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
-            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = contact.id })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = service.id })
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "prescription" })
             cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; value = transactionType })
-            contact.modified?.let {
+            (service.modified ?: service.created)?.let {
                 date = makeXGC(it)
                 time = makeXGC(it, unsetMillis = true)
             }
-            contact.responsible?.let {
+            service.responsible?.let {
                 author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
             }
-            contact.created?.let {
+            service.created?.let {
                 recorddatetime = Utils.makeXGC(it)
             }
             isIscomplete = true
             isIsvalidated = true
 
-            contact.id?.let { contactId ->
-                headingsAndItemsAndTexts.add(
-                        LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(contactId) }
-                )
+            service.content[lang]?.documentId?.let {
+                documentLogic?.get(it)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
             }
         }
     }
 
-    private fun makeIncapacityItem(service: Service, index: Number = 0): ItemType {
+    private fun makeIncapacityItem(healthcareParty: HealthcareParty, service: Service, index: Number = 0): ItemType {
         val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
 
         fun getCompoundValueContent(label: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
