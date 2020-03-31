@@ -24,9 +24,15 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DatabaseSynchronization implements Serializable {
+    public enum Target {
+        base, healthdata, patient
+    }
+
 	protected String source;
 	protected String target;
 	protected String filter;
+
+	protected Target localTarget;
 
 	public DatabaseSynchronization() {
 	}
@@ -52,17 +58,39 @@ public class DatabaseSynchronization implements Serializable {
 		return filter;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		DatabaseSynchronization that = (DatabaseSynchronization) o;
-		return Objects.equals(source, that.source) &&
-				Objects.equals(target, that.target);
-	}
+    public Target getLocalTarget() {
+        return localTarget;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(source, target);
-	}
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public void setLocalTarget(Target localTarget) {
+        this.localTarget = localTarget;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DatabaseSynchronization)) return false;
+        DatabaseSynchronization that = (DatabaseSynchronization) o;
+        return Objects.equals(source, that.source) &&
+                Objects.equals(target, that.target) &&
+                Objects.equals(filter, that.filter) &&
+                localTarget == that.localTarget;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(source, target, filter, localTarget);
+    }
 }

@@ -23,6 +23,7 @@ import java.io.Serializable;
 public class DatabaseSynchronizationDto implements Serializable {
 	String source;
 	String target;
+    String localTarget;
 
 	public DatabaseSynchronizationDto() {
 	}
@@ -47,4 +48,12 @@ public class DatabaseSynchronizationDto implements Serializable {
 	public void setTarget(String target) {
 		this.target = target;
 	}
+
+    public String getLocalTarget() {
+        return localTarget;
+    }
+
+    public void setLocalTarget(String localTarget) {
+        this.localTarget = localTarget;
+    }
 }

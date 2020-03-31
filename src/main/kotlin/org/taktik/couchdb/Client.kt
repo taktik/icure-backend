@@ -37,6 +37,7 @@ import java.nio.ByteBuffer
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -74,6 +75,32 @@ class DesignDocument(
 
     @Json(name = "_rev")
     override fun getRev(): String? = _rev
+}
+
+class ReplicatorDocument(
+        private var _id: String,
+        private var _rev: String? = null,
+        val source: String? = null,
+        val target: String? = null,
+        val create_target: Boolean = false,
+        val continuous: Boolean = false) : CouchDbDocument {
+    @Json(name = "_id")
+    override fun getId(): String = _id
+    @Json(name = "_id")
+    override fun setId(id: String) {
+        _id = id
+    }
+
+    @Json(name = "_rev")
+    override fun getRev(): String? = _rev
+    @Json(name = "_rev")
+    override fun setRev(rev: String?) {
+        _rev = rev
+    }
+
+    override fun getRevHistory(): MutableMap<String, String> {
+        return HashMap()
+    }
 }
 
 
