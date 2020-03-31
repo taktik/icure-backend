@@ -45,29 +45,33 @@ object Utils {
         return date?.let {
             if (it % 10000000000 == 0L) it / 10000000000 else if (it % 100000000 == 0L) it / 100000000 else if (it < 99991231 && it % 10000 == 0L) it / 10000 else if (it < 99991231 && it % 100 == 0L) it / 100 else it /*normalize*/
         }?.let { d ->
-            XMLGregorianCalendarImpl().apply {
-                millisecond = FIELD_UNDEFINED
-                timezone = FIELD_UNDEFINED
+            try {
+                XMLGregorianCalendarImpl().apply {
+                    millisecond = FIELD_UNDEFINED
+                    timezone = FIELD_UNDEFINED
 
-                hour = FIELD_UNDEFINED
-                minute = FIELD_UNDEFINED
-                second = FIELD_UNDEFINED
+                    hour = FIELD_UNDEFINED
+                    minute = FIELD_UNDEFINED
+                    second = FIELD_UNDEFINED
 
-                when (d) {
-                    in 0..9999 -> {
-                        year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
-                    }
-                    in 0..999912 -> {
-                        year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
-                    }
-                    in 0..99991231 -> {
-                        year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
-                    }
-                    else -> {
-                        year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
-                        hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
+                    when (d) {
+                        in 0..9999 -> {
+                            year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
+                        }
+                        in 0..999912 -> {
+                            year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
+                        }
+                        in 0..99991231 -> {
+                            year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
+                        }
+                        else -> {
+                            year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
+                            hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
+                        }
                     }
                 }
+            } catch (e: java.lang.IllegalArgumentException) {
+                null
             }
         }
     }

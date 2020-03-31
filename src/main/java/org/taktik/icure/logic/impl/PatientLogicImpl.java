@@ -320,7 +320,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 
         //TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
         //We will get partial results but at least we will not overload the servers
-        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.min(1000, offset.getLimit() * 10) : null;
+        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.max(1000, offset.getLimit() * 10) : null;
 
         Set<String> ids = new HashSet<>(patientDAO.listIdsByHcPartyAndNameContainsFuzzy(searchString, healthcarePartyId, limit));
 		List<Patient> patients = patientDAO.get(ids).stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList());
@@ -335,7 +335,7 @@ public class PatientLogicImpl extends GenericLogicImpl<Patient, PatientDAO> impl
 
 		//TODO return usefull data from the view like 3 first letters of names and date of birth that can be used to presort and reduce the number of items that have to be fully fetched
 		//We will get partial results but at least we will not overload the servers
-        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.min(1000, offset.getLimit() * 10) : null;
+        Integer limit = offset.getStartKey() == null && offset.getLimit() != null ? Math.max(1000, offset.getLimit() * 10) : null;
 
         Set<String> ids = new HashSet<>(patientDAO.listIdsOfHcPartyNameContainsFuzzy(searchString, healthcarePartyId, limit));
 		List<Patient> patients = patientDAO.get(ids).stream().sorted(getPatientComparator(sanSs, descending)).collect(Collectors.toList());
