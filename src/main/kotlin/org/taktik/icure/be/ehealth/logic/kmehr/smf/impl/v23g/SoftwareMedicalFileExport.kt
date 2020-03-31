@@ -57,6 +57,8 @@ import java.io.OutputStreamWriter
 import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 import javax.xml.bind.JAXBContext
@@ -216,20 +218,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
 			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
 
-			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
-				val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
-				ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
-
-				decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) }?.let {
-					it.apply {
-						this.services = HashSet(encContact.services.map {
-							this.services.find { o -> o.id == it.id } ?: it
-						})
-					}
-				} ?: encContact
-			} else {
-				encContact
-			}
+            val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
+                val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
+                ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
+                decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) } ?: encContact
+            } else {
+                encContact
+            }
 
             // newestServicesById should point to decrypted services
             contact.services.toList().forEach {
@@ -315,6 +310,25 @@ class SoftwareMedicalFileExport : KmehrExport() {
 								}
 							}
 						}
+
+                        contact.services.filter { s -> s.tags.find { t -> t.code == "incapacity" } != null }.forEach { incapacityService ->
+                            headingsAndItemsAndTexts.add(makeIncapacityItem(incapacityService))
+                            incapacityService.content[language]?.documentId?.let { docId ->
+                                createLinkToDocument(docId, healthcareParty, incapacityService, folder, language, config)
+                            }
+                        }
+                        contact.services.filter { s -> s.tags.find { t -> t.code == "physiotherapy" } != null }.forEach { kineService ->
+                            specialPrescriptions.add(makeKinePrescriptionTransaction(kineService))
+                            kineService.content[language]?.documentId?.let { docId ->
+                                createLinkToDocument(docId, healthcareParty, kineService, folder, language, config)
+                            }
+                        }
+                        contact.services.filter { s -> s.tags.find { t -> t.code == "medicalcares" } != null }.forEach { nurseService ->
+                            specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService))
+                            nurseService.content[language]?.documentId?.let { docId ->
+                                createLinkToDocument(docId, healthcareParty, nurseService, folder, language, config)
+                            }
+                        }
 
 						// services
 
@@ -578,6 +592,149 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		renumberKmehrIds(folder)
 		return folder
 	}
+
+    private fun makeNursePrescriptionTransaction(service: Service): TransactionType {
+        return makeSpecialPrescriptionTransaction(service, "nursing")
+    }
+
+    private fun makeKinePrescriptionTransaction(service: Service): TransactionType {
+        return makeSpecialPrescriptionTransaction(service,"physiotherapy")
+    }
+
+    private fun makeSpecialPrescriptionTransaction(contact: Service, transactionType: String): TransactionType {
+        return TransactionType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = contact.id })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "prescription" })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION_TYPE; value = transactionType })
+            contact.modified?.let {
+                date = makeXGC(it)
+                time = makeXGC(it, unsetMillis = true)
+            }
+            contact.responsible?.let {
+                author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+            }
+            contact.created?.let {
+                recorddatetime = Utils.makeXGC(it)
+            }
+            isIscomplete = true
+            isIsvalidated = true
+
+            contact.id?.let { contactId ->
+                headingsAndItemsAndTexts.add(
+                        LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(contactId) }
+                )
+            }
+        }
+    }
+
+    private fun makeIncapacityItem(service: Service, index: Number = 0): ItemType {
+        val lang = "fr" // FIXME: hardcoded "fr" but not sure if other languages can be used
+
+        fun getCompoundValueContent(label: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.content?.values?.firstOrNull()
+        fun getCompoundValueTag(label: String, tagType: String) = service.content?.get(lang)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType }
+        return ItemType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = index.toString() })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = ICUREVERSION; value = service.id })
+            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = "incapacity" })
+            service.tags?.firstOrNull { it.type == "MS-INCAPACITYTYPE" }?.code?.let { incapacityType ->
+                cds.add(CDITEM().apply { s = CDITEMschemes.LOCAL; value = incapacityType; sl = "PMF-PARAMETER"; l = lang; dn="incapacity type"  })
+            }
+
+            contents.add(ContentType().apply {
+                incapacity = IncapacityType().apply {
+                    (service.tags?.find { it.type == "CD-INCAPACITY" }
+                            ?: service.tags?.find { it.type == "CD-INCAPACITY-EXT" })?.let { incapacityTag ->
+                        cds.add(
+                                CDINCAPACITY().apply {
+                                    try {
+                                        value = CDINCAPACITYvalues.fromValue(incapacityTag.code)
+                                    } catch (e: IllegalArgumentException) {
+                                        // TODO ignored for now should be other
+                                    }
+                                }
+                        )
+                        getCompoundValueContent("Percentage")?.numberValue?.let {
+                            percentage = it.toBigDecimal()
+                        }
+                    }
+                    (getCompoundValueTag("Reason", "CD-INCAPACITYREASON")?.code
+                            ?: getCompoundValueTag("Reason", "CD-INCAPACITYREASON-EXT")?.code)
+                            ?.let { reasonValue ->
+                                incapacityreason = IncapacityreasonType().apply {
+                                    cd = CDINCAPACITYREASON().apply {
+                                        value = try {
+                                            CDINCAPACITYREASONvalues.fromValue(reasonValue)
+                                        } catch (e: IllegalArgumentException) {
+                                            CDINCAPACITYREASONvalues.fromValue("other")
+                                        }
+                                    }
+                                }
+                            }
+                    getCompoundValueTag("Outing", "MS-INCAPACITYOUTING")?.code?.let { outingCode ->
+                        isOutofhomeallowed = when (outingCode) {
+                            "allowed", "notrecommended" -> true
+                            else -> false
+                        }
+                    }
+
+                    getCompoundValueContent("Diagnosis")?.stringValue?.let { diagnosisText ->
+                        texts.add(TextType().apply {
+                            l = lang
+                            value = diagnosisText
+                        })
+                    }
+
+                }
+            })
+
+            lifecycle = LifecycleType().apply {
+                cd = CDLIFECYCLE().apply {
+                    value = service.tags?.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
+                            ?: CDLIFECYCLEvalues.ACTIVE
+                }
+            }
+            isIsrelevant = true
+            getCompoundValueContent("StartDate")?.instantValue?.let {
+                beginmoment = makeMomentType(it)
+            }
+            getCompoundValueContent("EndDate")?.instantValue?.let {
+                endmoment = makeMomentType(it)
+            }
+            service.modified?.let {
+                recorddatetime = Utils.makeXGC(it, true)
+            }
+        }
+    }
+
+    private fun createLinkToDocument(documentId: String, healthcareParty: HealthcareParty, service: Service, folder: FolderType, language: String, config: Config){
+        folder.transactions.add(TransactionType().apply {
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = service.id })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
+            (service.modified ?: service.created)?.let {
+                date = makeXGC(it)
+                time = makeXGC(it, unsetMillis = true)
+            }
+                    ?: also {
+                        date = config.date
+                        time = makeXGC(0L, unsetMillis = true)
+                    }
+            (service.responsible ?: healthcareParty.id)?.let {
+                author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+            }
+            isIscomplete = true
+            isIsvalidated = true
+            recorddatetime = Utils.makeXGC(service.modified, true)
+            service.comment?.let {
+                headingsAndItemsAndTexts.add(TextType().apply {
+                    l = language
+                    value = service.comment
+                })
+            }
+            documentLogic?.get(documentId)?.let { d -> d.attachment?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d); value = it }) } }
+            LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(service.id!!) }.also {headingsAndItemsAndTexts.add(it) }
+        })
+    }
 
     private fun addHistoryLinkAndCacheService(item: ItemType, svc: Service, config: Config) {
         svc.id?.let { svcId ->
