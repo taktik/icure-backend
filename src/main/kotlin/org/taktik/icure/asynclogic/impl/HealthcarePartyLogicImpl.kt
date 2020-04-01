@@ -207,9 +207,10 @@ class HealthcarePartyLogicImpl(
         emitAll(healthcarePartyDAO.getList(dbInstanceUri, groupId, ids))
     }
 
-    override fun getHealthcareParties(groupId: String, ids: List<String>) = flow {
+    override fun getHealthcareParties(groupId: String, ids: List<String>?) = flow {
         val group = getDestinationGroup(groupId)
-        emitAll(healthcarePartyDAO.getList(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, ids))
+        val uri = URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString())
+        emitAll(ids?.let { healthcarePartyDAO.getList(uri, group.id, it)} ?: healthcarePartyDAO.getAll(uri, groupId) )
     }
 
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {
