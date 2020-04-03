@@ -279,26 +279,25 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 val mm = org.taktik.icure.entities.Message()
 
+                val shortSendNumber = sendNumber.toInt() % 1000
+                val invBatch = createBatch(shortSendNumber, messageId, insurance, invoices, hcp)
+
                 mm.id = messageId
                 mm.invoiceIds = invoices.values.flatMap { it.map { it.id } }
                 mm.subject = "Facture tiers payant"
                 mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
-                mm.transportGuid = "EFACT:BATCH:$numericalRef"
+                mm.transportGuid = "EFACT:BATCH:${invBatch.numericalRef}"
                 mm.author = sessionLogic.currentSessionContext.user.id
                 mm.responsible = hcp.id
                 mm.fromHealthcarePartyId = hcp.id
                 mm.recipients = setOf(insurance.id)
 
-                val shortSendNumber = sendNumber.toInt() % 1000
-
                 mm.externalRef = ("" + shortSendNumber).padStart(3, '0')
-
-                val invBatch = createBatch(shortSendNumber, messageId, insurance, invoices, hcp)
 
                 mm.metas = mapOf(
                         "ioFederationCode" to (invBatch.ioFederationCode  ?: ""),
                         "numericalRef" to (invBatch.numericalRef?.toString() ?: ""),
-                        "invoiceMonth" to (invBatch.numericalRef?.toString() ?: ""),
+                        "invoiceMonth" to (invBatch.invoicingMonth.toString()),
                         "invoiceYear" to (invBatch.invoicingYear.toString()),
                         "totalAmount" to (invoices.values.sumByDouble { it.sumByDouble { it.invoicingCodes.sumByDouble { it.reimbursement } } } ).toString()
                 )
