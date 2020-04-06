@@ -77,7 +77,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         emitAll(codeDAO.getList(dbInstanceUri, groupId, ids))
     }
 
-    override suspend fun create(code: Code): Code? {
+    override suspend fun create(code: Code) = fix(code) { code ->
         Preconditions.checkNotNull(code.code, "Code field is null.")
         Preconditions.checkNotNull(code.type, "Type field is null.")
         Preconditions.checkNotNull(code.version, "Version code field is null.")
@@ -86,14 +86,14 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         code.id = code.type + "|" + code.code + "|" + code.version
 
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return codeDAO.create(dbInstanceUri, groupId, code)
+        codeDAO.create(dbInstanceUri, groupId, code)
     }
 
     @Throws(Exception::class)
-    override suspend fun modify(code: Code): Code? {
+    override suspend fun modify(code: Code) = fix(code) { code ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val existingCode = codeDAO.get(dbInstanceUri, groupId, code.id)
-        return existingCode?.let {
+        existingCode?.let {
             Preconditions.checkState(existingCode.code == code.code, "Modification failed. Code field is immutable.")
             Preconditions.checkState(existingCode.type == code.type, "Modification failed. Type field is immutable.")
             Preconditions.checkState(existingCode.version == code.version, "Modification failed. Version field is immutable.")

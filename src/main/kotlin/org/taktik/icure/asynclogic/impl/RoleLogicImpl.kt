@@ -99,19 +99,19 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         emitAll(roleDAO.getList(dbInstanceUri, groupId, role.children))
     }
 
-    override fun createEntities(entities: Collection<Role>) = flow<Role> {
+    override fun createEntities(entities: Collection<Role>) = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(roleDAO.create(dbInstanceUri, groupId, entities))
     }
 
     @Throws(Exception::class)
-    override fun updateEntities(roles: Collection<Role>) = flow<Role> {
+    override fun updateEntities(roles: Collection<Role>) = flow {
         roles.map { role: Role -> saveRole(role) }
                 .filterNotNull()
                 .onEach { emit(it) }
     }
 
-    override fun getAllEntities() = flow<Role>() {
+    override fun getAllEntities() = flow() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(roleDAO.getAll(dbInstanceUri, groupId))
     }

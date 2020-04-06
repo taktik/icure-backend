@@ -772,7 +772,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                 emit(UpdateSequence(offsetValue.toLong()))
                             }
                             ERROR_FIELD_NAME -> {
-                                error("Error executing request : ${jsonEvents.nextSingleValueAs<StringValue>().value}")
+                                error("Error executing request $request: ${jsonEvents.nextSingleValueAs<StringValue>().value}")
                             }
                             else -> jsonEvents.skipValue()
                         }

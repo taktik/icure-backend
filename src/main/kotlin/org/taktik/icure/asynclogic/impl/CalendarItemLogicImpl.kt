@@ -36,9 +36,9 @@ import org.taktik.icure.exceptions.DeletionException
 class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
                             private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItem, CalendarItemDAO>(sessionLogic), CalendarItemLogic {
 
-    override suspend fun createCalendarItem(calendarItem: CalendarItem): CalendarItem? {
+    override suspend fun createCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return calendarItemDAO.create(dbInstanceUri, groupId, calendarItem)
+        calendarItemDAO.create(dbInstanceUri, groupId, calendarItem)
     }
 
     override fun deleteCalendarItems(ids: List<String>): Flow<DocIdentifier> {
@@ -75,9 +75,9 @@ class CalendarItemLogicImpl(private val calendarItemDAO: CalendarItemDAO,
     }
 
 
-    override suspend fun modifyCalendarItem(calendarItem: CalendarItem): CalendarItem? {
+    override suspend fun modifyCalendarItem(calendarItem: CalendarItem) = fix(calendarItem) { calendarItem ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return calendarItemDAO.save(dbInstanceUri, groupId, calendarItem)
+        calendarItemDAO.save(dbInstanceUri, groupId, calendarItem)
     }
 
     override fun getGenericDAO(): CalendarItemDAO {

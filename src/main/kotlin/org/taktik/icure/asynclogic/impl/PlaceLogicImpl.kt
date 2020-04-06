@@ -13,9 +13,9 @@ import org.taktik.icure.asynclogic.PlaceLogic
 class PlaceLogicImpl(private val placeDAO: PlaceDAO,
                      private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Place, PlaceDAO>(sessionLogic), PlaceLogic {
 
-    override suspend fun createPlace(place: Place): Place? {
+    override suspend fun createPlace(place: Place) = fix(place) { place ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return placeDAO.create(dbInstanceUri, groupId, place)
+        placeDAO.create(dbInstanceUri, groupId, place)
     }
 
     override fun deletePlace(ids: List<String>): Flow<DocIdentifier> {
@@ -31,9 +31,9 @@ class PlaceLogicImpl(private val placeDAO: PlaceDAO,
         return placeDAO.get(dbInstanceUri, groupId, place)
     }
 
-    override suspend fun modifyPlace(place: Place): Place? {
+    override suspend fun modifyPlace(place: Place) = fix(place) { place ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return placeDAO.save(dbInstanceUri, groupId, place)
+        placeDAO.save(dbInstanceUri, groupId, place)
     }
 
     override fun getGenericDAO(): PlaceDAO {

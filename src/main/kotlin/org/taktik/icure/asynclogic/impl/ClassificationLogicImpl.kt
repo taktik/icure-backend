@@ -46,14 +46,14 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         return classificationDAO
     }
 
-    override suspend fun createClassification(classification: Classification): Classification? {
+    override suspend fun createClassification(classification: Classification) = fix(classification) { classification ->
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Classification attributes
             classification.id = classification.id ?: uuidGenerator.newGUID().toString()
             classification.author = healthcarePartyId
             classification.responsible = healthcarePartyId
-            return createEntities(setOf(classification)).firstOrNull()
+            createEntities(setOf(classification)).firstOrNull()
         } catch (e: Exception) {
             log.error("createClassification: " + e.message)
             throw IllegalArgumentException("Invalid Classification", e)
@@ -79,8 +79,8 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         }
     }
 
-    override suspend fun modifyClassification(classification: Classification): Classification {
-        return try {
+    override suspend fun modifyClassification(classification: Classification) = fix(classification) { classification ->
+        try {
             getClassification(classification.id)?.let { toEdit ->
                 toEdit.label = classification.label
                 updateEntities(setOf(toEdit))

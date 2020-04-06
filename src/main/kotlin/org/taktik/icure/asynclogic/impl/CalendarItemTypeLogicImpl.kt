@@ -34,9 +34,9 @@ import org.taktik.icure.exceptions.DeletionException
 class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTypeDAO,
                                 private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<CalendarItemType, CalendarItemTypeDAO>(sessionLogic), CalendarItemTypeLogic {
 
-    override suspend fun createCalendarItemType(calendarItemType: CalendarItemType): CalendarItemType? {
+    override suspend fun createCalendarItemType(calendarItemType: CalendarItemType) = fix(calendarItemType) { calendarItemType ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return calendarItemTypeDAO.create(dbInstanceUri, groupId, calendarItemType)
+        calendarItemTypeDAO.create(dbInstanceUri, groupId, calendarItemType)
     }
 
     override fun deleteCalendarItemTypes(ids: List<String>): Flow<DocIdentifier> {
@@ -52,9 +52,9 @@ class CalendarItemTypeLogicImpl(private val calendarItemTypeDAO: CalendarItemTyp
         return calendarItemTypeDAO.get(dbInstanceUri, groupId, calendarItemTypeId)
     }
 
-    override suspend fun modifyCalendarTypeItem(calendarItemType: CalendarItemType): CalendarItemType? {
+    override suspend fun modifyCalendarTypeItem(calendarItemType: CalendarItemType)= fix(calendarItemType) { calendarItemType ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return calendarItemTypeDAO.save(dbInstanceUri, groupId, calendarItemType)
+        calendarItemTypeDAO.save(dbInstanceUri, groupId, calendarItemType)
     }
 
     override fun getAllEntitiesIncludeDelete(): Flow<CalendarItemType> = flow {

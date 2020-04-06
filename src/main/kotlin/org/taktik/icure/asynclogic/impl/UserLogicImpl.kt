@@ -197,7 +197,7 @@ class UserLogicImpl(
         password.let { user.passwordHash = encodePassword(password) }
 
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.create(dbInstanceUri, groupId, user)
+        return fix(user) { userDAO.create(dbInstanceUri, groupId, it) }
     }
 
     private suspend fun setHealthcarePartyIdIfExists(healthcarePartyId: String?, user: User) {
@@ -210,7 +210,7 @@ class UserLogicImpl(
     }
 
     override suspend fun registerUser(user: User, password: String): User? {
-        if (propertyLogic.getSystemPropertyValue<Any?>(PropertyTypes.System.USER_REGISTRATION_ENABLED.identifier) != null
+        return if (propertyLogic.getSystemPropertyValue<Any?>(PropertyTypes.System.USER_REGISTRATION_ENABLED.identifier) != null
                 && propertyLogic.getSystemPropertyValue<Boolean>(PropertyTypes.System.USER_REGISTRATION_ENABLED.identifier)!!) {
 
             if (!isLoginValid(user.login)) {
@@ -229,27 +229,25 @@ class UserLogicImpl(
             fillDefaultProperties(user)
             // Save user
             val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            userDAO.create(dbInstanceUri, groupId, user)
-            // Notify listeners
-            for (listener in listeners) {
-                listener.userRegistered(user)
+            fix(user) { userDAO.create(dbInstanceUri, groupId, it) }?.also {
+                for (listener in listeners) {
+                    listener.userRegistered(it)
+                }
             }
-            return user
-        }
-        return null
+        } else null
     }
 
     override suspend fun createUser(user: User): User? { // checking requirements
         if (user.login != null || user.email == null) {
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
-        try { // check whether user exists
+        return try { // check whether user exists
             val userByEmail = getUserByEmail(user.email)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
             user.login = user.email
-            return createEntities(setOf(user)).firstOrNull()
+            fix(user) { createEntities(setOf(it)).firstOrNull() }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }
@@ -261,13 +259,13 @@ class UserLogicImpl(
         if (user.login != null || user.email == null) {
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
-        try { // check whether user exists
+        return try { // check whether user exists
             val userByEmail = getUserByEmail(groupId, user.email)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
             user.login = user.email
-            return createEntities(group, setOf(user)).firstOrNull()
+            fix(user) { createEntities(group, setOf(it)).firstOrNull() }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }
@@ -281,7 +279,7 @@ class UserLogicImpl(
             if (user.passwordHash != null && !user.passwordHash.matches(regex)) {
                 user.passwordHash = encodePassword(user.passwordHash)
             }
-            userDAO.create(dbInstanceUri, groupId, user)?.also { emit(it) }
+            fix(user) { userDAO.create(dbInstanceUri, groupId, user) }?.let { emit(it) }
         }
     }
 
@@ -292,7 +290,7 @@ class UserLogicImpl(
             if (user.passwordHash != null && !user.passwordHash.matches(regex)) {
                 user.passwordHash = encodePassword(user.passwordHash)
             }
-            userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, user)?.also { emit(it) }
+            fix(user) { userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, user) }?.let { emit(it) }
         }
     }
 

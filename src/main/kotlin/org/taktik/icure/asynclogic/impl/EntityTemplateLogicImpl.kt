@@ -33,23 +33,23 @@ import org.taktik.icure.utils.firstOrNull
 class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
                               private val sessionLogic: AsyncSessionLogic): GenericLogicImpl<EntityTemplate, EntityTemplateDAO>(sessionLogic), EntityTemplateLogic {
 
-    override suspend fun createEntityTemplate(entityTemplate: EntityTemplate): EntityTemplate? {
+    override suspend fun createEntityTemplate(entityTemplate: EntityTemplate) = fix(entityTemplate) { entityTemplate ->
         val createdEntityTemplates = try {
             createEntities(setOf(entityTemplate))
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid template", e)
         }
-        return createdEntityTemplates.firstOrNull()
+        createdEntityTemplates.firstOrNull()
     }
 
-    override suspend fun modifyEntityTemplate(entityTemplate: EntityTemplate): EntityTemplate? {
+    override suspend fun modifyEntityTemplate(entityTemplate: EntityTemplate) = fix(entityTemplate) { entityTemplate ->
         val entityTemplates = setOf(entityTemplate)
         val updated = try {
             updateEntities(entityTemplates)
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid template", e)
         }
-        return updated.firstOrNull()
+        updated.firstOrNull()
     }
 
     override suspend fun getEntityTemplate(id: String): EntityTemplate? {

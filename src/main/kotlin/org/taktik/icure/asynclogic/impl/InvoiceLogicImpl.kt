@@ -60,9 +60,9 @@ class InvoiceLogicImpl(private val filters: Filters,
                        private val invoiceDAO: InvoiceDAO,
                        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Invoice, InvoiceDAO>(sessionLogic), InvoiceLogic {
 
-    override suspend fun createInvoice(invoice: Invoice): Invoice? {
+    override suspend fun createInvoice(invoice: Invoice) = fix(invoice) { invoice ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return invoiceDAO.create(dbInstanceUri, groupId, invoice)
+        invoiceDAO.create(dbInstanceUri, groupId, invoice)
     }
 
     override suspend fun deleteInvoice(invoiceId: String): DocIdentifier? {
@@ -83,9 +83,9 @@ class InvoiceLogicImpl(private val filters: Filters,
         emitAll(invoiceDAO.getList(dbInstanceUri, groupId, ids))
     }
 
-    override suspend fun modifyInvoice(invoice: Invoice): Invoice? {
+    override suspend fun modifyInvoice(invoice: Invoice) = fix(invoice) { invoice ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return invoiceDAO.save(dbInstanceUri, groupId, invoice)
+        invoiceDAO.save(dbInstanceUri, groupId, invoice)
     }
 
     override fun updateInvoices(invoices: List<Invoice>): Flow<Invoice> = flow {

@@ -67,7 +67,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
         return formDAO.save(dbInstanceUri, groupId, form)
     }
 
-    override suspend fun createForm(form: Form): Form? {
+    override suspend fun createForm(form: Form): Form? = fix(form) { form ->
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting contact attributes
@@ -78,7 +78,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
             if (form.responsible == null) {
                 form.responsible = healthcarePartyId
             }
-            return createEntities(setOf(form)).firstOrNull()
+            createEntities(setOf(form)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
             throw IllegalArgumentException("Invalid contact", e)
@@ -94,7 +94,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
         }
     }
 
-    override suspend fun modifyForm(form: Form) {
+    override suspend fun modifyForm(form: Form) = fix(form) { form ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try {
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
@@ -106,8 +106,9 @@ class FormLogicImpl(private val formDAO: FormDAO,
             formDAO.save(dbInstanceUri, groupId, form)
         } catch (e: UpdateConflictException) { //resolveConflict(form, e);
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", form.javaClass.simpleName, form.id, form.rev)
+            throw IllegalArgumentException("Invalid form", e)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid contact", e)
+            throw IllegalArgumentException("Invalid form", e)
         }
     }
 

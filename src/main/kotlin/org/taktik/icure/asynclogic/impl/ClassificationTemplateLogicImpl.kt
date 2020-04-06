@@ -51,7 +51,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         return classificationTemplateDAO
     }
 
-    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate? {
+    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
@@ -59,7 +59,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
             classificationTemplate.id = classificationTemplate.id ?: uuidGenerator.newGUID().toString()
             classificationTemplate.author = healthcarePartyId
             classificationTemplate.responsible = healthcarePartyId
-            return createEntities(setOf(classificationTemplate)).firstOrNull()
+            createEntities(setOf(classificationTemplate)).firstOrNull()
         } catch (e: Exception) {
             log.error("createClassificationTemplate: " + e.message)
             throw IllegalArgumentException("Invalid Classification Template", e)
@@ -80,8 +80,8 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         }
     }
 
-    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate {
-        return try {
+    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
+        try {
             getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
                 toEdit.label = classificationTemplate.label
                 updateEntities(setOf(toEdit))

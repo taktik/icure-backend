@@ -81,7 +81,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         return contact?.let { contactDAO.save(dbInstanceUri, groupId, it) }
     }
 
-    override suspend fun createContact(contact: Contact): Contact? {
+    override suspend fun createContact(contact: Contact) = fix(contact) { contact ->
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting contact attributes
@@ -96,7 +96,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                 contact.responsible = healthcarePartyId
             }
             contact.healthcarePartyId = healthcarePartyId
-            return createEntities(setOf(contact)).firstOrNull()
+            createEntities(setOf(contact)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
             throw IllegalArgumentException("Invalid contact", e)
@@ -112,9 +112,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
     }
 
-    override suspend fun modifyContact(contact: Contact): Contact? {
+    override suspend fun modifyContact(contact: Contact) = fix(contact) { contact ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return try {
+        try {
             contactDAO.save(dbInstanceUri, groupId, contact)
         } catch (e: UpdateConflictException) { //	return resolveConflict(contact, e);
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", contact.javaClass.simpleName, contact.id, contact.rev)

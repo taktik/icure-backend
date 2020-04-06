@@ -167,9 +167,9 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     }
 
     @Throws(CreationException::class, LoginException::class)
-    override suspend fun createMessage(message: Message): Message? {
+    override suspend fun createMessage(message: Message) = fix(message) { message ->
         val createdMessages: List<Message> = ArrayList(1)
-        return createEntities(setOf(message), createdMessages).firstOrNull()
+        createEntities(setOf(message), createdMessages).firstOrNull()
     }
 
     override suspend fun get(messageId: String): Message? {
@@ -178,7 +178,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     }
 
     @Throws(MissingRequirementsException::class)
-    override suspend fun modifyMessage(message: Message) {
+    override suspend fun modifyMessage(message: Message) = fix(message) { message ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         messageDAO.save(dbInstanceUri, groupId, message)
     }

@@ -36,11 +36,11 @@ import java.util.*
 @Service
 class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessionLogic: AsyncSessionLogicImpl) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
-    override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document? {
+    override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String) = fix(document) { document ->
         // Fill audit details
         document.author = ownerHealthcarePartyId
         document.responsible = ownerHealthcarePartyId
-        return try {
+        try {
             createEntities(setOf(document)).firstOrNull()
         } catch (e: Exception) {
             throw CreationException("Could not create document. ", e)
@@ -67,7 +67,7 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         emitAll(documentDAO.readAttachment(dbInstanceUri, groupId, documentId, attachmentId, null))
     }
 
-    override suspend fun modifyDocument(document: Document) {
+    override suspend fun modifyDocument(document: Document) = fix(document) { document ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try {
             documentDAO.save(dbInstanceUri, groupId, document)

@@ -29,9 +29,9 @@ import org.taktik.icure.entities.TimeTable
 
 @Service
 class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<TimeTable, TimeTableDAO>(sessionLogic), TimeTableLogic {
-    override suspend fun createTimeTable(timeTable: TimeTable): TimeTable? {
+    override suspend fun createTimeTable(timeTable: TimeTable) = fix(timeTable) { timeTable ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return timeTableDAO.create(dbInstanceUri, groupId, timeTable)
+        timeTableDAO.create(dbInstanceUri, groupId, timeTable)
     }
 
     override fun deleteTimeTables(ids: List<String>): Flow<DocIdentifier> {
@@ -53,9 +53,9 @@ class TimeTableLogicImpl(private val timeTableDAO: TimeTableDAO, private val ses
         emitAll(timeTableDAO.listTimeTableByAgendaId(dbInstanceUri, groupId, agendaId))
     }
 
-    override suspend fun modifyTimeTable(timeTable: TimeTable): TimeTable? {
+    override suspend fun modifyTimeTable(timeTable: TimeTable) = fix(timeTable) { timeTable ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return timeTableDAO.save(dbInstanceUri, groupId, timeTable)
+        timeTableDAO.save(dbInstanceUri, groupId, timeTable)
     }
 
     override fun getGenericDAO(): TimeTableDAO {

@@ -330,7 +330,7 @@ class PatientLogicImpl(
     }
 
     @Throws(MissingRequirementsException::class)
-    override suspend fun createPatient(patient: Patient): Patient? { // checking requirements
+    override suspend fun createPatient(patient: Patient) = fix(patient) { patient ->
         if (patient.preferredUserId != null && (patient.delegations == null || patient.delegations.isEmpty())) {
             patient.delegations = HashMap()
             val user: User? = userLogic.getUser(patient.preferredUserId as String) //TODO MB remove explicit cast when Patient is kotlinized
@@ -341,20 +341,20 @@ class PatientLogicImpl(
                 }
             }
         }
-        return createEntities(setOf(patient)).firstOrNull()?.let {
+        createEntities(setOf(patient)).firstOrNull()?.let {
             logPatient(it, "patient.create.")
             it
         }
     }
 
     @Throws(MissingRequirementsException::class)
-    override suspend fun modifyPatient(patient: Patient): Patient? {
+    override suspend fun modifyPatient(patient: Patient) = fix(patient) { patient ->
         log.debug("Modifying patient with id:" + patient.id)
         // checking requirements
         if ((patient.firstName == null || patient.lastName == null) && patient.encryptedSelf == null) {
             throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
         }
-        return try {
+        try {
             updateEntities(setOf(patient)).collect()
             val modifiedPatient = getPatient(patient.id)
             modifiedPatient?.let {

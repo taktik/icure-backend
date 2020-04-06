@@ -51,7 +51,7 @@ class HealthElementLogicImpl(private val filters: Filters,
         return healthElementDAO
     }
 
-    override suspend fun createHealthElement(healthElement: HealthElement): HealthElement? {
+    override suspend fun createHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Healthcare problem attributes
@@ -62,7 +62,7 @@ class HealthElementLogicImpl(private val filters: Filters,
             healthElement.author = healthcarePartyId
             healthElement.responsible = healthcarePartyId
             // TODO should we check that opening contacts or closing contacts are valid?
-            return createEntities(setOf(healthElement)).firstOrNull()
+            createEntities(setOf(healthElement)).firstOrNull()
         } catch (e: Exception) {
             log.error("createHealthElement: " + e.message)
             throw IllegalArgumentException("Invalid Healthcare problem", e)
@@ -114,8 +114,8 @@ class HealthElementLogicImpl(private val filters: Filters,
         }
     }
 
-    override suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement? {
-        return try {
+    override suspend fun modifyHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
+        try {
             updateEntities(setOf(healthElement)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Health problem", e)

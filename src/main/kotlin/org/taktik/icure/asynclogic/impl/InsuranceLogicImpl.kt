@@ -34,9 +34,9 @@ import org.taktik.icure.utils.firstOrNull
 @Service
 class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
                          private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Insurance, InsuranceDAO>(sessionLogic), InsuranceLogic {
-    override suspend fun createInsurance(insurance: Insurance): Insurance? {
+    override suspend fun createInsurance(insurance: Insurance) = fix(insurance) { insurance ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return insuranceDAO.create(dbInstanceUri, groupId, insurance)
+        insuranceDAO.create(dbInstanceUri, groupId, insurance)
     }
 
     override suspend fun deleteInsurance(insuranceId: String): DocIdentifier? {
@@ -62,9 +62,9 @@ class InsuranceLogicImpl(private val insuranceDAO: InsuranceDAO,
         emitAll(insuranceDAO.listByName(dbInstanceUri, groupId, name))
     }
 
-    override suspend fun modifyInsurance(insurance: Insurance): Insurance? {
+    override suspend fun modifyInsurance(insurance: Insurance) = fix(insurance) { insurance ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return insuranceDAO.save(dbInstanceUri, groupId, insurance)
+        insuranceDAO.save(dbInstanceUri, groupId, insurance)
     }
 
     override fun getInsurances(ids: Set<String>): Flow<Insurance> = flow {
