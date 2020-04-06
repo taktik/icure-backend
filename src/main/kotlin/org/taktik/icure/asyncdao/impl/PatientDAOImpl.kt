@@ -124,8 +124,8 @@ class PatientDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: C
     override fun listIdsByHcPartyGenderEducationProfession(dbInstanceUrl: URI, groupId: String, healthcarePartyId: String, gender: Gender?, education: String?, profession: String?): Flow<String> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val viewQuery = createQuery<Patient>("by_hcparty_gender_education_profession")
-                .startKey(ComplexKey.of(healthcarePartyId, gender?.getName(), education, profession))
-                .endKey(ComplexKey.of(healthcarePartyId, if (gender == null) ComplexKey.emptyObject() else gender.getName(), education
+                .startKey(ComplexKey.of(healthcarePartyId, gender?.name, education, profession))
+                .endKey(ComplexKey.of(healthcarePartyId, if (gender == null) ComplexKey.emptyObject() else gender.name, education
                         ?: ComplexKey.emptyObject(), profession ?: ComplexKey.emptyObject())).includeDocs(false)
         return client.queryView<Array<String>, String>(viewQuery).mapNotNull { it.value }
     }

@@ -315,7 +315,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                                     lang,
                                     ofType,
                                     sanitizedLabel
-                            ))).map { it.doc }.filter { c -> c.label[lang]?.let { StringUtils.sanitizeString(it) } == sanitizedLabel }
+                            ))).map { it.doc }.filter { c -> c.label?.get(lang)?.let { StringUtils.sanitizeString(it) } == sanitizedLabel }
             val code = codeFlow.firstOrNull()
             if (code != null) {
                 return code

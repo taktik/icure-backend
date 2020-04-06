@@ -36,7 +36,7 @@ fun <T : Identifiable<*>> Flow<T>.distinctById(): Flow<T> = flow {
     val previous = HashSet<Any>()
     collect { value: T ->
         if (!previous.contains(value.id)) {
-            previous.add(value.id)
+            value.id?.let { previous.add(it) }
             emit(value)
         }
     }

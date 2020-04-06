@@ -37,7 +37,7 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun registerUser(user: User, password: String): User?
     suspend fun createUser(user: User): User?
     suspend fun registerUser(email: String, password: String, healthcarePartyId: String, name: String): User?
-    suspend fun isLoginValid(login: String): Boolean
+    suspend fun isLoginValid(login: String?): Boolean
     suspend fun isPasswordValid(password: String): Boolean
     suspend fun modifyUser(modifiedUser: User): User?
     suspend fun modifyUserAttributes(userId: String, attributesValues: Map<String, Any>)

@@ -74,16 +74,16 @@ open class Code : StoredDocument, CodeIdentification {
 
     constructor() {}
     constructor(typeAndCodeAndVersion: String) : this(typeAndCodeAndVersion.split("\\|".toRegex()).toTypedArray()[0], typeAndCodeAndVersion.split("\\|".toRegex()).toTypedArray()[1], typeAndCodeAndVersion.split("\\|".toRegex()).toTypedArray()[2]) {}
-    constructor(type: String, code: String, version: String) : this(HashSet<String>(Arrays.asList<String>("be", "fr")), type, code, version) {}
+    constructor(type: String, code: String?, version: String?) : this(HashSet<String>(Arrays.asList<String>("be", "fr")), type, code, version) {}
     constructor(region: String, type: String?, code: String?, version: String?) : this(setOf<String>(region), type!!, code!!, version!!) {}
 
     @JvmOverloads
-    constructor(regions: Set<String>?, type: String, code: String, version: String, label: Map<String, String>? = HashMap()) {
+    constructor(regions: Set<String>?, type: String, code: String?, version: String?, label: Map<String, String>? = HashMap()) {
         this.regions = regions
         this.type = type
         this.code = code
         this.version = version
-        this.label = label
+        this.label = label?.toMutableMap()
         id = "$type|$code|$version"
     }
 
@@ -101,7 +101,7 @@ open class Code : StoredDocument, CodeIdentification {
             if (label == null) {
                 label = HashMap()
             }
-            label!!["fr"] = descrFR
+            label!!["fr"] = descrFR!!
         }
 
     @get:JsonIgnore
@@ -113,7 +113,7 @@ open class Code : StoredDocument, CodeIdentification {
             if (label == null) {
                 label = HashMap()
             }
-            label!!["nl"] = descrNL
+            label!!["nl"] = descrNL!!
         }
 
     override fun equals(o: Any?): Boolean {

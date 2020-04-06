@@ -299,7 +299,7 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     }
 
     override fun findServicesByForeignKeys(dbInstanceUrl: URI, groupId: String, hcPartyId: String, patientSecretForeignKeys: Set<String>): Flow<String> {
-        return this.findByHcPartyPatient(dbInstanceUrl, groupId, hcPartyId, patientSecretForeignKeys.toList()).map { it.services.mapNotNull { it.id }.asFlow() }.flattenConcat() // no distinct ?
+        return this.findByHcPartyPatient(dbInstanceUrl, groupId, hcPartyId, patientSecretForeignKeys.toList()).mapNotNull { it.services?.mapNotNull { it.id }?.asFlow() }.flattenConcat() // no distinct ?
     }
 
     @View(name = "by_service", map = "classpath:js/contact/By_service.js")
@@ -329,13 +329,13 @@ class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
     override fun relink(cs: Flow<Contact>): Flow<Contact> {
         return cs.map { c ->
             val services = mutableMapOf<String, Service?>()
-            if (c.services != null) c.services.forEach { s -> s?.id?.let { services[it] = s } }
+            if (c.services != null) c.services!!.forEach { s -> s.id?.let { services[it] = s } }
             if (c.subContacts != null)
-                c.subContacts.forEach { ss ->
-                    ss.services.forEach { s ->
-                        val ssvc = services[s.serviceId]
+                c.subContacts!!.forEach { ss ->
+                    ss.services?.forEach { s ->
+                        val ssvc = services[s?.serviceId]
                         //If it is null, leave it null...
-                        s.service = ssvc
+                        s?.service = ssvc
                     }
                 }
             c

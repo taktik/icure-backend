@@ -30,7 +30,7 @@ import java.util.function.BiFunction
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Receipt : StoredICureDocument(), Serializable {
-    private var attachmentIds: MutableMap<ReceiptBlobType, String>? = HashMap()
+    internal var attachmentIds: MutableMap<ReceiptBlobType, String>? = HashMap()
     var references: List<String> = ArrayList() //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
 
     //The ICureDocument (Invoice, Contact, ...) this document is linked to
@@ -45,7 +45,7 @@ class Receipt : StoredICureDocument(), Serializable {
         if (other.attachmentIds != null) {
             attachmentIds = other.attachmentIds
         }
-        mergeListsDistinct(references, other.references, BiFunction { obj: String, anObject: String? -> obj.equals(anObject) }, BiFunction { a: String, b: String? -> a })
+        mergeListsDistinct(references, other.references, { obj: String, anObject: String? -> obj.equals(anObject) }, { a: String, b: String? -> a })
         if (documentId == null && other.documentId != null) {
             documentId = other.documentId
         }

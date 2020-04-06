@@ -68,7 +68,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @PostMapping
     fun createDocument(@RequestBody documentDto: DocumentDto) = mono {
         val document = mapper.map(documentDto, Document::class.java)
-        val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId)
+        val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document creation failed")
         mapper.map(createdDocument, DocumentDto::class.java)
     }
@@ -191,7 +191,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = mapper.map(documentDto, Document::class.java)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         if (documentDto.attachmentId != null) {
-            val prevDoc = documentLogic.get(document.id) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
+            val prevDoc = document.id?.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
             document.attachments = prevDoc.attachments
 
             if (documentDto.attachmentId == prevDoc.attachmentId) {
@@ -210,7 +210,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
             val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }
             for (i in documentDtos.indices) {
                 if (documentDtos[i].attachmentId != null) {
-                    val prevDoc = documentLogic.get(indocs[i].id) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
+                    val prevDoc = indocs[i].id?.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
                     indocs[i].attachments = prevDoc.attachments
 
                     if (documentDtos[i].attachmentId == indocs[i].attachmentId) {
@@ -269,9 +269,9 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val invoices = documentLogic.getDocuments(stubs.map { it.id })
         invoices.onEach { healthElement ->
             stubs.find { it.id == healthElement.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
         documentLogic.updateDocuments(invoices.toList())

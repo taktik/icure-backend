@@ -33,28 +33,24 @@ import java.util.TreeMap
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-open class StoredDocument : Versionable<String?> {
+open class StoredDocument : Versionable<String> {
     constructor() {}
     constructor(id: String?) {
         this.id = id
     }
 
+    override var id: String? = null
+        get() = field
+        set(value) {field = value}
+
     @JsonProperty("_attachments")
     @Json(name = "_attachments")
-    private var attachments: MutableMap<String, Attachment>? = HashMap()
+    var attachments: MutableMap<String, Attachment>? = HashMap()
 
     //Do not use deleted as a field... because it is translated to _deleted by ektorp :-(
     @JsonProperty("deleted")
     @Json(name = "deleted")
     var deletionDate: Long? = null
-
-    @get:Json(name = "_id")
-    @get:JsonProperty("_id")
-    @set:Json(name = "_id")
-    @set:JsonProperty("_id")
-    @JsonProperty("_id")
-    @Json(name = "_id")
-    override var id: String? = null
 
     @get:Json(name = "_rev")
     @get:JsonProperty("_rev")
@@ -112,14 +108,6 @@ open class StoredDocument : Versionable<String?> {
         if (attachments != null) {
             attachments!!.remove(id)
         }
-    }
-
-    fun getAttachments(): Map<String, Attachment>? {
-        return attachments
-    }
-
-    fun setAttachments(attachments: MutableMap<String, Attachment>?) {
-        this.attachments = attachments
     }
 
     private fun reversedTreeMap(): TreeMap<String, String> {

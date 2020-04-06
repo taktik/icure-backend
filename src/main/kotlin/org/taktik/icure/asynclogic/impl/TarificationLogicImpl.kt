@@ -61,12 +61,12 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
 
     override suspend fun modify(tarification: Tarification): Tarification? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val existingTarification = tarificationDAO.get(dbInstanceUri, groupId, tarification.id)
+        val existingTarification = tarification.id?.let { tarificationDAO.get(dbInstanceUri, groupId, it) }
         Preconditions.checkState(existingTarification?.code == tarification.code, "Modification failed. Tarification field is immutable.")
         Preconditions.checkState(existingTarification?.type == tarification.type, "Modification failed. Type field is immutable.")
         Preconditions.checkState(existingTarification?.version == tarification.version, "Modification failed. Version field is immutable.")
         updateEntities(setOf(tarification))
-        return this.get(tarification.id)
+        return tarification.id?.let { this.get(it) }
     }
 
     override fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {
@@ -96,7 +96,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
 
     override suspend fun getOrCreateTarification(type: String, tarification: String): Tarification? {
         val listTarifications = findTarificationsBy(type, tarification, null).toList()
-        return listTarifications.takeIf { it.isNotEmpty() }?.let { it.sortedWith(Comparator { a: Tarification, b: Tarification -> b.version.compareTo(a.version) }) }?.first()
+        return listTarifications.takeIf { it.isNotEmpty() }?.let { it.sortedWith(Comparator { a: Tarification, b: Tarification -> b.version!!.compareTo(a.version!!) }) }?.first()
                 ?: create(Tarification(type, tarification, "1.0"))
     }
 

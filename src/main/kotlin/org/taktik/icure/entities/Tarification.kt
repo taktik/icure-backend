@@ -39,7 +39,7 @@ class Tarification : Code {
     constructor() {}
     constructor(typeAndCodeAndVersion: String?) : super(typeAndCodeAndVersion!!) {}
     constructor(type: String?, code: String?, version: String?) : super(type!!, code!!, version!!) {}
-    constructor(regions: Set<String?>?, type: String?, code: String?, version: String?) : super(regions, type, code, version) {}
+    constructor(regions: Set<String>?, type: String, code: String, version: String) : super(regions, type, code, version) {}
     constructor(region: String?, type: String?, code: String?, version: String?) : super(region!!, type, code, version) {}
     constructor(regions: Set<String>?, type: String?, code: String?, version: String?, label: Map<String, String>?) : super(regions, type!!, code!!, version!!, label) {}
 

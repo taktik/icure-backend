@@ -77,7 +77,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     override suspend fun addDelegation(contactId: String, delegation: Delegation): Contact? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val contact = getContact(contactId)
-        contact?.addDelegation(delegation.delegatedTo, delegation)
+        delegation.delegatedTo?.let { contact?.addDelegation(it, delegation) }
         return contact?.let { contactDAO.save(dbInstanceUri, groupId, it) }
     }
 
@@ -156,7 +156,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         s.contactId = c.id
         s.secretForeignKeys = c.secretForeignKeys
         s.cryptedForeignKeys = c.cryptedForeignKeys
-        val subContacts = c.subContacts.stream().filter { sc: SubContact -> sc.services.stream().filter { sc2: ServiceLink -> sc2.serviceId != null }.anyMatch { sl: ServiceLink -> sl.serviceId == s.id } }.collect(Collectors.toList())
+        val subContacts = c.subContacts?.filter { sc: SubContact -> sc.services?.filter { sc2: ServiceLink -> sc2.serviceId != null }.anyMatch { sl: ServiceLink -> sl.serviceId == s.id } }.collect(Collectors.toList())
         s.subContactIds = subContacts.stream().map { obj: SubContact -> obj.id }.collect(Collectors.toSet())
         s.plansOfActionIds = subContacts.stream().map { obj: SubContact -> obj.planOfActionId }.filter { obj: String? -> Objects.nonNull(obj) }.collect(Collectors.toSet())
         s.healthElementsIds = subContacts.stream().map { obj: SubContact -> obj.healthElementId }.filter { obj: String? -> Objects.nonNull(obj) }.collect(Collectors.toSet())

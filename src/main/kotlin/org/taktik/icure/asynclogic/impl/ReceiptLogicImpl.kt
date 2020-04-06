@@ -30,7 +30,7 @@ class ReceiptLogicImpl(private val receiptDAO: ReceiptDAO,
     override suspend fun addReceiptAttachment(receipt: Receipt, blobType: ReceiptBlobType, payload: ByteArray) {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val newAttachmentId = DigestUtils.sha256Hex(payload)
-        receipt.attachmentIds[blobType] = newAttachmentId
+        receipt.attachmentIds?.set(blobType, newAttachmentId)
         updateEntities(listOf(receipt)).collect()
         val contentType = "application/octet-stream"
         receipt.rev = receiptDAO.createAttachment(dbInstanceUri, groupId, receipt.id, newAttachmentId, receipt.rev, contentType, flowOf(ByteBuffer.wrap(payload)))

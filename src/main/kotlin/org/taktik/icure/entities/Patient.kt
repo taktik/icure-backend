@@ -91,7 +91,7 @@ class Patient : StoredICureDocument(), Person, Encryptable, CryptoActor {
     //No guarantee of unicity
     var externalId: String? = null
     override var addresses: MutableList<Address> = ArrayList()
-    var insurabilities: MutableList<Insurability> = ArrayList()
+    var insurabilities: MutableList<Insurability>? = ArrayList()
     override var languages: MutableList<String> = ArrayList() //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html
     var partnerships: MutableList<Partnership> = ArrayList()
     var patientHealthCareParties: MutableList<PatientHealthCareParty> = ArrayList()
@@ -253,17 +253,17 @@ class Patient : StoredICureDocument(), Person, Encryptable, CryptoActor {
             publicKey = other.publicKey
         }
         hcPartyKeys = mergeMapsOfArraysDistinct(hcPartyKeys, other.hcPartyKeys, BiFunction { obj: String, anObject: String? -> obj.equals(anObject) }, BiFunction { a: String, b: String? -> a })
-        languages = mergeListsDistinct(languages, other.languages, BiFunction { obj: String, anotherString: String? -> obj.equals(anotherString, ignoreCase = true) }, BiFunction { a: String, b: String? -> a }).toMutableList()
-        insurabilities = mergeListsDistinct(insurabilities.toList(), other.insurabilities.toList(),
-                BiFunction { a: Insurability, b: Insurability -> a == null && b == null || a != null && b != null && a.insuranceId == b.insuranceId && a.startDate == b.startDate },
-                BiFunction { a: Insurability, b: Insurability -> if (a.endDate != null) a else b }
+        languages = mergeListsDistinct(languages, other.languages, {obj: String?, anotherString: String? -> obj.equals(anotherString, ignoreCase = true)}, { a: String, b: String -> a }).toMutableList()
+        insurabilities = mergeListsDistinct(insurabilities?.toList(), other.insurabilities?.toList(),
+                { a: Insurability?, b: Insurability? -> a == null && b == null || a != null && b != null && a.insuranceId == b.insuranceId && a.startDate == b.startDate },
+                { a: Insurability, b: Insurability -> if (a?.endDate != null) a else b }
         ).toMutableList()
         patientHealthCareParties = mergeListsDistinct(patientHealthCareParties, other.patientHealthCareParties,
-                BiFunction { a: PatientHealthCareParty?, b: PatientHealthCareParty? -> a == null && b == null || a != null && b != null && a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
-                BiFunction { a: PatientHealthCareParty, b: PatientHealthCareParty ->
+                 { a: PatientHealthCareParty?, b: PatientHealthCareParty? -> a == null && b == null || a != null && b != null && a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
+                 { a: PatientHealthCareParty, b: PatientHealthCareParty ->
                     a.referralPeriods = mergeSets(a.referralPeriods, b.referralPeriods, TreeSet(),
-                            BiFunction { aa: ReferralPeriod?, bb: ReferralPeriod? -> aa == null && bb == null || aa != null && bb != null && aa.startDate == bb.startDate },
-                            BiFunction { aa: ReferralPeriod, bb: ReferralPeriod ->
+                            { aa: ReferralPeriod?, bb: ReferralPeriod? -> aa == null && bb == null || aa != null && bb != null && aa.startDate == bb.startDate },
+                            { aa: ReferralPeriod, bb: ReferralPeriod ->
                                 if (aa.endDate == null) {
                                     aa.endDate = bb.endDate
                                 }
@@ -272,7 +272,7 @@ class Patient : StoredICureDocument(), Person, Encryptable, CryptoActor {
                     )
                     a
                 }).toMutableList()
-        patientProfessions = mergeListsDistinct(patientProfessions, other.patientProfessions, BiFunction { a: CodeStub?, b: CodeStub? -> a == b }, BiFunction { a: CodeStub, b: CodeStub? -> a })
+        patientProfessions = mergeListsDistinct(patientProfessions, other.patientProfessions, { a: CodeStub?, b: CodeStub? -> a == b }, { a: CodeStub, b: CodeStub? -> a })
         for (fromAddress in other.addresses) {
             val destAddress = addresses.stream().filter { address: Address -> address.addressType === fromAddress.addressType }.findAny()
             if (destAddress.isPresent) {
@@ -283,11 +283,13 @@ class Patient : StoredICureDocument(), Person, Encryptable, CryptoActor {
         }
 
         //insurabilities
-        for (fromInsurability in other.insurabilities) {
-            val destInsurability = insurabilities.stream().filter { insurability: Insurability -> insurability.insuranceId == fromInsurability.insuranceId }.findAny()
+        other.insurabilities?.let {
+        for (fromInsurability in it) {
+            val destInsurability = insurabilities!!.stream().filter { insurability: Insurability -> insurability.insuranceId == fromInsurability.insuranceId }.findAny()
             if (!destInsurability.isPresent) {
-                insurabilities.add(fromInsurability)
+                insurabilities!!.add(fromInsurability)
             }
+        }
         }
         //Todo: cleanup insurabilities (enddates ...)
 

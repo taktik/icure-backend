@@ -8,5 +8,5 @@ suspend fun getLoggedHealthCarePartyId(sessionLogic: AsyncSessionLogic): String 
     if (user.healthcarePartyId == null) {
         throw LoginException("You must be logged to perform this action. ")
     }
-    return user.healthcarePartyId
+    return user.healthcarePartyId!!
 }

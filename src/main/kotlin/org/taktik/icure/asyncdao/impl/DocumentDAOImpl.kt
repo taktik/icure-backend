@@ -57,17 +57,17 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
         if (entity.attachment != null) {
             val newAttachmentId = DigestUtils.sha256Hex(entity.attachment)
 
-            if (newAttachmentId != entity.attachmentId) {
-                if (entity.attachments.containsKey(entity.attachmentId)) {
-                    entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev, entity.attachmentId)
-                    entity.attachments.remove(entity.attachmentId)
+            if (newAttachmentId != entity.attachmentId && entity.id != null && entity.rev != null && entity.attachmentId != null) {
+                entity.attachments?.containsKey(entity.attachmentId)?.takeIf { it }?.let {
+                    entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id!!, entity.rev!!, entity.attachmentId!!)
+                    entity.attachments!!.remove(entity.attachmentId)
                 }
                 entity.attachmentId = newAttachmentId
                 entity.isAttachmentDirty = true
             }
         } else {
-            if (entity.attachmentId != null) {
-                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev, entity.attachmentId)
+            if (entity.attachmentId != null && entity.id != null && entity.rev != null && entity.attachmentId != null) {
+                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id!!, entity.rev!!, entity.attachmentId!!)
                 entity.attachmentId = null
                 entity.isAttachmentDirty = false
             }
@@ -76,14 +76,14 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
 
     override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document) : Document {
         return super.afterSave(dbInstanceUrl, groupId, entity).let { entity ->
-            if (entity.isAttachmentDirty) {
+            if (entity.isAttachmentDirty && entity.id != null && entity.attachmentId != null && entity.rev != null) {
                 if (entity.attachment != null && entity.attachmentId != null) {
                     val uti = UTI.get(entity.mainUti)
                     var mimeType = "application/xml"
                     if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
                         mimeType = uti.mimeTypes[0]
                     }
-                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
+                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
                     entity.isAttachmentDirty = false
                 }
             }
@@ -98,11 +98,11 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
         entity?.let {
             if (entity.attachmentId != null) {
                 try {
-                    if (entity.attachmentId.contains("|")) {
-                        val attachmentIs = BufferedInputStream(FileInputStream(entity.attachmentId.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]))
+                    if (entity.attachmentId!!.contains("|")) {
+                        val attachmentIs = BufferedInputStream(FileInputStream(entity.attachmentId!!.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]))
                         entity.attachment = ByteStreams.toByteArray(attachmentIs)
                     } else {
-                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev)
+                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev)
                         ByteArrayOutputStream().use {attachment ->
                             attachmentIs.collect { attachment.write(it.array()) }
                             entity.attachment = attachment.toByteArray()

@@ -134,8 +134,8 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
                 entity.isAttachmentDirty = true
             }
         } else {
-            if (entity.attachmentId != null) {
-                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev, entity.attachmentId)
+            if (entity.attachmentId != null && entity.id != null && entity.rev != null && entity.attachmentId != null) {
+                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id!!, entity.rev!!, entity.attachmentId!!)
                 entity.attachmentId = null
                 entity.isAttachmentDirty = false
             }
@@ -145,13 +145,13 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
     override suspend  fun afterSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate): DocumentTemplate {
         return super.afterSave(dbInstanceUrl, groupId, entity).let{ entity->
             if (entity.isAttachmentDirty) {
-                if (entity.attachment != null && entity.attachmentId != null) {
+                if (entity.attachment != null && entity.attachmentId != null && entity.id != null && entity.attachmentId != null && entity.rev != null) {
                     val uti = UTI.get(entity.mainUti)
                     var mimeType = "application/xml"
                     if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
                         mimeType = uti.mimeTypes[0]
                     }
-                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
+                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
                     entity.isAttachmentDirty = false
                 }
             }
@@ -162,8 +162,8 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
     override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate?) {
         super.postLoad(dbInstanceUrl, groupId, entity)
 
-        if (entity != null && entity.attachmentId != null) {
-            val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId, entity.rev)
+        if (entity != null && entity.attachmentId != null && entity.id != null && entity.attachmentId != null) {
+            val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev)
             try {
                 ByteArrayOutputStream().use { attachment ->
                     attachmentIs.collect { attachment.write(it.array()) }

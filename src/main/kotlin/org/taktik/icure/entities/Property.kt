@@ -28,11 +28,11 @@ import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Property : StoredDocument, Identifiable<String?>, Cloneable, Serializable {
+class Property : StoredDocument, Identifiable<String>, Cloneable, Serializable {
     var type: PropertyType? = null
-    var typedValue: TypedValue? = null
+    var typedValue: TypedValue<*>? = null
 
-    constructor(type: PropertyType?, typedValue: TypedValue?) {
+    constructor(type: PropertyType?, typedValue: TypedValue<*>?) {
         this.type = type
         this.typedValue = typedValue
     }

@@ -60,15 +60,15 @@ class RegimenItem : Serializable {
                 : String? = null
 
         override fun toString(): String {
-            return String.format("%f %s", quantity, if (administrationUnit != null) administrationUnit!!.getCode() else unit)
+            return String.format("%f %s", quantity, if (administrationUnit != null) administrationUnit!!.code else unit)
         }
     }
 
     override fun toString(): String {
         val df = SimpleDateFormat("dd/MM/yyyy")
-        var result = if (date != null) String.format("the %s", df.format(date)) else if (dayNumber != null) String.format("on day %d", dayNumber) else if (weekday != null && weekday!!.weekday != null && weekday!!.weekday!!.getCode() != null) String.format("on %s", weekday!!.weekday!!.getCode()) else null
-        if (dayPeriod != null && !StringUtils.isEmpty(dayPeriod!!.getCode())) {
-            result = if (result != null) String.format("%s %s", result, dayPeriod!!.getCode()) else dayPeriod!!.getCode()
+        var result = if (date != null) String.format("the %s", df.format(date)) else if (dayNumber != null) String.format("on day %d", dayNumber) else if (weekday != null && weekday!!.weekday != null && weekday!!.weekday!!.code != null) String.format("on %s", weekday!!.weekday!!.code) else null
+        if (dayPeriod != null && !StringUtils.isEmpty(dayPeriod!!.code)) {
+            result = if (result != null) String.format("%s %s", result, dayPeriod!!.code) else dayPeriod!!.code
         }
         if (timeOfDay != null) {
             val timeOfDayDescr = if (timeOfDay == 120000L) "noon" else String.format("%d:%d", timeOfDay!! / 10000, timeOfDay!! / 100 % 100)

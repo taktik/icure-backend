@@ -27,7 +27,7 @@ import java.util.ArrayList
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Replication : StoredDocument, Identifiable<String?>, Cloneable, Serializable {
+class Replication : StoredDocument, Identifiable<String>, Cloneable, Serializable {
     var name: String? = null
     var context: String? = null
     var databaseSynchronizations: List<DatabaseSynchronization> = ArrayList()

@@ -74,10 +74,10 @@ open class PlanOfAction : ICureDocument, Serializable {
     override var endOfLife: Long? = null
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected var codes: MutableSet<CodeStub> = HashSet()
+    override var codes: MutableSet<CodeStub> = HashSet()
 
     @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    protected var tags: MutableSet<CodeStub> = HashSet()
+    override var tags: MutableSet<CodeStub> = HashSet()
     var documentIds: List<String>? = null
     var prescriberId //healthcarePartyId
             : String? = null
@@ -101,22 +101,6 @@ open class PlanOfAction : ICureDocument, Serializable {
     }
 
     override var encryptedSelf: String? = null
-
-    override fun getCodes(): Set<CodeStub> {
-        return codes
-    }
-
-    override fun setCodes(codes: MutableSet<CodeStub>) {
-        this.codes = codes
-    }
-
-    override fun getTags(): Set<CodeStub> {
-        return tags
-    }
-
-    override fun setTags(tags: MutableSet<CodeStub>) {
-        this.tags = tags
-    }
 
     companion object {
         private const val serialVersionUID = 1L

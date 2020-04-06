@@ -113,7 +113,7 @@ object MergeUtil {
      * @param <K> the class of the elements in the list
      * @return the merged list without duplicates
     </K> */
-    fun <K> mergeListsDistinct(a: List<K>?, b: List<K>?, comparator: BiFunction<in K, in K, Boolean>, merger: BiFunction<in K, in K, out K>): List<K> {
+    fun <K> mergeListsDistinct(a: List<K>?, b: List<K>?, comparator: (K, K?) -> Boolean, merger: (K, K) -> K): List<K> {
         val ks = mergeLists(a, b, comparator, merger)
         val result: MutableList<K> = ArrayList()
         OUTER@ for (k in ks) {
@@ -143,7 +143,7 @@ object MergeUtil {
         return result.toTypedArray()
     }
 
-    fun <V, S : Set<V>?> mergeSets(a: S, b: S, mergedSet: S, comparator: BiFunction<in V, in V, Boolean>, merger: BiFunction<in V, in V, out V>): S {
+    fun <V, S : Set<V>?> mergeSets(a: S, b: S, mergedSet: S, comparator: (V?, V?) -> Boolean, merger: (V, V) -> V) : S {
         val leftOverAvs: MutableSet<V> = HashSet(a)
         OUTER@ for (bi in b!!) {
             for (ai in a!!) {
@@ -189,7 +189,7 @@ object MergeUtil {
         return result
     }
 
-    fun <K, V> mergeMapsOfSets(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: BiFunction<in V, in V, Boolean>, merger: BiFunction<in V, in V, out V>): MutableMap<K, MutableSet<V>> {
+    fun <K, V> mergeMapsOfSets(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: (V?, V?) -> Boolean, merger: (V?, V?) -> V?): MutableMap<K, MutableSet<V>> {
         val result: MutableMap<K, Mut<V>> = HashMap()
         val leftOverAKeys: MutableSet<K> = HashSet(a.keys)
         b.forEach { (key: K, bvs: Set<V>) ->

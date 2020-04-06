@@ -94,9 +94,9 @@ class HealthElementController(private val mapper: MapperFacade,
         val healthElements = healthElementLogic.getHealthElements(stubs.map { it.id })
         healthElements.onEach { healthElement ->
             stubs.find { s -> s.id == healthElement.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
         healthElementLogic.updateEntities(healthElements.toList())
@@ -140,7 +140,7 @@ class HealthElementController(private val mapper: MapperFacade,
         healthElementLogic.addDelegations(healthElementId, ds.map { d -> mapper.map(d, Delegation::class.java) })
         val healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId)
 
-        val succeed = healthElementWithDelegation != null && healthElementWithDelegation.delegations != null && healthElementWithDelegation.delegations.isNotEmpty()
+        val succeed = healthElementWithDelegation != null && healthElementWithDelegation.delegations != null && healthElementWithDelegation.delegations!!.isNotEmpty()
         if (succeed) {
             mapper.map(healthElementWithDelegation, HealthElementDto::class.java)
         } else {

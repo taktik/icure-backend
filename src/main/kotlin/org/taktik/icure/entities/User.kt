@@ -40,13 +40,19 @@ import java.util.HashSet
 @JsonIgnoreProperties(ignoreUnknown = true)
 class User : StoredDocument(), Principal, Cloneable, Serializable {
     override var name: String? = null
-    override var properties: Set<Property>? = HashSet()
-    override var permissions: Set<Permission>? = HashSet()
+    override var properties: MutableSet<Property> = HashSet()
+    override var permissions: MutableSet<Permission>? = HashSet()
     var type: Users.Type? = null
     var status: Users.Status? = null
     var login: String? = null
     var passwordHash: String? = null
-    private var secret: String? = null
+    var secret: String? = null
+    get() {
+        if (field == null) {
+            field = Base32.random()
+        }
+        return field
+    }
     var isUse2fa: Boolean? = null
     var groupId: String? = null
     var healthcarePartyId: String? = null
@@ -82,7 +88,7 @@ class User : StoredDocument(), Principal, Cloneable, Serializable {
         @JsonIgnore get() = field
         set
     var email: String? = null
-    var applicationTokens: Map<String, String> = HashMap()
+    var applicationTokens: MutableMap<String, String> = HashMap()
 
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): Any {
@@ -111,17 +117,6 @@ class User : StoredDocument(), Principal, Cloneable, Serializable {
     @get:JsonIgnore
     val isSecretEmpty: Boolean
         get() = secret == null
-
-    fun getSecret(): String? {
-        if (secret == null) {
-            secret = Base32.random()
-        }
-        return secret
-    }
-
-    fun setSecret(secret: String?) {
-        this.secret = secret
-    }
 
     companion object {
         private const val serialVersionUID = 1L

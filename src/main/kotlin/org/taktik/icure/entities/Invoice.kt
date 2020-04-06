@@ -129,8 +129,8 @@ class Invoice : StoredICureDocument() {
         supervisorCdHcParty = if (supervisorCdHcParty == null) other.supervisorCdHcParty else supervisorCdHcParty
         supervisorCbe = if (supervisorCbe == null) other.supervisorCbe else supervisorCbe
         invoicingCodes = if (invoicingCodes == null) other.invoicingCodes else mergeListsDistinct(invoicingCodes, other.invoicingCodes,
-                BiFunction { a: InvoicingCode?, b: InvoicingCode? -> a?.id == b?.id },
-                BiFunction { a: InvoicingCode?, b: InvoicingCode? -> if (a == null) b else if (b == null) a else a.solveConflictWith(b) })
+                { a: InvoicingCode?, b: InvoicingCode? -> a?.id == b?.id },
+                { a: InvoicingCode?, b: InvoicingCode? -> if (a == null) b else if (b == null) a else a.solveConflictWith(b) })
         if (receipts != null && other.receipts != null) {
             other.receipts!!.putAll(receipts!!)
         }

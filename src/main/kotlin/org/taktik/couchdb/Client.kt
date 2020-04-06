@@ -47,34 +47,15 @@ import kotlin.math.min
 typealias CouchDbDocument = Versionable<String>
 
 class DesignDocument(
-        private var _id: String,
-        private var _rev: String? = null,
-        private val _revHistory: Map<String, String>? = null,
+        @Json(name = "_id") override var id: String? = null,
+        @Json(name = "_rev") override var rev: String? = null,
+        @Json(name = "rev_history") override val revHistory: Map<String, String>? = null,
         val views: Map<String, View?> = mapOf(),
         val lists: Map<String, String> = mapOf(),
         val shows: Map<String, String> = mapOf(),
         val updateHandlers: Map<String, String>? = null,
         val filters: Map<String, String> = mapOf()
-) : CouchDbDocument {
-    @Json(name = "rev_history")
-    override fun getRevHistory() = _revHistory
-
-    @Json(name = "_rev")
-    override fun setRev(rev: String?) {
-        _rev = rev
-    }
-
-    @Json(name = "_id")
-    override fun getId(): String = _id
-
-    @Json(name = "_id")
-    override fun setId(id: String) {
-        _id = id
-    }
-
-    @Json(name = "_rev")
-    override fun getRev(): String? = _rev
-}
+) : CouchDbDocument
 
 
 sealed class ActiveTask(val pid: String? = null, val started_on: Instant? = null, val updated_on: Instant? = null)
@@ -222,7 +203,7 @@ private data class BulkDeleteRequest(val docs: Collection<DeleteRequest>, @Json(
 
 data class DeleteRequest(@Json(name = "_id") val id: String, @Json(name = "_id") val rev: String?, @Json(name = "_deleted") val deleted: Boolean = true)
 data class BulkUpdateResult(val id: String, val rev: String, val ok: Boolean?, val error: String?, val reason: String?)
-data class DocIdentifier(val id: String, val rev: String)
+data class DocIdentifier(val id: String?, val rev: String?)
 
 // Convenience inline methods with reified type params
 inline fun <reified K, reified U, reified T> Client.queryViewIncludeDocs(query: ViewQuery): Flow<ViewRowWithDoc<K, U, T>> {

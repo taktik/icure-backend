@@ -81,10 +81,10 @@ class HealthElement : StoredICureDocument() {
         idService = if (idService == null) other.idService else idService
         status = if (status == null) other.status else status
         plansOfAction = mergeListsDistinct(plansOfAction, other.plansOfAction,
-                BiFunction { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictWith(other!!) }).toMutableList()
-        careTeam = mergeListsDistinct(careTeam, other.careTeam, BiFunction { a: CareTeamMember?, b: CareTeamMember? -> a == b }, BiFunction { a: CareTeamMember, b: CareTeamMember? -> a })
+                { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictWith(other!!) }).toMutableList()
+        careTeam = mergeListsDistinct(careTeam, other.careTeam, { a: CareTeamMember?, b: CareTeamMember? -> a == b }, { a: CareTeamMember, b: CareTeamMember? -> a })
         episodes = mergeListsDistinct(episodes, other.episodes,
-                BiFunction { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: Episode, other: Episode? -> obj.solveConflictWith(other!!) }).toMutableList()
+                { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: Episode, other: Episode? -> obj.solveConflictWith(other!!) }).toMutableList()
         return this
     }
 }

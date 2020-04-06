@@ -54,8 +54,8 @@ class Contact : StoredICureDocument {
     var externalId: String? = null
     var modifiedContactId: String? = null
     var encounterType: Code? = null
-    protected var subContacts: @Valid MutableSet<SubContact>? = HashSet()
-    protected var services: @Valid MutableSet<Service>? = TreeSet()
+    var subContacts: @Valid MutableSet<SubContact>? = HashSet()
+    var services: @Valid MutableSet<Service>? = TreeSet()
     fun solveConflictWith(other: Contact): Contact {
         super.solveConflictsWith(other)
         encryptedSelf = if (encryptedSelf == null) other.encryptedSelf else encryptedSelf
@@ -65,13 +65,13 @@ class Contact : StoredICureDocument {
         location = if (location == null) other.location else location
         encounterType = if (encounterType == null) other.encounterType else encounterType
         subContacts = mergeSets<SubContact, Set<SubContact>?>(subContacts, other.subContacts, HashSet(),
-                BiFunction { a: SubContact?, b: SubContact? -> a == null && b == null || a != null && b != null && a.id == b.id },
-                BiFunction { a: SubContact, b: SubContact? ->
+                { a: SubContact?, b: SubContact? -> a == null && b == null || a != null && b != null && a.id == b.id },
+                { a: SubContact, b: SubContact ->
                     a.solveConflictWith(b!!)
                     a
-                })?.toMutableSet()
+                })!!.toMutableSet()
         services = mergeSets<Service, Set<Service>?>(services, other.services, TreeSet(),
-                BiFunction { a: Service?, b: Service? -> a == null && b == null || a != null && b != null && a.id == b.id }, BiFunction { obj: Service, other: Service? -> obj.solveConflictWith(other!!) })?.toMutableSet()
+                { a: Service?, b: Service? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: Service, other: Service? -> obj.solveConflictWith(other!!) })?.toMutableSet()
         return this
     }
 

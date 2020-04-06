@@ -48,7 +48,7 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
 
         val users = client.queryViewIncludeDocs<String, String, User>(createQuery<User>("by_exp_date").startKey(fromExpirationInstant.toString()).endKey(toExpirationInstant.toString()).includeDocs(true)).map { it.doc }
 
-        return users.filter { it.expirationDate != null && !it.expirationDate.isBefore(fromExpirationInstant) && !it.expirationDate.isAfter(toExpirationInstant) }
+        return users.filter { it.expirationDate != null && !it.expirationDate!!.isBefore(fromExpirationInstant) && !it.expirationDate!!.isAfter(toExpirationInstant) }
     }
 
     @View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login,doc)}}")

@@ -145,7 +145,7 @@ class HealthcareParty : StoredDocument(), Person, CryptoActor {
             notes = other.notes
         }
         hcPartyKeys = mergeMapsOfArraysDistinct(hcPartyKeys, other.hcPartyKeys, BiFunction { obj: String, anObject: String? -> obj.equals(anObject) }, BiFunction { a: String, b: String? -> a })
-        languages = mergeListsDistinct(languages, other.languages, BiFunction { obj: String, anotherString: String? -> obj.equals(anotherString, ignoreCase = true) }, BiFunction { a: String, b: String? -> a }).toMutableList()
+        languages = mergeListsDistinct(languages, other.languages, { obj: String?, anotherString: String? -> obj.equals(anotherString, ignoreCase = true) }, { a: String, b: String? -> a }).toMutableList()
         if (speciality == null && other.speciality != null) {
             speciality = other.speciality
         }
@@ -203,7 +203,7 @@ class HealthcareParty : StoredDocument(), Person, CryptoActor {
         if (contactPersonHcpId == null && other.contactPersonHcpId != null) {
             contactPersonHcpId = other.contactPersonHcpId
         }
-        statuses = mergeListsDistinct(statuses, other.statuses, BiFunction { obj: HealthcarePartyStatus, other: HealthcarePartyStatus? -> obj.equals(other) }, BiFunction { a: HealthcarePartyStatus, b: HealthcarePartyStatus? -> a })
+        statuses = mergeListsDistinct(statuses, other.statuses, { obj: HealthcarePartyStatus, other: HealthcarePartyStatus? -> obj.equals(other) }, { a: HealthcarePartyStatus, b: HealthcarePartyStatus? -> a })
         for (fromAddress in other.addresses) {
             val destAddress = addresses.stream().filter { address: Address -> address.addressType === fromAddress.addressType }.findAny()
             if (destAddress.isPresent) {

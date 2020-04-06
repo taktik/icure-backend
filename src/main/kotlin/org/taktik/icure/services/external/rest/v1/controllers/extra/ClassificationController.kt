@@ -121,9 +121,9 @@ class ClassificationController(private val mapper: MapperFacade,
         val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id })
         classifications.onEach { classification ->
             stubs.find { it.id == classification.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> classification.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> classification.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> classification.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.delegations.forEach { (s, delegationDtos) -> classification.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> classification.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> classification.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
         emitAll(classificationLogic.updateEntities(classifications.toList()))

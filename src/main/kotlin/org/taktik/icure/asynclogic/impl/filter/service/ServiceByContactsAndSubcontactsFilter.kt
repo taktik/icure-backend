@@ -32,9 +32,9 @@ class ServiceByContactsAndSubcontactsFilter(private val contactLogic: ContactLog
     override fun resolve(filter: ServiceByContactsAndSubcontactsFilter, context: Filters): Flow<String> {
         val contacts = contactLogic.getContacts(filter.contacts)
         return if (filter.subContacts != null) {
-            contacts.flatMapConcat { c -> c.subContacts.flatMap { sc -> if (filter.subContacts.contains(sc.id) && sc.services != null) sc.services.mapNotNull { it.serviceId } else listOf() }.asFlow() }
+            contacts.flatMapConcat { c -> c.subContacts?.flatMap { sc -> if (filter.subContacts.contains(sc.id) && sc.services != null) sc.services.mapNotNull { it?.serviceId } else listOf() }!!.asFlow() }
         } else {
-            contacts.flatMapConcat { c -> c.services.mapNotNull { it.id }.asFlow() }
+            contacts.flatMapConcat { c -> c.services?.mapNotNull { it.id }!!.asFlow() }
         }
     }
 }

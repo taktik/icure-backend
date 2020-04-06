@@ -132,7 +132,7 @@ class ContactController(private val mapper: MapperFacade,
     @GetMapping("/service/codes/{codeType}/{minOccurences}")
     fun getServiceCodesOccurences(@PathVariable codeType: String,
                                   @PathVariable minOccurences: Long) = mono {
-        contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, codeType, minOccurences)
+        contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, codeType, minOccurences)
                 .map { mapper.map(it, LabelledOccurenceDto::class.java) }
     }
 
@@ -196,9 +196,9 @@ class ContactController(private val mapper: MapperFacade,
         val contacts = contactLogic.getContacts(stubs.map { it.id })
         contacts.onEach { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> contact.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> contact.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> contact.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.delegations.forEach { (s, delegationDtos) -> contact.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> contact.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> contact.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
         contactLogic.updateEntities(contacts.toList()).collect()

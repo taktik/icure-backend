@@ -129,18 +129,18 @@ class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configC
         if (log.isDebugEnabled) {
             log.debug(Group::class.java.simpleName + ".save: " + group.id + ":" + group.rev)
         }
-        val fullId = getFullId(dbInstanceUri, null, group.id)
+        val fullId = group.id?.let { getFullId(dbInstanceUri, null, it) }
         cache.evict(fullId)
         return when {
             group.id == null -> {
                 group.id = idGenerator.newGUID().toString()
-                client.create(group, Group::class.java).also { cache.put(fullId, it) }
+                client.create(group, Group::class.java).also { fullId?.let { it1 -> cache.put(it1, it) } }
             }
             group.rev == null -> {
-                client.create(group, Group::class.java).also { cache.put(fullId, it) }
+                client.create(group, Group::class.java).also { fullId?.let { it1 -> cache.put(it1, it) } }
             }
             else -> {
-                client.update(group, Group::class.java).also { cache.put(fullId, it) }
+                client.update(group, Group::class.java).also { fullId?.let { it1 -> cache.put(it1, it) } }
             }
         }
     }

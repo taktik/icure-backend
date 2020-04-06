@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.entities.base
 
-interface ICureDocument : Identifiable<String?>, HasTags, HasCodes {
+interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
     var created: Long?
     var modified: Long?
     var endOfLife: Long?

@@ -82,10 +82,10 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
 
     override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate {
         return try {
-            getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
+            getClassificationTemplate(classificationTemplate.id!!)?.let { toEdit ->
                 toEdit.label = classificationTemplate.label
                 updateEntities(setOf(toEdit))
-                getClassificationTemplate(classificationTemplate.id)
+                getClassificationTemplate(classificationTemplate.id!!)
             } ?: throw IllegalArgumentException("Non-existing Classification Template")
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Classification Template", e)
@@ -105,7 +105,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val classificationTemplate = getClassificationTemplate(classificationTemplateId)
         return classificationTemplate?.let {
-            delegations.forEach(Consumer { d: Delegation -> it.addDelegation(d.delegatedTo, d) })
+            delegations.forEach(Consumer { d: Delegation -> d.delegatedTo?.let { delegatedTo -> it.addDelegation(delegatedTo, d) } })
             return classificationTemplateDAO.save(dbInstanceUri, groupId, classificationTemplate)
         }
     }

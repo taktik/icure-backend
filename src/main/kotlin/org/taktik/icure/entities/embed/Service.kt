@@ -64,7 +64,7 @@ class Service : ICureDocument, Serializable, Comparable<Service> {
             : Set<String>? = null
 
     @JsonIgnore
-    var secretForeignKeys: Set<String> = HashSet() //Only used when the Service is emitted outside of its contact
+    var secretForeignKeys: Set<String>? = HashSet() //Only used when the Service is emitted outside of its contact
 
     @JsonIgnore
     var cryptedForeignKeys: Map<String, Set<Delegation>> = HashMap() //Only used when the Service is emitted outside of its contact

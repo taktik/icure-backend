@@ -21,7 +21,7 @@ import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Gender
 import java.io.Serializable
 
-interface Person : Serializable, Identifiable<String?> {
+interface Person : Serializable, Identifiable<String> {
     var civility: String?
     var gender: Gender?
     var firstName: String?

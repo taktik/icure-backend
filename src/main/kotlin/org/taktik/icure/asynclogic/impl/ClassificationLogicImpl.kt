@@ -81,10 +81,12 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
 
     override suspend fun modifyClassification(classification: Classification): Classification {
         return try {
-            getClassification(classification.id)?.let { toEdit ->
-                toEdit.label = classification.label
-                updateEntities(setOf(toEdit))
-                getClassification(classification.id)
+            classification.id?.let {
+                getClassification(it)?.let { toEdit ->
+                    toEdit.label = classification.label
+                    updateEntities(setOf(toEdit))
+                    getClassification(classification.id!!)
+                }
             } ?: throw IllegalArgumentException("Non-existing Classification")
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Classification", e)
@@ -104,7 +106,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val classification = getClassification(classificationId)
         return classification?.let {
-            delegations.forEach(Consumer { d -> it.addDelegation(d.delegatedTo, d) })
+            delegations.forEach(Consumer { d -> d.delegatedTo?.let { delegateTo -> it.addDelegation(delegateTo, d) } })
             return classificationDAO.save(dbInstanceUri, groupId, it)
         }
     }

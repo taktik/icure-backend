@@ -124,8 +124,8 @@ class TypedValue<T>  : Comparable<TypedValue<T>>, Cloneable, Serializable {
         }
     }
 
-    override fun compareTo(other: TypedValue<T>): Int? {
-        return other.getValue<T>()?.let { (getValue<Any>() as Comparable<*>).compareTo(it) }
+    override fun compareTo(other: TypedValue<T>): Int {
+        return (other.getValue<T>() as Comparable<T>).compareTo(getValue<T>()!!)
     }
 
     override fun hashCode(): Int {

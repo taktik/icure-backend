@@ -13,9 +13,10 @@ class CodeStub : Serializable, CodeIdentification {
     @JsonProperty("_id")
     @Json(name = "_id")
     override var id: String? = null
-    var code: String? = null
-    var type: String? = null
-    var version: String? = null
+    override var code: String? = null
+    override var type: String? = null
+    override var version: String? = null
+
 
     constructor() {}
     constructor(type: String, code: String, version: String) {
@@ -23,30 +24,6 @@ class CodeStub : Serializable, CodeIdentification {
         this.type = type
         this.version = version
         id = "$type|$code|$version"
-    }
-
-    override fun getCode(): String? {
-        return code
-    }
-
-    override fun setCode(code: String) {
-        this.code = code
-    }
-
-    override fun getType(): String? {
-        return type
-    }
-
-    override fun setType(type: String) {
-        this.type = type
-    }
-
-    override fun getVersion(): String? {
-        return version
-    }
-
-    override fun setVersion(version: String) {
-        this.version = version
     }
 
     override fun equals(o: Any?): Boolean {

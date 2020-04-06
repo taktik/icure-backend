@@ -176,9 +176,9 @@ class FormController(private val mapper: MapperFacade,
         val forms = formLogic.getForms(stubs.map { it.id })
         forms.onEach { form ->
             stubs.find { s -> s.id == form.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> form.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> form.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> form.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.delegations.forEach { (s, delegationDtos) -> form.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> form.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> form.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
         formLogic.updateEntities(forms.toList())

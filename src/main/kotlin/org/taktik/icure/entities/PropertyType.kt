@@ -27,7 +27,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class PropertyType : StoredDocument, Cloneable, Serializable, Identifiable<String?>{
+class PropertyType : StoredDocument, Cloneable, Serializable, Identifiable<String>{
     var identifier: String? = null
     var type: TypedValuesType? = null
     var scope: PropertyTypeScope? = null

@@ -127,14 +127,14 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @Operation(summary = "Gets all invoices for author at date")
     @PostMapping("/mergeTo/{invoiceId}")
     fun mergeTo(@PathVariable invoiceId: String, @RequestBody ids: ListOfIdsDto) = mono {
-        mapper.map(invoiceLogic.mergeInvoices(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, invoiceLogic.getInvoices(ids.ids).toList(), invoiceLogic.getInvoice(invoiceId))
+        mapper.map(invoiceLogic.mergeInvoices(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoices(ids.ids).toList(), invoiceLogic.getInvoice(invoiceId))
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice $invoiceId not found"), InvoiceDto::class.java)
     }
 
     @Operation(summary = "Gets all invoices for author at date")
     @PostMapping("/validate/{invoiceId}")
     fun validate(@PathVariable invoiceId: String, @RequestParam scheme: String, @RequestParam forcedValue: String) = mono {
-        mapper.map(invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue), InvoiceDto::class.java)
+        mapper.map(invoiceLogic.validateInvoice(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, invoiceLogic.getInvoice(invoiceId), scheme, forcedValue), InvoiceDto::class.java)
     }
 
     @Operation(summary = "Gets all invoices for author at date")
@@ -148,7 +148,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
                             @RequestParam(required = false) gracePeriod: Int?,
                             @RequestBody invoicingCodes: List<InvoicingCodeDto>): Flux<InvoiceDto> = flow{
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
-        val invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type), MediumType.valueOf(sentMediumType),
+        val invoices = invoiceLogic.appendCodes(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, userId, insuranceId, secretPatientKeys, InvoiceType.valueOf(type), MediumType.valueOf(sentMediumType),
                 invoicingCodes.map { ic -> mapper.map(ic, InvoicingCode::class.java) }, invoiceId, gracePeriod)
         emitAll( invoices.map { mapper.map(it, InvoiceDto::class.java) })
     }.injectReactorContext()
@@ -234,9 +234,9 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
         val invoices = invoiceLogic.getInvoices(stubs.map { it.id }).toList()
         invoices.forEach { healthElement ->
             stubs.find { s -> s.id == healthElement.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toSet() }
+                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
+                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
         emitAll(invoiceLogic.updateInvoices(invoices))
@@ -246,7 +246,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @PostMapping("/byCtcts")
     fun listByContactIds(@RequestBody contactIds: ListOfIdsDto) = flow {
         emitAll(
-                invoiceLogic.listByHcPartyContacts(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, HashSet(contactIds.ids))
+                invoiceLogic.listByHcPartyContacts(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, HashSet(contactIds.ids))
                         .map { mapper.map(it, InvoiceDto::class.java) }
         )
     }.injectReactorContext()
@@ -255,7 +255,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @GetMapping("/to/{recipientIds}")
     fun listByRecipientsIds(@PathVariable recipientIds: String) = flow {
         emitAll(
-                invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, recipientIds.split(',').toSet())
+                invoiceLogic.listByHcPartyRecipientIds(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, recipientIds.split(',').toSet())
                         .map { mapper.map(it, InvoiceDto::class.java) }
         )
     }.injectReactorContext()
@@ -266,7 +266,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
         val users = if (userIds == null) userLogic.getAllEntities() else userLogic.getUsers(userIds.split(','))
         val insuranceIds = insuranceLogic.getAllEntityIds().toSet()
         users
-                .map { user -> invoiceLogic.listByHcPartyRecipientIds(user.healthcarePartyId, insuranceIds).filter { iv -> user.id == iv.author } }
+                .map { user -> invoiceLogic.listByHcPartyRecipientIds(user.healthcarePartyId!!, insuranceIds).filter { iv -> user.id == iv.author } }
                 .map { mapper.map(it, InvoiceDto::class.java) }
                 .toList()
                 .sortedWith(Comparator.comparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) }.thenComparing { iv: InvoiceDto -> Optional.ofNullable(iv.sentDate).orElse(0L) })
@@ -280,7 +280,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
         val insuranceIds = insuranceLogic.getAllEntityIds().toSet()
         users
                 .flatMapConcat { u ->
-                    invoiceLogic.listByHcPartyRecipientIdsUnsent(u.healthcarePartyId, insuranceIds).filter { iv -> u.id == iv.author }
+                    invoiceLogic.listByHcPartyRecipientIdsUnsent(u.healthcarePartyId!!, insuranceIds).filter { iv -> u.id == iv.author }
                 }
                 .map { mapper.map(it, InvoiceDto::class.java) }
                 .toList()
@@ -293,7 +293,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     fun listToPatients(@RequestParam(required = false) hcPartyId: String?): Flux<InvoiceDto> = flow{
         emitAll(
                 invoiceLogic.listByHcPartyRecipientIds(hcPartyId
-                        ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId,
+                        ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!,
                         setOf<String?>(null)).map { mapper.map(it, InvoiceDto::class.java) }
         )
     }.injectReactorContext()
@@ -303,7 +303,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     fun listToPatientsUnsent(@RequestParam(required = false) hcPartyId: String?): Flux<InvoiceDto> = flow{
         emitAll(
                 invoiceLogic.listByHcPartyRecipientIdsUnsent(hcPartyId
-                        ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId,
+                        ?: sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!,
                         setOf<String?>(null)).map { mapper.map(it, InvoiceDto::class.java) }
         )
     }.injectReactorContext()
@@ -342,7 +342,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @Operation(summary = "Get the list of all used tarifications frequencies in invoices")
     @GetMapping("/codes/{minOccurences}")
     fun getTarificationsCodesOccurences(@PathVariable minOccurences: Long) = mono {
-        invoiceLogic.getTarificationsCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId, minOccurences).map { mapper.map(it, LabelledOccurenceDto::class.java) }
+        invoiceLogic.getTarificationsCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, minOccurences).map { mapper.map(it, LabelledOccurenceDto::class.java) }
     }
 
     @Operation(summary = "Filter invoices for the current user (HcParty)", description = "Returns a list of invoices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

@@ -78,12 +78,12 @@ class CustomAuthenticationProvider(
         val password: String = authentication.credentials.toString()
 
         for (userOnFallbackDb in users) {
-            val userId = if (userOnFallbackDb.id.contains(":")) userOnFallbackDb.id.split(":")[1] else userOnFallbackDb.id
+            val userId = if (userOnFallbackDb.id!!.contains(":")) userOnFallbackDb.id!!.split(":")[1] else userOnFallbackDb.id
             val gId = userOnFallbackDb.groupId
 
             if (gId != null) {
                 val g = groupDAO.get(gId)
-                val candidate = (g?.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()) ?.let { userDAO.findUserOnUserDb(URI.create(it), gId, userId, false) }
+                val candidate = (g?.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()) ?.let { userDAO.findUserOnUserDb(URI.create(it), gId, userId!!, false) }
                 if (candidate != null && isPasswordValid(candidate, password)) {
                     if (groupId == null) {
                         user = candidate

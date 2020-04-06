@@ -198,7 +198,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             cache.evict(fullId)
             throw e
         }
-        val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
+        val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id!!)
        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
         return entity
     }
@@ -221,13 +221,13 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
 
     override fun remove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier> {
         return super.remove(dbInstanceUrl, groupId, entities).onEach {
-            evictFromCache(dbInstanceUrl, groupId, it.id)
+            it.id?.let { id -> evictFromCache(dbInstanceUrl, groupId, id) }
         }
     }
 
     override fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier> {
         return super.unRemove(dbInstanceUrl, groupId, entities).onEach {
-            evictFromCache(dbInstanceUrl, groupId, it.id)
+            it.id?.let { id -> evictFromCache(dbInstanceUrl, groupId, id) }
         }
     }
 

@@ -90,12 +90,12 @@ class UserLogicImpl(
 
     suspend fun getUserByEmail(groupId: String, email: String): User? {
         val group = getDestinationGroup(groupId)
-        return userDAO.findByEmail(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, email).singleOrNull()?.also { fillGroup(it) }
+        return group.id?.let { userDAO.findByEmail(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, email).singleOrNull()?.also { fillGroup(it) } }
     }
 
     override fun findByHcpartyId(hcpartyId: String): Flow<String> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(userDAO.findByHcpId(dbInstanceUri, groupId, hcpartyId).map { v: User -> v.id })
+        emitAll(userDAO.findByHcpId(dbInstanceUri, groupId, hcpartyId).mapNotNull { v: User -> v.id })
     }
 
     override suspend fun newUser(type: Users.Type, status: Users.Status, email: String, createdDate: Instant): User? {
@@ -155,9 +155,11 @@ class UserLogicImpl(
 
     override suspend fun deleteUser(groupId: String, userId: String) {
         val group = getDestinationGroup(groupId)
-        userDAO.remove(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id,
-                userDAO.getUserOnUserDb(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, userId, false)
-        )
+        group.id?.let {
+            userDAO.remove(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it,
+                    userDAO.getUserOnUserDb(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, userId, false)
+            )
+        }
     }
 
     override suspend fun undeleteUser(userId: String) {
@@ -221,7 +223,7 @@ class UserLogicImpl(
                 throw UserRegistrationException("Password is invalid")
             }
             // Check login does not already exist
-            if (getUserByLogin(user.login) != null) {
+            if (user.login?.let { getUserByLogin(it) } != null) {
                 throw UserRegistrationException("User login already exists")
             }
             initUser(Users.Type.database, Users.Status.ACTIVE, Instant.now(), user)
@@ -244,7 +246,7 @@ class UserLogicImpl(
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
         try { // check whether user exists
-            val userByEmail = getUserByEmail(user.email)
+            val userByEmail = getUserByEmail(user.email!!)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
@@ -262,7 +264,7 @@ class UserLogicImpl(
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
         try { // check whether user exists
-            val userByEmail = getUserByEmail(groupId, user.email)
+            val userByEmail = getUserByEmail(groupId, user.email!!)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
@@ -278,8 +280,8 @@ class UserLogicImpl(
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         for (user in users) {
             fillDefaultProperties(user)
-            if (user.passwordHash != null && !user.passwordHash.matches(regex)) {
-                user.passwordHash = encodePassword(user.passwordHash)
+            if (user.passwordHash != null && !user.passwordHash!!.matches(regex)) {
+                user.passwordHash = encodePassword(user.passwordHash!!)
             }
             userDAO.create(dbInstanceUri, groupId, user)?.also { emit(it) }
         }
@@ -289,10 +291,10 @@ class UserLogicImpl(
         val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
         for (user in users) {
             fillDefaultProperties(user)
-            if (user.passwordHash != null && !user.passwordHash.matches(regex)) {
-                user.passwordHash = encodePassword(user.passwordHash)
+            if (user.passwordHash != null && !user.passwordHash!!.matches(regex)) {
+                user.passwordHash = encodePassword(user.passwordHash!!)
             }
-            userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, user)?.also { emit(it) }
+            group.id?.let { userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, user)?.also { emit(it) } }
         }
     }
 
@@ -314,7 +316,7 @@ class UserLogicImpl(
     override suspend fun isUserActive(userId: String) = getUser(userId)?.let {
         if (it.status == null || it.status != Users.Status.ACTIVE) {
             false
-        } else it.expirationDate == null || !it.expirationDate.isBefore(Instant.now())
+        } else it.expirationDate == null || !it.expirationDate!!.isBefore(Instant.now())
     } ?: false
 
     override suspend fun checkPassword(password: String) =
@@ -324,7 +326,7 @@ class UserLogicImpl(
         getUser(userId)?.takeIf { it.passwordToken?.isNotEmpty() ?: false }
                 ?.let {
                     if (it.passwordToken == token) {
-                        return it.passwordTokenExpirationDate == null || it.passwordTokenExpirationDate.isAfter(Instant.now())
+                        return it.passwordTokenExpirationDate == null || it.passwordTokenExpirationDate!!.isAfter(Instant.now())
                     }
                 }
         return false
@@ -333,7 +335,7 @@ class UserLogicImpl(
     override suspend fun verifyActivationToken(userId: String, token: String): Boolean {
         getUser(userId)?.let {
             if (it.activationToken != null && it.activationToken == token) {
-                return it.activationTokenExpirationDate == null || it.activationTokenExpirationDate.isAfter(Instant.now())
+                return it.activationTokenExpirationDate == null || it.activationTokenExpirationDate!!.isAfter(Instant.now())
             }
         }
         return false
@@ -388,8 +390,8 @@ class UserLogicImpl(
 
     private fun formatLogin(login: String) = login.trim { it <= ' ' }
 
-    override suspend fun isLoginValid(login: String): Boolean {
-        return login.takeIf { it.isNotEmpty() }?.let {
+    override suspend fun isLoginValid(login: String?): Boolean {
+        return login?.takeIf { it.isNotEmpty() }?.let {
             val loginRegexp = propertyLogic.getSystemPropertyValue<String>(PropertyTypes.System.USER_LOGIN_REGEXP.identifier)
             return loginRegexp?.takeIf { it.isNotEmpty() }?.let { Pattern.matches(loginRegexp, login) } ?: true
         } ?: false
@@ -404,8 +406,8 @@ class UserLogicImpl(
     }
 
     override suspend fun modifyUser(modifiedUser: User): User? {
-        if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
-            modifiedUser.passwordHash = encodePassword(modifiedUser.passwordHash)
+        if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash!!.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
+            modifiedUser.passwordHash = encodePassword(modifiedUser.passwordHash!!)
         }
         // Save user
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
@@ -413,17 +415,17 @@ class UserLogicImpl(
     }
 
     override suspend fun modifyUser(groupId: String, modifiedUser: User): User? {
-        if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
-            modifiedUser.passwordHash = encodePassword(modifiedUser.passwordHash)
+        if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash!!.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
+            modifiedUser.passwordHash = encodePassword(modifiedUser.passwordHash!!)
         }
 
         val group = getDestinationGroup(groupId)
-        return userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, modifiedUser)
+        return group.id?.let { userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, modifiedUser) }
     }
 
     override suspend fun addPermissions(userId: String, permissions: Set<Permission>) {
         getUser(userId)?.let {
-            it.permissions.addAll(permissions)
+            it.permissions?.addAll(permissions)
             // Modify user
             modifyUser(it)
         }
@@ -431,7 +433,7 @@ class UserLogicImpl(
 
     override suspend fun modifyPermissions(userId: String, permissions: Set<Permission>) {
         getUser(userId)?.let {
-            it.permissions = permissions
+            it.permissions = permissions.toMutableSet()
             // Modify user
             modifyUser(it)
         }
@@ -460,16 +462,20 @@ class UserLogicImpl(
     }
 
     override suspend fun deleteUser(user: User) {
-        getUser(user.id)?.let {
-            val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            userDAO.remove(dbInstanceUri, groupId, user)
+        user.id?.let {userId ->
+            getUser(userId)?.let {
+                val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+                userDAO.remove(dbInstanceUri, groupId, user)
+            }
         }
     }
 
     override suspend fun undeleteUser(user: User) {
-        getUser(user.id)?.let {
-            val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            userDAO.unRemove(dbInstanceUri, groupId, it)
+        user.id?.let {userId->
+            getUser(userId)?.let {
+                val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+                userDAO.unRemove(dbInstanceUri, groupId, it)
+            }
         }
     }
 
@@ -497,7 +503,7 @@ class UserLogicImpl(
         getUser(userId)?.let { user ->
             val existingProperties = user.properties
             if (existingProperties == null) {
-                user.properties = propertiesToModify
+                user.properties = propertiesToModify.toMutableSet()
             } else {
                 val newProperties: MutableSet<Property> = Sets.newHashSet(propertiesToModify)
                 for (existingProp in existingProperties) {
@@ -571,16 +577,18 @@ class UserLogicImpl(
     }
 
     override suspend fun userLogged(user: User) {
-        getUser(user.id)?.let {
-            // Set new last login date
-            it.lastLoginDate = Instant.now()
-            // Notify user logic listeners
-            for (listener in listeners) {
-                listener.userLogged(it)
+        user.id?.let {
+            getUser(it)?.let {
+                // Set new last login date
+                it.lastLoginDate = Instant.now()
+                // Notify user logic listeners
+                for (listener in listeners) {
+                    listener.userLogged(it)
+                }
+                // Save any changes made to the user
+                val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+                userDAO.save(dbInstanceUri, groupId, user)
             }
-            // Save any changes made to the user
-            val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            userDAO.save(dbInstanceUri, groupId, user)
         }
     }
 
@@ -591,16 +599,16 @@ class UserLogicImpl(
 
     override fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>) = flow {
         val group = getDestinationGroup(groupId)
-        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, paginationOffset))
+        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id!!, paginationOffset))
     }
 
     override suspend fun setProperties(user: User, properties: List<Property>): User? {
         for (p in properties) {
-            val prop = user.properties.stream().filter { pp: Property -> pp.type.identifier == p.type.identifier }.findAny()
+            val prop = user.properties.stream().filter { pp: Property -> pp.type?.identifier == p.type?.identifier }.findAny()
             if (!prop.isPresent) {
-                user.properties.add(Property(PropertyType(p.type.type, p.type.identifier), TypedValue(p.type.type, p.getValue<Any>())))
+                user.properties.add(Property(PropertyType(p.type.type, p.type?.identifier), TypedValue(p.type?.type, p.getValue<Any>())))
             } else {
-                prop.orElseThrow { IllegalStateException() }.typedValue = TypedValue(p.type.type, p.getValue<Any>())
+                prop.orElseThrow { IllegalStateException() }.typedValue = TypedValue(p.type?.type, p.getValue<Any>())
             }
         }
         return modifyUser(user)
@@ -620,7 +628,7 @@ class UserLogicImpl(
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
         try { // check whether user exists
-            val userByEmail = getUserByEmailOnUserDb(user.email, groupId, dbInstanceUrl)
+            val userByEmail = getUserByEmailOnUserDb(user.email!!, groupId, dbInstanceUrl)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()

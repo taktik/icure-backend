@@ -75,19 +75,16 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                     //Create a timeTableItem
                     val timeTableItem = TimeTableItem().apply {
                         calendarItemTypeId = "consult"
-                        days = ArrayList()
-                        days.add("monday")
+                        days = mutableListOf("monday")
                         recurrenceTypes = ArrayList()
-                        hours = ArrayList()
-                        hours.add(timeTableHour)
+                        hours = mutableListOf(timeTableHour)
                     }
                     //Create the timeTable
                     val timeTable = TimeTable().apply {
                         startTime = java.lang.Long.parseLong("20180601000")
                         endTime = java.lang.Long.parseLong("20180801000")
                         name = "myPeriod"
-                        items = ArrayList()
-                        items.add(timeTableItem)
+                        items = mutableListOf(timeTableItem)
                     }
 
                     //Return it

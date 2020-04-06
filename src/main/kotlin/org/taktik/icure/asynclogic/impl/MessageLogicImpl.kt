@@ -56,7 +56,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(messageDAO.save(dbInstanceUri, groupId, messageDAO.getList(dbInstanceUri, groupId, messageIds)
                 .map {
-                    it.status = if (it.status != null) it.status or status else status
+                    it.status = if (it.status != null) it.status!! or status else status
                     it
                 }.toList()))
     }
@@ -113,7 +113,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val message = messageDAO.get(dbInstanceUri, groupId, messageId)
         return message?.let {
-            it.addDelegation(delegation.delegatedTo, delegation)
+            delegation.delegatedTo?.let { delegateTo -> it.addDelegation(delegateTo, delegation) }
             messageDAO.save(dbInstanceUri, groupId, it)
         }
     }
@@ -122,7 +122,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val message = messageDAO.get(dbInstanceUri, groupId, messageId)
         return message?.let {
-            delegations.forEach(Consumer { d: Delegation -> message.addDelegation(d.delegatedTo, d) })
+            delegations.forEach(Consumer { d: Delegation -> d.delegatedTo?.let { delegateTo -> message.addDelegation(delegateTo, d) } })
             messageDAO.save(dbInstanceUri, groupId, message)
         }
     }
@@ -186,13 +186,15 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     override suspend fun solveConflicts() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val messagesInConflict = messageDAO.listConflicts(dbInstanceUri, groupId)
-                .map { messageDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
+                .map { it.id?.let { it1 -> messageDAO.get(dbInstanceUri, groupId, it1, Option.CONFLICTS) } }
                 .filterNotNull()
                 .onEach { msg ->
-                    msg.conflicts.map { c ->
-                        messageDAO.get(dbInstanceUri, groupId, msg.id, c)?.also { cp ->
-                            msg.solveConflictWith(cp)
-                            messageDAO.purge(dbInstanceUri, groupId, cp)
+                    msg.conflicts?.map { c ->
+                        msg.id?.let {
+                            messageDAO.get(dbInstanceUri, groupId, it, c)?.also { cp ->
+                                msg.solveConflictWith(cp)
+                                messageDAO.purge(dbInstanceUri, groupId, cp)
+                            }
                         }
                     }
                 }

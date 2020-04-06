@@ -23,10 +23,10 @@ import org.taktik.icure.validation.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 class TimeTableItem {
     @NotNull
-    var days: List<String>? = null
+    var days: MutableList<String>? = null
 
     @NotNull
-    var hours: List<TimeTableHour>? = null
+    var hours: MutableList<TimeTableHour>? = null
 
     @NotNull
     var recurrenceTypes: List<String>? = null

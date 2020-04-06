@@ -31,7 +31,7 @@ import java.util.Objects
 /** Created by aduchate on 05/07/13, 20:48  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-abstract class StoredICureDocument : StoredDocument(), Versionable<String?>, ICureDocument {
+abstract class StoredICureDocument : StoredDocument(), Versionable<String>, ICureDocument {
     @NotNull(autoFix = AutoFix.NOW)
     override var created: Long? = null
 
@@ -55,20 +55,20 @@ abstract class StoredICureDocument : StoredDocument(), Versionable<String?>, ICu
     //Those are typically filled in the contacts
     //Used when we want to find all contacts for a specific patient
     //These keys are in clear. You can have several to partition the medical document space
-    protected var secretForeignKeys: MutableSet<String>? = HashSet()
+    var secretForeignKeys: MutableSet<String>? = HashSet()
 
     //Used when we want to find the patient for this contact
     //These keys are the public patient ids encrypted using the hcParty keys.
-    protected var cryptedForeignKeys: MutableMap<String, MutableSet<Delegation>> = HashMap()
+    var cryptedForeignKeys: MutableMap<String, MutableSet<Delegation>> = HashMap()
 
     //When a document is created, the responsible generates a cryptographically random master key (never to be used for something else than referencing from other entities)
     //He/she encrypts it using his own AES exchange key and stores it as a delegation
     //The responsible is thus always in the delegations as well
-    protected var delegations: MutableMap<String, MutableSet<Delegation>> = HashMap()
+    var delegations: MutableMap<String, MutableSet<Delegation>> = HashMap()
 
     //When a document needs to be encrypted, the responsible generates a cryptographically random master key (different from the delegation key, never to appear in clear anywhere in the db)
     //He/she encrypts it using his own AES exchange key and stores it as a delegation
-    var encryptionKeys: Map<String, Set<Delegation>> = HashMap()
+    var encryptionKeys: MutableMap<String, MutableSet<Delegation>> = HashMap()
     var medicalLocationId: String? = null
     fun addDelegation(healthcarePartyId: String, delegation: Delegation) {
         delegations.computeIfAbsent(healthcarePartyId) { k: String? -> HashSet() }.add(delegation)
@@ -107,8 +107,8 @@ abstract class StoredICureDocument : StoredDocument(), Versionable<String?>, ICu
         codes.addAll(other.codes)
         tags.addAll(other.tags)
         secretForeignKeys!!.addAll(other.secretForeignKeys!!)
-        cryptedForeignKeys = MergeUtil.mergeMapsOfSets(cryptedForeignKeys, other.cryptedForeignKeys, { a: Delegation?, b: Delegation? -> a == b }) { a: Delegation, b: Delegation? -> a }
-        delegations = MergeUtil.mergeMapsOfSets(delegations, other.delegations, { a: Delegation?, b: Delegation? -> a == b }) { a: Delegation, b: Delegation? -> a }
-        encryptionKeys = MergeUtil.mergeMapsOfSets(encryptionKeys, other.encryptionKeys, { a: Delegation?, b: Delegation? -> a == b }) { a: Delegation, b: Delegation? -> a }
+        cryptedForeignKeys = MergeUtil.mergeMapsOfSets(cryptedForeignKeys, other.cryptedForeignKeys, { a: Delegation?, b: Delegation? -> a == b }) { a: Delegation?, b: Delegation? -> a }
+        delegations = MergeUtil.mergeMapsOfSets(delegations, other.delegations, { a: Delegation?, b: Delegation? -> a == b }) { a: Delegation?, b: Delegation? -> a }
+        encryptionKeys = MergeUtil.mergeMapsOfSets(encryptionKeys, other.encryptionKeys, { a: Delegation?, b: Delegation? -> a == b }) { a: Delegation?, b: Delegation? -> a }
     }
 }

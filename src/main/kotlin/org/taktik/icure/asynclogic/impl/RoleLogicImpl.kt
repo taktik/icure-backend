@@ -118,7 +118,7 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
 
     override fun getAllEntityIds() = flow<String> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(roleDAO.getAll(dbInstanceUri, groupId).map { it.id })
+        emitAll(roleDAO.getAll(dbInstanceUri, groupId).mapNotNull { it.id })
     }
 
     override suspend fun exists(id: String): Boolean {

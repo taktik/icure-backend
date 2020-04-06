@@ -21,9 +21,9 @@ import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.embed.Permission
 
-interface Principal : Identifiable<String?>, Named {
+interface Principal : Identifiable<String>, Named {
     var permissions: Set<Permission>?
-    var properties: Set<Property>?
+    var properties: MutableSet<Property>
     val parents: Set<String>?
     val virtualHostDependency: Roles.VirtualHostDependency?
     val virtualHosts: Set<String>?

@@ -70,9 +70,9 @@ class MikronoController(private val mapper: MapperFacade,
             if (u == null) {
                 throw ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid user")
             } else {
-                val mikronoServer = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.url" == prop.type.identifier }.findAny()
-                val user = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.user" == prop.type.identifier }.findAny()
-                val password = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.password" == prop.type.identifier }.findAny()
+                val mikronoServer = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.url" == prop.type?.identifier ?: "" }.findAny()
+                val user = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.user" == prop.type?.identifier ?: "" }.findAny()
+                val password = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.password" == prop.type?.identifier ?: "" }.findAny()
 
                 if (mikronoServer.isPresent) {
                     mikronoServer.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, credentials.serverUrl)
@@ -123,9 +123,9 @@ class MikronoController(private val mapper: MapperFacade,
 
             mikronoToken = mikronoLogic.getPassword(mikronoToken)
 
-            val mikronoServer = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.url" == prop.type.identifier }.findAny()
-            val user = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.user" == prop.type.identifier }.findAny()
-            val password = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.password" == prop.type.identifier }.findAny()
+            val mikronoServer = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.url" == prop.type?.identifier ?: "" }.findAny()
+            val user = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.user" == prop.type?.identifier ?: "" }.findAny()
+            val password = u.properties.stream().filter { prop -> "org.taktik.icure.be.plugins.mikrono.password" == prop.type?.identifier ?: "" }.findAny()
 
             if (mikronoServer.isPresent) {
                 mikronoServer.orElseThrow<IllegalStateException>(Supplier<IllegalStateException> { IllegalStateException() }).typedValue = TypedValue(TypedValuesType.STRING, mikronoServerUrl)
@@ -158,8 +158,8 @@ class MikronoController(private val mapper: MapperFacade,
     fun sendMessage(@RequestBody message: EmailOrSmsMessageDto) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
-        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
-        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
+        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
+        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             try {
                 mikronoLogic.sendMessage(null, loggedMikronoUser, loggedMikronoPassword, mapper.map(message, EmailOrSmsMessage::class.java))
@@ -180,8 +180,8 @@ class MikronoController(private val mapper: MapperFacade,
     fun appointmentsByDate(@PathVariable calendarDate: Long) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
-        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
-        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
+        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
+        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
 
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             mikronoLogic.getAppointmentsByDate(null, loggedMikronoUser, loggedMikronoPassword, loggedUser.id, calendarDate)
@@ -195,8 +195,8 @@ class MikronoController(private val mapper: MapperFacade,
                               @RequestParam(required = false) to: Long?) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
-        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
-        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
+        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
+        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
 
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             mikronoLogic.getAppointmentsByPatient(null, loggedMikronoUser, loggedMikronoPassword, loggedUser.id, patientId, from, to)
@@ -208,8 +208,8 @@ class MikronoController(private val mapper: MapperFacade,
     fun createAppointments(@RequestBody appointments: List<AppointmentImportDto>) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
 
-        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
-        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue.stringValue }.orElse(null)
+        val loggedMikronoUser = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
+        val loggedMikronoPassword = loggedUser.properties.stream().filter { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p -> p.typedValue?.stringValue }.orElse(null)
 
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             mikronoLogic.createAppointments(null, loggedMikronoUser, loggedMikronoPassword, appointments)
@@ -220,8 +220,8 @@ class MikronoController(private val mapper: MapperFacade,
     @Throws(IOException::class)
     fun createAppointmentTypes(appointmentTypes: List<MikronoAppointmentTypeRestDto?>?) = mono {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
-        val loggedMikronoUser = loggedUser.properties.stream().filter { p: Property -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p: Property -> p.typedValue.stringValue }.orElse(null)
-        val loggedMikronoPassword = loggedUser.properties.stream().filter { p: Property -> p.type.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p: Property -> p.typedValue.stringValue }.orElse(null)
+        val loggedMikronoUser = loggedUser.properties.stream().filter { p: Property -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.user" }.findFirst().map { p: Property -> p.typedValue?.stringValue }.orElse(null)
+        val loggedMikronoPassword = loggedUser.properties.stream().filter { p: Property -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.password" }.findFirst().map { p: Property -> p.typedValue?.stringValue }.orElse(null)
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             mikronoLogic.createAppointmentTypes(null, loggedMikronoUser, loggedMikronoPassword, appointmentTypes)
         } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Mikrono username/password for user")

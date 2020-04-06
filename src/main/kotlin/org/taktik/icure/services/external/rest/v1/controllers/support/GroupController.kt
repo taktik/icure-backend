@@ -45,10 +45,10 @@ class GroupController(couchDbProperties: CouchDbProperties,
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Group creation failed")
             (group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString())?.let { uri ->
                 initialisationData.users?.forEach {
-                    userLogic.createUserOnUserDb(mapper.map(it, User::class.java), group.id, URI.create(uri))
+                    group.id?.let { it1 -> userLogic.createUserOnUserDb(mapper.map(it, User::class.java), it1, URI.create(uri)) }
                 }
                 initialisationData.healthcareParties?.forEach {
-                    healthcarePartyLogic.createHealthcarePartyOnUserDb(mapper.map(it, HealthcareParty::class.java), group.id, URI.create(uri))
+                    group.id?.let { it1 -> healthcarePartyLogic.createHealthcarePartyOnUserDb(mapper.map(it, HealthcareParty::class.java), it1, URI.create(uri)) }
                 }
             }
 

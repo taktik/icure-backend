@@ -92,7 +92,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     @Throws(Exception::class)
     override suspend fun modify(code: Code): Code? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val existingCode = codeDAO.get(dbInstanceUri, groupId, code.id)
+        val existingCode = code.id?.let { codeDAO.get(dbInstanceUri, groupId, it) }
         return existingCode?.let {
             Preconditions.checkState(existingCode.code == code.code, "Modification failed. Code field is immutable.")
             Preconditions.checkState(existingCode.type == code.type, "Modification failed. Type field is immutable.")
@@ -100,7 +100,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
             updateEntities(setOf(code))
 
-            this.get(code.id)
+            this.get(code.id!!)
         }
     }
 
@@ -161,7 +161,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
         val regions = getRegions().toSet()
         val codes = HashMap<String, Code>()
-        findCodesBy(e.name, null, null).filter { c -> c.version == version }.onEach { c -> codes[c.id] = c }.collect()
+        findCodesBy(e.name, null, null).filter { c -> c.version == version }.onEach { c -> codes[c.id!!] = c }.collect()
 
         try {
             for (t in e.getMethod("values").invoke(null) as Array<T>) {
@@ -192,7 +192,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
-        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id)).toList()
+        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id!!)).toList()
 
         if (check.isEmpty()) {
             val factory = SAXParserFactory.newInstance();
@@ -203,7 +203,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
             val batchSave: suspend (Code?, Boolean?) -> Unit = { c, flush ->
                 c?.let { stack.add(it) }
                 if (stack.size == 100 || flush == true) {
-                    val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+                    val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id!!] = c; map }
                     try {
                         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
                         codeDAO.save(dbInstanceUri, groupId, stack.map { c ->
@@ -245,7 +245,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                             }
                             "CODE" -> charsHandler = { code?.code = it }
                             "PARENT" -> charsHandler = { code?.qualifiedLinks = mapOf(pair = Pair(LinkQualification.parent, listOf("$type|$it|$version"))) }
-                            "DESCRIPTION" -> charsHandler = { code?.label?.put(attributes?.getValue("L"), it) }
+                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code?.label?.put(attributesValue, it) } }
                             else -> {
                                 charsHandler = null
                             }
@@ -324,7 +324,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     override suspend fun getOrCreateCode(type: String, code: String, version: String): Code? {
         val codes = findCodesBy(type, code, null).toList()
         if (codes.isNotEmpty()) {
-            return codes.stream().sorted { a, b -> b.version.compareTo(a.version) }.findFirst().get()
+            return codes.stream().sorted { a, b -> a.version?.let { b.version?.compareTo(it) }!! }.findFirst().get()
         }
 
         return this.create(Code(type, code, version))

@@ -44,7 +44,7 @@ class Message : StoredICureDocument(), Serializable {
     var received: Long? = null
     var sent: Long? = null
     private var metas: MutableMap<String, String> = HashMap()
-    var readStatus: Map<String, MessageReadStatus> = HashMap()
+    var readStatus: MutableMap<String, MessageReadStatus> = HashMap()
 
     /*
 		CHAP4:IN:   ${Mycarenet message ref}
@@ -89,7 +89,7 @@ class Message : StoredICureDocument(), Serializable {
         subject = if (subject == null) other.subject else subject
         parentId = if (parentId == null) other.parentId else parentId
         externalRef = if (externalRef == null) other.externalRef else externalRef
-        invoiceIds = mergeListsDistinct(invoiceIds, other.invoiceIds, BiFunction { a: String?, b: String? -> Objects.equal(a, b) }, BiFunction { a: String, b: String? -> a })
+        invoiceIds = mergeListsDistinct(invoiceIds, other.invoiceIds, { a: String?, b: String? -> Objects.equal(a, b) }, { a: String, b: String? -> a })
         other.metas.forEach { (k: String, v: String) -> metas.putIfAbsent(k, v) }
         return this
     }
