@@ -69,6 +69,7 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
                         this.ids.add(localIdKmehr(transactionType, id, config))
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType})
                         this.date = makeXGC(date)
+                        this.time = makeXGC(date)
                         this.author = AuthorType().apply {
                             hcparties.add(createParty(author, emptyList()))
                         }
