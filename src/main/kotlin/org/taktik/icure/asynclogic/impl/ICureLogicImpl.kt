@@ -78,7 +78,6 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
         }
     }
 
-
     override fun getVersion(): String {
         val manifest = JarUtils.getManifest()
         return if (manifest != null) {

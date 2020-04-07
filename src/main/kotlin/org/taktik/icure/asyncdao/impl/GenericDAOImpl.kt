@@ -378,4 +378,27 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
             })
         }
     }
+
+    override suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI, groupId: String) {
+        initSystemDocumentIfAbsent(couchDbDispatcher.getClient(dbInstanceUrl, groupId))
+    }
+
+
+    override suspend fun initSystemDocumentIfAbsent(client: Client) {
+        val designDocId = NameConventions.designDocName("_System")
+        val designDocument = client.get(designDocId, DesignDocument::class.java)
+        if (designDocument == null) {
+            client.update(
+                    (org.ektorp.support.DesignDocument(designDocId)
+                            .apply { addView("revs", org.ektorp.support.DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }")) })
+                            .let {
+                                DesignDocument(_id = designDocId, _rev = it.revision,
+                                views = it.views.mapValues { mapper.map(it.value, View::class.java) },
+                                updateHandlers = it.updates,
+                                lists = it.lists,
+                                shows = it.shows)
+                            }
+            )
+        }
+    }
 }

@@ -52,4 +52,6 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>): Flow<DocIdentifier>
     suspend fun unRemove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier
     suspend fun forceInitStandardDesignDocument(dbInstanceUrl: URI, groupId: String)
+    suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI, groupId: String)
+    suspend fun initSystemDocumentIfAbsent(client: Client)
 }

@@ -81,7 +81,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     private fun client(group: Group):Client {
         val groupDb = GroupDBUrl(couchDbUrl)
         val dbURI = URI.of(groupDb.getInstanceUrl(group)).append(groupDb.getDbName(group))
-        return ClientImpl(httpClient, dbURI, group.id, group.password)
+        return ClientImpl(httpClient, dbURI, couchDbUsername!!, couchDbPassword!!)
     }
 
     override suspend fun startReplication(group: Group): Job {
