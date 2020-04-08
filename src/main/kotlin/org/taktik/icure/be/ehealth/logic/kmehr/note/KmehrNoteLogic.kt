@@ -6,6 +6,6 @@ import java.io.OutputStream
 
 interface KmehrNoteLogic {
     fun createNote(
-            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
+            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientSsin: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
     )
 }
