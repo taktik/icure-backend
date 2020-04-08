@@ -48,6 +48,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                         to.healthcarePartyId != from.healthcarePartyId ||
                         (!from.isSecretEmpty && to.secret != from.secret) ||
                         to.login != from.login ||
+                        to.email != from.email ||
                         to.applicationTokens != from.applicationTokens ||
                         to.groupId != group.id
                 ) {
@@ -57,6 +58,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                     to.healthcarePartyId = from.healthcarePartyId
                     to.secret = if (from.isSecretEmpty) null else from.secret
                     to.login = from.login
+                    to.email = from.email
                     to.applicationTokens = from.applicationTokens
                     to.groupId = group.id
 
