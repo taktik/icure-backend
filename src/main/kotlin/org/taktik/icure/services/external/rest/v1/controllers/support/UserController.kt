@@ -18,12 +18,22 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
-import io.swagger.v3.oas.annotations.tags.Tag
+import com.sendgrid.Method
+import com.sendgrid.Request
+import com.sendgrid.SendGrid
+import com.sendgrid.helpers.mail.Mail
+import com.sendgrid.helpers.mail.objects.Content
+import com.sendgrid.helpers.mail.objects.Email
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
+import org.apache.commons.lang3.text.StrSubstitutor
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -31,17 +41,25 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.dao.replicator.GroupDBUrl
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
+import org.taktik.icure.properties.TwilioProperties
 import org.taktik.icure.security.database.DatabaseUserDetails
-import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
-import org.taktik.icure.services.external.rest.v1.dto.UserDto
-import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto
-import org.taktik.icure.services.external.rest.v1.dto.UserPaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.utils.distinctById
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
+import java.io.IOException
+import java.util.*
+import javax.ws.rs.PUT
+import javax.ws.rs.Path
+import javax.ws.rs.PathParam
+import javax.ws.rs.core.Response
 
 
 /* Useful notes:
@@ -56,8 +74,10 @@ import org.taktik.icure.utils.paginatedList
 class UserController(private val mapper: MapperFacade,
                      private val userLogic: UserLogic,
                      private val groupLogic: GroupLogic,
-                     private val sessionLogic: AsyncSessionLogic) {
+                     private val sessionLogic: AsyncSessionLogic,
+                     private val twilioProperties: TwilioProperties) {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val idGenerator = UUIDGenerator()
     private val DEFAULT_LIMIT = 1000
 
     @Operation(summary = "Get presently logged-in user.", description = "Get current user.")
@@ -256,5 +276,48 @@ class UserController(private val mapper: MapperFacade,
     fun encodePassword(@RequestHeader("password") password: String)  = mono {
         userLogic.encodePassword(password)
     }
+
+    @Operation(summary = "Send a forgotten email message to an user")
+    @PostMapping("/forgottenPassword/{email}")
+    fun forgottenPassword(@Parameter(description = "the email of the user ") @PathVariable email: String, @RequestBody template: EmailTemplateDto) = mono {
+        flow {
+            emitAll(userLogic.listUsersByEmailOnFallbackDb(email))
+            emitAll(userLogic.listUsersByLoginOnFallbackDb(email))
+        }.distinctById().collect { user ->
+            val groupId = user.id.split(":")[0]
+            val userId = user.id.split(":")[1]
+            groupLogic.getGroup(groupId)?.let { group ->
+                try {
+                    val applicationToken = userLogic.getToken(group, user, "passwordRecovery")
+                    val variables: MutableMap<String, String?> = HashMap()
+                    variables["id"] = userId
+                    variables["email"] = user.email ?: user.login
+                    variables["token"] = applicationToken
+                    val mail = Mail(
+                            Email(twilioProperties.sendgridfrom),
+                            StrSubstitutor(variables, "{{", "}}").replace(template.subject),
+                            Email(email),
+                            Content("text/plain", StrSubstitutor(variables, "{{", "}}").replace(template.body))
+                    )
+                    val sg = SendGrid(twilioProperties.sendgridapikey)
+                    val request = Request()
+                    try {
+                        request.method = Method.POST
+                        request.endpoint = "mail/send"
+                        request.body = mail.build()
+                        val response = sg.api(request)
+                        logger.info("Sendgrid status code ${response.statusCode}")
+                    } catch (ex: IOException) {
+                        logger.error("Error while sending forgotten password email", ex)
+                    }
+
+                } catch(e:Exception) {
+                    logger.warn("Skipping ${user.id} during password recovery")
+                }
+            }
+        }
+        true
+    }
+
 
 }

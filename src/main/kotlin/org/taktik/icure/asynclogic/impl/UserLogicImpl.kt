@@ -174,6 +174,12 @@ class UserLogicImpl(
         emitAll(userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).map { fillGroup(it) })
     }
 
+    override fun listUsersByLoginOnFallbackDb(login: String): Flow<User> =
+            userDAO.findByUsernameOnFallback(dbInstanceUri, login)
+
+                    override fun listUsersByEmailOnFallbackDb(email: String): Flow<User> =
+            userDAO.listByEmailOnFallbackDb(dbInstanceUri, email)
+
     override suspend fun getUserByLogin(login: String): User? { // Format login
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).firstOrNull()?.also { fillGroup(it) }
@@ -380,10 +386,6 @@ class UserLogicImpl(
         emitAll(userDAO.getExpiredUsers(dbInstanceUri, groupId, fromExpirationDate, toExpirationDate))
     }
 
-    override suspend fun acceptUserTermsOfUse(userId: String) {
-        getUser(userId)?.also { it.termsOfUseDate = Instant.now() }
-    }
-
     private fun formatLogin(login: String) = login.trim { it <= ' ' }
 
     override suspend fun isLoginValid(login: String): Boolean {
@@ -417,6 +419,16 @@ class UserLogicImpl(
 
         val group = getDestinationGroup(groupId)
         return userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, modifiedUser)
+    }
+
+    override suspend fun getToken(group: Group, user: User, key: String): String {
+        val uri = group.servers?.firstOrNull()?.let { URI(it) } ?: dbInstanceUri
+        return user.applicationTokens[key] ?: userDAO.getUserOnUserDb(uri, group.id, if(user.id.contains(':')) user.id.split(":")[1] else user.id, false).let {
+            val token = uuidGenerator.newGUID().toString()
+            it.applicationTokens[key] = token
+            userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, it)
+            token
+        }
     }
 
     override suspend fun addPermissions(userId: String, permissions: Set<Permission>) {

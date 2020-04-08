@@ -92,6 +92,7 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                 .pathMatchers("/api/**").permitAll()
                 .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
+                .pathMatchers("/rest/*/user/forgottenPassword/*").permitAll()
                 .pathMatchers("/rest/*/icure/v").permitAll()
                 .pathMatchers("/rest/*/icure/p").permitAll()
                 .pathMatchers("/rest/*/icure/check").permitAll()

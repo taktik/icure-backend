@@ -65,6 +65,11 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
         return client.queryView<String, User>(createQuery<User>("by_email").includeDocs(false).key(searchString)).mapNotNull { it.value }
     }
 
+    override fun listByEmailOnFallbackDb(dbInstanceUrl: URI, email: String): Flow<User> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl, null)
+        return client.queryView<String, User>(createQuery<User>("by_email").includeDocs(false).key(email)).mapNotNull { it.value }
+    }
+
     /**
      * startKey in pagination is the email of the patient.
      */
