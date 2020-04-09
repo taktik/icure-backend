@@ -99,6 +99,8 @@ public class InvoiceDto extends IcureDto {
 
 	protected IdentityDocumentReader idDocument;
 
+    protected Map<String, String> options = new HashMap<>();
+
 	public Long getInvoiceDate() {
 		return invoiceDate;
 	}
@@ -409,5 +411,9 @@ public class InvoiceDto extends IcureDto {
     public void setCancelDate(Long cancelDate) {
         this.cancelDate = cancelDate;
     }
+
+    public Map<String, String> getOptions() { return options; }
+
+    public void setOptions(Map<String, String> options) { this.options = options; }
 
 }

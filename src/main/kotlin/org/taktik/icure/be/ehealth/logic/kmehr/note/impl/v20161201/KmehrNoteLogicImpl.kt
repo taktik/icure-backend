@@ -14,6 +14,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.base.CodeStub
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
@@ -35,20 +36,27 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
     )
 
     override fun createNote(
-            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
+            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientSsin: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
     ) {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD } }
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = id })
+                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = recipientNihii + "." + (config._kmehrId ?: System.currentTimeMillis()) })
                 ids.add(localIdKmehr(transactionType, id, config))
                 this.date = makeXGC(Instant.now().toEpochMilli())
+                this.time = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
                     hcparties.add(createParty(author, emptyList()))
                     hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
                 }
+                val recipient = HealthcareParty().apply {
+                    lastName = recipientLastName
+                    firstName = recipientFirstName
+                    nihii = recipientNihii
+                    ssin = recipientSsin
+                }
                 this.recipients.add(RecipientType().apply {
-                    hcparties.add(HcpartyType().apply { this.ids.add( IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; value = recipientNihii } ); this.firstname = recipientFirstName; this.familyname = recipientLastName })
+                    hcparties.add(recipient?.let { createParty(it, emptyList()) })
                 })
             }
             folders.add(FolderType().apply {
@@ -61,6 +69,7 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
                         this.ids.add(localIdKmehr(transactionType, id, config))
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType})
                         this.date = makeXGC(date)
+                        this.time = makeXGC(date)
                         this.author = AuthorType().apply {
                             hcparties.add(createParty(author, emptyList()))
                         }
