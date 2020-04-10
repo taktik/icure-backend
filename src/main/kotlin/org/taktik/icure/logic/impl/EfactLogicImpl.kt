@@ -36,7 +36,6 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmen
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
 import org.taktik.icure.utils.FuzzyValues
 import java.math.BigInteger
-import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.ArrayList
@@ -89,7 +88,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return BigInteger(1, Arrays.copyOfRange(bb.array(), 0, 4)).toLong()
     }
 
-    private fun createBatch(sendNumber: Int, messageId: String, `is`: Insurance, ivs: Map<String, List<org.taktik.icure.entities.Invoice>>, hcp: HealthcareParty): InvoicesBatch {
+    private fun createBatch(sendNumber: Int, messageId: String, insurance: Insurance, ivs: Map<String, List<Invoice>>, hcp: HealthcareParty): InvoicesBatch {
         val invBatch = InvoicesBatch()
 
         val calendar = Calendar.getInstance()
@@ -102,27 +101,27 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         invBatch.uniqueSendNumber = sendNumber.toLong()
         invBatch.batchRef = "" + longRef
         invBatch.fileRef = "" + shortRef
-        invBatch.ioFederationCode = `is`.code
+        invBatch.ioFederationCode = insurance.code
 
         invBatch.numericalRef = invBatch.invoicingYear.toLong() * 1000000 + (invBatch.ioFederationCode!!).toLong() * 1000 + sendNumber;
 
         assert(hcp.cbe != null)
         assert(hcp.nihii != null)
-        val bic = hcp.financialInstitutionInformation.stream().filter { fi -> `is`.code == fi.key }
-            .findFirst().map { financialInstitutionInformation -> if (financialInstitutionInformation.proxyBic != null) financialInstitutionInformation.proxyBic else financialInstitutionInformation.bic }
-            .orElse(if (hcp.proxyBic != null) hcp.proxyBic else hcp.bic)
-        val iban = hcp.financialInstitutionInformation.stream().filter { fi -> `is`.code == fi.key }
-            .findFirst().map { financialInstitutionInformation -> if (financialInstitutionInformation.proxyBankAccount != null) financialInstitutionInformation.proxyBankAccount else financialInstitutionInformation.bankAccount }
-            .orElse(if (hcp.proxyBankAccount != null) hcp.proxyBankAccount else hcp.bankAccount)
 
-        assert(bic != null)
-        assert(iban != null)
+        val bic = hcp.financialInstitutionInformation.find { fi -> insurance.code == fi.key && !(fi.proxyBic.isNullOrBlank() && fi.bic.isNullOrBlank()) && !(fi.bankAccount.isNullOrBlank() && fi.proxyBankAccount.isNullOrBlank())}?.let { it.proxyBic?.toNullIfBlank() ?: it.bic?.toNullIfBlank() }
+                ?: hcp.proxyBic?.toNullIfBlank() ?: hcp.bic?.toNullIfBlank() ?: hcp.financialInstitutionInformation.find { fi -> !(fi.proxyBic.isNullOrBlank() && fi.bic.isNullOrBlank()) && !(fi.bankAccount.isNullOrBlank() && fi.proxyBankAccount.isNullOrBlank())}?.let { it.proxyBic?.toNullIfBlank() ?: it.bic?.toNullIfBlank() }
+                ?: throw IllegalStateException("Missing BIC in bank account information")
+
+        val iban = hcp.financialInstitutionInformation.find { fi -> insurance.code == fi.key && !(fi.proxyBic.isNullOrBlank() && fi.bic.isNullOrBlank()) && !(fi.bankAccount.isNullOrBlank() && fi.proxyBankAccount.isNullOrBlank())}?.let { it.proxyBankAccount?.toNullIfBlank() ?: it.bankAccount?.toNullIfBlank() }
+                ?: hcp.proxyBankAccount?.toNullIfBlank() ?: hcp.bankAccount?.toNullIfBlank() ?: hcp.financialInstitutionInformation.find { fi -> !(fi.proxyBic.isNullOrBlank() && fi.bic.isNullOrBlank()) && !(fi.bankAccount.isNullOrBlank() && fi.proxyBankAccount.isNullOrBlank())}?.let { it.proxyBankAccount?.toNullIfBlank() ?: it.bankAccount?.toNullIfBlank() }
+                ?: throw IllegalStateException("Missing BIC in bank account information")
+
 
         invBatch.sender = InvoiceSender().apply{
             this.nihii = java.lang.Long.valueOf(hcp.nihii!!.replace("[^0-9]".toRegex(), ""))
-            this.ssin = hcp.ssin!!.replace("[^0-9]".toRegex(), "")
-            this.bic = bic
-            this.iban = iban
+            this.ssin = hcp.ssin!!.replace(Regex("[^0-9]"), "")
+            this.bic = bic.toUpperCase().replace(Regex("[^0-9A-Z]"), "")
+            this.iban = iban.toUpperCase().replace(Regex("[^0-9A-Z]"), "")
             this.firstName = hcp.firstName
             this.lastName = hcp.lastName
 
@@ -134,8 +133,6 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
             this.conventionCode = if (hcp.convention != null) hcp.convention else 0
         }
-
-
 
         val invoices = ArrayList<org.taktik.icure.services.external.rest.v1.dto.be.efact.Invoice>()
 
@@ -149,9 +146,10 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 invoice.patient = mapper.map(patient, PatientDto::class.java)
 
-                invoice.ioCode = insuranceLogic.getInsurance(insuranceLogic.getInsurance(patient.insurabilities[0].insuranceId).parent).code.substring(0,3)
-                val invoiceNumber = if (iv.invoiceReference != null && iv.invoiceReference.matches("^[0-9]{4,12}$".toRegex())) java.lang.Long.valueOf(iv.invoiceReference) else this.encodeNumberFromUUID(UUID.fromString(iv.id))
-                invoice.invoiceNumber = invoiceNumber
+                invoice.ioCode = insuranceLogic.getInsurance(patient.insurabilities[0].insuranceId).code.substring(0,3)
+                val invoiceNumber = (if (iv.invoiceReference != null && iv.invoiceReference.matches("^[0-9]{4,12}$".toRegex())) java.lang.Long.valueOf(iv.invoiceReference) else this.encodeNumberFromUUID(UUID.fromString(iv.id))) ?: 0L
+
+                invoice.invoiceNumber = if (invoiceNumber < 1000000) invBatch.invoicingYear * 1000000 + invoiceNumber else invoiceNumber
                 invoice.invoiceRef = encodeRefFromUUID(UUID.fromString(iv.id))
                 invoice.reason = InvoicingTreatmentReasonCode.Other
 
@@ -281,26 +279,25 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 val mm = org.taktik.icure.entities.Message()
 
+                val shortSendNumber = sendNumber.toInt() % 1000
+                val invBatch = createBatch(shortSendNumber, messageId, insurance, invoices, hcp)
+
                 mm.id = messageId
                 mm.invoiceIds = invoices.values.flatMap { it.map { it.id } }
                 mm.subject = "Facture tiers payant"
                 mm.status = Message.STATUS_UNREAD or Message.STATUS_EFACT or Message.STATUS_SENT
-                mm.transportGuid = "EFACT:BATCH:$numericalRef"
+                mm.transportGuid = "EFACT:BATCH:${invBatch.numericalRef}"
                 mm.author = sessionLogic.currentSessionContext.user.id
                 mm.responsible = hcp.id
                 mm.fromHealthcarePartyId = hcp.id
                 mm.recipients = setOf(insurance.id)
 
-                val shortSendNumber = sendNumber.toInt() % 1000
-
                 mm.externalRef = ("" + shortSendNumber).padStart(3, '0')
-
-                val invBatch = createBatch(shortSendNumber, messageId, insurance, invoices, hcp)
 
                 mm.metas = mapOf(
                         "ioFederationCode" to (invBatch.ioFederationCode  ?: ""),
                         "numericalRef" to (invBatch.numericalRef?.toString() ?: ""),
-                        "invoiceMonth" to (invBatch.numericalRef?.toString() ?: ""),
+                        "invoiceMonth" to (invBatch.invoicingMonth.toString()),
                         "invoiceYear" to (invBatch.invoicingYear.toString()),
                         "totalAmount" to (invoices.values.sumByDouble { it.sumByDouble { it.invoicingCodes.sumByDouble { it.reimbursement } } } ).toString()
                 )
@@ -336,7 +333,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
     }
 
     @Throws(LoginException::class, MissingRequirementsException::class)
-    private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): List<org.taktik.icure.entities.Invoice> {
+    private fun rejectMessage(msg: Message, rejectedIcErrorCodes: Map<UUID, List<String>>?): List<Invoice> {
         msg.status = msg.status or Message.STATUS_FULL_ERROR
         messageLogic.modifyMessage(msg)
         if (msg.parentId != null) {
@@ -364,3 +361,5 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
         return LinkedList()
     }
 }
+
+private fun String.toNullIfBlank(): String? = if (this.isBlank()) null else this
