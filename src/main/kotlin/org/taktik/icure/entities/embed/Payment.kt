@@ -1,4 +1,4 @@
-package org.taktik.icure.entities
+package org.taktik.icure.entities.embed
 
 import org.taktik.icure.entities.embed.PaymentType
 

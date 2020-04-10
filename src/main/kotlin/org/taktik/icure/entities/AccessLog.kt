@@ -15,92 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.entities
 
-package org.taktik.icure.entities;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.taktik.icure.entities.base.Encryptable;
-import org.taktik.icure.entities.base.StoredICureDocument;
-import org.taktik.icure.utils.InstantDeserializer;
-import org.taktik.icure.utils.InstantSerializer;
-
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccessLog extends StoredICureDocument implements Encryptable  {
+class AccessLog(id: String,
+                rev: String? = null,
+                revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                conflicts: Array<String> = arrayOf(),
+                revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Encryptable {
 
-	public static final String USER_ACCESS = "USER_ACCESS";
-	public static final String COMPUTER_ACCESS = "COMPUTER_ACCESS";
-    public static final String LOGIN_ACCESS = "LOGIN_ACCESS";
+    @Deprecated("Use cryptedForeignKeys instead")
+    var patientId: String? = null
 
-    @Deprecated
-    protected String patientId;
+    var accessType: String? = null
+    var user: String? = null
+    var detail: String? = null
+    var objectId: String? = null
 
-    @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer.class)
-    protected Instant date;
-
-    protected String accessType;
-    protected String user;
-    protected String detail;
-    protected String objectId;
-
-    public AccessLog() {
-        super();
-        setAccessType(USER_ACCESS);
-        setDate(Instant.now());
-    }
-
-    public Instant getDate() {
-        return date;
-    }
-
-    public void setDate(Instant date) {
-        this.date = date;
-    }
-
-    public String getAccessType() {
-        return accessType;
-    }
-
-    public void setAccessType(String accessType) {
-        this.accessType = accessType;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    @Deprecated
-	public String getPatientId() {
-		return patientId;
-	}
-
-	public void setPatientId(String patientId) {
-		this.patientId = patientId;
-	}
-
-    public String getDetail() {
-        return detail;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
+    companion object {
+        val USER_ACCESS = "USER_ACCESS"
+        val COMPUTER_ACCESS = "COMPUTER_ACCESS"
+        val LOGIN_ACCESS = "LOGIN_ACCESS"
     }
 }

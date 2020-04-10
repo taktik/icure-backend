@@ -24,12 +24,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.CryptoActor
 import org.taktik.icure.entities.base.Person
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.FinancialInstitutionInformation
-import org.taktik.icure.entities.embed.FlatRateTarification
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.HealthcarePartyStatus
-import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfArraysDistinct
 import org.taktik.icure.validation.AutoFix
@@ -41,7 +36,11 @@ import java.util.function.BiFunction
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class HealthcareParty : StoredDocument(), Person, CryptoActor {
+class HealthcareParty(id: String,
+                      rev: String? = null,
+                      revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                      conflicts: Array<String> = arrayOf(),
+                      revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Person, CryptoActor {
     var name: String? = null
     override var lastName: String? = null
     override var firstName: String? = null

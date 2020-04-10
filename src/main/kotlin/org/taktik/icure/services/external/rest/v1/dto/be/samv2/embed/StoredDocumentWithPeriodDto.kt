@@ -6,4 +6,4 @@ open class StoredDocumentWithPeriodDto(
         id: String,
         var from: Long? = null,
         var to: Long? = null
-) : StoredDocument(id)
+) : StoredDocument(id, "", _type = "", revHistory = null)

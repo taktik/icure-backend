@@ -29,6 +29,7 @@ import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DelegationTag
 import org.taktik.icure.entities.embed.Permission
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
@@ -38,10 +39,14 @@ import java.util.HashSet
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class User : StoredDocument(), Principal, Cloneable, Serializable {
+class User(id: String,
+           rev: String? = null,
+           revisionsInfo: Array<RevisionInfo> = arrayOf(),
+           conflicts: Array<String> = arrayOf(),
+           revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Principal, Cloneable, Serializable {
     override var name: String? = null
     override var properties: MutableSet<Property> = HashSet()
-    override var permissions: MutableSet<Permission>? = HashSet()
+    override var permissions: MutableSet<Permission> = HashSet()
     var type: Users.Type? = null
     var status: Users.Status? = null
     var login: String? = null
@@ -103,10 +108,10 @@ class User : StoredDocument(), Principal, Cloneable, Serializable {
     override val virtualHosts: Set<String>?
         get() = null
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val user = o as User
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val user = other as User
         return !if (id != null) id != user.id else user.id != null
     }
 

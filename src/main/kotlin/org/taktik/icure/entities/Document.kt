@@ -24,6 +24,7 @@ import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.DocumentLocation
 import org.taktik.icure.entities.embed.DocumentStatus
 import org.taktik.icure.entities.embed.DocumentType
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.security.CryptoUtils
 import java.io.Serializable
 import java.nio.ByteBuffer
@@ -38,16 +39,16 @@ import javax.crypto.NoSuchPaddingException
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Document : StoredICureDocument(), Serializable {
+class Document(id: String,
+               rev: String? = null,
+               revisionsInfo: Array<RevisionInfo> = arrayOf(),
+               conflicts: Array<String> = arrayOf(),
+               revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
     var attachmentId: String? = null
 
-    @get:JsonIgnore
-    @set:JsonIgnore
     @JsonIgnore
     var attachment: ByteArray? = null
 
-    @get:JsonIgnore
-    @set:JsonIgnore
     @JsonIgnore
     var isAttachmentDirty = false
     var documentLocation: DocumentLocation? = null

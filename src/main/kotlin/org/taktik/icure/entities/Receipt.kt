@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.ReceiptBlobType
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import java.io.Serializable
 import java.util.ArrayList
@@ -29,7 +30,11 @@ import java.util.function.BiFunction
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Receipt : StoredICureDocument(), Serializable {
+class Receipt(id: String,
+              rev: String? = null,
+              revisionsInfo: Array<RevisionInfo> = arrayOf(),
+              conflicts: Array<String> = arrayOf(),
+              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
     internal var attachmentIds: MutableMap<ReceiptBlobType, String>? = HashMap()
     var references: List<String> = ArrayList() //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
 

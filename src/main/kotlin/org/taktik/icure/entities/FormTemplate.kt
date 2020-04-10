@@ -23,13 +23,18 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.FormGroup
+import org.taktik.icure.entities.embed.RevisionInfo
 
 /**
  * Created by aduchate on 09/07/13, 16:27
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FormTemplate : StoredDocument() {
+class FormTemplate(id: String,
+                   rev: String? = null,
+                   revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                   conflicts: Array<String> = arrayOf(),
+                   revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     @JsonIgnore
     var layout: ByteArray? = null
     var layoutAttachmentId: String? = null

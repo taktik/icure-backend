@@ -20,82 +20,38 @@ package org.taktik.icure.entities.base
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.moshi.Json
 import org.ektorp.Attachment
 import org.ektorp.util.Assert
 import org.taktik.icure.entities.embed.RevisionInfo
 import java.io.Serializable
 import java.util.Comparator
-import java.util.HashMap
 import java.util.Objects
 import java.util.TreeMap
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-open class StoredDocument : Versionable<String> {
-    constructor() {}
-    constructor(id: String?) {
-        this.id = id
-    }
+open class StoredDocument(
+        @property:Json(name = "_id") override val id: String,
+        @property:Json(name = "_rev") override val rev: String? = null,
+        @property:Json(name = "_revs_info") val revisionsInfo: Array<RevisionInfo> = arrayOf(),
+        @property:Json(name = "_conflicts") var conflicts: Array<String> = arrayOf(),
+        @property:Json(name = "rev_history") override val revHistory: Map<String, String> = mapOf()
+) : Versionable<String> {
+    @Json(name = "java_type")
+    val _type: String = this.javaClass.name
 
-    override var id: String? = null
-        get() = field
-        set(value) {field = value}
-
-    @JsonProperty("_attachments")
     @Json(name = "_attachments")
-    var attachments: MutableMap<String, Attachment>? = HashMap()
+    var attachments : Map<String, Attachment> = mapOf()
 
-    //Do not use deleted as a field... because it is translated to _deleted by ektorp :-(
-    @JsonProperty("deleted")
     @Json(name = "deleted")
     var deletionDate: Long? = null
-
-    @get:Json(name = "_rev")
-    @get:JsonProperty("_rev")
-    @set:Json(name = "_rev")
-    @set:JsonProperty("_rev")
-    @JsonProperty("_rev")
-    @Json(name = "_rev")
-    override var rev: String? = null
-
-    @get:Json(name = "_revs_info")
-    @get:JsonProperty("_revs_info")
-    @set:JsonProperty("_revs_info")
-    @set:Json(name = "_revs_info")
-    var revisionsInfo: Array<RevisionInfo>? = null
-
-    @get:Json(name = "_conflicts")
-    @get:JsonProperty("_conflicts")
-    @set:JsonProperty("_conflicts")
-    @set:Json(name = "_conflicts")
-    var conflicts: Array<String>? = null
-        protected set
-
-    @JsonProperty("java_type")
-    @Json(name = "java_type")
-    protected var _type = this.javaClass.name
-
-    @JsonProperty("rev_history")
-    @Json(name = "rev_history")
-    @set:JsonProperty("rev_history")
-    @set:Json(name = "rev_history")
-    override var revHistory: Map<String, String>? = reversedTreeMap()
-    @JsonProperty("rev_history")
-    @Json(name = "rev_history")
-    get() {
-        return if (field == null) reversedTreeMap() else field
-    }
 
     @JsonIgnore
     fun addInlineAttachment(a: Attachment) {
         Assert.notNull(a, "attachment may not be null")
         Assert.hasText(a.dataBase64, "attachment must have data base64-encoded")
-        if (attachments == null) {
-            attachments = HashMap()
-        }
-        attachments!![a.id] = a
+        attachments = attachments + (a.id to a)
     }
 
     fun delete() {
@@ -105,9 +61,7 @@ open class StoredDocument : Versionable<String> {
     @JsonIgnore
     fun deleteInlineAttachment(id: String) {
         Assert.notNull(id, "id may not be null")
-        if (attachments != null) {
-            attachments!!.remove(id)
-        }
+        attachments = attachments - id
     }
 
     private fun reversedTreeMap(): TreeMap<String, String> {
@@ -120,10 +74,10 @@ open class StoredDocument : Versionable<String> {
         }
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is StoredDocument) return false
-        val that = o
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StoredDocument) return false
+        val that = other
         return deletionDate == that.deletionDate &&
                 id == that.id &&
                 rev == that.rev
@@ -134,21 +88,4 @@ open class StoredDocument : Versionable<String> {
     }
 
     protected fun solveConflictsWith(other: StoredDocument?) {}
-
-    companion object {
-        private const val serialVersionUID = 1L
-        fun <T : StoredDocument?> strip(document: T): T {
-            val newDoc: T
-            try {
-                newDoc = document!!.javaClass.newInstance() as T
-                newDoc!!.id = document.id
-                newDoc.rev = document.rev
-            } catch (e: InstantiationException) {
-                throw RuntimeException(e)
-            } catch (e: IllegalAccessException) {
-                throw RuntimeException(e)
-            }
-            return newDoc
-        }
-    }
 }

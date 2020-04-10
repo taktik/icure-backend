@@ -19,11 +19,17 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.embed.TimeTableItem
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class TimeTable : StoredICureDocument() {
+class TimeTable(id: String,
+                rev: String? = null,
+                revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                conflicts: Array<String> = arrayOf(),
+                revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     @NotNull
     var name: String? = null
     var agendaId: String? = null

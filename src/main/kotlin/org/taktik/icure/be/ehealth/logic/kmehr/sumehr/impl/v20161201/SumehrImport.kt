@@ -38,7 +38,6 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
-import java.io.InputStream
 import java.io.Serializable
 import java.nio.ByteBuffer
 import java.util.LinkedList

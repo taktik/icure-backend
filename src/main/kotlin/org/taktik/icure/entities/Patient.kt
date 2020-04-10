@@ -26,18 +26,7 @@ import org.taktik.icure.entities.base.CryptoActor
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.Person
 import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.Address
-import org.taktik.icure.entities.embed.DeactivationReason
-import org.taktik.icure.entities.embed.EmploymentInfo
-import org.taktik.icure.entities.embed.FinancialInstitutionInformation
-import org.taktik.icure.entities.embed.Gender
-import org.taktik.icure.entities.embed.Insurability
-import org.taktik.icure.entities.embed.MedicalHouseContract
-import org.taktik.icure.entities.embed.Partnership
-import org.taktik.icure.entities.embed.PatientHealthCareParty
-import org.taktik.icure.entities.embed.PersonalStatus
-import org.taktik.icure.entities.embed.ReferralPeriod
-import org.taktik.icure.entities.embed.SchoolingInfo
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfArraysDistinct
 import org.taktik.icure.entities.utils.MergeUtil.mergeSets
@@ -51,7 +40,11 @@ import java.util.function.BiFunction
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Patient : StoredICureDocument(), Person, Encryptable, CryptoActor {
+class Patient(id: String,
+              rev: String? = null,
+              revisionsInfo: Array<RevisionInfo> = arrayOf(),
+              conflicts: Array<String> = arrayOf(),
+              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Person, Encryptable, CryptoActor {
     var mergeToPatientId: String? = null
     var mergedIds: Set<String> = HashSet()
     var nonDuplicateIds: Set<String> = HashSet()

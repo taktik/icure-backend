@@ -3,11 +3,17 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.FrontEndMigrationStatus
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FrontEndMigration : StoredDocument, Identifiable<String>, Cloneable, Serializable {
+class FrontEndMigration(id: String,
+                        rev: String? = null,
+                        revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                        conflicts: Array<String> = arrayOf(),
+                        revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Identifiable<String>, Cloneable, Serializable {
     var name: String? = null
     var startDate: Long? = null
     var endDate: Long? = null
@@ -18,25 +24,15 @@ class FrontEndMigration : StoredDocument, Identifiable<String>, Cloneable, Seria
     var startKeyDocId: String? = null
     var processCount: Long? = null
 
-    constructor() {}
-    constructor(name: String?, userId: String?, startDate: Long?, endDate: Long?, status: FrontEndMigrationStatus?, logs: String?) {
-        this.name = name
-        this.startDate = startDate
-        this.endDate = endDate
-        this.status = status
-        this.logs = logs
-        this.userId = userId
-    }
-
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): Any {
         return super.clone()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val frontEndMigration = o as FrontEndMigration
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val frontEndMigration = other as FrontEndMigration
         return if (if (id != null) id != frontEndMigration.id else frontEndMigration.id != null) false else true
     }
 

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.entities
+package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonInclude
 

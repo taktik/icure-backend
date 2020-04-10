@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.entities.utils.MergeUtil.mergeSets
@@ -36,7 +37,11 @@ import javax.validation.Valid
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Contact : StoredICureDocument {
+class Contact(id: String,
+              rev: String? = null,
+              revisionsInfo: Array<RevisionInfo> = arrayOf(),
+              conflicts: Array<String> = arrayOf(),
+              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     @NotNull(autoFix = AutoFix.UUID)
     var groupId // Several contacts can be combined in a logical contact if they share the same groupId
             : String? = null
@@ -56,6 +61,7 @@ class Contact : StoredICureDocument {
     var encounterType: Code? = null
     var subContacts: @Valid MutableSet<SubContact>? = HashSet()
     var services: @Valid MutableSet<Service>? = TreeSet()
+
     fun solveConflictWith(other: Contact): Contact {
         super.solveConflictsWith(other)
         encryptedSelf = if (encryptedSelf == null) other.encryptedSelf else encryptedSelf

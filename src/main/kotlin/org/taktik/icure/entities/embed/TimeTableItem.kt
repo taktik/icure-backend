@@ -15,19 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.entities
+package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import org.taktik.icure.entities.embed.TimeTableHour
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class TimeTableHour {
+class TimeTableItem {
     @NotNull
-    var startHour // hh:mm:ss
-            : Long? = null
+    var days: MutableList<String>? = null
 
     @NotNull
-    var endHour // hh:mm:ss
-            : Long? = null
+    var hours: MutableList<TimeTableHour>? = null
+
+    @NotNull
+    var recurrenceTypes: List<String>? = null
+
+    @NotNull
+    var calendarItemTypeId: String? = null
+
+    @NotNull
+    var isHomeVisit = false
+    var placeId: String? = null
+    var isUnavailable = false
 
 }

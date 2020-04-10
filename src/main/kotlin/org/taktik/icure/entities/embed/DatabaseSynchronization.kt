@@ -22,27 +22,13 @@ import java.io.Serializable
 import java.util.Objects
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class DatabaseSynchronization : Serializable {
-    var source: String? = null
-        protected set
-    var target: String? = null
-        protected set
+class DatabaseSynchronization(var source: String? = null, var target: String? = null) : Serializable {
     var filter: String? = null
-        protected set
 
-    constructor() {}
-
-    @JvmOverloads
-    constructor(source: String?, target: String?, filter: String? = null) {
-        this.source = source
-        this.target = target
-        this.filter = filter
-    }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as DatabaseSynchronization
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as DatabaseSynchronization
         return source == that.source &&
                 target == that.target
     }

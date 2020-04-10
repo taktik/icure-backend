@@ -21,10 +21,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Address
+import org.taktik.icure.entities.embed.RevisionInfo
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Insurance : StoredDocument() {
+class Insurance(id: String,
+                rev: String? = null,
+                revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                conflicts: Array<String> = arrayOf(),
+                revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     var isPrivateInsurance = false
     var isHospitalisationInsurance = false
     var isAmbulatoryInsurance = false

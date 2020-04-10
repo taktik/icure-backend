@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.google.common.base.Objects
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus
 import java.io.Serializable
@@ -33,7 +34,11 @@ import java.util.function.BiFunction
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Message : StoredICureDocument(), Serializable {
+class Message(id: String,
+              rev: String? = null,
+              revisionsInfo: Array<RevisionInfo> = arrayOf(),
+              conflicts: Array<String> = arrayOf(),
+              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
     var fromAddress: String? = null
     var fromHealthcarePartyId: String? = null
     var formId: String? = null

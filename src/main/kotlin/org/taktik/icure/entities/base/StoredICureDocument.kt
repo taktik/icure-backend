@@ -20,6 +20,7 @@ package org.taktik.icure.entities.base
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
@@ -31,7 +32,13 @@ import java.util.Objects
 /** Created by aduchate on 05/07/13, 20:48  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-abstract class StoredICureDocument : StoredDocument(), Versionable<String>, ICureDocument {
+abstract class StoredICureDocument(
+                                   id: String,
+                                   rev: String? = null,
+revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                                   conflicts: Array<String> = arrayOf(),
+                                   revHistory: Map<String, String> = mapOf()
+                                ) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Versionable<String>, ICureDocument {
     @NotNull(autoFix = AutoFix.NOW)
     override var created: Long? = null
 
@@ -85,11 +92,11 @@ abstract class StoredICureDocument : StoredDocument(), Versionable<String>, ICur
         secretForeignKeys!!.add(newKey)
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is StoredICureDocument) return false
-        if (!super.equals(o)) return false
-        val that = o
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StoredICureDocument) return false
+        if (!super.equals(other)) return false
+        val that = other
         return created == that.created &&
                 modified == that.modified &&
                 endOfLife == that.endOfLife &&

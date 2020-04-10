@@ -22,57 +22,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.TypedValue
 import java.io.Serializable
 import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Property : StoredDocument, Identifiable<String>, Cloneable, Serializable {
+class Property(id: String,
+               rev: String? = null,
+               revisionsInfo: Array<RevisionInfo> = arrayOf(),
+               conflicts: Array<String> = arrayOf(),
+               revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Identifiable<String>, Cloneable, Serializable {
     var type: PropertyType? = null
     var typedValue: TypedValue<*>? = null
-
-    constructor(type: PropertyType?, typedValue: TypedValue<*>?) {
-        this.type = type
-        this.typedValue = typedValue
-    }
-
-    constructor() {}
-
-    @Throws(CloneNotSupportedException::class)
-    public override fun clone(): Any {
-        return super.clone()
-    }
-
-    constructor(type: PropertyType?, value: Boolean?) {
-        this.type = type
-        typedValue = TypedValue(value)
-    }
-
-    constructor(type: PropertyType?, value: Int?) {
-        this.type = type
-        typedValue = TypedValue(value)
-    }
-
-    constructor(type: PropertyType?, value: Double?) {
-        this.type = type
-        typedValue = TypedValue(value)
-    }
-
-    constructor(type: PropertyType?, value: String?) {
-        this.type = type
-        typedValue = TypedValue(value)
-    }
-
-    constructor(type: PropertyType?, value: Instant?) {
-        this.type = type
-        typedValue = TypedValue(value)
-    }
-
-    constructor(type: PropertyType?, value: Long?) {
-        this.type = type
-        typedValue = TypedValue(value)
-    }
 
     @JsonIgnore
     fun <T> getValue(): T? {
@@ -101,8 +64,4 @@ class Property : StoredDocument, Identifiable<String>, Cloneable, Serializable {
         return true
     }
 
-    companion object {
-        private const val serialVersionUID = 1L
-        val EMPTY = Property()
-    }
 }

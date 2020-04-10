@@ -20,10 +20,15 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.KeywordSubword
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class Keyword : StoredICureDocument() {
+class Keyword(id: String,
+              rev: String? = null,
+              revisionsInfo: Array<RevisionInfo> = arrayOf(),
+              conflicts: Array<String> = arrayOf(),
+              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     @NotNull
     var value: String? = null
 

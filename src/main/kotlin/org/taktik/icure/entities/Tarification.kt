@@ -21,12 +21,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.embed.LetterValue
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.Valorisation
 import java.util.Objects
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Tarification : Code {
+class Tarification(id: String,
+                   rev: String? = null,
+                   revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                   conflicts: Array<String> = arrayOf(),
+                   revHistory: Map<String, String> = mapOf()) : Code(id, rev, revisionsInfo, conflicts, revHistory) {
     var valorisations: Set<Valorisation>? = null
     var category: Map<String, String>? = null
     var consultationCode: Boolean? = null
@@ -36,13 +41,6 @@ class Tarification : Code {
     var nGroup: String? = null
     var letterValues: List<LetterValue>? = null
 
-    constructor() {}
-    constructor(typeAndCodeAndVersion: String?) : super(typeAndCodeAndVersion!!) {}
-    constructor(type: String?, code: String?, version: String?) : super(type!!, code!!, version!!) {}
-    constructor(regions: Set<String>?, type: String, code: String, version: String) : super(regions, type, code, version) {}
-    constructor(region: String?, type: String?, code: String?, version: String?) : super(region!!, type, code, version) {}
-    constructor(regions: Set<String>?, type: String?, code: String?, version: String?, label: Map<String, String>?) : super(regions, type!!, code!!, version!!, label) {}
-
     fun getnGroup(): String? {
         return nGroup
     }
@@ -51,11 +49,11 @@ class Tarification : Code {
         this.nGroup = nGroup
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        if (!super.equals(o)) return false
-        val that = o as Tarification
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        if (!super.equals(other)) return false
+        val that = other as Tarification
         return valorisations == that.valorisations &&
                 category == that.category &&
                 consultationCode == that.consultationCode &&

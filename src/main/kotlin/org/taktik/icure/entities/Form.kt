@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.util.ArrayList
 
 /**
@@ -28,7 +29,11 @@ import java.util.ArrayList
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Form : StoredICureDocument() {
+class Form(id: String,
+           rev: String? = null,
+           revisionsInfo: Array<RevisionInfo> = arrayOf(),
+           conflicts: Array<String> = arrayOf(),
+           revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     var descr: String? = null
     var formTemplateId: String? = null
     var contactId: String? = null

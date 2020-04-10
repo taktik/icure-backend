@@ -23,11 +23,17 @@ import org.taktik.icure.constants.PropertyTypeScope
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class PropertyType : StoredDocument, Cloneable, Serializable, Identifiable<String>{
+class PropertyType(id: String,
+                   rev: String? = null,
+                   revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                   conflicts: Array<String> = arrayOf(),
+                   revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Cloneable, Serializable, Identifiable<String>{
     var identifier: String? = null
     var type: TypedValuesType? = null
     var scope: PropertyTypeScope? = null
@@ -35,32 +41,20 @@ class PropertyType : StoredDocument, Cloneable, Serializable, Identifiable<Strin
     var editor: String? = null
     var localized = false
 
-    constructor() {}
-    constructor(type: TypedValuesType?, identifier: String?) {
-        this.type = type
-        this.identifier = identifier
-    }
-
-    constructor(type: TypedValuesType?, scope: PropertyTypeScope?, identifier: String?) {
-        this.type = type
-        this.scope = scope
-        this.identifier = identifier
-    }
-
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): Any {
         return super.clone()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as PropertyType
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as PropertyType
         return id == that.id
     }
 
     override fun hashCode(): Int {
-        return if (id != null) id.hashCode() else 0
+        return id.hashCode()
     }
 
     companion object {

@@ -33,8 +33,8 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.TimeTableLogic
 import org.taktik.icure.entities.TimeTable
-import org.taktik.icure.entities.TimeTableHour
-import org.taktik.icure.entities.TimeTableItem
+import org.taktik.icure.entities.embed.TimeTableHour
+import org.taktik.icure.entities.embed.TimeTableItem
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux

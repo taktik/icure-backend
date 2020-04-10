@@ -21,6 +21,6 @@ package org.taktik.icure.entities.base
  * @param <T> The type of the entity identity (a String, a UUID, etc.)
 </T> */
 interface Versionable<T> : Identifiable<T> {
-    val revHistory: Map<String, String>?
-    var rev: String?
+    val revHistory: Map<String, String>
+    val rev: String?
 }

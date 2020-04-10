@@ -21,12 +21,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.PlanOfActionTemplate
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.util.ArrayList
 import javax.validation.Valid
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class HealthElementTemplate : StoredICureDocument() {
+class HealthElementTemplate(id: String,
+                            rev: String? = null,
+                            revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                            conflicts: Array<String> = arrayOf(),
+                            revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     var descr: String? = null
     var isRelevant = true
     var status //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present

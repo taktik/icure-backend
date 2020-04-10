@@ -20,12 +20,17 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class EntityTemplate : StoredDocument() {
+class EntityTemplate(id: String,
+                     rev: String? = null,
+                     revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                     conflicts: Array<String> = arrayOf(),
+                     revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     @NotNull(autoFix = AutoFix.CURRENTUSERID)
     var userId: String? = null
 

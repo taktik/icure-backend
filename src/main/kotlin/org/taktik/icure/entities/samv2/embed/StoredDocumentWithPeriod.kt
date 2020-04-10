@@ -6,7 +6,7 @@ open class StoredDocumentWithPeriod(
         id: String? = null,
         var from: Long? = null,
         var to: Long? = null
-) : StoredDocument(id) {
+) : StoredDocument(id, "", _type = "", revHistory = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

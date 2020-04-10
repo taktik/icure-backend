@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.taktik.icure.entities.IdentityDocumentReader;
-import org.taktik.icure.entities.Payment;
+import org.taktik.icure.entities.embed.IdentityDocumentReader;
+import org.taktik.icure.entities.embed.Payment;
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentType;
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto;
 

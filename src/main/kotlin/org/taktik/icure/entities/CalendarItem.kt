@@ -20,11 +20,18 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Address
+import org.taktik.icure.entities.embed.CalendarItemTag
+import org.taktik.icure.entities.embed.FlowItem
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class CalendarItem : StoredICureDocument() {
+class CalendarItem(id: String,
+                   rev: String? = null,
+revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                   conflicts: Array<String> = arrayOf(),
+                   revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
     @NotNull
     var title: String? = null
     var calendarItemTypeId: String? = null

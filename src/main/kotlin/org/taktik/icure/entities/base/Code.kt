@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.google.common.collect.ImmutableMap
 import org.taktik.icure.entities.embed.Periodicity
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.util.Arrays
 import java.util.HashMap
 import java.util.HashSet
@@ -29,7 +30,11 @@ import java.util.Objects
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-open class Code : StoredDocument, CodeIdentification {
+open class Code(id: String,
+                rev: String? = null,
+                revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                conflicts: Array<String> = arrayOf(),
+                revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), CodeIdentification {
     // id = type|code|version  => this must be unique
     var author: String? = null
     var regions //ex: be,fr
@@ -59,7 +64,7 @@ open class Code : StoredDocument, CodeIdentification {
     var label //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
             : MutableMap<String, String>? = null
 
-    @Deprecated("")
+    @Deprecated("Use qualified links instead")
     var links //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
             : List<String>? = null
     var qualifiedLinks //Links towards related codes
@@ -72,55 +77,14 @@ open class Code : StoredDocument, CodeIdentification {
     var appendices: Map<AppendixType, String>? = null
     var isDisabled = false
 
-    constructor() {}
-    constructor(typeAndCodeAndVersion: String) : this(typeAndCodeAndVersion.split("\\|".toRegex()).toTypedArray()[0], typeAndCodeAndVersion.split("\\|".toRegex()).toTypedArray()[1], typeAndCodeAndVersion.split("\\|".toRegex()).toTypedArray()[2]) {}
-    constructor(type: String, code: String?, version: String?) : this(HashSet<String>(Arrays.asList<String>("be", "fr")), type, code, version) {}
-    constructor(region: String, type: String?, code: String?, version: String?) : this(setOf<String>(region), type!!, code!!, version!!) {}
-
-    @JvmOverloads
-    constructor(regions: Set<String>?, type: String, code: String?, version: String?, label: Map<String, String>? = HashMap()) {
-        this.regions = regions
-        this.type = type
-        this.code = code
-        this.version = version
-        this.label = label?.toMutableMap()
-        id = "$type|$code|$version"
-    }
-
-
     override fun toString(): String {
-        return type + ":" + code
+        return "$type:$code"
     }
-
-    @get:JsonIgnore
-    @get:Deprecated("")
-    @set:Deprecated("")
-    var descrFR: String?
-        get() = if (label != null) label!!["fr"] else null
-        set(descrFR) {
-            if (label == null) {
-                label = HashMap()
-            }
-            label!!["fr"] = descrFR!!
-        }
-
-    @get:JsonIgnore
-    @get:Deprecated("")
-    @set:Deprecated("")
-    var descrNL: String?
-        get() = if (label != null) label!!["nl"] else null
-        set(descrNL) {
-            if (label == null) {
-                label = HashMap()
-            }
-            label!!["nl"] = descrNL!!
-        }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is Code) return false
-        if (!super.equals(o)) return false
-        val code1 = o
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Code) return false
+        if (!super.equals(other)) return false
+        val code1 = other
         return type == code1.type &&
                 code == code1.code &&
                 version == code1.version

@@ -1,8 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import org.taktik.icure.entities.CalendarItem;
-import org.taktik.icure.entities.Right;
-import org.taktik.icure.entities.base.StoredDocument;
+import org.taktik.icure.entities.embed.Right;
 
 import java.util.List;
 

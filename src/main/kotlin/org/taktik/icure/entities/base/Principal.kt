@@ -22,9 +22,6 @@ import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.embed.Permission
 
 interface Principal : Identifiable<String>, Named {
-    var permissions: Set<Permission>?
+    var permissions: MutableSet<Permission>
     var properties: MutableSet<Property>
-    val parents: Set<String>?
-    val virtualHostDependency: Roles.VirtualHostDependency?
-    val virtualHosts: Set<String>?
 }

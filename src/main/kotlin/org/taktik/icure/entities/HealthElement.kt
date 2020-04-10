@@ -20,23 +20,21 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.CareTeamMember
-import org.taktik.icure.entities.embed.Episode
-import org.taktik.icure.entities.embed.Laterality
-import org.taktik.icure.entities.embed.PlanOfAction
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import java.util.ArrayList
-import java.util.function.BiFunction
 import javax.validation.Valid
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class HealthElement : StoredICureDocument() {
-    @NotNull
-    var healthElementId //The Unique UUID common to a group of HealthElements that forms an history
-            : String? = null
+class HealthElement(id: String,
+                    val healthElementId: String, //The Unique UUID common to a group of HealthElements that forms an history
+                    rev: String? = null,
+                    revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                    conflicts: Array<String> = arrayOf(),
+                    revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
 
     //Usually one of the following is used (either valueDate or openingDate and closingDate)
     @NotNull(autoFix = AutoFix.FUZZYNOW)
@@ -56,30 +54,22 @@ class HealthElement : StoredICureDocument() {
     var idService //When a service is used to create the healthElement
             : String? = null
     var status //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
-            : Int? = null
+            : Int = 0
     var laterality: Laterality? = null
-    private var plansOfAction: @Valid MutableList<PlanOfAction>? = ArrayList()
-    get() {
-        if (field == null) field = ArrayList()
-        return field!!
-    }
-    private var episodes: @Valid MutableList<Episode>? = ArrayList()
-    get() {
-        if (field == null) field = ArrayList()
-        return field!!
-    }
+    private var plansOfAction: @Valid MutableList<PlanOfAction> = ArrayList()
+    private var episodes: @Valid MutableList<Episode> = ArrayList()
     var careTeam: List<CareTeamMember> = ArrayList()
+
     fun solveConflictWith(other: HealthElement): HealthElement {
         super.solveConflictsWith(other)
-        openingDate = if (other.openingDate == null) openingDate else if (openingDate == null) other.openingDate else java.lang.Long.valueOf(Math.min(openingDate!!, other.openingDate!!))
-        closingDate = if (other.closingDate == null) closingDate else if (closingDate == null) other.closingDate else java.lang.Long.valueOf(Math.max(closingDate!!, other.closingDate!!))
-        valueDate = if (other.valueDate == null) valueDate else if (valueDate == null) other.valueDate else java.lang.Long.valueOf(Math.min(valueDate!!, other.valueDate!!))
+        openingDate = if (other.openingDate == null) openingDate else if (openingDate == null) other.openingDate else openingDate!!.coerceAtMost(other.openingDate!!)
+        closingDate = if (other.closingDate == null) closingDate else if (closingDate == null) other.closingDate else closingDate!!.coerceAtLeast(other.closingDate!!)
+        valueDate = if (other.valueDate == null) valueDate else if (valueDate == null) other.valueDate else valueDate!!.coerceAtMost(other.valueDate!!)
         descr = if (descr == null) other.descr else descr
         note = if (note == null) other.note else note
         idOpeningContact = if (idOpeningContact == null) other.idOpeningContact else idOpeningContact
         idClosingContact = if (idClosingContact == null) other.idClosingContact else idClosingContact
         idService = if (idService == null) other.idService else idService
-        status = if (status == null) other.status else status
         plansOfAction = mergeListsDistinct(plansOfAction, other.plansOfAction,
                 { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictWith(other!!) }).toMutableList()
         careTeam = mergeListsDistinct(careTeam, other.careTeam, { a: CareTeamMember?, b: CareTeamMember? -> a == b }, { a: CareTeamMember, b: CareTeamMember? -> a })

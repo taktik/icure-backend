@@ -21,23 +21,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Group : StoredDocument, Cloneable, Serializable {
+class Group(id: String,
+            rev: String? = null,
+            revisionsInfo: Array<RevisionInfo> = arrayOf(),
+            conflicts: Array<String> = arrayOf(),
+            revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Cloneable, Serializable {
     var name: String? = null
     var password: String? = null
     var servers: List<String>? = null
     var isSuperAdmin = false
     var superGroup: String? = null
-
-    constructor() {}
-    constructor(groupId: String?, name: String?, password: String?) {
-        id = groupId
-        this.name = name
-        this.password = password
-    }
 
     @JsonIgnore
     fun dbInstanceUrl(): String? {

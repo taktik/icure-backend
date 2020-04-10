@@ -21,33 +21,32 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.DatabaseSynchronization
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.io.Serializable
 import java.util.ArrayList
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Replication : StoredDocument, Identifiable<String>, Cloneable, Serializable {
+class Replication(id: String,
+                  rev: String? = null,
+                  revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                  conflicts: Array<String> = arrayOf(),
+                  revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Identifiable<String>, Cloneable, Serializable {
     var name: String? = null
     var context: String? = null
     var databaseSynchronizations: List<DatabaseSynchronization> = ArrayList()
-
-    constructor() {}
-    constructor(name: String?, context: String?, databaseSynchronizations: List<DatabaseSynchronization>) {
-        this.name = name
-        this.context = context
-        this.databaseSynchronizations = databaseSynchronizations
-    }
 
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): Any {
         return super.clone()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val replication = o as Replication
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val replication = other as Replication
         return if (if (id != null) id != replication.id else replication.id != null) false else true
     }
 

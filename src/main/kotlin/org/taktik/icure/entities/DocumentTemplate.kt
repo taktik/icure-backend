@@ -25,13 +25,18 @@ import org.taktik.icure.entities.base.ReportVersion
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DocumentGroup
 import org.taktik.icure.entities.embed.DocumentType
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class DocumentTemplate : StoredDocument(), Serializable {
+class DocumentTemplate(id: String,
+                       rev: String? = null,
+revisionsInfo: Array<RevisionInfo> = arrayOf(),
+                       conflicts: Array<String> = arrayOf(),
+                       revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
     @NotNull(autoFix = AutoFix.NOW)
     var modified: Long? = null
 

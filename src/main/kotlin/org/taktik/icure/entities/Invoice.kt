@@ -21,64 +21,63 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.InvoiceInterventionType
-import org.taktik.icure.entities.embed.InvoiceType
-import org.taktik.icure.entities.embed.InvoicingCode
-import org.taktik.icure.entities.embed.MediumType
-import org.taktik.icure.entities.embed.PaymentType
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.Objects
-import java.util.function.BiFunction
 import java.util.stream.Collectors
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Invoice : StoredICureDocument() {
-    private var invoiceDate // yyyyMMdd
+class Invoice(id: String,
+              rev: String? = null,
+              revisionsInfo: Array<RevisionInfo> = arrayOf(),
+              conflicts: Array<String> = arrayOf(),
+              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
+    var invoiceDate // yyyyMMdd
             : Long? = null
     var sentDate: Long? = null
     var printedDate: Long? = null
-    private var invoicingCodes: List<InvoicingCode?>? = ArrayList()
-    private var receipts: MutableMap<String, String>? = HashMap()
-    private var recipientType // org.taktik.icure.entities.HealthcareParty,
+    var invoicingCodes: List<InvoicingCode?>? = ArrayList()
+    var receipts: MutableMap<String, String>? = HashMap()
+    var recipientType // org.taktik.icure.entities.HealthcareParty,
             : String? = null
 
     // org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
-    private var recipientId // for hcps and insurance, patient link happens through secretForeignKeys
+    var recipientId // for hcps and insurance, patient link happens through secretForeignKeys
             : String? = null
     var invoiceReference: String? = null
     var thirdPartyReference: String? = null
     var thirdPartyPaymentJustification: String? = null
     var thirdPartyPaymentReason: String? = null
     var reason: String? = null
-    private var invoiceType: InvoiceType? = null
-    private var sentMediumType: MediumType? = null
-    private var interventionType: InvoiceInterventionType? = null
+    var invoiceType: InvoiceType? = null
+    var sentMediumType: MediumType? = null
+    var interventionType: InvoiceInterventionType? = null
     var groupId: String? = null
     var paymentType: PaymentType? = null
-    private var paid: Double? = null
+    var paid: Double? = null
     var payments: List<Payment>? = null
-    private var gnotionNihii: String? = null
-    private var gnotionSsin: String? = null
-    private var gnotionLastName: String? = null
-    private var gnotionFirstName: String? = null
-    private var gnotionCdHcParty: String? = null
-    private var invoicePeriod: Int? = null
-    private var careProviderType: String? = null
-    private var internshipNihii: String? = null
-    private var internshipSsin: String? = null
-    private var internshipLastName: String? = null
-    private var internshipFirstName: String? = null
-    private var internshipCdHcParty: String? = null
-    private var internshipCbe: String? = null
-    private var supervisorNihii: String? = null
-    private var supervisorSsin: String? = null
-    private var supervisorLastName: String? = null
-    private var supervisorFirstName: String? = null
-    private var supervisorCdHcParty: String? = null
-    private var supervisorCbe: String? = null
+    var gnotionNihii: String? = null
+    var gnotionSsin: String? = null
+    var gnotionLastName: String? = null
+    var gnotionFirstName: String? = null
+    var gnotionCdHcParty: String? = null
+    var invoicePeriod: Int? = null
+    var careProviderType: String? = null
+    var internshipNihii: String? = null
+    var internshipSsin: String? = null
+    var internshipLastName: String? = null
+    var internshipFirstName: String? = null
+    var internshipCdHcParty: String? = null
+    var internshipCbe: String? = null
+    var supervisorNihii: String? = null
+    var supervisorSsin: String? = null
+    var supervisorLastName: String? = null
+    var supervisorFirstName: String? = null
+    var supervisorCdHcParty: String? = null
+    var supervisorCbe: String? = null
     var error: String? = null
     var encounterLocationName: String? = null
     var encounterLocationNihii: String? = null
@@ -140,235 +139,11 @@ class Invoice : StoredICureDocument() {
         return this
     }
 
-    fun getInvoiceDate(): Long? {
-        return invoiceDate
-    }
-
-    fun setInvoiceDate(invoiceDate: Long?) {
-        this.invoiceDate = invoiceDate
-    }
-
-    fun getInvoicingCodes(): List<InvoicingCode?>? {
-        return invoicingCodes
-    }
-
-    fun setInvoicingCodes(invoicingCodes: List<InvoicingCode?>?) {
-        this.invoicingCodes = invoicingCodes
-    }
-
-    fun getRecipientType(): String? {
-        return recipientType
-    }
-
-    fun setRecipientType(recipientType: String?) {
-        this.recipientType = recipientType
-    }
-
-    fun getRecipientId(): String? {
-        return recipientId
-    }
-
-    fun setRecipientId(recipientId: String?) {
-        this.recipientId = recipientId
-    }
-
-    fun getInvoiceType(): InvoiceType? {
-        return invoiceType
-    }
-
-    fun setInvoiceType(invoiceType: InvoiceType?) {
-        this.invoiceType = invoiceType
-    }
-
-    fun getReceipts(): Map<String, String>? {
-        return receipts
-    }
-
-    fun setReceipts(receipts: MutableMap<String, String>?) {
-        this.receipts = receipts
-    }
-
-    fun getPaid(): Double? {
-        return paid
-    }
-
-    fun setPaid(paid: Double?) {
-        this.paid = paid
-    }
-
-    fun getSentMediumType(): MediumType? {
-        return sentMediumType
-    }
-
-    fun setSentMediumType(sentMediumType: MediumType?) {
-        this.sentMediumType = sentMediumType
-    }
-
-    fun getInterventionType(): InvoiceInterventionType? {
-        return interventionType
-    }
-
-    fun setInterventionType(interventionType: InvoiceInterventionType?) {
-        this.interventionType = interventionType
-    }
-
-    fun getGnotionNihii(): String? {
-        return gnotionNihii
-    }
-
-    fun setGnotionNihii(gnotionNihii: String?) {
-        this.gnotionNihii = gnotionNihii
-    }
-
-    fun getGnotionSsin(): String? {
-        return gnotionSsin
-    }
-
-    fun setGnotionSsin(gnotionSsin: String?) {
-        this.gnotionSsin = gnotionSsin
-    }
-
-    fun getGnotionLastName(): String? {
-        return gnotionLastName
-    }
-
-    fun setGnotionLastName(gnotionLastName: String?) {
-        this.gnotionLastName = gnotionLastName
-    }
-
-    fun getGnotionFirstName(): String? {
-        return gnotionFirstName
-    }
-
-    fun setGnotionFirstName(gnotionFirstName: String?) {
-        this.gnotionFirstName = gnotionFirstName
-    }
-
-    fun getGnotionCdHcParty(): String? {
-        return gnotionCdHcParty
-    }
-
-    fun setGnotionCdHcParty(gnotionCdHcParty: String?) {
-        this.gnotionCdHcParty = gnotionCdHcParty
-    }
-
-    fun getInvoicePeriod(): Int? {
-        return invoicePeriod
-    }
-
-    fun setInvoicePeriod(invoicePeriod: Int?) {
-        this.invoicePeriod = invoicePeriod
-    }
-
-    fun getInternshipNihii(): String? {
-        return internshipNihii
-    }
-
-    fun setInternshipNihii(internshipNihii: String?) {
-        this.internshipNihii = internshipNihii
-    }
-
-    fun getInternshipSsin(): String? {
-        return internshipSsin
-    }
-
-    fun setInternshipSsin(internshipSsin: String?) {
-        this.internshipSsin = internshipSsin
-    }
-
-    fun getInternshipLastName(): String? {
-        return internshipLastName
-    }
-
-    fun setInternshipLastName(internshipLastName: String?) {
-        this.internshipLastName = internshipLastName
-    }
-
-    fun getInternshipFirstName(): String? {
-        return internshipFirstName
-    }
-
-    fun setInternshipFirstName(internshipFirstName: String?) {
-        this.internshipFirstName = internshipFirstName
-    }
-
-    fun getInternshipCdHcParty(): String? {
-        return internshipCdHcParty
-    }
-
-    fun setInternshipCdHcParty(internshipCdHcParty: String?) {
-        this.internshipCdHcParty = internshipCdHcParty
-    }
-
-    fun getInternshipCbe(): String? {
-        return internshipCbe
-    }
-
-    fun setInternshipCbe(internshipCbe: String?) {
-        this.internshipCbe = internshipCbe
-    }
-
-    fun getSupervisorNihii(): String? {
-        return supervisorNihii
-    }
-
-    fun setSupervisorNihii(supervisorNihii: String?) {
-        this.supervisorNihii = supervisorNihii
-    }
-
-    fun getSupervisorSsin(): String? {
-        return supervisorSsin
-    }
-
-    fun setSupervisorSsin(supervisorSsin: String?) {
-        this.supervisorSsin = supervisorSsin
-    }
-
-    fun getSupervisorLastName(): String? {
-        return supervisorLastName
-    }
-
-    fun setSupervisorLastName(supervisorLastName: String?) {
-        this.supervisorLastName = supervisorLastName
-    }
-
-    fun getSupervisorFirstName(): String? {
-        return supervisorFirstName
-    }
-
-    fun setSupervisorCbe(supervisorCbe: String?) {
-        this.supervisorCbe = supervisorCbe
-    }
-
-    fun getSupervisorCbe(): String? {
-        return supervisorCbe
-    }
-
-    fun setSupervisorFirstName(supervisorFirstName: String?) {
-        this.supervisorFirstName = supervisorFirstName
-    }
-
-    fun getSupervisorCdHcParty(): String? {
-        return supervisorCdHcParty
-    }
-
-    fun setSupervisorCdHcParty(supervisorCdHcParty: String?) {
-        this.supervisorCdHcParty = supervisorCdHcParty
-    }
-
-    fun getCareProviderType(): String? {
-        return careProviderType
-    }
-
-    fun setCareProviderType(careProviderType: String?) {
-        this.careProviderType = careProviderType
-    }
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        if (!super.equals(o)) return false
-        val invoice = o as Invoice
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        if (!super.equals(other)) return false
+        val invoice = other as Invoice
         return (invoiceDate == invoice.invoiceDate && sentDate == invoice.sentDate
                 && paid == invoice.paid && invoicingCodes == invoice.invoicingCodes
                 && recipientType == invoice.recipientType
@@ -390,7 +165,7 @@ class Invoice : StoredICureDocument() {
 
         private fun reassignationInvoiceFromOtherInvoice(i: Invoice, codes: List<InvoicingCode?>?,
                                                          uuidGenerator: UUIDGenerator): Invoice {
-            val ni = Invoice()
+            val ni = Invoice(uuidGenerator.newGUID().toString())
             ni.invoiceDate = i.invoiceDate
             ni.recipientType = i.recipientType
             ni.recipientId = i.recipientId

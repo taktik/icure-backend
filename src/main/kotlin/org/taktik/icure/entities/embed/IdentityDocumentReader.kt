@@ -1,4 +1,4 @@
-package org.taktik.icure.entities
+package org.taktik.icure.entities.embed
 
 class IdentityDocumentReader {
     var justificatifDocumentNumber: String? = null

@@ -1,4 +1,4 @@
-package org.taktik.icure.entities
+package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable

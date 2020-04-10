@@ -23,38 +23,36 @@ import org.taktik.icure.constants.Roles.VirtualHostDependency
 import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Permission
+import org.taktik.icure.entities.embed.RevisionInfo
 import java.io.Serializable
 import java.util.HashSet
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Role : StoredDocument(), Principal, Cloneable, Serializable {
+class Role(id: String,
+           rev: String? = null,
+           revisionsInfo: Array<RevisionInfo> = arrayOf(),
+           conflicts: Array<String> = arrayOf(),
+           revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Principal, Cloneable, Serializable {
     override var name: String? = null
-    override var virtualHostDependency: VirtualHostDependency? = null
-    override var properties: Set<Property>? = HashSet()
-    override var permissions: Set<Permission>? = HashSet()
+    override var properties: MutableSet<Property> = HashSet()
+    override var permissions: MutableSet<Permission> = HashSet()
     var children: Set<String> = HashSet()
-    override var parents: Set<String> = HashSet()
     var users: Set<String> = HashSet()
-    override var virtualHosts: Set<String> = HashSet()
 
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): Any {
         return super.clone()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val role = o as Role
-        return if (if (id != null) id != role.id else role.id != null) false else true
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val role = other as Role
+        return id == role.id
     }
 
     override fun hashCode(): Int {
-        return if (id != null) id.hashCode() else 0
-    }
-
-    companion object {
-        private const val serialVersionUID = 1L
+        return id.hashCode()
     }
 }
