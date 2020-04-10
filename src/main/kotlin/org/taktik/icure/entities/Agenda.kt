@@ -16,4 +16,18 @@ class Agenda(id: String,
     var userId: String? = null
     var rights: List<Right>? = null
 
+    fun copy(id: String? = null,
+             rev: String? = null,
+             revisionsInfo: Array<RevisionInfo>? = null,
+             conflicts: Array<String>? = null,
+             revHistory: Map<String, String>? = null,
+             name: String? = null,
+             userId: String? = null,
+             rights: List<Right>? = null
+    ) = Agenda(id ?: this.id, rev ?: this.rev, revisionsInfo ?: this.revisionsInfo, conflicts ?: this.conflicts, revHistory ?: this.revHistory). apply {
+        name?.let{ this.name = it }
+        userId?.let{ this.userId = it }
+        rights?.let{ this.rights = it }
+    }
+
 }

@@ -88,4 +88,10 @@ open class StoredDocument(
     }
 
     protected fun solveConflictsWith(other: StoredDocument?) {}
+
+    open fun copy(id: String? = null,
+             rev: String? = null,
+             revisionsInfo: Array<RevisionInfo>? = null,
+             conflicts: Array<String>? = null,
+             revHistory: Map<String, String>? = null) = StoredDocument(id ?: this.id, rev ?: this.rev, revisionsInfo ?: this.revisionsInfo, conflicts ?: this.conflicts, revHistory ?: this.revHistory)
 }

@@ -49,7 +49,7 @@ typealias CouchDbDocument = Versionable<String>
 class DesignDocument(
         @Json(name = "_id") override var id: String? = null,
         @Json(name = "_rev") override var rev: String? = null,
-        @Json(name = "rev_history") override val revHistory: Map<String, String>? = null,
+        @Json(name = "rev_history") override val revHistory: Map<String, String> = mapOf(),
         val views: Map<String, View?> = mapOf(),
         val lists: Map<String, String> = mapOf(),
         val shows: Map<String, String> = mapOf(),
@@ -500,7 +500,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     override suspend fun <T : CouchDbDocument> create(entity: T, clazz: Class<T>): T {
         val uri = dbURI
-        val adapter = moshi.adapter<T>(clazz)
+        val adapter = moshi.adapter(clazz)
         val serializedDoc = adapter.toJson(entity)
         val request = newRequest(uri, serializedDoc)
 
@@ -511,10 +511,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
         // Create a new copy of the doc and set rev/id from response
         @Suppress("BlockingMethodInNonBlockingContext")
-        return checkNotNull(adapter.fromJson(serializedDoc)).apply {
-            id = createResponse.id
-            rev = createResponse.rev
-        }
+        return checkNotNull(adapter.fromJson(serializedDoc)).copy(createResponse.id, createResponse.rev)
     }
 
     override suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T {
@@ -532,10 +529,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
         // Create a new copy of the doc and set rev/id from response
         @Suppress("BlockingMethodInNonBlockingContext")
-        return checkNotNull(adapter.fromJson(serializedDoc)).apply {
-            id = updateResponse.id
-            rev = updateResponse.rev
-        }
+        return checkNotNull(adapter.fromJson(serializedDoc)).copy(updateResponse.id, updateResponse.rev)
     }
 
     override suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier {

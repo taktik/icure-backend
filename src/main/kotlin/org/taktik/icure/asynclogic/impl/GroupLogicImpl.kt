@@ -15,8 +15,8 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Replication
+import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.Security
-import org.taktik.icure.entities.base.User
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI

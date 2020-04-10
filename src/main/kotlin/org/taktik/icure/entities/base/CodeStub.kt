@@ -9,22 +9,10 @@ import java.util.Objects
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class CodeStub : Serializable, CodeIdentification {
-    @JsonProperty("_id")
-    @Json(name = "_id")
-    override var id: String? = null
+class CodeStub(@property:Json(name = "_id") override val id: String) : Serializable, CodeIdentification {
     override var code: String? = null
     override var type: String? = null
     override var version: String? = null
-
-
-    constructor() {}
-    constructor(type: String, code: String, version: String) {
-        this.code = code
-        this.type = type
-        this.version = version
-        id = "$type|$code|$version"
-    }
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true

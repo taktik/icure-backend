@@ -4,7 +4,7 @@ import org.taktik.icure.entities.samv2.embed.*
 import org.taktik.icure.entities.samv2.stub.VmpStub
 
 class Amp(
-        id: String? = null,
+        id: String,
         from: Long? = null,
         to: Long? = null,
         var code: String? = null,

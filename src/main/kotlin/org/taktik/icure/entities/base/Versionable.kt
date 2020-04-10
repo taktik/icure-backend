@@ -23,4 +23,6 @@ package org.taktik.icure.entities.base
 interface Versionable<T> : Identifiable<T> {
     val revHistory: Map<String, String>
     val rev: String?
+
+    fun <X : Versionable<T>> copy(id: String? = null, rev:String ? = null, revHistory:Map<String, String>? = null) : X
 }

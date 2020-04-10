@@ -42,22 +42,10 @@ open class Code(id: String,
     var periodicity: List<Periodicity>? = null
     override var type //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
             : String? = null
-    set(type) {
-        id = "$type|$code|$version"
-        field = type
-    }
     override var code //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
             : String? = null
-    set(code) {
-        id = "$type|$code|$version"
-        field = code
-    }
     override var version //ex: 10. Must be lexicographically searchable
             : String? = null
-        set(version) {
-            id = "$type|$code|$version"
-            field = version
-        }
 
     var level //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
             : Int? = null
