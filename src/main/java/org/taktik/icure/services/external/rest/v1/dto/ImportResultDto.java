@@ -1,5 +1,8 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
+import org.taktik.icure.dto.message.Attachment;
+
+import java.util.HashMap;
 import java.util.List;
 
 public class ImportResultDto {
@@ -11,6 +14,12 @@ public class ImportResultDto {
     private List<FormDto> forms;
     private List<HealthcarePartyDto> hcps;
     private List<DocumentDto> documents;
+
+    public HashMap<String, Attachment> getAttachments() {  return attachments; }
+
+    public void setAttachments(HashMap<String, Attachment> attachments) {  this.attachments = attachments; }
+
+    private HashMap<String, Attachment> attachments;
 
     public PatientDto getPatient() {
         return patient;
