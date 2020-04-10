@@ -78,7 +78,7 @@ class CustomAuthenticationProvider(
         val password: String = authentication.credentials.toString()
 
         for (userOnFallbackDb in users) {
-            val userId = if (userOnFallbackDb.id!!.contains(":")) userOnFallbackDb.id!!.split(":")[1] else userOnFallbackDb.id
+            val userId = if (userOnFallbackDb.id.contains(":")) userOnFallbackDb.id.split(":")[1] else userOnFallbackDb.id
             val gId = userOnFallbackDb.groupId
 
             if (gId != null) {

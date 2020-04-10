@@ -123,7 +123,7 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
     override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate): FormTemplate {
         return super.afterSave(dbInstanceUrl, groupId, entity).let {entity ->
             if (entity.isAttachmentDirty && entity.layout != null && entity.layoutAttachmentId != null && entity.id != null && entity.rev != null) {
-                entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id!!, entity.layoutAttachmentId!!, entity.rev!!, "application/json", flowOf(ByteBuffer.wrap(entity.layout)))
+                entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId!!, entity.rev!!, "application/json", flowOf(ByteBuffer.wrap(entity.layout)))
                 entity.isAttachmentDirty = false
             }
             entity
@@ -135,7 +135,7 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
 
         if (entity != null && entity.layoutAttachmentId != null && entity.id != null && entity.layoutAttachmentId != null) {
             try {
-                val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id!!, entity.layoutAttachmentId!!, entity.rev)
+                val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId!!, entity.rev)
                 ByteArrayOutputStream().use { attachment ->
                     attachmentIs.collect { attachment.write(it.array()) }
                     entity.layout = attachment.toByteArray()

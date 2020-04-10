@@ -82,10 +82,10 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
 
     override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate {
         return try {
-            getClassificationTemplate(classificationTemplate.id!!)?.let { toEdit ->
+            getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
                 toEdit.label = classificationTemplate.label
                 updateEntities(setOf(toEdit))
-                getClassificationTemplate(classificationTemplate.id!!)
+                getClassificationTemplate(classificationTemplate.id)
             } ?: throw IllegalArgumentException("Non-existing Classification Template")
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid Classification Template", e)

@@ -599,7 +599,7 @@ class UserLogicImpl(
 
     override fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>) = flow {
         val group = getDestinationGroup(groupId)
-        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id!!, paginationOffset))
+        emitAll(userDAO.listUsers(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, paginationOffset))
     }
 
     override suspend fun setProperties(user: User, properties: List<Property>): User? {

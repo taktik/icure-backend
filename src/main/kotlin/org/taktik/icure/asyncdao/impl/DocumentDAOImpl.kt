@@ -59,7 +59,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
 
             if (newAttachmentId != entity.attachmentId && entity.id != null && entity.rev != null && entity.attachmentId != null) {
                 entity.attachments?.containsKey(entity.attachmentId)?.takeIf { it }?.let {
-                    entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id!!, entity.rev!!, entity.attachmentId!!)
+                    entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev!!, entity.attachmentId!!)
                     entity.attachments!!.remove(entity.attachmentId)
                 }
                 entity.attachmentId = newAttachmentId
@@ -67,7 +67,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
             }
         } else {
             if (entity.attachmentId != null && entity.id != null && entity.rev != null && entity.attachmentId != null) {
-                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id!!, entity.rev!!, entity.attachmentId!!)
+                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev!!, entity.attachmentId!!)
                 entity.attachmentId = null
                 entity.isAttachmentDirty = false
             }
@@ -83,7 +83,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
                     if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
                         mimeType = uti.mimeTypes[0]
                     }
-                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
+                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
                     entity.isAttachmentDirty = false
                 }
             }
@@ -102,7 +102,7 @@ class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatche
                         val attachmentIs = BufferedInputStream(FileInputStream(entity.attachmentId!!.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]))
                         entity.attachment = ByteStreams.toByteArray(attachmentIs)
                     } else {
-                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev)
+                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev)
                         ByteArrayOutputStream().use {attachment ->
                             attachmentIs.collect { attachment.write(it.array()) }
                             entity.attachment = attachment.toByteArray()

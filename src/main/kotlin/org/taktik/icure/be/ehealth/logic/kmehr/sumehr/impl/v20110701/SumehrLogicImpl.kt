@@ -59,7 +59,7 @@ class SumehrLogicImpl(val contactLogic: ContactLogic, val healthcarePartyLogic: 
 		val servicesByIds = mutableMapOf<String,Service>()
 		val comparator = Comparator<Service> { a, b -> a.modified?.compareTo(b.modified ?: 0) ?: -1 }
 
-		contactLogic.getServices(sumehrServiceIds).toList().sortedWith(comparator).forEach { if (it.endOfLife != null) servicesByIds.remove(it.id) else servicesByIds[it.id!!] = it }
+		contactLogic.getServices(sumehrServiceIds).toList().sortedWith(comparator).forEach { if (it.endOfLife != null) servicesByIds.remove(it.id) else servicesByIds[it.id] = it }
 
 		if (servicesByIds.isEmpty()) {
 			return SumehrStatus.outdated

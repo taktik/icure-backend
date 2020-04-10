@@ -198,7 +198,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             cache.evict(fullId)
             throw e
         }
-        val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id!!)
+        val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
         return entity
     }

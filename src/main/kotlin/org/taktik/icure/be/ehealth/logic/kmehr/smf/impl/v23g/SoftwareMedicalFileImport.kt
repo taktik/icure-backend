@@ -320,7 +320,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         if(walked == null) {
             walked = mutableMapOf()
         }
-        walked[parentServ.service.id!!] = "done"
+        walked[parentServ.service.id] = "done"
         if(parentServ.isANewVersionOfId == null) {
             // last ancestor
             return parentServ.service.id

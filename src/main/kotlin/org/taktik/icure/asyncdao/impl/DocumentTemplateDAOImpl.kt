@@ -135,7 +135,7 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
             }
         } else {
             if (entity.attachmentId != null && entity.id != null && entity.rev != null && entity.attachmentId != null) {
-                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id!!, entity.rev!!, entity.attachmentId!!)
+                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev!!, entity.attachmentId!!)
                 entity.attachmentId = null
                 entity.isAttachmentDirty = false
             }
@@ -151,7 +151,7 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
                     if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
                         mimeType = uti.mimeTypes[0]
                     }
-                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
+                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
                     entity.isAttachmentDirty = false
                 }
             }
@@ -163,7 +163,7 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
         super.postLoad(dbInstanceUrl, groupId, entity)
 
         if (entity != null && entity.attachmentId != null && entity.id != null && entity.attachmentId != null) {
-            val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id!!, entity.attachmentId!!, entity.rev)
+            val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev)
             try {
                 ByteArrayOutputStream().use { attachment ->
                     attachmentIs.collect { attachment.write(it.array()) }

@@ -45,7 +45,7 @@ class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: C
         if (wrappedValue == null) {
             val result = client.queryViewIncludeDocs<String, String, Property>(createQuery<Property>("by_identifier").includeDocs(true).key(propertyIdentifier)).map { it.doc }.firstOrNull()
             if (result?.id != null) {
-                putInCache(dbInstanceUrl, groupId, result.id!!, result)
+                putInCache(dbInstanceUrl, groupId, result.id, result)
             }
             return result
         }

@@ -85,7 +85,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
                 getClassification(it)?.let { toEdit ->
                     toEdit.label = classification.label
                     updateEntities(setOf(toEdit))
-                    getClassification(classification.id!!)
+                    getClassification(classification.id)
                 }
             } ?: throw IllegalArgumentException("Non-existing Classification")
         } catch (e: Exception) {
