@@ -94,7 +94,7 @@ class KmehrFacade(
     @Path("/diarynote/{patientId}/export")
     @Produces("application/octet-stream")
     fun generateDiaryNote(@PathParam("patientId") patientId: String, @QueryParam("language") language: String, info: DiaryNoteExportInfoDto): Response {
-        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId,null, Config(_kmehrId = System.currentTimeMillis().toString(),
+        return ResponseUtils.ok(StreamingOutput { output -> diaryNoteLogic.createDiaryNote(output!!, patientLogic.getPatient(patientId), info.secretForeignKeys, healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId), mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.isPsy, info.documentId, info.attachmentId,null, Config(_kmehrId = System.currentTimeMillis().toString(),
                 date = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli())!!,
                 time = org.taktik.icure.be.ehealth.dto.kmehr.v20170901.Utils.makeXGC(Instant.now().toEpochMilli(), true)!!,
                 soft = Config.Software(name = info.softwareName ?: "iCure", version = info.softwareVersion ?: ICUREVERSION),
