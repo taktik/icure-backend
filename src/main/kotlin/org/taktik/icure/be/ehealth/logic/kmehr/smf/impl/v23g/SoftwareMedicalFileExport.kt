@@ -49,6 +49,7 @@ import org.taktik.icure.logic.InsuranceLogic
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
+import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
@@ -166,10 +167,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 		val startIndex = folder.transactions.size
 
-		hesByContactId = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
-			it.idOpeningContact
-		}
-
         // in PMF, we only want the last version, older versions are removed from servicesByContactId
         servicesByContactId = contacts.map { con ->
             con.id to con.services.toList().map { svc ->
@@ -177,7 +174,18 @@ class SoftwareMedicalFileExport : KmehrExport() {
             }
         }.toMap()
 
-		val hesByHeIdSortedByDate = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config)).groupBy {
+
+        var nonConfidentialHealthItems = getNonConfidentialItems(getHealthElements(healthcareParty, sfks, config))
+        val toBeDecryptedHcElements = nonConfidentialHealthItems
+
+        if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
+            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
+            nonConfidentialHealthItems = nonConfidentialHealthItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
+        }
+
+        hesByContactId = nonConfidentialHealthItems.groupBy {it.idOpeningContact }
+
+		val hesByHeIdSortedByDate = nonConfidentialHealthItems.groupBy {
 			it.healthElementId
 		}.mapValues {
 			it.value.sortedWith(compareBy({ it.created },{ it.modified })) // created is the key, but use modified for backward compat
@@ -218,6 +226,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
                 encContact
             }
 
+            // newestServicesById should point to decrypted services
+            contact.services.toList().forEach {
+                svc ->
+                    if (newestServicesById.containsKey(svc.id) && compareValues(svc.modified, newestServicesById[svc.id]?.modified) == 0) {
+                        newestServicesById[svc.id!!] = svc
+                    }
+            }
 
 			folder.transactions.add(
 					TransactionType().apply {
@@ -263,7 +278,8 @@ class SoftwareMedicalFileExport : KmehrExport() {
 												when(it.guid) {
 													"FFFFFFFF-FFFF-FFFF-FFFF-INCAPACITY00" ->  { // ITT
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)} // remove form services from main list
-														trn.headingsAndItemsAndTexts.add( makeIncapacityItem(contact, subcon, form) )
+														trn.headingsAndItemsAndTexts.add( makeIncapacityItem
+                                                        (contact, subcon, form) )
 													}
 													"AEFED10A-9A72-4B40-981B-1D79ADB05516" ->  { // Prescription Kine
 														services = services.filterNot { subcon.services.map{it.serviceId}.contains(it.id)}
@@ -329,7 +345,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 forSeparateTransaction = true
                             }
 
-							if(!forSeparateTransaction) {
+                            if(!forSeparateTransaction) {
 
 								var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
 								val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
@@ -346,7 +362,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
 									makeContent(it.key, it.value)?.let { c ->
 										listOf(c.apply {
 											if (svcCdItem == null && texts.size > 0) {
-												texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                if(svc.label != null) {
+                                                    texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                }
 											}
 										})
 									} ?: emptyList()
@@ -409,26 +427,30 @@ class SoftwareMedicalFileExport : KmehrExport() {
 							}
 						}
 
+                        val subContactsByFormId = contact.subContacts.groupBy { it.formId }
+                        val subContactServicesByFormId = subContactsByFormId.mapValues {
+                            it.value.flatMap { subContact -> subContact.services }
+                        }
 
 						// add link from items to HEs
 						contact.subContacts.forEach { subcon ->
 							if (subcon.healthElementId != null) {
-								subcon.services.forEach {
-									itemByServiceId[it.serviceId]?.lnks?.let {
-										val lnk = LnkType().apply {
-											type = CDLNKvalues.ISASERVICEFOR
-											// link should point to He.healthElementId and not He.id
-											subcon.healthElementId?.let {
-												heById[it]?.firstOrNull()?.let {
-													url = makeLnkUrl(it.healthElementId)
-												}
-											}
-										}
-										if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
-											it.add(lnk)
-										}
-									}
-								}
+                                subContactServicesByFormId[subcon.formId]?.forEach {
+                                    itemByServiceId[it.serviceId]?.lnks?.let {
+                                        val lnk = LnkType().apply {
+                                            type = CDLNKvalues.ISASERVICEFOR
+                                            // link should point to He.healthElementId and not He.id
+                                            subcon.healthElementId?.let {
+                                                heById[it]?.firstOrNull()?.let {
+                                                    url = makeLnkUrl(it.healthElementId)
+                                                }
+                                            }
+                                        }
+                                        if (it.none { (it.type == lnk.type) && (it.url == lnk.url) }) {
+                                            it.add(lnk)
+                                        }
+                                    }
+                                }
 							}
 						}
 					}
@@ -462,7 +484,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     makeContent(it.key, it.value)?.let { c ->
                         listOf(c.apply {
                             if (svcCdItem == null && texts.size > 0) {
-                                texts.first().value = "${svc.label}: ${texts.first().value}"
+                                if(svc.label != null) {
+                                    texts.first().value = "${svc.label}: ${texts.first().value}"
+                                }
                             }
                         })
                     } ?: emptyList()
@@ -503,7 +527,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
             folder.transactions.add( TransactionType().apply {
                 ids.add(idKmehr(startIndex))
                 ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; sv = "1.0"; value = svc.id })
-                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note" })
+                cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = svc.content["fr"]?.stringValue })
                 (svc.modified ?: svc.created) ?.let {
                     date = makeXGC(it)
                     time = makeXGC(it, unsetMillis = true)
@@ -786,7 +810,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		}
 	}
 
-
 	private fun makeEncounterDateTime(index: Int, yyyymmddhhmmss: Long): ItemType {
 		return ItemType().apply {
 			ids.add(idKmehr(index))
@@ -902,20 +925,21 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	private fun codesToKmehr(codes: Set<CodeStub>): ContentType {
 		return ContentType().apply {
 			cds.addAll(codes.map { code ->
-				when (code.type) {
-					"ICPC" -> CDCONTENT().apply { s = CDCONTENTschemes.ICPC; sv = code.version; value = code.code }
-					"ICD" -> CDCONTENT().apply { s = CDCONTENTschemes.ICD; sv = code.version; value = code.code }
-					"CD-ATC" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_ATC; sv = code.version; value = code.code }
-					"CD-PATIENTWILL" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_PATIENTWILL; sv = code.version; value = code.code }
-					"BE-THESAURUS" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_CLINICAL; sv = code.version; value = code.code } // FIXME: no spec for version can be found regarding thesaurus
-					"BE-THESAURUS-PROCEDURES" -> CDCONTENT().apply {
+				when  {
+                    code.type == "ICPC" -> CDCONTENT().apply { s = CDCONTENTschemes.ICPC; sv = code.version; value = code.code }
+					code.type =="ICD" -> CDCONTENT().apply { s = CDCONTENTschemes.ICD; sv = code.version; value = code.code }
+					code.type =="CD-ATC" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_ATC; sv = code.version; value = code.code }
+					code.type =="CD-PATIENTWILL" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_PATIENTWILL; sv = code.version; value = code.code }
+					code.type =="BE-THESAURUS" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_CLINICAL; sv = code.version; value = code.code } // FIXME: no spec for version can be found regarding thesaurus
+					code.type =="BE-THESAURUS-PROCEDURES" -> CDCONTENT().apply {
                         // FIXME: this is specific to pricare and icure, what format should we use ?
 						s = CDCONTENTschemes.LOCAL
 						sl = "BE-THESAURUS-PROCEDURES"
 						sv = code.version
 						value = "${code.code}"
 					}
-					"CD-VACCINEINDICATION" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_VACCINEINDICATION; sv = code.version; value = code.code }
+					code.type =="CD-VACCINEINDICATION" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_VACCINEINDICATION; sv = code.version; value = code.code }
+                    code.type.startsWith("MS-EXTRADATA") -> CDCONTENT().apply { s = CDCONTENTschemes.LOCAL; sv = code.version; sl = code.type; dn = code.type; value = code.code }
 					else -> CDCONTENT().apply {
 						s = CDCONTENTschemes.LOCAL
 						sl = "ICURE.MEDICALCODEID"
@@ -1018,7 +1042,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     (
                         svc.tags.any { // is tagged active
                             it.type == "CD-LIFECYCLE" && (
-                                    listOf("active", "pending").contains(it.code) // "administrated" because vaccines should be included
+                                    listOf("active", "pending", "planned").contains(it.code) // "administrated" because vaccines should be included
                             )
                         }
                         || ( // or administrated vaccine
