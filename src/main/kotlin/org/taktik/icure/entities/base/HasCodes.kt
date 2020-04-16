@@ -18,5 +18,5 @@
 package org.taktik.icure.entities.base
 
 interface HasCodes {
-    var codes: MutableSet<CodeStub>
+    val codes: Set<CodeStub>
 }

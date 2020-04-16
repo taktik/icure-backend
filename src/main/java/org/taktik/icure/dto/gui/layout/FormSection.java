@@ -32,6 +32,9 @@ import java.util.List;
 @XStreamAlias("FormSection")
 public class FormSection implements Serializable {
     @XStreamAsAttribute
+    private String title;
+
+    @XStreamAsAttribute
     private Integer columns;
 
     @XStreamImplicit(itemFieldName="FormColumn")
@@ -40,7 +43,15 @@ public class FormSection implements Serializable {
 	public FormSection() {
 	}
 
-	public Integer getColumns() {
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Integer getColumns() {
         return columns;
     }
 

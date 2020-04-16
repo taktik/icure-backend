@@ -132,7 +132,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
         val formsInConflict = formDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { formDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         formsInConflict.collect { form ->
             form.conflicts.mapNotNull { c: String? -> formDAO.get(dbInstanceUri, groupId, form.id, c) }.forEach { cp ->
-                form.solveConflictWith(cp)
+                form.solveConflictsWith(cp)
                 formDAO.purge(dbInstanceUri, groupId, cp)
             }
             formDAO.save(dbInstanceUri, groupId, form)

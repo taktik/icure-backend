@@ -28,61 +28,49 @@ import java.util.stream.Collectors
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Medication : Serializable {
-    var compoundPrescription: String? = null
-    var substanceProduct: Substanceproduct? = null
-    var medicinalProduct: Medicinalproduct? = null
-    var numberOfPackages: Int? = null
-    var batch: String? = null
-    var instructionForPatient: String? = null
-    var commentForDelivery: String? = null
-    var drugRoute //CD-DRUG-ROUTE
-            : String? = null
-    var temporality //CD-TEMPORALITY : chronic, acute, oneshot
-            : String? = null
-    var frequency //CD-PERIODICITY
-            : Code? = null
-    var reimbursementReason: Code? = null
-    var substitutionAllowed: Boolean? = null
-    var beginMoment: Long? = null
-    var endMoment: Long? = null
-    var deliveryMoment: Long? = null
-    var endExecutionMoment: Long? = null
-    var duration: Duration? = null
-    var renewal: Renewal? = null
-    var knownUsage: Boolean? = null
-    var regimen: List<RegimenItem>? = null
-    var posology // replace structured posology by text
-            : String? = null
-    var options: Map<String, Content>? = null
-    var agreements: Map<String, ParagraphAgreement>? = null
-    var medicationSchemeIdOnSafe: String? = null
-    var medicationSchemeSafeVersion: Int? = null
-    var medicationSchemeTimeStampOnSafe: Long? = null
-    var medicationSchemeDocumentId: String? = null
-    var safeIdName //can be: vitalinkuri, RSWID, RSBID
-            : String? = null
-    var idOnSafes //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
-            : String? = null
-    var timestampOnSafe //transaction date+time
-            : Long? = null
-    var changeValidated //accept change on safe
-            : Boolean? = null
-    var newSafeMedication //new medication on safe
-            : Boolean? = null
-    var medicationUse //free text
-            : String? = null
-    var beginCondition //free text
-            : String? = null
-    var endCondition //free text
-            : String? = null
-    var origin // regularprocess, recorded
-            : String? = null
-    var medicationChanged: Boolean? = null
-    var posologyChanged: Boolean? = null
-    var suspension: List<Suspension>? = null
-    var prescriptionRID: String? = null
-    var status: Int? = null
+data class Medication(
+        val compoundPrescription: String? = null,
+        val substanceProduct: Substanceproduct? = null,
+        val medicinalProduct: Medicinalproduct? = null,
+        val numberOfPackages: Int? = null,
+        val batch: String? = null,
+        val instructionForPatient: String? = null,
+        val commentForDelivery: String? = null,
+        val drugRoute : String? = null, //CD-DRUG-ROUTE
+        val temporality : String? = null, //CD-TEMPORALITY : chronic, acute, oneshot
+        val frequency : Code? = null, //CD-PERIODICITY
+        val reimbursementReason: Code? = null,
+        val substitutionAllowed: Boolean? = null,
+        val beginMoment: Long? = null,
+        val endMoment: Long? = null,
+        val deliveryMoment : Long? = null,
+        val endExecutionMoment: Long? = null,
+        val duration : Duration? = null,
+        val renewal : Renewal? = null,
+        val knownUsage : Boolean? = null,
+        val regimen : List<RegimenItem>? = null,
+        val posology : String? = null, // replace structured posology by text
+        val options: Map<String, Content>? = null,
+        val agreements: Map<String, ParagraphAgreement>? = null,
+        val medicationSchemeIdOnSafe: String? = null,
+        val medicationSchemeSafeVersion: Int? = null,
+        val medicationSchemeTimeStampOnSafe: Long? = null,
+        val medicationSchemeDocumentId: String? = null,
+        val safeIdName : String? = null, //can be: vitalinkuri, RSWID, RSBID
+        val idOnSafes : String? = null, //medicationschemeelement : value of vitalinkuri, RSBID, RSWID
+        val timestampOnSafe : Long? = null, //transaction date+time
+        val changeValidated : Boolean? = null, //accept change on safe
+        val newSafeMedication : Boolean? = null, //new medication on safe
+        val medicationUse : String? = null, //free text
+        val beginCondition : String? = null, //free text
+        val endCondition : String? = null, //free text
+        val origin : String? = null, // regularprocess, recorded
+        val medicationChanged: Boolean? = null,
+        val posologyChanged: Boolean? = null,
+        val suspension: List<Suspension>? = null,
+        val prescriptionRID: String? = null,
+        val status: Int? = null
+) : Serializable {
 
     override fun toString(): String {
         var result = String.format("%s, %s", if (compoundPrescription != null) compoundPrescription else if (substanceProduct != null) substanceProduct else medicinalProduct, posologyText)

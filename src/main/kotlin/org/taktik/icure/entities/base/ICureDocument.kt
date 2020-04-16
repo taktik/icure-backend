@@ -18,10 +18,23 @@
 package org.taktik.icure.entities.base
 
 interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
-    var created: Long?
-    var modified: Long?
-    var endOfLife: Long?
-    var author: String?
-    var responsible: String?
-    var encryptedSelf: String?
+    val created: Long?
+    val modified: Long?
+    val endOfLife: Long?
+    val author: String?
+    val responsible: String?
+
+    fun solveConflictsWith(other: ICureDocument) : Map<String, Any?> {
+        return mapOf(
+                "id" to this.id,
+                "created" to (created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
+                "modified" to (modified?.coerceAtLeast(other.modified ?: 0L) ?: other.modified),
+                "conflicts" to (endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
+                "attachments" to (this.author ?: other.author),
+                "deletionDate" to (this.responsible ?: other.responsible),
+                "tags" to (this.tags + other.tags),
+                "codes" to (this.codes + other.codes)
+        )
+    }
+
 }

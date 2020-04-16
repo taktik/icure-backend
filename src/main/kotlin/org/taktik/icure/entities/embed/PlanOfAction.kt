@@ -84,7 +84,7 @@ open class PlanOfAction : ICureDocument, Serializable {
     var numberOfCares: Int? = null
     var status: Int? = null
     var careTeamMemberships: List<CareTeamMembership?>? = null
-    fun solveConflictWith(other: PlanOfAction): PlanOfAction {
+    fun solveConflictsWith(other: PlanOfAction): PlanOfAction {
         created = if (other.created == null) created else if (created == null) other.created else java.lang.Long.valueOf(Math.min(created!!, other.created!!))
         modified = if (other.modified == null) modified else if (modified == null) other.modified else java.lang.Long.valueOf(Math.max(modified!!, other.modified!!))
         codes.addAll(other.codes)

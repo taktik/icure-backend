@@ -17,12 +17,15 @@
  */
 package org.taktik.icure.entities.base
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.squareup.moshi.Json
+
 /**
  * @param <T> The type of the entity identity (a String, a UUID, etc.)
 </T> */
 interface Versionable<T> : Identifiable<T> {
+    @Json(name = "rev_history")
     val revHistory: Map<String, String>
+    @Json(name = "_rev")
     val rev: String?
-
-    fun <X : Versionable<T>> copy(id: String? = null, rev:String ? = null, revHistory:Map<String, String>? = null) : X
 }

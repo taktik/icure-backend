@@ -60,7 +60,7 @@ class HealthElement(id: String,
     private var episodes: @Valid MutableList<Episode> = ArrayList()
     var careTeam: List<CareTeamMember> = ArrayList()
 
-    fun solveConflictWith(other: HealthElement): HealthElement {
+    fun solveConflictsWith(other: HealthElement): HealthElement {
         super.solveConflictsWith(other)
         openingDate = if (other.openingDate == null) openingDate else if (openingDate == null) other.openingDate else openingDate!!.coerceAtMost(other.openingDate!!)
         closingDate = if (other.closingDate == null) closingDate else if (closingDate == null) other.closingDate else closingDate!!.coerceAtLeast(other.closingDate!!)
@@ -71,10 +71,10 @@ class HealthElement(id: String,
         idClosingContact = if (idClosingContact == null) other.idClosingContact else idClosingContact
         idService = if (idService == null) other.idService else idService
         plansOfAction = mergeListsDistinct(plansOfAction, other.plansOfAction,
-                { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictWith(other!!) }).toMutableList()
+                { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictsWith(other!!) }).toMutableList()
         careTeam = mergeListsDistinct(careTeam, other.careTeam, { a: CareTeamMember?, b: CareTeamMember? -> a == b }, { a: CareTeamMember, b: CareTeamMember? -> a })
         episodes = mergeListsDistinct(episodes, other.episodes,
-                { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: Episode, other: Episode? -> obj.solveConflictWith(other!!) }).toMutableList()
+                { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: Episode, other: Episode? -> obj.solveConflictsWith(other!!) }).toMutableList()
         return this
     }
 }

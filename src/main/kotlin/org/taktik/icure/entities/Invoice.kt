@@ -92,7 +92,7 @@ class Invoice(id: String,
     //eattest cancel
     var cancelReason: String? = null
     var cancelDate: Long? = null
-    fun solveConflictWith(other: Invoice): Invoice {
+    fun solveConflictsWith(other: Invoice): Invoice {
         super.solveConflictsWith(other)
         invoiceDate = if (other.invoiceDate == null) invoiceDate else if (invoiceDate == null) other.invoiceDate else java.lang.Long.valueOf(Math.max(invoiceDate!!, other.invoiceDate!!))
         sentDate = if (other.sentDate == null) sentDate else if (sentDate == null) other.sentDate else java.lang.Long.valueOf(Math.max(sentDate!!, other.sentDate!!))
@@ -129,7 +129,7 @@ class Invoice(id: String,
         supervisorCbe = if (supervisorCbe == null) other.supervisorCbe else supervisorCbe
         invoicingCodes = if (invoicingCodes == null) other.invoicingCodes else mergeListsDistinct(invoicingCodes, other.invoicingCodes,
                 { a: InvoicingCode?, b: InvoicingCode? -> a?.id == b?.id },
-                { a: InvoicingCode?, b: InvoicingCode? -> if (a == null) b else if (b == null) a else a.solveConflictWith(b) })
+                { a: InvoicingCode?, b: InvoicingCode? -> if (a == null) b else if (b == null) a else a.solveConflictsWith(b) })
         if (receipts != null && other.receipts != null) {
             other.receipts!!.putAll(receipts!!)
         }

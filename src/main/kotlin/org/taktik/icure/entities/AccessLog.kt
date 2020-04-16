@@ -19,29 +19,53 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.Encryptable
-import org.taktik.icure.entities.base.StoredICureDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
+import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class AccessLog(id: String,
-                rev: String? = null,
-                revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                conflicts: Array<String> = arrayOf(),
-                revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Encryptable {
+data class AccessLog(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
+        val objectId: String? = null,
+        val accessType: String? = null,
+        val user: String? = null,
+        val detail: String? = null,
+        @Deprecated("Use cryptedForeignKeys instead") val patientId: String? = null,
+        override val secretForeignKeys: Set<String>,
+        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
+        override val delegations: Map<String, Set<Delegation>>,
+        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val encryptedSelf: String? = null,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = AccessLog::javaClass.name
+) : StoredDocument, ICureDocument, Encryptable {
+    companion object : DynamicInitializer<AccessLog>
 
-    @Deprecated("Use cryptedForeignKeys instead")
-    var patientId: String? = null
-
-    var accessType: String? = null
-    var user: String? = null
-    var detail: String? = null
-    var objectId: String? = null
-
-    companion object {
-        val USER_ACCESS = "USER_ACCESS"
-        val COMPUTER_ACCESS = "COMPUTER_ACCESS"
-        val LOGIN_ACCESS = "LOGIN_ACCESS"
-    }
+    fun merge(other: AccessLog) = AccessLog(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: AccessLog) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "objectId" to (this.objectId ?: other.objectId),
+            "accessType" to (this.accessType ?: other.accessType),
+            "user" to (this.user ?: other.user),
+            "detail" to (this.detail ?: other.detail)
+    )
 }

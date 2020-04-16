@@ -250,7 +250,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         contactsInConflict.collect { ctc ->
             ctc.conflicts.map { c: String -> contactDAO.get(dbInstanceUri, groupId, ctc.id, c) }.forEach { cp: Contact? ->
                 if (cp != null) {
-                    ctc.solveConflictWith(cp)
+                    ctc.solveConflictsWith(cp)
                     contactDAO.purge(dbInstanceUri, groupId, cp)
                 }
             }

@@ -22,120 +22,78 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.moshi.Json
+import org.taktik.icure.entities.Classification
 import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
-import java.util.HashMap
-import java.util.HashSet
+import java.util.*
 
 /**
  * Services are created in the course a contact. Information like temperature, blood pressure and so on.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Service : ICureDocument, Serializable, Comparable<Service> {
-    @NotNull(autoFix = AutoFix.UUID)
-    @JsonProperty("_id")
-    @Json(name = "_id")
-    override var id //Two version of the same service in two separate contacts have the same id
-            : String? = null
+data class Service(
+        @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),//Only used when the Service is emitted outside of its contact
+        @JsonIgnore val contactId: String? = null,
+        @JsonIgnore val subContactIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val plansOfActionIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val formIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val secretForeignKeys: Set<String>? = HashSet(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = HashMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val delegations: Map<String, Set<Delegation>> = HashMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = HashMap(), //Only used when the Service is emitted outside of its contact
+        val label: String = "<invalid>",
+        val dataClassName: String? = null,
+        val index: Long? = null, //Used for sorting
+        val content: Map<String, Content> = mapOf(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
+        val encryptedContent: String? = null, //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
+        val textIndexes: Map<String, String> = mapOf(), //Same structure as content but used for full text indexation
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        val formId: String? = null, //Used to group logically related services
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        override val endOfLife: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author : String? = null, //userId
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null, //healthcarePartyId
+        val comment: String? = null,
+        val status: Int? = null, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
+        val invoicingCodes: Set<String> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(), //stub object of the Code used to qualify the content of the Service
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
+        val encryptedSelf: String? = null
+) : ICureDocument, Comparable<Service> {
 
-    @JsonIgnore
-    var contactId //Only used when the Service is emitted outside of its contact
-            : String? = null
-
-    @JsonIgnore
-    var subContactIds //Only used when the Service is emitted outside of its contact
-            : Set<String>? = null
-
-    @JsonIgnore
-    var plansOfActionIds //Only used when the Service is emitted outside of its contact
-            : Set<String>? = null
-
-    @JsonIgnore
-    var healthElementsIds //Only used when the Service is emitted outside of its contact
-            : Set<String>? = null
-
-    @JsonIgnore
-    var formIds //Only used when the Service is emitted outside of its contact
-            : Set<String>? = null
-
-    @JsonIgnore
-    var secretForeignKeys: Set<String>? = HashSet() //Only used when the Service is emitted outside of its contact
-
-    @JsonIgnore
-    var cryptedForeignKeys: Map<String, Set<Delegation>> = HashMap() //Only used when the Service is emitted outside of its contact
-
-    @JsonIgnore
-    var delegations: Map<String, Set<Delegation>> = HashMap() //Only used when the Service is emitted outside of its contact
-
-    @JsonIgnore
-    var encryptionKeys: Map<String, Set<Delegation>> = HashMap() //Only used when the Service is emitted outside of its contact
-
-    @NotNull
-    var label: String? = null
-    var dataClassName: String? = null
-    var index //Used for sorting
-            : Long? = null
-    var content: Map<String, Content> = HashMap() //Localized, in the case when the service contains a document, the document id is the SerializableValue
-    var encryptedContent //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
-            : String? = null
-    var textIndexes: Map<String, String> = HashMap() //Same structure as content but used for full text indexation
-
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var valueDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
-
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var openingDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
-    var closingDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
-    var formId //Used to group logically related services
-            : String? = null
-
-    @NotNull(autoFix = AutoFix.NOW)
-    override var created: Long? = null
-
-    @NotNull(autoFix = AutoFix.NOW)
-    override var modified: Long? = null
-    override var endOfLife: Long? = null
-
-    @NotNull(autoFix = AutoFix.CURRENTUSERID)
-    override var author //userId
-            : String? = null
-
-    @NotNull(autoFix = AutoFix.CURRENTHCPID)
-    override var responsible //healthcarePartyId
-            : String? = null
-    var comment: String? = null
-    var status //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
-            : Int? = null
-    protected var invoicingCodes: MutableSet<String> = HashSet()
-
-    //For the content of the Service
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override var codes: MutableSet<CodeStub> = HashSet() //stub object of the Code
-
-    //For the type of the Service
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override var tags: MutableSet<CodeStub> = HashSet() //stub object of the tag
-    override var encryptedSelf: String? = null
-    fun solveConflictWith(other: Service): Service {
-        created = if (other.created == null) created else if (created == null) other.created else java.lang.Long.valueOf(Math.min(created!!, other.created!!))
-        modified = if (other.modified == null) modified else if (modified == null) other.modified else java.lang.Long.valueOf(Math.max(modified!!, other.modified!!))
-        openingDate = if (other.openingDate == null) openingDate else if (openingDate == null) other.openingDate else java.lang.Long.valueOf(Math.min(openingDate!!, other.openingDate!!))
-        closingDate = if (other.closingDate == null) closingDate else if (closingDate == null) other.closingDate else java.lang.Long.valueOf(Math.max(closingDate!!, other.closingDate!!))
-        valueDate = if (other.valueDate == null) valueDate else if (valueDate == null) other.valueDate else java.lang.Long.valueOf(Math.max(valueDate!!, other.valueDate!!))
-        codes.addAll(other.codes)
-        tags.addAll(other.tags)
-        invoicingCodes.addAll(other.invoicingCodes)
-        formId = if (formId == null) other.formId else formId
-        return this
-    }
+    companion object : DynamicInitializer<Service>
+    fun merge(other: Service) = Service(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Service) = super.solveConflictsWith(other) + mapOf(
+            "label" to if (this.label.isBlank()) other.label else this.label,
+            "dataClassName" to (this.dataClassName ?: other.dataClassName),
+            "index" to (this.index ?: other.index),
+            "content" to (other.content + this.content),
+            "encryptedContent" to (this.encryptedContent ?: other.encryptedContent),
+            "textIndexes" to (other.textIndexes + this.textIndexes),
+            "valueDate" to (valueDate?.coerceAtMost(other.valueDate ?: Long.MAX_VALUE) ?: other.valueDate),
+            "openingDate" to (openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
+            "closingDate" to (closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),
+            "formId" to (this.formId ?: other.formId),
+            "endOfLife" to (this.endOfLife ?: other.endOfLife),
+            "author" to (this.author ?: other.author),
+            "responsible" to (this.responsible ?: other.responsible),
+            "comment" to (this.comment ?: other.comment),
+            "status" to (this.status ?: other.status),
+            "invoicingCodes" to (other.invoicingCodes + this.invoicingCodes)
+    )
 
     override fun toString(): String {
         return "Service{" +
@@ -161,9 +119,9 @@ class Service : ICureDocument, Serializable, Comparable<Service> {
         if (this == other) {
             return 0
         }
-        var idx = if (index != null && other.index != null) index!!.compareTo(other.index!!) else 0
+        var idx = if (index != null && other.index != null) index.compareTo(other.index) else 0
         if (idx != 0) return idx
-        idx = (if (id != null) id else "")!!.compareTo((if (other.id != null) other.id else "")!!)
+        idx = id.compareTo(other.id)
         return if (idx != 0) idx else 1
     }
 }

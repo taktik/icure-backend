@@ -22,5 +22,6 @@ import com.squareup.moshi.Json
 import java.io.Serializable
 
 interface Identifiable<T> : Serializable {
-    val id: T?
+    @Json(name = "_id")
+    val id: T
 }

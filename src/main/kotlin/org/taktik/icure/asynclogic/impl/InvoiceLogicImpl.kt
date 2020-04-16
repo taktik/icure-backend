@@ -292,7 +292,7 @@ class InvoiceLogicImpl(private val filters: Filters,
         val invoicesInConflict = invoiceDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { invoiceDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         invoicesInConflict.collect { iv ->
             iv.conflicts.mapNotNull { c -> invoiceDAO.get(dbInstanceUri, groupId, iv.id, c) }.forEach { cp ->
-                iv.solveConflictWith(cp)
+                iv.solveConflictsWith(cp)
                 invoiceDAO.purge(dbInstanceUri, groupId, cp)
             }
             invoiceDAO.save(dbInstanceUri, groupId, iv)

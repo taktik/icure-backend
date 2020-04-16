@@ -79,7 +79,7 @@ class Message(id: String,
     var assignedResults //ContactId -> ref
             : Map<String, String>? = null
     var senderReferences: Map<String, String>? = null
-    fun solveConflictWith(other: Message): Message {
+    fun solveConflictsWith(other: Message): Message {
         super.solveConflictsWith(other)
         fromAddress = if (fromAddress == null) other.fromAddress else fromAddress
         fromHealthcarePartyId = if (fromHealthcarePartyId == null) other.fromHealthcarePartyId else fromHealthcarePartyId

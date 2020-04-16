@@ -52,7 +52,7 @@ class Form(id: String,
         return field
     }
     var isHasBeenInitialized: Boolean? = null
-    fun solveConflictWith(other: Form): Form {
+    fun solveConflictsWith(other: Form): Form {
         super.solveConflictsWith(other)
         descr = if (descr == null) other.descr else descr
         formTemplateId = if (formTemplateId == null) other.formTemplateId else formTemplateId

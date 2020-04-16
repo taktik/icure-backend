@@ -47,7 +47,7 @@ import kotlin.math.min
 typealias CouchDbDocument = Versionable<String>
 
 class DesignDocument(
-        @Json(name = "_id") override var id: String? = null,
+        @Json(name = "_id") override var id: String,
         @Json(name = "_rev") override var rev: String? = null,
         @Json(name = "rev_history") override val revHistory: Map<String, String> = mapOf(),
         val views: Map<String, View?> = mapOf(),

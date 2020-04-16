@@ -192,7 +192,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
                     msg.conflicts?.map { c ->
                         msg.id?.let {
                             messageDAO.get(dbInstanceUri, groupId, it, c)?.also { cp ->
-                                msg.solveConflictWith(cp)
+                                msg.solveConflictsWith(cp)
                                 messageDAO.purge(dbInstanceUri, groupId, cp)
                             }
                         }

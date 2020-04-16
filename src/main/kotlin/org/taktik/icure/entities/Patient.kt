@@ -35,7 +35,6 @@ import org.taktik.icure.validation.ValidCode
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
-import java.util.TreeSet
 import java.util.function.BiFunction
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -166,7 +165,7 @@ class Patient(id: String,
                 "" + firstName + ":" + lastName + ":" + patientHealthCareParties.stream().filter(PatientHealthCareParty::isReferral).findFirst().map { phcp: PatientHealthCareParty -> "" + phcp.healthcarePartyId + phcp.referralPeriods.last().startDate + phcp.referralPeriods.last().endDate }.orElse("")
                         + ":" + dateOfBirth + ":" + dateOfDeath + ":" + ssin)
 
-    fun solveConflictWith(other: Patient): Patient {
+    fun solveConflictsWith(other: Patient): Patient {
         super.solveConflictsWith(other)
         mergeFrom(other)
         return this
@@ -254,8 +253,7 @@ class Patient(id: String,
         patientHealthCareParties = mergeListsDistinct(patientHealthCareParties, other.patientHealthCareParties,
                  { a: PatientHealthCareParty?, b: PatientHealthCareParty? -> a == null && b == null || a != null && b != null && a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
                  { a: PatientHealthCareParty, b: PatientHealthCareParty ->
-                    a.referralPeriods = mergeSets(a.referralPeriods, b.referralPeriods, TreeSet(),
-                            { aa: ReferralPeriod?, bb: ReferralPeriod? -> aa == null && bb == null || aa != null && bb != null && aa.startDate == bb.startDate },
+                    a.referralPeriods = mergeSets(a.referralPeriods, b.referralPeriods, { aa: ReferralPeriod?, bb: ReferralPeriod? -> aa == null && bb == null || aa != null && bb != null && aa.startDate == bb.startDate },
                             { aa: ReferralPeriod, bb: ReferralPeriod ->
                                 if (aa.endDate == null) {
                                     aa.endDate = bb.endDate

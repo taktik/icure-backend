@@ -109,7 +109,7 @@ class HealthcareParty(id: String,
             return full
         }
 
-    fun solveConflictWith(other: HealthcareParty): HealthcareParty {
+    fun solveConflictsWith(other: HealthcareParty): HealthcareParty {
         super.solveConflictsWith(other)
         mergeFrom(other)
         return this

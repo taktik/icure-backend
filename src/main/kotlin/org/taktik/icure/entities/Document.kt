@@ -61,7 +61,7 @@ class Document(id: String,
 
     //The ICureDocument (Form, Contact, ...) that has been used to generate the document
     var storedICureDocumentId: String? = null
-    fun solveConflictWith(other: Document): Document {
+    fun solveConflictsWith(other: Document): Document {
         super.solveConflictsWith(other)
         mergeFrom(other)
         return this

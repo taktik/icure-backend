@@ -110,7 +110,7 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         documentsInConflict.collect { doc ->
             if (doc != null && doc.conflicts != null) {
                 val conflicted = doc.conflicts.mapNotNull { c -> documentDAO.get(dbInstanceUri, groupId, doc.id, c) }
-                conflicted.forEach { other -> doc.solveConflictWith(other) }
+                conflicted.forEach { other -> doc.solveConflictsWith(other) }
                 documentDAO.save(dbInstanceUri, groupId, doc)
                 conflicted.forEach { cp -> documentDAO.purge(dbInstanceUri, groupId, cp) }
             }

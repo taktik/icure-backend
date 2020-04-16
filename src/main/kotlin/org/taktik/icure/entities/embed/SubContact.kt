@@ -21,9 +21,17 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.moshi.Json
+import org.ektorp.Attachment
+import org.taktik.icure.entities.AccessLog
+import org.taktik.icure.entities.SubContact
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.utils.MergeUtil
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
@@ -36,61 +44,28 @@ import java.util.HashSet
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class SubContact : ICureDocument, Serializable {
-    @NotNull
-    @JsonProperty("_id")
-    @Json(name = "_id")
-    override var id: String? = null
-    var descr: String? = null
-    var protocol: String? = null
-    var status //To be refactored
-            : Int? = null
+data class SubContact(
+        @JsonProperty("_id") override val id: String,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
 
-    @NotNull(autoFix = AutoFix.NOW)
-    override var created: Long? = null
+        val descr: String? = null,
+        val protocol: String? = null,
+        val status : Int? = null, //To be refactored
+        val formId : String? = null, // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
+        val planOfActionId: String? = null,
+        val healthElementId: String? = null,
+        val classificationId: String? = null,
+        val services: List<ServiceLink> = listOf(),
 
-    @NotNull(autoFix = AutoFix.NOW)
-    override var modified: Long? = null
-    override var endOfLife: Long? = null
-
-    @NotNull(autoFix = AutoFix.CURRENTUSERID)
-    override var author //userId
-            : String? = null
-
-    @NotNull(autoFix = AutoFix.CURRENTHCPID)
-    override var responsible //healthcarePartyId
-            : String? = null
-
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override var codes: MutableSet<CodeStub> = HashSet()
-
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override var tags: MutableSet<CodeStub> = HashSet()
-    var formId // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
-            : String? = null
-    var planOfActionId: String? = null
-    var healthElementId: String? = null
-    var classificationId: String? = null
-    var services: List<ServiceLink?>? = ArrayList()
-    fun solveConflictWith(other: SubContact): SubContact {
-        created = if (other.created == null) created else if (created == null) other.created else java.lang.Long.valueOf(Math.min(created!!, other.created!!))
-        modified = if (other.modified == null) modified else if (modified == null) other.modified else java.lang.Long.valueOf(Math.max(modified!!, other.modified!!))
-        codes.addAll(other.codes)
-        tags.addAll(other.tags)
-        formId = if (formId == null) other.formId else formId
-        planOfActionId = if (planOfActionId == null) other.planOfActionId else planOfActionId
-        healthElementId = if (healthElementId == null) other.healthElementId else healthElementId
-        classificationId = if (classificationId == null) other.classificationId else classificationId
-        services = MergeUtil.mergeListsDistinct(services, other.services,
-                { a: ServiceLink?, b: ServiceLink? -> a == null && b == null || a != null && b != null && a.serviceId == b.serviceId }
-        ) { a: ServiceLink?, b: ServiceLink? -> a }
-        return this
-    }
-
-    override var encryptedSelf: String? = null
-
-    companion object {
-        private const val serialVersionUID = 1L
+        val encryptedSelf: String? = null
+) : ICureDocument {
+    companion object : DynamicInitializer<SubContact> {
         const val STATUS_LABO_RESULT = 1
         const val STATUS_UNREAD = 2
         const val STATUS_ALWAYS_DISPLAY = 4
@@ -99,4 +74,18 @@ class SubContact : ICureDocument, Serializable {
         const val STATUS_PROTOCOL_RESULT = 32
         const val STATUS_UPLOADED_FILES = 64
     }
+
+    fun merge(other: SubContact) = SubContact(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: SubContact) = super.solveConflictsWith(other) + mapOf(
+            "descr" to (this.descr ?: other.descr),
+            "protocol" to (this.protocol ?: other.protocol),
+            "status" to (this.status ?: other.status),
+            "formId" to (this.formId ?: other.formId),
+            "planOfActionId" to (this.planOfActionId ?: other.planOfActionId),
+            "healthElementId" to (this.healthElementId ?: other.healthElementId),
+            "classificationId" to (this.classificationId ?: other.classificationId),
+            "services" to MergeUtil.mergeListsDistinct(this.services, other.services, { a, b -> a.serviceId == b.serviceId }) { a, _ -> a },
+            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+    )
+
 }

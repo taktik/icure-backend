@@ -141,7 +141,7 @@ class HealthElementLogicImpl(private val filters: Filters,
         val healthElementsInConflict = healthElementDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { healthElementDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         healthElementsInConflict.collect { p ->
             p.conflicts.mapNotNull { c: String? -> healthElementDAO.get(dbInstanceUri, groupId, p.id, c) }.forEach { cp ->
-                p.solveConflictWith(cp)
+                p.solveConflictsWith(cp)
                 healthElementDAO.purge(dbInstanceUri, groupId, cp)
             }
             healthElementDAO.save(dbInstanceUri, groupId, p)

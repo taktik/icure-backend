@@ -42,7 +42,7 @@ class Receipt(id: String,
     var documentId: String? = null
     var category: String? = null
     var subCategory: String? = null
-    fun solveConflictWith(other: Receipt): Receipt {
+    fun solveConflictsWith(other: Receipt): Receipt {
         super.solveConflictsWith(other)
         if (attachmentIds != null && other.attachmentIds != null) {
             other.attachmentIds!!.putAll(attachmentIds!!)

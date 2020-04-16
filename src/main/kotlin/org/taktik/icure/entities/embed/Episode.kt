@@ -40,7 +40,7 @@ class Episode : Serializable {
     var endDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
             : Long? = null
 
-    fun solveConflictWith(other: Episode): Episode {
+    fun solveConflictsWith(other: Episode): Episode {
         name = if (name == null) other.name else name
         comment = if (comment == null) other.comment else comment
         startDate = if (other.startDate == null) startDate else if (startDate == null) other.startDate else java.lang.Long.valueOf(Math.min(startDate!!, other.startDate!!))

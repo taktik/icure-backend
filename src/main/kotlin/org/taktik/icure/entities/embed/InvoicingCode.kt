@@ -142,7 +142,7 @@ class InvoicingCode : Identifiable<String?>, Comparable<InvoicingCode?> {
         return if (other == null) -1 else dateCode!!.compareTo(other.dateCode!!)
     }
 
-    fun solveConflictWith(other: InvoicingCode): InvoicingCode {
+    fun solveConflictsWith(other: InvoicingCode): InvoicingCode {
         dateCode = if (dateCode == null) other.dateCode else dateCode
         logicalId = if (logicalId == null) other.logicalId else logicalId
         label = if (label == null) other.label else label
