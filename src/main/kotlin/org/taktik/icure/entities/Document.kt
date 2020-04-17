@@ -20,12 +20,16 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.DocumentLocation
-import org.taktik.icure.entities.embed.DocumentStatus
-import org.taktik.icure.entities.embed.DocumentType
-import org.taktik.icure.entities.embed.RevisionInfo
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.embed.*
 import org.taktik.icure.security.CryptoUtils
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
+import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
 import java.nio.ByteBuffer
 import java.security.InvalidAlgorithmParameterException
@@ -39,67 +43,61 @@ import javax.crypto.NoSuchPaddingException
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Document(id: String,
-               rev: String? = null,
-               revisionsInfo: Array<RevisionInfo> = arrayOf(),
-               conflicts: Array<String> = arrayOf(),
-               revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
-    var attachmentId: String? = null
+class Document(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    @JsonIgnore
-    var attachment: ByteArray? = null
+        @JsonIgnore val attachment: ByteArray? = null,
+        @JsonIgnore var isAttachmentDirty: Boolean = false,
+        val documentLocation: DocumentLocation? = null,
+        val documentType: DocumentType? = null,
+        val documentStatus: DocumentStatus? = null,
+        val externalUri: String? = null,
+        val mainUti: String? = null,
+        val name: String? = null,
+        val otherUtis: Set<String> = setOf(),
+        val storedICureDocumentId: String? = null, //The ICureDocument (Form, Contact, ...) that has been used to generate the document
 
-    @JsonIgnore
-    var isAttachmentDirty = false
-    var documentLocation: DocumentLocation? = null
-    var documentType: DocumentType? = null
-    var documentStatus: DocumentStatus? = null
-    var externalUri: String? = null
-    var mainUti: String? = null
-    var name: String? = null
-    protected var otherUtis: MutableSet<String> = HashSet()
+        val attachmentId: String? = null,
 
-    //The ICureDocument (Form, Contact, ...) that has been used to generate the document
-    var storedICureDocumentId: String? = null
-    fun solveConflictsWith(other: Document): Document {
-        super.solveConflictsWith(other)
-        mergeFrom(other)
-        return this
-    }
+        override val secretForeignKeys: Set<String>,
+        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
+        override val delegations: Map<String, Set<Delegation>>,
+        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val encryptedSelf: String? = null,
 
-    fun mergeFrom(other: Document) {
-        otherUtis.addAll(other.otherUtis)
-        if (documentLocation == null && other.documentLocation != null) {
-            documentLocation = other.documentLocation
-        }
-        if (documentType == null && other.documentType != null) {
-            documentType = other.documentType
-        }
-        if (documentStatus == null && other.documentStatus != null) {
-            documentStatus = other.documentStatus
-        }
-        if (externalUri == null && other.externalUri != null) {
-            externalUri = other.externalUri
-        }
-        if (mainUti == null && other.mainUti != null) {
-            mainUti = other.mainUti
-        }
-        if (name == null && other.name != null) {
-            name = other.name
-        }
-        if (storedICureDocumentId == null && other.storedICureDocumentId != null) {
-            storedICureDocumentId = other.storedICureDocumentId
-        }
-        if (attachment == null) {
-            attachment = other.attachment
-        } else if (other.attachment != null && attachment!!.size < other.attachment!!.size) {
-            attachment = other.attachment
-            attachmentId = null
-        }
-    }
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Contact::javaClass.name
+) : StoredDocument, ICureDocument, Encryptable {
+
+    companion object : DynamicInitializer<Document>
+    fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Document) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+        "documentLocation" to (this.documentLocation ?: other.documentLocation),
+        "documentType" to (this.documentType ?: other.documentType),
+        "documentStatus" to (this.documentStatus ?: other.documentStatus),
+        "externalUri" to (this.externalUri ?: other.externalUri),
+        "mainUti" to (this.mainUti ?: other.mainUti),
+        "name" to (this.name ?: other.name),
+        "otherUtis" to (other.otherUtis + this.otherUtis),
+        "storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
+        "attachmentId" to (this.attachmentId ?: other.attachmentId),
+        "attachment" to (this.attachment?.let { if(it.size>=other.attachment?.size ?: 0) it else other.attachment} ?: other.attachment )
+    )
 
     fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
-        if (enckeys != null && enckeys.size > 0) {
+        if (enckeys?.isNotEmpty() == true) {
             for (sfk in enckeys) {
                 val bb = ByteBuffer.wrap(ByteArray(16))
                 val uuid = UUID.fromString(sfk)
