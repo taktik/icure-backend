@@ -6,15 +6,14 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.utils.MergeUtil
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.HashMap
+import java.util.*
 
-class ApplicationSettings(
+data class ApplicationSettings(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String?,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long?,

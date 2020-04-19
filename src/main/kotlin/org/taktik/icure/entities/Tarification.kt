@@ -19,52 +19,81 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.Code
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.*
 import org.taktik.icure.entities.embed.LetterValue
+import org.taktik.icure.entities.embed.Periodicity
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.Valorisation
-import java.util.Objects
+import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
+import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfSets
+import org.taktik.icure.entities.utils.MergeUtil.mergeSets
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Tarification(id: String,
-                   rev: String? = null,
-                   revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                   conflicts: Array<String> = arrayOf(),
-                   revHistory: Map<String, String> = mapOf()) : Code(id, rev, revisionsInfo, conflicts, revHistory) {
-    var valorisations: Set<Valorisation>? = null
-    var category: Map<String, String>? = null
-    var consultationCode: Boolean? = null
-    var hasRelatedCode: Boolean? = null
-    var needsPrescriber: Boolean? = null
-    var relatedCodes: Set<String>? = null
-    var nGroup: String? = null
-    var letterValues: List<LetterValue>? = null
+data class Tarification(
+        @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    fun getnGroup(): String? {
-        return nGroup
-    }
+        override val type : String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
+        override val code : String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
+        override val version : String? = null, //ex: 10. Must be lexicographically searchable
 
-    fun setnGroup(nGroup: String?) {
-        this.nGroup = nGroup
-    }
+        val author: String? = null,
+        val regions : Set<String> = setOf(), //ex: be,fr
+        val periodicity: List<Periodicity> = listOf(),
+        val level : Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
+        val label : Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        val links : List<String> = listOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+        val qualifiedLinks : Map<LinkQualification, List<String>> = mapOf(), //Links towards related codes
+        val flags : Set<CodeFlag> = setOf(), //flags (like female only) for the code
+        val searchTerms : Map<String, Set<String>> = mapOf(), //Extra search terms/ language
+        val data: String? = null,
+        val appendices: Map<AppendixType, String> = mapOf(),
+        val isDisabled: Boolean = false,
+        val valorisations: Set<Valorisation> = setOf(),
+        val category: Map<String, String> = mapOf(),
+        val consultationCode: Boolean? = null,
+        val hasRelatedCode: Boolean? = null,
+        val needsPrescriber: Boolean? = null,
+        val relatedCodes: Set<String> = setOf(),
+        val nGroup: String? = null,
+        val letterValues: List<LetterValue> = listOf(),
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        if (!super.equals(other)) return false
-        val that = other as Tarification
-        return valorisations == that.valorisations &&
-                category == that.category &&
-                consultationCode == that.consultationCode &&
-                hasRelatedCode == that.hasRelatedCode &&
-                needsPrescriber == that.needsPrescriber &&
-                relatedCodes == that.relatedCodes &&
-                nGroup == that.nGroup &&
-                letterValues == that.letterValues
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(super.hashCode(), valorisations, category, consultationCode, hasRelatedCode, needsPrescriber, relatedCodes, nGroup, letterValues)
-    }
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Tarification::javaClass.name
+) : StoredDocument, CodeIdentification {
+    companion object : DynamicInitializer<Tarification>
+    fun merge(other: Tarification) = Tarification(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Tarification) = super<StoredDocument>.solveConflictsWith(other) + super<CodeIdentification>.solveConflictsWith(other) + mapOf(
+            "author" to (this.author ?: other.author),
+            "regions" to (other.regions + this.regions),
+            "periodicity" to (other.periodicity + this.periodicity),
+            "level" to (this.level ?: other.level),
+            "label" to (other.label + this.label),
+            "links" to (other.links + this.links),
+            "qualifiedLinks" to (other.qualifiedLinks + this.qualifiedLinks),
+            "flags" to (other.flags + this.flags),
+            "searchTerms" to mergeMapsOfSets(this.searchTerms, other.searchTerms),
+            "data" to (this.data ?: other.data),
+            "appendices" to (other.appendices + this.appendices),
+            "isDisabled" to (this.isDisabled),
+            "valorisations" to mergeSets(this.valorisations, other.valorisations,
+                    {a,b -> a.predicate == b.predicate && a.startOfValidity == b.startOfValidity && a.endOfValidity == b.endOfValidity}),
+            "category" to (other.category + this.category),
+            "consultationCode" to (this.consultationCode ?: other.consultationCode),
+            "hasRelatedCode" to (this.hasRelatedCode ?: other.hasRelatedCode),
+            "needsPrescriber" to (this.needsPrescriber ?: other.needsPrescriber),
+            "relatedCodes" to (other.relatedCodes + this.relatedCodes),
+            "nGroup" to (this.nGroup ?: other.nGroup),
+            "letterValues" to mergeListsDistinct(this.letterValues, other.letterValues,
+                    {a,b -> a.coefficient == b.coefficient && a.index == b.index && a.letter == b.letter})
+    )
 }

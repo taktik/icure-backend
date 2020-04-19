@@ -3,28 +3,18 @@ package org.taktik.icure.entities.base
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.squareup.moshi.Json
-import java.io.Serializable
-import java.util.Objects
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class CodeStub(@property:Json(name = "_id") override val id: String) : Serializable, CodeIdentification {
-    override var code: String? = null
-    override var type: String? = null
-    override var version: String? = null
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val codeStub = o as CodeStub
-        return id == codeStub.id &&
-                code == codeStub.code &&
-                type == codeStub.type &&
-                version == codeStub.version
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(id, code, type, version)
-    }
+data class CodeStub(
+        @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
+        override val type : String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
+        override val code : String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
+        override val version : String? = null //ex: 10. Must be lexicographically searchable
+) : CodeIdentification {
+    companion object : DynamicInitializer<CodeStub>
+    fun merge(other: CodeStub) = CodeStub(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: CodeStub) = super.solveConflictsWith(other)
 }

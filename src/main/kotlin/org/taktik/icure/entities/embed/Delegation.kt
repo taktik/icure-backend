@@ -20,35 +20,16 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
-import java.util.Objects
 
 /**
  * Created by aduchate on 29/03/13, 18:37
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Delegation : Serializable {
-    //This is in no way the owner of a piece of date (patient, contact). It is the owner of the delegation.
-    var owner // owner id
-            : String? = null
-    var delegatedTo // delegatedTo id
-            : String? = null
-    var key // An arbitrary key (generated, patientId, any ID, etc.), usually prefixed with the entity ID followed by ":", encrypted using an exchange AES key.
-            : String? = null
-    var tags // Used for rights
-            : List<String>? = null
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as Delegation
-        return owner == that.owner &&
-                delegatedTo == that.delegatedTo &&
-                key == that.key &&
-                tags == that.tags
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(owner, delegatedTo, key, tags)
-    }
-}
+data class Delegation(
+        //This is not the owner of a piece of date (patient, contact). It is the owner of the delegation.
+        var owner : String? = null, // owner id
+        var delegatedTo : String? = null, // delegatedTo id
+        var key : String? = null, // An arbitrary key (generated, patientId, any ID, etc.), usually prefixed with the entity ID followed by ":", encrypted using an exchange AES key.
+        var tags : List<String> = listOf() // Used for rights
+) : Serializable

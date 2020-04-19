@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.entities.embed
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -31,79 +30,53 @@ import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Content : Serializable {
-    @JsonProperty("s")
-    @Json(name = "s")
-    var stringValue: String? = null
+data class Content(
+        @JsonProperty("s") @Json(name = "s") val stringValue: String? = null,
+        @JsonProperty("n") @Json(name = "n") val numberValue: Double? = null,
+        @JsonProperty("b") @Json(name = "b") val booleanValue: Boolean? = null,
+        @JsonProperty("i") @Json(name = "i")
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        val instantValue: Instant? = null,
+        @JsonProperty("dt") @Json(name = "dt") val fuzzyDateValue: Long? = null,
+        @JsonProperty("x") @Json(name = "x") val binaryValue: ByteArray? = null,
+        @JsonProperty("d") @Json(name = "d") val documentId: String? = null,
+        @JsonProperty("m") @Json(name = "m") val measureValue: Measure? = null,
+        @JsonProperty("p") @Json(name = "p") val medicationValue: Medication? = null,
+        @JsonProperty("c") @Json(name = "c") val compoundValue: Set<Service>? = null
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Content) return false
 
-    @JsonProperty("n")
-    @Json(name = "n")
-    var numberValue: Double? = null
+        if (stringValue != other.stringValue) return false
+        if (numberValue != other.numberValue) return false
+        if (booleanValue != other.booleanValue) return false
+        if (instantValue != other.instantValue) return false
+        if (fuzzyDateValue != other.fuzzyDateValue) return false
+        if (binaryValue != null) {
+            if (other.binaryValue == null) return false
+            if (!binaryValue.contentEquals(other.binaryValue)) return false
+        } else if (other.binaryValue != null) return false
+        if (documentId != other.documentId) return false
+        if (measureValue != other.measureValue) return false
+        if (medicationValue != other.medicationValue) return false
+        if (compoundValue != other.compoundValue) return false
 
-    @JsonProperty("b")
-    @Json(name = "b")
-    var booleanValue: Boolean? = null
-
-    @JsonProperty("i")
-    @Json(name = "i")
-    @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer::class)
-    var instantValue: Instant? = null
-
-    @JsonProperty("dt")
-    @Json(name = "dt")
-    var fuzzyDateValue: Long? = null
-
-    @JsonProperty("x")
-    @Json(name = "x")
-    var binaryValue: ByteArray? = null
-
-    @JsonProperty("d")
-    @Json(name = "d")
-    var documentId: String? = null
-
-    @JsonProperty("m")
-    @Json(name = "m")
-    var measureValue: Measure? = null
-
-    @JsonProperty("p")
-    @Json(name = "p")
-    var medicationValue: Medication? = null
-
-    @JsonProperty("c")
-    @Json(name = "c")
-    var compoundValue: List<Service>? = null
-
-    @JsonIgnore
-    var compressedStringValue: ByteArray? = null
-
-    constructor() {}
-    constructor(stringValue: String?) {
-        this.stringValue = stringValue
+        return true
     }
 
-    constructor(numberValue: Double?) {
-        this.numberValue = numberValue
+    override fun hashCode(): Int {
+        var result = stringValue?.hashCode() ?: 0
+        result = 31 * result + (numberValue?.hashCode() ?: 0)
+        result = 31 * result + (booleanValue?.hashCode() ?: 0)
+        result = 31 * result + (instantValue?.hashCode() ?: 0)
+        result = 31 * result + (fuzzyDateValue?.hashCode() ?: 0)
+        result = 31 * result + (binaryValue?.contentHashCode() ?: 0)
+        result = 31 * result + (documentId?.hashCode() ?: 0)
+        result = 31 * result + (measureValue?.hashCode() ?: 0)
+        result = 31 * result + (medicationValue?.hashCode() ?: 0)
+        result = 31 * result + (compoundValue?.hashCode() ?: 0)
+        return result
     }
-
-    constructor(booleanValue: Boolean?) {
-        this.booleanValue = booleanValue
-    }
-
-    constructor(instantValue: Instant?) {
-        this.instantValue = instantValue
-    }
-
-    constructor(measureValue: Measure?) {
-        this.measureValue = measureValue
-    }
-
-    constructor(binaryValue: ByteArray) {
-        this.binaryValue = binaryValue
-    }
-
-    constructor(medicationValue: Medication?) {
-        this.medicationValue = medicationValue
-    }
-
 }

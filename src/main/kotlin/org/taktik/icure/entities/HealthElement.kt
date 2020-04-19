@@ -19,62 +19,79 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.StoredICureDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
-import java.util.ArrayList
+import org.taktik.icure.validation.ValidCode
 import javax.validation.Valid
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class HealthElement(id: String,
-                    val healthElementId: String, //The Unique UUID common to a group of HealthElements that forms an history
-                    rev: String? = null,
-                    revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                    conflicts: Array<String> = arrayOf(),
-                    revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
+data class HealthElement(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    //Usually one of the following is used (either valueDate or openingDate and closingDate)
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var valueDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-            : Long? = null
+        //Usually one of the following is used (either valueDate or openingDate and closingDate)
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val closingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val descr: String? = null,
+        val note: String? = null,
+        val isRelevant : Boolean = true,
+        val idOpeningContact: String? = null,
+        val idClosingContact: String? = null,
+        val idService : String? = null, //When a service is used to create the healthElement
+        val status : Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
+        val laterality: Laterality? = null,
+        val plansOfAction: @Valid List<PlanOfAction> = listOf(),
+        val episodes: @Valid List<Episode> = listOf(),
+        val careTeam: List<CareTeamMember> = listOf(),
 
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var openingDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-            : Long? = null
-    var closingDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-            : Long? = null
-    var descr: String? = null
-    var note: String? = null
-    var isRelevant = true
-    var idOpeningContact: String? = null
-    var idClosingContact: String? = null
-    var idService //When a service is used to create the healthElement
-            : String? = null
-    var status //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
-            : Int = 0
-    var laterality: Laterality? = null
-    private var plansOfAction: @Valid MutableList<PlanOfAction> = ArrayList()
-    private var episodes: @Valid MutableList<Episode> = ArrayList()
-    var careTeam: List<CareTeamMember> = ArrayList()
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptedSelf: String? = null,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = HealthElement::javaClass.name
+) : StoredDocument, ICureDocument, Encryptable {
+    companion object : DynamicInitializer<HealthElement>
+    fun merge(other: HealthElement) = HealthElement(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: HealthElement) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "valueDate" to (valueDate?.coerceAtMost(other.valueDate ?: Long.MAX_VALUE) ?: other.valueDate),
+            "openingDate" to (openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
+            "closingDate" to (closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),
+            "descr" to (this.descr ?: other.descr),
+            "note" to (this.note ?: other.note),
+            "isRelevant" to (this.isRelevant),
+            "idOpeningContact" to (this.idOpeningContact ?: other.idOpeningContact),
+            "idClosingContact" to (this.idClosingContact ?: other.idClosingContact),
+            "idService" to (this.idService ?: other.idService),
+            "status" to (this.status),
+            "laterality" to (this.laterality ?: other.laterality),
+            "plansOfAction" to mergeListsDistinct(this.plansOfAction, other.plansOfAction, { a, b -> a.id == b.id }, { a, b -> a.merge(b) } ),
+            "episodes" to mergeListsDistinct(this.episodes, other.episodes, { a, b -> a.id == b.id }, { a, b -> a.merge(b) } ),
+            "careTeam"  to mergeListsDistinct(this.careTeam, other.careTeam, { a, b -> a.id == b.id }, { a, b -> a.merge(b) } )
+    )
 
-    fun solveConflictsWith(other: HealthElement): HealthElement {
-        super.solveConflictsWith(other)
-        openingDate = if (other.openingDate == null) openingDate else if (openingDate == null) other.openingDate else openingDate!!.coerceAtMost(other.openingDate!!)
-        closingDate = if (other.closingDate == null) closingDate else if (closingDate == null) other.closingDate else closingDate!!.coerceAtLeast(other.closingDate!!)
-        valueDate = if (other.valueDate == null) valueDate else if (valueDate == null) other.valueDate else valueDate!!.coerceAtMost(other.valueDate!!)
-        descr = if (descr == null) other.descr else descr
-        note = if (note == null) other.note else note
-        idOpeningContact = if (idOpeningContact == null) other.idOpeningContact else idOpeningContact
-        idClosingContact = if (idClosingContact == null) other.idClosingContact else idClosingContact
-        idService = if (idService == null) other.idService else idService
-        plansOfAction = mergeListsDistinct(plansOfAction, other.plansOfAction,
-                { a: PlanOfAction?, b: PlanOfAction? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: PlanOfAction, other: PlanOfAction? -> obj.solveConflictsWith(other!!) }).toMutableList()
-        careTeam = mergeListsDistinct(careTeam, other.careTeam, { a: CareTeamMember?, b: CareTeamMember? -> a == b }, { a: CareTeamMember, b: CareTeamMember? -> a })
-        episodes = mergeListsDistinct(episodes, other.episodes,
-                { a: Episode?, b: Episode? -> a == null && b == null || a != null && b != null && a.id == b.id }, { obj: Episode, other: Episode? -> obj.solveConflictsWith(other!!) }).toMutableList()
-        return this
-    }
 }

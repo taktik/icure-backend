@@ -20,24 +20,15 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.squareup.moshi.Json
-import org.ektorp.Attachment
-import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.SubContact
-import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.utils.MergeUtil
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.io.Serializable
-import java.util.ArrayList
-import java.util.HashSet
 
 /**
  * Created by aduchate on 06/07/13, 10:09

@@ -1,25 +1,28 @@
 package org.taktik.icure.entities.embed
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Identifiable
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import java.io.Serializable
-import java.util.Objects
 
-class CareTeamMember : Serializable {
-    var id: String? = null
-    var careTeamMemberType: CareTeamMemberType? = null
-    var healthcarePartyId: String? = null
-    var quality: CodeStub? = null
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is CareTeamMember) return false
-        val that = o
-        return id == that.id && careTeamMemberType == that.careTeamMemberType &&
-                healthcarePartyId == that.healthcarePartyId &&
-                quality == that.quality
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(id, careTeamMemberType, healthcarePartyId, quality)
-    }
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CareTeamMember(
+        @JsonProperty("_id") override val id: String,
+        val careTeamMemberType: CareTeamMemberType? = null,
+        val healthcarePartyId: String? = null,
+        val quality: CodeStub? = null
+) : Serializable, Identifiable<String> {
+    companion object : DynamicInitializer<CareTeamMember>
+    fun merge(other: CareTeamMember) = CareTeamMember(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: CareTeamMember) = mapOf(
+            "id" to (this.id),
+            "careTeamMemberType" to (this.careTeamMemberType ?: other.careTeamMemberType),
+            "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
+            "quality" to (this.quality ?: other.quality)
+    )
 }

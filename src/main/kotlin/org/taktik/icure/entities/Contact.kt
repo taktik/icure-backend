@@ -20,7 +20,6 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.squareup.moshi.Json
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.*
 import org.taktik.icure.entities.embed.Delegation
@@ -29,6 +28,7 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.SubContact
 import org.taktik.icure.entities.utils.MergeUtil.mergeSets
 import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
@@ -61,10 +61,10 @@ data class Contact(
         val subContacts: @Valid Set<SubContact> = setOf(),
         val services: @Valid Set<Service> = setOf(),
 
-        override val secretForeignKeys: Set<String>,
-        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
-        override val delegations: Map<String, Set<Delegation>>,
-        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
@@ -73,7 +73,7 @@ data class Contact(
         @JsonProperty("java_type") override val _type: String = Contact::javaClass.name
 ) : StoredDocument, ICureDocument, Encryptable {
     companion object : DynamicInitializer<Contact>
-
+    fun merge(other: Contact) = Contact(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Contact) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
             "openingDate" to (openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
             "closingDate" to (closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),

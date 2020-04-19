@@ -20,175 +20,66 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.squareup.moshi.Json
 import org.taktik.icure.entities.base.Identifiable
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class InvoicingCode : Identifiable<String?>, Comparable<InvoicingCode?> {
-    var dateCode: Long? = null
-
-    @JsonProperty("_id")
-    @Json(name = "_id")
-    override var id: String? = null
-    var logicalId //Stays the same when a code is resent to the IO
-            : String? = null
-    var label: String? = null
-    var userId: String? = null
-    var contactId: String? = null
-    var serviceId: String? = null
-    var tarificationId: String? = null
-
-    //For obsolete codes or codes not linked to a tarification
-    var code: String? = null
-    var paymentType: PaymentType? = null
-    var paid: Double? = null
-    var totalAmount //=reimbursement+doctorSupplement+intervention
-            : Double? = null
-    var reimbursement: Double? = null
-    var patientIntervention: Double? = null
-    var doctorSupplement: Double? = null
-    var conventionAmount //Should be reimbursement+intervention
-            : Double? = null
-    var vat: Double? = null
-
-    //Etarif
-    var error: String? = null
-
-    //TODO... Might want to encrypt this as it could be used to identify the patient
-    var contract: String? = null
-    var contractDate: Long? = null
-    var units: Int? = null
-    var side: Int? = null
-    var timeOfDay: Int? = null
-    var eidReadingHour: Int? = null
-    var eidReadingValue: String? = null
-    var override3rdPayerCode: Int? = null
-    var override3rdPayerReason: String? = null
-    var transplantationCode: Int? = null
-    var prescriberNorm: Int? = null
-    var percentNorm: Int? = null
-    var prescriberNihii: String? = null
-    var relatedCode: String? = null
-    var prescriptionDate // yyyyMMdd
-            : Long? = null
-    var derogationMaxNumber: Int? = null
-    var prescriberSsin: String? = null
-    var prescriberLastName: String? = null
-    var prescriberFirstName: String? = null
-    var prescriberCdHcParty: String? = null
-    var locationNihii: String? = null
-    var locationCdHcParty: String? = null
-    var canceled: Boolean? = null
-    var accepted: Boolean? = null
-    var pending: Boolean? = null
-    var resent: Boolean? = null
-    var archived: Boolean? = null
-    var lost: Boolean? = null
-    var insuranceJustification: Int? = null
-    var cancelPatientInterventionReason: Int? = null
-    var status: Long? = null
-
-    constructor() {}
-    constructor(other: InvoicingCode) {
-        dateCode = if (dateCode == null) other.dateCode else dateCode
-        id = if (id == null) other.id else id
-        logicalId = if (logicalId == null) other.logicalId else logicalId
-        label = if (label == null) other.label else label
-        userId = if (userId == null) other.userId else userId
-        contactId = if (contactId == null) other.contactId else contactId
-        serviceId = if (serviceId == null) other.serviceId else serviceId
-        tarificationId = if (tarificationId == null) other.tarificationId else tarificationId
-        code = if (code == null) other.code else code
-        paymentType = if (paymentType == null) other.paymentType else paymentType
-        paid = if (paid == null) other.paid else paid
-        totalAmount = if (totalAmount == null) other.totalAmount else totalAmount
-        reimbursement = if (reimbursement == null) other.reimbursement else reimbursement
-        patientIntervention = if (patientIntervention == null) other.patientIntervention else patientIntervention
-        doctorSupplement = if (doctorSupplement == null) other.doctorSupplement else doctorSupplement
-        vat = if (vat == null) other.vat else vat
-        error = if (error == null) other.error else error
-        contract = if (contract == null) other.contract else contract
-        units = if (units == null) other.units else units
-        side = if (side == null) other.side else side
-        transplantationCode = if (transplantationCode == null) other.transplantationCode else transplantationCode
-        timeOfDay = if (timeOfDay == null) other.timeOfDay else timeOfDay
-        eidReadingHour = if (eidReadingHour == null) other.eidReadingHour else eidReadingHour
-        eidReadingValue = if (eidReadingValue == null) other.eidReadingValue else eidReadingValue
-        override3rdPayerCode = if (override3rdPayerCode == null) other.override3rdPayerCode else override3rdPayerCode
-        override3rdPayerReason = if (override3rdPayerReason == null) other.override3rdPayerReason else override3rdPayerReason
-        prescriberNorm = if (prescriberNorm == null) other.prescriberNorm else prescriberNorm
-        percentNorm = if (percentNorm == null) other.percentNorm else percentNorm
-        derogationMaxNumber = if (derogationMaxNumber == null) other.derogationMaxNumber else derogationMaxNumber
-        prescriberNihii = if (prescriberNihii == null) other.prescriberNihii else prescriberNihii
-        relatedCode = if (relatedCode == null) other.relatedCode else relatedCode
-        canceled = if (canceled == null) other.canceled else canceled
-        accepted = if (accepted == null) other.accepted else accepted
-        pending = if (pending == null) other.pending else pending
-        resent = if (resent == null) other.resent else resent
-        archived = if (archived == null) other.archived else archived
-        insuranceJustification = if (insuranceJustification == null) other.insuranceJustification else insuranceJustification
-        cancelPatientInterventionReason = if (cancelPatientInterventionReason == null) other.cancelPatientInterventionReason else cancelPatientInterventionReason
-        status = if (status == null) other.status else status
-        prescriberSsin = if (prescriberSsin == null) other.prescriberSsin else prescriberSsin
-        prescriberLastName = if (prescriberLastName == null) other.prescriberLastName else prescriberLastName
-        prescriberFirstName = if (prescriberFirstName == null) other.prescriberFirstName else prescriberFirstName
-        prescriberCdHcParty = if (prescriberCdHcParty == null) other.prescriberCdHcParty else prescriberCdHcParty
-        locationNihii = if (locationNihii == null) other.locationNihii else locationNihii
-        locationCdHcParty = if (locationCdHcParty == null) other.locationCdHcParty else locationCdHcParty
-    }
-
-    override fun compareTo(other: InvoicingCode?): Int {
-        return if (other == null) -1 else dateCode!!.compareTo(other.dateCode!!)
-    }
-
-    fun solveConflictsWith(other: InvoicingCode): InvoicingCode {
-        dateCode = if (dateCode == null) other.dateCode else dateCode
-        logicalId = if (logicalId == null) other.logicalId else logicalId
-        label = if (label == null) other.label else label
-        userId = if (userId == null) other.userId else userId
-        contactId = if (contactId == null) other.contactId else contactId
-        serviceId = if (serviceId == null) other.serviceId else serviceId
-        tarificationId = if (tarificationId == null) other.tarificationId else tarificationId
-        code = if (code == null) other.code else code
-        paymentType = if (paymentType == null) other.paymentType else paymentType
-        paid = if (paid == null) other.paid else paid
-        totalAmount = if (totalAmount == null) other.totalAmount else totalAmount
-        reimbursement = if (reimbursement == null) other.reimbursement else reimbursement
-        patientIntervention = if (patientIntervention == null) other.patientIntervention else patientIntervention
-        doctorSupplement = if (doctorSupplement == null) other.doctorSupplement else doctorSupplement
-        vat = if (vat == null) other.vat else vat
-        error = if (error == null) other.error else error
-        contract = if (contract == null) other.contract else contract
-        contractDate = if (contractDate == null) other.contractDate else contractDate
-        units = if (units == null) other.units else units
-        side = if (side == null) other.side else side
-        timeOfDay = if (timeOfDay == null) other.timeOfDay else timeOfDay
-        eidReadingHour = if (eidReadingHour == null) other.eidReadingHour else eidReadingHour
-        eidReadingValue = if (eidReadingValue == null) other.eidReadingValue else eidReadingValue
-        override3rdPayerCode = if (override3rdPayerCode == null) other.override3rdPayerCode else override3rdPayerCode
-        override3rdPayerReason = if (override3rdPayerReason == null) other.override3rdPayerReason else override3rdPayerReason
-        prescriberNorm = if (prescriberNorm == null) other.prescriberNorm else prescriberNorm
-        derogationMaxNumber = if (derogationMaxNumber == null) other.derogationMaxNumber else derogationMaxNumber
-        prescriberNihii = if (prescriberNihii == null) other.prescriberNihii else prescriberNihii
-        relatedCode = if (relatedCode == null) other.relatedCode else relatedCode
-        canceled = if (canceled == null) other.canceled else canceled
-        accepted = if (accepted == null) other.accepted else accepted
-        pending = if (pending == null) other.pending else pending
-        resent = if (resent == null) other.resent else resent
-        insuranceJustification = if (insuranceJustification == null) other.insuranceJustification else insuranceJustification
-        cancelPatientInterventionReason = if (cancelPatientInterventionReason == null) other.cancelPatientInterventionReason else cancelPatientInterventionReason
-        status = if (status == null) other.status else status
-        prescriberSsin = if (prescriberSsin == null) other.prescriberSsin else prescriberSsin
-        prescriberLastName = if (prescriberLastName == null) other.prescriberLastName else prescriberLastName
-        prescriberFirstName = if (prescriberFirstName == null) other.prescriberFirstName else prescriberFirstName
-        prescriberCdHcParty = if (prescriberCdHcParty == null) other.prescriberCdHcParty else prescriberCdHcParty
-        locationNihii = if (locationNihii == null) other.locationNihii else locationNihii
-        locationCdHcParty = if (locationCdHcParty == null) other.locationCdHcParty else locationCdHcParty
-        return this
-    }
-
-    companion object {
+data class InvoicingCode(
+        @JsonProperty("_id") override val id: String,
+        val dateCode: Long? = null,
+        val logicalId : String? = null, //Stays the same when a code is resent to the IO
+        val label: String? = null,
+        val userId: String? = null,
+        val contactId: String? = null,
+        val serviceId: String? = null,
+        val tarificationId: String? = null,
+        //For obsolete codes or codes not linked to a tarification
+        val code: String? = null,
+        val paymentType: PaymentType? = null,
+        val paid: Double? = null,
+        val totalAmount : Double? = null, //=reimbursement+doctorSupplement+intervention,
+        val reimbursement: Double? = null,
+        val patientIntervention: Double? = null,
+        val doctorSupplement: Double? = null,
+        val conventionAmount : Double? = null, //Should be reimbursement+intervention,
+        val vat: Double? = null,
+        val error: String? = null, //Etarif
+        //TODO... Might want to encrypt this as it could be used to identify the patient
+        val contract: String? = null,
+        val contractDate: Long? = null,
+        val units: Int? = null,
+        val side: Int? = null,
+        val timeOfDay: Int? = null,
+        val eidReadingHour: Int? = null,
+        val eidReadingValue: String? = null,
+        val override3rdPayerCode: Int? = null,
+        val override3rdPayerReason: String? = null,
+        val transplantationCode: Int? = null,
+        val prescriberNorm: Int? = null,
+        val percentNorm: Int? = null,
+        val prescriberNihii: String? = null,
+        val relatedCode: String? = null,
+        val prescriptionDate: Long? = null, // yyyyMMdd
+        val derogationMaxNumber: Int? = null,
+        val prescriberSsin: String? = null,
+        val prescriberLastName: String? = null,
+        val prescriberFirstName: String? = null,
+        val prescriberCdHcParty: String? = null,
+        val locationNihii: String? = null,
+        val locationCdHcParty: String? = null,
+        val canceled: Boolean? = null,
+        val accepted: Boolean? = null,
+        val pending: Boolean? = null,
+        val resent: Boolean? = null,
+        val archived: Boolean? = null,
+        val lost: Boolean? = null,
+        val insuranceJustification: Int? = null,
+        val cancelPatientInterventionReason: Int? = null,
+        val status: Long? = null
+) : Identifiable<String?>, Comparable<InvoicingCode?> {
+    companion object : DynamicInitializer<InvoicingCode> {
         const val STATUS_PAID: Long = 1
         const val STATUS_PRINTED: Long = 2
         const val STATUS_PAIDPRINTED: Long = 3
@@ -197,5 +88,61 @@ class InvoicingCode : Identifiable<String?>, Comparable<InvoicingCode?> {
         const val STATUS_ACCEPTED: Long = 16
         const val STATUS_RESENT: Long = 32
         const val STATUS_LOST: Long = 64
+    }
+    fun merge(other: InvoicingCode) = InvoicingCode(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: InvoicingCode) = mapOf(
+            "id" to (this.id),
+            "dateCode" to (this.dateCode ?: other.dateCode),
+            "logicalId" to (this.logicalId ?: other.logicalId),
+            "label" to (this.label ?: other.label),
+            "userId" to (this.userId ?: other.userId),
+            "contactId" to (this.contactId ?: other.contactId),
+            "serviceId" to (this.serviceId ?: other.serviceId),
+            "tarificationId" to (this.tarificationId ?: other.tarificationId),
+            "code" to (this.code ?: other.code),
+            "paymentType" to (this.paymentType ?: other.paymentType),
+            "paid" to (this.paid ?: other.paid),
+            "totalAmount" to (this.totalAmount ?: other.totalAmount),
+            "reimbursement" to (this.reimbursement ?: other.reimbursement),
+            "patientIntervention" to (this.patientIntervention ?: other.patientIntervention),
+            "doctorSupplement" to (this.doctorSupplement ?: other.doctorSupplement),
+            "conventionAmount" to (this.conventionAmount ?: other.conventionAmount),
+            "vat" to (this.vat ?: other.vat),
+            "error" to (this.error ?: other.error),
+            "contract" to (this.contract ?: other.contract),
+            "contractDate" to (this.contractDate ?: other.contractDate),
+            "units" to (this.units ?: other.units),
+            "side" to (this.side ?: other.side),
+            "timeOfDay" to (this.timeOfDay ?: other.timeOfDay),
+            "eidReadingHour" to (this.eidReadingHour ?: other.eidReadingHour),
+            "eidReadingValue" to (this.eidReadingValue ?: other.eidReadingValue),
+            "override3rdPayerCode" to (this.override3rdPayerCode ?: other.override3rdPayerCode),
+            "override3rdPayerReason" to (this.override3rdPayerReason ?: other.override3rdPayerReason),
+            "transplantationCode" to (this.transplantationCode ?: other.transplantationCode),
+            "prescriberNorm" to (this.prescriberNorm ?: other.prescriberNorm),
+            "percentNorm" to (this.percentNorm ?: other.percentNorm),
+            "prescriberNihii" to (this.prescriberNihii ?: other.prescriberNihii),
+            "relatedCode" to (this.relatedCode ?: other.relatedCode),
+            "prescriptionDate" to (this.prescriptionDate ?: other.prescriptionDate),
+            "derogationMaxNumber" to (this.derogationMaxNumber ?: other.derogationMaxNumber),
+            "prescriberSsin" to (this.prescriberSsin ?: other.prescriberSsin),
+            "prescriberLastName" to (this.prescriberLastName ?: other.prescriberLastName),
+            "prescriberFirstName" to (this.prescriberFirstName ?: other.prescriberFirstName),
+            "prescriberCdHcParty" to (this.prescriberCdHcParty ?: other.prescriberCdHcParty),
+            "locationNihii" to (this.locationNihii ?: other.locationNihii),
+            "locationCdHcParty" to (this.locationCdHcParty ?: other.locationCdHcParty),
+            "canceled" to (this.canceled ?: other.canceled),
+            "accepted" to (this.accepted ?: other.accepted),
+            "pending" to (this.pending ?: other.pending),
+            "resent" to (this.resent ?: other.resent),
+            "archived" to (this.archived ?: other.archived),
+            "lost" to (this.lost ?: other.lost),
+            "insuranceJustification" to (this.insuranceJustification ?: other.insuranceJustification),
+            "cancelPatientInterventionReason" to (this.cancelPatientInterventionReason ?: other.cancelPatientInterventionReason),
+            "status" to (this.status ?: other.status)
+    )
+
+    override fun compareTo(other: InvoicingCode?): Int {
+        return if (other == null) -1 else dateCode?.compareTo(other.dateCode ?: 0) ?: 0
     }
 }

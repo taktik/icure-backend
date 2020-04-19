@@ -1,8 +1,5 @@
 package org.taktik.icure.entities.samv2.embed
 
-import com.fasterxml.jackson.annotation.JsonCreator
-
-
 
 class Atc(var code: String? = null, var description: String? = null) {
     override fun equals(other: Any?): Boolean {

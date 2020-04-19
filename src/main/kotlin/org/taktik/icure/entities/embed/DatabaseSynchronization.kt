@@ -19,21 +19,10 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.io.Serializable
-import java.util.Objects
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class DatabaseSynchronization(var source: String? = null, var target: String? = null) : Serializable {
-    var filter: String? = null
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as DatabaseSynchronization
-        return source == that.source &&
-                target == that.target
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(source, target)
-    }
-}
+data class DatabaseSynchronization(
+        val source: String? = null,
+        val target: String? = null,
+        val filter: String? = null
+) : Serializable

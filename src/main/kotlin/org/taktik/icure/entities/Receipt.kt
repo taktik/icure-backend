@@ -19,50 +19,65 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.StoredICureDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
-import java.io.Serializable
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.function.BiFunction
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
+import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Receipt(id: String,
-              rev: String? = null,
-              revisionsInfo: Array<RevisionInfo> = arrayOf(),
-              conflicts: Array<String> = arrayOf(),
-              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
-    internal var attachmentIds: MutableMap<ReceiptBlobType, String>? = HashMap()
-    var references: List<String> = ArrayList() //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
+data class Receipt(
+              @JsonProperty("_id") override val id: String,
+              @JsonProperty("_rev") override val rev: String?,
+              @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+              @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+              @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+              @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+              @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+              @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+              override val endOfLife: Long?,
+              @JsonProperty("deleted") override val deletionDate: Long?,
 
-    //The ICureDocument (Invoice, Contact, ...) this document is linked to
-    var documentId: String? = null
-    var category: String? = null
-    var subCategory: String? = null
-    fun solveConflictsWith(other: Receipt): Receipt {
-        super.solveConflictsWith(other)
-        if (attachmentIds != null && other.attachmentIds != null) {
-            other.attachmentIds!!.putAll(attachmentIds!!)
-        }
-        if (other.attachmentIds != null) {
-            attachmentIds = other.attachmentIds
-        }
-        mergeListsDistinct(references, other.references, { obj: String, anObject: String? -> obj.equals(anObject) }, { a: String, b: String? -> a })
-        if (documentId == null && other.documentId != null) {
-            documentId = other.documentId
-        }
-        return this
-    }
+              val attachmentIds: Map<ReceiptBlobType, String> = mapOf(),
+              val references: List<String> = listOf(), //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
 
-    fun getAttachmentIds(): Map<ReceiptBlobType, String>? {
-        return attachmentIds
-    }
+              //The ICureDocument (Invoice, Contact, ...) this document is linked to
+              val documentId: String? = null,
+              val category: String? = null,
+              val subCategory: String? = null,
 
-    fun setAttachmentIds(attachmentIds: MutableMap<ReceiptBlobType, String>?) {
-        this.attachmentIds = attachmentIds
-    }
-
+              override val secretForeignKeys: Set<String> = setOf(),
+              override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+              override val delegations: Map<String, Set<Delegation>> = mapOf(),
+              override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+              override val encryptedSelf: String? = null,
+              @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+              @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+              @JsonProperty("_conflicts") override val conflicts: List<String>,
+              @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+              @JsonProperty("java_type") override val _type: String = Receipt::javaClass.name
+) : StoredDocument, ICureDocument, Encryptable {
+    companion object : DynamicInitializer<Receipt>
+    fun merge(other: Receipt) = Receipt(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Receipt) =
+                    super<StoredDocument>.solveConflictsWith(other) +
+                    super<ICureDocument>.solveConflictsWith(other) +
+                    super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "attachmentIds" to (other.attachmentIds + this.attachmentIds),
+            "references" to mergeListsDistinct(this.references, other.references),
+            "documentId" to (this.documentId ?: other.documentId),
+            "category" to (this.category ?: other.category),
+            "subCategory" to (this.subCategory ?: other.subCategory)
+    )
 }

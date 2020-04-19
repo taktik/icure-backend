@@ -52,5 +52,4 @@ class FlowItem {
     var patientId: String? = null
     var patientLastName: String? = null
     var patientFirstName: String? = null
-
 }

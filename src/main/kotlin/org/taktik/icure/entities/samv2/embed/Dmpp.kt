@@ -1,7 +1,6 @@
 package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
-import java.math.BigDecimal
 
 class Dmpp(
         from: Long? = null,

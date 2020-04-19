@@ -24,7 +24,7 @@ import org.taktik.icure.constants.Permissions
 import org.taktik.icure.constants.Permissions.CriterionDataType
 import org.taktik.icure.security.PermissionSetIdentifier
 import java.io.Serializable
-import java.util.HashSet
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

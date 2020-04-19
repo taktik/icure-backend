@@ -25,51 +25,30 @@ import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
 import java.time.Instant
-import java.util.Objects
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ReferralPeriod : Serializable, Comparable<ReferralPeriod> {
-    @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer::class)
-    var startDate: Instant? = null
+data class ReferralPeriod(
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        val startDate: Instant? = null,
 
-    @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
-    @JsonDeserialize(using = InstantDeserializer::class)
-    var endDate: Instant? = null
-    var comment: String? = null
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        val endDate: Instant? = null,
+        val comment: String? = null
+) : Serializable, Comparable<ReferralPeriod> {
 
     override fun compareTo(other: ReferralPeriod): Int {
-        if (this == other) {
-            return 0
+        return when {
+            this == other -> 0
+            startDate != other.startDate -> {
+                if (startDate == null) 1 else if (other.startDate == null) 0 else startDate.compareTo(other.startDate)
+            }
+            endDate != other.endDate -> {
+                if (endDate == null) 1 else if (other.endDate == null) 0 else endDate.compareTo(other.endDate)
+            }
+            else -> 1
         }
-        if (startDate != other.startDate) {
-            return if (startDate == null) 1 else if (other.startDate == null) 0 else startDate!!.compareTo(other.startDate)
-        }
-        return if (endDate != other.endDate) {
-            if (endDate == null) 1 else if (other.endDate == null) 0 else endDate!!.compareTo(other.endDate)
-        } else 1
     }
-
-    override fun hashCode(): Int {
-        return Objects.hash(startDate, endDate)
-    }
-
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) {
-            return true
-        }
-        if (obj == null || javaClass != obj.javaClass) {
-            return false
-        }
-        val other = obj as ReferralPeriod
-        return startDate == other.startDate && endDate == other.endDate
-    }
-
-    constructor(startDate: Instant?, endDate: Instant?) {
-        this.startDate = startDate
-        this.endDate = endDate
-    }
-
-    constructor() {}
 }

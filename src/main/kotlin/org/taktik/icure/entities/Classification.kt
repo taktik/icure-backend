@@ -3,10 +3,12 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.utils.MergeUtil
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -14,7 +16,7 @@ import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class Classification(
+data class Classification(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String?,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
@@ -29,16 +31,16 @@ class Classification(
         val parentId: String?,
         val label: String = "",
 
-        override val secretForeignKeys: Set<String>,
-        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
-        override val delegations: Map<String, Set<Delegation>>,
-        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
         @JsonProperty("_conflicts") override val conflicts: List<String>,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>,
-        @JsonProperty("java_type") override val _type: String = AccessLog::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Classification::javaClass.name
 ) : StoredDocument, ICureDocument, Encryptable {
     companion object : DynamicInitializer<Classification>
     fun merge(other: Classification) = Classification(args = this.solveConflictsWith(other))

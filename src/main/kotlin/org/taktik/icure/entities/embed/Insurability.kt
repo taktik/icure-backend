@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
-import java.util.HashMap
+import java.util.*
 
 /**
  * Created by aduchate on 21/01/13, 15:37

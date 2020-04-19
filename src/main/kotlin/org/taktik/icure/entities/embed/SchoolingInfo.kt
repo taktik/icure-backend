@@ -1,7 +1,7 @@
 package org.taktik.icure.entities.embed
 
 import org.taktik.icure.entities.base.CodeStub
-import java.util.Objects
+import java.util.*
 
 class SchoolingInfo {
     var startDate: Long? = null

@@ -17,81 +17,60 @@
  */
 package org.taktik.icure.entities.base
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.google.common.collect.ImmutableMap
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
 import org.taktik.icure.entities.embed.Periodicity
 import org.taktik.icure.entities.embed.RevisionInfo
-import java.util.Arrays
-import java.util.HashMap
-import java.util.HashSet
-import java.util.Objects
+import org.taktik.icure.entities.utils.MergeUtil
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-open class Code(id: String,
-                rev: String? = null,
-                revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                conflicts: Array<String> = arrayOf(),
-                revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), CodeIdentification {
-    // id = type|code|version  => this must be unique
-    var author: String? = null
-    var regions //ex: be,fr
-            : Set<String>? = null
-    var periodicity: List<Periodicity>? = null
-    override var type //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
-            : String? = null
-    override var code //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
-            : String? = null
-    override var version //ex: 10. Must be lexicographically searchable
-            : String? = null
+data class Code(
+        @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    var level //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
-            : Int? = null
-    var label //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
-            : MutableMap<String, String>? = null
+        override val type : String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
+        override val code : String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
+        override val version : String? = null, //ex: 10. Must be lexicographically searchable
 
-    @Deprecated("Use qualified links instead")
-    var links //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
-            : List<String>? = null
-    var qualifiedLinks //Links towards related codes
-            : Map<LinkQualification, List<String>>? = null
-    var flags //flags (like female only) for the code
-            : Set<CodeFlag>? = null
-    var searchTerms //Extra search terms/ language
-            : Map<String, Set<String>>? = null
-    protected var data: String? = null
-    var appendices: Map<AppendixType, String>? = null
-    var isDisabled = false
+        val author: String? = null,
+        val regions : Set<String> = setOf(), //ex: be,fr
+        val periodicity: Set<Periodicity> = setOf(),
+        val level : Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
+        val label : Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        val links : Set<String> = setOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+        val qualifiedLinks : Map<LinkQualification, List<String>> = mapOf(), //Links towards related codes
+        val flags : Set<CodeFlag> = setOf(), //flags (like female only) for the code
+        val searchTerms : Map<String, Set<String>> = mapOf(), //Extra search terms/ language
+        val data: String? = null,
+        val appendices: Map<AppendixType, String> = mapOf(),
+        val isDisabled: Boolean = false,
 
-    override fun toString(): String {
-        return "$type:$code"
-    }
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Code) return false
-        if (!super.equals(other)) return false
-        val code1 = other
-        return type == code1.type &&
-                code == code1.code &&
-                version == code1.version
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(super.hashCode(), type, code, version)
-    }
-
-    companion object {
-        private const val serialVersionUID = 1L
-        val versionsMap: Map<String, String> = ImmutableMap.of(
-                "INAMI-RIZIV", "1.0"
-        )
-
-        fun dataCode(typeAndCodeAndVersion: String, data: String?): Code {
-            val c = Code(typeAndCodeAndVersion)
-            c.data = data
-            return c
-        }
-    }
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Code::javaClass.name
+) : StoredDocument, CodeIdentification {
+    companion object : DynamicInitializer<Code>
+    fun merge(other: Code) = Code(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Code) = super<StoredDocument>.solveConflictsWith(other) + super<CodeIdentification>.solveConflictsWith(other) + mapOf(
+        "author" to (this.author ?: other.author),
+        "regions" to (other.regions + this.regions),
+        "periodicity" to (other.periodicity + this.periodicity),
+        "level" to (this.level ?: other.level),
+        "label" to (other.label + this.label),
+        "links" to (other.links + this.links),
+        "qualifiedLinks" to (other.qualifiedLinks + this.qualifiedLinks),
+        "flags" to (other.flags + this.flags),
+        "searchTerms" to MergeUtil.mergeMapsOfSets(this.searchTerms, other.searchTerms),
+        "data" to (this.data ?: other.data),
+        "appendices" to (other.appendices + this.appendices),
+        "isDisabled" to (this.isDisabled)
+    )
 }

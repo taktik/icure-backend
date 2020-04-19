@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
@@ -48,10 +51,10 @@ data class AccessLog(
         val user: String? = null,
         val detail: String? = null,
         @Deprecated("Use cryptedForeignKeys instead") val patientId: String? = null,
-        override val secretForeignKeys: Set<String>,
-        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
-        override val delegations: Map<String, Set<Delegation>>,
-        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
@@ -60,7 +63,6 @@ data class AccessLog(
         @JsonProperty("java_type") override val _type: String = AccessLog::javaClass.name
 ) : StoredDocument, ICureDocument, Encryptable {
     companion object : DynamicInitializer<AccessLog>
-
     fun merge(other: AccessLog) = AccessLog(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: AccessLog) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
             "objectId" to (this.objectId ?: other.objectId),

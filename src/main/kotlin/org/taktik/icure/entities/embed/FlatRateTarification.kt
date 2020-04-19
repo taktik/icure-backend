@@ -6,10 +6,9 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FlatRateTarification : Serializable {
-    var code: String? = null
-    var flatRateType: FlatRateType? = null
-    var label: Map<String, String>? = null
-    var valorisations: Set<Valorisation>? = null
-
-}
+class FlatRateTarification(
+        val code: String? = null,
+        val flatRateType: FlatRateType? = null,
+        val label: Map<String, String>? = null,
+        val valorisations: List<Valorisation> = listOf()
+) : Serializable

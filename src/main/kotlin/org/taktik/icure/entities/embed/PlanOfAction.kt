@@ -20,94 +20,77 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.squareup.moshi.Json
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.Named
 import org.taktik.icure.entities.utils.MergeUtil
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.io.Serializable
-import java.util.HashSet
 
 /**
  * Created by aduchate on 09/07/13, 16:30
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-open class PlanOfAction : ICureDocument, Serializable {
-    @NotNull
-    @JsonProperty("_id")
-    @Json(name = "_id")
-    override var id: String? = null
-    var name: String? = null
-    var descr: String? = null
+data class PlanOfAction(
+        @JsonProperty("_id") override val id: String,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
 
-    //Usually one of the following is used
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var valueDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
+        //Usually one of the following is used (either valueDate or openingDate and closingDate)
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val closingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val deadlineDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        override val name: String? = null,
+        val descr: String? = null,
+        val note: String? = null,
+        val isRelevant : Boolean = true,
+        val idOpeningContact: String? = null,
+        val idClosingContact: String? = null,
+        val status : Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var openingDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
-    var closingDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
-    var deadlineDate // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-            : Long? = null
-    var idOpeningContact: String? = null
-    var idClosingContact: String? = null
+        val documentIds : Set<String> = setOf(),
+        val prescriberId : String? = null, //healthcarePartyId
+        val numberOfCares: Int? = null,
+        val careTeamMemberships: List<CareTeamMembership?> = listOf(),
 
-    @NotNull(autoFix = AutoFix.CURRENTUSERID)
-    override var author //userId
-            : String? = null
-
-    @NotNull(autoFix = AutoFix.CURRENTHCPID)
-    override var responsible //healthcarePartyId
-            : String? = null
-
-    @NotNull(autoFix = AutoFix.NOW)
-    override var created: Long? = null
-
-    @NotNull(autoFix = AutoFix.NOW)
-    override var modified: Long? = null
-    override var endOfLife: Long? = null
-
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override var codes: MutableSet<CodeStub> = HashSet()
-
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    override var tags: MutableSet<CodeStub> = HashSet()
-    var documentIds: List<String>? = null
-    var prescriberId //healthcarePartyId
-            : String? = null
-    var numberOfCares: Int? = null
-    var status: Int? = null
-    var careTeamMemberships: List<CareTeamMembership?>? = null
-    fun solveConflictsWith(other: PlanOfAction): PlanOfAction {
-        created = if (other.created == null) created else if (created == null) other.created else java.lang.Long.valueOf(Math.min(created!!, other.created!!))
-        modified = if (other.modified == null) modified else if (modified == null) other.modified else java.lang.Long.valueOf(Math.max(modified!!, other.modified!!))
-        codes.addAll(other.codes)
-        tags.addAll(other.tags)
-        openingDate = if (other.openingDate == null) openingDate else if (openingDate == null) other.openingDate else java.lang.Long.valueOf(Math.min(openingDate!!, other.openingDate!!))
-        closingDate = if (other.closingDate == null) closingDate else if (closingDate == null) other.closingDate else java.lang.Long.valueOf(Math.max(closingDate!!, other.closingDate!!))
-        valueDate = if (other.valueDate == null) valueDate else if (valueDate == null) other.valueDate else java.lang.Long.valueOf(Math.min(valueDate!!, other.valueDate!!))
-        name = if (name == null) other.name else name
-        descr = if (descr == null) other.descr else descr
-        idOpeningContact = if (idOpeningContact == null) other.idOpeningContact else idOpeningContact
-        idClosingContact = if (idClosingContact == null) other.idClosingContact else idClosingContact
-        careTeamMemberships = MergeUtil.mergeListsDistinct(careTeamMemberships, other.careTeamMemberships, { a: CareTeamMembership?, b: CareTeamMembership? -> a == b }) { a: CareTeamMembership?, b: CareTeamMembership? -> a }
-        return this
-    }
-
-    override var encryptedSelf: String? = null
-
-    companion object {
-        private const val serialVersionUID = 1L
+        val encryptedSelf: String? = null
+) : ICureDocument, Named {
+    companion object : DynamicInitializer<PlanOfAction> {
         const val STATUS_PLANNED = 1 shl 0
         const val STATUS_ONGOING = 1 shl 1
         const val STATUS_FINISHED = 1 shl 2
         const val STATUS_PROLONGED = 1 shl 3
         const val STATUS_CANCELED = 1 shl 4
     }
+    fun merge(other: PlanOfAction) = PlanOfAction(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: PlanOfAction) = super.solveConflictsWith(other) + mapOf(
+            "valueDate" to (this.valueDate?.coerceAtMost(other.valueDate ?: Long.MAX_VALUE) ?: other.valueDate),
+            "openingDate" to (this.openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
+            "closingDate" to (this.closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),
+            "deadlineDate" to (this.deadlineDate?.coerceAtMost(other.deadlineDate ?: Long.MAX_VALUE) ?: other.deadlineDate),
+            "name" to (this.descr ?: other.descr),
+            "descr" to (this.descr ?: other.descr),
+            "note" to (this.note ?: other.note),
+            "isRelevant" to (this.isRelevant ?: other.isRelevant),
+            "idOpeningContact" to (this.idOpeningContact ?: other.idOpeningContact),
+            "idClosingContact" to (this.idClosingContact ?: other.idClosingContact),
+            "status" to (this.status),
+
+            "documentIds" to (other.documentIds + this.documentIds),
+            "prescriberId" to (this.prescriberId ?: other.prescriberId),
+            "numberOfCares" to (this.numberOfCares ?: other.numberOfCares),
+            "careTeamMemberships"  to MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships, { a, b -> a == b }, { a, _ -> a }),
+
+            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+    )
 }

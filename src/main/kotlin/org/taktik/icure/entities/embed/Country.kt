@@ -23,8 +23,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Country : Serializable {
-    var code: String? = null
-    var name: Map<String, String>? = null
-
-}
+data class Country(
+        val code: String? = null,
+        val name: Map<String, String>? = null
+) : Serializable

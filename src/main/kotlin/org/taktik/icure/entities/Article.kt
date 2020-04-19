@@ -3,7 +3,10 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
@@ -15,7 +18,7 @@ import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class Article(
+data class Article(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String?,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
@@ -29,10 +32,10 @@ class Article(
         val name: String? = null,
         val content: List<Content> = listOf(),
         val classification: String? = null,
-        override val secretForeignKeys: Set<String>,
-        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
-        override val delegations: Map<String, Set<Delegation>>,
-        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,

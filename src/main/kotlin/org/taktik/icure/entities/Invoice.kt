@@ -19,125 +19,156 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.Objects
-import java.util.stream.Collectors
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
+import org.taktik.icure.validation.ValidCode
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Invoice(id: String,
-              rev: String? = null,
-              revisionsInfo: Array<RevisionInfo> = arrayOf(),
-              conflicts: Array<String> = arrayOf(),
-              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
-    var invoiceDate // yyyyMMdd
-            : Long? = null
-    var sentDate: Long? = null
-    var printedDate: Long? = null
-    var invoicingCodes: List<InvoicingCode?>? = ArrayList()
-    var receipts: MutableMap<String, String>? = HashMap()
-    var recipientType // org.taktik.icure.entities.HealthcareParty,
-            : String? = null
+data class Invoice(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    // org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
-    var recipientId // for hcps and insurance, patient link happens through secretForeignKeys
-            : String? = null
-    var invoiceReference: String? = null
-    var thirdPartyReference: String? = null
-    var thirdPartyPaymentJustification: String? = null
-    var thirdPartyPaymentReason: String? = null
-    var reason: String? = null
-    var invoiceType: InvoiceType? = null
-    var sentMediumType: MediumType? = null
-    var interventionType: InvoiceInterventionType? = null
-    var groupId: String? = null
-    var paymentType: PaymentType? = null
-    var paid: Double? = null
-    var payments: List<Payment>? = null
-    var gnotionNihii: String? = null
-    var gnotionSsin: String? = null
-    var gnotionLastName: String? = null
-    var gnotionFirstName: String? = null
-    var gnotionCdHcParty: String? = null
-    var invoicePeriod: Int? = null
-    var careProviderType: String? = null
-    var internshipNihii: String? = null
-    var internshipSsin: String? = null
-    var internshipLastName: String? = null
-    var internshipFirstName: String? = null
-    var internshipCdHcParty: String? = null
-    var internshipCbe: String? = null
-    var supervisorNihii: String? = null
-    var supervisorSsin: String? = null
-    var supervisorLastName: String? = null
-    var supervisorFirstName: String? = null
-    var supervisorCdHcParty: String? = null
-    var supervisorCbe: String? = null
-    var error: String? = null
-    var encounterLocationName: String? = null
-    var encounterLocationNihii: String? = null
-    var encounterLocationNorm: Int? = null
-    var longDelayJustification: Int? = null
-    var correctiveInvoiceId: String? = null
-    var correctedInvoiceId: String? = null
-    var creditNote: Boolean? = null
-    var creditNoteRelatedInvoiceId: String? = null
-    var idDocument: IdentityDocumentReader? = null
+        val invoiceDate : Long? = null, // yyyyMMdd
+        val sentDate: Long? = null,
+        val printedDate: Long? = null,
+        val invoicingCodes: List<InvoicingCode> = listOf(),
+        val receipts: Map<String, String> = mapOf(),
+        val recipientType: String? = null, // org.taktik.icure.entities.HealthcareParty,
 
-    //eattest cancel
-    var cancelReason: String? = null
-    var cancelDate: Long? = null
-    fun solveConflictsWith(other: Invoice): Invoice {
-        super.solveConflictsWith(other)
-        invoiceDate = if (other.invoiceDate == null) invoiceDate else if (invoiceDate == null) other.invoiceDate else java.lang.Long.valueOf(Math.max(invoiceDate!!, other.invoiceDate!!))
-        sentDate = if (other.sentDate == null) sentDate else if (sentDate == null) other.sentDate else java.lang.Long.valueOf(Math.max(sentDate!!, other.sentDate!!))
-        printedDate = if (other.printedDate == null) printedDate else if (printedDate == null) other.printedDate else java.lang.Long.valueOf(Math.max(printedDate!!, other.printedDate!!))
-        paid = if (other.paid == null) paid else if (paid == null) other.paid else java.lang.Double.valueOf(Math.max(paid!!, other.paid!!))
-        invoiceReference = if (invoiceReference == null) other.invoiceReference else invoiceReference
-        invoiceType = if (invoiceType == null) other.invoiceType else invoiceType
-        sentMediumType = if (sentMediumType == null) other.sentMediumType else sentMediumType
-        recipientType = if (recipientType == null) other.recipientType else recipientType
-        interventionType = if (interventionType == null) other.interventionType else interventionType
-        recipientId = if (recipientId == null) other.recipientId else recipientId
-        groupId = if (groupId == null) other.groupId else groupId
-        longDelayJustification = if (longDelayJustification == null) other.longDelayJustification else longDelayJustification
-        creditNote = if (creditNote == null) other.creditNote else creditNote
-        creditNoteRelatedInvoiceId = if (creditNoteRelatedInvoiceId == null) other.creditNoteRelatedInvoiceId else creditNoteRelatedInvoiceId
-        gnotionNihii = if (gnotionNihii == null) other.gnotionNihii else gnotionNihii
-        gnotionSsin = if (gnotionSsin == null) other.gnotionSsin else gnotionSsin
-        gnotionLastName = if (gnotionLastName == null) other.gnotionLastName else gnotionLastName
-        gnotionFirstName = if (gnotionFirstName == null) other.gnotionFirstName else gnotionFirstName
-        gnotionCdHcParty = if (gnotionCdHcParty == null) other.gnotionCdHcParty else gnotionCdHcParty
-        invoicePeriod = if (invoicePeriod == null) other.invoicePeriod else invoicePeriod
-        careProviderType = if (careProviderType == null) other.careProviderType else careProviderType
-        internshipNihii = if (internshipNihii == null) other.internshipNihii else internshipNihii
-        internshipSsin = if (internshipSsin == null) other.internshipSsin else internshipSsin
-        internshipLastName = if (internshipLastName == null) other.internshipLastName else internshipLastName
-        internshipFirstName = if (internshipFirstName == null) other.internshipFirstName else internshipFirstName
-        internshipCdHcParty = if (internshipCdHcParty == null) other.internshipCdHcParty else internshipCdHcParty
-        internshipCbe = if (internshipCbe == null) other.internshipCbe else internshipCbe
-        supervisorNihii = if (supervisorNihii == null) other.supervisorNihii else supervisorNihii
-        supervisorSsin = if (supervisorSsin == null) other.supervisorSsin else supervisorSsin
-        supervisorLastName = if (supervisorLastName == null) other.supervisorLastName else supervisorLastName
-        supervisorFirstName = if (supervisorFirstName == null) other.supervisorFirstName else supervisorFirstName
-        supervisorCdHcParty = if (supervisorCdHcParty == null) other.supervisorCdHcParty else supervisorCdHcParty
-        supervisorCbe = if (supervisorCbe == null) other.supervisorCbe else supervisorCbe
-        invoicingCodes = if (invoicingCodes == null) other.invoicingCodes else mergeListsDistinct(invoicingCodes, other.invoicingCodes,
-                { a: InvoicingCode?, b: InvoicingCode? -> a?.id == b?.id },
-                { a: InvoicingCode?, b: InvoicingCode? -> if (a == null) b else if (b == null) a else a.solveConflictsWith(b) })
-        if (receipts != null && other.receipts != null) {
-            other.receipts!!.putAll(receipts!!)
-        }
-        if (other.receipts != null) {
-            receipts = other.receipts
-        }
-        return this
-    }
+        // org.taktik.icure.entities.Insurance, org.taktik.icure.entities.Patient
+        val recipientId: String? = null, // for hcps and insurance, patient link happens through secretForeignKeys
+        val invoiceReference: String? = null,
+        val thirdPartyReference: String? = null,
+        val thirdPartyPaymentJustification: String? = null,
+        val thirdPartyPaymentReason: String? = null,
+        val reason: String? = null,
+        val invoiceType: InvoiceType? = null,
+        val sentMediumType: MediumType? = null,
+        val interventionType: InvoiceInterventionType? = null,
+        val groupId: String? = null,
+        val paymentType: PaymentType? = null,
+        val paid: Double? = null,
+        val payments: List<Payment>? = null,
+        val gnotionNihii: String? = null,
+        val gnotionSsin: String? = null,
+        val gnotionLastName: String? = null,
+        val gnotionFirstName: String? = null,
+        val gnotionCdHcParty: String? = null,
+        val invoicePeriod: Int? = null,
+        val careProviderType: String? = null,
+        val internshipNihii: String? = null,
+        val internshipSsin: String? = null,
+        val internshipLastName: String? = null,
+        val internshipFirstName: String? = null,
+        val internshipCdHcParty: String? = null,
+        val internshipCbe: String? = null,
+        val supervisorNihii: String? = null,
+        val supervisorSsin: String? = null,
+        val supervisorLastName: String? = null,
+        val supervisorFirstName: String? = null,
+        val supervisorCdHcParty: String? = null,
+        val supervisorCbe: String? = null,
+        val error: String? = null,
+        val encounterLocationName: String? = null,
+        val encounterLocationNihii: String? = null,
+        val encounterLocationNorm: Int? = null,
+        val longDelayJustification: Int? = null,
+        val correctiveInvoiceId: String? = null,
+        val correctedInvoiceId: String? = null,
+        val creditNote: Boolean? = null,
+        val creditNoteRelatedInvoiceId: String? = null,
+        val idDocument: IdentityDocumentReader? = null,
+
+        //eattest cancel
+        val cancelReason: String? = null,
+        val cancelDate: Long? = null,
+
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptedSelf: String? = null,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Invoice::javaClass.name
+) : StoredDocument, ICureDocument, Encryptable {
+    companion object : DynamicInitializer<Invoice>
+    fun merge(other: Invoice) = Invoice(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Invoice) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "invoiceDate" to (this.invoiceDate ?: other.invoiceDate),
+            "sentDate" to (this.sentDate ?: other.sentDate),
+            "printedDate" to (this.printedDate ?: other.printedDate),
+            "invoicingCodes" to mergeListsDistinct(invoicingCodes, other.invoicingCodes, { a, b -> a.id == b.id }, { a, b -> a.merge(b) }),
+            "receipts" to (other.receipts + this.receipts),
+            "recipientType" to (this.recipientType ?: other.recipientType),
+            "recipientId" to (this.recipientId ?: other.recipientId),
+            "invoiceReference" to (this.invoiceReference ?: other.invoiceReference),
+            "thirdPartyReference" to (this.thirdPartyReference ?: other.thirdPartyReference),
+            "thirdPartyPaymentJustification" to (this.thirdPartyPaymentJustification ?: other.thirdPartyPaymentJustification),
+            "thirdPartyPaymentReason" to (this.thirdPartyPaymentReason ?: other.thirdPartyPaymentReason),
+            "reason" to (this.reason ?: other.reason),
+            "invoiceType" to (this.invoiceType ?: other.invoiceType),
+            "sentMediumType" to (this.sentMediumType ?: other.sentMediumType),
+            "interventionType" to (this.interventionType ?: other.interventionType),
+            "groupId" to (this.groupId ?: other.groupId),
+            "paymentType" to (this.paymentType ?: other.paymentType),
+            "paid" to (this.paid ?: other.paid),
+            "payments" to (this.payments ?: other.payments),
+            "gnotionNihii" to (this.gnotionNihii ?: other.gnotionNihii),
+            "gnotionSsin" to (this.gnotionSsin ?: other.gnotionSsin),
+            "gnotionLastName" to (this.gnotionLastName ?: other.gnotionLastName),
+            "gnotionFirstName" to (this.gnotionFirstName ?: other.gnotionFirstName),
+            "gnotionCdHcParty" to (this.gnotionCdHcParty ?: other.gnotionCdHcParty),
+            "invoicePeriod" to (this.invoicePeriod ?: other.invoicePeriod),
+            "careProviderType" to (this.careProviderType ?: other.careProviderType),
+            "internshipNihii" to (this.internshipNihii ?: other.internshipNihii),
+            "internshipSsin" to (this.internshipSsin ?: other.internshipSsin),
+            "internshipLastName" to (this.internshipLastName ?: other.internshipLastName),
+            "internshipFirstName" to (this.internshipFirstName ?: other.internshipFirstName),
+            "internshipCdHcParty" to (this.internshipCdHcParty ?: other.internshipCdHcParty),
+            "internshipCbe" to (this.internshipCbe ?: other.internshipCbe),
+            "supervisorNihii" to (this.supervisorNihii ?: other.supervisorNihii),
+            "supervisorSsin" to (this.supervisorSsin ?: other.supervisorSsin),
+            "supervisorLastName" to (this.supervisorLastName ?: other.supervisorLastName),
+            "supervisorFirstName" to (this.supervisorFirstName ?: other.supervisorFirstName),
+            "supervisorCdHcParty" to (this.supervisorCdHcParty ?: other.supervisorCdHcParty),
+            "supervisorCbe" to (this.supervisorCbe ?: other.supervisorCbe),
+            "error" to (this.error ?: other.error),
+            "encounterLocationName" to (this.encounterLocationName ?: other.encounterLocationName),
+            "encounterLocationNihii" to (this.encounterLocationNihii ?: other.encounterLocationNihii),
+            "encounterLocationNorm" to (this.encounterLocationNorm ?: other.encounterLocationNorm),
+            "longDelayJustification" to (this.longDelayJustification ?: other.longDelayJustification),
+            "correctiveInvoiceId" to (this.correctiveInvoiceId ?: other.correctiveInvoiceId),
+            "correctedInvoiceId" to (this.correctedInvoiceId ?: other.correctedInvoiceId),
+            "creditNote" to (this.creditNote ?: other.creditNote),
+            "creditNoteRelatedInvoiceId" to (this.creditNoteRelatedInvoiceId ?: other.creditNoteRelatedInvoiceId),
+            "idDocument" to (this.idDocument ?: other.idDocument),
+            "cancelReason" to (this.cancelReason ?: other.cancelReason),
+            "cancelDate" to (this.cancelDate ?: other.cancelDate)
+    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -158,56 +189,18 @@ class Invoice(id: String,
                 invoiceReference, invoiceType)
     }
 
-    companion object {
-        fun reassignationInvoiceFromOtherInvoice(i: Invoice, uuidGenerator: UUIDGenerator): Invoice {
-            return reassignationInvoiceFromOtherInvoice(i, i.invoicingCodes, uuidGenerator)
-        }
-
-        private fun reassignationInvoiceFromOtherInvoice(i: Invoice, codes: List<InvoicingCode?>?,
-                                                         uuidGenerator: UUIDGenerator): Invoice {
-            val ni = Invoice(uuidGenerator.newGUID().toString())
-            ni.invoiceDate = i.invoiceDate
-            ni.recipientType = i.recipientType
-            ni.recipientId = i.recipientId
-            ni.invoiceType = i.invoiceType
-            ni.sentMediumType = i.sentMediumType
-            ni.interventionType = i.interventionType
-            ni.secretForeignKeys = i.secretForeignKeys // The new invoice is linked to the same patient
-            ni.cryptedForeignKeys = i.cryptedForeignKeys // The new invoice is linked to the same patient
-            ni.paid = i.paid
-            ni.author = i.author
-            ni.responsible = i.responsible
-            ni.created = System.currentTimeMillis()
-            ni.modified = ni.created
-            ni.gnotionNihii = i.gnotionNihii
-            ni.gnotionSsin = i.gnotionSsin
-            ni.gnotionLastName = i.gnotionLastName
-            ni.gnotionFirstName = i.gnotionFirstName
-            ni.gnotionCdHcParty = i.gnotionCdHcParty
-            ni.invoicePeriod = i.invoicePeriod
-            ni.careProviderType = i.careProviderType
-            ni.internshipNihii = i.internshipNihii
-            ni.internshipSsin = i.internshipSsin
-            ni.internshipLastName = i.internshipLastName
-            ni.internshipFirstName = i.internshipFirstName
-            ni.internshipCdHcParty = i.internshipCdHcParty
-            ni.internshipCbe = i.internshipCbe
-            ni.supervisorNihii = i.supervisorNihii
-            ni.supervisorSsin = i.supervisorSsin
-            ni.supervisorLastName = i.supervisorLastName
-            ni.supervisorFirstName = i.supervisorFirstName
-            ni.supervisorCdHcParty = i.supervisorCdHcParty
-            ni.supervisorCbe = i.supervisorCbe
-            ni.invoicingCodes = codes!!.stream().map { ic: InvoicingCode? ->
-                val invoicingCode = InvoicingCode(ic!!)
-                invoicingCode.id = uuidGenerator.newGUID().toString()
-                invoicingCode.resent = true
-                invoicingCode.canceled = false
-                invoicingCode.pending = false
-                invoicingCode.accepted = false
-                invoicingCode
-            }.collect(Collectors.toList())
-            return ni
-        }
-    }
+    fun reassign(invoicingCodes: List<InvoicingCode>, uuidGenerator: UUIDGenerator) = this.copy(
+            id = uuidGenerator.newGUID().toString(),
+            created = System.currentTimeMillis(),
+            invoicingCodes = invoicingCodes.map { ic ->
+                ic.copy(
+                        id = uuidGenerator.newGUID().toString(),
+                        resent = true,
+                        canceled = false,
+                        pending = false,
+                        accepted = false
+                )
+            }
+    )
 }
+

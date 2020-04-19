@@ -20,9 +20,11 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.*
-import org.taktik.icure.entities.utils.MergeUtil
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -62,10 +64,10 @@ data class CalendarItem(
         val agendaId: String? = null,
         val meetingTags: Set<CalendarItemTag> = setOf(),
         val flowItem: FlowItem? = null,
-        override val secretForeignKeys: Set<String>,
-        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
-        override val delegations: Map<String, Set<Delegation>>,
-        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,

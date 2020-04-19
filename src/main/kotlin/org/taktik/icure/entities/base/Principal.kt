@@ -17,11 +17,10 @@
  */
 package org.taktik.icure.entities.base
 
-import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.embed.Permission
 
 interface Principal : Identifiable<String>, Named {
-    var permissions: MutableSet<Permission>
-    var properties: MutableSet<Property>
+    val permissions: Set<Permission>
+    val properties: Set<Property>
 }

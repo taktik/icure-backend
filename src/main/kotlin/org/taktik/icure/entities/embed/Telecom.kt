@@ -19,7 +19,8 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import java.io.Serializable
 
 /**
@@ -27,49 +28,22 @@ import java.io.Serializable
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Telecom : Serializable, Comparable<Telecom>, Encryptable {
-    var telecomType: TelecomType? = null
-    var telecomNumber: String? = null
-    var telecomDescription: String? = null
-    override var encryptedSelf: String? = null
-
-    constructor() {}
-    constructor(telecomType: TelecomType?, telecomNumber: String?) {
-        this.telecomType = telecomType
-        this.telecomNumber = telecomNumber
-    }
-
-    constructor(telecomType: TelecomType?, telecomNumber: String?, telecomDescription: String?) {
-        this.telecomType = telecomType
-        this.telecomNumber = telecomNumber
-        this.telecomDescription = telecomDescription
-    }
+data class Telecom(
+        val telecomType: TelecomType? = null,
+        val telecomNumber: String? = null,
+        val telecomDescription: String? = null,
+        val encryptedSelf: String? = null
+) : Serializable, Comparable<Telecom> {
+    companion object : DynamicInitializer<Telecom>
+    fun merge(other: Telecom) = Telecom(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Telecom) = mapOf(
+            "telecomType" to (this.telecomType ?: other.telecomType),
+            "telecomNumber" to (this.telecomNumber ?: other.telecomNumber),
+            "telecomDescription" to (this.telecomDescription ?: other.telecomDescription),
+            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+    )
 
     override fun compareTo(other: Telecom): Int {
-        return telecomType!!.compareTo(other.telecomType!!)
-    }
-
-    fun mergeFrom(other: Telecom) {
-        if (telecomType == null && other.telecomType != null) {
-            telecomType = other.telecomType
-        }
-        if (telecomNumber == null && other.telecomNumber != null) {
-            telecomNumber = other.telecomNumber
-        }
-        if (encryptedSelf == null && other.encryptedSelf != null) {
-            encryptedSelf = other.encryptedSelf
-        }
-    }
-
-    fun forceMergeFrom(other: Telecom) {
-        if (other.telecomType != null) {
-            telecomType = other.telecomType
-        }
-        if (other.telecomNumber != null) {
-            telecomNumber = other.telecomNumber
-        }
-        if (other.encryptedSelf != null) {
-            encryptedSelf = other.encryptedSelf
-        }
+        return telecomType?.compareTo(other.telecomType ?: TelecomType.other) ?: 0
     }
 }

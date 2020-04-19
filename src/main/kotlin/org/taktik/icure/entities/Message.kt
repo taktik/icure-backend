@@ -17,130 +17,85 @@
  */
 package org.taktik.icure.entities
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.google.common.base.Objects
-import org.taktik.icure.entities.base.StoredICureDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus
-import java.io.Serializable
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
-import java.util.function.BiFunction
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
+import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Message(id: String,
-              rev: String? = null,
-              revisionsInfo: Array<RevisionInfo> = arrayOf(),
-              conflicts: Array<String> = arrayOf(),
-              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
-    var fromAddress: String? = null
-    var fromHealthcarePartyId: String? = null
-    var formId: String? = null
-    var status: Int? = null
-    var recipientsType: String? = null
-    private var recipients: MutableSet<String> = HashSet() //The id of the hcp whose the message is addressed to
-    private var toAddresses: MutableSet<String> = HashSet() //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
-    var received: Long? = null
-    var sent: Long? = null
-    private var metas: MutableMap<String, String> = HashMap()
-    var readStatus: MutableMap<String, MessageReadStatus> = HashMap()
+data class Message(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    /*
-		CHAP4:IN:   ${Mycarenet message ref}
-		CHAP4:OUT:  ${Mycarenet message ref}
-		EFACT:BATCH:${Mycarenet message ref}
-		EFACT:IN:   ${Mycarenet message ref}
-		EFACT:OUT:  ${Mycarenet message ref}
-		GMD:IN:     ${Mycarenet message ref}
-		INBOX:      ${Ehealth box message ref}
-		SENTBOX:    ${Ehealth box message ref}
-		BININBOX:   ${Ehealth box message ref}
-		BINSENTBOX: ${Ehealth box message ref}
-		REPORT:IN:  ${iCure ref}
-		REPORT:OUT: ${iCure ref}
-	 */
-    var transportGuid //Each message should have a transportGuid: see above for formats
-            : String? = null
-    var remark: String? = null
-    var conversationGuid: String? = null
-    var subject: String? = null
-    var invoiceIds: List<String> = ArrayList()
-    var parentId //ID of parent in a message conversation
-            : String? = null
-    var externalRef: String? = null
-    var unassignedResults //refs
-            : Set<String>? = null
-    var assignedResults //ContactId -> ref
-            : Map<String, String>? = null
-    var senderReferences: Map<String, String>? = null
-    fun solveConflictsWith(other: Message): Message {
-        super.solveConflictsWith(other)
-        fromAddress = if (fromAddress == null) other.fromAddress else fromAddress
-        fromHealthcarePartyId = if (fromHealthcarePartyId == null) other.fromHealthcarePartyId else fromHealthcarePartyId
-        formId = if (formId == null) other.formId else formId
-        recipients.addAll(other.recipients)
-        toAddresses.addAll(other.toAddresses)
-        received = if (other.received == null) received else if (received == null) other.received else java.lang.Long.valueOf(Math.min(received!!, other.received!!))
-        sent = if (other.sent == null) sent else if (sent == null) other.sent else java.lang.Long.valueOf(Math.min(sent!!, other.sent!!))
-        remark = if (remark == null) other.remark else remark
-        transportGuid = if (transportGuid == null) other.transportGuid else transportGuid
-        conversationGuid = if (conversationGuid == null) other.conversationGuid else conversationGuid
-        subject = if (subject == null) other.subject else subject
-        parentId = if (parentId == null) other.parentId else parentId
-        externalRef = if (externalRef == null) other.externalRef else externalRef
-        invoiceIds = mergeListsDistinct(invoiceIds, other.invoiceIds, { a: String?, b: String? -> Objects.equal(a, b) }, { a: String, b: String? -> a })
-        other.metas.forEach { (k: String, v: String) -> metas.putIfAbsent(k, v) }
-        return this
-    }
+        val fromAddress: String? = null,
+        val fromHealthcarePartyId: String? = null,
+        val formId: String? = null,
+        val status: Int? = null,
+        val recipientsType: String? = null,
+        val recipients: Set<String> = setOf(), //The id of the hcp whose the message is addressed to
+        val toAddresses: Set<String> = setOf(), //The address of the recipient of the message. Format is of an email address with extra domains defined for mycarenet and ehealth: (efact.mycarenet.be/eattest.mycarenet.be/chapter4.mycarenet.be/ehbox.ehealth.fgov.be)
+        val received: Long? = null,
+        val sent: Long? = null,
+        val metas: Map<String, String> = mapOf(),
+        val readStatus: Map<String, MessageReadStatus> = mapOf(),
+        /*
+            CHAP4:IN:   ${Mycarenet message ref}
+            CHAP4:OUT:  ${Mycarenet message ref}
+            EFACT:BATCH:${Mycarenet message ref}
+            EFACT:IN:   ${Mycarenet message ref}
+            EFACT:OUT:  ${Mycarenet message ref}
+            GMD:IN:     ${Mycarenet message ref}
+            INBOX:      ${Ehealth box message ref}
+            SENTBOX:    ${Ehealth box message ref}
+            BININBOX:   ${Ehealth box message ref}
+            BINSENTBOX: ${Ehealth box message ref}
+            REPORT:IN:  ${iCure ref}
+            REPORT:OUT: ${iCure ref}
+         */
+        val transportGuid : String? = null, //Each message should have a transportGuid: see above for formats
+        val remark: String? = null,
+        val conversationGuid: String? = null,
+        val subject: String? = null,
+        val invoiceIds: Set<String> = setOf(),
+        val parentId : String? = null, //ID of parent in a message conversation
+        val externalRef: String? = null,
+        val unassignedResults : Set<String> = setOf(), //refs
+        val assignedResults : Map<String, String> = mapOf(), //ContactId -> ref
+        val senderReferences: Map<String, String> = mapOf(),
 
-    fun getToAddresses(): Set<String> {
-        return toAddresses
-    }
-
-    fun setToAddresses(toAddresses: MutableSet<String>) {
-        this.toAddresses = toAddresses
-    }
-
-    fun getMetas(): Map<String, String> {
-        return metas
-    }
-
-    fun setMetas(metas: MutableMap<String, String>) {
-        this.metas = metas
-    }
-
-    @get:JsonIgnore
-    @set:JsonIgnore
-    var secretContactKeys: MutableSet<String>?
-        get() = super.secretForeignKeys
-        set(secretContactKeys) {
-            super.secretForeignKeys = secretContactKeys
-        }
-
-    @get:JsonIgnore
-    val cryptedContactIds: Map<String, Set<Delegation>>
-        get() = super.cryptedForeignKeys
-
-    @JsonIgnore
-    fun setCryptedContactIds(cryptedContactIds: MutableMap<String, MutableSet<Delegation>>) {
-        super.cryptedForeignKeys = cryptedContactIds
-    }
-
-    fun getRecipients(): Set<String> {
-        return recipients
-    }
-
-    fun setRecipients(recipients: MutableSet<String>) {
-        this.recipients = recipients
-    }
-
-    companion object {
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptedSelf: String? = null,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Message::javaClass.name
+) : StoredDocument, ICureDocument, Encryptable {
+    companion object : DynamicInitializer<Message> {
         const val STATUS_LABO_RESULT = 1 shl 0
         const val STATUS_UNREAD = 1 shl 1
         const val STATUS_IMPORTANT = 1 shl 2
@@ -169,4 +124,28 @@ class Message(id: String,
         const val STATUS_IMPORTED = 1 shl 25
         const val STATUS_TREATED = 1 shl 26
     }
+    fun merge(other: Message) = Message(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Message) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+        "fromAddress" to (this.fromAddress ?: other.fromAddress),
+        "fromHealthcarePartyId" to (this.fromHealthcarePartyId ?: other.fromHealthcarePartyId),
+        "formId" to (this.formId ?: other.formId),
+        "status" to (this.status ?: other.status),
+        "recipientsType" to (this.recipientsType ?: other.recipientsType),
+        "recipients" to (other.recipients + this.recipients),
+        "toAddresses" to (other.toAddresses + this.toAddresses),
+        "received" to (this.received ?: other.received),
+        "sent" to (this.sent ?: other.sent),
+        "metas" to (other.metas + this.metas),
+        "readStatus" to (this.readStatus),
+        "transportGuid" to (this.transportGuid ?: other.transportGuid),
+        "remark" to (this.remark ?: other.remark),
+        "conversationGuid" to (this.conversationGuid ?: other.conversationGuid),
+        "subject" to (this.subject ?: other.subject),
+        "invoiceIds" to (other.invoiceIds + this.invoiceIds),
+        "parentId" to (this.parentId ?: other.parentId),
+        "externalRef" to (this.externalRef ?: other.externalRef),
+        "unassignedResults" to (other.unassignedResults + this.unassignedResults),
+        "assignedResults" to (other.assignedResults + this.assignedResults),
+        "senderReferences" to (other.senderReferences + this.senderReferences)
+    )
 }

@@ -27,11 +27,11 @@ interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
     fun solveConflictsWith(other: ICureDocument) : Map<String, Any?> {
         return mapOf(
                 "id" to this.id,
-                "created" to (created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
-                "modified" to (modified?.coerceAtLeast(other.modified ?: 0L) ?: other.modified),
-                "conflicts" to (endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
-                "attachments" to (this.author ?: other.author),
-                "deletionDate" to (this.responsible ?: other.responsible),
+                "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
+                "modified" to (this.modified?.coerceAtLeast(other.modified ?: 0L) ?: other.modified),
+                "endOfLife" to (this.endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
+                "author" to (this.author ?: other.author),
+                "responsible" to (this.responsible ?: other.responsible),
                 "tags" to (this.tags + other.tags),
                 "codes" to (this.codes + other.codes)
         )

@@ -17,29 +17,41 @@
  */
 package org.taktik.icure.entities
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.RevisionInfo
-import java.io.Serializable
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Group(id: String,
-            rev: String? = null,
-            revisionsInfo: Array<RevisionInfo> = arrayOf(),
-            conflicts: Array<String> = arrayOf(),
-            revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Cloneable, Serializable {
-    var name: String? = null
-    var password: String? = null
-    var servers: List<String>? = null
-    var isSuperAdmin = false
-    var superGroup: String? = null
+data class Group(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    @JsonIgnore
-    fun dbInstanceUrl(): String? {
-        return if (servers != null && servers!!.size > 0) servers!![0] else null
-    }
+        val name: String? = null,
+        val password: String? = null,
+        val servers: List<String>? = null,
+        val isSuperAdmin: Boolean = false,
+        val superGroup: String? = null,
+
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Group::javaClass.name
+) : StoredDocument {
+    companion object : DynamicInitializer<Group>
+    fun merge(other: Group) = Group(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Group) = super.solveConflictsWith(other) + mapOf(
+            "name" to (this.name ?: other.name),
+            "password" to (this.password ?: other.password),
+            "servers" to (this.servers ?: other.servers),
+            "isSuperAdmin" to (this.isSuperAdmin),
+            "superGroup" to (this.superGroup ?: other.superGroup)
+    )
 }

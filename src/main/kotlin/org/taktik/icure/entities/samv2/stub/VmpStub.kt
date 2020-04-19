@@ -1,7 +1,6 @@
 package org.taktik.icure.entities.samv2.stub
 
-import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.entities.samv2.embed.*
+import org.taktik.icure.entities.samv2.embed.SamText
 import java.io.Serializable
 
 class VmpStub(

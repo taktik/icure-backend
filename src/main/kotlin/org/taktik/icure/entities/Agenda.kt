@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.Right
 import org.taktik.icure.entities.utils.MergeUtil
@@ -18,7 +16,7 @@ import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class Agenda(
+data class Agenda(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String?,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long?,

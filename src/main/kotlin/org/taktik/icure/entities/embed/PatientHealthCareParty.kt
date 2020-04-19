@@ -19,24 +19,33 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import org.taktik.icure.entities.utils.MergeUtil.mergeSets
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import java.io.Serializable
-import java.util.SortedSet
-import java.util.TreeSet
+import java.util.*
 
 /**
  * Created by aduchate on 02/07/13, 11:59
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class PatientHealthCareParty : Serializable {
-    var type: PatientHealthCarePartyType? = null
-    var isReferral = false // mark this phcp as THE active referral link (gmd)
-    var healthcarePartyId: String? = null
-    var sendFormats // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
-            : Map<TelecomType, String>? = null
-    var referralPeriods: SortedSet<ReferralPeriod> = TreeSet() // History of DMG ownerships
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
+data class PatientHealthCareParty(
+        val type: PatientHealthCarePartyType? = null,
+        val isReferral: Boolean = false, // mark this phcp as THE active referral link (gmd)
+        val healthcarePartyId: String? = null,
+        val sendFormats : Map<TelecomType, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
+        val referralPeriods: SortedSet<ReferralPeriod> = sortedSetOf() // History of DMG ownerships
+) : Serializable {
+    companion object : DynamicInitializer<PatientHealthCareParty>
+    fun merge(other: PatientHealthCareParty) = PatientHealthCareParty(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: PatientHealthCareParty) = mapOf(
+            "type" to (this.type ?: other.type),
+            "isReferral" to this.isReferral,
+            "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
+            "sendFormats" to  (other.sendFormats + this.sendFormats),
+            "referralPeriods" to mergeSets(this.referralPeriods, other.referralPeriods, { a, b -> a.startDate == b.startDate },
+            { a, b -> if (a.endDate == null) a.copy(endDate = b.endDate) else a }
+    ).toSortedSet()
+    )
 }

@@ -20,43 +20,65 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.Code
-import org.taktik.icure.entities.base.ReportVersion
-import org.taktik.icure.entities.base.StoredDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.*
 import org.taktik.icure.entities.embed.DocumentGroup
-import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
-import java.io.Serializable
+import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class DocumentTemplate(id: String,
-                       rev: String? = null,
-revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                       conflicts: Array<String> = arrayOf(),
-                       revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Serializable {
-    @NotNull(autoFix = AutoFix.NOW)
-    var modified: Long? = null
+data class DocumentTemplate(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    @NotNull(autoFix = AutoFix.NOW)
-    var created: Long? = null
-    var version: ReportVersion? = null
-    var owner: String? = null
-    var guid: String? = null
-    var attachmentId: String? = null
+        @JsonIgnore val attachment: ByteArray? = null,
+        @JsonIgnore var isAttachmentDirty: Boolean = false,
+        val mainUti: String? = null,
+        val name: String? = null,
+        val otherUtis: Set<String> = setOf(),
+        val attachmentId: String? = null,
+        val version: ReportVersion? = null,
+        val owner: String? = null,
+        val guid: String? = null,
+        val group: DocumentGroup? = null,
+        val descr: String? = null,
+        val disabled: String? = null,
+        val specialty: Code? = null,
 
-    @JsonIgnore
-    var attachment: ByteArray? = null
-
-    @JsonIgnore
-    var isAttachmentDirty = false
-    var documentType: DocumentType? = null
-    var mainUti: String? = null
-    var group: DocumentGroup? = null
-    var name: String? = null
-    var descr: String? = null
-    var disabled: String? = null
-    var specialty: Code? = null
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = DocumentTemplate::javaClass.name
+) : StoredDocument, ICureDocument {
+    companion object : DynamicInitializer<DocumentTemplate>
+    fun merge(other: DocumentTemplate) = DocumentTemplate(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: DocumentTemplate) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
+            "mainUti" to (this.mainUti ?:other.mainUti),
+            "name" to (this.name ?:other.name),
+            "otherUtis" to (other.otherUtis + this.otherUtis),
+            "attachmentId" to (this.attachmentId ?:other.attachmentId),
+            "version" to (this.version ?:other.version),
+            "owner" to (this.owner ?:other.owner),
+            "guid" to (this.guid ?:other.guid),
+            "group" to (this.group ?:other.group),
+            "descr" to (this.descr ?:other.descr),
+            "disabled" to (this.disabled ?:other.disabled),
+            "specialty" to (this.specialty ?:other.specialty),
+            "attachment" to (this.attachment?.let { if(it.size>=other.attachment?.size ?: 0) it else other.attachment} ?: other.attachment )
+    )
 }

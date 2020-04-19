@@ -20,48 +20,39 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.Identifiable
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.TypedValue
-import java.io.Serializable
-import java.time.Instant
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Property(id: String,
-               rev: String? = null,
-               revisionsInfo: Array<RevisionInfo> = arrayOf(),
-               conflicts: Array<String> = arrayOf(),
-               revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Identifiable<String>, Cloneable, Serializable {
-    var type: PropertyType? = null
-    var typedValue: TypedValue<*>? = null
+data class Property(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
+
+        val type: PropertyType? = null,
+        val typedValue: TypedValue<*>? = null,
+
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Property::javaClass.name
+) : StoredDocument {
+    companion object : DynamicInitializer<Property>
+    fun merge(other: Property) = Property(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Property) = super.solveConflictsWith(other) + mapOf(
+            "type" to (this.type ?: other.type),
+            "typedValue" to (this.typedValue ?: other.typedValue)
+    )
 
     @JsonIgnore
     fun <T> getValue(): T? {
-        return (if (typedValue != null) typedValue!!.getValue<Any>() else null) as T?
+        return (typedValue?.getValue<Any>()?.let { it as? T })
     }
-
-    override fun hashCode(): Int {
-        val prime = 31
-        var result = 1
-        result = prime * result + if (type == null) 0 else type.hashCode()
-        result = prime * result + if (typedValue == null) 0 else typedValue.hashCode()
-        return result
-    }
-
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) return true
-        if (obj == null) return false
-        if (javaClass != obj.javaClass) return false
-        val other = obj as Property
-        if (type == null) {
-            if (other.type != null) return false
-        } else if (type != other.type) return false
-        if (typedValue == null) {
-            if (other.typedValue != null) return false
-        } else if (!typedValue!!.equals(other.typedValue)) return false
-        return true
-    }
-
 }

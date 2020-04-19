@@ -19,40 +19,43 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.constants.Roles.VirtualHostDependency
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
 import org.taktik.icure.entities.base.Principal
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Permission
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import java.io.Serializable
-import java.util.HashSet
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Role(id: String,
-           rev: String? = null,
-           revisionsInfo: Array<RevisionInfo> = arrayOf(),
-           conflicts: Array<String> = arrayOf(),
-           revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory), Principal, Cloneable, Serializable {
-    override var name: String? = null
-    override var properties: MutableSet<Property> = HashSet()
-    override var permissions: MutableSet<Permission> = HashSet()
-    var children: Set<String> = HashSet()
-    var users: Set<String> = HashSet()
+class Role(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    @Throws(CloneNotSupportedException::class)
-    public override fun clone(): Any {
-        return super.clone()
-    }
+        override val name: String? = null,
+        override val properties: Set<Property> = setOf(),
+        override val permissions: Set<Permission> = setOf(),
+        val children: Set<String> = setOf(),
+        val users: Set<String> = setOf(),
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val role = other as Role
-        return id == role.id
-    }
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Role::javaClass.name
+) : StoredDocument, Principal, Cloneable, Serializable {
+    companion object : DynamicInitializer<Role>
+    fun merge(other: Role) = Role(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Role) = super.solveConflictsWith(other) + mapOf(
+            "name" to (this.name ?: other.name),
+            "properties" to (other.properties + this.properties),
+            "permissions" to (other.permissions + this.permissions),
+            "children" to (other.children + this.children),
+            "users" to (other.users + this.users)
+    )
 
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
 }

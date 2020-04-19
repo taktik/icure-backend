@@ -4,23 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.utils.MergeUtil
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
-import org.taktik.icure.validation.AutoFix
-import org.taktik.icure.validation.NotNull
-import org.taktik.icure.validation.ValidCode
-import java.io.Serializable
-import java.util.HashMap
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class CalendarItemType(
+data class CalendarItemType(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String?,
         @JsonProperty("deleted") override val deletionDate: Long?,
@@ -36,7 +27,7 @@ class CalendarItemType(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
         @JsonProperty("_conflicts") override val conflicts: List<String>,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>,
-        @JsonProperty("java_type") override val _type: String = AccessLog::javaClass.name
+        @JsonProperty("java_type") override val _type: String = CalendarItemType::javaClass.name
         ) : StoredDocument {
     companion object : DynamicInitializer<CalendarItemType>
     fun merge(other: CalendarItemType) = CalendarItemType(args = this.solveConflictsWith(other))

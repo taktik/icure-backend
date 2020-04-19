@@ -21,18 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.squareup.moshi.Json
-import org.taktik.icure.entities.Classification
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.io.Serializable
 import java.util.*
 
 /**
@@ -73,7 +68,6 @@ data class Service(
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
         val encryptedSelf: String? = null
 ) : ICureDocument, Comparable<Service> {
-
     companion object : DynamicInitializer<Service>
     fun merge(other: Service) = Service(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Service) = super.solveConflictsWith(other) + mapOf(
@@ -87,33 +81,12 @@ data class Service(
             "openingDate" to (openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
             "closingDate" to (closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),
             "formId" to (this.formId ?: other.formId),
-            "endOfLife" to (this.endOfLife ?: other.endOfLife),
             "author" to (this.author ?: other.author),
             "responsible" to (this.responsible ?: other.responsible),
             "comment" to (this.comment ?: other.comment),
             "status" to (this.status ?: other.status),
             "invoicingCodes" to (other.invoicingCodes + this.invoicingCodes)
     )
-
-    override fun toString(): String {
-        return "Service{" +
-                "id='" + id + '\'' +
-                ", contactId='" + contactId + '\'' +
-                ", label='" + label + '\'' +
-                ", dataClassName='" + dataClassName + '\'' +
-                ", index=" + index +
-                ", content=" + content +
-                ", textIndexes=" + textIndexes +
-                ", valueDate=" + valueDate +
-                ", openingDate=" + openingDate +
-                ", closingDate=" + closingDate +
-                ", comment='" + comment + '\'' +
-                ", status=" + status +
-                ", invoicingCodes=" + invoicingCodes +
-                ", codes=" + codes +
-                ", tags=" + tags +
-                '}'
-    }
 
     override fun compareTo(@NotNull other: Service): Int {
         if (this == other) {

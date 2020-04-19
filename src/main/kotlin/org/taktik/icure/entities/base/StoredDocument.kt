@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.entities.base
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.moshi.Json
 import org.ektorp.Attachment
 import org.taktik.icure.entities.embed.RevisionInfo

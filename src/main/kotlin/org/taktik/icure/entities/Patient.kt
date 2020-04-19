@@ -17,392 +17,164 @@
  */
 package org.taktik.icure.entities
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.apache.commons.codec.digest.DigestUtils
-import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.CryptoActor
-import org.taktik.icure.entities.base.Encryptable
-import org.taktik.icure.entities.base.Person
-import org.taktik.icure.entities.base.StoredICureDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.*
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
-import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfArraysDistinct
-import org.taktik.icure.entities.utils.MergeUtil.mergeSets
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
-import java.util.function.BiFunction
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Patient(id: String,
-              rev: String? = null,
-              revisionsInfo: Array<RevisionInfo> = arrayOf(),
-              conflicts: Array<String> = arrayOf(),
-              revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory), Person, Encryptable, CryptoActor {
-    var mergeToPatientId: String? = null
-    var mergedIds: Set<String> = HashSet()
-    var nonDuplicateIds: Set<String> = HashSet()
-    var encryptedAdministrativesDocuments: Set<String> = HashSet()
-    override var firstName: String? = null
-    override var lastName //Is usually either maidenName or spouseName
-            : String? = null
-    var alias: String? = null
-    var active = true
-    var deactivationReason = DeactivationReason.none
-    var ssin: String? = null
-    override var civility: String? = null
-    override var gender: Gender? = Gender.unknown
-    var maidenName // Never changes (nom de jeune fille)
-            : String? = null
-    var spouseName // Name of the spouse after marriage
-            : String? = null
-    var partnerName // Name of the partner, sometimes equal to spouseName
-            : String? = null
-    var personalStatus: PersonalStatus? = PersonalStatus.unknown
-    var dateOfBirth // YYYYMMDD if unknown, 00, ex:20010000 or
-            : Int? = null
-    var dateOfDeath // YYYYMMDD if unknown, 00, ex:20010000 or
-            : Int? = null
-    var placeOfBirth: String? = null
-    var placeOfDeath: String? = null
-    var education: String? = null
-    var profession: String? = null
-    var note: String? = null
-    var administrativeNote: String? = null
-    var comment: String? = null
-    var warning: String? = null
-    var nationality: String? = null
-    var preferredUserId: String? = null
-    var picture: ByteArray? = null
+data class Patient(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        override val endOfLife: Long?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    //No guarantee of unicity
-    var externalId: String? = null
-    override var addresses: MutableList<Address> = ArrayList()
-    var insurabilities: MutableList<Insurability>? = ArrayList()
-    override var languages: MutableList<String> = ArrayList() //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html
-    var partnerships: MutableList<Partnership> = ArrayList()
-    var patientHealthCareParties: MutableList<PatientHealthCareParty> = ArrayList()
-    var financialInstitutionInformation: MutableList<FinancialInstitutionInformation> = ArrayList()
-    var medicalHouseContracts: MutableList<MedicalHouseContract> = ArrayList()
-    var parameters: Map<String, List<String>> = HashMap()
+        override val firstName : String? = null,
+        override val lastName : String? = null, //Is usually either maidenName or spouseName,
+        override val companyName: String?,
+        override val languages: List<String> = listOf(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
+        override val addresses: List<Address> = listOf(),
+        override val civility: String? = null,
+        override val gender: Gender? = Gender.unknown,
 
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    var patientProfessions: List<CodeStub> = ArrayList()
+        val mergeToPatientId: String? = null,
+        val mergedIds: Set<String> = HashSet(),
+        val nonDuplicateIds: Set<String> = HashSet(),
+        val encryptedAdministrativesDocuments: Set<String> = HashSet(),
+        val alias: String? = null,
+        val active: Boolean = true,
+        val deactivationReason: DeactivationReason = DeactivationReason.none,
+        val ssin: String? = null,
+        val maidenName : String? = null,// Never changes (nom de jeune fille),
+        val spouseName : String? = null, // Name of the spouse after marriage,
+        val partnerName : String? = null, // Name of the partner, sometimes equal to spouseName,
+        val personalStatus: PersonalStatus? = PersonalStatus.unknown,
+        val dateOfBirth : Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
+        val dateOfDeath : Int? = null, // YYYYMMDD if unknown, 00, ex:20010000 or,
+        val placeOfBirth: String? = null,
+        val placeOfDeath: String? = null,
+        val education: String? = null,
+        val profession: String? = null,
+        val note: String? = null,
+        val administrativeNote: String? = null,
+        val comment: String? = null,
+        val warning: String? = null,
+        val nationality: String? = null,
+        val preferredUserId: String? = null,
+        val picture: ByteArray? = null,
 
-    //One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
-    //For a pair of HcParties, this key is called the AES exchange key
-    //Each HcParty always has one AES exchange key for himself
-    // The map's keys are the delegate id.
-    // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
-    // the key encrypted using delegate's public key.
-    override var hcPartyKeys: Map<String, Array<String>> = HashMap()
-    override var publicKey: String? = null
-    var fatherBirthCountry: CodeStub? = null
-    var birthCountry: CodeStub? = null
-    var nativeCountry: CodeStub? = null
-    var socialStatus: CodeStub? = null
-    var mainSourceOfIncome: CodeStub? = null
-    var schoolingInfos: MutableList<SchoolingInfo> = ArrayList()
-    var employementInfos: MutableList<EmploymentInfo> = ArrayList()
-    var properties: Set<Property> = HashSet()
+        //No guarantee of unicity
+        val externalId: String? = null,
+        val insurabilities: List<Insurability> = listOf(),
+        val partnerships: List<Partnership> = listOf(),
+        val patientHealthCareParties: List<PatientHealthCareParty> = listOf(),
+        val financialInstitutionInformation: List<FinancialInstitutionInformation> = listOf(),
+        val medicalHouseContracts: List<MedicalHouseContract> = listOf(),
+        val parameters: Map<String, List<String>> = mapOf(),
 
-    override fun hashCode(): Int {
-        val prime = 31
-        var result = 1
-        result = prime * result + if (id == null) 0 else id.hashCode()
-        result = (prime * result
-                + if (dateOfBirth == null) 0 else dateOfBirth.hashCode())
-        result = (prime * result
-                + if (firstName == null) 0 else firstName.hashCode())
-        result = (prime * result
-                + if (lastName == null) 0 else lastName.hashCode())
-        result = prime * result + if (ssin == null) 0 else ssin.hashCode()
-        return result
-    }
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        val patientProfessions: List<CodeStub> = listOf(),
 
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) return true
-        if (obj == null) return false
-        if (javaClass != obj.javaClass) return false
-        val other = obj as Patient
-        if (id != null) {
-            if (id == other.id) return true
-        }
-        if (dateOfBirth == null) {
-            if (other.dateOfBirth != null) return false
-        } else if (dateOfBirth != other.dateOfBirth) return false
-        if (firstName == null) {
-            if (other.firstName != null) return false
-        } else if (firstName != other.firstName) return false
-        if (lastName == null) {
-            if (other.lastName != null) return false
-        } else if (lastName != other.lastName) return false
-        if (ssin == null) {
-            if (other.ssin != null) return false
-        } else if (ssin != other.ssin) return false
-        return true
-    }
+        val fatherBirthCountry: CodeStub? = null,
+        val birthCountry: CodeStub? = null,
+        val nativeCountry: CodeStub? = null,
+        val socialStatus: CodeStub? = null,
+        val mainSourceOfIncome: CodeStub? = null,
+        val schoolingInfos: List<SchoolingInfo> = listOf(),
+        val employementInfos: List<EmploymentInfo> = listOf(),
+        val properties: Set<Property> = HashSet(),
 
-    @get:JsonIgnore
-    val fullName: String?
-        get() {
-            var full: String?
-            full = lastName
-            if (firstName != null) {
-                full = if (full != null) "$full $firstName" else firstName
-            }
-            return full
-        }
+        // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
+        // For a pair of HcParties, this key is called the AES exchange key
+        // Each HcParty always has one AES exchange key for himself
+        // The map's keys are the delegate id.
+        // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
+        // the key encrypted using delegate's public key.
+        override val hcPartyKeys: Map<String, Array<String>> = HashMap(),
+        override val privateKeyShamirPartitions: Map<String, String>,
+        override val publicKey: String? = null,
 
-    @get:JsonIgnore
-    val signature: String
-        get() = DigestUtils.md5Hex(
-                "" + firstName + ":" + lastName + ":" + patientHealthCareParties.stream().filter(PatientHealthCareParty::isReferral).findFirst().map { phcp: PatientHealthCareParty -> "" + phcp.healthcarePartyId + phcp.referralPeriods.last().startDate + phcp.referralPeriods.last().endDate }.orElse("")
-                        + ":" + dateOfBirth + ":" + dateOfDeath + ":" + ssin)
-
-    fun solveConflictsWith(other: Patient): Patient {
-        super.solveConflictsWith(other)
-        mergeFrom(other)
-        return this
-    }
-
-    fun mergeFrom(other: Patient) {
-        if (firstName == null && other.firstName != null) {
-            firstName = other.firstName
-        }
-        if (lastName == null && other.lastName != null) {
-            lastName = other.lastName
-        }
-        if (ssin == null && other.ssin != null) {
-            ssin = other.ssin
-        }
-        if (civility == null && other.civility != null) {
-            civility = other.civility
-        }
-        if (gender == null && other.gender != null && other.gender !== Gender.unknown) {
-            gender = other.gender
-        }
-        if (maidenName == null && other.maidenName != null) {
-            maidenName = other.maidenName
-        }
-        if (spouseName == null && other.spouseName != null) {
-            spouseName = other.spouseName
-        }
-        if (partnerName == null && other.partnerName != null) {
-            partnerName = other.partnerName
-        }
-        if (personalStatus == null && other.personalStatus != null) {
-            personalStatus = other.personalStatus
-        }
-        if (dateOfBirth == null && other.dateOfBirth != null) {
-            dateOfBirth = other.dateOfBirth
-        }
-        if (dateOfDeath == null && other.dateOfDeath != null) {
-            dateOfDeath = other.dateOfDeath
-        }
-        if (placeOfBirth == null && other.placeOfBirth != null) {
-            placeOfBirth = other.placeOfBirth
-        }
-        if (placeOfDeath == null && other.placeOfDeath != null) {
-            placeOfDeath = other.placeOfDeath
-        }
-        if (education == null && other.education != null) {
-            education = other.education
-        }
-        if (profession == null && other.profession != null) {
-            profession = other.profession
-        }
-        if (note == null && other.note != null) {
-            note = other.note
-        }
-        if (nationality == null && other.nationality != null) {
-            nationality = other.nationality
-        }
-        if (picture == null && other.picture != null) {
-            picture = other.picture
-        }
-        if (externalId == null && other.externalId != null) {
-            externalId = other.externalId
-        }
-        if (comment != null && other.comment != null) {
-            comment = other.comment
-        }
-        if (alias == null && other.alias != null) {
-            alias = other.alias
-        }
-        if (administrativeNote == null || administrativeNote!!.trim { it <= ' ' } == "" && other.administrativeNote != null) {
-            administrativeNote = other.administrativeNote
-        }
-        if (warning == null && other.warning != null) {
-            warning = other.warning
-        }
-        if (publicKey == null && other.publicKey != null) {
-            publicKey = other.publicKey
-        }
-        hcPartyKeys = mergeMapsOfArraysDistinct(hcPartyKeys, other.hcPartyKeys, BiFunction { obj: String, anObject: String? -> obj.equals(anObject) }, BiFunction { a: String, b: String? -> a })
-        languages = mergeListsDistinct(languages, other.languages, {obj: String?, anotherString: String? -> obj.equals(anotherString, ignoreCase = true)}, { a: String, b: String -> a }).toMutableList()
-        insurabilities = mergeListsDistinct(insurabilities?.toList(), other.insurabilities?.toList(),
-                { a: Insurability?, b: Insurability? -> a == null && b == null || a != null && b != null && a.insuranceId == b.insuranceId && a.startDate == b.startDate },
-                { a: Insurability, b: Insurability -> if (a?.endDate != null) a else b }
-        ).toMutableList()
-        patientHealthCareParties = mergeListsDistinct(patientHealthCareParties, other.patientHealthCareParties,
-                 { a: PatientHealthCareParty?, b: PatientHealthCareParty? -> a == null && b == null || a != null && b != null && a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
-                 { a: PatientHealthCareParty, b: PatientHealthCareParty ->
-                    a.referralPeriods = mergeSets(a.referralPeriods, b.referralPeriods, { aa: ReferralPeriod?, bb: ReferralPeriod? -> aa == null && bb == null || aa != null && bb != null && aa.startDate == bb.startDate },
-                            { aa: ReferralPeriod, bb: ReferralPeriod ->
-                                if (aa.endDate == null) {
-                                    aa.endDate = bb.endDate
-                                }
-                                aa
-                            }
-                    )
-                    a
-                }).toMutableList()
-        patientProfessions = mergeListsDistinct(patientProfessions, other.patientProfessions, { a: CodeStub?, b: CodeStub? -> a == b }, { a: CodeStub, b: CodeStub? -> a })
-        for (fromAddress in other.addresses) {
-            val destAddress = addresses.stream().filter { address: Address -> address.addressType === fromAddress.addressType }.findAny()
-            if (destAddress.isPresent) {
-                destAddress.orElseThrow { IllegalStateException() }.mergeFrom(fromAddress)
-            } else {
-                addresses.add(fromAddress)
-            }
-        }
-
-        //insurabilities
-        other.insurabilities?.let {
-        for (fromInsurability in it) {
-            val destInsurability = insurabilities!!.stream().filter { insurability: Insurability -> insurability.insuranceId == fromInsurability.insuranceId }.findAny()
-            if (!destInsurability.isPresent) {
-                insurabilities!!.add(fromInsurability)
-            }
-        }
-        }
-        //Todo: cleanup insurabilities (enddates ...)
-
-        //medicalhousecontracts
-        for (fromMedicalHouseContract in other.medicalHouseContracts) {
-            val destMedicalHouseContract = medicalHouseContracts.stream().filter { medicalHouseContract: MedicalHouseContract -> medicalHouseContract.mmNihii != null && medicalHouseContract.mmNihii == fromMedicalHouseContract.mmNihii }.findAny()
-            if (!destMedicalHouseContract.isPresent) {
-                medicalHouseContracts.add(fromMedicalHouseContract)
-            }
-        }
-        for (fromLanguage in other.languages) {
-            val destLanguage = languages.stream().filter { language: String -> language === fromLanguage }.findAny()
-            if (!destLanguage.isPresent) {
-                languages.add(fromLanguage)
-            }
-        }
-        for (fromPartnership in other.partnerships) {
-            //Todo: check comparision:
-            val destPartnership = partnerships.stream().filter { partnership: Partnership -> partnership.partnerId === fromPartnership.partnerId }.findAny()
-            if (!destPartnership.isPresent) {
-                partnerships.add(fromPartnership)
-            }
-        }
-        for (fromPatientHealthCareParty in other.patientHealthCareParties) {
-            val destPatientHealthCareParty = patientHealthCareParties.stream().filter { patientHealthCareParty: PatientHealthCareParty -> patientHealthCareParty.healthcarePartyId === fromPatientHealthCareParty.healthcarePartyId }.findAny()
-            if (!destPatientHealthCareParty.isPresent) {
-                patientHealthCareParties.add(fromPatientHealthCareParty)
-            }
-        }
-        for (fromFinancialInstitutionInformation in other.financialInstitutionInformation) {
-            val destFinancialInstitutionInformation = financialInstitutionInformation.stream().filter { financialInstitutionInformation: FinancialInstitutionInformation -> financialInstitutionInformation.bankAccount === fromFinancialInstitutionInformation.bankAccount }.findAny()
-            if (!destFinancialInstitutionInformation.isPresent) {
-                financialInstitutionInformation.add(fromFinancialInstitutionInformation)
-            }
-        }
-        for (fromSchoolingInfos in other.schoolingInfos) {
-            val destSchoolingInfos = schoolingInfos.stream().filter { schoolingInfos: SchoolingInfo -> schoolingInfos.startDate === fromSchoolingInfos.startDate }.findAny()
-            if (!destSchoolingInfos.isPresent) {
-                schoolingInfos.add(fromSchoolingInfos)
-            }
-        }
-        for (fromEmploymentInfos in other.employementInfos) {
-            val destEmploymentInfos = employementInfos.stream().filter { employmentInfos: EmploymentInfo -> employmentInfos.startDate === fromEmploymentInfos.startDate }.findAny()
-            if (!destEmploymentInfos.isPresent) {
-                employementInfos.add(fromEmploymentInfos)
-            }
-        }
-    }
-
-    fun forceMergeFrom(other: Patient) {
-        if (other.firstName != null) {
-            firstName = other.firstName
-        }
-        if (other.lastName != null) {
-            lastName = other.lastName
-        }
-        if (other.ssin != null) {
-            ssin = other.ssin
-        }
-        if (other.civility != null) {
-            civility = other.civility
-        }
-        if (other.gender != null && other.gender !== Gender.unknown) {
-            gender = other.gender
-        }
-        if (other.maidenName != null) {
-            maidenName = other.maidenName
-        }
-        if (other.spouseName != null) {
-            spouseName = other.spouseName
-        }
-        if (other.partnerName != null) {
-            partnerName = other.partnerName
-        }
-        if (other.personalStatus != null) {
-            personalStatus = other.personalStatus
-        }
-        if (other.dateOfBirth != null) {
-            dateOfBirth = other.dateOfBirth
-        }
-        if (other.dateOfDeath != null) {
-            dateOfDeath = other.dateOfDeath
-        }
-        if (other.placeOfBirth != null) {
-            placeOfBirth = other.placeOfBirth
-        }
-        if (other.placeOfDeath != null) {
-            placeOfDeath = other.placeOfDeath
-        }
-        if (other.education != null) {
-            education = other.education
-        }
-        if (other.profession != null) {
-            profession = other.profession
-        }
-        if (other.note != null) {
-            note = other.note
-        }
-        if (other.nationality != null) {
-            nationality = other.nationality
-        }
-        if (other.picture != null) {
-            picture = other.picture
-        }
-        if (other.externalId != null) {
-            externalId = other.externalId
-        }
-        if (other.comment != null) {
-            comment = other.comment
-        }
-        forceMergeAddresses(other.addresses)
-    }
-
-    fun forceMergeAddresses(otherAddresses: List<Address>) {
-        for (fromAddress in otherAddresses) {
-            val destAddress = addresses.stream().filter { address: Address -> address.addressType === fromAddress.addressType }.findAny()
-            if (destAddress.isPresent) {
-                destAddress.orElseThrow { IllegalStateException() }.forceMergeFrom(fromAddress)
-            } else {
-                addresses.add(fromAddress)
-            }
-        }
-    }
-
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptedSelf: String? = null,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Patient::javaClass.name
+) : StoredDocument, ICureDocument, Person, Encryptable, CryptoActor {
+    companion object : DynamicInitializer<Patient>
+    fun merge(other: Patient) = Patient(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Patient) =
+                    super<StoredDocument>.solveConflictsWith(other) +
+                    super<ICureDocument>.solveConflictsWith(other) +
+                    super<Person>.solveConflictsWith(other) +
+                    super<Encryptable>.solveConflictsWith(other) +
+                    super<CryptoActor>.solveConflictsWith(other) + mapOf(
+                            "mergeToPatientId" to (this.mergeToPatientId ?: other.mergeToPatientId),
+                            "mergedIds" to (other.mergedIds + this.mergedIds),
+                            "nonDuplicateIds" to (other.nonDuplicateIds + this.nonDuplicateIds),
+                            "encryptedAdministrativesDocuments" to (other.encryptedAdministrativesDocuments + this.encryptedAdministrativesDocuments),
+                            "alias" to (this.alias ?: other.alias),
+                            "active" to (this.active),
+                            "deactivationReason" to (this.deactivationReason),
+                            "ssin" to (this.ssin ?: other.ssin),
+                            "maidenName" to (this.maidenName ?: other.maidenName),
+                            "spouseName" to (this.spouseName ?: other.spouseName),
+                            "partnerName" to (this.partnerName ?: other.partnerName),
+                            "personalStatus" to (this.personalStatus ?: other.personalStatus),
+                            "dateOfBirth" to (this.dateOfBirth ?: other.dateOfBirth),
+                            "dateOfDeath" to (this.dateOfDeath ?: other.dateOfDeath),
+                            "placeOfBirth" to (this.placeOfBirth ?: other.placeOfBirth),
+                            "placeOfDeath" to (this.placeOfDeath ?: other.placeOfDeath),
+                            "education" to (this.education ?: other.education),
+                            "profession" to (this.profession ?: other.profession),
+                            "note" to (this.note ?: other.note),
+                            "administrativeNote" to (this.administrativeNote ?: other.administrativeNote),
+                            "comment" to (this.comment ?: other.comment),
+                            "warning" to (this.warning ?: other.warning),
+                            "nationality" to (this.nationality ?: other.nationality),
+                            "preferredUserId" to (this.preferredUserId ?: other.preferredUserId),
+                            "picture" to (this.picture ?: other.picture),
+                            "externalId" to (this.externalId ?: other.externalId),
+                            "partnerships" to mergeListsDistinct(partnerships, other.partnerships),
+                            "financialInstitutionInformation" to mergeListsDistinct(financialInstitutionInformation, other.financialInstitutionInformation),
+                            "medicalHouseContracts" to mergeListsDistinct(medicalHouseContracts, other.medicalHouseContracts),
+                            "parameters" to (other.parameters + this.parameters),
+                            "patientProfessions" to mergeListsDistinct(patientProfessions, other.patientProfessions),
+                            "fatherBirthCountry" to (this.fatherBirthCountry ?: other.fatherBirthCountry),
+                            "birthCountry" to (this.birthCountry ?: other.birthCountry),
+                            "nativeCountry" to (this.nativeCountry ?: other.nativeCountry),
+                            "socialStatus" to (this.socialStatus ?: other.socialStatus),
+                            "mainSourceOfIncome" to (this.mainSourceOfIncome ?: other.mainSourceOfIncome),
+                            "schoolingInfos" to mergeListsDistinct(schoolingInfos, other.schoolingInfos),
+                            "employementInfos" to mergeListsDistinct(employementInfos, other.employementInfos),
+                            "properties" to (other.properties + this.properties),
+                            "insurabilities" to mergeListsDistinct(insurabilities, other.insurabilities,
+                                    { a, b -> a.insuranceId == b.insuranceId && a.startDate == b.startDate },
+                                    { a, b -> if (a.endDate != null) a else b }
+                            ),
+                            "patientHealthCareParties" to mergeListsDistinct(patientHealthCareParties, other.patientHealthCareParties,
+                                    { a, b -> a.healthcarePartyId == b.healthcarePartyId && a.type == b.type },
+                                    { a, b -> a.merge(b) }
+                            )
+    )
 }

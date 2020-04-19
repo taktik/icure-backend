@@ -18,29 +18,42 @@
 package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.StoredICureDocument
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.embed.TimeTableItem
+import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class TimeTable(id: String,
-                rev: String? = null,
-                revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                conflicts: Array<String> = arrayOf(),
-                revHistory: Map<String, String> = mapOf()) : StoredICureDocument(id, rev, revisionsInfo, conflicts, revHistory) {
-    @NotNull
-    var name: String? = null
-    var agendaId: String? = null
+data class TimeTable(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var startTime // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-            : Long? = null
+        val name: String? = null,
+        val agendaId: String? = null,
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val startTime : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val endTime : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val items: List<TimeTableItem> = listOf(),
 
-    @NotNull(autoFix = AutoFix.FUZZYNOW)
-    var endTime // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-            : Long? = null
-    var items: MutableList<TimeTableItem>? = null
-
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = TimeTable::javaClass.name
+) : StoredDocument {
+    companion object : DynamicInitializer<TimeTable>
+    fun merge(other: TimeTable) = TimeTable(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: TimeTable) = super.solveConflictsWith(other) + mapOf(
+        "name" to (this.name ?: other.name),
+        "agendaId" to (this.agendaId ?: other.agendaId),
+        "startTime" to (this.startTime ?: other.startTime),
+        "endTime" to (this.endTime ?: other.endTime),
+        "items" to mergeListsDistinct(this.items, other.items)
+    )
 }

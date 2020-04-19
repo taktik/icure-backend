@@ -19,25 +19,46 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.ektorp.Attachment
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Insurance(id: String,
-                rev: String? = null,
-                revisionsInfo: Array<RevisionInfo> = arrayOf(),
-                conflicts: Array<String> = arrayOf(),
-                revHistory: Map<String, String> = mapOf()) : StoredDocument(id, rev, revisionsInfo, conflicts, revHistory) {
-    var isPrivateInsurance = false
-    var isHospitalisationInsurance = false
-    var isAmbulatoryInsurance = false
-    var code: String? = null
-    var agreementNumber: String? = null
-    var parent //ID of the parent
-            : String? = null
-    var address = Address()
-    var name: Map<String, String>? = null
+data class Insurance(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String?,
+        @JsonProperty("deleted") override val deletionDate: Long?,
 
+        val name: Map<String, String> = mapOf(),
+        val privateInsurance : Boolean = false,
+        val hospitalisationInsurance : Boolean = false,
+        val ambulatoryInsurance : Boolean = false,
+        val code: String? = null,
+        val agreementNumber: String? = null,
+        val parent: String? = null, //ID of the parent
+        val address: Address = Address(),
+
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
+        @JsonProperty("_conflicts") override val conflicts: List<String>,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("java_type") override val _type: String = Insurance::javaClass.name
+) : StoredDocument {
+    companion object : DynamicInitializer<Insurance>
+    fun merge(other: Insurance) = Insurance(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Insurance) = super.solveConflictsWith(other) + mapOf(
+        "privateInsurance" to (this.privateInsurance),
+        "hospitalisationInsurance" to (this.hospitalisationInsurance),
+        "ambulatoryInsurance" to (this.ambulatoryInsurance),
+        "code" to (this.code ?: other.code),
+        "agreementNumber" to (this.agreementNumber ?: other.agreementNumber),
+        "parent" to (this.parent ?: other.parent),
+        "address" to (this.address.merge(other.address)),
+        "name" to (other.name + this.name)
+    )
 }

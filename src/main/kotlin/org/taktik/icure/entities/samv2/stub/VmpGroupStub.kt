@@ -1,9 +1,6 @@
 package org.taktik.icure.entities.samv2.stub
 
-import org.taktik.icure.entities.samv2.embed.NoGenericPrescriptionReason
-import org.taktik.icure.entities.samv2.embed.NoSwitchReason
 import org.taktik.icure.entities.samv2.embed.SamText
-import org.taktik.icure.entities.samv2.embed.StoredDocumentWithPeriod
 import java.io.Serializable
 
 class VmpGroupStub(

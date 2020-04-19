@@ -22,7 +22,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.ICureDocument
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.utils.DynamicInitializer
@@ -30,20 +33,14 @@ import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.io.Serializable
 import java.nio.ByteBuffer
-import java.security.InvalidAlgorithmParameterException
-import java.security.InvalidKeyException
-import java.security.NoSuchAlgorithmException
-import java.util.HashSet
-import java.util.UUID
-import javax.crypto.BadPaddingException
-import javax.crypto.IllegalBlockSizeException
-import javax.crypto.NoSuchPaddingException
+import java.security.GeneralSecurityException
+import java.security.KeyException
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Document(
+data class Document(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String?,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
@@ -68,19 +65,18 @@ class Document(
 
         val attachmentId: String? = null,
 
-        override val secretForeignKeys: Set<String>,
-        override val cryptedForeignKeys: Map<String, Set<Delegation>>,
-        override val delegations: Map<String, Set<Delegation>>,
-        override val encryptionKeys: Map<String, Set<Delegation>>,
+        override val secretForeignKeys: Set<String> = setOf(),
+        override val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(),
+        override val delegations: Map<String, Set<Delegation>> = mapOf(),
+        override val encryptionKeys: Map<String, Set<Delegation>> = mapOf(),
         override val encryptedSelf: String? = null,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
         @JsonProperty("_conflicts") override val conflicts: List<String>,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>,
-        @JsonProperty("java_type") override val _type: String = Contact::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Document::javaClass.name
 ) : StoredDocument, ICureDocument, Encryptable {
-
     companion object : DynamicInitializer<Document>
     fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Document) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
@@ -105,13 +101,9 @@ class Document(
                 bb.putLong(uuid.leastSignificantBits)
                 try {
                     return CryptoUtils.decryptAES(attachment, bb.array())
-                } catch (ignored: NoSuchPaddingException) {
-                } catch (ignored: NoSuchAlgorithmException) {
+                } catch (ignored: GeneralSecurityException) {
+                } catch (ignored: KeyException) {
                 } catch (ignored: IllegalArgumentException) {
-                } catch (ignored: BadPaddingException) {
-                } catch (ignored: InvalidKeyException) {
-                } catch (ignored: IllegalBlockSizeException) {
-                } catch (ignored: InvalidAlgorithmParameterException) {
                 }
             }
         }

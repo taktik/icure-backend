@@ -19,15 +19,13 @@
 
 package org.taktik.icure.entities.utils
 
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
+import java.util.*
 
 /**
  * Created by aduchate on 07/06/2017.
  */
 object MergeUtil {
-    private fun <K> getLongestCommonSubSeq(x: List<K>, y: List<K>, comparator: (K, K) -> Boolean): List<ItemWithIndices<K>> {
+    private fun <K> getLongestCommonSubSeq(x: List<K>, y: List<K>, comparator: (K, K) -> Boolean = { aa, bb -> aa == bb}): List<ItemWithIndices<K>> {
         val m = x.size + 1
         val n = y.size + 1
         val b = Array(m) { arrayOfNulls<String>(n) }
@@ -82,7 +80,7 @@ object MergeUtil {
      * @param <K> the class of the elements in the list
      * @return the merged list with duplicates (a first)
     </K> */
-    fun <K> mergeLists(a: List<K>, b: List<K>, comparator: (K, K) -> Boolean, merger: (K, K) -> K): List<K> {
+    fun <K> mergeLists(a: List<K>, b: List<K>, comparator: (K, K) -> Boolean = { aa, bb -> aa == bb}, merger: (K, K) -> K = { a, _ -> a}): List<K> {
         val pivot = getLongestCommonSubSeq(b, a, comparator)
         if (pivot.isEmpty()) {
             val ks = ArrayList(b)
@@ -116,7 +114,7 @@ object MergeUtil {
      * @param <V> the class of the elements in the list
      * @return the merged list without duplicates
     </V> */
-    fun <V> mergeListsDistinct(a: List<V>, b: List<V>, comparator: (V, V) -> Boolean, merger: (V, V) -> V): List<V> {
+    fun <V> mergeListsDistinct(a: List<V>, b: List<V>, comparator: (V, V) -> Boolean = { aa, bb -> aa == bb}, merger: (V, V) -> V = { a, _ -> a}): List<V> {
         val ks = mergeLists(a, b, comparator, merger)
         val result: MutableList<V> = ArrayList()
         OUTER@ for (k in ks) {
@@ -131,7 +129,7 @@ object MergeUtil {
         return result
     }
 
-    inline fun <reified K> mergeArraysDistinct(a: Array<K>, b: Array<K>, noinline comparator: (K, K) -> Boolean, noinline merger: (K, K) -> K): Array<K> {
+    inline fun <reified K> mergeArraysDistinct(a: Array<K>, b: Array<K>, noinline comparator: (K, K) -> Boolean = { aa, bb -> aa == bb}, noinline merger: (K, K) -> K = { a, _ -> a}): Array<K> {
         val ks = mergeLists(listOf(*a), listOf(*b), comparator, merger)
         val result: MutableList<K> = ArrayList()
         OUTER@ for (k in ks) {
@@ -146,7 +144,7 @@ object MergeUtil {
         return result.toTypedArray()
     }
 
-    fun <K> mergeSets(a: Set<K>, b: Set<K>, comparator: (K, K) -> Boolean, merger: (K, K) -> K) : Set<K> {
+    fun <K> mergeSets(a: Set<K>, b: Set<K>, comparator: (K, K) -> Boolean = { aa, bb -> aa == bb}, merger: (K, K) -> K = { a, _ -> a}) : Set<K> {
         val leftOverAvs: MutableSet<K> = HashSet(a)
         val mutableSet =  mutableSetOf<K>()
         OUTER@ for (bi in b) {
@@ -163,7 +161,7 @@ object MergeUtil {
         return mutableSet.toSet()
     }
 
-    fun <K, V> mergeMapsOfListsDistinct(a: Map<K, List<V>>, b: Map<K, List<V>>, comparator: (V, V) -> Boolean, merger: (V, V) -> V): Map<K, List<V>> {
+    fun <K, V> mergeMapsOfListsDistinct(a: Map<K, List<V>>, b: Map<K, List<V>>, comparator: (V, V) -> Boolean = { aa, bb -> aa == bb}, merger: (V, V) -> V = { a, _ -> a}): Map<K, List<V>> {
         val result: MutableMap<K, List<V>> = HashMap()
         val leftOverAKeys: MutableSet<K> = HashSet(a.keys)
         b.forEach { (key: K, bvs: List<V>) ->
@@ -179,7 +177,23 @@ object MergeUtil {
         return result
     }
 
-    inline fun <K, reified V> mergeMapsOfArraysDistinct(a: Map<K, Array<V>>, b: Map<K, Array<V>>, noinline comparator: (V, V) -> Boolean, noinline merger: (V, V) -> V): Map<K, Array<V>> {
+    fun <K, V> mergeMapsOfSetsDistinct(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: (V, V) -> Boolean = { aa, bb -> aa == bb}, merger: (V, V) -> V = { a, _ -> a}): Map<K, Set<V>> {
+        val result: MutableMap<K, Set<V>> = HashMap()
+        val leftOverAKeys: MutableSet<K> = HashSet(a.keys)
+        b.forEach { (key: K, bvs: Set<V>) ->
+            val listForKey = a[key]
+            if (listForKey != null) {
+                result[key] = mergeSets(listForKey, bvs, comparator, merger)
+                leftOverAKeys.remove(key)
+            } else {
+                result[key] = bvs
+            }
+        }
+        leftOverAKeys.forEach { k: K -> a[k]?.let { result[k] = it } }
+        return result
+    }
+
+    inline fun <K, reified V> mergeMapsOfArraysDistinct(a: Map<K, Array<V>>, b: Map<K, Array<V>>, noinline comparator: (V, V) -> Boolean = { aa, bb -> aa == bb}, noinline merger: (V, V) -> V = { a, _ -> a}): Map<K, Array<V>> {
         val result: MutableMap<K, Array<V>> = HashMap()
         val leftOverAKeys: MutableSet<K> = HashSet(a.keys)
         b.forEach { (key: K, bvs: Array<V>) ->
@@ -195,7 +209,7 @@ object MergeUtil {
         return result
     }
 
-    fun <K, V> mergeMapsOfSets(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: (V, V) -> Boolean, merger: (V, V) -> V): Map<K, Set<V>> {
+    fun <K, V> mergeMapsOfSets(a: Map<K, Set<V>>, b: Map<K, Set<V>>, comparator: (V, V) -> Boolean = { aa, bb -> aa == bb}, merger: (V, V) -> V = { a, _ -> a}): Map<K, Set<V>> {
         val result: MutableMap<K, Set<V>> = HashMap()
         val leftOverAKeys: MutableSet<K> = HashSet(a.keys)
         b.forEach { (key: K, bvs: Set<V>) ->

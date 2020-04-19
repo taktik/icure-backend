@@ -24,9 +24,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Duration : Serializable {
-    var value: Double? = null
-    var unit //CD-TIMEUNIT
-            : CodeStub? = null
-
-}
+class Duration(
+        val value: Double? = null,
+        val unit: CodeStub? = null //CD-TIMEUNIT
+) : Serializable

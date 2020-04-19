@@ -28,20 +28,13 @@ import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class NotificationEvent : Serializable {
-    enum class Status {
-        SENT, RECEIVED, ERROR
-    }
-
+data class NotificationEvent(
     @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer::class)
-    var date: Instant? = null
-    var status: Status? = null
-
-    companion object {
-        /**
-         *
-         */
-        private const val serialVersionUID = 1L
+    val date: Instant? = null,
+    val status: Status? = null
+) : Serializable {
+    enum class Status {
+        SENT, RECEIVED, ERROR
     }
 }

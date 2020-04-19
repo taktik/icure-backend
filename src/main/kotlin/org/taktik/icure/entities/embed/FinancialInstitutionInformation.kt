@@ -20,17 +20,16 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
-import java.util.HashSet
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FinancialInstitutionInformation : Serializable {
-    var name: String? = null
-    var key: String? = null
-    var bankAccount: String? = null
-    var bic: String? = null
-    var proxyBankAccount: String? = null
-    var proxyBic: String? = null
-    var preferredFiiForPartners: Set<String> = HashSet() //Insurance Id, Hcp Id
-
-}
+data class FinancialInstitutionInformation(
+        val name: String? = null,
+        val key: String? = null,
+        val bankAccount: String? = null,
+        val bic: String? = null,
+        val proxyBankAccount: String? = null,
+        val proxyBic: String? = null,
+        val preferredFiiForPartners: Set<String> = HashSet() //Insurance Id, Hcp Id
+) : Serializable

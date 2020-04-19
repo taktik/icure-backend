@@ -1,9 +1,14 @@
 package org.taktik.icure.entities.embed
 
-class AgreementAppendix {
-    var docSeq: Int? = null
-    var verseSeq: Int? = null
-    var documentId: String? = null
-    var path: String? = null
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import java.io.Serializable
 
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AgreementAppendix(
+        val docSeq: Int? = null,
+        val verseSeq: Int? = null,
+        val documentId: String? = null,
+        val path: String? = null
+) : Serializable

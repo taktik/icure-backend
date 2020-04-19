@@ -17,130 +17,51 @@
  */
 package org.taktik.icure.entities.embed
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
 import java.io.Serializable
-import java.util.LinkedList
 
 /**
  * Created by aduchate on 21/01/13, 14:43
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Address : Serializable, Comparable<Address>, Encryptable {
-    var addressType: AddressType? = null
-    var descr: String? = null
-    var street: String? = null
-    var houseNumber: String? = null
-    var postboxNumber: String? = null
-    var postalCode: String? = null
-    var city: String? = null
-    var country: String? = null
-    override var encryptedSelf: String? = null
-    var note: String? = null
-
-    var telecoms: MutableList<Telecom> = LinkedList()
-
-    constructor() {}
-    constructor(addressType: AddressType?) {
-        this.addressType = addressType
-    }
-
-    fun mergeFrom(other: Address) {
-        if (descr == null && other.descr != null) {
-            descr = other.descr
-        }
-        if (street == null && other.street != null) {
-            street = other.street
-        }
-        if (houseNumber == null && other.houseNumber != null) {
-            houseNumber = other.houseNumber
-        }
-        if (postboxNumber == null && other.postboxNumber != null) {
-            postboxNumber = other.postboxNumber
-        }
-        if (postalCode == null && other.postalCode != null) {
-            postalCode = other.postalCode
-        }
-        if (city == null && other.city != null) {
-            city = other.city
-        }
-        if (country == null && other.country != null) {
-            country = other.country
-        }
-        if (encryptedSelf == null && other.encryptedSelf != null) {
-            encryptedSelf = other.encryptedSelf
-        }
-        for (fromTelecom in other.telecoms) {
-            val destTelecom = telecoms.stream().filter { telecom: Telecom -> telecom.telecomType == fromTelecom.telecomType }.findAny()
-            if (destTelecom.isPresent) {
-                destTelecom.orElseThrow { IllegalStateException() }.mergeFrom(fromTelecom)
-            } else {
-                telecoms.add(fromTelecom)
-            }
-        }
-    }
-
-    fun forceMergeFrom(other: Address) {
-        if (other.descr != null) {
-            descr = other.descr
-        }
-        if (other.street != null) {
-            street = other.street
-        }
-        if (other.houseNumber != null) {
-            houseNumber = other.houseNumber
-        }
-        if (other.postboxNumber != null) {
-            postboxNumber = other.postboxNumber
-        }
-        if (other.postalCode != null) {
-            postalCode = other.postalCode
-        }
-        if (other.city != null) {
-            city = other.city
-        }
-        if (other.country != null) {
-            country = other.country
-        }
-        if (other.encryptedSelf != null) {
-            encryptedSelf = other.encryptedSelf
-        }
-        for (fromTelecom in other.telecoms) {
-            val destTelecom = telecoms.stream().filter { telecom: Telecom -> telecom.telecomType == fromTelecom.telecomType }.findAny()
-            if (destTelecom.isPresent) {
-                destTelecom.orElseThrow { IllegalStateException() }.forceMergeFrom(fromTelecom)
-            } else {
-                telecoms.add(fromTelecom)
-            }
-        }
-    }
-
-    @JsonIgnore
-    fun findMobile(): String? {
-        for (t in telecoms) {
-            if (TelecomType.mobile == t.telecomType) {
-                return t.telecomNumber
-            }
-        }
-        return null
-    }
-
-    @JsonIgnore
-    fun setMobile(value: String?) {
-        for (t in telecoms) {
-            if (TelecomType.mobile == t.telecomType) {
-                t.telecomNumber = value
-            }
-        }
-        if (value != null) {
-            telecoms.add(Telecom(TelecomType.mobile, value))
-        }
-    }
+data class Address(
+        val addressType: AddressType? = null,
+        val descr: String? = null,
+        val street: String? = null,
+        val houseNumber: String? = null,
+        val postboxNumber: String? = null,
+        val postalCode: String? = null,
+        val city: String? = null,
+        val country: String? = null,
+        val encryptedSelf: String? = null,
+        val note: String? = null,
+        val telecoms: List<Telecom> = listOf()
+) : Serializable, Comparable<Address> {
+    companion object : DynamicInitializer<Address>
+    fun merge(other: Address) = Address(args = this.solveConflictsWith(other))
+    fun solveConflictsWith(other: Address) = mapOf(
+            "addressType" to (this.addressType ?: other.addressType),
+            "descr" to (this.descr ?: other.descr),
+            "street" to (this.street ?: other.street),
+            "houseNumber" to (this.houseNumber ?: other.houseNumber),
+            "postboxNumber" to (this.postboxNumber ?: other.postboxNumber),
+            "postalCode" to (this.postalCode ?: other.postalCode),
+            "city" to (this.city ?: other.city),
+            "country" to (this.country ?: other.country),
+            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf),
+            "note" to (this.note ?: other.note),
+            "telecoms" to mergeListsDistinct(this.telecoms, other.telecoms,
+                    { a, b -> a.telecomType?.equals(b.telecomType) ?: false },
+                    { a, b -> a.merge(b) })
+            )
 
     override fun compareTo(other: Address): Int {
-        return addressType!!.compareTo(other.addressType!!)
+        return addressType?.compareTo(other.addressType ?: AddressType.other) ?: 0
     }
+
 }
