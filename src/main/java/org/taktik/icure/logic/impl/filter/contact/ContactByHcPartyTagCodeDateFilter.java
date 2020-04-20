@@ -64,8 +64,8 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
                 List<String> byCode = contactLogic.listServiceIdsByCode(
                         hcPartyId,
-                        null, filter.getTagType(),
-                        filter.getTagCode(),
+                        null, filter.getCodeType(),
+                        filter.getCodeCode(),
 						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
             }
