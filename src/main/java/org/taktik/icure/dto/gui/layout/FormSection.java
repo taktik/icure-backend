@@ -32,6 +32,9 @@ import java.util.List;
 @XStreamAlias("FormSection")
 public class FormSection implements Serializable {
     @XStreamAsAttribute
+    private String icon;
+
+    @XStreamAsAttribute
     private String title;
 
     @XStreamAsAttribute
@@ -42,6 +45,14 @@ public class FormSection implements Serializable {
 
 	public FormSection() {
 	}
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
 
     public String getTitle() {
         return title;

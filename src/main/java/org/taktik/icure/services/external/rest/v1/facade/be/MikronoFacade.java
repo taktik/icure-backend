@@ -36,6 +36,7 @@ import org.taktik.icure.logic.SessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto;
+import org.taktik.icure.services.external.rest.v1.dto.UserDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto;
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto;
@@ -131,6 +132,7 @@ public class MikronoFacade implements OpenApiFacade {
 
 	@ApiOperation(
 			value = "Set credentials for provided user",
+            response = UserDto.class,
 			httpMethod = "PUT",
 			notes = ""
 	)
@@ -184,7 +186,7 @@ public class MikronoFacade implements OpenApiFacade {
 				}
 
 				userLogic.save(u);
-				response = ResponseUtils.ok();
+				response = Response.ok().entity(mapper.map(u, UserDto.class)).build();
 			}
 		}
 
@@ -282,6 +284,12 @@ public class MikronoFacade implements OpenApiFacade {
 		return ResponseUtils.ok("Missing Mikrono username/password for user");
 	}
 
+    @ApiOperation(
+            value = "Create appointmentTypess for owner",
+            response = MikronoAppointmentTypeRestDto.class,
+            responseContainer = "Array",
+            httpMethod = "POST"
+    )
     @Path("/appointmentTypes")
     @POST
     public Response createAppointmentTypes(List<MikronoAppointmentTypeRestDto> appointmentTypes) throws IOException {
