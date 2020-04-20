@@ -27,18 +27,7 @@ import java.io.Serializable
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class ServiceLink : Serializable {
-    var serviceId: String? = null
-
-    constructor() {}
-    constructor(serviceId: String?) {
-        this.serviceId = serviceId
-    }
-
-    @get:JsonIgnore
-    @set:JsonIgnore
-    @JsonIgnore
-    @Transient
-    var service: Service? = null
-
-}
+data class ServiceLink(
+        val serviceId: String? = null,
+        @get:JsonIgnore @set:JsonIgnore @JsonIgnore @Transient var service: Service? = null
+) : Serializable

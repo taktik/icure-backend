@@ -95,7 +95,7 @@ class Permission : Cloneable, Serializable {
     protected fun canBeUsedWith(permissionType: Permissions.Type): Boolean {
         if (criteria != null && criteria!!.isNotEmpty()) {
             for (criterion in criteria!!) {
-                if (!permissionType.isCriterionTypeSupported(criterion!!.type)) {
+                if (!permissionType.isCriterionTypeSupported(criterion!!.getType())) {
                     return false
                 }
             }

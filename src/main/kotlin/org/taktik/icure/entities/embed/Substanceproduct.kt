@@ -26,13 +26,12 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Substanceproduct : Serializable {
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    var intendedcds: List<CodeStub>? = null
+data class Substanceproduct(
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        val intendedcds: List<CodeStub> = listOf(),
 
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    var deliveredcds: List<CodeStub>? = null
-    var intendedname: String? = null
-    var deliveredname: Any? = null
-
-}
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        val deliveredcds: List<CodeStub> = listOf(),
+        val intendedname: String? = null,
+        val deliveredname: String? = null
+) : Serializable

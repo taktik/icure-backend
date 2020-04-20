@@ -26,17 +26,16 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Measure : Serializable {
-    var value: Double? = null
-    var min: Double? = null
-    var max: Double? = null
-    var ref: Double? = null
-    var severity: Int? = null
-    var severityCode: String? = null
-    var unit: String? = null
+data class Measure(
+        val value: Double? = null,
+        val min: Double? = null,
+        val max: Double? = null,
+        val ref: Double? = null,
+        val severity: Int? = null,
+        val severityCode: String? = null,
+        val unit: String? = null,
 
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    var unitCodes: Set<CodeStub>? = null
-    var comment: String? = null
-
-}
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        val unitCodes: Set<CodeStub>? = null,
+        val comment: String? = null
+) : Serializable

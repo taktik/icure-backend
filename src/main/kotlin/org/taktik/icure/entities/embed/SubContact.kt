@@ -20,7 +20,6 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.taktik.icure.entities.SubContact
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.utils.MergeUtil

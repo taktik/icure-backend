@@ -2,28 +2,27 @@ package org.taktik.icure.entities.embed
 
 import java.io.Serializable
 
-class ParagraphAgreement : Serializable {
-    var timestamp: Long? = null
-    var paragraph: String? = null
-    var accepted: Boolean? = null
-    var inTreatment: Boolean? = null
-    var canceled: Boolean? = null
-    var careProviderReference: String? = null
-    var decisionReference: String? = null
-    var start: Long? = null
-    var end: Long? = null
-    var cancelationDate: Long? = null
-    var quantityValue: Double? = null
-    var quantityUnit: String? = null
-    var ioRequestReference: String? = null
-    var responseType: String? = null
-    var refusalJustification: Map<String, String>? = null
-    var verses: Set<Long>? = null
-    var coverageType: String? = null
-    var unitNumber: Double? = null
-    var strength: Double? = null
-    var strengthUnit: String? = null
-    var agreementAppendices: List<AgreementAppendix>? = null
-    var documentId: String? = null
-
-}
+data class ParagraphAgreement (
+    val timestamp: Long? = null,
+    val paragraph: String? = null,
+    val accepted: Boolean? = null,
+    val inTreatment: Boolean? = null,
+    val canceled: Boolean? = null,
+    val careProviderReference: String? = null,
+    val decisionReference: String? = null,
+    val start: Long? = null,
+    val end: Long? = null,
+    val cancelationDate: Long? = null,
+    val quantityValue: Double? = null,
+    val quantityUnit: String? = null,
+    val ioRequestReference: String? = null,
+    val responseType: String? = null,
+    val refusalJustification: Map<String, String>? = null,
+    val verses: Set<Long>? = null,
+    val coverageType: String? = null,
+    val unitNumber: Double? = null,
+    val strength: Double? = null,
+    val strengthUnit: String? = null,
+    val agreementAppendices: List<AgreementAppendix>? = null,
+    val documentId: String? = null
+) : Serializable

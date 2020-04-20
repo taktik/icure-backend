@@ -28,27 +28,15 @@ import java.util.*
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Insurability : Serializable {
-    //Key from InsuranceParameter
-    var parameters: Map<String, String> = HashMap()
-    var hospitalisation: Boolean? = null
-    var ambulatory: Boolean? = null
-    var dental: Boolean? = null
-    var identificationNumber // N° in form (number for the insurance's identification)
-            : String? = null
-    var insuranceId // UUID to identify Partena, etc. (link to Insurance object's document ID)
-            : String? = null
-    var startDate: Long? = null
-    var endDate: Long? = null
-    var titularyId //UUID of the contact person who is the titulary of the insurance
-            : String? = null
-
-    @get:JsonIgnore
-    @set:JsonIgnore
-    @JsonIgnore
-    var insuranceDescription: String? = null
-
-    fun mergeFrom(other: Insurability?) {
-        //TODO: implement
-    }
-}
+data class Insurability(
+        //Key from InsuranceParameter
+        val parameters: Map<String, String> = mapOf(),
+        val hospitalisation: Boolean? = null,
+        val ambulatory: Boolean? = null,
+        val dental: Boolean? = null,
+        val identificationNumber : String? = null, // N° in form (number for the insurance's identification)
+        val insuranceId : String? = null, // UUID to identify Partena, etc. (link to Insurance object's document ID)
+        val startDate: Long? = null,
+        val endDate: Long? = null,
+        val titularyId : String? = null //UUID of the contact person who is the titulary of the insurance
+) : Serializable

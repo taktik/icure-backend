@@ -19,8 +19,7 @@ package org.taktik.icure.entities.embed
 
 import java.io.Serializable
 
-class KeywordSubword : Serializable {
-    var value: String? = null
-    var subWords: List<KeywordSubword>? = null
-
-}
+data class KeywordSubword(
+        val value: String? = null,
+        val subWords: List<KeywordSubword>? = null
+) : Serializable

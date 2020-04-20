@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class Right : Serializable {
-    var userId: String? = null
-    var isRead = false
-    var isWrite = false
-    var isAdministration = false
-
-}
+data class Right(
+        val userId: String? = null,
+        val isRead: Boolean = false,
+        val isWrite: Boolean = false,
+        val isAdministration: Boolean = false
+) : Serializable

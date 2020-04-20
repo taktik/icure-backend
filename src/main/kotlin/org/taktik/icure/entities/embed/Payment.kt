@@ -1,8 +1,9 @@
 package org.taktik.icure.entities.embed
 
-class Payment {
-    var paymentDate: Long = 0
-    var paymentType: PaymentType? = null
-    var paid: Double? = null
+import java.io.Serializable
 
-}
+data class Payment(
+        val paymentDate: Long = 0,
+        val paymentType: PaymentType? = null,
+        val paid: Double? = null
+) : Serializable

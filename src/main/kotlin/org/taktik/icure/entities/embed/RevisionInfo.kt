@@ -23,8 +23,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class RevisionInfo : Serializable {
-    var rev: String? = null
-    var status: String? = null
-
-}
+data class RevisionInfo(
+        val rev: String? = null,
+        val status: String? = null
+) : Serializable

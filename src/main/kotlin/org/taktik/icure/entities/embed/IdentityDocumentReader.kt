@@ -1,19 +1,16 @@
 package org.taktik.icure.entities.embed
 
-class IdentityDocumentReader {
-    var justificatifDocumentNumber: String? = null
-    var supportSerialNumber: String? = null
-    var timeReadingEIdDocument: Long? = null
-    private var eIdDocumentSupportType = 0
-    var reasonManualEncoding = 0
-    var reasonUsingVignette = 0
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import java.io.Serializable
 
-    fun geteIdDocumentSupportType(): Int {
-        return eIdDocumentSupportType
-    }
-
-    fun seteIdDocumentSupportType(eIdDocumentSupportType: Int) {
-        this.eIdDocumentSupportType = eIdDocumentSupportType
-    }
-
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class IdentityDocumentReader(
+        val justificatifDocumentNumber: String? = null,
+        val supportSerialNumber: String? = null,
+        val timeReadingEIdDocument: Long? = null,
+        val eidDocumentSupportType: Int = 0,
+        val reasonManualEncoding: Int = 0,
+        val reasonUsingVignette: Int = 0
+) : Serializable

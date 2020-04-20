@@ -24,23 +24,14 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Partnership : Serializable {
-    @get:JsonIgnore
-    @set:JsonIgnore
-    @JsonIgnore
-    var partnershipDescription: String? = null
-    var type //codes are from CD-CONTACT-PERSON
-            : PartnershipType? = null
-    var status: PartnershipStatus? = null
-    var partnerId //Person: can either be a patient or a hcp
-            : String? = null
-
-    @Deprecated("")
-    var meToOtherRelationshipDescription //son if partnerId is my son - codes are from CD-CONTACT-PERSON
-            : String? = null
-
-    @Deprecated("")
-    var otherToMeRelationshipDescription //father/mother if partnerId is my son
-            : String? = null
+data class Partnership(
+        val type : PartnershipType? = null, //codes are from CD-CONTACT-PERSON
+        val status: PartnershipStatus? = null,
+        val partnerId : String? = null, //Person: can either be a patient or a hcp
+        @Deprecated("use type instead")
+        val meToOtherRelationshipDescription : String? = null, //son if partnerId is my son - codes are from CD-CONTACT-PERSON
+        @Deprecated("use type instead")
+        val otherToMeRelationshipDescription : String? = null //father/mother if partnerId is my son
+) : Serializable {
 
 }

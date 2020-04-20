@@ -1,15 +1,9 @@
 package org.taktik.icure.entities.embed
 
-class Suspension {
-    var beginMoment: Long? = null
-    var endMoment: Long? = null
-    var suspensionReason: String? = null
+import java.io.Serializable
 
-    override fun toString(): String {
-        return "Suspension{" +
-                "beginMoment=" + beginMoment +
-                ", endMoment=" + endMoment +
-                ", suspensionReason='" + suspensionReason + '\'' +
-                '}'
-    }
-}
+data class Suspension(
+    val beginMoment: Long? = null,
+    val endMoment: Long? = null,
+    val suspensionReason: String? = null
+) : Serializable

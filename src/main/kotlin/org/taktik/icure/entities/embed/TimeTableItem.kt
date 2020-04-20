@@ -19,24 +19,16 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import org.taktik.icure.validation.NotNull
+import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class TimeTableItem {
-    @NotNull
-    var days: MutableList<String>? = null
+data class TimeTableItem(
+        val days: List<String> = listOf(),
+        val hours: List<TimeTableHour> = listOf(),
+        val recurrenceTypes: List<String> = listOf(),
+        val calendarItemTypeId: String? = null,
 
-    @NotNull
-    var hours: MutableList<TimeTableHour>? = null
-
-    @NotNull
-    var recurrenceTypes: List<String>? = null
-
-    @NotNull
-    var calendarItemTypeId: String? = null
-
-    @NotNull
-    var isHomeVisit = false
-    var placeId: String? = null
-    var isUnavailable = false
-
-}
+        val isHomeVisit: Boolean = false,
+        val placeId: String? = null,
+        val isUnavailable: Boolean = false
+) : Serializable

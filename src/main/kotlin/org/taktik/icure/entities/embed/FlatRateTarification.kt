@@ -6,7 +6,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FlatRateTarification(
+data class FlatRateTarification(
         val code: String? = null,
         val flatRateType: FlatRateType? = null,
         val label: Map<String, String>? = null,

@@ -6,8 +6,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Renewal : Serializable {
-    var decimal: Int? = null
-    var duration: Duration? = null
-
-}
+data class Renewal(
+        val decimal: Int? = null,
+        val duration: Duration? = null
+) : Serializable

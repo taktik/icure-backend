@@ -23,19 +23,11 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class PostalCode : Serializable {
-    var code: String? = null
-    var label: Map<String, String>? = null
+data class PostalCode(
+        val code: String? = null,
+        val label: Map<String, String> = mapOf()
+) : Serializable {
     override fun toString(): String {
-        return code!!
+        return code ?: "N/A"
     }
-
-    @get:Deprecated("")
-    val localite: String?
-        get() = label!!["fr"]
-
-    @get:Deprecated("")
-    val localiteit: String?
-        get() = label!!["nl"]
-
 }

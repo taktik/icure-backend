@@ -71,7 +71,6 @@ data class Medication(
         val prescriptionRID: String? = null,
         val status: Int? = null
 ) : Serializable {
-
     override fun toString(): String {
         var result = String.format("%s, %s", if (compoundPrescription != null) compoundPrescription else if (substanceProduct != null) substanceProduct else medicinalProduct, posologyText)
         if (numberOfPackages != null && numberOfPackages!! > 0) {

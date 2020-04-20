@@ -24,19 +24,12 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Security : Serializable {
-    constructor() {}
-    constructor(member: String) {
-        members.names.add(member)
-    }
-
+data class Security(
+    val admins: Right = Right(),
+    val members: Right = Right()
+) : Serializable {
     class Right {
         var names: MutableList<String> = ArrayList()
         var roles: List<String> = ArrayList()
-
     }
-
-    var admins = Right()
-    var members = Right()
-
 }

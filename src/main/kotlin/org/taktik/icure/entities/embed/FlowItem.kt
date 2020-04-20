@@ -17,39 +17,41 @@
  */
 package org.taktik.icure.entities.embed
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class FlowItem {
-    var id: String? = null
-    var title: String? = null
-    var comment: String? = null
-    var receptionDate: Long? = null
-    var processingDate: Long? = null
-    var processer: String? = null
-    var cancellationDate: Long? = null
-    var canceller: String? = null
-    var cancellationReason: String? = null
-    var cancellationNote: String? = null
-    var status: String? = null
-    var homeVisit: Boolean? = null
-    var municipality: String? = null
-    var town: String? = null
-    var zipCode: String? = null
-    var street: String? = null
-    var building: String? = null
-    var buildingNumber: String? = null
-    var doorbellName: String? = null
-    var floor: String? = null
-    var letterBox: String? = null
-    var notesOps: String? = null
-    var notesContact: String? = null
-    var latitude: String? = null
-    var longitude: String? = null
-    var type: String? = null
-    var emergency: Boolean? = null
-    var phoneNumber: String? = null
-    var patientId: String? = null
-    var patientLastName: String? = null
-    var patientFirstName: String? = null
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class FlowItem(
+    val id: String? = null,
+    val title: String? = null,
+    val comment: String? = null,
+    val receptionDate: Long? = null,
+    val processingDate: Long? = null,
+    val processer: String? = null,
+    val cancellationDate: Long? = null,
+    val canceller: String? = null,
+    val cancellationReason: String? = null,
+    val cancellationNote: String? = null,
+    val status: String? = null,
+    val homeVisit: Boolean? = null,
+    val municipality: String? = null,
+    val town: String? = null,
+    val zipCode: String? = null,
+    val street: String? = null,
+    val building: String? = null,
+    val buildingNumber: String? = null,
+    val doorbellName: String? = null,
+    val floor: String? = null,
+    val letterBox: String? = null,
+    val notesOps: String? = null,
+    val notesContact: String? = null,
+    val latitude: String? = null,
+    val longitude: String? = null,
+    val type: String? = null,
+    val emergency: Boolean? = null,
+    val phoneNumber: String? = null,
+    val patientId: String? = null,
+    val patientLastName: String? = null,
+    val patientFirstName: String? = null
+)

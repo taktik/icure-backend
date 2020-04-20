@@ -19,8 +19,8 @@ package org.taktik.icure.entities.embed
 
 /** Created by aduchate on 06/07/13, 09:59 */
 object Locale {
-    var SPANISH = "es"
-    var ENGLISH = "en"
-    var FRENCH = "fr"
-    var DUTCH = "nl"
+    val SPANISH = "es"
+    val ENGLISH = "en"
+    val FRENCH = "fr"
+    val DUTCH = "nl"
 }
