@@ -24,37 +24,14 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Valorisation : Serializable {
-    var startOfValidity //yyyyMMdd
-            : Long? = null
-    var endOfValidity //yyyyMMdd
-            : Long? = null
-    var predicate: String? = null
-    var totalAmount //=reimbursement+doctorSupplement+intervention
-            : Double? = null
-    var reimbursement: Double? = null
-    var patientIntervention: Double? = null
-    var doctorSupplement: Double? = null
-    var vat: Double? = null
-    var label //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
-            : Map<String, String>? = null
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as Valorisation
-        return startOfValidity == that.startOfValidity &&
-                endOfValidity == that.endOfValidity &&
-                predicate == that.predicate &&
-                totalAmount == that.totalAmount &&
-                reimbursement == that.reimbursement &&
-                patientIntervention == that.patientIntervention &&
-                doctorSupplement == that.doctorSupplement &&
-                vat == that.vat &&
-                label == that.label
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(startOfValidity, endOfValidity, predicate, totalAmount, reimbursement, patientIntervention, doctorSupplement, vat, label)
-    }
-}
+data class Valorisation(
+        val startOfValidity : Long? = null, //yyyyMMdd
+        val endOfValidity : Long? = null, //yyyyMMdd
+        val predicate: String? = null,
+        val totalAmount : Double? = null, //=reimbursement+doctorSupplement+intervention
+        val reimbursement: Double? = null,
+        val patientIntervention: Double? = null,
+        val doctorSupplement: Double? = null,
+        val vat: Double? = null,
+        val label : Map<String, String>? = mapOf() //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+) : Serializable
