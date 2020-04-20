@@ -32,8 +32,8 @@ interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
                 "endOfLife" to (this.endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
                 "author" to (this.author ?: other.author),
                 "responsible" to (this.responsible ?: other.responsible),
-                "tags" to (this.tags + other.tags),
-                "codes" to (this.codes + other.codes)
+                "tags" to (other.tags + this.tags),
+                "codes" to (other.codes + this.codes)
         )
     }
 
