@@ -26,11 +26,11 @@ interface StoredDocument : Versionable<String> {
     @Json(name = "java_type")
     val _type: String
     @Json(name = "_revs_info")
-    val revisionsInfo: List<RevisionInfo>
+    val revisionsInfo: List<RevisionInfo>?
     @Json(name = "_conflicts")
-    val conflicts: List<String>
+    val conflicts: List<String>?
     @Json(name = "_attachments")
-    val attachments : Map<String, Attachment>
+    val attachments : Map<String, Attachment>?
     @Json(name = "deleted")
     val deletionDate: Long?
 
@@ -39,7 +39,7 @@ interface StoredDocument : Versionable<String> {
                 "id" to this.id,
                 "rev" to this.rev,
                 "_type" to this._type,
-                "revHistory" to other.revHistory + this.revHistory,
+                "revHistory" to (other.revHistory?.let { it + (this.revHistory ?: mapOf()) } ?: this.revHistory) ,
                 "revisionsInfo" to this.revisionsInfo,
                 "conflicts" to this.conflicts,
                 "attachments" to this.attachments,

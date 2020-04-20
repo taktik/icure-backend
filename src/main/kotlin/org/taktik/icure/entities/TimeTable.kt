@@ -41,10 +41,10 @@ data class TimeTable(
         @NotNull(autoFix = AutoFix.FUZZYNOW) val endTime : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val items: List<TimeTableItem> = listOf(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
-        @JsonProperty("_conflicts") override val conflicts: List<String>,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = TimeTable::javaClass.name
 ) : StoredDocument {
     companion object : DynamicInitializer<TimeTable>

@@ -86,10 +86,10 @@ data class User(
         val email: String? = null,
         val applicationTokens: Map<String, String> = mapOf(),
 
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
-        @JsonProperty("_conflicts") override val conflicts: List<String>,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = User::javaClass.name
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>

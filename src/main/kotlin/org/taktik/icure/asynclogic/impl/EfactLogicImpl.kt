@@ -265,10 +265,10 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
             val prefix = "efact:${hcp.id}:${insurance.code}:"
             val latestPrefix = entityReferenceLogic.getLatest(prefix)
             val entityRefId = prefix + ("" + (((latestPrefix?.id?.let { it.substring(prefix.length).toLong() } ?: 0) + 1) % 1000000000)).padStart(9 /*1 billion invoices that are going to be mod 1000*/, '0')
-            val entityRefs = entityReferenceLogic.createEntities(listOf(EntityReference().apply {
-                id = entityRefId
+            val entityRefs = entityReferenceLogic.createEntities(listOf(EntityReference(
+                id = entityRefId,
                 docId =  messageId
-            }))
+            )))
 
             return entityRefs.firstOrNull()?.let { ref ->
                 val sendNumber = ref.id.split(":").last()

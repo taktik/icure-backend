@@ -82,11 +82,8 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         Preconditions.checkNotNull(code.type, "Type field is null.")
         Preconditions.checkNotNull(code.version, "Version code field is null.")
 
-        // assinging Code id type|code|version
-        code.id = code.type + "|" + code.code + "|" + code.version
-
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return codeDAO.create(dbInstanceUri, groupId, code)
+        return codeDAO.create(dbInstanceUri, groupId, code.copy(id = code.type + "|" + code.code + "|" + code.version))
     }
 
     @Throws(Exception::class)

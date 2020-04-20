@@ -52,10 +52,10 @@ data class HealthElementTemplate(
         val status : Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         val isRelevant : Boolean = true,
         val plansOfAction: @Valid List<PlanOfActionTemplate> = listOf(),
-        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>,
-        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>,
-        @JsonProperty("_conflicts") override val conflicts: List<String>,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>,
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = HealthElementTemplate::javaClass.name
 ) : StoredDocument, ICureDocument {
     companion object : DynamicInitializer<HealthElementTemplate>

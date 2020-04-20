@@ -24,7 +24,7 @@ import com.squareup.moshi.Json
 </T> */
 interface Versionable<T> : Identifiable<T> {
     @Json(name = "rev_history")
-    val revHistory: Map<String, String>
+    val revHistory: Map<String, String>?
     @Json(name = "_rev")
     val rev: String?
 }

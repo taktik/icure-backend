@@ -161,8 +161,7 @@ class Permission : Cloneable, Serializable {
         clone.revoke = revoke
         if (criteria != null) {
             for (criterion in criteria!!) {
-                val criterionClone = criterion!!.clone()
-                clone.addToCriteria(criterionClone)
+                criterion?.let { clone.addToCriteria(it.copy()) }
             }
         }
         return clone
