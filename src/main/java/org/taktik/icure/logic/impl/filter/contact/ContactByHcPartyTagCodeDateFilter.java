@@ -74,7 +74,7 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
                 return new HashSet<>(contactLogic.listContactIds(hcPartyId));
             }
 
-            return ids != null ? new HashSet<>(contactLogic.findByServices(ids)) : new HashSet<>();
+            return ids != null ? new HashSet<>(ids) : new HashSet<>();
 		} catch (LoginException e) {
 			throw new IllegalArgumentException(e);
 		}
