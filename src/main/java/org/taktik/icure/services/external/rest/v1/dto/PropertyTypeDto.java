@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.taktik.icure.constants.PropertyTypeScope;
 import org.taktik.icure.constants.TypedValuesType;
 
@@ -26,7 +26,7 @@ public class PropertyTypeDto extends StoredDto implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	protected String identifier;
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
 	protected TypedValuesType type;
 	private PropertyTypeScope scope;
 	protected boolean unique;

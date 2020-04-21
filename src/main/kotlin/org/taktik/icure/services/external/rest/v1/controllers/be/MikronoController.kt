@@ -41,6 +41,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImpo
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
 import org.taktik.icure.utils.ResponseUtils
+import org.taktik.icure.utils.firstOrNull
 import java.io.IOException
 import java.util.function.Supplier
 import javax.ws.rs.POST
@@ -96,7 +97,7 @@ class MikronoController(private val mapper: MapperFacade,
                 }
 
                 try {
-                    userLogic.updateEntities(listOf(u))
+                    userLogic.updateEntities(listOf(u)).firstOrNull()
                 } catch (e: Exception) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
                 }
@@ -149,6 +150,7 @@ class MikronoController(private val mapper: MapperFacade,
             }
 
             userLogic.save(u)
+            u
         }
 
     }

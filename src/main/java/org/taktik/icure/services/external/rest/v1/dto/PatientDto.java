@@ -19,7 +19,7 @@
 package org.taktik.icure.services.external.rest.v1.dto;
 
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.taktik.icure.entities.Property;
 import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto;
@@ -55,13 +55,13 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected String chronicalDisease;
     protected String ssin;
     protected String civility;
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
     protected Gender gender = Gender.unknown;
     protected String maidenName; // Never changes (nom de jeune fille)
     protected String spouseName; // Name of the spouse after marriage
     protected String partnerName; // Name of the partner, sometimes equal to spouseName
 
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
     protected PersonalStatusDto personalStatus = PersonalStatusDto.unknown;
     protected Integer dateOfBirth; //YYYYMMDD if unknown, 00, ex:20010000 or
     protected Integer dateOfDeath; //YYYYMMDD if unknown, 00, ex:20010000 or
@@ -77,7 +77,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 	protected String comment;
     protected Set<String> encryptedAdministrativesDocuments = new HashSet<>();
 
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
     protected byte[] picture;
 
     protected String userId;

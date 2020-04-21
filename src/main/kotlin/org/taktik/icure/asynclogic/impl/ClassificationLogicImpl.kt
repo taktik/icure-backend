@@ -46,11 +46,11 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         return classificationDAO
     }
 
-    override suspend fun createClassification(classification: Classification): Classification? {
+    override suspend fun createClassification(classification: Classification) = fix(classification) { classification ->
         try { // Fetching the hcParty
             val userId = sessionLogic.getCurrentUserId()
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            return createEntities(setOf(classification.copy(
+            createEntities(setOf(classification.copy(
                     author = userId,
                     responsible = healthcarePartyId
             ))).firstOrNull()
@@ -79,8 +79,8 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         }
     }
 
-    override suspend fun modifyClassification(classification: Classification): Classification {
-        return try {
+    override suspend fun modifyClassification(classification: Classification) = fix(classification) { classification ->
+        try {
             classification.id?.let {
                 getClassification(it)?.let { toEdit ->
                     updateEntities(setOf(toEdit.copy(label = classification.label)))

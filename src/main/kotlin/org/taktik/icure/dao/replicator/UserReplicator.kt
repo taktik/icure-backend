@@ -25,7 +25,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
         get() = User::class.java
 
     override suspend fun prepareReplication(client: Client, group: Group) = withContext(IO) {
-        //TODO userDAO.initStandardDesignDocument(group)
+        userDAO.initSystemDocumentIfAbsent(client)
     }
 
     override fun replicate(client: Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev> {
@@ -48,6 +48,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                         to.healthcarePartyId != from.healthcarePartyId ||
                         (!from.isSecretEmpty && to.secret != from.secret) ||
                         to.login != from.login ||
+                        to.email != from.email ||
                         to.applicationTokens != from.applicationTokens ||
                         to.groupId != group.id
                 ) {
@@ -57,6 +58,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                     to.healthcarePartyId = from.healthcarePartyId
                     to.secret = if (from.isSecretEmpty) null else from.secret
                     to.login = from.login
+                    to.email = from.email
                     to.applicationTokens = from.applicationTokens
                     to.groupId = group.id
 

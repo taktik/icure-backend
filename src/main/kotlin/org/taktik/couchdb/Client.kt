@@ -38,6 +38,7 @@ import java.nio.ByteBuffer
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -59,6 +60,32 @@ data class DesignDocument(
 ) : CouchDbDocument {
     override fun withIdRev(id: String?, rev: String): DesignDocument =
             if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+}
+
+class ReplicatorDocument(
+        private var _id: String,
+        private var _rev: String? = null,
+        val source: String? = null,
+        val target: String? = null,
+        val create_target: Boolean = false,
+        val continuous: Boolean = false) : CouchDbDocument {
+    @Json(name = "_id")
+    override fun getId(): String = _id
+    @Json(name = "_id")
+    override fun setId(id: String) {
+        _id = id
+    }
+
+    @Json(name = "_rev")
+    override fun getRev(): String? = _rev
+    @Json(name = "_rev")
+    override fun setRev(rev: String?) {
+        _rev = rev
+    }
+
+    override fun getRevHistory(): MutableMap<String, String> {
+        return HashMap()
+    }
 }
 
 
@@ -723,7 +750,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                 emit(UpdateSequence(offsetValue.toLong()))
                             }
                             ERROR_FIELD_NAME -> {
-                                error("Error executing request : ${jsonEvents.nextSingleValueAs<StringValue>().value}")
+                                error("Error executing request $request: ${jsonEvents.nextSingleValueAs<StringValue>().value}")
                             }
                             else -> jsonEvents.skipValue()
                         }
@@ -894,7 +921,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
         @ToJson
         fun toJson(bytes: ByteArray?): String {
-            return Base64.getEncoder().withoutPadding().encodeToString(bytes)
+            return Base64.getEncoder().encodeToString(bytes)
         }
     }
 

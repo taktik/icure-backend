@@ -84,10 +84,10 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         } ?: contact
     }
 
-    override suspend fun createContact(contact: Contact): Contact? {
+    override suspend fun createContact(contact: Contact) = fix(contact) { contact ->
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            return createEntities(setOf(if (contact.healthcarePartyId == null) contact.copy(healthcarePartyId = healthcarePartyId) else contact)).firstOrNull()
+            createEntities(setOf(if (contact.healthcarePartyId == null) contact.copy(healthcarePartyId = healthcarePartyId) else contact)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
             throw IllegalArgumentException("Invalid contact", e)
@@ -103,9 +103,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         }
     }
 
-    override suspend fun modifyContact(contact: Contact): Contact? {
+    override suspend fun modifyContact(contact: Contact) = fix(contact) { contact ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return try {
+        try {
             contactDAO.save(dbInstanceUri, groupId, contact)
         } catch (e: UpdateConflictException) { //	return resolveConflict(contact, e);
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", contact.javaClass.simpleName, contact.id, contact.rev)
@@ -241,11 +241,9 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         val contactsInConflict = contactDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { contactDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         contactsInConflict.collect { ctc ->
             var modifiedContact = ctc
-            ctc.conflicts?.map { c: String -> contactDAO.get(dbInstanceUri, groupId, ctc.id, c) }?.forEach { cp: Contact? ->
-                if (cp != null) {
-                    modifiedContact = modifiedContact.merge(cp)
-                    contactDAO.purge(dbInstanceUri, groupId, cp)
-                }
+            ctc.conflicts?.mapNotNull { c: String -> contactDAO.get(dbInstanceUri, groupId, ctc.id, c) }?.forEach { cp ->
+                modifiedContact = modifiedContact.merge(cp)
+                contactDAO.purge(dbInstanceUri, groupId, cp)
             }
             contactDAO.save(dbInstanceUri, groupId, modifiedContact)
         }

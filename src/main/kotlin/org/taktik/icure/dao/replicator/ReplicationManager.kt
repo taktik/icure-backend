@@ -54,6 +54,7 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
                 }
                 throw e
             }
+
         }
     }
 
@@ -158,7 +159,6 @@ class ReplicationManager(private val hazelcast: HazelcastInstance, private val s
         // Mutex access to groupReplicationStatus object
         groupReplicationStatus.withLock {
             val failedReplicators = groupReplicationStatus.failedReplicators()
-
             failedReplicators.forEach { entry ->
                 log.info("Replicator ${entry.key} completed, relaunching")
             }

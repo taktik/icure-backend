@@ -176,6 +176,12 @@ class UserLogicImpl(
         emitAll(userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).map { fillGroup(it) })
     }
 
+    override fun listUsersByLoginOnFallbackDb(login: String): Flow<User> =
+            userDAO.findByUsernameOnFallback(dbInstanceUri, login)
+
+                    override fun listUsersByEmailOnFallbackDb(email: String): Flow<User> =
+            userDAO.listByEmailOnFallbackDb(dbInstanceUri, email)
+
     override suspend fun getUserByLogin(login: String): User? { // Format login
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).firstOrNull()?.also { fillGroup(it) }
@@ -199,7 +205,7 @@ class UserLogicImpl(
         password.let { user.passwordHash = encodePassword(password) }
 
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.create(dbInstanceUri, groupId, user)
+        return fix(user) { userDAO.create(dbInstanceUri, groupId, it) }
     }
 
     private suspend fun setHealthcarePartyIdIfExists(healthcarePartyId: String?, user: User) {
@@ -212,7 +218,7 @@ class UserLogicImpl(
     }
 
     override suspend fun registerUser(user: User, password: String): User? {
-        if (propertyLogic.getSystemPropertyValue<Any?>(PropertyTypes.System.USER_REGISTRATION_ENABLED.identifier) != null
+        return if (propertyLogic.getSystemPropertyValue<Any?>(PropertyTypes.System.USER_REGISTRATION_ENABLED.identifier) != null
                 && propertyLogic.getSystemPropertyValue<Boolean>(PropertyTypes.System.USER_REGISTRATION_ENABLED.identifier)!!) {
 
             if (!isLoginValid(user.login)) {
@@ -231,27 +237,25 @@ class UserLogicImpl(
             fillDefaultProperties(user)
             // Save user
             val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            userDAO.create(dbInstanceUri, groupId, user)
-            // Notify listeners
-            for (listener in listeners) {
-                listener.userRegistered(user)
+            fix(user) { userDAO.create(dbInstanceUri, groupId, it) }?.also {
+                for (listener in listeners) {
+                    listener.userRegistered(it)
+                }
             }
-            return user
-        }
-        return null
+        } else null
     }
 
     override suspend fun createUser(user: User): User? { // checking requirements
         if (user.login != null || user.email == null) {
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
-        try { // check whether user exists
+        return try { // check whether user exists
             val userByEmail = getUserByEmail(user.email!!)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
             user.login = user.email
-            return createEntities(setOf(user)).firstOrNull()
+            fix(user) { createEntities(setOf(it)).firstOrNull() }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }
@@ -263,13 +267,13 @@ class UserLogicImpl(
         if (user.login != null || user.email == null) {
             throw MissingRequirementsException("createUser: Requirements are not met. Email has to be set and the Login has to be null.")
         }
-        try { // check whether user exists
+        return try { // check whether user exists
             val userByEmail = getUserByEmail(groupId, user.email!!)
             userByEmail?.let { throw CreationException("User already exists (" + user.email + ")") }
             user.id = user.id ?: uuidGenerator.newGUID().toString()
             user.createdDate = Instant.now()
             user.login = user.email
-            return createEntities(group, setOf(user)).firstOrNull()
+            fix(user) { createEntities(group, setOf(it)).firstOrNull() }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid User", e)
         }
@@ -283,7 +287,7 @@ class UserLogicImpl(
             if (user.passwordHash != null && !user.passwordHash!!.matches(regex)) {
                 user.passwordHash = encodePassword(user.passwordHash!!)
             }
-            userDAO.create(dbInstanceUri, groupId, user)?.also { emit(it) }
+            fix(user) { userDAO.create(dbInstanceUri, groupId, user) }?.let { emit(it) }
         }
     }
 
@@ -294,7 +298,7 @@ class UserLogicImpl(
             if (user.passwordHash != null && !user.passwordHash!!.matches(regex)) {
                 user.passwordHash = encodePassword(user.passwordHash!!)
             }
-            group.id?.let { userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, user)?.also { emit(it) } }
+            fix(user) { user -> group.id?.let { userDAO.create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, user)?.also { emit(it) } } —
         }
     }
 
@@ -384,10 +388,6 @@ class UserLogicImpl(
         emitAll(userDAO.getExpiredUsers(dbInstanceUri, groupId, fromExpirationDate, toExpirationDate))
     }
 
-    override suspend fun acceptUserTermsOfUse(userId: String) {
-        getUser(userId)?.also { it.termsOfUseDate = Instant.now() }
-    }
-
     private fun formatLogin(login: String) = login.trim { it <= ' ' }
 
     override suspend fun isLoginValid(login: String?): Boolean {
@@ -421,6 +421,16 @@ class UserLogicImpl(
 
         val group = getDestinationGroup(groupId)
         return group.id?.let { userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), it, modifiedUser) }
+    }
+
+    override suspend fun getToken(group: Group, user: User, key: String): String {
+        val uri = group.servers?.firstOrNull()?.let { URI(it) } ?: dbInstanceUri
+        return user.applicationTokens[key] ?: userDAO.getUserOnUserDb(uri, group.id, if(user.id.contains(':')) user.id.split(":")[1] else user.id, false).let {
+            val token = uuidGenerator.newGUID().toString()
+            it.applicationTokens[key] = token
+            userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, it)
+            token
+        }
     }
 
     override suspend fun addPermissions(userId: String, permissions: Set<Permission>) {

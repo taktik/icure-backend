@@ -28,6 +28,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull
@@ -70,9 +71,9 @@ class FormLogicImpl(private val formDAO: FormDAO,
         } ?: form
     }
 
-    override suspend fun createForm(form: Form): Form? {
+    override suspend fun createForm(form: Form): Form? = fix(form) { form ->
         try { // Fetching the hcParty
-            return createEntities(setOf(form)).firstOrNull()
+            createEntities(setOf(form)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
             throw IllegalArgumentException("Invalid contact", e)
@@ -88,19 +89,15 @@ class FormLogicImpl(private val formDAO: FormDAO,
         }
     }
 
-    override suspend fun modifyForm(form: Form) {
+    override suspend fun modifyForm(form: Form) = fix(form) { form ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try {
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            val previousForm = getForm(form.id)
-            if (previousForm != null && form.created == null) {
-                form.created = previousForm.created
-            }
-            formDAO.save(dbInstanceUri, groupId, form)
+            formDAO.save(dbInstanceUri, groupId, if (form.created == null) form.copy(created = getForm(form.id)?.created) else form)
         } catch (e: UpdateConflictException) { //resolveConflict(form, e);
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", form.javaClass.simpleName, form.id, form.rev)
+            throw IllegalArgumentException("Invalid form", e)
         } catch (e: Exception) {
-            throw IllegalArgumentException("Invalid contact", e)
+            throw IllegalArgumentException("Invalid form", e)
         }
     }
 
@@ -111,9 +108,13 @@ class FormLogicImpl(private val formDAO: FormDAO,
 
     override suspend fun addDelegations(formId: String, delegations: List<Delegation>): Form? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val form = getForm(formId) ?: return null
-        delegations.forEach { d -> form.addDelegation(d.delegatedTo, d) }
-        return formDAO.save(dbInstanceUri, groupId, form)
+        val form = getForm(formId)
+        return form?.let {
+            formDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
+        }
     }
 
     override fun getGenericDAO(): FormDAO {
@@ -124,11 +125,12 @@ class FormLogicImpl(private val formDAO: FormDAO,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val formsInConflict = formDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { formDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         formsInConflict.collect { form ->
-            form.conflicts.mapNotNull { c: String? -> formDAO.get(dbInstanceUri, groupId, form.id, c) }.forEach { cp ->
-                form.solveConflictsWith(cp)
+            var modifieForm = form
+            form.conflicts?.mapNotNull { c: String -> formDAO.get(dbInstanceUri, groupId, form.id, c) }?.forEach { cp ->
+                modifieForm = modifieForm.merge(cp)
                 formDAO.purge(dbInstanceUri, groupId, cp)
             }
-            formDAO.save(dbInstanceUri, groupId, form)
+            formDAO.save(dbInstanceUri, groupId, modifieForm)
         }
     }
 

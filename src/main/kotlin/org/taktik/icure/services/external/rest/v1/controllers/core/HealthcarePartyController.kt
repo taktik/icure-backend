@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
@@ -68,10 +68,10 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @Operation(summary = "List healthcare parties with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping
     fun listHealthcareParties(
-            @ApiParam(value = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?) = mono {
+            @Parameter(description = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
@@ -83,11 +83,11 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/byName")
     fun findByName(
-            @ApiParam(value = "The Last name search value") @RequestParam(required = false) name: String?,
-            @ApiParam(value = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean?) = mono {
+            @Parameter(description = "The Last name search value") @RequestParam(required = false) name: String?,
+            @Parameter(description = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
@@ -102,10 +102,10 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @GetMapping("/byNihiiOrSsin/{searchValue}")
     fun findBySsinOrNihii(
             @PathVariable searchValue: String,
-            @ApiParam(value = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
-            @ApiParam(value = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @ApiParam(value = "Descending") @RequestParam(required = false) desc: Boolean) = mono {
+            @Parameter(description = "A healthcare party Last name") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "A healthcare party document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
+            @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
@@ -116,7 +116,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/byNameStrict/{name}")
-    fun listByName(@ApiParam(value = "The Last name search value")
+    fun listByName(@Parameter(description = "The Last name search value")
                    @PathVariable name: String) =
             healthcarePartyLogic.listByName(name)
                            .map { mapper.map(it, HealthcarePartyDto::class.java) }
@@ -125,11 +125,11 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
     @GetMapping("/bySpecialityAndPostCode/{type}/{spec}/{firstCode}/to/{lastCode}")
     fun findBySpecialityAndPostCode(
-            @ApiParam(value = "The type of the HCP (persphysician)") @PathVariable type: String,
-            @ApiParam(value = "The speciality of the HCP") @PathVariable spec: String,
-            @ApiParam(value = "The first postCode for the HCP") @PathVariable firstCode: String,
-            @ApiParam(value = "The last postCode for the HCP") @PathVariable lastCode: String,
-            @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int) = mono {
+            @Parameter(description = "The type of the HCP (persphysician)") @PathVariable type: String,
+            @Parameter(description = "The speciality of the HCP") @PathVariable spec: String,
+            @Parameter(description = "The first postCode for the HCP") @PathVariable firstCode: String,
+            @Parameter(description = "The last postCode for the HCP") @PathVariable lastCode: String,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int) = mono {
         healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, limit)
     }
 
@@ -194,8 +194,8 @@ class HealthcarePartyController(private val mapper: MapperFacade,
 
     @Operation(summary = "Get healthcareParties by their IDs", description = "General information about the healthcare Party")
     @PostMapping("/inGroup/{groupId}/byIds")
-    fun getHealthcarePartiesInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyIds: ListOfIdsDto) =
-            healthcarePartyLogic.getHealthcareParties(groupId, healthcarePartyIds.ids)
+    fun getHealthcarePartiesInGroup(@PathVariable groupId: String, @RequestBody(required = false) healthcarePartyIds: ListOfIdsDto? = null) =
+            healthcarePartyLogic.getHealthcareParties(groupId, healthcarePartyIds?.ids)
                     .map { mapper.map(it, HealthcarePartyDto::class.java) }
                     .injectReactorContext()
 
@@ -260,9 +260,7 @@ class HealthcarePartyController(private val mapper: MapperFacade,
     @PutMapping("/inGroup/{groupId}")
     fun modifyHealthcarePartyInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyDto: HealthcarePartyDto) = mono {
         try {
-            healthcarePartyLogic.modifyHealthcareParty(groupId, mapper.map(healthcarePartyDto, HealthcareParty::class.java))
-            val modifiedHealthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyDto.id)
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
+            val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(groupId, mapper.map(healthcarePartyDto, HealthcareParty::class.java)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
             mapper.map(modifiedHealthcareParty, HealthcarePartyDto::class.java)
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)

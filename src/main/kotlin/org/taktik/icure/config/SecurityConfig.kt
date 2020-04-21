@@ -21,8 +21,6 @@ package org.taktik.icure.config
 
 import CustomAuthenticationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -38,7 +36,6 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
-import org.springframework.web.server.ServerWebExchange
 import org.taktik.icure.asyncdao.GroupDAO
 import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -48,8 +45,6 @@ import org.taktik.icure.security.Http401UnauthorizedEntryPoint
 import org.taktik.icure.security.TokenWebExchangeMatcher
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
-import reactor.core.publisher.Mono
-import kotlin.coroutines.suspendCoroutine
 
 
 @ExperimentalCoroutinesApi
@@ -97,6 +92,7 @@ class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
                 .pathMatchers("/api/**").permitAll()
                 .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
                 .pathMatchers("/rest/*/auth/login").permitAll()
+                .pathMatchers("/rest/*/user/forgottenPassword/*").permitAll()
                 .pathMatchers("/rest/*/icure/v").permitAll()
                 .pathMatchers("/rest/*/icure/p").permitAll()
                 .pathMatchers("/rest/*/icure/check").permitAll()

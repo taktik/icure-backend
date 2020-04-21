@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
@@ -75,7 +75,7 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
 
     @Operation(summary = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationTemplateDto> {
+    fun findClassificationTemplatesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<ClassificationTemplateDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationTemplateLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -103,7 +103,7 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
 
     @Operation(summary = "Delegates a classification Template to a healthcare party", description = "It delegates a classification Template to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{classificationTemplateId}/delegate")
-    fun newDelegations(@PathVariable classificationTemplateId: String, @RequestBody ds: List<DelegationDto>) = mono {
+    fun newClassificationTemplateDelegations(@PathVariable classificationTemplateId: String, @RequestBody ds: List<DelegationDto>) = mono {
         classificationTemplateLogic.addDelegations(classificationTemplateId, ds.map { mapper.map(it, Delegation::class.java) })
         val classificationTemplateWithDelegation = classificationTemplateLogic.getClassificationTemplate(classificationTemplateId)
 
@@ -118,9 +118,9 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
     @Operation(summary = "List all classification templates with pagination", description = "Returns a list of classification templates.")
     @GetMapping
     fun listClassificationTemplates(
-            @ApiParam(value = "A label") @RequestBody(required = false) startKey: String?,
-            @ApiParam(value = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
-            @ApiParam(value = "Number of rows") @RequestBody(required = false) limit: Int?) = mono {
+            @Parameter(description = "A label") @RequestBody(required = false) startKey: String?,
+            @Parameter(description = "An classification template document ID") @RequestBody(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestBody(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 

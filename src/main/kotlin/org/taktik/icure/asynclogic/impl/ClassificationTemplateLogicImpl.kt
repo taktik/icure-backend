@@ -51,13 +51,13 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         return classificationTemplateDAO
     }
 
-    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate? {
+    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try { // Fetching the hcParty
             val userId = sessionLogic.getCurrentUserId()
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Classification Template attributes
-            return createEntities(setOf(classificationTemplate.copy(
+            createEntities(setOf(classificationTemplate.copy(
                     author = userId, responsible = healthcarePartyId
             ))).firstOrNull()
         } catch (e: Exception) {
@@ -80,8 +80,8 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         }
     }
 
-    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate {
-        return try {
+    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
+        try {
             getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
                 updateEntities(setOf(toEdit.copy(label = classificationTemplate.label)))
                 getClassificationTemplate(classificationTemplate.id)

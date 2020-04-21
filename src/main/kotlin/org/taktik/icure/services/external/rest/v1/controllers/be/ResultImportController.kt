@@ -47,9 +47,9 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
     @Operation(summary = "Extract general infos from document")
     @GetMapping("/infos/{id}")
     fun getInfos(@PathVariable id: String,
-                 @RequestParam(required = false) full: Boolean?,
                  @RequestParam language: String,
-                 @RequestParam enckeys: String) = mono {
+                 @RequestParam enckeys: String,
+                 @RequestParam(required = false) full: Boolean) = mono {
         val doc = documentLogic.get(id)
         doc?.let {
             multiFormatLogic.getInfos(

@@ -15,9 +15,9 @@ import org.taktik.icure.exceptions.DeletionException
 @Service
 class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Agenda, AgendaDAO>(sessionLogic), AgendaLogic {
 
-    override suspend fun createAgenda(agenda: Agenda): Agenda? {
+    override suspend fun createAgenda(agenda: Agenda) = fix(agenda) { agenda ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return agendaDAO.create(dbInstanceUri, groupId, agenda)
+        agendaDAO.create(dbInstanceUri, groupId, agenda)
     }
 
     override fun deleteAgenda(ids: List<String>): Flow<DocIdentifier> {
@@ -33,9 +33,9 @@ class AgendaLogicImpl(private val agendaDAO: AgendaDAO, private val sessionLogic
         return agendaDAO.get(dbInstanceUri, groupId, agenda)
     }
 
-    override suspend fun modifyAgenda(agenda: Agenda): Agenda? {
+    override suspend fun modifyAgenda(agenda: Agenda) = fix(agenda) { agenda ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return agendaDAO.save(dbInstanceUri, groupId, agenda)
+        agendaDAO.save(dbInstanceUri, groupId, agenda)
     }
 
     override fun getAllAgendaForUser(userId: String) = flow<Agenda> {

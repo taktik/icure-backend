@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.support
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -47,6 +47,7 @@ import org.taktik.icure.services.external.rest.v1.dto.data.LabelledOccurenceDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -115,7 +116,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @Operation(summary = "Adds a delegation to a invoice")
     @PutMapping("/{invoiceId}/delegate")
-    fun newDelegations(@PathVariable invoiceId: String, @RequestBody ds: List<DelegationDto>) = mono {
+    fun newInvoiceDelegations(@PathVariable invoiceId: String, @RequestBody ds: List<DelegationDto>) = mono {
         val invoice = invoiceLogic.addDelegations(invoiceId, ds.map { mapper.map(it, Delegation::class.java) })
         if (invoice != null && invoice.delegations != null && invoice.delegations.isNotEmpty()) {
             mapper.map(invoice, MessageDto::class.java)
@@ -142,8 +143,8 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     fun appendCodes(@PathVariable userId: String,
                             @PathVariable type: String,
                             @PathVariable sentMediumType: String,
-                            @RequestParam(required = false) insuranceId: String?,
                             @RequestParam secretFKeys: String,
+                            @RequestParam(required = false) insuranceId: String?,
                             @RequestParam(required = false) invoiceId: String?,
                             @RequestParam(required = false) gracePeriod: Int?,
                             @RequestBody invoicingCodes: List<InvoicingCodeDto>): Flux<InvoiceDto> = flow{
@@ -173,11 +174,11 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @Operation(summary = "Gets all invoices for author at date")
     @GetMapping("/byauthor/{hcPartyId}")
     fun findByAuthor(@PathVariable hcPartyId: String,
-                             @RequestParam(required = false) fromDate: Long?,
-                             @RequestParam(required = false) toDate: Long?,
-                             @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
-                             @ApiParam(value = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
-                             @ApiParam(value = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+                     @RequestParam(required = false) fromDate: Long?,
+                     @RequestParam(required = false) toDate: Long?,
+                     @Parameter(description = "The start key for pagination: a JSON representation of an array containing all the necessary " + "components to form the Complex Key's startKey") @RequestParam("startKey", required = false) startKey: String?,
+                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
+                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
         val sk: Array<String>
         var startKey1 = ""
@@ -194,7 +195,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @Operation(summary = "List invoices found By Healthcare Party and secret foreign patient keys.", description = "Keys have to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<InvoiceDto> {
+    fun findInvoicesByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<InvoiceDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         val elementList = invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys)
 
@@ -203,7 +204,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @Operation(summary = "List helement stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+    fun findInvoicesDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
         return invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
@@ -239,7 +240,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
-        emitAll(invoiceLogic.updateInvoices(invoices))
+        emitAll(invoiceLogic.updateInvoices(invoices).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()
 
     @Operation(summary = "Gets all invoices for author at date")
@@ -347,7 +348,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
 
     @Operation(summary = "Filter invoices for the current user (HcParty)", description = "Returns a list of invoices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterBy(@RequestBody filterChain: FilterChain): Flux<InvoiceDto> {
+    fun filterInvoicesBy(@RequestBody filterChain: FilterChain): Flux<InvoiceDto> {
         val invoices = invoiceLogic.filter(org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as Filter<String, Invoice>, mapper.map(filterChain.predicate, Predicate::class.java)))
         return invoices.map { element -> mapper.map(element, InvoiceDto::class.java) }.injectReactorContext()
     }

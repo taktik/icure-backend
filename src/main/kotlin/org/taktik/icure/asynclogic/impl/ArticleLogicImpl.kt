@@ -30,9 +30,9 @@ import org.taktik.icure.exceptions.DeletionException
 @Service
 class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Article, ArticleDAO>(sessionLogic), ArticleLogic {
 
-    override suspend fun createArticle(article: Article): Article? {
+    override suspend fun createArticle(article: Article) = fix(article) { article ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return articleDAO.create(dbInstanceUri, groupId, article)
+        articleDAO.create(dbInstanceUri, groupId, article)
     }
 
     override fun deleteArticles(ids: List<String>): Flow<DocIdentifier> {
@@ -48,9 +48,9 @@ class ArticleLogicImpl(private val articleDAO: ArticleDAO, private val sessionLo
         return articleDAO.get(dbInstanceUri, groupId, articleId)
     }
 
-    override suspend fun modifyArticle(article: Article): Article? {
+    override suspend fun modifyArticle(article: Article) = fix(article) { article ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return articleDAO.save(dbInstanceUri, groupId, article)
+        articleDAO.save(dbInstanceUri, groupId, article)
     }
 
     override fun getGenericDAO() = articleDAO

@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -105,9 +105,9 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @Operation(summary = "Get TimeTables by Period and AgendaId")
     @PostMapping("/byPeriodAndAgendaId")
-    fun getTimeTablesByPeriodAndAgendaId(@ApiParam(required = true) @RequestParam startDate: Long,
-                                         @ApiParam(required = true) @RequestParam endDate: Long,
-                                         @ApiParam(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
+    fun getTimeTablesByPeriodAndAgendaId(@Parameter(required = true) @RequestParam startDate: Long,
+                                         @Parameter(required = true) @RequestParam endDate: Long,
+                                         @Parameter(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
             flow {
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
@@ -117,7 +117,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
 
     @Operation(summary = "Get TimeTables by AgendaId")
     @PostMapping("/byAgendaId")
-    fun getTimeTablesByAgendaId(@ApiParam(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
+    fun getTimeTablesByAgendaId(@Parameter(required = true) @RequestParam agendaId: String): Flux<TimeTableDto> =
             flow {
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")

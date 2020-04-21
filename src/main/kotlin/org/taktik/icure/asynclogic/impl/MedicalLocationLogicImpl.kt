@@ -18,9 +18,9 @@ import org.taktik.icure.exceptions.DeletionException
 class MedicalLocationLogicImpl(private val medicalLocationDAO: MedicalLocationDAO,
                                private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<MedicalLocation, MedicalLocationDAO>(sessionLogic), MedicalLocationLogic {
 
-    override suspend fun createMedicalLocation(medicalLocation: MedicalLocation): MedicalLocation? {
+    override suspend fun createMedicalLocation(medicalLocation: MedicalLocation) = fix(medicalLocation) { medicalLocation ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return medicalLocationDAO.create(dbInstanceUri, groupId, medicalLocation)
+        medicalLocationDAO.create(dbInstanceUri, groupId, medicalLocation)
     }
 
     override fun deleteMedicalLocations(ids: List<String>): Flow<DocIdentifier> {
@@ -36,9 +36,9 @@ class MedicalLocationLogicImpl(private val medicalLocationDAO: MedicalLocationDA
         return medicalLocationDAO.get(dbInstanceUri, groupId, medicalLocation)
     }
 
-    override suspend fun modifyMedicalLocation(medicalLocation: MedicalLocation): MedicalLocation? {
+    override suspend fun modifyMedicalLocation(medicalLocation: MedicalLocation)= fix(medicalLocation) { medicalLocation ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return medicalLocationDAO.save(dbInstanceUri, groupId, medicalLocation)
+        medicalLocationDAO.save(dbInstanceUri, groupId, medicalLocation)
     }
 
     override fun findByPostCode(postCode: String): Flow<MedicalLocation> = flow {

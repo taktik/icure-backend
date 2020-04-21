@@ -24,5 +24,10 @@ import java.io.Serializable
 data class DatabaseSynchronization(
         val source: String? = null,
         val target: String? = null,
-        val filter: String? = null
-) : Serializable
+        val filter: String? = null,
+        val localTarget: Target? = null
+) : Serializable {
+    enum class Target {
+        base, healthdata, patient
+    }
+}

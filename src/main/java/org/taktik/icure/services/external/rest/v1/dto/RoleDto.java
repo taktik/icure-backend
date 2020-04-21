@@ -18,8 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang3.StringUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.taktik.icure.constants.Roles;
 
 import java.io.Serializable;
@@ -31,7 +30,7 @@ public class RoleDto extends StoredDto implements Cloneable, Serializable {
 
 	protected String name;
 
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
     protected Roles.VirtualHostDependency virtualHostDependency;
 
 	protected Set<PropertyDto> properties = new HashSet<>();

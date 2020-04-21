@@ -37,6 +37,7 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
@@ -69,7 +70,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
+    fun findHealthElementsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String, @RequestParam secretFKeys: String): Flux<HealthElementDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
@@ -80,7 +81,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @Operation(summary = "List helement stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys/delegations")
-    fun findDelegationsStubsByHCPartyPatientSecretFKeys(@RequestParam hcPartyId: String,
+    fun findHealthElementsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
@@ -90,7 +91,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setHealthElementsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
+    fun setHealthElementsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val healthElements = healthElementLogic.getHealthElements(stubs.map { it.id })
         healthElements.onEach { healthElement ->
             stubs.find { s -> s.id == healthElement.id }?.let { stub ->
@@ -99,8 +100,8 @@ class HealthElementController(private val mapper: MapperFacade,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
-        healthElementLogic.updateEntities(healthElements.toList())
-    }
+        emitAll(healthElementLogic.updateEntities(healthElements.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+    }.injectReactorContext()
 
     @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
     @DeleteMapping("/{healthElementIds}")
@@ -136,7 +137,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @Operation(summary = "Delegates a health element to a healthcare party", description = "It delegates a health element to a healthcare party (By current healthcare party). Returns the element with new delegations.")
     @PostMapping("/{healthElementId}/delegate")
-    fun newDelegations(@PathVariable healthElementId: String, @RequestBody ds: List<DelegationDto>) = mono {
+    fun newHealthElementDelegations(@PathVariable healthElementId: String, @RequestBody ds: List<DelegationDto>) = mono {
         healthElementLogic.addDelegations(healthElementId, ds.map { d -> mapper.map(d, Delegation::class.java) })
         val healthElementWithDelegation = healthElementLogic.getHealthElement(healthElementId)
 
@@ -150,7 +151,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
     @Operation(summary = "Filter health elements for the current user (HcParty)", description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterBy(@RequestBody filterChain: FilterChain) =
+    fun filterHealthElementsBy(@RequestBody filterChain: FilterChain) =
             healthElementLogic.filter(org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, HealthElement>, mapper.map(filterChain.predicate, Predicate::class.java)))
                     .map { mapper.map(it, HealthElementDto::class.java) }
                     .injectReactorContext()

@@ -42,9 +42,9 @@ import javax.ws.rs.QueryParam
 @Service
 class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<AccessLog, AccessLogDAO>(sessionLogic), AccessLogLogic {
 
-    override suspend fun createAccessLog(accessLog: AccessLog): AccessLog? {
+    override suspend fun createAccessLog(accessLog: AccessLog) = fix(accessLog) { accessLog ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return accessLogDAO.create(dbInstanceUri, groupId,
+        accessLogDAO.create(dbInstanceUri, groupId,
                 if (accessLog.date == null)
                     accessLog.copy(user = sessionLogic.getCurrentUserId(), date = Instant.now())
                 else
@@ -80,9 +80,9 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
         emitAll(accessLogDAO.findByUserAfterDate(dbInstanceUri, groupId, userId, accessType, startDate, pagination.toComplexKeyPaginationOffset(), descending))
     }
 
-    override suspend fun modifyAccessLog(accessLog: AccessLog): AccessLog? {
+    override suspend fun modifyAccessLog(accessLog: AccessLog) = fix(accessLog) { accessLog ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return accessLogDAO.save(dbInstanceUri, groupId, accessLog)
+        accessLogDAO.save(dbInstanceUri, groupId, accessLog)
     }
 
     override fun getGenericDAO() = accessLogDAO

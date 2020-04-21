@@ -22,6 +22,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.icure.asynclogic.listeners.UserLogicListener
 import org.taktik.icure.constants.Users
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
@@ -31,58 +32,60 @@ import java.time.Instant
 
 interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
 
-    fun getProperties(userId: String): Flow<Property>
-    suspend fun modifyProperties(userId: String, newProperties: Set<Property>)
-    suspend fun newUser(type: Users.Type, login: String, password: String, healthcarePartyId: String): User?
-    suspend fun registerUser(user: User, password: String): User?
-    suspend fun createUser(user: User): User?
-    suspend fun registerUser(email: String, password: String, healthcarePartyId: String, name: String): User?
-    suspend fun isLoginValid(login: String?): Boolean
-    suspend fun isPasswordValid(password: String): Boolean
-    suspend fun modifyUser(modifiedUser: User): User?
-    suspend fun modifyUserAttributes(userId: String, attributesValues: Map<String, Any>)
-    suspend fun enableUser(userId: String)
-    suspend fun disableUser(userId: String)
-    fun encodePassword(password: String): String
-    suspend fun isUserActive(userId: String): Boolean
-    suspend fun checkPassword(password: String): Boolean
-    suspend fun verifyPasswordToken(userId: String, token: String): Boolean
-    suspend fun verifyActivationToken(userId: String, token: String): Boolean
-    suspend fun usePasswordToken(userId: String, token: String, newPassword: String): Boolean
-    suspend fun useActivationToken(userId: String, token: String): Boolean
-    suspend fun checkUsersExpiration()
-    fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User>
-    suspend fun acceptUserTermsOfUse(userId: String)
     fun addListener(listener: UserLogicListener)
+    fun buildStandardUser(userName: String, password: String): User
+    fun encodePassword(password: String): String
+    fun findByHcpartyId(hcpartyId: String): Flow<String>
+    fun getBootstrapUser(): User
+    fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User>
+    fun getProperties(userId: String): Flow<Property>
+    fun getRoles(user: User): Flow<Role>
+    fun getUsers(ids: List<String>): Flow<User>
+    fun getUsersByLogin(login: String): Flow<User>
+    fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    fun listUsersByEmailOnFallbackDb(email: String): Flow<User>
+    fun listUsersByLoginOnFallbackDb(login: String): Flow<User>
     fun removeListener(listener: UserLogicListener)
     suspend fun addPermissions(userId: String, permissions: Set<Permission>)
-    suspend fun modifyPermissions(userId: String, permissions: Set<Permission>)
-    suspend fun modifyRoles(userId: String, roles: Set<Role>)
-    suspend fun getUser(id: String): User?
-    fun getUsersByLogin(login: String): Flow<User>
-    suspend fun getUserByLogin(login: String): User?
-    suspend fun getUserByEmail(email: String): User?
-    suspend fun newUser(type: Users.Type, status: Users.Status, login: String, createdDate: Instant): User?
-    suspend fun deleteUser(user: User)
-    suspend fun undeleteUser(user: User)
-    fun buildStandardUser(userName: String, password: String): User
-    fun getBootstrapUser(): User
-    suspend fun deleteUser(id: String)
-    suspend fun undeleteUser(id: String)
-    fun getRoles(user: User): Flow<Role>
-    suspend fun save(user: User)
-    suspend fun userLogged(user: User)
-    fun listUsers(pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
-    suspend fun setProperties(user: User, properties: List<Property>): User?
-    fun getUsers(ids: List<String>): Flow<User>
-    suspend fun getUserOnFallbackDb(userId: String): User?
-    suspend fun createUserOnUserDb(user: User, groupId: String, dbInstanceUrl: URI): User?
-    suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
-    suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
-    fun findByHcpartyId(hcpartyId: String): Flow<String>
-    suspend fun getUserByEmailOnUserDb(email: String, groupId: String, dbInstanceUrl: URI): User?
-    fun listUsers(groupId: String, paginationOffset: PaginationOffset<String>): Flow<ViewQueryResultEvent>
+    suspend fun checkPassword(password: String): Boolean
+    suspend fun checkUsersExpiration()
     suspend fun createUser(groupId: String, user: User): User?
-    suspend fun modifyUser(groupId: String, modifiedUser: User): User?
+    suspend fun createUser(user: User): User?
+    suspend fun createUserOnUserDb(user: User, groupId: String, dbInstanceUrl: URI): User?
     suspend fun deleteUser(groupId: String, userId: String)
+    suspend fun deleteUser(id: String)
+    suspend fun deleteUser(user: User)
+    suspend fun disableUser(userId: String)
+    suspend fun enableUser(userId: String)
+    suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
+    suspend fun getUser(id: String): User?
+    suspend fun getUserByEmail(email: String): User?
+    suspend fun getUserByEmailOnUserDb(email: String, groupId: String, dbInstanceUrl: URI): User?
+    suspend fun getUserByLogin(login: String): User?
+    suspend fun getUserOnFallbackDb(userId: String): User?
+    suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User?
+    suspend fun isLoginValid(login: String?): Boolean
+    suspend fun isPasswordValid(password: String): Boolean
+    suspend fun isUserActive(userId: String): Boolean
+    suspend fun modifyPermissions(userId: String, permissions: Set<Permission>)
+    suspend fun modifyProperties(userId: String, newProperties: Set<Property>)
+    suspend fun modifyRoles(userId: String, roles: Set<Role>)
+    suspend fun modifyUser(groupId: String, modifiedUser: User): User?
+    suspend fun modifyUser(modifiedUser: User): User?
+    suspend fun modifyUserAttributes(userId: String, attributesValues: Map<String, Any>)
+    suspend fun newUser(type: Users.Type, login: String, password: String, healthcarePartyId: String): User?
+    suspend fun newUser(type: Users.Type, status: Users.Status, login: String, createdDate: Instant): User?
+    suspend fun registerUser(email: String, password: String, healthcarePartyId: String, name: String): User?
+    suspend fun registerUser(user: User, password: String): User?
+    suspend fun save(user: User)
+    suspend fun setProperties(user: User, properties: List<Property>): User?
+    suspend fun undeleteUser(id: String)
+    suspend fun undeleteUser(user: User)
+    suspend fun useActivationToken(userId: String, token: String): Boolean
+    suspend fun usePasswordToken(userId: String, token: String, newPassword: String): Boolean
+    suspend fun userLogged(user: User)
+    suspend fun verifyActivationToken(userId: String, token: String): Boolean
+    suspend fun verifyPasswordToken(userId: String, token: String): Boolean
+    suspend fun getToken(group: Group, user: User, key: String): String
 }

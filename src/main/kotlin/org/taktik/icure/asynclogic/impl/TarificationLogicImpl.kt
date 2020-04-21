@@ -48,7 +48,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         emitAll(tarificationDAO.getList(dbInstanceUri, groupId, ids))
     }
 
-    override suspend fun create(tarification: Tarification): Tarification? {
+    override suspend fun create(tarification: Tarification) = fix(tarification) { tarification ->
         Preconditions.checkNotNull(tarification.code, "Tarification field is null.")
         Preconditions.checkNotNull(tarification.type, "Type field is null.")
         Preconditions.checkNotNull(tarification.version, "Version tarification field is null.")
@@ -56,17 +56,17 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         // assigning Tarification id type|tarification|version
         tarification.id = tarification.type + "|" + tarification.code + "|" + tarification.version
-        return tarificationDAO.create(dbInstanceUri, groupId, tarification)
+        tarificationDAO.create(dbInstanceUri, groupId, tarification)
     }
 
-    override suspend fun modify(tarification: Tarification): Tarification? {
+    override suspend fun modify(tarification: Tarification) = fix(tarification) { tarification ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val existingTarification = tarification.id?.let { tarificationDAO.get(dbInstanceUri, groupId, it) }
         Preconditions.checkState(existingTarification?.code == tarification.code, "Modification failed. Tarification field is immutable.")
         Preconditions.checkState(existingTarification?.type == tarification.type, "Modification failed. Type field is immutable.")
         Preconditions.checkState(existingTarification?.version == tarification.version, "Modification failed. Version field is immutable.")
         updateEntities(setOf(tarification))
-        return tarification.id?.let { this.get(it) }
+        tarification.id?.let { this.get(it) }
     }
 
     override fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {

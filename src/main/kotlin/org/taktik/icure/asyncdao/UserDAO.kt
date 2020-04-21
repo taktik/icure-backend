@@ -14,6 +14,7 @@ interface UserDAO : GenericDAO<User>{
 	fun getExpiredUsers(dbInstanceUrl: URI, groupId: String, fromExpirationInstant: Instant, toExpirationInstant: Instant): Flow<User>
 	fun findByUsername(dbInstanceUrl: URI, groupId: String, searchString: String): Flow<User>
     fun findByEmail(dbInstanceUrl: URI, groupId: String, searchString: String): Flow<User>
+    fun listByEmailOnFallbackDb(dbInstanceUrl: URI, email: String): Flow<User>
     fun listUsers(dbInstanceUrl: URI, groupId: String, pagination: PaginationOffset<String>): Flow<ViewQueryResultEvent>
     suspend fun getOnFallback(dbInstanceUrl: URI, userId: String, bypassCache: Boolean): User?
     fun getUsersByPartialIdOnFallback(dbInstanceUrl: URI, id: String): Flow<User>

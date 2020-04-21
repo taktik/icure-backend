@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.support
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.annotations.ApiParam
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
@@ -103,7 +103,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
     @Operation(summary = "Get a entityTemplate", description = "Get a entityTemplate based on ID or (entityTemplate,type,version) as query strings. (entityTemplate,type,version) is unique.")
     @GetMapping("/{entityTemplateId}")
-    fun getEntityTemplate(@ApiParam(value = "EntityTemplate id", required = true) @PathVariable entityTemplateId: String) = mono {
+    fun getEntityTemplate(@Parameter(description = "EntityTemplate id", required = true) @PathVariable entityTemplateId: String) = mono {
         val c = entityTemplateLogic.getEntityTemplate(entityTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the entityTemplate. Read the app logs.")
 

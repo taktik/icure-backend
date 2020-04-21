@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
+import org.springframework.core.io.buffer.DataBufferFactory
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -137,7 +139,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @Operation(summary = "Download a the document template attachment")
     @GetMapping("/{documentTemplateId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachment(@PathVariable documentTemplateId: String,
+    fun getDocumentTemplateAttachment(@PathVariable documentTemplateId: String,
                       @PathVariable attachmentId: String,
                       response: ServerHttpResponse) = mono {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
@@ -166,19 +168,20 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @Operation(summary = "Download a the document template attachment")
     @GetMapping("/{documentTemplateId}/attachmentText/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String) = mono {
-        val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
+    fun getAttachmentText(@PathVariable documentTemplateId: String, @PathVariable attachmentId: String,
+                          response: ServerHttpResponse) = response.writeWith(flow {
+    val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         if (document.attachment != null) {
-            document.attachment
+            emit(DefaultDataBufferFactory().wrap(document.attachment))
         } else {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
         }
-    }
+    }.injectReactorContext())
 
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentTemplateId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray) = mono {
+    fun setDocumentTemplateAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentTemplate.attachment = payload
@@ -187,7 +190,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
 
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentTemplateId}/attachmentJson", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto) = mono {
+    fun setDocumentTemplateAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentTemplate.attachment = payload.data

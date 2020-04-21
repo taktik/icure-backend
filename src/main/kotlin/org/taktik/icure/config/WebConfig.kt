@@ -79,5 +79,5 @@ class WebConfig : WebFluxConfigurer {
     fun webSocketService() = HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy().apply { maxFramePayloadLength = 8*1024*1024 })
 
     @Bean
-    fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer { cb -> cb.sameSite("None")} }
+    fun webSessionIdResolver() = CookieWebSessionIdResolver().apply { addCookieInitializer { cb -> cb.sameSite("None").secure(true) } }
 }

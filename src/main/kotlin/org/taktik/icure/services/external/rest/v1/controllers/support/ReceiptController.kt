@@ -72,7 +72,7 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
 
     @Operation(summary = "Get an attachment")
     @GetMapping("/{receiptId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachment(
+    fun getReceiptAttachment(
             @PathVariable receiptId: String,
             @PathVariable attachmentId: String,
             @RequestParam enckeys: String) = mono {
@@ -86,14 +86,14 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
 
     @Operation(summary = "Creates a receipt's attachment")
     @PutMapping("/{receiptId}/attachment/{blobType}", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setAttachment(
+    fun setReceiptAttachment(
             @PathVariable receiptId: String,
             @PathVariable blobType: String,
-            @RequestParam enckeys: String,
+            @RequestParam(required = false) enckeys: String?,
             @RequestBody payload: ByteArray) = mono {
 
         var encryptedPayload = payload
-        if (enckeys.isNotEmpty()) {
+        if (enckeys?.isNotEmpty() == true) {
             encryptedPayload = CryptoUtils.encryptAESWithAnyKey(encryptedPayload, enckeys.split(',')[0])
         }
 

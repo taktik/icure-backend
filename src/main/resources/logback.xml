@@ -34,6 +34,5 @@
     <logger name="com.hazelcast" level="INFO" />
     <logger name="org.taktik.couchdb" level="DEBUG" />
     <logger name="org.springframework.web.reactive.socket.adapter" level="TRACE" />
-    <logger name="springfox.documentation.schema" level="INFO" />
     <!--logger name="ma.glasnost.orika" level="DEBUG" /-->
 </configuration>

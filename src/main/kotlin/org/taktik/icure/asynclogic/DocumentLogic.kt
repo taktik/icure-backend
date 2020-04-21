@@ -15,7 +15,7 @@ interface DocumentLogic : EntityPersister<Document, String> {
     fun getAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
     fun readAttachment(documentId: String, attachmentId: String): Flow<ByteBuffer>
 
-    suspend fun modifyDocument(document: Document)
+    suspend fun modifyDocument(document: Document): Document?
     fun findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode: String, hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
     fun findDocumentsByHCPartySecretMessageKeys(hcPartyId: String, secretForeignKeys: ArrayList<String>): Flow<Document>
     fun findWithoutDelegation(limit: Int): Flow<Document>

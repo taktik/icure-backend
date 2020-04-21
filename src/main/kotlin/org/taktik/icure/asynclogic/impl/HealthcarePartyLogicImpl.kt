@@ -76,11 +76,11 @@ class HealthcarePartyLogicImpl(
         return healthcarePartyDAO.getHcPartyKeysForDelegate(dbInstanceUri, groupId, healthcarePartyId)
     }
 
-    override suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty? { // checking requirements
+    override suspend fun modifyHealthcareParty(healthcareParty: HealthcareParty) = fix(healthcareParty) { healthcareParty ->
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")
         }
-        return try {
+        try {
             updateEntities(setOf(healthcareParty))
             getHealthcareParty(healthcareParty.id)
         } catch (e: Exception) {
@@ -108,7 +108,7 @@ class HealthcarePartyLogicImpl(
         }
     }
 
-    override suspend fun createHealthcareParty(groupId: String, healthcareParty: HealthcareParty): HealthcareParty? {
+    override suspend fun createHealthcareParty(groupId: String, healthcareParty: HealthcareParty) = fix(healthcareParty) { healthcareParty ->
         val group = getDestinationGroup(groupId)
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
@@ -118,25 +118,25 @@ class HealthcarePartyLogicImpl(
                 val newId = uuidGenerator.newGUID().toString()
                 healthcareParty.id = newId
             }
-            return getGenericDAO().create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, listOf(healthcareParty)).firstOrNull()
+            getGenericDAO().create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, listOf(healthcareParty)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
     }
 
-    override suspend fun modifyHealthcareParty(groupId: String, healthcareParty: HealthcareParty): HealthcareParty? {
+    override suspend fun modifyHealthcareParty(groupId: String, healthcareParty: HealthcareParty)= fix(healthcareParty) { healthcareParty ->
         val group = getDestinationGroup(groupId)
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("modifyHealthcareParty: one of Name or Last name, Nihii or  Ssin are required.")
         }
-        return try {
+        try {
             healthcarePartyDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, listOf(healthcareParty)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
     }
 
-    override suspend fun createHealthcareParty(healthcareParty: HealthcareParty): HealthcareParty? { // checking requirements
+    override suspend fun createHealthcareParty(healthcareParty: HealthcareParty)= fix(healthcareParty) { healthcareParty ->
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
         }
@@ -145,7 +145,7 @@ class HealthcarePartyLogicImpl(
                 val newId = uuidGenerator.newGUID().toString()
                 healthcareParty.id = newId
             }
-            return createEntities(setOf(healthcareParty)).firstOrNull()
+            createEntities(setOf(healthcareParty)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }
@@ -207,9 +207,10 @@ class HealthcarePartyLogicImpl(
         emitAll(healthcarePartyDAO.getList(dbInstanceUri, groupId, ids))
     }
 
-    override fun getHealthcareParties(groupId: String, ids: List<String>) = flow {
+    override fun getHealthcareParties(groupId: String, ids: List<String>?) = flow {
         val group = getDestinationGroup(groupId)
-        emitAll(healthcarePartyDAO.getList(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, ids))
+        val uri = URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString())
+        emitAll(ids?.let { healthcarePartyDAO.getList(uri, group.id, it)} ?: healthcarePartyDAO.getAll(uri, groupId) )
     }
 
     override fun findHealthcarePartiesBySsinOrNihii(searchValue: String, paginationOffset: PaginationOffset<String>, desc: Boolean): Flow<ViewQueryResultEvent> = flow {
@@ -235,7 +236,7 @@ class HealthcarePartyLogicImpl(
         return hcpartyIds
     }
 
-    override suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, groupId: String, dbInstanceUri: URI): HealthcareParty? {
+    override suspend fun createHealthcarePartyOnUserDb(healthcareParty: HealthcareParty, groupId: String, dbInstanceUri: URI)= fix(healthcareParty) { healthcareParty ->
         if (healthcareParty.nihii == null && healthcareParty.ssin == null && healthcareParty.name == null && healthcareParty.lastName == null) {
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
         }
@@ -244,7 +245,7 @@ class HealthcarePartyLogicImpl(
                 val newId = uuidGenerator.newGUID().toString()
                 healthcareParty.id = newId
             }
-            return getGenericDAO().create(dbInstanceUri, groupId, healthcareParty)
+            getGenericDAO().create(dbInstanceUri, groupId, healthcareParty)
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
         }

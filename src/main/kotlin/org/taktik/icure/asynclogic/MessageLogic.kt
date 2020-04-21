@@ -42,7 +42,7 @@ interface MessageLogic : EntityPersister<Message, String> {
     suspend fun get(messageId: String): Message?
 
     @Throws(MissingRequirementsException::class)
-    suspend fun modifyMessage(message: Message)
+    suspend fun modifyMessage(message: Message): Message?
 
     @Throws(LoginException::class)
     fun listMessagesByHCPartySecretPatientKeys(secretPatientKeys: List<String>): Flow<Message>

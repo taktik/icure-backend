@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.taktik.icure.constants.Permissions;
 
 import java.io.Serializable;
@@ -29,9 +29,9 @@ public class PermissionCriterionDto implements Cloneable, Serializable {
 	protected boolean negative;
 
 	protected VirtualHostDto virtualHost;
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
     protected Permissions.CriterionTypeCurrentUser currentUser;
-    @ApiModelProperty(dataType = "string")
+    @Schema(type = "string")
     protected Permissions.CriterionDataType dataType;
     protected String patientStatus;
 

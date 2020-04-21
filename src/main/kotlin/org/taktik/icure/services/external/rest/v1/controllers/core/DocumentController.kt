@@ -20,12 +20,16 @@ package org.taktik.icure.services.external.rest.v1.controllers.core
 
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -44,6 +48,7 @@ import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.utils.FormUtils
+import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
@@ -84,14 +89,14 @@ class DocumentController(private val documentLogic: DocumentLogic,
         }
     }
 
-    @Operation(summary = "Creates a document")
+    @Operation(summary = "Creates a document", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
     @GetMapping("/{documentId}/attachment/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun getAttachment(@PathVariable documentId: String,
+    fun getDocumentAttachment(@PathVariable documentId: String,
                       @PathVariable attachmentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestParam(required = false) fileName: String?,
-                      response: ServerHttpResponse) = mono {
-        val document = documentLogic.get(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
+                      response: ServerHttpResponse) = response.writeWith(flow {
+    val document = documentLogic.get(documentId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
         val attachment = document.decryptAttachment(if (enckeys.isNullOrBlank()) null else enckeys.split(','))
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
         val uti = UTI.get(document.mainUti)
@@ -99,7 +104,11 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
         response.headers["Content-Type"] = mimeType
         response.headers["Content-Disposition"] = "attachment; filename=\"${fileName ?: document.name}\""
+
         if (StringUtils.equals(document.mainUti, "org.taktik.icure.report")) {
+            val dataBuffer = DefaultDataBufferFactory().allocateBuffer();
+            val outputStream = dataBuffer.asOutputStream()
+
             val styleSheet = "DocumentTemplateLegacyToNew.xml"
 
             val xmlSource = StreamSource(ByteArrayInputStream(attachment))
@@ -107,17 +116,17 @@ class DocumentController(private val documentLogic: DocumentLogic,
             val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
             try {
                 val trans = transFact.newTransformer(xsltSource)
-                val r : Result = StreamResult()
+                val r : Result = StreamResult(outputStream)
                 trans.transform(xmlSource, r)
-                ByteArrayResource(attachment)
+                outputStream.flush()
+                emit(dataBuffer)
             } catch (e: TransformerException) {
                 throw IllegalStateException("Could not convert legacy document")
             }
-
         } else {
-            ByteArrayResource(attachment)
+            emit(DefaultDataBufferFactory().wrap(attachment))
         }
-    }
+    }.injectReactorContext())
 
     @Operation(summary = "Deletes a document's attachment")
     @DeleteMapping("/{documentId}/attachment")
@@ -133,7 +142,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment", consumes = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
-    fun setAttachment(@PathVariable documentId: String,
+    fun setDocumentAttachment(@PathVariable documentId: String,
                       @RequestParam(required = false) enckeys: String?,
                       @RequestBody payload: ByteArray) = mono {
         var newPayload = payload
@@ -160,11 +169,10 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Creates a document's attachment")
     @PutMapping("/{documentId}/attachment/multipart", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun setAttachmentMulti(@PathVariable documentId: String,
+    fun setDocumentAttachmentMulti(@PathVariable documentId: String,
                            @RequestParam(required = false) enckeys: String?,
-                           @RequestPart("attachment") payload: ByteArray) = mono {
-        setAttachment(documentId, enckeys, payload)
-    }
+                           @RequestPart("attachment") payload: ByteArray) = setDocumentAttachment(documentId, enckeys, payload)
+
 
     @Operation(summary = "Gets a document")
     @GetMapping("/{documentId}")
@@ -232,7 +240,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "List documents found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
-    fun findByHCPartyMessageSecretFKeys(@RequestParam hcPartyId: String,
+    fun findDocumentsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                         @RequestParam secretFKeys: String): Flux<DocumentDto> {
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
@@ -265,7 +273,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
-    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = mono {
+    fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
         val invoices = documentLogic.getDocuments(stubs.map { it.id })
         invoices.onEach { healthElement ->
             stubs.find { it.id == healthElement.id }?.let { stub ->
@@ -274,6 +282,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
             }
         }
-        documentLogic.updateDocuments(invoices.toList())
-    }
+        emitAll(documentLogic.updateDocuments(invoices.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+    }.injectReactorContext()
 }

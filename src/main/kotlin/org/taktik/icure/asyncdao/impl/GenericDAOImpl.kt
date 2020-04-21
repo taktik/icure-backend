@@ -359,7 +359,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
     override suspend fun forceInitStandardDesignDocument(dbInstanceUrl: URI, groupId: String) {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val designDocId = NameConventions.designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let { org.ektorp.support.DesignDocument(it.id)?.apply {
+        val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let { org.ektorp.support.DesignDocument(it.id).apply {
             revision = it.rev
             views = it.views.mapValues { mapper.map(it.value, org.ektorp.support.DesignDocument.View::class.java) }
             updates = it.updateHandlers
@@ -370,12 +370,35 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         val changed: Boolean = fromDatabase?.mergeWith(generated, true) ?: true
         if (changed) {
             client.update((fromDatabase ?: generated).let {
-                DesignDocument(_id = it.id, _rev = it.revision,
+                DesignDocument(_id = designDocId, _rev = it.revision,
                     views = it.views.mapValues { mapper.map(it.value, View::class.java) },
                     updateHandlers = it.updates,
                     lists = it.lists,
                     shows = it.shows)
             })
+        }
+    }
+
+    override suspend fun initSystemDocumentIfAbsent(dbInstanceUrl: URI, groupId: String) {
+        initSystemDocumentIfAbsent(couchDbDispatcher.getClient(dbInstanceUrl, groupId))
+    }
+
+
+    override suspend fun initSystemDocumentIfAbsent(client: Client) {
+        val designDocId = NameConventions.designDocName("_System")
+        val designDocument = client.get(designDocId, DesignDocument::class.java)
+        if (designDocument == null) {
+            client.update(
+                    (org.ektorp.support.DesignDocument(designDocId)
+                            .apply { addView("revs", org.ektorp.support.DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }")) })
+                            .let {
+                                DesignDocument(_id = designDocId, _rev = it.revision,
+                                views = it.views.mapValues { mapper.map(it.value, View::class.java) },
+                                updateHandlers = it.updates,
+                                lists = it.lists,
+                                shows = it.shows)
+                            }
+            )
         }
     }
 }
