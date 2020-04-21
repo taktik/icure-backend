@@ -54,7 +54,6 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
     @Autowired
     public ContactDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator) {
         super(Contact.class, couchdb, idGenerator);
-
     }
 
     @Override
@@ -240,6 +239,7 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
         ViewQuery viewQuery = createQuery("by_hcparty_tag")
                 .startKey(from)
                 .endKey(to)
+                .reduce(false)
                 .includeDocs(false);
 
         List<String> ids = db.queryView(viewQuery, String.class);
