@@ -62,22 +62,16 @@ class FormLogicImpl(private val formDAO: FormDAO,
 
     override suspend fun addDelegation(formId: String, delegation: Delegation): Form? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val form = getForm(formId) ?: return null
-        form.addDelegation(delegation.delegatedTo, delegation)
-        return formDAO.save(dbInstanceUri, groupId, form)
+        val form = getForm(formId)
+        return delegation.delegatedTo?.let { healthcarePartyId ->
+            form?.let { c -> formDAO.save(dbInstanceUri, groupId, c.copy(delegations = c.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))}
+        } ?: form
     }
 
     override suspend fun createForm(form: Form): Form? {
         try { // Fetching the hcParty
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            // Setting contact attributes
-            if (form.id == null) {
-                form.id = uuidGenerator.newGUID().toString()
-            }
-            form.author = sessionLogic.getCurrentUserId()
-            if (form.responsible == null) {
-                form.responsible = healthcarePartyId
-            }
             return createEntities(setOf(form)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
@@ -102,7 +96,6 @@ class FormLogicImpl(private val formDAO: FormDAO,
             if (previousForm != null && form.created == null) {
                 form.created = previousForm.created
             }
-            form.author = healthcarePartyId
             formDAO.save(dbInstanceUri, groupId, form)
         } catch (e: UpdateConflictException) { //resolveConflict(form, e);
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", form.javaClass.simpleName, form.id, form.rev)
