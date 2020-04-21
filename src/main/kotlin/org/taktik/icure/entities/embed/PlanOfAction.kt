@@ -43,7 +43,7 @@ data class PlanOfAction(
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
-        override val endOfLife: Long?,
+        override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
         @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.

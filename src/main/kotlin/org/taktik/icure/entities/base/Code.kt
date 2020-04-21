@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
+import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.embed.Periodicity
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil
@@ -31,8 +32,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Code(
         @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val type : String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code : String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
@@ -57,7 +58,9 @@ data class Code(
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Code::javaClass.name
 ) : StoredDocument, CodeIdentification {
-    companion object : DynamicInitializer<Code>
+    companion object : DynamicInitializer<Code> {
+        fun from(type: String, code: String, version: String) = Code(id="$type:$code:$version", type = type, code = code, version = version)
+    }
     fun merge(other: Code) = Code(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Code) = super<StoredDocument>.solveConflictsWith(other) + super<CodeIdentification>.solveConflictsWith(other) + mapOf(
         "author" to (this.author ?: other.author),
@@ -73,4 +76,6 @@ data class Code(
         "appendices" to (other.appendices + this.appendices),
         "isDisabled" to (this.isDisabled)
     )
+    override fun withIdRev(id: String?, rev: String): Code =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

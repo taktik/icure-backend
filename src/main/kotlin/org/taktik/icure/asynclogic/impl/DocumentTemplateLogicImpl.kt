@@ -35,21 +35,12 @@ class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplat
                                 private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<DocumentTemplate, DocumentTemplateDAO>(sessionLogic), DocumentTemplateLogic {
 
     override fun createEntities(entities: Collection<DocumentTemplate>): Flow<DocumentTemplate> = flow {
-        entities.forEach { e: DocumentTemplate ->
-            if (e.owner == null) {
-                e.owner = sessionLogic.getCurrentUserId()
-            }
-        }
-        emitAll(super.createEntities(entities))
+        emitAll(super.createEntities(entities.map {e -> e.owner?.let { e } ?: e.copy(owner = sessionLogic.getCurrentUserId())}))
     }
 
     override suspend fun createDocumentTemplate(entity: DocumentTemplate): DocumentTemplate {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-
-        if (entity.owner == null) {
-            entity.owner = sessionLogic.getCurrentUserId()
-        }
-        return documentTemplateDAO.createDocumentTemplate(dbInstanceUri, groupId, entity)
+        return documentTemplateDAO.createDocumentTemplate(dbInstanceUri, groupId, entity.owner?.let { entity } ?: entity.copy(owner = sessionLogic.getCurrentUserId()))
     }
 
     override suspend fun getDocumentTemplateById(documentTemplateId: String): DocumentTemplate? {
@@ -79,10 +70,7 @@ class DocumentTemplateLogicImpl(private val documentTemplateDAO: DocumentTemplat
 
     override suspend fun modifyDocumentTemplate(documentTemplate: DocumentTemplate): DocumentTemplate? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        if (documentTemplate.owner == null) {
-            documentTemplate.owner = sessionLogic.getCurrentUserId()
-        }
-        return documentTemplateDAO.save(dbInstanceUri, groupId, documentTemplate)
+        return documentTemplateDAO.save(dbInstanceUri, groupId, documentTemplate.owner?.let { documentTemplate } ?: documentTemplate.copy(owner = sessionLogic.getCurrentUserId()))
     }
 
     override fun getGenericDAO(): DocumentTemplateDAO {

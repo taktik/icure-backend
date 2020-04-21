@@ -36,8 +36,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Tarification(
         @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val type : String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code : String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
@@ -96,4 +96,6 @@ data class Tarification(
             "letterValues" to mergeListsDistinct(this.letterValues, other.letterValues,
                     {a,b -> a.coefficient == b.coefficient && a.index == b.index && a.letter == b.letter})
     )
+    override fun withIdRev(id: String?, rev: String): Tarification =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

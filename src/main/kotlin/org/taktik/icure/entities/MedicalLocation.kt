@@ -11,8 +11,8 @@ import org.taktik.icure.utils.invoke
 
 data class MedicalLocation(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
         val description: String? = null,
@@ -47,5 +47,6 @@ data class MedicalLocation(
             "address" to (this.address ?: other.address),
             "agendaIds" to (other.agendaIds + this.agendaIds)
     )
-
+    override fun withIdRev(id: String?, rev: String): MedicalLocation =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

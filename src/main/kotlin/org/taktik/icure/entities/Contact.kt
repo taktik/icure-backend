@@ -38,15 +38,15 @@ import javax.validation.Valid
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Contact(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
-        override val endOfLife: Long?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        override val endOfLife: Long? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         @NotNull(autoFix = AutoFix.UUID) val groupId : String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
@@ -89,5 +89,7 @@ data class Contact(
             "services" to mergeSets(services, other.services, { a, b -> a.id == b.id },
                     { a: Service, b: Service -> a.merge(b) })
     )
+    override fun withIdRev(id: String?, rev: String): Contact =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }
 

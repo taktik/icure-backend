@@ -36,8 +36,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FormTemplate(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         @JsonIgnore val layout: ByteArray? = null,
         @JsonIgnore var isAttachmentDirty: Boolean = false,
@@ -88,5 +88,6 @@ data class FormTemplate(
             "layout" to (this.layout?.let { if (it.size >= other.layout?.size ?: 0) it else other.layout }
                     ?: other.layout)
     )
-
+    override fun withIdRev(id: String?, rev: String): FormTemplate =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

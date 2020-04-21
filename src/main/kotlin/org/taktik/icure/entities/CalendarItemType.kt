@@ -13,8 +13,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CalendarItemType(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
         val name: String? = null,
         val color : String? = null, //"#123456"
         val duration : Int = 0, // mikrono: int durationInMinutes; = 0
@@ -41,4 +41,6 @@ data class CalendarItemType(
             "otherInfos" to (other.otherInfos + this.otherInfos),
             "subjectByLanguage" to (other.subjectByLanguage + this.subjectByLanguage)
     )
+    override fun withIdRev(id: String?, rev: String): CalendarItemType =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

@@ -30,8 +30,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Group(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         val name: String? = null,
         val password: String? = null,
@@ -54,4 +54,6 @@ data class Group(
             "isSuperAdmin" to (this.isSuperAdmin),
             "superGroup" to (this.superGroup ?: other.superGroup)
     )
+    override fun withIdRev(id: String?, rev: String): Group =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

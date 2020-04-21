@@ -40,7 +40,7 @@ data class PlanOfActionTemplate(
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
-        override val endOfLife: Long?,
+        override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
         override val name: String? = null,

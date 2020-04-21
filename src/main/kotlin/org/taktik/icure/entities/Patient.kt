@@ -35,15 +35,15 @@ import java.util.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Patient(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
-        override val endOfLife: Long?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        override val endOfLife: Long? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val firstName : String? = null,
         override val lastName : String? = null, //Is usually either maidenName or spouseName,
@@ -177,4 +177,6 @@ data class Patient(
                                     { a, b -> a.merge(b) }
                             )
     )
+    override fun withIdRev(id: String?, rev: String): Patient =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

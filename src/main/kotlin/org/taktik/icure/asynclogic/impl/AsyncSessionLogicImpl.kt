@@ -189,7 +189,7 @@ class AsyncSessionLogicImpl(private val authenticationManager: ReactiveAuthentic
         override suspend fun getUser(): User {
             val userId = getUserId()
             val groupId = getGroupId()
-            return userId?.let { userDAO.getUserOnUserDb(getDbInstanceUri(), groupId, userId, false) }?.apply { this.groupId = groupId }
+            return userId?.let { userDAO.getUserOnUserDb(getDbInstanceUri(), groupId, userId, false) }?.copy(groupId = groupId)
                     ?: throw AuthenticationServiceException("Failed getting the user from session context : userId=$userId, groupId=$groupId")
         }
 

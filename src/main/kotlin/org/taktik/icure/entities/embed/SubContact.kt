@@ -42,7 +42,7 @@ data class SubContact(
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
-        override val endOfLife: Long?,
+        override val endOfLife: Long? = null,
 
         val descr: String? = null,
         val protocol: String? = null,

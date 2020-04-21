@@ -31,8 +31,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Insurance(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         val name: Map<String, String> = mapOf(),
         val privateInsurance : Boolean = false,
@@ -61,4 +61,6 @@ data class Insurance(
         "address" to (this.address.merge(other.address)),
         "name" to (other.name + this.name)
     )
+    override fun withIdRev(id: String?, rev: String): Insurance =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

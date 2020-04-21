@@ -32,8 +32,8 @@ import org.taktik.icure.validation.NotNull
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class TimeTable(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         val name: String? = null,
         val agendaId: String? = null,
@@ -56,4 +56,6 @@ data class TimeTable(
         "endTime" to (this.endTime ?: other.endTime),
         "items" to mergeListsDistinct(this.items, other.items)
     )
+    override fun withIdRev(id: String?, rev: String): TimeTable =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

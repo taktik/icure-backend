@@ -31,10 +31,10 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Role(
+data class Role(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
         override val properties: Set<Property> = setOf(),
@@ -57,5 +57,6 @@ class Role(
             "children" to (other.children + this.children),
             "users" to (other.users + this.users)
     )
-
+    override fun withIdRev(id: String?, rev: String): Role =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

@@ -40,6 +40,7 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.exceptions.BulkUpdateConflictException
+import org.taktik.icure.utils.invoke
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import java.io.InputStream
@@ -162,15 +163,15 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
         try {
             for (t in e.getMethod("values").invoke(null) as Array<T>) {
-                val newCode = Code(regions, e.name, t.name, version, ImmutableMap.of("en", t.name.replace("_".toRegex(), " ")))
+                val newCode = Code.from(e.name, t.name, version).copy(regions = regions, label = ImmutableMap.of("en", t.name.replace("_".toRegex(), " ")))
                 if (!codes.values.contains(newCode)) {
                     if (!codes.containsKey(newCode.id)) {
                         create(newCode)
                     } else {
-                        newCode.rev = codes[newCode.id]!!.rev
-                        if (codes[newCode.id] != newCode) {
+                        val modCode = newCode.copy(rev = codes[newCode.id]!!.rev)
+                        if (codes[newCode.id] != modCode) {
                             try {
-                                modify(newCode)
+                                modify(modCode)
                             } catch (ex2: Exception) {
                                 log.info("Could not create code " + e.name, ex2)
                             }
@@ -189,7 +190,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream) {
-        val check = get(listOf(Code("ICURE-SYSTEM", md5, "1").id)).toList()
+        val check = get(listOf(Code.from("ICURE-SYSTEM", md5, version = "1").id)).toList()
 
         if (check.isEmpty()) {
             val factory = SAXParserFactory.newInstance();
@@ -200,13 +201,11 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
             val batchSave: suspend (Code?, Boolean?) -> Unit = { c, flush ->
                 c?.let { stack.add(it) }
                 if (stack.size == 100 || flush == true) {
-                    val existings = get(stack.mapNotNull { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
+                    val existings = get(stack.map { it.id }).fold(HashMap<String, Code>()) { map, c -> map[c.id] = c; map }
                     try {
                         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-                        codeDAO.save(dbInstanceUri, groupId, stack.map { c ->
-                            val prev = existings[c.id]
-                            prev?.let { c.rev = it.rev }
-                            c
+                        codeDAO.save(dbInstanceUri, groupId, stack.map { xc ->
+                            existings[xc.id]?.let { xc.copy(rev = it.rev) } ?: xc
                         })
                     } catch (e: BulkUpdateConflictException) {
                         log.error("${e.conflicts.size} conflicts for type $type")
@@ -217,9 +216,9 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
 
             val handler = object : DefaultHandler() {
                 var initialized = false
-                var version: String? = null
+                var version: String = "1.0"
                 var charsHandler: ((chars: String) -> Unit)? = null
-                var code: Code? = null
+                var code: MutableMap<String, Any> = mutableMapOf()
                 var characters: String = ""
 
                 override fun characters(ch: CharArray?, start: Int, length: Int) {
@@ -238,11 +237,11 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                                 version = it
                             }
                             "VALUE" -> {
-                                code = Code(type, null, version).apply { label = HashMap() }
+                                code = mutableMapOf("type" to type, "version" to version, "label" to mapOf<String,String>())
                             }
-                            "CODE" -> charsHandler = { code?.code = it }
-                            "PARENT" -> charsHandler = { code?.qualifiedLinks = mapOf(pair = Pair(LinkQualification.parent, listOf("$type|$it|$version"))) }
-                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code?.label?.put(attributesValue, it) } }
+                            "CODE" -> charsHandler = { code["code"] = it }
+                            "PARENT" -> charsHandler = { code["qualifiedLinks"] = mapOf(LinkQualification.parent to listOf("$type|$it|$version")) }
+                            "DESCRIPTION" -> charsHandler = { attributes?.getValue("L")?.let { attributesValue -> code["label"] = (code["label"] as Map<String,String>) + (attributesValue to it) } }
                             else -> {
                                 charsHandler = null
                             }
@@ -256,8 +255,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
                         when (it.toUpperCase()) {
                             "VALUE" -> {
                                 runBlocking {
-                                    // TODO MB  can improve this ?
-                                    batchSave(code, false)
+                                    batchSave(Code(args = code), false)
                                 }
                             }
                             else -> null
@@ -269,7 +267,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
             try {
                 saxParser.parse(stream, handler)
                 batchSave(null, true)
-                create(Code("ICURE-SYSTEM", md5, "1"))
+                create(Code.from("ICURE-SYSTEM", md5, "1"))
             } catch (e: IllegalArgumentException) {
                 //Skip
             } finally {
@@ -324,7 +322,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
             return codes.stream().sorted { a, b -> a.version?.let { b.version?.compareTo(it) }!! }.findFirst().get()
         }
 
-        return this.create(Code(type, code, version))
+        return this.create(Code.from(type, code, version))
     }
 
     override suspend fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code? {

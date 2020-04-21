@@ -32,8 +32,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Property(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         val type: PropertyType? = null,
         val typedValue: TypedValue<*>? = null,
@@ -55,4 +55,7 @@ data class Property(
     fun <T> getValue(): T? {
         return (typedValue?.getValue<Any>()?.let { it as? T })
     }
+
+    override fun withIdRev(id: String?, rev: String): Property =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

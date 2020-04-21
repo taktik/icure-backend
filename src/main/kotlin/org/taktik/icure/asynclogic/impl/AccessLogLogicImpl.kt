@@ -44,11 +44,12 @@ class AccessLogLogicImpl(private val accessLogDAO: AccessLogDAO, private val ses
 
     override suspend fun createAccessLog(accessLog: AccessLog): AccessLog? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        if (accessLog.date == null) {
-            accessLog.date = Instant.now()
-        }
-        accessLog.user = sessionLogic.getCurrentUserId()
-        return accessLogDAO.create(dbInstanceUri, groupId, accessLog)
+        return accessLogDAO.create(dbInstanceUri, groupId,
+                if (accessLog.date == null)
+                    accessLog.copy(user = sessionLogic.getCurrentUserId(), date = Instant.now())
+                else
+                    accessLog.copy(user = sessionLogic.getCurrentUserId())
+        )
     }
 
     override fun deleteAccessLogs(ids: List<String>): Flow<DocIdentifier> {

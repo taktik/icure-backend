@@ -34,8 +34,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Replication(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
         var context: String? = null,
@@ -54,4 +54,6 @@ data class Replication(
             "context" to (other.context + this.context),
             "databaseSynchronizations" to mergeListsDistinct(this.databaseSynchronizations, other.databaseSynchronizations)
     )
+    override fun withIdRev(id: String?, rev: String): Replication =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

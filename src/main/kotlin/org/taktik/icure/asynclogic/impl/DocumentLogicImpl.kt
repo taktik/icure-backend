@@ -37,9 +37,6 @@ import java.util.*
 class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessionLogic: AsyncSessionLogicImpl) : GenericLogicImpl<Document, DocumentDAO>(sessionLogic), DocumentLogic {
 
     override suspend fun createDocument(document: Document, ownerHealthcarePartyId: String): Document? {
-        // Fill audit details
-        document.author = ownerHealthcarePartyId
-        document.responsible = ownerHealthcarePartyId
         return try {
             createEntities(setOf(document)).firstOrNull()
         } catch (e: Exception) {

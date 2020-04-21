@@ -77,26 +77,17 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     override suspend fun addDelegation(contactId: String, delegation: Delegation): Contact? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val contact = getContact(contactId)
-        delegation.delegatedTo?.let { contact?.addDelegation(it, delegation) }
-        return contact?.let { contactDAO.save(dbInstanceUri, groupId, it) }
+        return delegation.delegatedTo?.let { healthcarePartyId ->
+            contact?.let { c -> contactDAO.save(dbInstanceUri, groupId, c.copy(delegations = c.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))}
+        } ?: contact
     }
 
     override suspend fun createContact(contact: Contact): Contact? {
         try { // Fetching the hcParty
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            // Setting contact attributes
-            if (contact.id == null) {
-                contact.id = uuidGenerator.newGUID().toString()
-            }
-            if (contact.openingDate == null) {
-                contact.openingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)
-            }
-            contact.author = sessionLogic.getCurrentUserId()
-            if (contact.responsible == null) {
-                contact.responsible = healthcarePartyId
-            }
-            contact.healthcarePartyId = healthcarePartyId
-            return createEntities(setOf(contact)).firstOrNull()
+            return createEntities(setOf(if (contact.healthcarePartyId == null) contact.copy(healthcarePartyId = healthcarePartyId) else contact)).firstOrNull()
         } catch (e: Exception) {
             logger.error("createContact: " + e.message)
             throw IllegalArgumentException("Invalid contact", e)
@@ -153,19 +144,20 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun pimpServiceWithContactInformation(s: org.taktik.icure.entities.embed.Service, c: Contact): org.taktik.icure.entities.embed.Service {
-        s.contactId = c.id
-        s.secretForeignKeys = c.secretForeignKeys
-        s.cryptedForeignKeys = c.cryptedForeignKeys
-        val subContacts = c.subContacts?.filter { sc: SubContact -> sc.services?.filter { sc2: ServiceLink -> sc2.serviceId != null }.anyMatch { sl: ServiceLink -> sl.serviceId == s.id } }.collect(Collectors.toList())
-        s.subContactIds = subContacts.stream().map { obj: SubContact -> obj.id }.collect(Collectors.toSet())
-        s.plansOfActionIds = subContacts.stream().map { obj: SubContact -> obj.planOfActionId }.filter { obj: String? -> Objects.nonNull(obj) }.collect(Collectors.toSet())
-        s.healthElementsIds = subContacts.stream().map { obj: SubContact -> obj.healthElementId }.filter { obj: String? -> Objects.nonNull(obj) }.collect(Collectors.toSet())
-        s.formIds = subContacts.stream().map { obj: SubContact -> obj.formId }.filter { obj: String? -> Objects.nonNull(obj) }.collect(Collectors.toSet())
-        s.delegations = c.delegations
-        s.encryptionKeys = c.encryptionKeys
-        s.author = c.author
-        s.responsible = c.responsible
-        return s
+        val subContacts = c.subContacts.filter { sc: SubContact -> sc.services.filter { sc2: ServiceLink -> sc2.serviceId != null }.any { sl: ServiceLink -> sl.serviceId == s.id } }
+        return s.copy(
+                contactId = c.id,
+                secretForeignKeys = c.secretForeignKeys,
+                cryptedForeignKeys = c.cryptedForeignKeys,
+                subContactIds = subContacts.map { obj: SubContact -> obj.id }.toSet(),
+                plansOfActionIds = subContacts.mapNotNull { obj: SubContact -> obj.planOfActionId }.toSet(),
+                healthElementsIds = subContacts.mapNotNull { obj: SubContact -> obj.healthElementId }.toSet(),
+                formIds = subContacts.mapNotNull { obj: SubContact -> obj.formId }.toSet(),
+                delegations = c.delegations,
+                encryptionKeys = c.encryptionKeys,
+                author = c.author,
+                responsible = c.responsible
+        )
     }
 
     override fun listServiceIdsByTag(hcPartyId: String, patientSecretForeignKeys: List<String>?, tagType: String, tagCode: String, startValueDate: Long?, endValueDate: Long?): Flow<String> = flow {
@@ -248,13 +240,14 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val contactsInConflict = contactDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { contactDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         contactsInConflict.collect { ctc ->
-            ctc.conflicts.map { c: String -> contactDAO.get(dbInstanceUri, groupId, ctc.id, c) }.forEach { cp: Contact? ->
+            var modifiedContact = ctc
+            ctc.conflicts?.map { c: String -> contactDAO.get(dbInstanceUri, groupId, ctc.id, c) }?.forEach { cp: Contact? ->
                 if (cp != null) {
-                    ctc.solveConflictsWith(cp)
+                    modifiedContact = modifiedContact.merge(cp)
                     contactDAO.purge(dbInstanceUri, groupId, cp)
                 }
             }
-            contactDAO.save(dbInstanceUri, groupId, ctc)
+            contactDAO.save(dbInstanceUri, groupId, modifiedContact)
         }
     }
 

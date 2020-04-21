@@ -48,12 +48,12 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
 
     override suspend fun createClassification(classification: Classification): Classification? {
         try { // Fetching the hcParty
+            val userId = sessionLogic.getCurrentUserId()
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            // Setting Classification attributes
-            classification.id = classification.id ?: uuidGenerator.newGUID().toString()
-            classification.author = healthcarePartyId
-            classification.responsible = healthcarePartyId
-            return createEntities(setOf(classification)).firstOrNull()
+            return createEntities(setOf(classification.copy(
+                    author = userId,
+                    responsible = healthcarePartyId
+            ))).firstOrNull()
         } catch (e: Exception) {
             log.error("createClassification: " + e.message)
             throw IllegalArgumentException("Invalid Classification", e)
@@ -83,8 +83,7 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         return try {
             classification.id?.let {
                 getClassification(it)?.let { toEdit ->
-                    toEdit.label = classification.label
-                    updateEntities(setOf(toEdit))
+                    updateEntities(setOf(toEdit.copy(label = classification.label)))
                     getClassification(classification.id)
                 }
             } ?: throw IllegalArgumentException("Non-existing Classification")
@@ -97,8 +96,9 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val classification = getClassification(classificationId)
         return classification?.let {
-            it.addDelegation(healthcarePartyId, delegation)
-            classificationDAO.save(dbInstanceUri, groupId, it)
+            classificationDAO.save(dbInstanceUri, groupId, it.copy(delegations = it.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))
         }
     }
 
@@ -106,8 +106,10 @@ class ClassificationLogicImpl(private val classificationDAO: ClassificationDAO,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val classification = getClassification(classificationId)
         return classification?.let {
-            delegations.forEach(Consumer { d -> d.delegatedTo?.let { delegateTo -> it.addDelegation(delegateTo, d) } })
-            return classificationDAO.save(dbInstanceUri, groupId, it)
+            return classificationDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
         }
     }
 

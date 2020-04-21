@@ -54,12 +54,12 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
     override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try { // Fetching the hcParty
+            val userId = sessionLogic.getCurrentUserId()
             val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
             // Setting Classification Template attributes
-            classificationTemplate.id = classificationTemplate.id ?: uuidGenerator.newGUID().toString()
-            classificationTemplate.author = healthcarePartyId
-            classificationTemplate.responsible = healthcarePartyId
-            return createEntities(setOf(classificationTemplate)).firstOrNull()
+            return createEntities(setOf(classificationTemplate.copy(
+                    author = userId, responsible = healthcarePartyId
+            ))).firstOrNull()
         } catch (e: Exception) {
             log.error("createClassificationTemplate: " + e.message)
             throw IllegalArgumentException("Invalid Classification Template", e)
@@ -83,8 +83,7 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
     override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate): ClassificationTemplate {
         return try {
             getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
-                toEdit.label = classificationTemplate.label
-                updateEntities(setOf(toEdit))
+                updateEntities(setOf(toEdit.copy(label = classificationTemplate.label)))
                 getClassificationTemplate(classificationTemplate.id)
             } ?: throw IllegalArgumentException("Non-existing Classification Template")
         } catch (e: Exception) {
@@ -96,8 +95,9 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val classificationTemplate = getClassificationTemplate(classificationTemplateId)
         return classificationTemplate?.let {
-            it.addDelegation(healthcarePartyId, delegation)
-            classificationTemplateDAO.save(dbInstanceUri, groupId, classificationTemplate)
+            classificationTemplateDAO.save(dbInstanceUri, groupId, it.copy(delegations = it.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))
         }
     }
 
@@ -105,8 +105,10 @@ class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: Cla
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val classificationTemplate = getClassificationTemplate(classificationTemplateId)
         return classificationTemplate?.let {
-            delegations.forEach(Consumer { d: Delegation -> d.delegatedTo?.let { delegatedTo -> it.addDelegation(delegatedTo, d) } })
-            return classificationTemplateDAO.save(dbInstanceUri, groupId, classificationTemplate)
+            return classificationTemplateDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
         }
     }
 

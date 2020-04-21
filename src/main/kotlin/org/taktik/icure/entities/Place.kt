@@ -13,8 +13,8 @@ import org.taktik.icure.utils.invoke
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Place(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
         val address: Address? = null,
@@ -31,4 +31,6 @@ data class Place(
             "name" to (this.name ?: other.name),
             "address" to (this.address ?: other.address)
     )
+    override fun withIdRev(id: String?, rev: String): Place =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

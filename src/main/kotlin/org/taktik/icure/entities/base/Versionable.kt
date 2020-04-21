@@ -27,4 +27,6 @@ interface Versionable<T> : Identifiable<T> {
     val revHistory: Map<String, String>?
     @Json(name = "_rev")
     val rev: String?
+
+    fun withIdRev(id:T?, rev:String):Versionable<T>
 }

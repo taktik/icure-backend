@@ -41,8 +41,8 @@ import java.time.Instant
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class User(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
         override val properties: Set<Property> = setOf(),
@@ -119,5 +119,7 @@ data class User(
         "email" to (this.email ?: other.email),
         "applicationTokens" to (other.applicationTokens + this.applicationTokens)
     )
+    override fun withIdRev(id: String?, rev: String): User =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 
 }

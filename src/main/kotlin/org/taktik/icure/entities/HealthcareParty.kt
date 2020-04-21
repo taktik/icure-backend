@@ -33,8 +33,8 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class HealthcareParty(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
         override val lastName: String? = null,
@@ -128,4 +128,6 @@ data class HealthcareParty(
             "importedData" to (other.importedData + this.importedData),
             "options" to (other.options + this.options)
     )
+    override fun withIdRev(id: String?, rev: String): HealthcareParty =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

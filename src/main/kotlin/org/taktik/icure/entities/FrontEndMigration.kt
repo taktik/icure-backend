@@ -12,8 +12,8 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FrontEndMigration(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         val name: String? = null,
         val startDate: Long? = null,
@@ -44,4 +44,6 @@ data class FrontEndMigration(
             "startKeyDocId" to (this.startKeyDocId ?: other.startKeyDocId),
             "processCount" to (this.processCount ?: other.processCount)
     )
+    override fun withIdRev(id: String?, rev: String): FrontEndMigration =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }

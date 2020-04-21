@@ -30,10 +30,10 @@ import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class EntityTemplate(
+data class EntityTemplate(
         @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String?,
-        @JsonProperty("deleted") override val deletionDate: Long?,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         @NotNull(autoFix = AutoFix.CURRENTUSERID) var userId: String? = null,
         val descr: String? = null,
@@ -57,5 +57,7 @@ class EntityTemplate(
             "isDefaultTemplate" to (this.isDefaultTemplate ?: other.isDefaultTemplate),
             "entity" to (this.entity)
     )
+    override fun withIdRev(id: String?, rev: String): EntityTemplate =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }
 

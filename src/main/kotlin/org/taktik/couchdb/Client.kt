@@ -22,6 +22,7 @@ import org.ektorp.http.URI
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.parser.*
 import org.taktik.icure.dao.Option
+import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
@@ -46,7 +47,7 @@ import kotlin.math.min
 
 typealias CouchDbDocument = Versionable<String>
 
-class DesignDocument(
+data class DesignDocument(
         @Json(name = "_id") override var id: String,
         @Json(name = "_rev") override var rev: String? = null,
         @Json(name = "rev_history") override val revHistory: Map<String, String> = mapOf(),
@@ -55,7 +56,10 @@ class DesignDocument(
         val shows: Map<String, String> = mapOf(),
         val updateHandlers: Map<String, String>? = null,
         val filters: Map<String, String> = mapOf()
-) : CouchDbDocument
+) : CouchDbDocument {
+    override fun withIdRev(id: String?, rev: String): DesignDocument =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+}
 
 
 sealed class ActiveTask(val pid: String? = null, val started_on: Instant? = null, val updated_on: Instant? = null)
@@ -511,7 +515,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
         // Create a new copy of the doc and set rev/id from response
         @Suppress("BlockingMethodInNonBlockingContext")
-        return checkNotNull(adapter.fromJson(serializedDoc)).copy(createResponse.id, createResponse.rev)
+        return checkNotNull(adapter.fromJson(serializedDoc)).withIdRev(createResponse.id, createResponse.rev) as T
     }
 
     override suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T {
@@ -529,12 +533,12 @@ class ClientImpl(private val httpClient: HttpClient,
         }
         // Create a new copy of the doc and set rev/id from response
         @Suppress("BlockingMethodInNonBlockingContext")
-        return checkNotNull(adapter.fromJson(serializedDoc)).copy(updateResponse.id, updateResponse.rev)
+        return checkNotNull(adapter.fromJson(serializedDoc)).withIdRev(updateResponse.id, updateResponse.rev) as T
     }
 
     override suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier {
         val id = entity.id
-        require(!id.isNullOrBlank()) { "Id cannot be blank" }
+        require(!id.isBlank()) { "Id cannot be blank" }
         require(!entity.rev.isNullOrBlank()) { "Revision cannot be blank" }
         val uri = dbURI.append(id).param("rev", entity.rev)
         val request = newRequest(uri).method(HttpMethod.DELETE)
@@ -694,11 +698,10 @@ class ClientImpl(private val httpClient: HttpClient,
                                     }
                                     // We finished parsing a row, emit the result
                                     id?.let {
-                                        val row = if (query.isIncludeDocs) {
-                                            //check(doc != null) { "Doc shouldn't be null" }
-                                            if (doc != null) ViewRowWithDoc(id, key, value, doc) else ViewRowWithMissingDoc(id, key, value)
+                                        val row: ViewRow<K, V, T> = if (query.isIncludeDocs) {
+                                            if (doc != null) ViewRowWithDoc(it, key, value, doc) as ViewRow<K, V, T> else ViewRowWithMissingDoc(it, key, value)
                                         } else {
-                                            ViewRowNoDoc(id, key, value)
+                                            ViewRowNoDoc(it, key, value)
                                         }
                                         emit(row)
                                     } ?: if (value is Int) {

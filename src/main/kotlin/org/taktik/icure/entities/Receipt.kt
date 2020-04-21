@@ -39,15 +39,15 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Receipt(
               @JsonProperty("_id") override val id: String,
-              @JsonProperty("_rev") override val rev: String?,
-              @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
-              @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
-              @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
-              @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
-              @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
-              @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
-              override val endOfLife: Long?,
-              @JsonProperty("deleted") override val deletionDate: Long?,
+              @JsonProperty("_rev") override val rev: String? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+              override val endOfLife: Long? = null,
+              @JsonProperty("deleted") override val deletionDate: Long? = null,
 
               val attachmentIds: Map<ReceiptBlobType, String> = mapOf(),
               val references: List<String> = listOf(), //nipReference:027263GFF152, errorCode:186, errorPath:/request/transaction, org.taktik.icure.entities;tarification:id, org.taktik.entities.Invoice:UUID
@@ -80,4 +80,6 @@ data class Receipt(
             "category" to (this.category ?: other.category),
             "subCategory" to (this.subCategory ?: other.subCategory)
     )
+    override fun withIdRev(id: String?, rev: String): Receipt =
+            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }
