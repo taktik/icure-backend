@@ -418,7 +418,7 @@ public class Service implements ICureDocument, Serializable, Comparable<Service>
 		int idx = (this.index != null && other.index != null) ? this.index.compareTo(other.index) : 0;
 		if (idx!=0) return idx;
 
-		idx = this.id.compareTo(other.id);
+		idx = (this.id != null && other.id != null) ? this.id.compareTo(other.id) : 0;
 		if (idx!=0) return idx;
 
 		return 1;
