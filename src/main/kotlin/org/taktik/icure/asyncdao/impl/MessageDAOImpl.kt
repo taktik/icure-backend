@@ -128,7 +128,7 @@ class MessageDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
         val startKey = ComplexKey.of(partyId, transportGuid, fromDate)
         val endKey = ComplexKey.of(partyId, transportGuid, toDate)
-        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_received", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
+        val viewQuery = pagedViewQuery<Message, ComplexKey>("by_hcparty_transport_guid_sent_date", startKey, endKey, paginationOffset.toPaginationOffset { ComplexKey.of(*it.toTypedArray()) }, false)
         return client.queryView(viewQuery, Array<String>::class.java, String::class.java, Message::class.java)
     }
 
