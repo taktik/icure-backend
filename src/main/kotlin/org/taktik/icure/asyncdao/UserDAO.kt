@@ -25,5 +25,5 @@ interface UserDAO : GenericDAO<User>{
     fun getUsersOnDb(dbInstanceUrl: URI, groupId: String): Flow<User>
     suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String, userIds: Flow<String>)
     suspend fun saveOnFallback(dbInstanceUrl: URI, user: User): User
-    suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: User?): User?
+    suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: User): User?
 }

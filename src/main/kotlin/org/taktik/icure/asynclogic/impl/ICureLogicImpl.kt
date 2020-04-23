@@ -49,14 +49,11 @@ class ICureLogicImpl(couchDbProperties: CouchDbProperties,
     override suspend fun getReplicationInfo(groupId: String): ReplicationInfoDto {
         val changes: Map<DatabaseSynchronization, Long> = iCureDAO.getPendingChanges(groupId)
         return changes.toList().fold(ReplicationInfoDto()) { r, (db, pending) ->
-            r.active = true
-            if (db.source.contains(dbInstanceUri.host)) {
-                r.pendingFrom += pending
-            }
-            if (db.target.contains(dbInstanceUri.host)) {
-                r.pendingTo += pending
-            }
-            r
+            r.copy(
+                    active = true,
+                    pendingFrom = if(db.source?.contains(dbInstanceUri.host) == true) ((r.pendingFrom ?: 0) + pending).toInt() else r.pendingFrom,
+                    pendingTo = if(db.source?.contains(dbInstanceUri.host) == true) ((r.pendingTo ?: 0) + pending).toInt() else r.pendingTo
+            )
         }
     }
 

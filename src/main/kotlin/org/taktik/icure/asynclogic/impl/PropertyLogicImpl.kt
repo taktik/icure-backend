@@ -27,22 +27,24 @@ import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.embed.TypedValue
 import org.taktik.icure.asynclogic.PropertyLogic
+import org.taktik.icure.constants.TypedValuesType
+import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.base.PropertyTypeStub
 
 @Service
 class PropertyLogicImpl(private val environment: ConfigurableEnvironment) : PropertyLogic {
-    private val environmentProperties: Map<String, Property> = getEnvironmentProperties().mapValues { e ->
-        val propertyTypedValue = TypedValue(e.value)
-        Property().apply {
-            type = PropertyType().apply {
-                id = "" + e.key.hashCode()
-                identifier = e.key
+    private val environmentProperties: Map<String, PropertyStub> = getEnvironmentProperties().mapValues { e ->
+        val propertyTypedValue = TypedValue.withValue(e.value)
+        PropertyStub(
+            type = PropertyTypeStub(
+                identifier = e.key,
                 type = propertyTypedValue.type
-            }
+            ),
             typedValue = propertyTypedValue
-        }
+        )
     }
 
-    override fun getSystemProperties(includeEnvironmentProperties: Boolean): Set<Property> {
+    override fun getSystemProperties(includeEnvironmentProperties: Boolean): Set<PropertyStub> {
        return environmentProperties.values.toSet()
     }
 
@@ -68,7 +70,7 @@ class PropertyLogicImpl(private val environment: ConfigurableEnvironment) : Prop
         }
     }
 
-    override fun getSystemProperty(propertyIdentifier: String): Property? {
+    override fun getSystemProperty(propertyIdentifier: String): PropertyStub? {
         return environmentProperties[propertyIdentifier]
     }
 

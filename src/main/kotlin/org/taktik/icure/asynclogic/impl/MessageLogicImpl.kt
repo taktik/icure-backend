@@ -29,12 +29,13 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.MessageLogic
 import org.taktik.icure.dao.Option
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.PersistenceException
-import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus
+import org.taktik.icure.entities.embed.MessageReadStatus
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
 import java.util.*
@@ -56,8 +57,7 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(messageDAO.save(dbInstanceUri, groupId, messageDAO.getList(dbInstanceUri, groupId, messageIds)
                 .map {
-                    it.status = if (it.status != null) it.status!! or status else status
-                    it
+                    it.copy(status = status or (it.status ?: 0))
                 }.toList()))
     }
 
@@ -65,16 +65,12 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     override fun setReadStatus(messageIds: List<String>, userId: String, status: Boolean, time: Long) = flow<Message> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         emitAll(
-                messageDAO.save(dbInstanceUri, groupId, messageDAO.getList(dbInstanceUri, groupId, messageIds).map { m: Message ->
-                    val readStatus = m.readStatus
-                    if (readStatus[userId] == null || FuzzyValues.compare(readStatus[userId]!!.time, time) == -1) {
-                        val userReadStatus = MessageReadStatus()
-                        userReadStatus.read = status
-                        userReadStatus.time = time
-                        readStatus[userId] = userReadStatus
-                    }
-                    m
-                }.toList())
+            messageDAO.save(dbInstanceUri, groupId, messageDAO.getList(dbInstanceUri, groupId, messageIds).map { m: Message ->
+                if ((m.readStatus[userId]?.time ?: 0) < time) m.copy(readStatus = m.readStatus + (userId to MessageReadStatus(
+                        read = status,
+                        time = time
+                ))) else m
+            }.toList())
         )
     }
 
@@ -112,18 +108,21 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
     override suspend fun addDelegation(messageId: String, delegation: Delegation): Message? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val message = messageDAO.get(dbInstanceUri, groupId, messageId)
-        return message?.let {
-            delegation.delegatedTo?.let { delegateTo -> it.addDelegation(delegateTo, delegation) }
-            messageDAO.save(dbInstanceUri, groupId, it)
-        }
+        return delegation.delegatedTo?.let { healthcarePartyId ->
+            message?.let { c -> messageDAO.save(dbInstanceUri, groupId, c.copy(delegations = c.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))}
+        } ?: message
     }
 
     override suspend fun addDelegations(messageId: String, delegations: List<Delegation>): Message? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val message = messageDAO.get(dbInstanceUri, groupId, messageId)
         return message?.let {
-            delegations.forEach(Consumer { d: Delegation -> d.delegatedTo?.let { delegateTo -> message.addDelegation(delegateTo, d) } })
-            messageDAO.save(dbInstanceUri, groupId, message)
+            return messageDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
         }
     }
 
@@ -152,18 +151,17 @@ class MessageLogicImpl(private val documentDAO: DocumentDAO, private val message
         emitAll(messageDAO.getByExternalRefs(dbInstanceUri, groupId, hcPartyId, externalRefs.toSet()))
     }
 
-    fun createEntities(entities: Collection<Message>, createdEntities: Collection<Message>) = flow<Message> {
+    fun createEntities(entities: Collection<Message>, createdEntities: Collection<Message>) = flow {
         val loggedUser = sessionLogic.getCurrentSessionContext().getUser()
-        entities.map {
-            if (it.fromAddress == null) {
-                it.fromAddress = loggedUser?.email
-            }
-            if (it.fromHealthcarePartyId == null) {
-                it.fromHealthcarePartyId = loggedUser?.healthcarePartyId
-            }
-            it
-        }
-        emitAll(super.createEntities(entities))
+
+        emitAll(super.createEntities(entities.map {
+            if (it.fromAddress == null || it.fromHealthcarePartyId == null)
+                it.copy(
+                        fromAddress = it.fromAddress ?: loggedUser.email,
+                        fromHealthcarePartyId = it.fromHealthcarePartyId ?: loggedUser.healthcarePartyId
+                )
+            else it
+        }))
     }
 
     @Throws(CreationException::class, LoginException::class)

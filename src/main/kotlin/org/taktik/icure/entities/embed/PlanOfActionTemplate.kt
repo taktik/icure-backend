@@ -34,12 +34,13 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PlanOfActionTemplate(
         @JsonProperty("_id") override val id: String,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
@@ -51,6 +52,7 @@ data class PlanOfActionTemplate(
         var forms: List<FormSkeleton> = listOf()
 ) : ICureDocument, Named {
     companion object : DynamicInitializer<PlanOfActionTemplate>
+
     fun merge(other: PlanOfActionTemplate) = PlanOfActionTemplate(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: PlanOfActionTemplate) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.descr ?: other.descr),
@@ -60,4 +62,12 @@ data class PlanOfActionTemplate(
             "status" to (this.status),
             "forms" to mergeListsDistinct(this.forms, other.forms)
     )
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

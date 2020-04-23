@@ -24,6 +24,6 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FormGroup(
-    val guid: String? = null,
-    val name: String? = null
+        val guid: String? = null,
+        val name: String? = null
 ) : Serializable

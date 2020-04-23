@@ -13,9 +13,9 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.AmpDto
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpDto
-import org.taktik.icure.services.external.rest.v1.dto.be.samv2.VmpGroupDto
+import org.taktik.icure.services.external.rest.v1.dto.samv2.AmpDto
+import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpDto
+import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpGroupDto
 import org.taktik.icure.utils.ResponseUtils
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList

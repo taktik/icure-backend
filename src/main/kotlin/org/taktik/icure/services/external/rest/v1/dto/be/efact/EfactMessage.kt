@@ -8,7 +8,7 @@ class EfactMessage {
     var commonOutput: CommonOutput? = null
 
     var message: List<Record>? = null
-    var xades : String? = null
+    var xades: String? = null
     var tAck: TAck? = null
 
     var hashValue: String? = null

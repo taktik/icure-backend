@@ -43,21 +43,22 @@ data class Contact(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.UUID) val groupId : String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.UUID) val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
 
-        val closingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val descr: String? = null,
         val location: String? = null,
         val healthcarePartyId: String? = null, //Redundant... Should be responsible
         val externalId: String? = null,
         val modifiedContactId: String? = null,
-        val encounterType: Code? = null,
+        val encounterType: CodeStub? = null,
         val subContacts: @Valid Set<SubContact> = setOf(),
         val services: @Valid Set<Service> = setOf(),
 
@@ -71,10 +72,11 @@ data class Contact(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Contact::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Contact>
+
     fun merge(other: Contact) = Contact(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Contact) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: Contact) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
             "openingDate" to (openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
             "closingDate" to (closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),
             "descr" to (this.descr ?: other.descr),
@@ -89,7 +91,16 @@ data class Contact(
             "services" to mergeSets(services, other.services, { a, b -> a.id == b.id },
                     { a: Service, b: Service -> a.merge(b) })
     )
-    override fun withIdRev(id: String?, rev: String): Contact =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }
 

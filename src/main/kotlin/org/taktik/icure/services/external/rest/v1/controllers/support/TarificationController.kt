@@ -42,7 +42,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.TarificationDto
-import org.taktik.icure.services.external.rest.v1.dto.TarificationPaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -77,7 +77,7 @@ class TarificationController(private val mapper: MapperFacade,
             }
         }
 
-        TarificationPaginatedList(tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit))
+        PaginatedList(tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit))
     }
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
@@ -96,7 +96,7 @@ class TarificationController(private val mapper: MapperFacade,
                 } else {
                     null
                 }
-        TarificationPaginatedList(
+        PaginatedList(
                 tarificationLogic.findTarificationsBy(region, type, tarification, version, PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, realLimit+1))
                         .paginatedList<Tarification, TarificationDto>(mapper, realLimit)
         )

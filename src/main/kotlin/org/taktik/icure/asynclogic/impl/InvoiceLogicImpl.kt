@@ -19,7 +19,14 @@ package org.taktik.icure.asynclogic.impl
 
 import com.google.common.base.Strings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -30,6 +37,7 @@ import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.Option
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.dto.filter.chain.FilterChain
@@ -44,11 +52,13 @@ import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
+import java.lang.IllegalArgumentException
 import java.text.DecimalFormat
 import java.text.NumberFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.function.Consumer
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -56,6 +66,7 @@ import kotlin.math.max
 @Service
 class InvoiceLogicImpl(private val filters: Filters,
                        private val userLogic: UserLogic,
+                       private val uuidGenerator: UUIDGenerator,
                        private val entityReferenceLogic: EntityReferenceLogic,
                        private val invoiceDAO: InvoiceDAO,
                        private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<Invoice, InvoiceDAO>(sessionLogic), InvoiceLogic {
@@ -95,9 +106,25 @@ class InvoiceLogicImpl(private val filters: Filters,
 
     override suspend fun addDelegation(invoiceId: String, delegation: Delegation): Invoice? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val invoice = invoiceDAO.get(dbInstanceUri, groupId, invoiceId)
-        invoice?.addDelegation(delegation.delegatedTo, delegation)
-        return invoice?.let { invoiceDAO.save(dbInstanceUri, groupId, it) }
+        val invoice = getInvoice(invoiceId)
+        return delegation.delegatedTo?.let { healthcarePartyId ->
+            invoice?.let { c ->
+                invoiceDAO.save(dbInstanceUri, groupId, c.copy(delegations = c.delegations + mapOf(
+                        healthcarePartyId to setOf(delegation)
+                )))
+            }
+        } ?: invoice
+    }
+
+    override suspend fun addDelegations(invoiceId: String, delegations: List<Delegation>): Invoice? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        val invoice = getInvoice(invoiceId)
+        return invoice?.let {
+            return invoiceDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
+        }
     }
 
     override fun findByAuthor(hcPartyId: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent> = flow {
@@ -132,7 +159,7 @@ class InvoiceLogicImpl(private val filters: Filters,
 
     override fun listByHcPartyGroupId(hcParty: String, inputGroupId: String): Flow<Invoice> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(invoiceDAO.listByHcPartyGroupId(dbInstanceUri, groupId, inputGroupId ,hcParty))
+        emitAll(invoiceDAO.listByHcPartyGroupId(dbInstanceUri, groupId, inputGroupId, hcParty))
     }
 
     override fun listByHcPartyRecipientIdsUnsent(hcParty: String, recipientIds: Set<String?>): Flow<Invoice> = flow {
@@ -152,92 +179,98 @@ class InvoiceLogicImpl(private val filters: Filters,
 
     override suspend fun mergeInvoices(hcParty: String, invoices: List<Invoice>, destination: Invoice?): Invoice? {
         if (destination == null) return null
-        if (destination.invoicingCodes == null) {
-            destination.invoicingCodes = ArrayList()
-        }
         for (i in invoices) {
-            destination.invoicingCodes.addAll(i.invoicingCodes)
             deleteInvoice(i.id)
         }
-        return modifyInvoice(destination)
+        return modifyInvoice(destination.copy(invoicingCodes = destination.invoicingCodes + invoices.flatMap { it.invoicingCodes }))
     }
 
-    override suspend fun validateInvoice(hcParty: String, invoice: Invoice?, refScheme: String, forcedValue: String): Invoice? {
+    override suspend fun validateInvoice(hcParty: String, invoice: Invoice?, refScheme: String, forcedValue: String?): Invoice? {
         if (invoice == null) return null
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         var refScheme: String = refScheme
-        if (forcedValue != null || !Strings.isNullOrEmpty(invoice.invoiceReference)) {
-            invoice.invoiceReference = forcedValue
-        } else {
-            if (refScheme == null) {
-                refScheme = "yyyy00000"
-            }
-            val ldt = FuzzyValues.getDateTime(invoice.invoiceDate)
-            val f: NumberFormat = DecimalFormat("00")
-            val startScheme = refScheme.replace("yyyy".toRegex(), "" + ldt.year).replace("MM".toRegex(), f.format(ldt.monthValue.toLong())).replace("dd".toRegex(), "" + f.format(ldt.dayOfMonth.toLong()))
-            val endScheme = refScheme.replace("0".toRegex(), "9").replace("yyyy".toRegex(), "" + ldt.year).replace("MM".toRegex(), "" + f.format(ldt.monthValue.toLong())).replace("dd".toRegex(), "" + f.format(ldt.dayOfMonth.toLong()))
-            val prefix = "invoice:" + invoice.author + ":xxx:"
-            val fix = startScheme.replace("0+$".toRegex(), "")
-            val reference = entityReferenceLogic.getLatest(prefix + fix)
-            if (reference == null || !reference.id.startsWith(prefix)) {
-                val prevInvoices = invoiceDAO.listByHcPartyReferences(dbInstanceUri, groupId, hcParty, endScheme, null, true, 1)
-                val first = prevInvoices.firstOrNull()
-                invoice.invoiceReference = "" + if (first?.invoiceReference != null) max(java.lang.Long.valueOf(first.invoiceReference) + 1L, java.lang.Long.valueOf(startScheme) + 1L) else java.lang.Long.valueOf(startScheme) + 1L
-            } else {
-                invoice.invoiceReference = fix + (reference.id.substring(prefix.length + fix.length).toInt() + 1)
-            }
-        }
-        invoice.sentDate = System.currentTimeMillis()
-        return modifyInvoice(invoice)
+
+        return modifyInvoice(invoice.copy(
+                sentDate = System.currentTimeMillis(),
+                invoiceReference = if (forcedValue != null || !Strings.isNullOrEmpty(invoice.invoiceReference)) {
+                    forcedValue
+                } else {
+                    if (refScheme == null) {
+                        refScheme = "yyyy00000"
+                    }
+                    val ldt = invoice.invoiceDate?.let { FuzzyValues.getDateTime(it) }
+                            ?: LocalDateTime.now(ZoneId.systemDefault())
+                    val f: NumberFormat = DecimalFormat("00")
+                    val startScheme = refScheme.replace("yyyy".toRegex(), "" + ldt.year).replace("MM".toRegex(), f.format(ldt.monthValue.toLong())).replace("dd".toRegex(), "" + f.format(ldt.dayOfMonth.toLong()))
+                    val endScheme = refScheme.replace("0".toRegex(), "9").replace("yyyy".toRegex(), "" + ldt.year).replace("MM".toRegex(), "" + f.format(ldt.monthValue.toLong())).replace("dd".toRegex(), "" + f.format(ldt.dayOfMonth.toLong()))
+                    val prefix = "invoice:" + invoice.author + ":xxx:"
+                    val fix = startScheme.replace("0+$".toRegex(), "")
+                    val reference = entityReferenceLogic.getLatest(prefix + fix)
+                    if (reference == null || !reference.id.startsWith(prefix)) {
+                        val prevInvoices = invoiceDAO.listByHcPartyReferences(dbInstanceUri, groupId, hcParty, endScheme, null, true, 1)
+                        val first = prevInvoices.firstOrNull()
+                        "" + if (first?.invoiceReference != null) max(java.lang.Long.valueOf(first.invoiceReference) + 1L, java.lang.Long.valueOf(startScheme) + 1L) else java.lang.Long.valueOf(startScheme) + 1L
+                    } else {
+                        fix + (reference.id.substring(prefix.length + fix.length).toInt() + 1)
+                    }
+                }
+        ))
     }
 
     override fun appendCodes(hcPartyId: String, userId: String, insuranceId: String?, secretPatientKeys: Set<String>, type: InvoiceType, sentMediumType: MediumType, invoicingCodes: List<InvoicingCode>, invoiceId: String?, invoiceGraceTime: Int?): Flow<Invoice> = flow {
-        if (sentMediumType == MediumType.efact) {
-            invoicingCodes.forEach(Consumer { c: InvoicingCode -> c.pending = true })
-        }
+        val fixedCodes = if (sentMediumType == MediumType.efact) {
+            invoicingCodes.map { c -> c.copy(pending = true) }
+        } else invoicingCodes
         val invoiceGraceTimeInDays = invoiceGraceTime ?: 0
         val selectedInvoice = if (invoiceId != null) getInvoice(invoiceId) else null
         var invoices = if (selectedInvoice != null) mutableListOf<Invoice>() else listByHcPartyPatientSksUnsent(hcPartyId, secretPatientKeys)
                 .filter { i -> i.invoiceType == type && i.sentMediumType == sentMediumType && if (insuranceId == null) i.recipientId == null else insuranceId == i.recipientId }.toList().toMutableList()
         if (selectedInvoice == null && invoices.isEmpty()) {
-            invoices = listByHcPartyRecipientIdsUnsent(hcPartyId, insuranceId?.let { setOf(it) } ?: setOf()).filter { i -> i.invoiceType == type && i.sentMediumType == sentMediumType && i.secretForeignKeys == secretPatientKeys }.toList().toMutableList()
+            invoices = listByHcPartyRecipientIdsUnsent(hcPartyId, insuranceId?.let { setOf(it) }
+                    ?: setOf()).filter { i -> i.invoiceType == type && i.sentMediumType == sentMediumType && i.secretForeignKeys == secretPatientKeys }.toList().toMutableList()
         }
+
         val modifiedInvoices: MutableList<Invoice> = LinkedList()
         val createdInvoices: MutableList<Invoice> = LinkedList()
-        for (invoicingCode in ArrayList(invoicingCodes)) {
-            val icDateTime = FuzzyValues.getDateTime(invoicingCode.dateCode)
+
+        for (invoicingCode in fixedCodes) {
+            val icDateTime = invoicingCode.dateCode?.let { FuzzyValues.getDateTime(it) }
             val unsentInvoice =
-                    if (selectedInvoice != null) selectedInvoice
-                    else if (icDateTime != null) invoices.filter { i ->
-                        val invoiceDate = FuzzyValues.getDateTime(i.invoiceDate)
-                        invoiceDate != null && abs(invoiceDate.withHour(0).withMinute(0).withSecond(0).withNano(0).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
-                    }.firstOrNull()
-                    else null
+                    selectedInvoice
+                            ?: if (icDateTime != null) invoices.filter { i ->
+                                val invoiceDate = i.invoiceDate?.let { FuzzyValues.getDateTime(it) }
+                                invoiceDate != null && abs(invoiceDate.withHour(0).withMinute(0).withSecond(0).withNano(0).until(icDateTime, ChronoUnit.DAYS)) <= invoiceGraceTimeInDays
+                            }.firstOrNull()
+                            else null
+
             if (unsentInvoice != null) {
-                unsentInvoice.invoicingCodes.add(invoicingCode)
                 if (!createdInvoices.contains(unsentInvoice)) {
-                    modifyInvoice(unsentInvoice)?.let {
+                    modifyInvoice(unsentInvoice.copy(
+                            invoicingCodes = unsentInvoice.invoicingCodes + listOf(invoicingCode)
+                    ))?.let {
                         modifiedInvoices.add(it)
                         emit(it)
                     }
                 }
             } else {
-                val newInvoice = Invoice()
-                newInvoice.invoiceDate = if (invoicingCode.dateCode != null) invoicingCode.dateCode else System.currentTimeMillis()
-                newInvoice.invoiceType = type
-                newInvoice.sentMediumType = sentMediumType
-                newInvoice.recipientId = insuranceId
-                newInvoice.recipientType = if (type == InvoiceType.mutualfund || type == InvoiceType.payingagency) Insurance::class.java.name else Patient::class.java.name
-                val listWithFirstCode: MutableList<InvoicingCode> = ArrayList()
-                listWithFirstCode.add(invoicingCode)
-                newInvoice.invoicingCodes = listWithFirstCode
-                newInvoice.author = userId
-                newInvoice.responsible = hcPartyId
-                newInvoice.created = System.currentTimeMillis()
-                newInvoice.modified = newInvoice.created
-                newInvoice.careProviderType = "persphysician"
-                newInvoice.invoicePeriod = 0
-                newInvoice.thirdPartyPaymentJustification = "0"
+                val now = System.currentTimeMillis()
+                val newInvoice = Invoice(
+                        id = uuidGenerator.newGUID().toString(),
+                        invoiceDate = invoicingCode.dateCode ?: now,
+                        invoiceType = type,
+                        sentMediumType = sentMediumType,
+                        recipientId = insuranceId,
+                        recipientType = if (type == InvoiceType.mutualfund || type == InvoiceType.payingagency) Insurance::class.java.name else Patient::class.java.name,
+                        invoicingCodes = listOf(invoicingCode),
+                        author = userId,
+                        responsible = hcPartyId,
+                        created = now,
+                        modified = now,
+                        careProviderType = "persphysician",
+                        invoicePeriod = 0,
+                        thirdPartyPaymentJustification = "0"
+                )
+
                 //The invoice must be completed with ids and delegations and created on the server
                 createdInvoices.add(newInvoice)
                 emit(newInvoice)
@@ -246,22 +279,11 @@ class InvoiceLogicImpl(private val filters: Filters,
         }
     }
 
-    override suspend fun addDelegations(invoiceId: String, delegations: List<Delegation>): Invoice? {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        val invoice = invoiceDAO.get(dbInstanceUri, groupId, invoiceId)
-        return if (invoice != null) {
-            delegations.forEach { d -> invoice.addDelegation(d.delegatedTo, d) }
-            invoiceDAO.save(dbInstanceUri, groupId, invoice)
-        } else {
-            null
-        }
-    }
-
     override fun removeCodes(userId: String, secretPatientKeys: Set<String>, serviceId: String, inputTarificationIds: List<String>): Flow<Invoice> = flow {
         val tarificationIds = inputTarificationIds.toMutableList()
         val user = userLogic.getUser(userId)
         if (user != null) {
-            val invoices = listByHcPartyPatientSksUnsent(user.healthcarePartyId, secretPatientKeys)
+            val invoices = listByHcPartyPatientSksUnsent(user.healthcarePartyId ?: throw IllegalArgumentException("The provided user must be linked to an hcp"), secretPatientKeys)
                     .filter { i -> i.invoicingCodes.any { ic -> serviceId == ic.serviceId && tarificationIds.contains(ic.tarificationId) } }
                     .toList().sortedWith(Comparator { a: Invoice, b: Invoice -> ((if (b.invoiceDate != null) b.invoiceDate else 99999999999999L) as Long).compareTo(a.invoiceDate) })
             for (i in invoices) {
@@ -275,8 +297,7 @@ class InvoiceLogicImpl(private val filters: Filters,
                     }
                 }
                 if (hasChanged) {
-                    i.invoicingCodes = l
-                    modifyInvoice(i)?.let { emit(it) }
+                    modifyInvoice(i.copy(invoicingCodes = l))?.let { emit(it) }
                 }
             }
         }
@@ -291,11 +312,12 @@ class InvoiceLogicImpl(private val filters: Filters,
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val invoicesInConflict = invoiceDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { invoiceDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
         invoicesInConflict.collect { iv ->
-            iv.conflicts.mapNotNull { c -> invoiceDAO.get(dbInstanceUri, groupId, iv.id, c) }.forEach { cp ->
-                iv.solveConflictsWith(cp)
+            var modifiedInvoice = iv
+            iv.conflicts?.mapNotNull { c: String -> invoiceDAO.get(dbInstanceUri, groupId, iv.id, c) }?.forEach { cp ->
+                modifiedInvoice = modifiedInvoice.merge(cp)
                 invoiceDAO.purge(dbInstanceUri, groupId, cp)
             }
-            invoiceDAO.save(dbInstanceUri, groupId, iv)
+            invoiceDAO.save(dbInstanceUri, groupId, modifiedInvoice)
         }
     }
 

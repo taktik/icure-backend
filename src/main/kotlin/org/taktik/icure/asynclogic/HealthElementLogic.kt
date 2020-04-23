@@ -24,7 +24,7 @@ interface HealthElementLogic : EntityPersister<HealthElement, String> {
 
     suspend fun modifyHealthElement(healthElement: HealthElement): HealthElement?
 
-    suspend fun addDelegation(healthElementId: String, healthcarePartyId: String, delegation: Delegation): HealthElement?
+    suspend fun addDelegation(healthElementId: String, delegation: Delegation): HealthElement?
 
     suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement?
 

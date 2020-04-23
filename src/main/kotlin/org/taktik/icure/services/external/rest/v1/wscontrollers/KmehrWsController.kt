@@ -68,7 +68,7 @@ class KmehrWsController(private var mapper: MapperFacade,
             patient?.let {
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(
-                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy, info.documentId, info.attachmentId, operation)
+                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy ?: false, info.documentId, info.attachmentId, operation)
                     )
                 }
             }
@@ -87,11 +87,11 @@ class KmehrWsController(private var mapper: MapperFacade,
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(sumehrLogicV1.createSumehr( it, info.secretForeignKeys,
                             it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, null, null, Config(
+                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                             "" + System.currentTimeMillis(),
                             makeXGC(Instant.now().toEpochMilli(), true),
                             makeXGC(Instant.now().toEpochMilli(), true),
-                            Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                            Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION),
                             "",
                             "en",
                             Config.Format.SUMEHR
@@ -112,11 +112,11 @@ class KmehrWsController(private var mapper: MapperFacade,
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, null, null, Config(
+            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                     "" + System.currentTimeMillis(),
                     makeXGC(Instant.now().toEpochMilli(), true),
                     makeXGC(Instant.now().toEpochMilli(), true),
-                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION),
                     "",
                     "en",
                     Config.Format.SUMEHR
@@ -139,11 +139,11 @@ class KmehrWsController(private var mapper: MapperFacade,
                     operation.binaryResponse(
                             sumehrLogicV2.createSumehr( it, info.secretForeignKeys,
                                     it1,
-                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation, operation, null, null, Config(
+                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
-                                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION),
                                     "",
                                     "en",
                                     Config.Format.SUMEHR
@@ -175,12 +175,12 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     language,
                                     info.comment,
                                     info.excludedIds,
-                                    if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
+                                    info.includeIrrelevantInformation ?: false,
                                     operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
-                                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION),
                                     "",
                                     "en",
                                     Config.Format.SUMEHR
@@ -213,12 +213,12 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     language,
                                     info.comment,
                                     info.excludedIds,
-                                    if (info.includeIrrelevantInformation == null) false else info.includeIrrelevantInformation,
+                                    info.includeIrrelevantInformation ?: false,
                                     operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
-                                    Config.Software(if (info.softwareName != null) info.softwareName else "iCure", if (info.softwareVersion != null) info.softwareVersion else ICUREVERSION!!),
+                                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION),
                                     "",
                                     "en",
                                     Config.Format.SUMEHR
@@ -253,7 +253,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
-                                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION!!),
+                                    Config.Software(info.softwareName ?: "iCure", info.softwareVersion ?: ICUREVERSION),
                                     "",
                                     "en",
                                     Config.Format.SUMEHR

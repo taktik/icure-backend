@@ -23,8 +23,9 @@ interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
     val endOfLife: Long?
     val author: String?
     val responsible: String?
+    val medicalLocationId: String?
 
-    fun solveConflictsWith(other: ICureDocument) : Map<String, Any?> {
+    fun solveConflictsWith(other: ICureDocument): Map<String, Any?> {
         return mapOf(
                 "id" to this.id,
                 "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
@@ -32,9 +33,11 @@ interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
                 "endOfLife" to (this.endOfLife?.coerceAtMost(other.endOfLife ?: Long.MAX_VALUE) ?: other.endOfLife),
                 "author" to (this.author ?: other.author),
                 "responsible" to (this.responsible ?: other.responsible),
+                "medicalLocationId" to (this.medicalLocationId ?: other.medicalLocationId),
                 "tags" to (other.tags + this.tags),
                 "codes" to (other.codes + this.codes)
         )
     }
 
+    fun withTimestamps(created: Long? = null, modified: Long? = null) : ICureDocument
 }

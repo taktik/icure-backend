@@ -33,6 +33,7 @@ data class MedicalLocation(
         @JsonProperty("java_type") override val _type: String = MedicalLocation::javaClass.name
 ) : StoredDocument, Named {
     companion object : DynamicInitializer<MedicalLocation>
+
     fun merge(other: MedicalLocation) = MedicalLocation(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: MedicalLocation) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
@@ -47,6 +48,7 @@ data class MedicalLocation(
             "address" to (this.address ?: other.address),
             "agendaIds" to (other.agendaIds + this.agendaIds)
     )
-    override fun withIdRev(id: String?, rev: String): MedicalLocation =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

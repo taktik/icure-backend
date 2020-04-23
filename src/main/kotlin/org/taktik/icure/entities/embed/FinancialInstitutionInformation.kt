@@ -31,5 +31,6 @@ data class FinancialInstitutionInformation(
         val bic: String? = null,
         val proxyBankAccount: String? = null,
         val proxyBic: String? = null,
-        val preferredFiiForPartners: Set<String> = HashSet() //Insurance Id, Hcp Id
-) : Serializable
+        val preferredFiiForPartners: Set<String> = HashSet(), //Insurance Id, Hcp Id
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable

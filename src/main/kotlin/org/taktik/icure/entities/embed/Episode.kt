@@ -34,12 +34,14 @@ class Episode(
         @JsonProperty("_id") override val id: String,
         override val name: String? = null,
         val comment: String? = null,
-        @NotNull(autoFix = AutoFix.FUZZYNOW) var startDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-        @NotNull(autoFix = AutoFix.FUZZYNOW) var endDate : Long? = null // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
-) : Serializable, Identifiable<String>, Named {
+        @NotNull(autoFix = AutoFix.FUZZYNOW) var startDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) var endDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable, Identifiable<String>, Named {
     companion object : DynamicInitializer<Episode>
+
     fun merge(other: Episode) = Episode(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Episode) = mapOf(
+    fun solveConflictsWith(other: Episode) = super.solveConflictsWith(other) + mapOf(
             "id" to (this.id),
             "name" to (this.name ?: other.name),
             "comment" to (this.comment ?: other.comment),

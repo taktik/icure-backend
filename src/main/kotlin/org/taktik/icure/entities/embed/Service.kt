@@ -43,14 +43,14 @@ data class Service(
         @JsonIgnore val healthElementsIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val formIds: Set<String>? = null, //Only used when the Service is emitted outside of its contact
         @JsonIgnore val secretForeignKeys: Set<String>? = HashSet(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = HashMap(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val delegations: Map<String, Set<Delegation>> = HashMap(), //Only used when the Service is emitted outside of its contact
-        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = HashMap(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val cryptedForeignKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val delegations: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
+        @JsonIgnore val encryptionKeys: Map<String, Set<Delegation>> = mapOf(), //Only used when the Service is emitted outside of its contact
         val label: String = "<invalid>",
         val dataClassName: String? = null,
         val index: Long? = null, //Used for sorting
         val content: Map<String, Content> = mapOf(), //Localized, in the case when the service contains a document, the document id is the SerializableValue
-        val encryptedContent: String? = null, //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
+        @Deprecated("use encryptedSelf instead") val encryptedContent: String? = null, //Crypted (AES+base64) version of the above, deprecated, use encryptedSelf instead
         val textIndexes: Map<String, String> = mapOf(), //Same structure as content but used for full text indexation
         @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
@@ -59,18 +59,20 @@ data class Service(
         @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         override val endOfLife: Long? = null,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author : String? = null, //userId
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null, //userId
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null, //healthcarePartyId
+        override val medicalLocationId: String? = null,
         val comment: String? = null,
         val status: Int? = null, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit2 : present/absent, ex: 0 = active,relevant and present
         val invoicingCodes: Set<String> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(), //stub object of the Code used to qualify the content of the Service
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
-        val encryptedSelf: String? = null
-) : ICureDocument, Comparable<Service> {
+        override val encryptedSelf: String? = null
+) : Encrypted, ICureDocument, Comparable<Service> {
     companion object : DynamicInitializer<Service>
+
     fun merge(other: Service) = Service(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Service) = super.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: Service) = super<Encrypted>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
             "label" to if (this.label.isBlank()) other.label else this.label,
             "dataClassName" to (this.dataClassName ?: other.dataClassName),
             "index" to (this.index ?: other.index),
@@ -97,4 +99,12 @@ data class Service(
         idx = id.compareTo(other.id)
         return if (idx != 0) idx else 1
     }
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

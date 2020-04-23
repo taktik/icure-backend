@@ -49,7 +49,7 @@ import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
-import org.taktik.icure.services.external.rest.v1.dto.MessagePaginatedList
+import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.MessagesReadStatusUpdate
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.utils.firstOrNull
@@ -143,7 +143,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
         val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
 
-        MessagePaginatedList(messageLogic.findForCurrentHcParty(paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit))
+        PaginatedList(messageLogic.findForCurrentHcParty(paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @Operation(summary = "Get children messages of provided message")
@@ -180,7 +180,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         val messages = received?.takeIf { it }?.let { messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
                 ?: messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset)
-        MessagePaginatedList(messages.paginatedList<Message, MessageDto>(mapper, realLimit))
+        PaginatedList(messages.paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @Operation(summary = "Get all messages starting by a prefix between two date")
@@ -196,7 +196,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
         val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
-        MessagePaginatedList(messageLogic.findByTransportGuidSentDate(
+        PaginatedList(messageLogic.findByTransportGuidSentDate(
                 hcpId ?: sessionLogic.getCurrentHealthcarePartyId(),
                 transportGuid,
                 fromDate,
@@ -219,7 +219,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
         val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        MessagePaginatedList(messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(mapper, realLimit))
+        PaginatedList(messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @Operation(summary = "Get all messages (paginated) for current HC Party and provided from address")
@@ -234,7 +234,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
         val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        MessagePaginatedList(messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit))
+        PaginatedList(messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit))
     }
 
     @Operation(summary = "Updates a message")

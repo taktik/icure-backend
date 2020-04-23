@@ -26,7 +26,6 @@ import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.util.*
 
@@ -42,9 +41,9 @@ data class TypedValue<T>(
         @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val dateValue: Instant? = null
-)  : Comparable<TypedValue<T>>, Serializable {
+) : Comparable<TypedValue<T>>, Serializable {
     companion object {
-        fun<T> withValue(value: T): TypedValue<T> = withTypeAndValue(when (value) {
+        fun <T> withValue(value: T): TypedValue<T> = withTypeAndValue(when (value) {
             is Boolean -> TypedValuesType.BOOLEAN
             is Int -> TypedValuesType.INTEGER
             is Double -> TypedValuesType.DOUBLE
@@ -53,25 +52,25 @@ data class TypedValue<T>(
             else -> throw IllegalArgumentException("Unknown value type")
         }, value)
 
-        fun<T> withTypeAndValue(type: TypedValuesType, value: T): TypedValue<T> = when (type) {
-                TypedValuesType.BOOLEAN -> if (value is Boolean) {
-                    TypedValue(booleanValue = value, type = type)
-                } else throw IllegalArgumentException("Illegal boolean value")
-                TypedValuesType.INTEGER -> if (value is Int) {
-                    TypedValue(integerValue = value, type = type)
-                } else throw IllegalArgumentException("Illegal integer value")
-                TypedValuesType.DOUBLE -> if (value is Double) {
-                    TypedValue(doubleValue = value, type = type)
-                } else throw IllegalArgumentException("Illegal double value")
-                TypedValuesType.STRING, TypedValuesType.JSON, TypedValuesType.CLOB -> if (value is String) {
-                    TypedValue(stringValue = value, type = type)
-                } else throw IllegalArgumentException("Illegal string value")
-                TypedValuesType.DATE -> if (value is Instant) {
-                    TypedValue(dateValue = value, type = type)
-                } else if (value is Date) {
-                    TypedValue(dateValue = (value as Date).toInstant(), type = type)
-                } else throw IllegalArgumentException("Illegal date value")
-            }
+        fun <T> withTypeAndValue(type: TypedValuesType, value: T): TypedValue<T> = when (type) {
+            TypedValuesType.BOOLEAN -> if (value is Boolean) {
+                TypedValue(booleanValue = value, type = type)
+            } else throw IllegalArgumentException("Illegal boolean value")
+            TypedValuesType.INTEGER -> if (value is Int) {
+                TypedValue(integerValue = value, type = type)
+            } else throw IllegalArgumentException("Illegal integer value")
+            TypedValuesType.DOUBLE -> if (value is Double) {
+                TypedValue(doubleValue = value, type = type)
+            } else throw IllegalArgumentException("Illegal double value")
+            TypedValuesType.STRING, TypedValuesType.JSON, TypedValuesType.CLOB -> if (value is String) {
+                TypedValue(stringValue = value, type = type)
+            } else throw IllegalArgumentException("Illegal string value")
+            TypedValuesType.DATE -> if (value is Instant) {
+                TypedValue(dateValue = value, type = type)
+            } else if (value is Date) {
+                TypedValue(dateValue = (value as Date).toInstant(), type = type)
+            } else throw IllegalArgumentException("Illegal date value")
+        }
     }
 
     @JsonIgnore

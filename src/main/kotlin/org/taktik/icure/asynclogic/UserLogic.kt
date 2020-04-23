@@ -26,6 +26,7 @@ import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.embed.Permission
 import java.net.URI
 import java.time.Instant
@@ -36,9 +37,8 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     fun buildStandardUser(userName: String, password: String): User
     fun encodePassword(password: String): String
     fun findByHcpartyId(hcpartyId: String): Flow<String>
-    fun getBootstrapUser(): User
     fun getExpiredUsers(fromExpirationDate: Instant, toExpirationDate: Instant): Flow<User>
-    fun getProperties(userId: String): Flow<Property>
+    fun getProperties(userId: String): Flow<PropertyStub>
     fun getRoles(user: User): Flow<Role>
     fun getUsers(ids: List<String>): Flow<User>
     fun getUsersByLogin(login: String): Flow<User>
@@ -47,7 +47,6 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     fun listUsersByEmailOnFallbackDb(email: String): Flow<User>
     fun listUsersByLoginOnFallbackDb(login: String): Flow<User>
     fun removeListener(listener: UserLogicListener)
-    suspend fun addPermissions(userId: String, permissions: Set<Permission>)
     suspend fun checkPassword(password: String): Boolean
     suspend fun checkUsersExpiration()
     suspend fun createUser(groupId: String, user: User): User?
@@ -68,23 +67,16 @@ interface UserLogic : EntityPersister<User, String>, PrincipalLogic<User> {
     suspend fun isLoginValid(login: String?): Boolean
     suspend fun isPasswordValid(password: String): Boolean
     suspend fun isUserActive(userId: String): Boolean
-    suspend fun modifyPermissions(userId: String, permissions: Set<Permission>)
-    suspend fun modifyProperties(userId: String, newProperties: Set<Property>)
-    suspend fun modifyRoles(userId: String, roles: Set<Role>)
     suspend fun modifyUser(groupId: String, modifiedUser: User): User?
     suspend fun modifyUser(modifiedUser: User): User?
-    suspend fun modifyUserAttributes(userId: String, attributesValues: Map<String, Any>)
-    suspend fun newUser(type: Users.Type, login: String, password: String, healthcarePartyId: String): User?
+    suspend fun newUser(type: Users.Type, login: String, password: String?, healthcarePartyId: String): User?
     suspend fun newUser(type: Users.Type, status: Users.Status, login: String, createdDate: Instant): User?
     suspend fun registerUser(email: String, password: String, healthcarePartyId: String, name: String): User?
     suspend fun registerUser(user: User, password: String): User?
-    suspend fun save(user: User)
-    suspend fun setProperties(user: User, properties: List<Property>): User?
+    suspend fun save(user: User) : User?
+    suspend fun setProperties(user: User, properties: List<PropertyStub>): User?
     suspend fun undeleteUser(id: String)
     suspend fun undeleteUser(user: User)
-    suspend fun useActivationToken(userId: String, token: String): Boolean
-    suspend fun usePasswordToken(userId: String, token: String, newPassword: String): Boolean
-    suspend fun userLogged(user: User)
     suspend fun verifyActivationToken(userId: String, token: String): Boolean
     suspend fun verifyPasswordToken(userId: String, token: String): Boolean
     suspend fun getToken(group: Group, user: User, key: String): String

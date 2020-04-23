@@ -58,34 +58,19 @@ data class DesignDocument(
         val updateHandlers: Map<String, String>? = null,
         val filters: Map<String, String> = mapOf()
 ) : CouchDbDocument {
-    override fun withIdRev(id: String?, rev: String): DesignDocument =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 }
 
-class ReplicatorDocument(
-        private var _id: String,
-        private var _rev: String? = null,
+data class ReplicatorDocument(
+        override val id: String,
+        override val rev: String?,
         val source: String? = null,
         val target: String? = null,
         val create_target: Boolean = false,
-        val continuous: Boolean = false) : CouchDbDocument {
-    @Json(name = "_id")
-    override fun getId(): String = _id
-    @Json(name = "_id")
-    override fun setId(id: String) {
-        _id = id
-    }
-
-    @Json(name = "_rev")
-    override fun getRev(): String? = _rev
-    @Json(name = "_rev")
-    override fun setRev(rev: String?) {
-        _rev = rev
-    }
-
-    override fun getRevHistory(): MutableMap<String, String> {
-        return HashMap()
-    }
+        val continuous: Boolean = false,
+        override val revHistory: Map<String, String>? = null
+) : CouchDbDocument {
+    override fun withIdRev(id: String?, rev: String) = id?.let { this.copy(id = it, rev = rev) } ?: this.copy(rev = rev)
 }
 
 

@@ -59,10 +59,6 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
             log.debug(entityClass.simpleName + ".save: " + entity.id + ":" + entity.rev)
         }
         return when {
-            entity.id == null -> {
-                entity.id = idGenerator.newGUID().toString()
-                client.create(entity, entityClass)
-            }
             entity.rev == null -> {
                 client.create(entity, entityClass)
             }
@@ -77,9 +73,7 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save flow of entities")
         }
-        client.bulkUpdate(entities.map { it.apply {
-            if (id == null) id = idGenerator.newGUID().toString()
-        } }.toList(), entityClass).collect { emit(DocIdentifier(it.id, it.rev)) }
+        client.bulkUpdate(entities.toList(), entityClass).collect { emit(DocIdentifier(it.id, it.rev)) }
     }
 
     override suspend fun update(entity: T): T? {

@@ -10,5 +10,6 @@ data class CareTeamMembership(
         val startDate: Long? = null,
         val endDate: Long? = null,
         val careTeamMemberId: String? = null,
-        val membershipType: MembershipType? = null
-) : Serializable
+        val membershipType: MembershipType? = null,
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable

@@ -18,17 +18,30 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
-import com.google.common.collect.Lists
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -50,7 +63,6 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.utils.FuzzyValues
-import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -78,8 +90,7 @@ class ContactController(private val mapper: MapperFacade,
     fun createContact(@RequestBody c: ContactDto) = mono {
         val contact = try {
             // handling services' indexes
-            handleServiceIndexes(c)
-            contactLogic.createContact(mapper.map(c, Contact::class.java))
+            contactLogic.createContact(mapper.map(handleServiceIndexes(c), Contact::class.java))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact creation failed")
         } catch (e: MissingRequirementsException) {
             log.warn(e.message, e)
@@ -88,31 +99,16 @@ class ContactController(private val mapper: MapperFacade,
         mapper.map(contact, ContactDto::class.java)
     }
 
-    protected fun handleServiceIndexes(c: ContactDto) {
-        var max = 0L
-        var baseIndex = 0L
-        var nullFound = false
-        if (c.services != null) {
-            for (service in c.services) {
-                var index = service.index
-                if (index == null) {
-                    nullFound = true
-                    baseIndex = max + 1
-                    max = 0L
-                }
-                if (nullFound) {
-                    index = baseIndex + 1 + (index ?: 0L)
-                    service.index = index
-                }
-                if (index != null && index > max) {
-                    max = index
-                }
-            }
-        } else {
-            // no null pointer exception in Orika in case of no services
-            c.services = Lists.newArrayList()
-        }
-    }
+    protected fun handleServiceIndexes(c: ContactDto) = if (c.services.any { it.index == null }) {
+        val maxIndex = c.services.maxBy { it.index ?: 0 }?.index ?: 0
+        c.copy(
+                services = c.services.mapIndexed { idx, it ->
+                    if (it.index == null) it.copy(
+                        index = idx + maxIndex
+                    ) else it
+                }.toSet()
+        )
+    } else c
 
     @Operation(summary = "Get a contact")
     @GetMapping("/{contactId}")

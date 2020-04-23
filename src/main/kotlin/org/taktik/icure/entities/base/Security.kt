@@ -20,16 +20,13 @@ package org.taktik.icure.entities.base
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Security(
-    val admins: Right = Right(),
-    val members: Right = Right()
+        val admins: Right = Right(),
+        val members: Right = Right()
 ) : Serializable {
-    class Right {
-        var names: MutableList<String> = ArrayList()
-        var roles: List<String> = ArrayList()
+    data class Right(val names: Set<String> = setOf(), val roles: Set<String> = setOf()) {
     }
 }

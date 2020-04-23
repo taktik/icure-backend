@@ -18,21 +18,23 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
-
 import org.springframework.stereotype.Repository
 import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentTemplateDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
-import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
 import java.io.IOException
@@ -45,7 +47,7 @@ import java.nio.ByteBuffer
 
 @Repository("documentTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted) emit(doc._id, null )}")
-internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<DocumentTemplate>(DocumentTemplate::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), DocumentTemplateDAO {
+class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<DocumentTemplate>(DocumentTemplate::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), DocumentTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.owner) emit([doc.owner,doc.guid], null )}")
     override fun findByUserGuid(dbInstanceUrl: URI, groupId: String, userId: String, guid: String?): Flow<DocumentTemplate> {
@@ -122,57 +124,66 @@ internal class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couch
         return entity
     }
 
+    override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate) =
+            super.beforeSave(dbInstanceUrl, groupId, entity).let { documentTemplate ->
+            if (documentTemplate.attachment != null) {
+                val newAttachmentId = DigestUtils.sha256Hex(documentTemplate.attachment)
 
-    override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate) {
-        super.beforeSave(dbInstanceUrl, groupId, entity)
-
-        if (entity.attachment != null) {
-            val newLayoutAttachmentId = DigestUtils.sha256Hex(entity.attachment)
-
-            if (newLayoutAttachmentId != entity.attachmentId) {
-                entity.attachmentId = newLayoutAttachmentId
-                entity.isAttachmentDirty = true
-            }
-        } else {
-            if (entity.attachmentId != null && entity.id != null && entity.rev != null && entity.attachmentId != null) {
-                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev!!, entity.attachmentId!!)
-                entity.attachmentId = null
-                entity.isAttachmentDirty = false
+                if (newAttachmentId != documentTemplate.attachmentId && documentTemplate.rev != null && documentTemplate.attachmentId != null) {
+                    documentTemplate.attachments?.containsKey(documentTemplate.attachmentId)?.takeIf { it }?.let {
+                        documentTemplate.copy(
+                                rev = deleteAttachment(dbInstanceUrl, groupId, documentTemplate.id, documentTemplate.rev!!, documentTemplate.attachmentId!!),
+                                attachments = documentTemplate.attachments - documentTemplate.attachmentId,
+                                attachmentId = newAttachmentId,
+                                isAttachmentDirty = true
+                        )
+                    } ?: documentTemplate.copy(
+                            attachmentId = newAttachmentId,
+                            isAttachmentDirty = true
+                    )
+                } else
+                    documentTemplate
+            } else {
+                if (documentTemplate.attachmentId != null && documentTemplate.rev != null) {
+                    documentTemplate.copy(
+                            rev = deleteAttachment(dbInstanceUrl, groupId, documentTemplate.id, documentTemplate.rev, documentTemplate.attachmentId),
+                            attachmentId = null,
+                            isAttachmentDirty = false
+                    )
+                } else documentTemplate
             }
         }
-    }
 
-    override suspend  fun afterSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate): DocumentTemplate {
-        return super.afterSave(dbInstanceUrl, groupId, entity).let{ entity->
-            if (entity.isAttachmentDirty) {
-                if (entity.attachment != null && entity.attachmentId != null && entity.id != null && entity.attachmentId != null && entity.rev != null) {
-                    val uti = UTI.get(entity.mainUti)
+    override suspend  fun afterSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate) =
+            super.afterSave(dbInstanceUrl, groupId, entity).let { documentTemplate ->
+                if (documentTemplate.isAttachmentDirty && documentTemplate.attachmentId != null && documentTemplate.rev != null && documentTemplate.attachment != null) {
+                    val uti = UTI.get(documentTemplate.mainUti)
                     var mimeType = "application/xml"
                     if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
                         mimeType = uti.mimeTypes[0]
                     }
-                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
-                    entity.isAttachmentDirty = false
-                }
-            }
-            entity
-        }
-    }
-
-    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate?) {
-        super.postLoad(dbInstanceUrl, groupId, entity)
-
-        if (entity != null && entity.attachmentId != null && entity.id != null && entity.attachmentId != null) {
-            val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev)
-            try {
-                ByteArrayOutputStream().use { attachment ->
-                    attachmentIs.collect { attachment.write(it.array()) }
-                    entity.attachment = attachment.toByteArray()
-                }
-            } catch (e: IOException) {
-                //Could not load
+                    createAttachment(dbInstanceUrl, groupId, documentTemplate.id, documentTemplate.attachmentId, documentTemplate.rev, mimeType, flowOf(ByteBuffer.wrap(documentTemplate.attachment))).let {
+                        documentTemplate.copy(
+                                rev = it,
+                                isAttachmentDirty = false
+                        )
+                    }
+                } else documentTemplate
             }
 
-        }
-    }
+
+    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate) =
+            super.postLoad(dbInstanceUrl, groupId, entity).let { documentTemplate ->
+                if (documentTemplate.attachmentId != null) {
+                    try {
+                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, documentTemplate.id, documentTemplate.attachmentId, documentTemplate.rev)
+                        documentTemplate.copy(attachment = ByteArrayOutputStream().use { attachment ->
+                            attachmentIs.collect { attachment.write(it.array()) }
+                            attachment.toByteArray()
+                        })
+                    } catch (e: IOException) {
+                        documentTemplate //Could not load
+                    }
+                } else documentTemplate
+            }
 }

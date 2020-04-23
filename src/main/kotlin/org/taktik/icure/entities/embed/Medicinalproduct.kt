@@ -27,11 +27,11 @@ import java.io.Serializable
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Medicinalproduct(
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    val intendedcds: List<CodeStub> = listOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        val intendedcds: List<CodeStub> = listOf(),
 
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE)
-    val deliveredcds: List<CodeStub> = listOf(),
-    val intendedname: String? = null,
-    val deliveredname: String? = null
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        val deliveredcds: List<CodeStub> = listOf(),
+        val intendedname: String? = null,
+        val deliveredname: String? = null
 ) : Serializable

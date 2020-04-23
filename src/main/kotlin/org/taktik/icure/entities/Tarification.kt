@@ -39,19 +39,19 @@ data class Tarification(
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        override val type : String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
-        override val code : String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
-        override val version : String? = null, //ex: 10. Must be lexicographically searchable
+        override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
+        override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
+        override val version: String? = null, //ex: 10. Must be lexicographically searchable
 
         val author: String? = null,
-        val regions : Set<String> = setOf(), //ex: be,fr
+        val regions: Set<String> = setOf(), //ex: be,fr
         val periodicity: List<Periodicity> = listOf(),
-        val level : Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
-        val label : Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
-        val links : List<String> = listOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
-        val qualifiedLinks : Map<LinkQualification, List<String>> = mapOf(), //Links towards related codes
-        val flags : Set<CodeFlag> = setOf(), //flags (like female only) for the code
-        val searchTerms : Map<String, Set<String>> = mapOf(), //Extra search terms/ language
+        val level: Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
+        val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        val links: List<String> = listOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
+        val qualifiedLinks: Map<LinkQualification, List<String>> = mapOf(), //Links towards related codes
+        val flags: Set<CodeFlag> = setOf(), //flags (like female only) for the code
+        val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
         val data: String? = null,
         val appendices: Map<AppendixType, String> = mapOf(),
         val isDisabled: Boolean = false,
@@ -70,7 +70,10 @@ data class Tarification(
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Tarification::javaClass.name
 ) : StoredDocument, CodeIdentification {
-    companion object : DynamicInitializer<Tarification>
+    companion object : DynamicInitializer<Tarification> {
+        fun from(type: String, code: String, version: String) = Tarification(id = "$type:$code:$version", type = type, code = code, version = version)
+    }
+
     fun merge(other: Tarification) = Tarification(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Tarification) = super<StoredDocument>.solveConflictsWith(other) + super<CodeIdentification>.solveConflictsWith(other) + mapOf(
             "author" to (this.author ?: other.author),
@@ -86,7 +89,7 @@ data class Tarification(
             "appendices" to (other.appendices + this.appendices),
             "isDisabled" to (this.isDisabled),
             "valorisations" to mergeSets(this.valorisations, other.valorisations,
-                    {a,b -> a.predicate == b.predicate && a.startOfValidity == b.startOfValidity && a.endOfValidity == b.endOfValidity}),
+                    { a, b -> a.predicate == b.predicate && a.startOfValidity == b.startOfValidity && a.endOfValidity == b.endOfValidity }),
             "category" to (other.category + this.category),
             "consultationCode" to (this.consultationCode ?: other.consultationCode),
             "hasRelatedCode" to (this.hasRelatedCode ?: other.hasRelatedCode),
@@ -94,8 +97,18 @@ data class Tarification(
             "relatedCodes" to (other.relatedCodes + this.relatedCodes),
             "nGroup" to (this.nGroup ?: other.nGroup),
             "letterValues" to mergeListsDistinct(this.letterValues, other.letterValues,
-                    {a,b -> a.coefficient == b.coefficient && a.index == b.index && a.letter == b.letter})
+                    { a, b -> a.coefficient == b.coefficient && a.index == b.index && a.letter == b.letter })
     )
-    override fun withIdRev(id: String?, rev: String): Tarification =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+
+    override fun normalizeIdentification(): Tarification {
+        val parts = this.id.split("|").toTypedArray()
+        return if (this.type == null || this.code == null || this.version == null) this.copy(
+                type = this.type ?: parts[0],
+                code = this.code ?: parts[1],
+                version = this.version ?: parts[2]
+        ) else this
+    }
 }

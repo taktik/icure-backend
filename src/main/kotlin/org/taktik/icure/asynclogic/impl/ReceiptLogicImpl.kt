@@ -27,13 +27,12 @@ class ReceiptLogicImpl(private val receiptDAO: ReceiptDAO,
         emitAll(receiptDAO.getAttachment(dbInstanceUri, groupId, receiptId, attachmentId))
     }
 
-    override suspend fun addReceiptAttachment(receipt: Receipt, blobType: ReceiptBlobType, payload: ByteArray) {
+    override suspend fun addReceiptAttachment(receipt: Receipt, blobType: ReceiptBlobType, payload: ByteArray) : Receipt {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val newAttachmentId = DigestUtils.sha256Hex(payload)
-        receipt.attachmentIds?.set(blobType, newAttachmentId)
-        updateEntities(listOf(receipt)).collect()
+        val modifiedReceipt = updateEntities(listOf(receipt.copy(attachmentIds = receipt.attachmentIds + (blobType to newAttachmentId)))).first()
         val contentType = "application/octet-stream"
-        receipt.rev = receiptDAO.createAttachment(dbInstanceUri, groupId, receipt.id, newAttachmentId, receipt.rev, contentType, flowOf(ByteBuffer.wrap(payload)))
+        return modifiedReceipt.copy(rev = receiptDAO.createAttachment(dbInstanceUri, groupId, modifiedReceipt.id, newAttachmentId, modifiedReceipt.rev ?: error("Invalid receipt : no rev"), contentType, flowOf(ByteBuffer.wrap(payload))))
     }
 
     override fun getGenericDAO(): ReceiptDAO {

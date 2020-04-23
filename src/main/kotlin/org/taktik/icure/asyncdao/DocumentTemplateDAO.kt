@@ -14,9 +14,4 @@ interface DocumentTemplateDAO: GenericDAO<DocumentTemplate> {
 
     fun evictFromCache(entity: DocumentTemplate)
     suspend fun createDocumentTemplate(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate): DocumentTemplate
-
-    suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate)
-
-    suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate): DocumentTemplate
-    suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: DocumentTemplate?)
 }

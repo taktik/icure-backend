@@ -13,7 +13,7 @@ interface CryptoActor {
     val privateKeyShamirPartitions: Map<String, String> //Format is hcpId of key that has been partitionned : "threshold|partition in hex"
     val publicKey: String?
 
-    fun solveConflictsWith(other: CryptoActor) : Map<String, Any?> {
+    fun solveConflictsWith(other: CryptoActor): Map<String, Any?> {
         return mapOf(
                 "hcPartyKeys" to mergeMapsOfArraysDistinct(this.hcPartyKeys, other.hcPartyKeys),
                 "privateKeyShamirPartitions" to (other.privateKeyShamirPartitions + this.privateKeyShamirPartitions),

@@ -18,11 +18,10 @@
 package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.validation.NotNull
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class TimeTableHour(
-        val startHour : Long? = null, // hh:mm:ss
-        val endHour : Long? = null // hh:mm:ss
+        val startHour: Long? = null, // hh:mm:ss
+        val endHour: Long? = null // hh:mm:ss
 ) : Serializable

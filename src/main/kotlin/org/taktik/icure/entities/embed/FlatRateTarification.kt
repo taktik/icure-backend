@@ -10,5 +10,6 @@ data class FlatRateTarification(
         val code: String? = null,
         val flatRateType: FlatRateType? = null,
         val label: Map<String, String>? = null,
-        val valorisations: List<Valorisation> = listOf()
-) : Serializable
+        val valorisations: List<Valorisation> = listOf(),
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable

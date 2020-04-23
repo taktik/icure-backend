@@ -1,11 +1,10 @@
 package org.taktik.icure.entities.samv2.embed
 
-import java.io.Serializable
 import java.math.BigDecimal
 
 class Reimbursement(
-        from: Long? = null,
-        to: Long? = null,
+        override val from: Long? = null,
+        override val to: Long? = null,
         var deliveryEnvironment: DeliveryEnvironment? = null,
         var code: String? = null,
         var codeType: DmppCodeType? = null,
@@ -20,7 +19,7 @@ class Reimbursement(
         var pricingSlice: Pricing? = null,
         var reimbursementCriterion: ReimbursementCriterion? = null,
         var copayments: List<Copayment>? = null
-) : DataPeriod(from, to), Serializable {
+) : DataPeriod {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

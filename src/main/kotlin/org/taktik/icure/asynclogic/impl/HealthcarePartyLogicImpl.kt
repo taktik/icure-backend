@@ -114,10 +114,6 @@ class HealthcarePartyLogicImpl(
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
         }
         try {
-            if (healthcareParty.id == null) {
-                val newId = uuidGenerator.newGUID().toString()
-                healthcareParty.id = newId
-            }
             getGenericDAO().create(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, listOf(healthcareParty)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
@@ -141,10 +137,6 @@ class HealthcarePartyLogicImpl(
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
         }
         try {
-            if (healthcareParty.id == null) {
-                val newId = uuidGenerator.newGUID().toString()
-                healthcareParty.id = newId
-            }
             createEntities(setOf(healthcareParty)).firstOrNull()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)
@@ -155,12 +147,7 @@ class HealthcarePartyLogicImpl(
         Preconditions.checkArgument(newHcPartyKeys.isNotEmpty())
         // Fetching existing HcPartyKeys
         val healthcareParty = getHealthcareParty(healthcarePartyId) ?: throw IllegalStateException("No HCP found for ID $healthcarePartyId")
-        val existingHcPartyKeys = healthcareParty.hcPartyKeys
-        // Updating with new HcPartyKeys
-        existingHcPartyKeys.putAll(newHcPartyKeys)
-        healthcareParty.hcPartyKeys = existingHcPartyKeys
-        updateEntities(setOf(healthcareParty))
-        return existingHcPartyKeys
+        return updateEntities(setOf(healthcareParty.copy(hcPartyKeys = healthcareParty.hcPartyKeys + newHcPartyKeys))).firstOrNull()?.hcPartyKeys ?: healthcareParty.hcPartyKeys
     }
 
     override fun listHealthcareParties(offset: PaginationOffset<String>, desc: Boolean?): Flow<ViewQueryResultEvent> = flow {
@@ -230,7 +217,7 @@ class HealthcarePartyLogicImpl(
         var hcpInHierarchy: HealthcareParty? = hcParty
 
         while (hcpInHierarchy?.parentId != null) {
-            hcpInHierarchy = getHealthcareParty(hcpInHierarchy.parentId)
+            hcpInHierarchy = getHealthcareParty(hcpInHierarchy.parentId!!)
             hcpInHierarchy?.id?.let { hcpartyIds.add(it) }
         }
         return hcpartyIds
@@ -241,10 +228,6 @@ class HealthcarePartyLogicImpl(
             throw MissingRequirementsException("createHealthcareParty: one of Name or Last name, Nihii, and Public key are required.")
         }
         try {
-            if (healthcareParty.id == null) {
-                val newId = uuidGenerator.newGUID().toString()
-                healthcareParty.id = newId
-            }
             getGenericDAO().create(dbInstanceUri, groupId, healthcareParty)
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid healthcare party", e)

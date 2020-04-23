@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DocumentGroup
 import org.taktik.icure.entities.embed.RevisionInfo
@@ -48,7 +49,7 @@ data class FormTemplate(
         val group: DocumentGroup? = null,
         val descr: String? = null,
         val disabled: String? = null,
-        val specialty: Code? = null,
+        val specialty: CodeStub? = null,
         val author: String? = null,
         //Location in the form of a gpath/xpath like location with an optional action
         //ex: healthElements[codes[type == 'ICD' and code == 'I80']].plansOfAction[descr='Follow-up'] : add inside the follow-up plan of action of a specific healthElement
@@ -68,6 +69,7 @@ data class FormTemplate(
         @JsonProperty("java_type") override val _type: String = FormTemplate::javaClass.name //userId
 ) : StoredDocument {
     companion object : DynamicInitializer<FormTemplate>
+
     fun merge(other: FormTemplate) = FormTemplate(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: FormTemplate) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
@@ -88,6 +90,7 @@ data class FormTemplate(
             "layout" to (this.layout?.let { if (it.size >= other.layout?.size ?: 0) it else other.layout }
                     ?: other.layout)
     )
-    override fun withIdRev(id: String?, rev: String): FormTemplate =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

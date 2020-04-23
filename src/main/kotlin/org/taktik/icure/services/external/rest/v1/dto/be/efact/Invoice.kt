@@ -19,7 +19,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.be.efact
 
 import org.taktik.icure.services.external.rest.v1.dto.PatientDto
-import java.util.LinkedList
+import java.util.*
 
 class Invoice {
     var patient: PatientDto? = null

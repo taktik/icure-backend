@@ -20,18 +20,18 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Valorisation(
-        val startOfValidity : Long? = null, //yyyyMMdd
-        val endOfValidity : Long? = null, //yyyyMMdd
+        val startOfValidity: Long? = null, //yyyyMMdd
+        val endOfValidity: Long? = null, //yyyyMMdd
         val predicate: String? = null,
-        val totalAmount : Double? = null, //=reimbursement+doctorSupplement+intervention
+        val totalAmount: Double? = null, //=reimbursement+doctorSupplement+intervention
         val reimbursement: Double? = null,
         val patientIntervention: Double? = null,
         val doctorSupplement: Double? = null,
         val vat: Double? = null,
-        val label : Map<String, String>? = mapOf() //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
-) : Serializable
+        val label: Map<String, String>? = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable

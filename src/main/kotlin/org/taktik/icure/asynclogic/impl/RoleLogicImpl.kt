@@ -31,7 +31,6 @@ import org.taktik.icure.constants.Roles
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.embed.Permission
-import java.util.*
 
 @ExperimentalCoroutinesApi
 @Transactional
@@ -79,10 +78,11 @@ class RoleLogicImpl(private val userDAO: UserDAO, sessionLogic: AsyncSessionLogi
         getRoleByName(Roles.DEFAULT_ROLE_NAME)?.let {
             return
         }
-        val defaultRole = Role()
-        defaultRole.name = Roles.DEFAULT_ROLE_NAME
-        defaultRole.permissions = HashSet(Arrays.asList(Permission.granted(Permissions.Type.AUTHENTICATE)))
-        saveRole(defaultRole)
+        saveRole(Role(
+                id = Roles.DEFAULT_ROLE_NAME,
+                name = Roles.DEFAULT_ROLE_NAME,
+                permissions = setOf(Permission.granted(Permissions.Type.AUTHENTICATE))
+        ))
     }
 
     private suspend fun saveRole(role: Role): Role? { // Save role

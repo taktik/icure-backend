@@ -30,28 +30,28 @@ import java.util.*
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Permission : Cloneable, Serializable {
     protected var grant = 0
-    get() {
-        var grant = grant
-        // Remove invalid grant TYPE
-        for (permissionType in Permissions.Type.values()) {
-            if (!canBeUsedWith(permissionType)) {
-                grant = grant and permissionType.bitValue.inv()
+        get() {
+            var grant = grant
+            // Remove invalid grant TYPE
+            for (permissionType in Permissions.Type.values()) {
+                if (!canBeUsedWith(permissionType)) {
+                    grant = grant and permissionType.bitValue.inv()
+                }
             }
+            return grant
         }
-        return grant
-    }
     protected var revoke = 0
-    get() {
-        var revoke = revoke
+        get() {
+            var revoke = revoke
 
-        // Remove invalid revoke TYPE
-        for (permissionType in Permissions.Type.values()) {
-            if (!canBeUsedWith(permissionType)) {
-                revoke = revoke and permissionType.bitValue.inv()
+            // Remove invalid revoke TYPE
+            for (permissionType in Permissions.Type.values()) {
+                if (!canBeUsedWith(permissionType)) {
+                    revoke = revoke and permissionType.bitValue.inv()
+                }
             }
+            return revoke
         }
-        return revoke
-    }
     protected var criteria: MutableSet<PermissionCriterion?>? = HashSet()
     fun grant(permissionType: Permissions.Type) {
         // Grant TYPE

@@ -24,6 +24,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
@@ -40,6 +41,7 @@ data class ClassificationTemplate(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
@@ -58,13 +60,22 @@ data class ClassificationTemplate(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = ClassificationTemplate::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<ClassificationTemplate>
+
     fun merge(other: ClassificationTemplate) = ClassificationTemplate(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: ClassificationTemplate) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: ClassificationTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
             "parentId" to (this.parentId ?: other.parentId),
             "label" to if (this.label.isBlank()) other.label else this.label
     )
-    override fun withIdRev(id: String?, rev: String): ClassificationTemplate =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
 }

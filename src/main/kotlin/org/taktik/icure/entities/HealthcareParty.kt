@@ -53,23 +53,23 @@ data class HealthcareParty(
         val userId: String? = null,
         val parentId: String? = null,
         val convention: Int? = null, //0,1,2,9
-        val nihii  : String? = null, //institution, person
-        val nihiiSpecCode : String? = null, //don't show field in the GUI
+        val nihii: String? = null, //institution, person
+        val nihiiSpecCode: String? = null, //don't show field in the GUI
         val ssin: String? = null,
         override val addresses: List<Address> = listOf(),
         override val languages: List<String> = listOf(),
         val picture: ByteArray? = null,
         val statuses: Set<HealthcarePartyStatus> = setOf(),
 
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes : Set<CodeStub> = setOf(), //Speciality codes, default is first
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = setOf(), //Speciality codes, default is first
 
         val sendFormats: Map<TelecomType, String> = mapOf(),
         val notes: String? = null,
         val financialInstitutionInformation: List<FinancialInstitutionInformation> = listOf(),
 
         // Medical houses
-        var billingType : String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
-        var type : String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
+        var billingType: String? = null, // "serviceFee" (à l'acte) or "flatRate" (forfait)
+        var type: String? = null, // "persphysician" or "medicalHouse" or "perstechnician"
         var contactPerson: String? = null,
         var contactPersonHcpId: String? = null,
         var flatRateTarifications: List<FlatRateTarification> = listOf(),
@@ -94,8 +94,9 @@ data class HealthcareParty(
         @JsonProperty("java_type") override val _type: String = HealthcareParty::javaClass.name
 ) : StoredDocument, Named, Person, CryptoActor {
     companion object : DynamicInitializer<HealthcareParty>
+
     fun merge(other: HealthcareParty) = HealthcareParty(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: HealthcareParty) = super<StoredDocument>.solveConflictsWith(other) + super<Person>.solveConflictsWith(other) + super<CryptoActor>.solveConflictsWith(other)  + mapOf(
+    fun solveConflictsWith(other: HealthcareParty) = super<StoredDocument>.solveConflictsWith(other) + super<Person>.solveConflictsWith(other) + super<CryptoActor>.solveConflictsWith(other) + mapOf(
             "speciality" to (this.speciality ?: other.speciality),
             "bankAccount" to (this.bankAccount ?: other.bankAccount),
             "bic" to (this.bic ?: other.bic),
@@ -128,6 +129,7 @@ data class HealthcareParty(
             "importedData" to (other.importedData + this.importedData),
             "options" to (other.options + this.options)
     )
-    override fun withIdRev(id: String?, rev: String): HealthcareParty =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

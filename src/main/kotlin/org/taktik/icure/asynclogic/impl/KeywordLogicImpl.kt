@@ -42,15 +42,14 @@ class KeywordLogicImpl(private val keywordDAO: KeywordDAO,
         return keywordDAO
     }
 
-    override suspend fun createKeyword(keyword: Keyword): Keyword? {
+    override suspend fun createKeyword(keyword: Keyword) = fix(keyword) { keyword ->
         val createdKeywords = try { // Setting Keyword attributes
-            keyword.id = keyword.id ?: uuidGenerator.newGUID().toString()
             createEntities(setOf(keyword))
         } catch (e: Exception) {
             log.error("createKeyword: " + e.message)
             throw IllegalArgumentException("Invalid Keyword", e)
         }
-        return createdKeywords.firstOrNull()
+        createdKeywords.firstOrNull()
     }
 
     override suspend fun getKeyword(keywordId: String): Keyword? {

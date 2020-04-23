@@ -32,6 +32,7 @@ data class FrontEndMigration(
         @JsonProperty("java_type") override val _type: String = FrontEndMigration::javaClass.name
 ) : StoredDocument {
     companion object : DynamicInitializer<FrontEndMigration>
+
     fun merge(other: FrontEndMigration) = FrontEndMigration(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: FrontEndMigration) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
@@ -44,6 +45,7 @@ data class FrontEndMigration(
             "startKeyDocId" to (this.startKeyDocId ?: other.startKeyDocId),
             "processCount" to (this.processCount ?: other.processCount)
     )
-    override fun withIdRev(id: String?, rev: String): FrontEndMigration =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

@@ -49,14 +49,13 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
     }
 
     override suspend fun create(tarification: Tarification) = fix(tarification) { tarification ->
-        Preconditions.checkNotNull(tarification.code, "Tarification field is null.")
-        Preconditions.checkNotNull(tarification.type, "Type field is null.")
-        Preconditions.checkNotNull(tarification.version, "Version tarification field is null.")
+        tarification.code ?: error("Code field is null")
+        tarification.type ?: error("Type field is null")
+        tarification.version ?: error("Version field is null")
 
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         // assigning Tarification id type|tarification|version
-        tarification.id = tarification.type + "|" + tarification.code + "|" + tarification.version
-        tarificationDAO.create(dbInstanceUri, groupId, tarification)
+        tarificationDAO.create(dbInstanceUri, groupId, tarification.copy(id = tarification.type + "|" + tarification.code + "|" + tarification.version))
     }
 
     override suspend fun modify(tarification: Tarification) = fix(tarification) { tarification ->
@@ -66,7 +65,8 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
         Preconditions.checkState(existingTarification?.type == tarification.type, "Modification failed. Type field is immutable.")
         Preconditions.checkState(existingTarification?.version == tarification.version, "Modification failed. Version field is immutable.")
         updateEntities(setOf(tarification))
-        tarification.id?.let { this.get(it) }
+
+        tarification.id.let { this.get(it) }
     }
 
     override fun findTarificationsBy(type: String?, tarification: String?, version: String?): Flow<Tarification> = flow {
@@ -97,7 +97,7 @@ class TarificationLogicImpl(private val tarificationDAO: TarificationDAO, privat
     override suspend fun getOrCreateTarification(type: String, tarification: String): Tarification? {
         val listTarifications = findTarificationsBy(type, tarification, null).toList()
         return listTarifications.takeIf { it.isNotEmpty() }?.let { it.sortedWith(Comparator { a: Tarification, b: Tarification -> b.version!!.compareTo(a.version!!) }) }?.first()
-                ?: create(Tarification(type, tarification, "1.0"))
+                ?: create(Tarification.from(type, tarification, "1.0"))
     }
 
     override fun getGenericDAO(): TarificationDAO {

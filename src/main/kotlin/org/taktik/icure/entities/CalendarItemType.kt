@@ -16,20 +16,21 @@ data class CalendarItemType(
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
         val name: String? = null,
-        val color : String? = null, //"#123456"
-        val duration : Int = 0, // mikrono: int durationInMinutes; = 0
-        val externalRef : String? = null, // same as topaz Id, to be used by mikrono
+        val color: String? = null, //"#123456"
+        val duration: Int = 0, // mikrono: int durationInMinutes; = 0
+        val externalRef: String? = null, // same as topaz Id, to be used by mikrono
         val mikronoId: String? = null,
         val docIds: Set<String> = setOf(),
-        val otherInfos : Map<String, String> = mapOf(),
-        val subjectByLanguage : Map<String, String> = mapOf(),
+        val otherInfos: Map<String, String> = mapOf(),
+        val subjectByLanguage: Map<String, String> = mapOf(),
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = CalendarItemType::javaClass.name
-        ) : StoredDocument {
+) : StoredDocument {
     companion object : DynamicInitializer<CalendarItemType>
+
     fun merge(other: CalendarItemType) = CalendarItemType(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: CalendarItemType) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
@@ -41,6 +42,7 @@ data class CalendarItemType(
             "otherInfos" to (other.otherInfos + this.otherInfos),
             "subjectByLanguage" to (other.subjectByLanguage + this.subjectByLanguage)
     )
-    override fun withIdRev(id: String?, rev: String): CalendarItemType =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

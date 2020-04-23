@@ -26,6 +26,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.utils.DynamicInitializer
@@ -47,6 +48,7 @@ data class Document(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
@@ -76,20 +78,22 @@ data class Document(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Document::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Document>
+
     fun merge(other: Document) = Document(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Document) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-        "documentLocation" to (this.documentLocation ?: other.documentLocation),
-        "documentType" to (this.documentType ?: other.documentType),
-        "documentStatus" to (this.documentStatus ?: other.documentStatus),
-        "externalUri" to (this.externalUri ?: other.externalUri),
-        "mainUti" to (this.mainUti ?: other.mainUti),
-        "name" to (this.name ?: other.name),
-        "otherUtis" to (other.otherUtis + this.otherUtis),
-        "storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
-        "attachmentId" to (this.attachmentId ?: other.attachmentId),
-        "attachment" to (this.attachment?.let { if(it.size>=other.attachment?.size ?: 0) it else other.attachment} ?: other.attachment )
+    fun solveConflictsWith(other: Document) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "documentLocation" to (this.documentLocation ?: other.documentLocation),
+            "documentType" to (this.documentType ?: other.documentType),
+            "documentStatus" to (this.documentStatus ?: other.documentStatus),
+            "externalUri" to (this.externalUri ?: other.externalUri),
+            "mainUti" to (this.mainUti ?: other.mainUti),
+            "name" to (this.name ?: other.name),
+            "otherUtis" to (other.otherUtis + this.otherUtis),
+            "storedICureDocumentId" to (this.storedICureDocumentId ?: other.storedICureDocumentId),
+            "attachmentId" to (this.attachmentId ?: other.attachmentId),
+            "attachment" to (this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
+                    ?: other.attachment)
     )
 
     fun decryptAttachment(enckeys: List<String?>?): ByteArray? {
@@ -109,6 +113,15 @@ data class Document(
         }
         return attachment
     }
-    override fun withIdRev(id: String?, rev: String): Document =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

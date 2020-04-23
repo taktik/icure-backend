@@ -26,6 +26,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
@@ -44,12 +45,13 @@ data class Invoice(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        val invoiceDate : Long? = null, // yyyyMMdd
+        val invoiceDate: Long? = null, // yyyyMMdd
         val sentDate: Long? = null,
         val printedDate: Long? = null,
         val invoicingCodes: List<InvoicingCode> = listOf(),
@@ -114,10 +116,11 @@ data class Invoice(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Invoice::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Invoice>
+
     fun merge(other: Invoice) = Invoice(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Invoice) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: Invoice) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
             "invoiceDate" to (this.invoiceDate ?: other.invoiceDate),
             "sentDate" to (this.sentDate ?: other.sentDate),
             "printedDate" to (this.printedDate ?: other.printedDate),
@@ -127,7 +130,8 @@ data class Invoice(
             "recipientId" to (this.recipientId ?: other.recipientId),
             "invoiceReference" to (this.invoiceReference ?: other.invoiceReference),
             "thirdPartyReference" to (this.thirdPartyReference ?: other.thirdPartyReference),
-            "thirdPartyPaymentJustification" to (this.thirdPartyPaymentJustification ?: other.thirdPartyPaymentJustification),
+            "thirdPartyPaymentJustification" to (this.thirdPartyPaymentJustification
+                    ?: other.thirdPartyPaymentJustification),
             "thirdPartyPaymentReason" to (this.thirdPartyPaymentReason ?: other.thirdPartyPaymentReason),
             "reason" to (this.reason ?: other.reason),
             "invoiceType" to (this.invoiceType ?: other.invoiceType),
@@ -170,25 +174,6 @@ data class Invoice(
             "cancelDate" to (this.cancelDate ?: other.cancelDate)
     )
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        if (!super.equals(other)) return false
-        val invoice = other as Invoice
-        return (invoiceDate == invoice.invoiceDate && sentDate == invoice.sentDate
-                && paid == invoice.paid && invoicingCodes == invoice.invoicingCodes
-                && recipientType == invoice.recipientType
-                && sentMediumType == invoice.sentMediumType
-                && recipientId == invoice.recipientId
-                && invoiceReference == invoice.invoiceReference
-                && invoiceType === invoice.invoiceType)
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(super.hashCode(), invoiceDate, sentDate, invoicingCodes, recipientType, recipientId,
-                invoiceReference, invoiceType)
-    }
-
     fun reassign(invoicingCodes: List<InvoicingCode>, uuidGenerator: UUIDGenerator) = this.copy(
             id = uuidGenerator.newGUID().toString(),
             created = System.currentTimeMillis(),
@@ -202,7 +187,16 @@ data class Invoice(
                 )
             }
     )
-    override fun withIdRev(id: String?, rev: String): Invoice =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }
 

@@ -48,7 +48,7 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
 
         val users = client.queryViewIncludeDocs<String, String, User>(createQuery<User>("by_exp_date").startKey(fromExpirationInstant.toString()).endKey(toExpirationInstant.toString()).includeDocs(true)).map { it.doc }
 
-        return users.filter { it.expirationDate != null && !it.expirationDate!!.isBefore(fromExpirationInstant) && !it.expirationDate!!.isAfter(toExpirationInstant) }
+        return users.filter { it.expirationDate != null && !it.expirationDate.isBefore(fromExpirationInstant) && !it.expirationDate.isAfter(toExpirationInstant) }
     }
 
     @View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login,doc)}}")
@@ -163,14 +163,15 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
         return client.update(user)
     }
 
-    override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: User?): User? {
+    override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: User): User? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-
-        if (entity != null && entity.isUse2fa != null && entity.isUse2fa!! && !entity.applicationTokens.containsKey("ICC")) {
-            entity.applicationTokens["ICC"] = Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString()
-        }
-        return entity?.let { super.save(dbInstanceUrl, groupId, newEntity, it) }
+        return super.save(
+                dbInstanceUrl,
+                groupId,
+                newEntity,
+                if (entity.isUse2fa == true && !entity.applicationTokens.containsKey("ICC"))
+                    entity.copy(applicationTokens = entity.applicationTokens + ("ICC" to Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString()))
+                else entity
+        )
     }
-
-
 }

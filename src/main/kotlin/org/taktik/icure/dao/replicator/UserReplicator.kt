@@ -37,8 +37,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                 var to: User? = userDAO.getOnFallback(dbInstanceUri, group.id + ":" + userId, true)
 
                 if (to == null) {
-                    to = User()
-                    to.id = group.id + ":" + from.id
+                    to = User(id = group.id + ":" + from.id)
                     log.info("User ${to.id} not found on fallback: Creating !")
                 }
                 if (
@@ -46,23 +45,23 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                         to.isUse2fa != from.isUse2fa ||
                         to.passwordHash != from.passwordHash ||
                         to.healthcarePartyId != from.healthcarePartyId ||
-                        (!from.isSecretEmpty && to.secret != from.secret) ||
+                        to.secret != from.secret ||
                         to.login != from.login ||
                         to.email != from.email ||
                         to.applicationTokens != from.applicationTokens ||
                         to.groupId != group.id
                 ) {
-                    to.status = from.status
-                    to.isUse2fa = from.isUse2fa
-                    to.passwordHash = from.passwordHash
-                    to.healthcarePartyId = from.healthcarePartyId
-                    to.secret = if (from.isSecretEmpty) null else from.secret
-                    to.login = from.login
-                    to.email = from.email
-                    to.applicationTokens = from.applicationTokens
-                    to.groupId = group.id
-
-                    userDAO.saveOnFallback(dbInstanceUri, to)
+                    userDAO.saveOnFallback(dbInstanceUri, to.copy(
+                            status = from.status,
+                            isUse2fa = from.isUse2fa,
+                            passwordHash = from.passwordHash,
+                            healthcarePartyId = from.healthcarePartyId,
+                            secret = from.secret,
+                            login = from.login,
+                            email = from.email,
+                            applicationTokens = from.applicationTokens,
+                            groupId = group.id
+                    ))
                 }
             }
         }

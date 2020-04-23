@@ -6,6 +6,6 @@ import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
 
 data class Periodicity(
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedCode: CodeStub? = null,
-    @ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedPeriodicity: CodeStub? = null
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedCode: CodeStub? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedPeriodicity: CodeStub? = null
 ) : Serializable

@@ -36,25 +36,24 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SubContact(
         @JsonProperty("_id") override val id: String,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
-
         val descr: String? = null,
         val protocol: String? = null,
-        val status : Int? = null, //To be refactored
-        val formId : String? = null, // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
+        val status: Int? = null, //To be refactored
+        val formId: String? = null, // form or subform unique ID. Several subcontacts with the same form ID can coexist as long as they are in different contacts or they relate to a different planOfActionID
         val planOfActionId: String? = null,
         val healthElementId: String? = null,
         val classificationId: String? = null,
         val services: List<ServiceLink> = listOf(),
-
-        val encryptedSelf: String? = null
-) : ICureDocument {
+        override val encryptedSelf: String? = null
+) : Encrypted, ICureDocument {
     companion object : DynamicInitializer<SubContact> {
         const val STATUS_LABO_RESULT = 1
         const val STATUS_UNREAD = 2
@@ -66,7 +65,7 @@ data class SubContact(
     }
 
     fun merge(other: SubContact) = SubContact(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: SubContact) = super.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: SubContact) = super<Encrypted>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
             "descr" to (this.descr ?: other.descr),
             "protocol" to (this.protocol ?: other.protocol),
             "status" to (this.status ?: other.status),
@@ -74,8 +73,14 @@ data class SubContact(
             "planOfActionId" to (this.planOfActionId ?: other.planOfActionId),
             "healthElementId" to (this.healthElementId ?: other.healthElementId),
             "classificationId" to (this.classificationId ?: other.classificationId),
-            "services" to MergeUtil.mergeListsDistinct(this.services, other.services, { a, b -> a.serviceId == b.serviceId }) { a, _ -> a },
-            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+            "services" to MergeUtil.mergeListsDistinct(this.services, other.services, { a, b -> a.serviceId == b.serviceId })
     )
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
 
 }

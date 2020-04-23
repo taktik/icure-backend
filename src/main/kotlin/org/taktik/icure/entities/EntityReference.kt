@@ -19,12 +19,14 @@ data class EntityReference(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = EntityReference::javaClass.name
-        ) : StoredDocument {
+) : StoredDocument {
     companion object : DynamicInitializer<EntityReference>
+
     fun merge(other: EntityReference) = EntityReference(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: EntityReference) = super.solveConflictsWith(other) + mapOf(
             "docId" to (this.docId ?: other.docId)
     )
-    override fun withIdRev(id: String?, rev: String): EntityReference =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

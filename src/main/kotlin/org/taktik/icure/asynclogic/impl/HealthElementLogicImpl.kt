@@ -29,6 +29,7 @@ import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dto.filter.chain.FilterChain
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.HealthElement
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.FuzzyValues
@@ -53,15 +54,6 @@ class HealthElementLogicImpl(private val filters: Filters,
 
     override suspend fun createHealthElement(healthElement: HealthElement) = fix(healthElement) { healthElement ->
         try { // Fetching the hcParty
-            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
-            // Setting Healthcare problem attributes
-            healthElement.id = healthElement.id ?: uuidGenerator.newGUID().toString()
-            if (healthElement.openingDate == null) {
-                healthElement.openingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)
-            }
-            healthElement.author = healthcarePartyId
-            healthElement.responsible = healthcarePartyId
-            // TODO should we check that opening contacts or closing contacts are valid?
             createEntities(setOf(healthElement)).firstOrNull()
         } catch (e: Exception) {
             log.error("createHealthElement: " + e.message)
@@ -122,32 +114,40 @@ class HealthElementLogicImpl(private val filters: Filters,
         }
     }
 
-    override suspend fun addDelegation(healthElementId: String, healthcarePartyId: String, delegation: Delegation): HealthElement? {
+    override suspend fun addDelegation(healthElementId: String, delegation: Delegation): HealthElement? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val healthElement = getHealthElement(healthElementId)
-        healthElement?.addDelegation(healthcarePartyId, delegation)
-        return healthElement?.let { healthElementDAO.save(dbInstanceUri, groupId, it) }
+        return delegation.delegatedTo?.let { healthcarePartyId ->
+            healthElement?.let { c -> healthElementDAO.save(dbInstanceUri, groupId, c.copy(delegations = c.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))}
+        } ?: healthElement
     }
 
     override suspend fun addDelegations(healthElementId: String, delegations: List<Delegation>): HealthElement? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val healthElement = getHealthElement(healthElementId)
-        delegations.forEach(Consumer { d: Delegation -> healthElement?.addDelegation(d.delegatedTo, d) })
-        return healthElement?.let { healthElementDAO.save(dbInstanceUri, groupId, it) }
+        return healthElement?.let {
+            return healthElementDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
+        }
     }
 
     override suspend fun solveConflicts() {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val healthElementsInConflict = healthElementDAO.listConflicts(dbInstanceUri, groupId).mapNotNull { healthElementDAO.get(dbInstanceUri, groupId, it.id, Option.CONFLICTS) }
-        healthElementsInConflict.collect { p ->
-            p.conflicts.mapNotNull { c: String? -> healthElementDAO.get(dbInstanceUri, groupId, p.id, c) }.forEach { cp ->
-                p.solveConflictsWith(cp)
+        healthElementsInConflict.collect { he ->
+            var modifiedContact = he
+            he.conflicts?.mapNotNull { c: String -> healthElementDAO.get(dbInstanceUri, groupId, he.id, c) }?.forEach { cp ->
+                modifiedContact = modifiedContact.merge(cp)
                 healthElementDAO.purge(dbInstanceUri, groupId, cp)
             }
-            healthElementDAO.save(dbInstanceUri, groupId, p)
+            healthElementDAO.save(dbInstanceUri, groupId, modifiedContact)
         }
     }
-
+    
     override fun filter(filter: FilterChain<HealthElement>) = flow<HealthElement> {
         val ids = filters.resolve(filter.getFilter()).toList()
         val healthElements = getHealthElements(ids) //TODO MBB implement get elements flow

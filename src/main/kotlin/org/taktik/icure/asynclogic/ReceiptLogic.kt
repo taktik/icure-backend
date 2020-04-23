@@ -10,6 +10,6 @@ interface ReceiptLogic : EntityPersister<Receipt, String> {
     fun listByReference(ref: String): Flow<Receipt>
     fun getAttachment(receiptId: String, attachmentId: String): Flow<ByteBuffer>
 
-    suspend fun addReceiptAttachment(receipt: Receipt, blobType: ReceiptBlobType, payload: ByteArray)
+    suspend fun addReceiptAttachment(receipt: Receipt, blobType: ReceiptBlobType, payload: ByteArray) : Receipt
     fun getGenericDAO(): ReceiptDAO
 }

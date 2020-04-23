@@ -25,6 +25,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
@@ -45,13 +46,14 @@ data class Form(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.UUID) val groupId : String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.UUID) val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
 
         val descr: String? = null,
         val formTemplateId: String? = null,
@@ -70,10 +72,11 @@ data class Form(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Form::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Form>
+
     fun merge(other: Form) = Form(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Form) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: Form) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
             "descr" to (this.descr ?: other.descr),
             "formTemplateId" to (this.formTemplateId ?: other.formTemplateId),
             "contactId" to (this.contactId ?: other.contactId),
@@ -81,6 +84,15 @@ data class Form(
             "planOfActionId" to (this.planOfActionId ?: other.planOfActionId),
             "parent" to (this.parent ?: other.parent)
     )
-    override fun withIdRev(id: String?, rev: String): Form =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

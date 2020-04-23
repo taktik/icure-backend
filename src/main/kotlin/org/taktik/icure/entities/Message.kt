@@ -25,9 +25,10 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.MessageReadStatus
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.services.external.rest.v1.dto.MessageReadStatus
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
@@ -43,6 +44,7 @@ data class Message(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
@@ -73,15 +75,15 @@ data class Message(
             REPORT:IN:  ${iCure ref}
             REPORT:OUT: ${iCure ref}
          */
-        val transportGuid : String? = null, //Each message should have a transportGuid: see above for formats
+        val transportGuid: String? = null, //Each message should have a transportGuid: see above for formats
         val remark: String? = null,
         val conversationGuid: String? = null,
         val subject: String? = null,
         val invoiceIds: Set<String> = setOf(),
-        val parentId : String? = null, //ID of parent in a message conversation
+        val parentId: String? = null, //ID of parent in a message conversation
         val externalRef: String? = null,
-        val unassignedResults : Set<String> = setOf(), //refs
-        val assignedResults : Map<String, String> = mapOf(), //ContactId -> ref
+        val unassignedResults: Set<String> = setOf(), //refs
+        val assignedResults: Map<String, String> = mapOf(), //ContactId -> ref
         val senderReferences: Map<String, String> = mapOf(),
 
         override val secretForeignKeys: Set<String> = setOf(),
@@ -94,7 +96,7 @@ data class Message(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = Message::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Message> {
         const val STATUS_LABO_RESULT = 1 shl 0
         const val STATUS_UNREAD = 1 shl 1
@@ -124,30 +126,40 @@ data class Message(
         const val STATUS_IMPORTED = 1 shl 25
         const val STATUS_TREATED = 1 shl 26
     }
+
     fun merge(other: Message) = Message(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Message) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-        "fromAddress" to (this.fromAddress ?: other.fromAddress),
-        "fromHealthcarePartyId" to (this.fromHealthcarePartyId ?: other.fromHealthcarePartyId),
-        "formId" to (this.formId ?: other.formId),
-        "status" to (this.status ?: other.status),
-        "recipientsType" to (this.recipientsType ?: other.recipientsType),
-        "recipients" to (other.recipients + this.recipients),
-        "toAddresses" to (other.toAddresses + this.toAddresses),
-        "received" to (this.received ?: other.received),
-        "sent" to (this.sent ?: other.sent),
-        "metas" to (other.metas + this.metas),
-        "readStatus" to (this.readStatus),
-        "transportGuid" to (this.transportGuid ?: other.transportGuid),
-        "remark" to (this.remark ?: other.remark),
-        "conversationGuid" to (this.conversationGuid ?: other.conversationGuid),
-        "subject" to (this.subject ?: other.subject),
-        "invoiceIds" to (other.invoiceIds + this.invoiceIds),
-        "parentId" to (this.parentId ?: other.parentId),
-        "externalRef" to (this.externalRef ?: other.externalRef),
-        "unassignedResults" to (other.unassignedResults + this.unassignedResults),
-        "assignedResults" to (other.assignedResults + this.assignedResults),
-        "senderReferences" to (other.senderReferences + this.senderReferences)
+    fun solveConflictsWith(other: Message) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "fromAddress" to (this.fromAddress ?: other.fromAddress),
+            "fromHealthcarePartyId" to (this.fromHealthcarePartyId ?: other.fromHealthcarePartyId),
+            "formId" to (this.formId ?: other.formId),
+            "status" to (this.status ?: other.status),
+            "recipientsType" to (this.recipientsType ?: other.recipientsType),
+            "recipients" to (other.recipients + this.recipients),
+            "toAddresses" to (other.toAddresses + this.toAddresses),
+            "received" to (this.received ?: other.received),
+            "sent" to (this.sent ?: other.sent),
+            "metas" to (other.metas + this.metas),
+            "readStatus" to (this.readStatus),
+            "transportGuid" to (this.transportGuid ?: other.transportGuid),
+            "remark" to (this.remark ?: other.remark),
+            "conversationGuid" to (this.conversationGuid ?: other.conversationGuid),
+            "subject" to (this.subject ?: other.subject),
+            "invoiceIds" to (other.invoiceIds + this.invoiceIds),
+            "parentId" to (this.parentId ?: other.parentId),
+            "externalRef" to (this.externalRef ?: other.externalRef),
+            "unassignedResults" to (other.unassignedResults + this.unassignedResults),
+            "assignedResults" to (other.assignedResults + this.assignedResults),
+            "senderReferences" to (other.senderReferences + this.senderReferences)
     )
-    override fun withIdRev(id: String?, rev: String): Message =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

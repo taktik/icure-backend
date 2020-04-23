@@ -21,11 +21,12 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.embed.Permission
 
 interface PrincipalLogic<P : Principal> {
     suspend fun getPrincipal(principalId: String): P?
-    fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property>
+    fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<PropertyStub>
     fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission>
     fun getAscendantRoles(principalId: String): Flow<Role>
 }

@@ -22,5 +22,7 @@ import org.taktik.icure.entities.embed.Permission
 
 interface Principal : Identifiable<String>, Named {
     val permissions: Set<Permission>
-    val properties: Set<Property>
+    val properties: Set<PropertyStub>
+
+    fun getParents(): Set<String>
 }

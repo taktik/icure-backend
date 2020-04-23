@@ -37,34 +37,34 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PlanOfAction(
         @JsonProperty("_id") override val id: String,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long?,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long?,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String?,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String?,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub>,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub>,
+        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        val closingDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        val deadlineDate : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        val deadlineDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         override val name: String? = null,
         val descr: String? = null,
         val note: String? = null,
-        val isRelevant : Boolean = true,
+        val isRelevant: Boolean = true,
         val idOpeningContact: String? = null,
         val idClosingContact: String? = null,
-        val status : Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
+        val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
 
-        val documentIds : Set<String> = setOf(),
-        val prescriberId : String? = null, //healthcarePartyId
+        val documentIds: Set<String> = setOf(),
+        val prescriberId: String? = null, //healthcarePartyId
         val numberOfCares: Int? = null,
         val careTeamMemberships: List<CareTeamMembership?> = listOf(),
-
-        val encryptedSelf: String? = null
-) : ICureDocument, Named {
+        override val encryptedSelf: String? = null
+) : Encrypted, ICureDocument, Named {
     companion object : DynamicInitializer<PlanOfAction> {
         const val STATUS_PLANNED = 1 shl 0
         const val STATUS_ONGOING = 1 shl 1
@@ -72,12 +72,14 @@ data class PlanOfAction(
         const val STATUS_PROLONGED = 1 shl 3
         const val STATUS_CANCELED = 1 shl 4
     }
+
     fun merge(other: PlanOfAction) = PlanOfAction(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: PlanOfAction) = super.solveConflictsWith(other) + mapOf(
+    fun solveConflictsWith(other: PlanOfAction) = super<Encrypted>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
             "valueDate" to (this.valueDate?.coerceAtMost(other.valueDate ?: Long.MAX_VALUE) ?: other.valueDate),
             "openingDate" to (this.openingDate?.coerceAtMost(other.openingDate ?: Long.MAX_VALUE) ?: other.openingDate),
             "closingDate" to (this.closingDate?.coerceAtLeast(other.closingDate ?: 0L) ?: other.closingDate),
-            "deadlineDate" to (this.deadlineDate?.coerceAtMost(other.deadlineDate ?: Long.MAX_VALUE) ?: other.deadlineDate),
+            "deadlineDate" to (this.deadlineDate?.coerceAtMost(other.deadlineDate ?: Long.MAX_VALUE)
+                    ?: other.deadlineDate),
             "name" to (this.descr ?: other.descr),
             "descr" to (this.descr ?: other.descr),
             "note" to (this.note ?: other.note),
@@ -89,8 +91,14 @@ data class PlanOfAction(
             "documentIds" to (other.documentIds + this.documentIds),
             "prescriberId" to (this.prescriberId ?: other.prescriberId),
             "numberOfCares" to (this.numberOfCares ?: other.numberOfCares),
-            "careTeamMemberships"  to MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships, { a, b -> a == b }, { a, _ -> a }),
-
-            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+            "careTeamMemberships" to MergeUtil.mergeListsDistinct(this.careTeamMemberships, other.careTeamMemberships)
     )
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

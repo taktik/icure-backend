@@ -25,19 +25,19 @@ import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot
 
 object Filters {
-    fun<O: Identifiable<String>> union(vararg filters: FilterDto<O>): UnionFilter<O> {
+    fun <O : Identifiable<String>> union(vararg filters: FilterDto<O>): UnionFilter<O> {
         return UnionFilter(filters.toList())
     }
 
-    fun<O: Identifiable<String>> intersection(vararg filters: FilterDto<O>): IntersectionFilter<O> {
+    fun <O : Identifiable<String>> intersection(vararg filters: FilterDto<O>): IntersectionFilter<O> {
         return IntersectionFilter(filters.toList())
     }
 
-    fun<O: Identifiable<String>> complement(superSet: FilterDto<O>, subset: FilterDto<O>): FilterDto<O> {
+    fun <O : Identifiable<String>> complement(superSet: FilterDto<O>, subset: FilterDto<O>): FilterDto<O> {
         return ComplementFilter(superSet, subset)
     }
 
-    fun<O: Identifiable<String>> constant(set: Set<String>): ConstantFilter<O> {
+    fun <O : Identifiable<String>> constant(set: Set<String>): ConstantFilter<O> {
         return ConstantFilter(set)
     }
 

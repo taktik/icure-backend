@@ -31,21 +31,7 @@ enum class AutoFix(private val fixer: suspend (b:Any?,v:Any?,sl:AsyncSessionLogi
     CURRENTUSERID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
     CURRENTHCPID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
     NOFIX({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> v }),
-    NORMALIZECODE({ b: Any?, v: Any?, sl: AsyncSessionLogic? ->
-        val c = v as CodeIdentification
-        if (c.id != null) {
-            val parts = c.id.split("|").toTypedArray()
-            if (c.type == null) {
-                c.type = parts[0]
-            }
-            if (c.code == null) {
-                c.code = parts[1]
-            }
-        } else if (c.type != null && c.code != null && c.version != null) {
-            c.id = c.type + "|" + c.code + "|" + c.version
-        }
-        c
-    });
+    NORMALIZECODE({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> (v as? CodeIdentification)?.normalizeIdentification() ?: v });
 
     suspend fun fix(bean: Any?, value: Any?, sessionLogic: AsyncSessionLogic?): Any? {
         if (value is Collection<*>) {

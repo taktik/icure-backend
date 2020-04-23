@@ -18,8 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.be.efact
 
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 
 class EIDItem {
     var deviceType: String? = null

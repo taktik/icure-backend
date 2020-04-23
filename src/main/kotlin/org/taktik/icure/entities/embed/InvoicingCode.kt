@@ -29,7 +29,7 @@ import org.taktik.icure.utils.invoke
 data class InvoicingCode(
         @JsonProperty("_id") override val id: String,
         val dateCode: Long? = null,
-        val logicalId : String? = null, //Stays the same when a code is resent to the IO
+        val logicalId: String? = null, //Stays the same when a code is resent to the IO
         val label: String? = null,
         val userId: String? = null,
         val contactId: String? = null,
@@ -39,11 +39,11 @@ data class InvoicingCode(
         val code: String? = null,
         val paymentType: PaymentType? = null,
         val paid: Double? = null,
-        val totalAmount : Double? = null, //=reimbursement+doctorSupplement+intervention,
+        val totalAmount: Double? = null, //=reimbursement+doctorSupplement+intervention,
         val reimbursement: Double? = null,
         val patientIntervention: Double? = null,
         val doctorSupplement: Double? = null,
-        val conventionAmount : Double? = null, //Should be reimbursement+intervention,
+        val conventionAmount: Double? = null, //Should be reimbursement+intervention,
         val vat: Double? = null,
         val error: String? = null, //Etarif
         //TODO... Might want to encrypt this as it could be used to identify the patient
@@ -77,8 +77,9 @@ data class InvoicingCode(
         val lost: Boolean? = null,
         val insuranceJustification: Int? = null,
         val cancelPatientInterventionReason: Int? = null,
-        val status: Long? = null
-) : Identifiable<String?>, Comparable<InvoicingCode?> {
+        val status: Long? = null,
+        override val encryptedSelf: String? = null
+) : Encrypted, Identifiable<String?>, Comparable<InvoicingCode?> {
     companion object : DynamicInitializer<InvoicingCode> {
         const val STATUS_PAID: Long = 1
         const val STATUS_PRINTED: Long = 2
@@ -89,6 +90,7 @@ data class InvoicingCode(
         const val STATUS_RESENT: Long = 32
         const val STATUS_LOST: Long = 64
     }
+
     fun merge(other: InvoicingCode) = InvoicingCode(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: InvoicingCode) = mapOf(
             "id" to (this.id),
@@ -138,7 +140,8 @@ data class InvoicingCode(
             "archived" to (this.archived ?: other.archived),
             "lost" to (this.lost ?: other.lost),
             "insuranceJustification" to (this.insuranceJustification ?: other.insuranceJustification),
-            "cancelPatientInterventionReason" to (this.cancelPatientInterventionReason ?: other.cancelPatientInterventionReason),
+            "cancelPatientInterventionReason" to (this.cancelPatientInterventionReason
+                    ?: other.cancelPatientInterventionReason),
             "status" to (this.status ?: other.status)
     )
 

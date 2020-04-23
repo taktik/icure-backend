@@ -38,7 +38,7 @@ interface InvoiceLogic : EntityPersister<Invoice, String> {
 
     suspend fun mergeInvoices(hcParty: String, invoices: List<Invoice>, destination: Invoice?): Invoice?
 
-    suspend fun validateInvoice(hcParty: String, invoice: Invoice?, refScheme: String, forcedValue: String): Invoice?
+    suspend fun validateInvoice(hcParty: String, invoice: Invoice?, refScheme: String, forcedValue: String?): Invoice?
     fun appendCodes(hcPartyId: String, userId: String, insuranceId: String?, secretPatientKeys: Set<String>, type: InvoiceType, sentMediumType: MediumType, invoicingCodes: List<InvoicingCode>, invoiceId: String?, invoiceGraceTime: Int?): Flow<Invoice>
 
     suspend fun addDelegations(invoiceId: String, delegations: List<Delegation>): Invoice?

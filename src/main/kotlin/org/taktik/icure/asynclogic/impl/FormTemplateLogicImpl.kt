@@ -45,20 +45,12 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
                             private val gsonMapper: Gson) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
     override fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
-        entities.forEach { e: FormTemplate ->
-            if (e.author == null) {
-                e.author = sessionLogic.getCurrentUserId()
-            }
-        }
         emitAll(super.createEntities(entities))
     }
 
-    override suspend fun createFormTemplate(entity: FormTemplate): FormTemplate {
+    override suspend fun createFormTemplate(entity: FormTemplate) = fix(entity) { entity ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        if (entity.author == null) {
-            entity.author = sessionLogic.getCurrentUserId()
-        }
-        return formTemplateDAO.createFormTemplate(dbInstanceUri, groupId, entity)
+        formTemplateDAO.createFormTemplate(dbInstanceUri, groupId, entity)
     }
 
     override suspend fun getFormTemplateById(formTemplateId: String): FormTemplate? {
@@ -94,12 +86,9 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
         emitAll(formTemplateDAO.findByUserGuid(dbInstanceUri, groupId, userId, null, loadLayout))
     }
 
-    override suspend fun modifyFormTemplate(formTemplate: FormTemplate): FormTemplate? {
+    override suspend fun modifyFormTemplate(formTemplate: FormTemplate) = fix(formTemplate) { formTemplate ->
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        if (formTemplate.author == null) {
-            formTemplate.author = sessionLogic.getCurrentUserId()
-        }
-        return formTemplateDAO.save(dbInstanceUri, groupId, formTemplate)
+        formTemplateDAO.save(dbInstanceUri, groupId, formTemplate)
     }
 
     override suspend fun build(data: ByteArray): FormLayout {

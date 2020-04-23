@@ -28,6 +28,8 @@ import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.Role
 import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.base.PropertyTypeStub
 import org.taktik.icure.entities.embed.Permission
 
 abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO, protected val sessionLogic: AsyncSessionLogic)  :  GenericLogicImpl<P, GenericDAO<P>>(sessionLogic), PrincipalLogic<P> {
@@ -37,10 +39,10 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
     protected fun getParents(principal: Principal): Flow<Role> = flow {
         val dbInstanceUri = sessionLogic.getCurrentSessionContext().getDbInstanceUri()
         val groupId = sessionLogic.getCurrentSessionContext().getGroupId()
-        emitAll(roleDAO.getList(dbInstanceUri, groupId, principal.parents))
+        emitAll(roleDAO.getList(dbInstanceUri, groupId, principal.getParents()))
     }
 
-    override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Property> = flow<Property> {
+    override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<PropertyStub> = flow {
         val principal: Principal? = getPrincipal(principalId)
         principal?.let { emitAll(buildProperties(principal, includeDirect, includeHerited, includeDefault, mutableSetOf())) }
                 ?: emitAll(emptyFlow<Property>())
@@ -50,20 +52,20 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
         emitAll(emptyFlow<Permission>())
     }
 
-    protected fun buildProperties(principal: Principal, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean, ignoredPropertyTypes: MutableSet<PropertyType>): Flow<Property> = flow {
+    protected fun buildProperties(principal: Principal, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean, ignoredPropertyTypes: MutableSet<PropertyTypeStub>): Flow<PropertyStub> = flow {
         log.trace("buildProperties() : principal={}({}), includeDirect={}, includeHerited={}, includeDefault={}", principal.javaClass.simpleName, principal.id, includeDirect, includeHerited, includeDefault)
         // Prepare set of properties
-        val properties = mutableSetOf<Property>()
+        val properties = mutableSetOf<PropertyStub>()
         if (includeDirect) { // First add properties directly linked to the principal
             for (p in principal.properties) {
-                if (!ignoredPropertyTypes.contains(p.type)) {
+                if (p.type != null && !ignoredPropertyTypes.contains(p.type)) {
                     ignoredPropertyTypes.add(p.type)
                     properties.add(p)
                 }
             }
         }
         if (includeHerited) { // Get the parent roles, sorted by natural order
-            val parentRolesSorted = getParents(principal).toList().sortedWith(kotlin.Comparator { r1, r2 -> r1.name.compareTo(r2.name, ignoreCase = true) })
+            val parentRolesSorted = getParents(principal).toList().sortedWith(compareBy<Role,String>(String.CASE_INSENSITIVE_ORDER) { r -> r.name ?: "" })
             // Add properties directly linked to the parents
             for (parent in parentRolesSorted) {
                 val parentProperties = buildProperties(parent, true, false, false, ignoredPropertyTypes).toList()
@@ -99,7 +101,7 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
             if (principal is Role) {
                 ignoredRoles.add(principal)
             }
-            principal.parents?.let {
+            principal.getParents().let {
                 getParents(principal).onEach {
                     it.let {
                         if (!ignoredRoles.contains(it)) {

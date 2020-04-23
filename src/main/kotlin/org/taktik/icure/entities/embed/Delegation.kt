@@ -28,8 +28,8 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Delegation(
         //This is not the owner of a piece of date (patient, contact). It is the owner of the delegation.
-        var owner : String? = null, // owner id
-        var delegatedTo : String? = null, // delegatedTo id
-        var key : String? = null, // An arbitrary key (generated, patientId, any ID, etc.), usually prefixed with the entity ID followed by ":", encrypted using an exchange AES key.
-        var tags : List<String> = listOf() // Used for rights
+        var owner: String? = null, // owner id
+        var delegatedTo: String? = null, // delegatedTo id
+        var key: String? = null, // An arbitrary key (generated, patientId, any ID, etc.), usually prefixed with the entity ID followed by ":", encrypted using an exchange AES key.
+        var tags: List<String> = listOf() // Used for rights
 ) : Serializable

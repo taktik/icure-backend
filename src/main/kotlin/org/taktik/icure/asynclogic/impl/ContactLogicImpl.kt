@@ -34,6 +34,7 @@ import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.data.LabelledOccurence
 import org.taktik.icure.dto.filter.chain.FilterChain
+import org.taktik.icure.entities.ClassificationTemplate
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.ServiceLink
@@ -82,6 +83,17 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
                     healthcarePartyId to setOf(delegation)
             )))}
         } ?: contact
+    }
+
+    override suspend fun addDelegations(contactId: String, delegations: List<Delegation>): Contact? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        val contact = getContact(contactId)
+        return contact?.let {
+            return contactDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
+        }
     }
 
     override suspend fun createContact(contact: Contact) = fix(contact) { contact ->

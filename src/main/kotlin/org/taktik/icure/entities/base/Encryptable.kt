@@ -1,8 +1,7 @@
 package org.taktik.icure.entities.base
 
 import org.taktik.icure.entities.embed.Delegation
-import org.taktik.icure.entities.utils.MergeUtil
-import java.util.*
+import org.taktik.icure.entities.utils.MergeUtil.mergeMapsOfSets
 
 interface Encryptable {
     //Those are typically filled in the contacts
@@ -28,9 +27,9 @@ interface Encryptable {
     fun solveConflictsWith(other: Encryptable): Map<String, Any?> {
         return mapOf(
                 "secretForeignKeys" to this.secretForeignKeys + other.secretForeignKeys,
-                "cryptedForeignKeys" to MergeUtil.mergeMapsOfSets(this.cryptedForeignKeys, other.cryptedForeignKeys, Objects::equals) { a, _ -> a },
-                "delegations" to MergeUtil.mergeMapsOfSets(this.delegations, other.delegations, Objects::equals) { a, _ -> a },
-                "encryptionKeys" to MergeUtil.mergeMapsOfSets(this.encryptionKeys, other.encryptionKeys, Objects::equals) { a, _ -> a },
+                "cryptedForeignKeys" to mergeMapsOfSets(this.cryptedForeignKeys, other.cryptedForeignKeys),
+                "delegations" to mergeMapsOfSets(this.delegations, other.delegations),
+                "encryptionKeys" to mergeMapsOfSets(this.encryptionKeys, other.encryptionKeys),
                 "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
         )
     }

@@ -114,7 +114,7 @@ class UserController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(paginationOffset)
 
-        UserPaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
+        PaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
     }
 
     @Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
@@ -128,7 +128,7 @@ class UserController(private val mapper: MapperFacade,
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(groupId, paginationOffset)
-        UserPaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
+        PaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
     }
 
     @Operation(summary = "Create a user", description = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")

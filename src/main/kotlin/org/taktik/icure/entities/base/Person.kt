@@ -31,7 +31,7 @@ interface Person : Serializable, Identifiable<String> {
     val addresses: List<Address>
     val languages: List<String>
 
-    fun solveConflictsWith(other: Person) : Map<String, Any?> {
+    fun solveConflictsWith(other: Person): Map<String, Any?> {
         return mapOf(
                 "id" to this.id,
                 "civility" to (this.civility ?: other.civility),

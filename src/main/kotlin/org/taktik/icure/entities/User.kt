@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.ektorp.Attachment
 import org.taktik.icure.constants.Users
 import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DelegationTag
 import org.taktik.icure.entities.embed.Permission
@@ -36,6 +37,7 @@ import org.taktik.icure.utils.InstantSerializer
 import org.taktik.icure.utils.invoke
 import java.io.Serializable
 import java.time.Instant
+import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -45,7 +47,8 @@ data class User(
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<Property> = setOf(),
+        override val properties: Set<PropertyStub> = setOf(),
+        val roles: Set<String> = setOf(),
         override val permissions: Set<Permission> = setOf(),
         val type: Users.Type? = null,
         val status: Users.Status? = null,
@@ -93,33 +96,37 @@ data class User(
         @JsonProperty("java_type") override val _type: String = User::javaClass.name
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<User>
+
     fun merge(other: User) = User(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: User) = super.solveConflictsWith(other) + mapOf(
-        "name" to (this.name ?: other.name),
-        "properties" to (other.properties + this.properties),
-        "permissions" to (other.permissions + this.permissions),
-        "type" to (this.type ?: other.type),
-        "status" to (this.status ?: other.status),
-        "login" to (this.login ?: other.login),
-        "passwordHash" to (this.passwordHash ?: other.passwordHash),
-        "secret" to (this.secret ?: other.secret),
-        "isUse2fa" to (this.isUse2fa ?: other.isUse2fa),
-        "groupId" to (this.groupId ?: other.groupId),
-        "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
-        "patientId" to (this.patientId ?: other.patientId),
-        "autoDelegations" to mergeMapsOfSetsDistinct(this.autoDelegations, other.autoDelegations),
-        "createdDate" to (this.createdDate ?: other.createdDate),
-        "lastLoginDate" to (this.lastLoginDate ?: other.lastLoginDate),
-        "expirationDate" to (this.expirationDate ?: other.expirationDate),
-        "activationToken" to (this.activationToken ?: other.activationToken),
-        "activationTokenExpirationDate" to (this.activationTokenExpirationDate ?: other.activationTokenExpirationDate),
-        "passwordToken" to (this.passwordToken ?: other.passwordToken),
-        "passwordTokenExpirationDate" to (this.passwordTokenExpirationDate ?: other.passwordTokenExpirationDate),
-        "termsOfUseDate" to (this.termsOfUseDate ?: other.termsOfUseDate),
-        "email" to (this.email ?: other.email),
-        "applicationTokens" to (other.applicationTokens + this.applicationTokens)
+            "name" to (this.name ?: other.name),
+            "properties" to (other.properties + this.properties),
+            "permissions" to (other.permissions + this.permissions),
+            "type" to (this.type ?: other.type),
+            "status" to (this.status ?: other.status),
+            "login" to (this.login ?: other.login),
+            "passwordHash" to (this.passwordHash ?: other.passwordHash),
+            "secret" to (this.secret ?: other.secret),
+            "isUse2fa" to (this.isUse2fa ?: other.isUse2fa),
+            "groupId" to (this.groupId ?: other.groupId),
+            "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
+            "patientId" to (this.patientId ?: other.patientId),
+            "autoDelegations" to mergeMapsOfSetsDistinct(this.autoDelegations, other.autoDelegations),
+            "createdDate" to (this.createdDate ?: other.createdDate),
+            "lastLoginDate" to (this.lastLoginDate ?: other.lastLoginDate),
+            "expirationDate" to (this.expirationDate ?: other.expirationDate),
+            "activationToken" to (this.activationToken ?: other.activationToken),
+            "activationTokenExpirationDate" to (this.activationTokenExpirationDate
+                    ?: other.activationTokenExpirationDate),
+            "passwordToken" to (this.passwordToken ?: other.passwordToken),
+            "passwordTokenExpirationDate" to (this.passwordTokenExpirationDate ?: other.passwordTokenExpirationDate),
+            "termsOfUseDate" to (this.termsOfUseDate ?: other.termsOfUseDate),
+            "email" to (this.email ?: other.email),
+            "applicationTokens" to (other.applicationTokens + this.applicationTokens)
     )
-    override fun withIdRev(id: String?, rev: String): User =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
 
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+
+    override fun getParents(): Set<String> = this.roles
 }

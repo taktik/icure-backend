@@ -240,39 +240,37 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                         mappings: Map<String, List<ImportMapping>>,
                                         saveToDatabase: Boolean,
                                         state: InternalState): Contact {
-        return Contact().apply {
-            val contact = this
+        val contactDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
+        trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+        }
 
-            this.id = idGenerator.newGUID().toString()
-            this.author = author.id
-
-            this.responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
-                createOrProcessHcp(it, saveToDatabase)?.let {
-                    v.hcps.add(it)
-                    it
-                }
-            }?.firstOrNull()?.id ?:
-                    author.healthcarePartyId
-            this.openingDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
-                    trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                        it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+        return Contact(
+                id = idGenerator.newGUID().toString(),
+                author = author.id,
+                responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
+                    createOrProcessHcp(it, saveToDatabase)?.let {
+                        v.hcps.add(it)
+                        it
                     }
-            this.closingDate = trn.isIscomplete.let { if (it) this.openingDate else null }
-
-            this.location =
-                    trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
-                            ?.let {
-                                it.contents?.flatMap { it.texts.map { it.value } }?.joinToString(",")
-                            }
-
-            this.encounterType = trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encountertype" } }
-                    ?.let {
-                        it.contents?.mapNotNull {
-                            it.cds?.find { it.s == CDCONTENTschemes.CD_ENCOUNTER }?.let {
-                                Code("CD-ENCOUNTER", it.value, "1.0")
-                            }
-                        }?.firstOrNull()
-                    } ?: Code("CD-ENCOUNTER", "consultation", "1.0")
+                }?.firstOrNull()?.id ?: author.healthcarePartyId,
+                openingDate = contactDate,
+                closingDate = trn.isIscomplete.let { if (it) contactDate else null },
+                location =
+                trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterlocation" } }
+                        ?.let {
+                            it.contents?.flatMap { it.texts.map { it.value } }?.joinToString(",")
+                        },
+                encounterType = trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encountertype" } }
+                        ?.let {
+                            it.contents?.mapNotNull {
+                                it.cds?.find { it.s == CDCONTENTschemes.CD_ENCOUNTER }?.let {
+                                    CodeStub.from("CD-ENCOUNTER", it.value, "1.0")
+                                }
+                            }?.firstOrNull()
+                        } ?: CodeStub.from("CD-ENCOUNTER", "consultation", "1.0")
+        ).apply {
+            val contact = this
 
             trn.findItems().forEach { item ->
                 val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
@@ -366,16 +364,16 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
         val formid = idGenerator.newGUID().toString()
         val form : Form
         state.formServices[service.id ?: ""] = service
-        form = Form().apply {
-            id = formid
-            formTemplateId = "744cf7f5-04ce-469e-8cf7-f504ce169eeb" // Ordonnance form template id
-            descr = "Ordonnance"
-            contactId = contact.id
-            created = service.created
-            modified = service.modified
-            this.author = service.author
+        form = Form(
+            id = formid,
+            formTemplateId = "744cf7f5-04ce-469e-8cf7-f504ce169eeb", // Magic number Ordonnance form template id
+            descr = "Ordonnance",
+            contactId = contact.id,
+            created = service.created,
+            modified = service.modified,
+            author = service.author,
             responsible = service.responsible
-        }
+        )
         result.forms.add( form )
         contact.subContacts.add(
                 SubContact().apply {
@@ -399,28 +397,26 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                        v: ImportResult,
                                        contactId: String
     ): HealthElement? {
-        return HealthElement().apply {
-            this.id = idGenerator.newGUID().toString()
-            this.healthElementId = idGenerator.newGUID().toString()
-            descr = label
-            if(item.texts.isNotEmpty()) {
-                descr = "${descr}, ${ item.texts.map{ it.value }.joinToString ( " " )}"
-            }
-            this.tags.add(CodeStub("CD-ITEM", cdItem, "1"))
-            this.tags.addAll(extractTags(item))
-            this.author = author.id
-            this.responsible = author.healthcarePartyId
-            this.codes = extractCodes(item).toMutableSet()
-            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                    ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
-            this.openingDate = this.valueDate
-            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-            this.idOpeningContact = contactId
-            this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
-            this.modified = this.created
-            item.lifecycle?.let { this.tags.add(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) }
-            this.status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" ||it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 } ?: 0) + if(item.isIsrelevant != true) 2 else 0)
-        }
+        val healthElementDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) } ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
+        val healthElementCreated = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
+        return HealthElement(
+                id = idGenerator.newGUID().toString(),
+                healthElementId = idGenerator.newGUID().toString(),
+                descr = if(item.texts.isNotEmpty()) { "${label}, ${ item.texts.map{ it.value }.joinToString ( " " )}" } else label,
+                tags= setOf(CodeStub("CD-ITEM", cdItem, "1"))
+                        + extractTags(item)
+                        + (item.lifecycle?.let { setOf(CodeStub("CD-LIFECYCLE", it.cd.value.value(), "1")) } ?: setOf()),
+                author = author.id,
+                responsible = author.healthcarePartyId,
+                codes = extractCodes(item).toMutableSet(),
+                valueDate = healthElementDate,
+                openingDate = healthElementDate,
+                closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) },
+                idOpeningContact = contactId,
+                created = healthElementCreated,
+                modified = healthElementCreated,
+                status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" ||it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 } ?: 0) + if(item.isIsrelevant != true) 2 else 0)
+        )
     }
 
     private fun extractCodes(item: ItemType): Set<CodeStub> {
@@ -453,29 +449,32 @@ class MedicationSchemeImport(val patientLogic: PatientLogic,
                                  author: User,
                                  language: String,
                                  v: ImportResult): Service {
-        return Service().apply {
-            this.id = idGenerator.newGUID().toString()
+        val serviceDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) } ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
+        val serviceCreatedDate = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
+        return Service(
+                id = idGenerator.newGUID().toString(),
+                label = label,
+                codes = extractCodes(item).toSet(),
+                responsible = author.healthcarePartyId,
+                valueDate = serviceDate,
+                openingDate = serviceDate,
+                closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) },
+                created = serviceCreatedDate,
+                modified = serviceCreatedDate
+        ).apply {
             this.tags.add(CodeStub( "CD-ITEM", cdItem, "1"))
             this.tags.addAll(extractTags(item))
-            this.label = label
             this.tags.find { it.type == "CD-PARAMETER"}?.let {
                 consultationFormMeasureLabels[it.code]?.let {
                     this.label = it
                 }
             }
-            this.codes = extractCodes(item).toMutableSet()
             item.temporality?.cd?.value?.let {
                 this.tags.add(
                         CodeStub("CD-TEMPORALITY", it.toString(), "1")
                 )
             }
-            this.responsible = author.healthcarePartyId
-            this.valueDate = item.beginmoment?.let {  Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                    ?: item.recorddatetime?.let {Utils.makeFuzzyLongFromXMLGregorianCalendar(it) } ?: FuzzyValues.getCurrentFuzzyDateTime()
-            this.openingDate = this.valueDate
-            this.closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-            this.created = item.recorddatetime?.let { it.toGregorianCalendar().toInstant().toEpochMilli() }
-            this.modified = this.created
+
             item.lifecycle?.let { this.tags.add(CodeStub( "CD-LIFECYCLE", it.cd.value.value(), "1")) }
             this.status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" ||it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 } ?: 0) + if(item.isIsrelevant != true) 2 else 0)
             this.content = mapOf(language to Content().apply {

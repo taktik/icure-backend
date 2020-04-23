@@ -24,6 +24,7 @@ import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -39,6 +40,7 @@ data class CalendarItem(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
@@ -74,32 +76,42 @@ data class CalendarItem(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = CalendarItem::javaClass.name
-) : StoredDocument, ICureDocument, Encryptable {
+) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<CalendarItem>
+
     fun merge(other: CalendarItem) = CalendarItem(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: CalendarItem) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
-                    "title" to (this.title ?: other.title),
-                    "calendarItemTypeId" to (this.calendarItemTypeId ?: other.calendarItemTypeId),
-                    "masterCalendarItemId" to (this.masterCalendarItemId ?: other.masterCalendarItemId),
-                    "patientId" to (this.patientId ?: other.patientId),
-                    "important" to (this.important ?: other.important),
-                    "homeVisit" to (this.homeVisit ?: other.homeVisit),
-                    "phoneNumber" to (this.phoneNumber ?: other.phoneNumber),
-                    "placeId" to (this.placeId ?: other.placeId),
-                    "address" to (this.address ?: other.address),
-                    "addressText" to (this.addressText ?: other.addressText),
-                    "startTime" to (this.startTime ?: other.startTime),
-                    "endTime" to (this.endTime ?: other.endTime),
-                    "confirmationTime" to (this.confirmationTime ?: other.confirmationTime),
-                    "confirmationId" to (this.confirmationId ?: other.confirmationId),
-                    "duration" to (this.duration ?: other.duration),
-                    "allDay" to (this.allDay ?: other.allDay),
-                    "details" to (this.details ?: other.details),
-                    "wasMigrated" to (this.wasMigrated ?: other.wasMigrated),
-                    "agendaId" to (this.agendaId ?: other.agendaId),
-                    "meetingTags" to (other.meetingTags + this.meetingTags),
-                    "flowItem" to (this.flowItem ?: other.flowItem)
+    fun solveConflictsWith(other: CalendarItem) = super<StoredICureDocument>.solveConflictsWith(other) + super<Encryptable>.solveConflictsWith(other) + mapOf(
+            "title" to (this.title ?: other.title),
+            "calendarItemTypeId" to (this.calendarItemTypeId ?: other.calendarItemTypeId),
+            "masterCalendarItemId" to (this.masterCalendarItemId ?: other.masterCalendarItemId),
+            "patientId" to (this.patientId ?: other.patientId),
+            "important" to (this.important ?: other.important),
+            "homeVisit" to (this.homeVisit ?: other.homeVisit),
+            "phoneNumber" to (this.phoneNumber ?: other.phoneNumber),
+            "placeId" to (this.placeId ?: other.placeId),
+            "address" to (this.address ?: other.address),
+            "addressText" to (this.addressText ?: other.addressText),
+            "startTime" to (this.startTime ?: other.startTime),
+            "endTime" to (this.endTime ?: other.endTime),
+            "confirmationTime" to (this.confirmationTime ?: other.confirmationTime),
+            "confirmationId" to (this.confirmationId ?: other.confirmationId),
+            "duration" to (this.duration ?: other.duration),
+            "allDay" to (this.allDay ?: other.allDay),
+            "details" to (this.details ?: other.details),
+            "wasMigrated" to (this.wasMigrated ?: other.wasMigrated),
+            "agendaId" to (this.agendaId ?: other.agendaId),
+            "meetingTags" to (other.meetingTags + this.meetingTags),
+            "flowItem" to (this.flowItem ?: other.flowItem)
     )
-    override fun withIdRev(id: String?, rev: String): CalendarItem =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

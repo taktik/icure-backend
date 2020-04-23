@@ -39,7 +39,7 @@ abstract class EntityReplicator<T : StoredDocument>(private val sslContextFactor
     protected val replicationSemaphore = Semaphore(8)
 
     private data class SyncKey(val groupId: String, val id: String)
-    protected data class IdAndRev(val id: String, val rev: String)
+    protected data class IdAndRev(val id: String, val rev: String?)
 
     private val syncStatus: ConcurrentMap<SyncKey, String> = ConcurrentHashMap()
 

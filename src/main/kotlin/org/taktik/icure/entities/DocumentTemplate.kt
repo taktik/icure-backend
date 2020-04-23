@@ -40,6 +40,7 @@ data class DocumentTemplate(
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
         @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        override val medicalLocationId: String? = null,
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
@@ -57,30 +58,41 @@ data class DocumentTemplate(
         val group: DocumentGroup? = null,
         val descr: String? = null,
         val disabled: String? = null,
-        val specialty: Code? = null,
+        val specialty: CodeStub? = null,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = DocumentTemplate::javaClass.name
-) : StoredDocument, ICureDocument {
+) : StoredICureDocument {
     companion object : DynamicInitializer<DocumentTemplate>
+
     fun merge(other: DocumentTemplate) = DocumentTemplate(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: DocumentTemplate) = super<StoredDocument>.solveConflictsWith(other) + super<ICureDocument>.solveConflictsWith(other) + mapOf(
-            "mainUti" to (this.mainUti ?:other.mainUti),
-            "name" to (this.name ?:other.name),
+    fun solveConflictsWith(other: DocumentTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
+            "mainUti" to (this.mainUti ?: other.mainUti),
+            "name" to (this.name ?: other.name),
             "otherUtis" to (other.otherUtis + this.otherUtis),
-            "attachmentId" to (this.attachmentId ?:other.attachmentId),
-            "version" to (this.version ?:other.version),
-            "owner" to (this.owner ?:other.owner),
-            "guid" to (this.guid ?:other.guid),
-            "group" to (this.group ?:other.group),
-            "descr" to (this.descr ?:other.descr),
-            "disabled" to (this.disabled ?:other.disabled),
-            "specialty" to (this.specialty ?:other.specialty),
-            "attachment" to (this.attachment?.let { if(it.size>=other.attachment?.size ?: 0) it else other.attachment} ?: other.attachment )
+            "attachmentId" to (this.attachmentId ?: other.attachmentId),
+            "version" to (this.version ?: other.version),
+            "owner" to (this.owner ?: other.owner),
+            "guid" to (this.guid ?: other.guid),
+            "group" to (this.group ?: other.group),
+            "descr" to (this.descr ?: other.descr),
+            "disabled" to (this.disabled ?: other.disabled),
+            "specialty" to (this.specialty ?: other.specialty),
+            "attachment" to (this.attachment?.let { if (it.size >= other.attachment?.size ?: 0) it else other.attachment }
+                    ?: other.attachment)
     )
-    override fun withIdRev(id: String?, rev: String): DocumentTemplate =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun withTimestamps(created: Long?, modified: Long?) =
+            when {
+                created != null && modified != null -> this.copy(created = created, modified = modified)
+                created != null -> this.copy(created = created)
+                modified != null -> this.copy(modified = modified)
+                else -> this
+            }
+
 }

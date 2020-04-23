@@ -47,8 +47,9 @@ data class EntityTemplate(
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = EntityTemplate::javaClass.name
-) : StoredDocument  {
+) : StoredDocument {
     companion object : DynamicInitializer<EntityTemplate>
+
     fun merge(other: EntityTemplate) = EntityTemplate(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: EntityTemplate) = super.solveConflictsWith(other) + mapOf(
             "descr" to (this.descr ?: other.descr),
@@ -57,7 +58,8 @@ data class EntityTemplate(
             "isDefaultTemplate" to (this.isDefaultTemplate ?: other.isDefaultTemplate),
             "entity" to (this.entity)
     )
-    override fun withIdRev(id: String?, rev: String): EntityTemplate =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }
 

@@ -18,7 +18,6 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.google.common.io.ByteStreams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
@@ -37,8 +36,6 @@ import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Document
 import org.taktik.icure.utils.createQuery
-import java.io.BufferedInputStream
-import java.io.FileInputStream
 import java.io.IOException
 import java.net.URI
 import java.nio.ByteBuffer
@@ -51,69 +48,67 @@ import java.util.*
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted) emit( null, doc._id )}")
 class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<Document>(Document::class.java, couchDbDispatcher, idGenerator, mapper), DocumentDAO {
 
-    override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document) {
-        super.beforeSave(dbInstanceUrl, groupId, entity)
+    override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document) =
+            super.beforeSave(dbInstanceUrl, groupId, entity).let { document ->
+                if (document.attachment != null) {
+                    val newAttachmentId = DigestUtils.sha256Hex(document.attachment)
 
-        if (entity.attachment != null) {
-            val newAttachmentId = DigestUtils.sha256Hex(entity.attachment)
-
-            if (newAttachmentId != entity.attachmentId && entity.id != null && entity.rev != null && entity.attachmentId != null) {
-                entity.attachments?.containsKey(entity.attachmentId)?.takeIf { it }?.let {
-                    entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev!!, entity.attachmentId!!)
-                    entity.attachments!!.remove(entity.attachmentId)
+                    if (newAttachmentId != document.attachmentId && document.id != null && document.rev != null && document.attachmentId != null) {
+                        document.attachments?.containsKey(document.attachmentId)?.takeIf { it }?.let {
+                            document.copy(
+                                    rev = deleteAttachment(dbInstanceUrl, groupId, document.id, document.rev!!, document.attachmentId!!),
+                                    attachments = document.attachments - document.attachmentId,
+                                    attachmentId = newAttachmentId,
+                                    isAttachmentDirty = true
+                            )
+                        } ?: document.copy(
+                                attachmentId = newAttachmentId,
+                                isAttachmentDirty = true
+                        )
+                    } else
+                        document
+                } else {
+                    if (document.attachmentId != null && document.rev != null) {
+                        document.copy(
+                                rev = deleteAttachment(dbInstanceUrl, groupId, document.id, document.rev, document.attachmentId),
+                                attachmentId = null,
+                                isAttachmentDirty = false
+                        )
+                    } else document
                 }
-                entity.attachmentId = newAttachmentId
-                entity.isAttachmentDirty = true
             }
-        } else {
-            if (entity.attachmentId != null && entity.id != null && entity.rev != null && entity.attachmentId != null) {
-                entity.rev = deleteAttachment(dbInstanceUrl, groupId, entity.id, entity.rev!!, entity.attachmentId!!)
-                entity.attachmentId = null
-                entity.isAttachmentDirty = false
-            }
-        }
-    }
 
-    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document) : Document {
-        return super.afterSave(dbInstanceUrl, groupId, entity).let { entity ->
-            if (entity.isAttachmentDirty && entity.id != null && entity.attachmentId != null && entity.rev != null) {
-                if (entity.attachment != null && entity.attachmentId != null) {
-                    val uti = UTI.get(entity.mainUti)
+    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: Document) =
+            super.afterSave(dbInstanceUrl, groupId, entity).let { document ->
+                if (document.isAttachmentDirty && document.attachmentId != null && document.rev != null && document.attachment != null) {
+                    val uti = UTI.get(document.mainUti)
                     var mimeType = "application/xml"
                     if (uti != null && uti.mimeTypes != null && uti.mimeTypes.size > 0) {
                         mimeType = uti.mimeTypes[0]
                     }
-                    entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev!!, mimeType, flowOf(ByteBuffer.wrap(entity.attachment)))
-                    entity.isAttachmentDirty = false
-                }
-            }
-            entity
-        }
-    }
-
-    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: Document?) {
-        super.postLoad(dbInstanceUrl, groupId, entity)
-        val encoder: CharsetEncoder = StandardCharsets.UTF_8.newEncoder()
-
-        entity?.let {
-            if (entity.attachmentId != null) {
-                try {
-                    if (entity.attachmentId!!.contains("|")) {
-                        val attachmentIs = BufferedInputStream(FileInputStream(entity.attachmentId!!.split("\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]))
-                        entity.attachment = ByteStreams.toByteArray(attachmentIs)
-                    } else {
-                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.attachmentId!!, entity.rev)
-                        ByteArrayOutputStream().use {attachment ->
-                            attachmentIs.collect { attachment.write(it.array()) }
-                            entity.attachment = attachment.toByteArray()
-                        }
+                    createAttachment(dbInstanceUrl, groupId, document.id, document.attachmentId, document.rev, mimeType, flowOf(ByteBuffer.wrap(document.attachment))).let {
+                        document.copy(
+                                rev = it,
+                                isAttachmentDirty = false
+                        )
                     }
-                } catch (e: IOException) {
-                    //Could not load
-                }
+                } else document
             }
-        }
-    }
+
+    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: Document) =
+            super.postLoad(dbInstanceUrl, groupId, entity).let { document ->
+                if (document.attachmentId != null) {
+                    try {
+                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, document.id, document.attachmentId, document.rev)
+                        document.copy(attachment = ByteArrayOutputStream().use { attachment ->
+                            attachmentIs.collect { attachment.write(it.array()) }
+                            attachment.toByteArray()
+                        })
+                    } catch (e: IOException) {
+                        document //Could not load
+                    }
+                } else document
+            }
 
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     override fun listConflicts(dbInstanceUrl: URI, groupId: String): Flow<Document> {

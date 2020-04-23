@@ -23,7 +23,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.beanutils.PropertyUtilsBean
-import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -36,12 +35,10 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.User
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.PatientHealthCareParty
@@ -57,7 +54,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Instant
-import java.util.*
 import java.util.function.Consumer
 import kotlin.math.min
 
@@ -189,26 +185,26 @@ class PatientLogicImpl(
             patientsListToSort = patientsListToSort.sortedWith(
                     kotlin.Comparator { a, b ->
                         try {
-                            val ap = pub.getProperty(a, sort) as Comparable<*>
-                            val bp = pub.getProperty(b, sort) as Comparable<*>
+                            val ap = pub.getProperty(a, sort) as Comparable<*>?
+                            val bp = pub.getProperty(b, sort) as Comparable<*>?
                             if (ap is String && bp is String) {
                                 if (desc != null && desc) {
                                     StringUtils.compareIgnoreCase(bp, ap)
                                 } else {
                                     StringUtils.compareIgnoreCase(ap, bp)
                                 }
-                            } else if (desc != null && desc) {
-                                bp as Comparable<Comparable<*>>
-                                ap as Comparable<Comparable<*>>
-                                ObjectUtils.compare(bp, ap)
                             } else {
-                                bp as Comparable<Comparable<*>>
-                                ap as Comparable<Comparable<*>>
-                                ObjectUtils.compare(ap, bp)
+                                ap as Comparable<Any>?
+                                bp as Comparable<Any>?
+                                if (desc != null && desc) {
+                                    ap?.let { bp?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                                } else {
+                                    bp?.let { ap?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                                }
                             }
                         } catch (e: Exception) {
+                            0
                         }
-                        0
                     }
             )
             emitAll(patientsListToSort.asFlow())
@@ -312,38 +308,42 @@ class PatientLogicImpl(
     }
 
     override suspend fun addDelegation(patientId: String, delegation: Delegation): Patient? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val patient = getPatient(patientId)
-        return patient?.let {
-            patient.addDelegation(delegation.delegatedTo, delegation)
-            val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            patientDAO.save(dbInstanceUri, groupId, patient)
-        }
+        return delegation.delegatedTo?.let { healthcarePartyId ->
+            patient?.let { c ->
+                patientDAO.save(dbInstanceUri, groupId, c.copy(delegations = c.delegations + mapOf(
+                        healthcarePartyId to setOf(delegation)
+                )))
+            }
+        } ?: patient
     }
 
     override suspend fun addDelegations(patientId: String, delegations: Collection<Delegation>): Patient? {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         val patient = getPatient(patientId)
-        return patient?.let { patient ->
-            delegations.forEach { patient.addDelegation(it.delegatedTo, it) }
-            val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-            patientDAO.save(dbInstanceUri, groupId, patient)
+        return patient?.let {
+            return patientDAO.save(dbInstanceUri, groupId, it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
         }
     }
 
     @Throws(MissingRequirementsException::class)
     override suspend fun createPatient(patient: Patient) = fix(patient) { patient ->
-        if (patient.preferredUserId != null && (patient.delegations == null || patient.delegations.isEmpty())) {
-            patient.delegations = HashMap()
-            val user: User? = userLogic.getUser(patient.preferredUserId as String) //TODO MB remove explicit cast when Patient is kotlinized
-            user?.let {
-                patient.delegations[it.healthcarePartyId] = HashSet()
-                it.autoDelegations.values.forEach {
-                    it.forEach { patient.delegations[it] = HashSet() }
-                }
+        (if (patient.preferredUserId != null && (patient.delegations.isEmpty())) {
+            userLogic.getUser(patient.preferredUserId)?.let { user ->
+                patient.copy(
+                        delegations = (user.autoDelegations.values.flatMap { it.map { it to setOf<Delegation>() } }).toMap() +
+                                (user.healthcarePartyId?.let { mapOf(it to setOf<Delegation>()) } ?: mapOf<String, Set<Delegation>>())
+                )
+            } ?: patient
+        } else patient).let {
+            createEntities(setOf(it)).firstOrNull()?.let { createdPatient ->
+                logPatient(createdPatient, "patient.create.")
+                createdPatient
             }
-        }
-        createEntities(setOf(patient)).firstOrNull()?.let {
-            logPatient(it, "patient.create.")
-            it
         }
     }
 
@@ -355,12 +355,7 @@ class PatientLogicImpl(
             throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
         }
         try {
-            updateEntities(setOf(patient)).collect()
-            val modifiedPatient = getPatient(patient.id)
-            modifiedPatient?.let {
-                logPatient(modifiedPatient, "patient.modify.")
-                it
-            }
+            updateEntities(setOf(patient)).first().also { logPatient(it, "patient.modify.") }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid patient", e)
         }
@@ -392,65 +387,49 @@ class PatientLogicImpl(
         val startOrNow = start ?: Instant.now()
         val shouldSave = booleanArrayOf(false)
         //Close referrals relative to other healthcare parties
-        patient.patientHealthCareParties.stream().filter { phcp: PatientHealthCareParty -> phcp.isReferral && (referralId == null || referralId == phcp.healthcarePartyId) }.forEach { phcp: PatientHealthCareParty ->
-            phcp.isReferral = false
-            shouldSave[0] = true
-            phcp.referralPeriods.forEach(Consumer { p: ReferralPeriod ->
-                if (p.endDate == null || p.endDate != startOrNow) {
-                    p.endDate = startOrNow
-                }
-            })
+        val fixedPhcp = patient.patientHealthCareParties.map { phcp ->
+            if (phcp.isReferral && (referralId == null || referralId != phcp.healthcarePartyId)) {
+                phcp.copy(
+                        isReferral = false,
+                        referralPeriods = phcp.referralPeriods.map { p ->
+                            if (p.endDate == null || p.endDate != startOrNow) {
+                                p.copy(endDate = startOrNow)
+                            } else p
+                        }.toSortedSet()
+                )
+            } else if (referralId != null && referralId == phcp.healthcarePartyId) {
+                (if (!phcp.isReferral) {
+                    phcp.copy(isReferral = true)
+                } else phcp).copy(
+                        referralPeriods = phcp.referralPeriods.map {rp ->
+                            if (start == rp.startDate) {
+                                rp.copy(endDate = end)
+                            } else rp
+                        }.toSortedSet()
+                )
+            } else phcp
         }
-        if (referralId != null) {
-            val patientHealthCareParty = patient.patientHealthCareParties?.stream()?.filter { phcp: PatientHealthCareParty -> referralId == phcp.healthcarePartyId }?.findFirst()?.orElse(null)
-            if (patientHealthCareParty != null) {
-                if (!patientHealthCareParty.isReferral) {
-                    patientHealthCareParty.isReferral = true
-                    shouldSave[0] = true
-                }
-                patientHealthCareParty.referralPeriods.stream().filter { rp: ReferralPeriod -> start == rp.startDate }.findFirst().ifPresent { rp: ReferralPeriod ->
-                    if (end != rp.endDate) {
-                        rp.endDate = end
-                        shouldSave[0] = true
-                    }
-                }
-            } else {
-                val newRefPer = PatientHealthCareParty()
-                newRefPer.setHealthcarePartyId(referralId)
-                newRefPer.isReferral = true
-                newRefPer.referralPeriods.add(ReferralPeriod(startOrNow, end))
-                patient.patientHealthCareParties.add(newRefPer)
-                shouldSave[0] = true
-            }
+        return (if (!fixedPhcp.any { it.isReferral && it.healthcarePartyId == referralId }) {
+            fixedPhcp + PatientHealthCareParty(
+                    isReferral = true,
+                    healthcarePartyId = referralId,
+                    referralPeriods = sortedSetOf(ReferralPeriod(startOrNow, end))
+            )
+        } else fixedPhcp).let {
+            if (it != patient.patientHealthCareParties) {
+                modifyPatient(patient.copy(patientHealthCareParties = it))
+            } else
+                patient
         }
-        return if (shouldSave[0]) modifyPatient(patient) else patient
     }
 
     override suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient? {
-        for (from in fromPatients) {
-            val entries: Set<Map.Entry<String, Set<Delegation>>> = from.delegations.entries
-            for ((key, value) in entries) {
-                val secondMapValue = patient.delegations[key]
-                if (secondMapValue == null) {
-                    patient.delegations[key] = value
-                } else {
-                    secondMapValue.addAll(value)
-                }
-            }
-            from.setMergeToPatientId(patient.id)
-            from.deletionDate = Instant.now().toEpochMilli()
-            patient.mergeFrom(from)
-            try {
-                modifyPatient(from)
-            } catch (e: MissingRequirementsException) {
-                throw IllegalStateException(e)
-            }
-        }
-        patient.mergedIds.addAll(fromPatients.map { p: Patient -> p.id })
-        return try {
-            modifyPatient(patient)
-        } catch (e: MissingRequirementsException) {
-            throw IllegalStateException(e)
+        val now = Instant.now().toEpochMilli()
+        return fromPatients.fold(patient to listOf<Patient>() ) { (p, others), o -> p.merge(o) to others + modifyPatient(p.copy(
+                mergeToPatientId = patient.id,
+                deletionDate = now
+        )) }.let { (p, others) ->
+            modifyPatient(p.copy(mergedIds = p.mergedIds + others.map { it.id }))
         }
     }
 

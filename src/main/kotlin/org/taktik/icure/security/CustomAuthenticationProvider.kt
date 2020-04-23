@@ -104,7 +104,7 @@ class CustomAuthenticationProvider(
             throw BadCredentialsException("Invalid username or password")
         }
 
-        if (user.isUse2fa == true && !user.isSecretEmpty && !user.applicationTokens.containsValue(password)) {
+        if (user.isUse2fa == true && user.secret?.isNotBlank() == true && !user.applicationTokens.containsValue(password)) {
             val splittedPassword = password.split("\\|")
             if (splittedPassword.size < 2) {
                 throw BadCredentialsException("Missing verfication code")
@@ -148,7 +148,7 @@ class CustomAuthenticationProvider(
         if (u.applicationTokens.containsValue(password)) {
             return true
         }
-        return if (u.isUse2fa != null && u.isUse2fa!! && !u.isSecretEmpty) {
+        return if (u.isUse2fa == true && u.secret?.isNotBlank() == true) {
             val splittedPassword = password.split("\\|").toTypedArray()
             passwordEncoder.matches(splittedPassword[0], u.passwordHash)
         } else {

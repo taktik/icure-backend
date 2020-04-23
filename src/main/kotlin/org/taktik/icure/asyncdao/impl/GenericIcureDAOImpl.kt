@@ -21,6 +21,7 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.flow.Flow
 import ma.glasnost.orika.MapperFacade
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredICureDocument
 import java.net.URI
 
@@ -32,7 +33,6 @@ import java.net.URI
  *
  */
 open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<T>(entityClass, couchDbDispatcher, idGenerator, mapper) {
-
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? =
             super.save(dbInstanceUrl, groupId, newEntity, entity.apply { setTimestamps(this) })
 
@@ -45,12 +45,11 @@ open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, c
     override fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) =
             super.unRemove(dbInstanceUrl, groupId, entities.map { it.apply { setTimestamps(this) } })
 
-
-    private fun setTimestamps(entity: StoredICureDocument) {
+    private fun setTimestamps(entity: ICureDocument) {
         val epochMillis = System.currentTimeMillis()
         if (entity.created == null) {
-            entity.created = epochMillis
+            entity.withTimestamps(created = epochMillis, modified = epochMillis)
         }
-        entity.modified = epochMillis
+        entity.withTimestamps(modified = epochMillis)
     }
 }

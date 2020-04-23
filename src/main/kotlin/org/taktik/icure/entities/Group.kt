@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.entities
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -36,7 +37,7 @@ data class Group(
         val name: String? = null,
         val password: String? = null,
         val servers: List<String>? = null,
-        val isSuperAdmin: Boolean = false,
+        val superAdmin: Boolean = false,
         val superGroup: String? = null,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
@@ -46,14 +47,19 @@ data class Group(
         @JsonProperty("java_type") override val _type: String = Group::javaClass.name
 ) : StoredDocument {
     companion object : DynamicInitializer<Group>
+
     fun merge(other: Group) = Group(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Group) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
             "password" to (this.password ?: other.password),
             "servers" to (this.servers ?: other.servers),
-            "isSuperAdmin" to (this.isSuperAdmin),
+            "superAdmin" to (this.superAdmin),
             "superGroup" to (this.superGroup ?: other.superGroup)
     )
-    override fun withIdRev(id: String?, rev: String): Group =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    @JsonIgnore
+    fun dbInstanceUrl(): String? = this.servers?.firstOrNull()
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

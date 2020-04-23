@@ -20,6 +20,7 @@
 package org.taktik.icure.asynclogic
 
 import org.taktik.icure.entities.Property
+import org.taktik.icure.entities.base.PropertyStub
 
 interface PropertyLogic {
     /**
@@ -27,7 +28,7 @@ interface PropertyLogic {
      *
      * @return
      */
-    fun getSystemProperties(includeEnvironmentProperties: Boolean): Set<Property>
+    fun getSystemProperties(includeEnvironmentProperties: Boolean): Set<PropertyStub>
 
     /**
      * Return the system property with the given identifier
@@ -35,7 +36,7 @@ interface PropertyLogic {
      * @param propertyIdentifier
      * @return
      */
-    fun getSystemProperty(propertyIdentifier: String): Property?
+    fun getSystemProperty(propertyIdentifier: String): PropertyStub?
 
     /**
      * Return the system property value with the given identifier

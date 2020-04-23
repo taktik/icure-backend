@@ -6,12 +6,13 @@ interface CodeIdentification {
     val type: String?
     val version: String?
 
-    fun solveConflictsWith(other: CodeIdentification) : Map<String, Any?> {
+    fun solveConflictsWith(other: CodeIdentification): Map<String, Any?> {
         return mapOf(
-            "id" to (this.id),
-            "code" to (this.code ?: other.code),
-            "type" to (this.type ?: other.type),
-            "version" to (this.version ?: other.version)
+                "id" to (this.id),
+                "code" to (this.code ?: other.code),
+                "type" to (this.type ?: other.type),
+                "version" to (this.version ?: other.version)
         )
     }
+    fun normalizeIdentification() : CodeIdentification
 }

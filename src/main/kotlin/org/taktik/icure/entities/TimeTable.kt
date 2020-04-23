@@ -37,8 +37,8 @@ data class TimeTable(
 
         val name: String? = null,
         val agendaId: String? = null,
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val startTime : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val endTime : Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val startTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @NotNull(autoFix = AutoFix.FUZZYNOW) val endTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val items: List<TimeTableItem> = listOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
@@ -48,14 +48,16 @@ data class TimeTable(
         @JsonProperty("java_type") override val _type: String = TimeTable::javaClass.name
 ) : StoredDocument {
     companion object : DynamicInitializer<TimeTable>
+
     fun merge(other: TimeTable) = TimeTable(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: TimeTable) = super.solveConflictsWith(other) + mapOf(
-        "name" to (this.name ?: other.name),
-        "agendaId" to (this.agendaId ?: other.agendaId),
-        "startTime" to (this.startTime ?: other.startTime),
-        "endTime" to (this.endTime ?: other.endTime),
-        "items" to mergeListsDistinct(this.items, other.items)
+            "name" to (this.name ?: other.name),
+            "agendaId" to (this.agendaId ?: other.agendaId),
+            "startTime" to (this.startTime ?: other.startTime),
+            "endTime" to (this.endTime ?: other.endTime),
+            "items" to mergeListsDistinct(this.items, other.items)
     )
-    override fun withIdRev(id: String?, rev: String): TimeTable =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

@@ -45,6 +45,7 @@ data class Property(
         @JsonProperty("java_type") override val _type: String = Property::javaClass.name
 ) : StoredDocument {
     companion object : DynamicInitializer<Property>
+
     fun merge(other: Property) = Property(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Property) = super.solveConflictsWith(other) + mapOf(
             "type" to (this.type ?: other.type),
@@ -56,6 +57,6 @@ data class Property(
         return (typedValue?.getValue<Any>()?.let { it as? T })
     }
 
-    override fun withIdRev(id: String?, rev: String): Property =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

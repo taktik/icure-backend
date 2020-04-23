@@ -41,4 +41,5 @@ interface ContactLogic : EntityPersister<Contact, String> {
 
     suspend fun solveConflicts()
     fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
+    suspend fun addDelegations(contactId: String, delegations: List<Delegation>): Contact?
 }

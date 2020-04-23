@@ -32,15 +32,15 @@ data class Telecom(
         val telecomType: TelecomType? = null,
         val telecomNumber: String? = null,
         val telecomDescription: String? = null,
-        val encryptedSelf: String? = null
-) : Serializable, Comparable<Telecom> {
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable, Comparable<Telecom> {
     companion object : DynamicInitializer<Telecom>
+
     fun merge(other: Telecom) = Telecom(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: Telecom) = mapOf(
+    fun solveConflictsWith(other: Telecom) = super.solveConflictsWith(other) + mapOf(
             "telecomType" to (this.telecomType ?: other.telecomType),
             "telecomNumber" to (this.telecomNumber ?: other.telecomNumber),
-            "telecomDescription" to (this.telecomDescription ?: other.telecomDescription),
-            "encryptedSelf" to (this.encryptedSelf ?: other.encryptedSelf)
+            "telecomDescription" to (this.telecomDescription ?: other.telecomDescription)
     )
 
     override fun compareTo(other: Telecom): Int {

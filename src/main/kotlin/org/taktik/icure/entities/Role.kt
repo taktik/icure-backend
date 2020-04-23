@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.Principal
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.Permission
 import org.taktik.icure.entities.embed.RevisionInfo
@@ -37,9 +38,10 @@ data class Role(
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<Property> = setOf(),
+        override val properties: Set<PropertyStub> = setOf(),
         override val permissions: Set<Permission> = setOf(),
         val children: Set<String> = setOf(),
+        private val parents: Set<String> = setOf(),
         val users: Set<String> = setOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
@@ -49,6 +51,7 @@ data class Role(
         @JsonProperty("java_type") override val _type: String = Role::javaClass.name
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<Role>
+
     fun merge(other: Role) = Role(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Role) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
@@ -57,6 +60,8 @@ data class Role(
             "children" to (other.children + this.children),
             "users" to (other.users + this.users)
     )
-    override fun withIdRev(id: String?, rev: String): Role =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
+    override fun getParents(): Set<String> = parents
 }

@@ -48,12 +48,14 @@ data class Replication(
         @JsonProperty("java_type") override val _type: String = Replication::javaClass.name
 ) : StoredDocument, Identifiable<String>, Named {
     companion object : DynamicInitializer<Replication>
+
     fun merge(other: Replication) = Replication(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: Replication) = super.solveConflictsWith(other) + mapOf(
             "name" to (this.name ?: other.name),
             "context" to (other.context + this.context),
             "databaseSynchronizations" to mergeListsDistinct(this.databaseSynchronizations, other.databaseSynchronizations)
     )
-    override fun withIdRev(id: String?, rev: String): Replication =
-            if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

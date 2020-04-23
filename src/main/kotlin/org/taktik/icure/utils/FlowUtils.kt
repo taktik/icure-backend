@@ -87,21 +87,24 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 @Suppress("UNCHECKED_CAST")
 // TODO SH MB: handle offsets
 suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
-    val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
     var lastProcessedViewRowNoDoc: ViewRowNoDoc<*, *>? = null
+
+    var totalSize: Int = 0
+    var nextKeyPair: PaginatedDocumentKeyIdPair<*>? = null
+
     val resultRows = mutableListOf<T>()
     this.mapNotNull { viewQueryResultEvent ->
         when (viewQueryResultEvent) {
             is TotalCount -> {
-                result.totalSize = viewQueryResultEvent.total
+                totalSize = viewQueryResultEvent.total
                 null
             }
             is ViewRowWithDoc<*, *, *> -> {
                 when {
                     viewRowCount == realLimit -> {
-                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH MB: startKey was a List<String> before, now it is a String, ok?
+                        nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH MB: startKey was a List<String> before, now it is a String, ok?
                         viewRowCount++
                         lastProcessedViewRow?.doc as? U
                     }
@@ -120,7 +123,7 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
             is ViewRowNoDoc<*, *> -> {
                 when{
                     viewRowCount == realLimit -> {
-                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
+                        nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
                         viewRowCount++
                         lastProcessedViewRowNoDoc?.id
                     }
@@ -147,25 +150,27 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
     if(resultRows.size < realLimit){
         ((lastProcessedViewRow?.doc as? U) ?: lastProcessedViewRowNoDoc?.id)?.let { resultRows.add(mapper.map(it, T::class.java)) }
     }
-    result.rows = resultRows
-    return result
+    return PaginatedList(pageSize = realLimit, totalSize = totalSize, nextKeyPair = nextKeyPair, rows = resultRows)
 }
 
 suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(realLimit: Int): PaginatedList<T> {
-    val result = PaginatedList<T>(realLimit)
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
+
+    var totalSize: Int = 0
+    var nextKeyPair: PaginatedDocumentKeyIdPair<*>? = null
+
     val resultRows = mutableListOf<T>()
     this.mapNotNull { viewQueryResultEvent ->
         when (viewQueryResultEvent) {
             is TotalCount -> {
-                result.totalSize = viewQueryResultEvent.total
+                totalSize = viewQueryResultEvent.total
                 null
             }
             is ViewRowWithDoc<*, *, *> -> {
                 when {
                     viewRowCount == realLimit -> {
-                        result.nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
+                        nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
                         viewRowCount++
                         lastProcessedViewRow?.doc as? T
                     }
@@ -191,8 +196,7 @@ suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginate
             resultRows.add(it)
         }
     }
-    result.rows = resultRows
-    return result
+    return PaginatedList(pageSize = realLimit, totalSize = totalSize, nextKeyPair = nextKeyPair, rows = resultRows)
 }
 
 @ExperimentalCoroutinesApi

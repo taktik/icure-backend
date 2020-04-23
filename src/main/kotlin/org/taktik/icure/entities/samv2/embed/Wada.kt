@@ -1,21 +1,5 @@
 package org.taktik.icure.entities.samv2.embed
 
-class Wada(var code: String? = null, var name: SamText? = null, var description: SamText? = null) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Wada) return false
+import java.io.Serializable
 
-        if (code != other.code) return false
-        if (name != other.name) return false
-        if (description != other.description) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = code?.hashCode() ?: 0
-        result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (description?.hashCode() ?: 0)
-        return result
-    }
-}
+data class Wada(val code: String? = null, val name: SamText? = null, val description: SamText? = null) : Serializable

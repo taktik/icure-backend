@@ -58,7 +58,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
         val groupUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
         val groupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
         val userGroup = this.groupDAO.get(groupId)
-        if (userGroup == null || (groupId != ADMIN_GROUP && !userGroup.isSuperAdmin)) {
+        if (userGroup == null || (groupId != ADMIN_GROUP && !userGroup.superAdmin)) {
             throw IllegalAccessException("No registered super admin user")
         }
 
@@ -68,13 +68,16 @@ class GroupLogicImpl(private val httpClient: HttpClient,
                 "icure-$id-patient"
         )
 
-        val dbUser = User("org.couchdb.user:$id", id, password)
-        val security = Security(id)
-        val group = Group(id, name, password).apply {
-            superGroup = groupId
-            superAdmin = groupId == ADMIN_GROUP
-            server?.let { sv -> servers = couchDbProperties.altUrlsList().filter { it.contains(sv) } }
-        }
+        val dbUser = User(id = "org.couchdb.user:$id", name = id, passwordHash = password)
+        val security = Security(members = Security.Right(names = setOf(id)))
+        val group = Group(
+                id = id,
+                name = name,
+                password = password,
+                superGroup = groupId,
+                superAdmin = groupId == ADMIN_GROUP,
+                servers = server?.let { sv ->  couchDbProperties.altUrlsList().filter { it.contains(sv) } }
+        )
 
         val servers = if (group.servers?.isNotEmpty() == true) group.servers else listOf(couchDbProperties.url)
         servers.forEach { server ->

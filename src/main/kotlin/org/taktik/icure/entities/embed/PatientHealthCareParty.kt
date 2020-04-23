@@ -34,18 +34,20 @@ data class PatientHealthCareParty(
         val type: PatientHealthCarePartyType? = null,
         val isReferral: Boolean = false, // mark this phcp as THE active referral link (gmd)
         val healthcarePartyId: String? = null,
-        val sendFormats : Map<TelecomType, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
-        val referralPeriods: SortedSet<ReferralPeriod> = sortedSetOf() // History of DMG ownerships
-) : Serializable {
+        val sendFormats: Map<TelecomType, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
+        val referralPeriods: SortedSet<ReferralPeriod> = sortedSetOf(), // History of DMG ownerships
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable {
     companion object : DynamicInitializer<PatientHealthCareParty>
+
     fun merge(other: PatientHealthCareParty) = PatientHealthCareParty(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: PatientHealthCareParty) = mapOf(
+    fun solveConflictsWith(other: PatientHealthCareParty) = super.solveConflictsWith(other) + mapOf(
             "type" to (this.type ?: other.type),
             "isReferral" to this.isReferral,
             "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
-            "sendFormats" to  (other.sendFormats + this.sendFormats),
+            "sendFormats" to (other.sendFormats + this.sendFormats),
             "referralPeriods" to mergeSets(this.referralPeriods, other.referralPeriods, { a, b -> a.startDate == b.startDate },
-            { a, b -> if (a.endDate == null) a.copy(endDate = b.endDate) else a }
-    ).toSortedSet()
+                    { a, b -> if (a.endDate == null) a.copy(endDate = b.endDate) else a }
+            ).toSortedSet()
     )
 }

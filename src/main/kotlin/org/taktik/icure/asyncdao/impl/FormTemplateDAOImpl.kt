@@ -18,7 +18,10 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -29,10 +32,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.FormTemplateDAO
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.spring.asynccache.AsyncCacheManager
 import org.taktik.icure.utils.createQuery
@@ -106,48 +111,63 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         return entity
     }
 
+    override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate) =
+            super.beforeSave(dbInstanceUrl, groupId, entity).let { formTemplate ->
+                if (formTemplate.layout != null) {
+                    val newAttachmentId = DigestUtils.sha256Hex(formTemplate.layout)
 
-    override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate) {
-        super.beforeSave(dbInstanceUrl, groupId, entity)
-
-        if (entity.layout != null) {
-            val newLayoutAttachmentId = DigestUtils.sha256Hex(entity.layout)
-
-            if (newLayoutAttachmentId != entity.layoutAttachmentId) {
-                entity.layoutAttachmentId = newLayoutAttachmentId
-                entity.isAttachmentDirty = true
-            }
-        }
-    }
-
-    override suspend fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate): FormTemplate {
-        return super.afterSave(dbInstanceUrl, groupId, entity).let {entity ->
-            if (entity.isAttachmentDirty && entity.layout != null && entity.layoutAttachmentId != null && entity.id != null && entity.rev != null) {
-                entity.rev = createAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId!!, entity.rev!!, "application/json", flowOf(ByteBuffer.wrap(entity.layout)))
-                entity.isAttachmentDirty = false
-            }
-            entity
-        }
-    }
-
-    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: FormTemplate?) {
-        super.postLoad(dbInstanceUrl, groupId, entity)
-
-        if (entity != null && entity.layoutAttachmentId != null && entity.id != null && entity.layoutAttachmentId != null) {
-            try {
-                val attachmentIs = getAttachment(dbInstanceUrl, groupId, entity.id, entity.layoutAttachmentId!!, entity.rev)
-                ByteArrayOutputStream().use { attachment ->
-                    attachmentIs.collect { attachment.write(it.array()) }
-                    entity.layout = attachment.toByteArray()
+                    if (newAttachmentId != formTemplate.layoutAttachmentId && formTemplate.rev != null && formTemplate.layoutAttachmentId != null) {
+                        formTemplate.attachments?.containsKey(formTemplate.layoutAttachmentId)?.takeIf { it }?.let {
+                            formTemplate.copy(
+                                    rev = deleteAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.rev!!, formTemplate.layoutAttachmentId!!),
+                                    attachments = formTemplate.attachments - formTemplate.layoutAttachmentId,
+                                    layoutAttachmentId = newAttachmentId,
+                                    isAttachmentDirty = true
+                            )
+                        } ?: formTemplate.copy(
+                                layoutAttachmentId = newAttachmentId,
+                                isAttachmentDirty = true
+                        )
+                    } else
+                        formTemplate
+                } else {
+                    if (formTemplate.layoutAttachmentId != null && formTemplate.rev != null) {
+                        formTemplate.copy(
+                                rev = deleteAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
+                                layoutAttachmentId = null,
+                                isAttachmentDirty = false
+                        )
+                    } else formTemplate
                 }
-            } catch (e: IOException) {
-                log.warn("Failed to obtain attachment(" + entity.id + ") for the doc id (" + entity.layoutAttachmentId + ").")
-            } catch (e: DocumentNotFoundException) {
-                log.warn("Failed to obtain attachment(" + entity.id + ") for the doc id (" + entity.layoutAttachmentId + ").")
             }
 
-        }
-    }
+    override suspend  fun afterSave(dbInstanceUrl: URI, groupId: String, entity: FormTemplate) =
+            super.afterSave(dbInstanceUrl, groupId, entity).let { formTemplate ->
+                if (formTemplate.isAttachmentDirty && formTemplate.layoutAttachmentId != null && formTemplate.rev != null && formTemplate.layout != null) {
+                    createAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev, "application/json", flowOf(ByteBuffer.wrap(formTemplate.layout))).let {
+                        formTemplate.copy(
+                                rev = it,
+                                isAttachmentDirty = false
+                        )
+                    }
+                } else formTemplate
+            }
+
+
+    override suspend fun postLoad(dbInstanceUrl: URI, groupId: String, entity: FormTemplate) =
+            super.postLoad(dbInstanceUrl, groupId, entity).let { formTemplate ->
+                if (formTemplate.layoutAttachmentId != null) {
+                    try {
+                        val attachmentIs = getAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev)
+                        formTemplate.copy(layout = ByteArrayOutputStream().use { attachment ->
+                            attachmentIs.collect { attachment.write(it.array()) }
+                            attachment.toByteArray()
+                        })
+                    } catch (e: IOException) {
+                        formTemplate //Could not load
+                    }
+                } else formTemplate
+            }
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(FormTemplateDAOImpl::class.java)

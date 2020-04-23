@@ -15,11 +15,13 @@ data class CareTeamMember(
         @JsonProperty("_id") override val id: String,
         val careTeamMemberType: CareTeamMemberType? = null,
         val healthcarePartyId: String? = null,
-        val quality: CodeStub? = null
-) : Serializable, Identifiable<String> {
+        val quality: CodeStub? = null,
+        override val encryptedSelf: String? = null
+) : Encrypted, Serializable, Identifiable<String> {
     companion object : DynamicInitializer<CareTeamMember>
+
     fun merge(other: CareTeamMember) = CareTeamMember(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: CareTeamMember) = mapOf(
+    fun solveConflictsWith(other: CareTeamMember) = super.solveConflictsWith(other) + mapOf(
             "id" to (this.id),
             "careTeamMemberType" to (this.careTeamMemberType ?: other.careTeamMemberType),
             "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),

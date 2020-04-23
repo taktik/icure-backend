@@ -102,7 +102,7 @@ class KmehrController(
                         info.note,
                         info.tags,
                         info.contexts,
-                        info.psy,
+                        info.psy ?: false,
                         info.documentId,
                         info.attachmentId,
                         null
@@ -173,7 +173,7 @@ class KmehrController(
     @PostMapping("/sumehr/{patientId}/md5")
     fun getSumehrMd5(@PathVariable patientId: String,
                              @RequestBody info: SumehrExportInfoDto) = mono {
-        ContentDto.fromStringValue(patientLogic.getPatient(patientId)?.let {
+        ContentDto(stringValue = patientLogic.getPatient(patientId)?.let {
             sumehrLogicV1.getSumehrMd5(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                     ?: false)
         })
@@ -183,7 +183,7 @@ class KmehrController(
     @PostMapping("/sumehr/{patientId}/valid")
     fun isSumehrValid(@PathVariable patientId: String,
                               @RequestBody info: SumehrExportInfoDto) = mono {
-        SumehrValidityDto(patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) })
+        SumehrValidityDto(sumehrValid = patientLogic.getPatient(patientId)?.let { sumehrLogicV1.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, false, mapServices(info.services), mapHealthElements(info.healthElements)).name }?.let { SumehrStatus.valueOf(it) } ?: SumehrStatus.absent)
     }
 
     @Operation(summary = "Generate sumehr", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
@@ -249,7 +249,7 @@ class KmehrController(
     @PostMapping("/sumehrv2/{patientId}/md5")
     fun getSumehrV2Md5(@PathVariable patientId: String,
                                @RequestBody info: SumehrExportInfoDto) = mono {
-        ContentDto.fromStringValue(patientLogic.getPatient(patientId)?.let {
+        ContentDto(stringValue = patientLogic.getPatient(patientId)?.let {
             sumehrLogicV2.getSumehrMd5(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                     ?: false)
         })
@@ -264,7 +264,7 @@ class KmehrController(
                     sumehrLogicV2.isSumehrValid(sessionLogic.getCurrentHealthcarePartyId(), it, info.secretForeignKeys, info.excludedIds, info.includeIrrelevantInformation
                             ?: false, mapServices(info.services), mapHealthElements(info.healthElements)).name
                 }
-                ?.let { SumehrStatus.valueOf(it) })
+                ?.let { SumehrStatus.valueOf(it) } ?: SumehrStatus.absent)
     }
 
     @Operation(summary = "Get SMF (Software Medical File) export", responses = [ApiResponse(responseCode = "200", content = [ Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = Schema(type = "string", format = "binary"))])])
