@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.constants.TypedValuesType;
+import org.taktik.icure.entities.base.Encryptable;
 import org.taktik.icure.utils.InstantDeserializer;
 import org.taktik.icure.utils.InstantSerializer;
 
@@ -33,7 +34,7 @@ import java.util.Date;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TypedValue implements Comparable<TypedValue>, Cloneable, Serializable {
+public class TypedValue implements Comparable<TypedValue>, Cloneable, Serializable, Encryptable {
 	private static final long serialVersionUID = 1L;
 
 	protected TypedValuesType type;
@@ -44,6 +45,7 @@ public class TypedValue implements Comparable<TypedValue>, Cloneable, Serializab
     @JsonSerialize(using = InstantSerializer.class, include=JsonSerialize.Inclusion.NON_NULL)
     @JsonDeserialize(using = InstantDeserializer.class)
 	protected Instant dateValue;
+    protected String encryptedSelf;
 
 	public TypedValue() {
 	}
@@ -277,4 +279,14 @@ public class TypedValue implements Comparable<TypedValue>, Cloneable, Serializab
 		}
 		return super.toString();
 	}
+
+    @Override
+    public String getEncryptedSelf() {
+        return this.encryptedSelf;
+    }
+
+    @Override
+    public void setEncryptedSelf(String encryptedSelf) {
+        this.encryptedSelf = encryptedSelf;
+    }
 }
