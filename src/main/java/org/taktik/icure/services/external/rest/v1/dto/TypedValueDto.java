@@ -24,7 +24,7 @@ import org.taktik.icure.constants.TypedValuesType;
 import java.io.Serializable;
 import java.util.Date;
 
-public class TypedValueDto implements Serializable, Comparable<TypedValueDto>, EncryptableDto {
+public class TypedValueDto implements Serializable, Comparable<TypedValueDto> {
 	private static final long serialVersionUID = 1L;
 
 	private TypedValuesType type;
@@ -34,7 +34,6 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto>, E
 	private Double doubleValue;
 	private String stringValue;
 	private Date dateValue;
-    protected String encryptedSelf;
 
 	public TypedValueDto() {
 	}
@@ -239,14 +238,4 @@ public class TypedValueDto implements Serializable, Comparable<TypedValueDto>, E
 			return false;
 		return true;
 	}
-
-    @Override
-    public String getEncryptedSelf() {
-        return this.encryptedSelf;
-    }
-
-    @Override
-    public void setEncryptedSelf(String encryptedSelf) {
-        this.encryptedSelf = encryptedSelf;
-    }
 }

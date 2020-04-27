@@ -21,6 +21,7 @@ package org.taktik.icure.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.taktik.icure.entities.base.Encryptable;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.TypedValue;
@@ -30,12 +31,13 @@ import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Property extends StoredDocument implements Identifiable<String>, Cloneable, Serializable {
+public class Property extends StoredDocument implements Identifiable<String>, Cloneable, Serializable, Encryptable {
 	private static final long serialVersionUID = 1L;
 	public static final Property EMPTY = new Property();
 
 	private PropertyType type;
 	protected TypedValue typedValue;
+    protected String encryptedSelf;
 
 	public Property(PropertyType type, TypedValue typedValue) {
 		this.type = type;
@@ -131,5 +133,15 @@ public class Property extends StoredDocument implements Identifiable<String>, Cl
         } else if (!typedValue.equals(other.typedValue))
             return false;
         return true;
+    }
+
+    @Override
+    public String getEncryptedSelf() {
+        return this.encryptedSelf;
+    }
+
+    @Override
+    public void setEncryptedSelf(String encryptedSelf) {
+        this.encryptedSelf = encryptedSelf;
     }
 }
