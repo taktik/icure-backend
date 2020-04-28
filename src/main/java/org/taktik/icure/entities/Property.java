@@ -122,6 +122,12 @@ public class Property extends StoredDocument implements Identifiable<String>, Cl
         if (getClass() != obj.getClass())
             return false;
         Property other = (Property) obj;
+        if(encryptedSelf == null) {
+            if(other.encryptedSelf != null)
+                return false;
+        } else if (!encryptedSelf.equals(other.encryptedSelf)) {
+            return false;
+        }
         if (type == null) {
             if (other.type != null)
                 return false;
