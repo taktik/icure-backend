@@ -118,13 +118,14 @@ class ClassificationController(private val mapper: MapperFacade,
     @Operation(summary = "Update delegations in classification", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setClassificationsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id })
-        classifications.onEach { classification ->
-            stubs.find { it.id == classification.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> classification.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> classification.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> classification.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-            }
+        val classifications = classificationLogic.getClassificationByIds(stubs.map { it.id }).map { classification ->
+            stubs.find { s -> s.id == classification.id }?.let { stub ->
+                classification.copy(
+                        delegations = classification.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = classification.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = classification.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: classification
         }
         emitAll(classificationLogic.updateEntities(classifications.toList()).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()

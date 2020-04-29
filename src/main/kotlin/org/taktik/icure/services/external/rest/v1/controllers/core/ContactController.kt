@@ -190,13 +190,14 @@ class ContactController(private val mapper: MapperFacade,
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setContactsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val contacts = contactLogic.getContacts(stubs.map { it.id })
-        contacts.onEach { contact ->
+        val contacts = contactLogic.getContacts(stubs.map { it.id }).map { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> contact.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> contact.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> contact.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-            }
+                contact.copy(
+                        delegations = contact.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = contact.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = contact.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: contact
         }
         emitAll(contactLogic.updateEntities(contacts.toList()).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()
@@ -211,8 +212,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val savedOrFailed = contactFlow.mapNotNull { c ->
             if (c.closingDate == null) {
-                c.closingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)
-                contactLogic.modifyContact(c)
+                contactLogic.modifyContact(c.copy(closingDate = FuzzyValues.getFuzzyDateTime(LocalDateTime.now(), ChronoUnit.SECONDS)))
             } else {
                 null
             }

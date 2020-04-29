@@ -138,13 +138,14 @@ class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
     @Operation(summary = "Update delegations in calendarItems")
     @PostMapping("/delegations")
     fun setCalendarItemsDelegations(stubs: List<IcureStubDto>) = flow {
-        val calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.stream().map { obj: IcureStubDto -> obj.id }.collect(Collectors.toList()))
-        calendarItems.onEach { calendarItem: CalendarItem ->
-            stubs.stream().filter { s: IcureStubDto -> s.id == calendarItem.id }.findFirst().ifPresent { stub: IcureStubDto ->
-                stub.delegations.forEach { (s: String?, delegationDtos: List<DelegationDto?>) -> calendarItem.delegations[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
-                stub.encryptionKeys.forEach { (s: String?, delegationDtos: Set<DelegationDto?>) -> calendarItem.encryptionKeys[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
-                stub.cryptedForeignKeys.forEach { (s: String?, delegationDtos: List<DelegationDto?>) -> calendarItem.cryptedForeignKeys[s] = delegationDtos.stream().map { ddto: DelegationDto? -> mapper.map(ddto, Delegation::class.java) }.collect(Collectors.toSet()) }
-            }
+        val calendarItems = calendarItemLogic.getCalendarItemByIds(stubs.map { obj: IcureStubDto -> obj.id }).map { ci ->
+            stubs.find { s -> s.id == ci.id }?.let { stub ->
+                ci.copy(
+                        delegations = ci.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = ci.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = ci.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: ci
         }
         emitAll(calendarItemLogic.updateEntities(calendarItems.toList()).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()

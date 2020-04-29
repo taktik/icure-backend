@@ -151,26 +151,6 @@ class HealthcarePartyController(private val mapper: MapperFacade,
         }
     }
 
-    @Operation(summary = "Create a healthcare party sign up procedure", description = "Email, Last name, First name and Nihii are required")
-    @PostMapping("/signup")
-    fun createHealthcarePartySignUp(@RequestBody h: SignUpDto) = mono {
-        val hcParty = try {
-            healthcarePartyLogic.createHealthcareParty(mapper.map(h.healthcarePartyDto, HealthcareParty::class.java))
-        } catch (e: MissingRequirementsException) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party signup failed.")
-
-        try {
-            userLogic.registerUser(mapper.map(h.userDto, User::class.java), h.userDto.password)
-        } catch (e: UserRegistrationException) {
-            logger.warn(e.message, e)
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
-        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party signup failed.")
-
-        mapper.map(hcParty, HealthcarePartyDto::class.java)
-    }
-
     @Operation(summary = "Get the HcParty encrypted AES keys indexed by owner", description = "(key, value) of the map is as follows: (ID of the owner of the encrypted AES key, encrypted AES key)")
     @GetMapping("/{healthcarePartyId}/keys")
     fun getHcPartyKeysForDelegate(@PathVariable healthcarePartyId: String) = mono {

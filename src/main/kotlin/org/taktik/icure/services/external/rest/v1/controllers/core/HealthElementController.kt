@@ -92,13 +92,14 @@ class HealthElementController(private val mapper: MapperFacade,
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setHealthElementsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val healthElements = healthElementLogic.getHealthElements(stubs.map { it.id })
-        healthElements.onEach { healthElement ->
-            stubs.find { s -> s.id == healthElement.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-            }
+        val healthElements = healthElementLogic.getHealthElements(stubs.map { it.id }).map { he ->
+            stubs.find { s -> s.id == he.id }?.let { stub ->
+                he.copy(
+                        delegations = he.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = he.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = he.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: he
         }
         emitAll(healthElementLogic.updateEntities(healthElements.toList()).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()

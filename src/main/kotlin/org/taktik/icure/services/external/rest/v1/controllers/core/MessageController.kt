@@ -83,8 +83,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val message = messageLogic.get(messageId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message with ID: $messageId not found").also { logger.error(it.message) }
 
-        message.delegations.remove(delegateId)
-        messageLogic.updateEntities(listOf(message)).firstOrNull()?.let { mapper.map(it, MessageDto::class.java) }
+        messageLogic.updateEntities(listOf(message.copy(delegations = message.delegations - delegateId))).firstOrNull()?.let { mapper.map(it, MessageDto::class.java) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message delegation deletion failed").also { logger.error(it.message) }
     }
 

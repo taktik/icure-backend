@@ -135,8 +135,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 
-        document.attachment = null
-        documentLogic.modifyDocument(document)
+        documentLogic.modifyDocument(document.copy(attachment = null))
         mapper.map(document, DocumentDto::class.java)
     }
 
@@ -162,8 +161,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
-        document.attachment = newPayload
-        documentLogic.modifyDocument(document)
+        documentLogic.modifyDocument(document.copy(attachment = newPayload))
         mapper.map(document, DocumentDto::class.java)
     }
 
@@ -199,34 +197,34 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = mapper.map(documentDto, Document::class.java)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         if (documentDto.attachmentId != null) {
-            val prevDoc = document.id?.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
-            document.attachments = prevDoc.attachments
+            val prevDoc = document.id.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
+            mapper.map(documentLogic.modifyDocument(if (documentDto.attachmentId == prevDoc.attachmentId) document.copy(
+                    attachment = prevDoc.attachment,
+                    attachments = prevDoc.attachments
+            ) else document.copy(
+                    attachments = prevDoc.attachments
+            )) ?: throw IllegalStateException("Cannot update document") , DocumentDto::class.java)
+        } else
+            mapper.map(documentLogic.modifyDocument(document) ?: throw IllegalStateException("Cannot update document") , DocumentDto::class.java)
 
-            if (documentDto.attachmentId == prevDoc.attachmentId) {
-                document.attachment = prevDoc.attachment
-            }
-        }
-
-        documentLogic.modifyDocument(document)
-        mapper.map(document, DocumentDto::class.java)
     }
 
     @Operation(summary = "Updates a batch of documents", description = "Returns the modified documents.")
     @PutMapping("/batch")
     fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> = flow{
         try {
-            val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }
-            for (i in documentDtos.indices) {
-                if (documentDtos[i].attachmentId != null) {
-                    val prevDoc = indocs[i].id?.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
-                    indocs[i].attachments = prevDoc.attachments
-
-                    if (documentDtos[i].attachmentId == indocs[i].attachmentId) {
-                        indocs[i].attachment = prevDoc.attachment
-                    }
-                }
+            val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }.mapIndexed { i, doc ->
+                if (doc.attachmentId != null) {
+                    documentLogic.get(doc.id)?.let {
+                        if (doc.attachmentId == it.attachmentId) doc.copy(
+                                attachment = it.attachment,
+                                attachments = it.attachments
+                        ) else doc.copy(
+                                attachments = it.attachments
+                        )
+                    } ?: doc
+                } else doc
             }
-
             emitAll(
                     documentLogic.updateEntities(indocs)
                             .map { f -> mapper.map(f, DocumentDto::class.java) }
@@ -274,13 +272,14 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setDocumentsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val invoices = documentLogic.getDocuments(stubs.map { it.id })
-        invoices.onEach { healthElement ->
-            stubs.find { it.id == healthElement.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-            }
+        val invoices = documentLogic.getDocuments(stubs.map { it.id }).map { document ->
+            stubs.find { s -> s.id == document.id }?.let { stub ->
+                document.copy(
+                        delegations = document.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = document.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = document.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: document
         }
         emitAll(documentLogic.updateDocuments(invoices.toList()).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()

@@ -41,7 +41,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
     @GetMapping("/canhandle/{id}")
     fun canHandle(@PathVariable id: String,
                   @RequestParam enckeys: String) = mono {
-        documentLogic.get(id)?.let { multiFormatLogic.canHandle(it, if (isBlank(enckeys)) null else enckeys.split(',')) }
+        documentLogic.get(id)?.let { multiFormatLogic.canHandle(it, if (isBlank(enckeys)) listOf() else enckeys.split(',')) }
     }
 
     @Operation(summary = "Extract general infos from document")
@@ -49,14 +49,14 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
     fun getInfos(@PathVariable id: String,
                  @RequestParam language: String,
                  @RequestParam enckeys: String,
-                 @RequestParam(required = false) full: Boolean) = mono {
+                 @RequestParam(required = false) full: Boolean?) = mono {
         val doc = documentLogic.get(id)
         doc?.let {
             multiFormatLogic.getInfos(
                     it,
                     full ?: false,
                     language,
-                    if (isBlank(enckeys)) null else enckeys.split(',')
+                    if (isBlank(enckeys)) listOf() else enckeys.split(',')
             )?.map { mapper.map(it, ResultInfoDto::class.java) }
         }
     }
@@ -80,7 +80,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                     formIds.split(','),
                     planOfActionId,
                     mapper.map(ctc, Contact::class.java),
-                    if (isBlank(enckeys)) null else enckeys.split(',')
+                    if (isBlank(enckeys)) listOf() else enckeys.split(',')
             )
         }, ContactDto::class.java)
     }

@@ -232,14 +232,15 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setInvoicesDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val invoices = invoiceLogic.getInvoices(stubs.map { it.id }).toList()
-        invoices.forEach { healthElement ->
-            stubs.find { s -> s.id == healthElement.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> healthElement.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> healthElement.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> healthElement.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-            }
-        }
+        val invoices = invoiceLogic.getInvoices(stubs.map { it.id }).map { invoice ->
+            stubs.find { s -> s.id == invoice.id }?.let { stub ->
+                invoice.copy(
+                        delegations = invoice.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = invoice.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = invoice.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: invoice
+        }.toList()
         emitAll(invoiceLogic.updateInvoices(invoices).map { mapper.map(it, IcureStubDto::class.java) })
     }.injectReactorContext()
 

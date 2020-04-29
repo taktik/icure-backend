@@ -173,13 +173,14 @@ class FormController(private val mapper: MapperFacade,
     @Operation(summary = "Update delegations in form.", description = "Keys must be delimited by coma")
     @PostMapping("/delegations")
     fun setFormsDelegations(@RequestBody stubs: List<IcureStubDto>) = flow {
-        val forms = formLogic.getForms(stubs.map { it.id })
-        forms.onEach { form ->
+        val forms = formLogic.getForms(stubs.map { it.id }).map { form ->
             stubs.find { s -> s.id == form.id }?.let { stub ->
-                stub.delegations.forEach { (s, delegationDtos) -> form.delegations[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.encryptionKeys.forEach { (s, delegationDtos) -> form.encryptionKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-                stub.cryptedForeignKeys.forEach { (s, delegationDtos) -> form.cryptedForeignKeys[s] = delegationDtos.map { ddto -> mapper.map(ddto, Delegation::class.java) }.toMutableSet() }
-            }
+                form.copy(
+                        delegations = form.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        encryptionKeys = form.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
+                        cryptedForeignKeys = form.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                )
+            } ?: form
         }
         emitAll(formLogic.updateEntities(forms.toList()).map { mapper.map(it, IcureStubDto::class.java)})
     }.injectReactorContext()
@@ -239,8 +240,7 @@ class FormController(private val mapper: MapperFacade,
     @Operation(summary = "Modify a form template with the current user", description = "Returns an instance of created form template.")
     @PutMapping("/template/{formTemplateId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun updateFormTemplate(@PathVariable formTemplateId: String, @RequestBody ft: FormTemplateDto) = mono {
-        val template = mapper.map(ft, FormTemplate::class.java)
-        template.id = formTemplateId
+        val template = mapper.map(ft, FormTemplate::class.java).copy(id = formTemplateId)
         val formTemplate = formTemplateLogic.modifyFormTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form modification failed")
         mapper.map(formTemplate, FormTemplateDto::class.java)
@@ -252,8 +252,7 @@ class FormController(private val mapper: MapperFacade,
                                    @RequestPart("attachment") payload: ByteArray) = mono {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate with id $formTemplateId not found")
-        formTemplate.layout = payload
-        formTemplateLogic.modifyFormTemplate(formTemplate)?.rev ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form Template modification failed")
+        formTemplateLogic.modifyFormTemplate(formTemplate.copy(layout = payload))?.rev ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form Template modification failed")
     }
 
     @Operation(summary = "Convert legacy format layouts to a list of FormLayout", description = "Returns the converted layouts.")
