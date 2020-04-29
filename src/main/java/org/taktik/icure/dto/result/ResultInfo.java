@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.taktik.icure.entities.base.Code;
+import org.taktik.icure.entities.base.CodeStub;
 import org.taktik.icure.entities.embed.Service;
 
 public class ResultInfo implements Serializable {
@@ -39,7 +40,7 @@ public class ResultInfo implements Serializable {
 	private String labo;
 	private String engine;
 
-	private List<Code> codes = new ArrayList<>();
+	private List<CodeStub> codes = new ArrayList<>();
 	private List<Service> services;
 
 	public String getSsin() {
@@ -130,11 +131,11 @@ public class ResultInfo implements Serializable {
 		this.engine = engine;
 	}
 
-	public List<Code> getCodes() {
+	public List<CodeStub> getCodes() {
 		return codes;
 	}
 
-	public void setCodes(List<Code> codes) {
+	public void setCodes(List<CodeStub> codes) {
 		this.codes = codes;
 	}
 

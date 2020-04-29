@@ -35,6 +35,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
+import org.taktik.icure.be.ehealth.logic.kmehr.getSignature
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.HealthElement
@@ -79,8 +80,8 @@ class SumehrExport(
 	override val log = LogFactory.getLog(SumehrExport::class.java)
 
 	suspend fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>? = null, healthElements: List<HealthElement>? = null): String {
-		val signatures = ArrayList(listOf(patient.signature))
-        val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic!!.getHcpHierarchyIds(it) }
+		val signatures = mutableListOf(patient.getSignature())
+        val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }
         val treatedServiceIds = HashSet<String>()
         hcPartyIds?.let { getHealthElements(it, sfks, excludedIds, includeIrrelevantInformation, treatedServiceIds, healthElements).forEach { signatures.add(it.modified.toString()) } }
         hcPartyIds?.let { getAllServices(it, sfks, excludedIds, includeIrrelevantInformation, null, services).filter{!treatedServiceIds.contains(it.id)}.forEach { signatures.add(it.modified.toString()) } }
@@ -434,17 +435,17 @@ class SumehrExport(
 	}
 
 	internal suspend fun createVaccineItem(svc: Service, itemIndex: Int, language: String): ItemType? {
-		val item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
-			it.value.booleanValue = null
-			it.value.binaryValue = null
-			it.value.documentId = null
-			it.value.measureValue = null
-			it.value.numberValue = null
-			it.value.instantValue = null
-			it.value.stringValue = null
-
-			makeContent(it.key, it.value)
-		}.first()), language = language)
+        val item = createItemWithContent(svc, itemIndex, "vaccine", listOf(svc.content.entries.mapNotNull {
+            makeContent(it.key, it.value.copy(
+                    booleanValue = null,
+                    binaryValue = null,
+                    documentId = null,
+                    measureValue = null,
+                    numberValue = null,
+                    instantValue = null,
+                    stringValue = null
+            ))
+        }.first()), language = language)
 
         //item.contents = item.contents.distinctBy{it -> it.medicinalproduct.intendedname}
 		item?.let {
@@ -487,30 +488,30 @@ class SumehrExport(
     }
 
     internal suspend fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
-        pat.patientHealthCareParties?.filter { s -> !excludedIds.contains(s.healthcarePartyId) }?.mapNotNull { it?.healthcarePartyId }?.let {
+        pat.patientHealthCareParties.filter { s -> !excludedIds.contains(s.healthcarePartyId) }.mapNotNull { it.healthcarePartyId }.let {
             healthcarePartyLogic.getHealthcareParties(it).toList().forEach { hcp ->
-            if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
-                val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
-                try {
-                    phcp.let {
-                        val items = getAssessment(trn).headingsAndItemsAndTexts
-                        items.add(ItemType().apply {
-                            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
-                            cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTHCPARTY.value() })
-                            contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
-                        })
+            if (hcp.specialityCodes.none { c -> c.code?.startsWith("pers") == false }) {
+                    val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
+                    try {
+                        phcp.let {
+                            val items = getAssessment(trn).headingsAndItemsAndTexts
+                            items.add(ItemType().apply {
+                                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
+                                cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTHCPARTY.value() })
+                                contents.add(ContentType().apply { hcparty = createParty(hcp, emptyList()) })
+                            })
+                        }
+                    } catch (e: RuntimeException) {
+                        log.error("Unexpected error", e)
                     }
-                } catch (e: RuntimeException) {
-                    log.error("Unexpected error", e)
                 }
             }
         }
     }
-    }
 
     internal suspend fun addGmdmanager(pat: Patient, trn: TransactionType) {
 		try {
-			val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate } ?: false }
+            val gmdRelationship = pat.patientHealthCareParties.find { it.referralPeriods.any { r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate} }
 			if (gmdRelationship != null) {
                 gmdRelationship.healthcarePartyId?.let {
                     healthcarePartyLogic.getHealthcareParty(it)?.let { hcp ->
@@ -535,22 +536,16 @@ class SumehrExport(
 			addOmissionOfMedicalDataItem(trn, medications, nonConfidentialItems)
 
 			nonConfidentialItems.forEach { m ->
-				if (null == m.closingDate) {
-					m.closingDate = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)
-				}
 				val items = getAssessment(trn).headingsAndItemsAndTexts
-				createItemWithContent(m, items.size + 1, "medication", m.content.entries.mapNotNull {
-					if ((it.value.booleanValue == true || it.value.instantValue != null || it.value.numberValue != null) && it.value.stringValue?.length ?: 0 == 0) {
-						it.value.stringValue = m.label
-					}
-					it.value.booleanValue = null
-					it.value.binaryValue = null
-					it.value.documentId = null
-					it.value.measureValue = null
-					it.value.numberValue = null
-					it.value.instantValue = null
-
-					makeContent(it.key, it.value)
+                createItemWithContent(m.copy(closingDate = m.closingDate ?: FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)), items.size+1, "medication", m.content.entries.mapNotNull {
+					makeContent(it.key, (if ((it.value.booleanValue == true || it.value.instantValue != null || it.value.numberValue != null ) && it.value.stringValue?.length ?: 0 == 0) it.value.copy(stringValue = m.label) else it.value).copy(
+                            booleanValue = null,
+                            binaryValue = null,
+                            documentId = null,
+                            measureValue = null,
+                            numberValue = null,
+                            instantValue = null
+                    ))
 				}, language = language)?.let { item ->
 					if (item.contents?.size ?: 0 > 0) {
 						val medicationEntry = m.content.entries.find { null != it.value.medicationValue }
@@ -607,45 +602,30 @@ class SumehrExport(
         return serviceIds
 	}
 
-	internal suspend fun addHealthCareElement(trn: TransactionType, eds: HealthElement) {
+	internal suspend fun addHealthCareElement(trn: TransactionType, he: HealthElement) {
 		try {
-			val items = if (eds.closingDate != null) {
+			val items = if (he.closingDate != null) {
 				getHistory(trn).headingsAndItemsAndTexts
 			} else {
 				getAssessment(trn).headingsAndItemsAndTexts
 			}
 
-			// familyrisk not allowed in Sumehr
-			eds.tags?.find {it.type == "CD-ITEM" && it.code == "familyrisk"}?.apply {
-				code = "healthcareelement"
-			}
-
-			// healthcareelement not allowed anymore in sumehr V2. Use "problem" instead.
-			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v11
-			// https://www.ehealth.fgov.be/standards/kmehr/en/transactions/summarised-electronic-healthcare-record-v20
-			eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthcareelement"}?.apply {
-				code = "problem"
-				version = "1.11"
-			}
-
-            eds.tags?.find {it.type == "CD-ITEM" && it.code == "healthissue"}?.apply {
-                code = "problem"
-                version = "1.11"
-            }
-
-            eds.tags?.find {it.type == "CD-ITEM" && it.code == "surgery"}?.apply {
-                code = "treatment"
-                version = "1.11"
+            val sanitisedTags = he.tags.map {
+                if (it.type == "CD-ITEM" && it.code == "familyrisk") it.copy(code = "problem", version = "1.11")
+                else if (it.type == "CD-ITEM" && it.code == "healthcareelement") it.copy(code = "problem", version = "1.11")
+                else if (it.type == "CD-ITEM" && it.code == "healthissue") it.copy(code = "problem", version = "1.11")
+                else if (it.type == "CD-ITEM" && it.code == "surgery") it.copy(code = "treatment", version = "1.11")
+                else it
             }
 
 			listOf("problem", "allergy", "adr", "risk", "socialrisk", "treatment").forEach { edType ->
-				if(eds.tags?.find {it.type == "CD-ITEM" && it.code == edType} != null){
-                    createItemWithContent(eds, items.size+1,edType, listOfNotNull(makeContent("fr", Content(eds.descr))))?.let {
-                        eds.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
-                        if(!eds.codes.isEmpty()) {
+				if(sanitisedTags.find {it.type == "CD-ITEM" && it.code == edType} != null) {
+                    createItemWithContent(he.copy(tags = sanitisedTags.toSet()), items.size+1,edType, listOfNotNull(makeContent("fr", Content(he.descr))))?.let {
+                        he.note?.trim()?.let { note -> if(note.isNotEmpty()) it.texts.add(TextType().apply { value = note; l = "fr" }) };
+                        if(!he.codes.isEmpty()) {
                             // Notice the content can not be empty (sumehr validator)
                             it.contents.addAll(listOf(ContentType().apply {
-                                eds.codes?.forEach { c ->
+                                he.codes?.forEach { c ->
                                     try {
                                         val cdt = CDCONTENTschemes.fromValue(c.type)
                                         // CD-ATC have a version 0.0.1 in the DB. However the sumehr validator requires a CD-ATC 1.0

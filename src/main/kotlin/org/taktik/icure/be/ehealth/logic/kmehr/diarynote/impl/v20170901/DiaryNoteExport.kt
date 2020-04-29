@@ -34,6 +34,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
+import org.taktik.icure.be.ehealth.logic.kmehr.getSignature
 import org.taktik.icure.be.ehealth.logic.kmehr.v20170901.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
@@ -55,7 +56,7 @@ class DiaryNoteExport(mapper: MapperFacade,
     override val log = LogFactory.getLog(DiaryNoteExport::class.java)
 
     fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>): String {
-        val signatures = ArrayList(listOf(patient.signature))
+        val signatures = ArrayList(listOf(patient.getSignature()))
         val sorted = signatures.sorted()
         val md5Hex = DigestUtils.md5Hex(sorted.joinToString(","))
         return md5Hex

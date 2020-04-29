@@ -46,8 +46,19 @@ class MedexLogicImpl(mapper: MapperFacade,
     )
 
     override suspend fun createMedex(
-            author: HealthcareParty, patient: Patient, lang: String, incapacityType: String, incapacityReason: String, outOfHomeAllowed: Boolean, certificateDate: Long,
-            contentDate: Long?, beginDate: Long, endDate: Long, diagnosisICD: String?, diagnosisICPC: String?, diagnosisDescr: String?
+            author: HealthcareParty,
+            patient: Patient,
+            lang: String,
+            incapacityType: String,
+            incapacityReason: String,
+            outOfHomeAllowed: Boolean,
+            certificateDate: Long?,
+            contentDate: Long?,
+            beginDate: Long,
+            endDate: Long,
+            diagnosisICD: String?,
+            diagnosisICPC: String?,
+            diagnosisDescr: String?
     ): String {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
@@ -143,5 +154,6 @@ class MedexLogicImpl(mapper: MapperFacade,
 
         return bos.toString("UTF-8");
     }
+
 
 }

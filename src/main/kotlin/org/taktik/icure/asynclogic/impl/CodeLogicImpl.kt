@@ -37,6 +37,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.EnumVersion
 import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.exceptions.BulkUpdateConflictException
@@ -316,14 +317,16 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
         return this.create(Code.from(type, code, version))
     }
 
-    override suspend fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code? {
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return codeDAO.ensureValid(dbInstanceUri, groupId, code, ofType, orDefault)
-    }
-
     override suspend fun isValid(code: Code, ofType: String?): Boolean {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return codeDAO.isValid(dbInstanceUri, groupId, code, ofType)
+        val codeType = ofType ?: code.type
+        return if (codeType != null && code.code != null) codeDAO.isValid(dbInstanceUri, groupId, codeType, code.code, code.version) else false
+    }
+
+    override suspend fun isValid(code: CodeStub, ofType: String?): Boolean {
+        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
+        val codeType = ofType ?: code.type
+        return if (codeType != null && code.code != null) codeDAO.isValid(dbInstanceUri, groupId, codeType, code.code, code.version) else false
     }
 
     override suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String>): Code? {

@@ -85,14 +85,14 @@ data class Medication(
     @get:JsonIgnore
     val posologyText: String?
         get() {
-            if (regimen == null || regimen!!.size == 0) {
+            if (regimen == null || regimen.size == 0) {
                 return posology
             }
-            var unit = if (regimen!![0].administratedQuantity == null) null else if (regimen!![0].administratedQuantity?.administrationUnit != null) regimen!![0].administratedQuantity?.administrationUnit?.code else regimen!![0].administratedQuantity?.unit
-            var quantity = if (regimen!![0].administratedQuantity == null) null else regimen!![0].administratedQuantity?.quantity
-            for (ri in regimen!!.subList(1, regimen!!.size)) {
-                val oUnit = if (ri.administratedQuantity == null) null else if (ri.administratedQuantity!!.administrationUnit != null) ri.administratedQuantity!!.administrationUnit?.code else ri.administratedQuantity!!.unit
-                val oQuantity = if (ri.administratedQuantity == null) null else ri.administratedQuantity!!.quantity
+            var unit = if (regimen[0].administratedQuantity == null) null else if (regimen[0].administratedQuantity?.administrationUnit != null) regimen[0].administratedQuantity?.administrationUnit?.code else regimen[0].administratedQuantity?.unit
+            var quantity = if (regimen[0].administratedQuantity == null) null else regimen[0].administratedQuantity?.quantity
+            for (ri in regimen.subList(1, regimen.size)) {
+                val oUnit = if (ri.administratedQuantity == null) null else if (ri.administratedQuantity.administrationUnit != null) ri.administratedQuantity.administrationUnit.code else ri.administratedQuantity.unit
+                val oQuantity = if (ri.administratedQuantity == null) null else ri.administratedQuantity.quantity
                 if (!StringUtils.equals(unit, oUnit)) {
                     unit = "take(s)"
                 }
@@ -100,7 +100,7 @@ data class Medication(
                     quantity = -1.0
                 }
             }
-            return String.format("%s, %d x %s, %s", if (quantity == null || quantity == -1.0) "x" else quantity.toString(), regimen!!.size, "daily", Joiner.on(", ").skipNulls().join(regimen!!.stream().map { obj: RegimenItem -> obj.toString() }.collect(Collectors.toList())))
+            return String.format("%s, %d x %s, %s", if (quantity == null || quantity == -1.0) "x" else quantity.toString(), regimen.size, "daily", regimen.map { obj -> obj.toString() }.joinToString(", "))
         }
 
     @get:JsonIgnore

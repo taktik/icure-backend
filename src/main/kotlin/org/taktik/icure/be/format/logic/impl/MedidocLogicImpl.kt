@@ -38,6 +38,7 @@ import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.*
 import org.taktik.icure.utils.FuzzyValues
 import java.io.*
@@ -65,7 +66,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
     private val sidf: DateFormat = SimpleDateFormat("ddMMyy")
     private val onlyNumbersAndPercentSigns = Pattern.compile("^[0-9%]+$")
 
-    override fun canHandle(doc: Document, enckeys: List<String>?): Boolean {
+    override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
         var hasAHash = false
         var hasAHashSlash = false
         var hasRHash = false
@@ -97,9 +98,9 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
     }
 
     @Throws(IOException::class)
-    override fun getInfos(doc: Document, full: Boolean, language: String?, enckeys: List<String>?): List<ResultInfo?>? {
-        val l: MutableList<ResultInfo?> = ArrayList()
-        val br = getBufferedReader(doc!!, enckeys)
+    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
+        val l: MutableList<ResultInfo> = ArrayList()
+        val br = getBufferedReader(doc, enckeys)
         val lines = IOUtils.readLines(br)
         val labo = lines[1].replace("  +".toRegex(), " ")
         var i = 0
@@ -107,7 +108,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
             val line = lines[i]
             if (p1.matcher(line).matches() && !p3.matcher(line).matches() && i + 9 < lines.size) {
                 val ri = ResultInfo()
-                ri.codes.add(Code("CD-TRANSACTION", "report", "1"))
+                ri.codes.add(CodeStub.from("CD-TRANSACTION", "report", "1"))
                 ri.labo = labo
                 ri.documentId = doc.id
                 ri.lastName = lines[i + 1].substring(0, 24).trim { it <= ' ' }
@@ -137,8 +138,9 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
                 ri.protocol = code
                 i += if (isStandardFormat) 6 else 9
                 if (full) {
-                    val s = org.taktik.icure.entities.embed.Service()
-                    i = fillService(s, language, lines, i, demandDate)
+                    val (ii, s) = fillService(language, lines, i, demandDate)
+                    i = ii
+                    ri.services = listOf(s)
                 }
                 l.add(ri)
             }
@@ -195,7 +197,7 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
     }
 
     @Throws(IOException::class)
-    override suspend fun doImport(language: String?, doc: Document, hcpId: String?, protocolIds: List<String?>?, formIds: List<String?>?, planOfActionId: String?, ctc: Contact?, enckeys: List<String>?): Contact? {
+    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
         val br = getBufferedReader(doc!!, enckeys)
         val lines = IOUtils.readLines(br)
         val lls: MutableList<LaboLine?> = ArrayList()
@@ -210,8 +212,8 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
                 val code = getProtocolCode(lines, i, isStandardFormat, demandDate)
                 i += if (isStandardFormat) 6 else 9
                 if (protocolIds!!.contains(code) || protocolIds.size == 1 && protocolIds[0] != null && protocolIds[0]!!.startsWith("***")) {
-                    val s = org.taktik.icure.entities.embed.Service()
-                    i = fillService(s, language, lines, i, demandDate)
+                    val (ii, s) = fillService(language, lines, i, demandDate)
+                    i = ii
                     val labo = lines[1].replace("  +".toRegex(), " ")
                     val ll = LaboLine()
                     lls.add(ll)
@@ -222,11 +224,11 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
             }
             i++
         }
-        fillContactWithLines(ctc!!, lls.filterNotNull(), planOfActionId, hcpId, protocolIds!!, formIds!!)
-        return contactLogic!!.modifyContact(ctc)
+        fillContactWithLines(lls.filterNotNull(), planOfActionId, hcpId, protocolIds, formIds)
+        return contactLogic.modifyContact(ctc)
     }
 
-    private fun fillService(s: org.taktik.icure.entities.embed.Service, language: String?, lines: List<String>, i: Int, demandDate: Date?): Int {
+    private fun fillService(language: String, lines: List<String>, i: Int, demandDate: Date?): Pair<Int,org.taktik.icure.entities.embed.Service> {
         var i = i
         do {
             i++
@@ -238,11 +240,12 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
             b.append(lines[i]).append("\n")
             i++
         }
-        s.id = uuidGen.newGUID().toString()
-        s.content[language] = Content(b.toString())
-        s.label = "Protocol"
-        s.valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(if (demandDate != null) Instant.ofEpochMilli(demandDate.time) else Instant.now(), ZoneId.systemDefault()), ChronoUnit.DAYS)
-        return i
+        return i to org.taktik.icure.entities.embed.Service(
+                id = uuidGen.newGUID().toString(),
+                content = mapOf(language to Content(stringValue = b.toString())),
+                label = "Protocol",
+                valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(if (demandDate != null) Instant.ofEpochMilli(demandDate.time) else Instant.now(), ZoneId.systemDefault()), ChronoUnit.DAYS)
+        )
     }
 
     override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) : Flow<DataBuffer> {
@@ -259,29 +262,20 @@ class MedidocLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: Fo
             //2
             pw.print((StringUtils.rightPad(StringUtils.substring(sender.lastName, 0, 24), 24) +
                     StringUtils.rightPad(StringUtils.substring(if (sender.firstName == null) "" else sender.firstName, 0, 16), 16)).replace("[\\r\\n]".toRegex(), "") + "\r\n")
-            var senderAddress = patient!!.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.work }.findFirst()
-            if (!senderAddress.isPresent) {
-                senderAddress = patient.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.clinic }.findFirst()
-            }
-            if (!senderAddress.isPresent) {
-                senderAddress = patient.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.hospital }.findFirst()
-            }
-            if (!senderAddress.isPresent) {
-                senderAddress = patient.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.hq }.findFirst()
-            }
-            if (!senderAddress.isPresent) {
-                senderAddress = patient.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.other }.findFirst()
-            }
-            if (!senderAddress.isPresent) {
-                senderAddress = patient.addresses.stream().filter { ad: Address -> ad.addressType == AddressType.home }.findFirst()
-            }
+            var senderAddress = patient!!.addresses.filter { ad: Address -> ad.addressType == AddressType.work }.firstOrNull()
+                    ?: patient.addresses.filter { ad: Address -> ad.addressType == AddressType.clinic }.firstOrNull()
+                    ?: patient.addresses.filter { ad: Address -> ad.addressType == AddressType.hospital }.firstOrNull()
+                    ?: patient.addresses.filter { ad: Address -> ad.addressType == AddressType.hq }.firstOrNull()
+                    ?: patient.addresses.filter { ad: Address -> ad.addressType == AddressType.other }.firstOrNull()
+                    ?: patient.addresses.filter { ad: Address -> ad.addressType == AddressType.home }.firstOrNull()
+
             //3
-            pw.print((StringUtils.rightPad(StringUtils.substring(senderAddress.map { obj: Address -> obj.street }.orElse(""), 0, 35), 35) +
-                    StringUtils.rightPad(StringUtils.substring(senderAddress.map { obj: Address -> obj.houseNumber }.orElse(""), 0, 10), 10)).replace("[\\r\\n]".toRegex(), "") + "\r\n")
+            pw.print((StringUtils.rightPad(StringUtils.substring(senderAddress?.let { obj: Address -> obj.street } ?: "", 0, 35), 35) +
+                    StringUtils.rightPad(StringUtils.substring(senderAddress?.let { obj: Address -> obj.houseNumber } ?: "", 0, 10), 10)).replace("[\\r\\n]".toRegex(), "") + "\r\n")
             //4
-            pw.print((StringUtils.rightPad(StringUtils.substring(senderAddress.map { obj: Address -> obj.postalCode }.orElse(""), 0, 10), 10) +
-                    StringUtils.rightPad(StringUtils.substring(senderAddress.map { obj: Address -> obj.city }.orElse(""), 0, 35), 35)).replace("[\\r\\n]".toRegex(), "") + "\r\n")
-            val senderTelecoms = senderAddress.map { obj: Address -> obj.telecoms }.orElse(LinkedList())
+            pw.print((StringUtils.rightPad(StringUtils.substring(senderAddress?.let { obj: Address -> obj.postalCode } ?: "", 0, 10), 10) +
+                    StringUtils.rightPad(StringUtils.substring(senderAddress?.let { obj: Address -> obj.city } ?: "", 0, 35), 35)).replace("[\\r\\n]".toRegex(), "") + "\r\n")
+            val senderTelecoms = senderAddress?.let { obj: Address -> obj.telecoms } ?: LinkedList()
             var senderPhone = senderTelecoms.stream().filter { t: Telecom -> t.telecomType == TelecomType.phone }.findFirst()
             if (!senderPhone.isPresent) {
                 senderPhone = senderTelecoms.stream().filter { t: Telecom -> t.telecomType == TelecomType.mobile }.findFirst()

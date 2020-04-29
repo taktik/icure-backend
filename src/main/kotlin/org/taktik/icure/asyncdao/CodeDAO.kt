@@ -36,8 +36,7 @@ interface CodeDAO : GenericDAO<Code> {
     fun findCodesByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?, paginationOffset: PaginationOffset<List<String?>>): Flow<ViewQueryResultEvent>
     fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, label: String?): Flow<String>
     fun listCodeIdsByLabel(dbInstanceUrl: URI, groupId: String, region: String?, language: String?, type: String?, label: String?): Flow<String>
-	suspend fun ensureValid(dbInstanceUrl: URI, groupId: String, code : Code, ofType : String? = null, orDefault : Code? = null) : Code
-    suspend fun isValid(dbInstanceUrl: URI, groupId: String, code: Code, ofType: String? = null): Boolean
+    suspend fun isValid(dbInstanceUrl: URI, groupId: String, codeType: String, codeCode: String, codeVersion: String?): Boolean
     suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String> = listOf("fr", "nl")) : Code?
     fun findCodesByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, region: String?, linkType: String, linkedId: String?, paginationOffset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>
     fun listCodeIdsByQualifiedLinkId(dbInstanceUrl: URI, groupId: String, linkType: String, linkedId: String?): Flow<String>

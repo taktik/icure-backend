@@ -4,15 +4,19 @@ import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20170901.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.entities.Patient
+import org.taktik.icure.entities.embed.PatientHealthCareParty
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.nio.ByteBuffer
+import java.util.function.Function
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
@@ -101,3 +105,7 @@ fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.
     jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
     return DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow()
 }
+
+fun Patient.getSignature() = DigestUtils.md5Hex(
+        "${this.firstName}:${this.lastName}:${this.patientHealthCareParties.find(PatientHealthCareParty::isReferral)?.let { "" + it.healthcarePartyId + it.referralPeriods.last().startDate + it.referralPeriods.last().endDate } ?: ""}:${this.dateOfBirth}:${this.dateOfDeath}:${this.ssin}"
+)

@@ -35,7 +35,7 @@ import java.util.function.Consumer
 @Service
 class MultiFormatLogicImpl(var engines: List<ResultFormatLogic>) : MultiFormatLogic {
     @Throws(IOException::class)
-    override fun canHandle(doc: Document, enckeys: List<String>?): Boolean {
+    override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
         for (e in engines) {
             if (e.canHandle(doc, enckeys)) {
                 return true
@@ -45,7 +45,7 @@ class MultiFormatLogicImpl(var engines: List<ResultFormatLogic>) : MultiFormatLo
     }
 
     @Throws(IOException::class)
-    override fun getInfos(doc: Document, full: Boolean, language: String?, enckeys: List<String>?): List<ResultInfo?>? {
+    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
         for (e in engines) {
             if (e.canHandle(doc, enckeys)) {
                 val infos = e.getInfos(doc, full, language, enckeys)
@@ -57,7 +57,7 @@ class MultiFormatLogicImpl(var engines: List<ResultFormatLogic>) : MultiFormatLo
     }
 
     @Throws(IOException::class)
-    override suspend fun doImport(language: String?, doc: Document, hcpId: String?, protocolIds: List<String?>?, formIds: List<String?>?, planOfActionId: String?, ctc: Contact?, enckeys: List<String>?): Contact? {
+    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
         for (e in engines) {
             if (e.canHandle(doc, enckeys)) {
                 return e.doImport(language, doc, hcpId, protocolIds, formIds, planOfActionId, ctc, enckeys)

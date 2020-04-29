@@ -217,18 +217,10 @@ class SoftwareMedicalFileExport(
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
             log.info("Treating contact ${index}/${contacts.size}")
 
-            val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
-
-			val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
+			val contact = if (decryptor != null && (encContact.services.isNotEmpty())) {
 				val ctcDto = mapper.map(encContact, ContactDto::class.java)
-				ctcDto.services = toBeDecryptedServices.map { mapper.map(it, ServiceDto::class.java) }
-
 				Mono.fromCompletionStage (decryptor.decrypt(listOf(ctcDto), ContactDto::class.java) ).awaitFirstOrNull()?.let { ctcs ->
-                    ctcs.firstOrNull()?.let { mapper!!.map(it, Contact::class.java) }
-                }?.apply {
-                    this.services = HashSet(encContact.services.map {
-                        this.services.find { o -> o.id == it.id } ?: it
-                    })
+                    ctcs.firstOrNull()?.let { mapper.map(it, Contact::class.java) }
                 } ?: encContact
 			} else {
 				encContact
@@ -330,7 +322,7 @@ class SoftwareMedicalFileExport(
                         }
 
                         if(!forSeparateTransaction) {
-                            var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
+                            val svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
 
                             val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
                                 if (it == "parameter") {
@@ -350,8 +342,7 @@ class SoftwareMedicalFileExport(
                                         }
                                     })
                                 } ?: emptyList()
-                            }
-                            contents += codesToKmehr(svc.codes)
+                            } + codesToKmehr(svc.codes)
                             if (contents.isNotEmpty()) {
                                 val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
                                     this.ids.add(IDKMEHR().apply {
@@ -419,8 +410,8 @@ class SoftwareMedicalFileExport(
                                         type = CDLNKvalues.ISASERVICEFOR
                                         // link should point to He.healthElementId and not He.id
                                         subcon.healthElementId?.let {
-                                            heById[it]?.firstOrNull()?.let {
-                                                url = makeLnkUrl(it.healthElementId)
+                                            heById[it]?.firstOrNull()?.healthElementId?.let {
+                                                url = makeLnkUrl(it)
                                             }
                                         }
                                     }
@@ -676,7 +667,7 @@ class SoftwareMedicalFileExport(
 		}
 	}
 
-	private fun makeEncounterType(index: Int, encounterType: Code): ItemType {
+	private fun makeEncounterType(index: Int, encounterType: CodeStub): ItemType {
 		return ItemType().apply {
 			ids.add(idKmehr(index))
 			cds.add(cdItem("encountertype"))
@@ -709,8 +700,8 @@ class SoftwareMedicalFileExport(
 			ids.add(localIdKmehrElement(itemIndex, config))
 			cds.add(cdItem("gmdmanager"))
 			contents.add(ContentType().apply { hcparty = createParty(hcp) })
-			beginmoment = makeMomentType(period.startDate, precision = ChronoUnit.DAYS)
-			recorddatetime = makeXmlGregorianCalendar(period.startDate) // should be the modification date, but it's not present
+			beginmoment = period.startDate?.let { makeMomentType(it, precision = ChronoUnit.DAYS) }
+			recorddatetime = period.startDate?.let { makeXmlGregorianCalendar(it) } // should be the modification date, but it's not present
 		}.let { if (it.contents.first().hcparty.ids.filter { it.s == IDHCPARTYschemes.ID_HCPARTY }.size == 1) it else null }
 	}
 
@@ -812,7 +803,7 @@ class SoftwareMedicalFileExport(
             )
 			val itemtype = eds.tags.find { it.type == "CD-ITEM" }?.let { it.code } ?: "healthcareelement"
 			createItemWithContent(eds, itemIndex, itemtype, content, "MF-ID")?.let {
-				if(isHeANewVersionOf(eds) && config.format != Config.Format.PMF) { // no versioning in PMF
+				if(isHeANewVersionOf(eds) && config.format != Config.Format.PMF && eds.healthElementId != null) { // no versioning in PMF
 					it.lnks.add(
 							LnkType().apply {
 								type = CDLNKvalues.ISANEWVERSIONOF; url = makeLnkUrl(eds.healthElementId)

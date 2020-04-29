@@ -27,7 +27,11 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
-import org.taktik.icure.asynclogic.*
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.FormLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.be.format.logic.HealthOneLogic
 import org.taktik.icure.dto.result.ResultInfo
 import org.taktik.icure.entities.Contact
@@ -41,7 +45,15 @@ import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Measure
 import org.taktik.icure.utils.FuzzyValues
-import java.io.*
+import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
+import java.io.Reader
+import java.io.StringReader
+import java.io.UnsupportedEncodingException
+import java.lang.IllegalArgumentException
 import java.nio.charset.UnsupportedCharsetException
 import java.sql.Timestamp
 import java.text.ParseException
@@ -61,21 +73,21 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
     /* Import a series of protocols from a document into a contact
 
      */
-    override suspend fun doImport(language: String?, doc: Document, hcpId: String?, protocolIds: List<String?>?, formIds: List<String?>?, planOfActionId: String?, ctc: Contact?, enckeys: List<String>?): Contact? {
-        val text = decodeRawData(doc!!.decryptAttachment(enckeys))
+    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
+        val text = decodeRawData(doc.decryptAttachment(enckeys))
         return if (text != null) {
             val r: Reader = StringReader(text)
             val lls = parseReportsAndLabs(language, protocolIds, r).filterNotNull()
-            fillContactWithLines(ctc!!, lls, planOfActionId, hcpId, protocolIds!!, formIds!!)
-            contactLogic.modifyContact(ctc)
+            val subContactsWithServices = fillContactWithLines(lls, planOfActionId, hcpId, protocolIds!!, formIds!!)
+            contactLogic.modifyContact(ctc.copy(subContacts = ctc.subContacts + subContactsWithServices.map {it.first}, services = ctc.services + subContactsWithServices.flatMap {it.second} ))
         } else {
             throw UnsupportedCharsetException("Charset could not be detected")
         }
     }
 
     @Throws(IOException::class)
-    fun parseReportsAndLabs(language: String?, protocols: List<String?>?, r: Reader?): List<LaboLine?> {
-        val result: MutableList<LaboLine?> = LinkedList()
+    fun parseReportsAndLabs(language: String, protocols: List<String?>, r: Reader): List<LaboLine> {
+        val result: MutableList<LaboLine> = LinkedList()
         var line: String
         val reader = BufferedReader(r)
         var ll: LaboLine? = null
@@ -85,7 +97,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
             if (isLaboLine(line)) {
                 ll?.let { createServices(it, language, position) }
                 ll = getLaboLine(line)
-                if (protocols!!.contains(ll.resultReference) || protocols.size == 1 && protocols[0] != null && protocols[0]!!.startsWith("***")) {
+                if (protocols.contains(ll.resultReference) || protocols.size == 1 && protocols[0] != null && protocols[0]!!.startsWith("***")) {
                     result.add(ll)
                 } else {
                     ll = null
@@ -118,34 +130,35 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
         return result
     }
 
-    protected fun createServices(ll: LaboLine, language: String?, position: Long) {
-        if (ll.labosList.size > 0) {
-            ll.services.addAll(importLaboResult(language, ll.labosList, position, ll.ril))
+    protected fun createServices(ll: LaboLine, language: String, position: Long) {
+        if (ll.labosList.size > 0 && ll.ril != null) {
+            ll.services.addAll(importLaboResult(language, ll.labosList, position, ll.ril!!))
             ll.labosList.clear()
         }
-        if (ll.protoList.size > 0) {
-            ll.services.add(importProtocol(language, ll.protoList, position, ll.ril))
+        if (ll.protoList.size > 0 && ll.ril != null) {
+            ll.services.add(importProtocol(language, ll.protoList, position, ll.ril!!))
             ll.protoList.clear()
         }
     }
 
-    protected fun importProtocol(language: String?, protoList: List<*>?, position: Long, ril: ResultsInfosLine?): org.taktik.icure.entities.embed.Service {
-        var text = (protoList!![0] as ProtocolLine).text
+    protected fun importProtocol(language: String, protoList: List<*>, position: Long, ril: ResultsInfosLine): org.taktik.icure.entities.embed.Service {
+        var text = (protoList[0] as ProtocolLine).text
         for (i in 1 until protoList.size) {
             text += "\n" + (protoList[i] as ProtocolLine).text
         }
-        val s = org.taktik.icure.entities.embed.Service()
-        s.id = uuidGen.newGUID().toString()
-        s.content[language] = Content(text)
-        s.label = "Protocol"
-        s.index = position
-        s.valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril!!.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
+        val s = org.taktik.icure.entities.embed.Service(
+                id = uuidGen.newGUID().toString(),
+                content = mapOf(language to Content(stringValue = text)),
+                label = "Protocol",
+                index = position,
+                valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
+        )
         return s
     }
 
-    protected fun importLaboResult(language: String?, labResults: List<*>?, position: Long, ril: ResultsInfosLine?): List<org.taktik.icure.entities.embed.Service?> {
-        var result: MutableList<org.taktik.icure.entities.embed.Service?> = ArrayList()
-        if (labResults!!.size > 1) {
+    protected fun importLaboResult(language: String, labResults: List<*>, position: Long, ril: ResultsInfosLine): List<org.taktik.icure.entities.embed.Service> {
+        var result: MutableList<org.taktik.icure.entities.embed.Service> = ArrayList()
+        if (labResults.size > 1) {
             var lrl = labResults[0] as LaboResultLine
             var comment: String
             if (tryToGetValueAsNumber(lrl.value) != null) {
@@ -167,12 +180,13 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                         value += "\n" + lrl.value
                     }
                 }
-                val s = org.taktik.icure.entities.embed.Service()
-                s.id = uuidGen.newGUID().toString()
-                s.content[language] = Content(value)
-                s.label = label
-                s.index = position
-                s.valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril!!.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
+                val s = org.taktik.icure.entities.embed.Service(
+                id = uuidGen.newGUID().toString(),
+                content = mapOf(language to Content(stringValue = value)),
+                label = label ?: "",
+                index = position,
+                valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
+                )
                 result.add(s)
             }
         } else {
@@ -181,8 +195,8 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
         return result
     }
 
-    protected fun addLaboResult(lrl: LaboResultLine, language: String?, position: Long, ril: ResultsInfosLine?, comment: String?): MutableList<org.taktik.icure.entities.embed.Service?> {
-        val result: MutableList<org.taktik.icure.entities.embed.Service?> = ArrayList()
+    protected fun addLaboResult(lrl: LaboResultLine, language: String, position: Long, ril: ResultsInfosLine, comment: String?): MutableList<org.taktik.icure.entities.embed.Service> {
+        val result: MutableList<org.taktik.icure.entities.embed.Service> = ArrayList()
         val d = tryToGetValueAsNumber(lrl.value)
         if (d != null) { //We import as a Measure
             result.add(importNumericLaboResult(language, d, lrl, position, ril, comment))
@@ -192,52 +206,45 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
         return result
     }
 
-    protected fun importPlainStringLaboResult(language: String?, lrl: LaboResultLine, position: Long, ril: ResultsInfosLine?): org.taktik.icure.entities.embed.Service {
-        val s = org.taktik.icure.entities.embed.Service()
-        var value = lrl.value + " " + lrl.unit
-        if (lrl.referenceValues!!.trim { it <= ' ' }.length > 0) {
-            value += " (" + lrl.referenceValues + " )"
-        }
-        if (lrl.severity!!.trim { it <= ' ' }.length > 0) {
-            value += " (" + lrl.severity!!.trim { it <= ' ' } + " )"
-            s.codes.add(CodeStub("CD-SEVERITY", "abnormal", "1"))
-        }
-        s.id = uuidGen.newGUID().toString()
-        s.content[language] = Content(value)
-        s.label = lrl.analysisType
-        s.index = position
-        s.valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril!!.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
-        return s
+    protected fun importPlainStringLaboResult(language: String, lrl: LaboResultLine, position: Long, ril: ResultsInfosLine): org.taktik.icure.entities.embed.Service {
+        val referenceValue = lrl.referenceValues!!.trim { it <= ' ' }
+        val severity = lrl.severity?.trim { it <= ' ' }
+        var value = "${lrl.value} ${lrl.unit}" + (if (referenceValue.isNotEmpty()) {
+            " (${lrl.referenceValues} )"
+        } else "") + (if (severity?.isNotEmpty() == true) {
+            " ($severity )"
+        } else "")
+
+
+        return org.taktik.icure.entities.embed.Service(
+                id = uuidGen.newGUID().toString(),
+                content = mapOf(language to Content(stringValue = value)),
+                label = lrl.analysisType ?: "",
+                index = position,
+                valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril!!.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS),
+                codes = if(severity?.isNotEmpty() == true) setOf(CodeStub.from("CD-SEVERITY", "abnormal", "1")) else setOf()
+        )
     }
 
-    protected fun importNumericLaboResult(language: String?, d: Double?, lrl: LaboResultLine, position: Long, ril: ResultsInfosLine?, comment: String?): org.taktik.icure.entities.embed.Service {
-        val s = org.taktik.icure.entities.embed.Service()
-        val m = Measure()
-        m.value = d
-        if (comment != null) {
-            m.comment = comment
-        }
-        m.unit = lrl.unit
-        val r = tryToGetReferenceValues(lrl.referenceValues)
-        if (r != null) {
-            m.min = r.minValue
-            m.max = r.maxValue
-            //Handle the case where the labo has put the unit into the reference values
-            if (r.unit != null && (lrl.unit == null || lrl.unit!!.trim { it <= ' ' }.length == 0)) {
-                m.unit = r.unit
-            }
-        }
-        if (lrl.severity!!.trim { it <= ' ' }.length > 0) {
-            m.severity = 1
-            m.severityCode = lrl.severity!!.trim { it <= ' ' }
-            s.codes.add(CodeStub("CD-SEVERITY", "abnormal", "1"))
-        }
-        s.id = uuidGen.newGUID().toString()
-        s.content[language] = Content(m)
-        s.label = lrl.analysisType
-        s.index = position
-        s.valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril!!.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
-        return s
+    protected fun importNumericLaboResult(language: String, d: Double?, lrl: LaboResultLine, position: Long, ril: ResultsInfosLine, comment: String?): org.taktik.icure.entities.embed.Service {
+        val r = lrl.referenceValues?.let { tryToGetReferenceValues(it) }
+        val severity = lrl.severity?.trim { it <= ' ' }
+        return org.taktik.icure.entities.embed.Service(
+                codes = if(severity?.isNotEmpty() == true) setOf(CodeStub.from("CD-SEVERITY", "abnormal", "1")) else setOf(),
+                id = uuidGen.newGUID().toString(),
+                content = mapOf(language to Content(measureValue = Measure(
+                        value = d,
+                        comment = comment,
+                        unit = lrl.unit?.let { if (it.isBlank()) r?.unit else it } ?: r?.unit,
+                        min = r?.minValue,
+                        max = r?.maxValue,
+                        severity = if (severity?.isNotEmpty() == true) 1 else null,
+                        severityCode = severity
+                ))),
+                label = lrl.analysisType ?: "",
+                index = position,
+                valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(ril.demandDate, ZoneId.systemDefault()), ChronoUnit.DAYS)
+        )
     }
 
     protected fun tryToGetValueAsNumber(value: String?): Double? {
@@ -249,7 +256,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
         }
     }
 
-    protected fun tryToGetReferenceValues(refValues: String?): Reference? {
+    protected fun tryToGetReferenceValues(refValues: String): Reference? {
         try {
             var m = betweenReference.matcher(refValues)
             if (m.matches()) {
@@ -279,7 +286,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
             m = greaterThanReference.matcher(refValues)
             if (m.matches()) {
                 val r = Reference()
-                r.minValue = m.group(1).replace(",".toRegex(), ".")?.toDouble()
+                r.minValue = m.group(1).replace(",".toRegex(), ".").toDouble()
                 if (m.group(2) != null) {
                     r.unit = m.group(2)
                 }
@@ -295,17 +302,17 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
     }
 
     @Throws(IOException::class)
-    override fun getInfos(doc: Document, full: Boolean, language: String?, enckeys: List<String>?): List<ResultInfo?>? {
-        val br = getBufferedReader(doc!!, enckeys)
+    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
+        val br = getBufferedReader(doc, enckeys) ?: throw IllegalArgumentException("Cannot get document")
         val documentId = doc.id
         return extractResultInfos(br, language, documentId, full)
     }
 
     @Throws(IOException::class)
-    protected fun extractResultInfos(br: BufferedReader?, language: String?, documentId: String?, full: Boolean): List<ResultInfo?> {
-        val l: MutableList<ResultInfo?> = ArrayList()
+    protected fun extractResultInfos(br: BufferedReader, language: String, documentId: String?, full: Boolean): List<ResultInfo> {
+        val l: MutableList<ResultInfo> = LinkedList()
         var position: Long = 0
-        var line = br!!.readLine()
+        var line = br.readLine()
         while (line != null && position < 10000000L /* ultimate safeguard */) {
             position++
             if (isLaboLine(line)) {
@@ -347,7 +354,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                         }
                     } else if (isProtocolLine(line)) {
                         if (ri.codes.size == 0) {
-                            ri.codes.add(Code("CD-TRANSACTION", "report", "1"))
+                            ri.codes.add(CodeStub.from("CD-TRANSACTION", "report", "1"))
                         }
                         if (full) {
                             val lrl = getProtocolLine(line)
@@ -360,7 +367,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
                         }
                     } else if (isLaboResultLine(line)) {
                         if (ri.codes.size == 0) {
-                            ri.codes.add(Code("CD-TRANSACTION", "labresult", "1"))
+                            ri.codes.add(CodeStub.from("CD-TRANSACTION", "labresult", "1"))
                         }
                         if (full) {
                             val lrl = getLaboResultLine(line, ll)
@@ -685,7 +692,7 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
     }
 
     @Throws(IOException::class)
-    override fun canHandle(doc: Document, enckeys: List<String>?): Boolean {
+    override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
         val br = getBufferedReader(doc!!, enckeys)
         val firstLine = br!!.readLine()
         br.close()

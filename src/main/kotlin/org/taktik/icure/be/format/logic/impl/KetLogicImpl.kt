@@ -50,7 +50,7 @@ import javax.xml.xpath.XPathFactory
 @Service
 class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), KetLogic {
     @Throws(IOException::class)
-    override fun canHandle(doc: Document, enckeys: List<String>?): Boolean {
+    override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
         return try {
             val xml = getXmlDocument(doc!!, enckeys)
             val xPathfactory = XPathFactory.newInstance()
@@ -67,7 +67,7 @@ class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLo
     }
 
     @Throws(IOException::class)
-    override fun getInfos(doc: Document, full: Boolean, language: String?, enckeys: List<String>?): List<ResultInfo?>? {
+    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
         return try {
             val xml = getXmlDocument(doc!!, enckeys)
             val xPathfactory = XPathFactory.newInstance()
@@ -107,7 +107,7 @@ class KetLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLo
     }
 
     @Throws(IOException::class)
-    override suspend fun doImport(language: String?, doc: Document, hcpId: String?, protocolIds: List<String?>?, formIds: List<String?>?, planOfActionId: String?, ctc: Contact?, enckeys: List<String>?): Contact? {
+    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
         return null
     }
 

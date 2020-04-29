@@ -32,7 +32,10 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
 import org.xml.sax.SAXException
-import java.io.*
+import java.io.BufferedReader
+import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.io.StringReader
 import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
@@ -41,10 +44,9 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
-import java.util.function.Consumer
-import java.util.stream.Collectors
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
+import kotlin.streams.toList
 
 abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: HealthcarePartyLogic, val formLogic: FormLogic) : ResultFormatLogic {
     protected var uuidGen = UUIDGenerator()
@@ -53,28 +55,28 @@ abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: Healthcare
         throw UnsupportedOperationException("Not implemented")
     }
 
-    protected fun fillContactWithLines(ctc: Contact, lls: List<LaboLine>, planOfActionId: String?, hcpId: String?,
-                                       protocolIds: List<String?>, formIds: List<String?>) {
-        lls.forEach(Consumer { ll: LaboLine ->
+    protected fun fillContactWithLines(lls: List<LaboLine>, planOfActionId: String?, hcpId: String?,
+                                       protocolIds: List<String?>, formIds: List<String?>) =
+        lls.map { ll: LaboLine ->
             var formId: String? = null
             for (i in protocolIds.indices) {
                 if ((protocolIds[i] == ll.ril?.protocol ?: ll.resultReference) || protocolIds.size == 1 && protocolIds[i]?.startsWith("***") == true) {
                     formId = formIds[i]
                 }
             }
-            val ssc = SubContact()
-            ssc.responsible = hcpId
-            ssc.descr = ll.labo
-            ssc.protocol = ll.resultReference
-            ssc.planOfActionId = planOfActionId
-            ssc.status = ((if (ll.isResultLabResult) SubContact.STATUS_LABO_RESULT else SubContact.STATUS_PROTOCOL_RESULT)
-                    or SubContact.STATUS_UNREAD or if (ll.ril != null && ll.ril!!.isComplete) SubContact.STATUS_COMPLETE else 0)
-            ssc.formId = formId
-            ssc.services = ll.services.stream().map { s: Service? -> ServiceLink(s!!.id) }.collect(Collectors.toList())
-            ctc.services.addAll(ll.services)
-            ctc.subContacts.add(ssc)
-        })
-    }
+            SubContact(
+                    id = uuidGen.newGUID().toString(),
+                    responsible = hcpId,
+                    descr = ll.labo,
+                    protocol = ll.resultReference,
+                    planOfActionId = planOfActionId,
+                    status = ((if (ll.isResultLabResult) SubContact.STATUS_LABO_RESULT else SubContact.STATUS_PROTOCOL_RESULT)
+                            or SubContact.STATUS_UNREAD or if (ll.ril != null && ll.ril!!.isComplete) SubContact.STATUS_COMPLETE else 0),
+                    formId = formId,
+                    services = ll.services.map { s: Service -> ServiceLink(s.id) }.toList()
+            ) to ll.services
+        }
+
 
     @Throws(IOException::class)
     protected fun decodeRawData(rawData: ByteArray?): String? {
@@ -115,7 +117,7 @@ abstract class GenericResultFormatLogicImpl(val healthcarePartyLogic: Healthcare
         var protoList: MutableList<ProtocolLine?> = ArrayList()
         var ril: ResultsInfosLine? = null
         var pal: PatientAddressLine? = null
-        var services: MutableList<Service?> = ArrayList()
+        var services: MutableList<Service> = ArrayList()
         var isResultLabResult = false
     }
 

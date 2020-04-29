@@ -48,7 +48,7 @@ data class Patient(
 
         override val firstName: String? = null,
         override val lastName: String? = null, //Is usually either maidenName or spouseName,
-        override val companyName: String?,
+        override val companyName: String? = null,
         override val languages: List<String> = listOf(), //alpha-2 code http://www.loc.gov/standards/iso639-2/ascii_8bits.html,
         override val addresses: List<Address> = listOf(),
         override val civility: String? = null,
@@ -108,7 +108,7 @@ data class Patient(
         // In the table, we get at the first position: the key encrypted using owner (this)'s public key and in 2nd pos.
         // the key encrypted using delegate's public key.
         override val hcPartyKeys: Map<String, Array<String>> = mapOf(),
-        override val privateKeyShamirPartitions: Map<String, String>,
+        override val privateKeyShamirPartitions: Map<String, String> = mapOf(),
         override val publicKey: String? = null,
 
         override val secretForeignKeys: Set<String> = setOf(),

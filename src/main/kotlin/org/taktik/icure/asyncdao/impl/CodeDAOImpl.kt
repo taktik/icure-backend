@@ -289,17 +289,7 @@ class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
         return client.getForPagination(ids, Code::class.java)
     }
 
-    override suspend fun ensureValid(dbInstanceUrl: URI, groupId: String, code : Code, ofType : String?, orDefault : Code?) : Code {
-        if (ofType != null && code.type != ofType) {
-			return orDefault ?: throw IllegalArgumentException("code ($code) has not the expected type $ofType")
-		}
-		if (!isValid(dbInstanceUrl, groupId,code, ofType)) {
-			return orDefault ?: throw IllegalArgumentException("code ($code) is invalid")
-		}
-		return code
-	}
-
-	override suspend fun isValid(dbInstanceUrl: URI, groupId: String,code: Code, ofType: String?) = findCodes(dbInstanceUrl, groupId,ofType ?: code.type, code.code, code.version).firstOrNull() != null
+	override suspend fun isValid(dbInstanceUrl: URI, groupId: String, codeType: String, codeCode: String, codeVersion: String?) = findCodes(dbInstanceUrl, groupId, codeType, codeCode, codeVersion).firstOrNull() != null
 
 	@InternalCoroutinesApi
     override suspend fun getCodeByLabel(dbInstanceUrl: URI, groupId: String, region: String, label: String, ofType: String, labelLang : List<String>) : Code? {

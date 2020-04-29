@@ -1,30 +1,36 @@
 package org.taktik.icure.dto.result
 
-import org.taktik.icure.entities.*
-import java.util.LinkedList
+import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.Form
+import org.taktik.icure.entities.HealthElement
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Patient
 
 class ImportResult(
-    var patient :Patient? = null,
-    val hes:LinkedList<HealthElement> = LinkedList(),
-    val ctcs:LinkedList<Contact> = LinkedList(),
-    val warnings:LinkedList<String> = LinkedList(),
-    val errors:LinkedList<String> = LinkedList(),
-    val forms:LinkedList<Form> = LinkedList(),
-    val hcps:LinkedList<HealthcareParty> = LinkedList(),
-    val documents:LinkedList<Document> = LinkedList()
-                  ) {
-    fun warning(w:String): ImportResult {
+        var patient: Patient? = null,
+        var hes: MutableList<HealthElement> = mutableListOf(),
+        var ctcs: MutableList<Contact> = mutableListOf(),
+        var warnings: MutableList<String> = mutableListOf(),
+        var errors: MutableList<String> = mutableListOf(),
+        var forms: MutableList<Form> = mutableListOf(),
+        var hcps: MutableList<HealthcareParty> = mutableListOf(),
+        var documents: MutableList<Document> = mutableListOf()
+) {
+    fun warning(w: String): ImportResult {
         warnings.add(w)
         return this
     }
 
-    fun error(e:String): ImportResult {
+    fun error(e: String): ImportResult {
         errors.add(e)
         return this
     }
 
     fun notNull(value: String?, message: String): ImportResult {
-        if (value == null) { warnings.add(message) }
+        if (value == null) {
+            warnings.add(message)
+        }
         return this
     }
 }

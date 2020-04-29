@@ -36,6 +36,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20110701.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
+import org.taktik.icure.be.ehealth.logic.kmehr.getSignature
 import org.taktik.icure.be.ehealth.logic.kmehr.v20110701.KmehrExport
 import org.taktik.icure.constants.ServiceStatus
 import org.taktik.icure.entities.HealthElement
@@ -80,8 +81,8 @@ class SumehrExport(
     override val log = LogFactory.getLog(SumehrExport::class.java)
 
 	suspend fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>? = null, healthElements: List<HealthElement>? = null): String {
-        val signatures = ArrayList(listOf(patient.signature))
-        val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic!!.getHcpHierarchyIds(it) }
+        val signatures = mutableListOf(patient.getSignature())
+        val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) }
         val treatedServiceIds = HashSet<String>()
         hcPartyIds?.let { getHealthElements(it, sfks, excludedIds, includeIrrelevantInformation, treatedServiceIds, healthElements).forEach { signatures.add(it.modified.toString()) } }
         hcPartyIds?.let { getAllServices(it, sfks, excludedIds, includeIrrelevantInformation, null, services).filter{!treatedServiceIds.contains(it.id)}.forEach { signatures.add(it.modified.toString()) } }
@@ -217,7 +218,7 @@ class SumehrExport(
 			val decryptedServices  =  mutableListOf<Service>()
 			val chunkedToBeDecryptedServices = toBeDecryptedServices.chunked(50)
 			chunkedToBeDecryptedServices.forEach { itt ->
-                val decryptedServicesChunk = Mono.fromCompletionStage(decryptor.decrypt(itt.mapNotNull { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java)).awaitFirst().map { mapper.map(it, Service::class.java) }
+				val decryptedServicesChunk = Mono.fromCompletionStage ( decryptor.decrypt(itt.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java) ).awaitFirst().map { mapper.map(it, Service::class.java) }
 				decryptedServices.addAll(decryptedServicesChunk)
 			}
             services?.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
@@ -374,15 +375,15 @@ class SumehrExport(
 
 	internal suspend fun createVaccineItem(svc: Service, itemIndex: Int): ItemType? {
         val item = createItemWithContent(svc, itemIndex, "vaccine", svc.content.entries.mapNotNull {
-            it.value.booleanValue = null
-            it.value.binaryValue = null
-            it.value.documentId = null
-            it.value.measureValue = null
-            it.value.numberValue = null
-            it.value.instantValue = null
-            it.value.stringValue = null
-
-            makeContent(it.key, it.value)
+            makeContent(it.key, it.value.copy(
+                    booleanValue = null,
+                    binaryValue = null,
+                    documentId = null,
+                    measureValue = null,
+                    numberValue = null,
+                    instantValue = null,
+                    stringValue = null
+            ))
         })
 
         item?.let {
@@ -425,9 +426,9 @@ class SumehrExport(
     }
 
     internal suspend fun addPatientHealthcareParties(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
-        pat.patientHealthCareParties?.filter { s -> !excludedIds.contains(s.healthcarePartyId) }?.mapNotNull { it?.healthcarePartyId }?.let {
+        pat.patientHealthCareParties.filter { s -> !excludedIds.contains(s.healthcarePartyId) }.mapNotNull { it.healthcarePartyId }.let {
             healthcarePartyLogic.getHealthcareParties(it).toList().forEach { hcp ->
-            if (hcp.specialityCodes?.none { c -> !c.code.startsWith("pers") } == true) {
+            if (hcp.specialityCodes.none { c -> c.code?.startsWith("pers") == false }) {
                 val phcp = pat.patientHealthCareParties.find { it.healthcarePartyId == hcp.id }
                 try {
                     phcp.let {
@@ -448,7 +449,7 @@ class SumehrExport(
 
     internal suspend fun addGmdmanager(pat: Patient, trn: TransactionType) {
         try {
-            val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any {r -> r.startDate.isBefore(Instant.now()) && null == r.endDate} ?: false }
+            val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any {r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate} }
             if (gmdRelationship != null) {
                 gmdRelationship.healthcarePartyId?.let {
                     healthcarePartyLogic.getHealthcareParty(it)?.let { hcp ->
@@ -472,20 +473,16 @@ class SumehrExport(
 			val nonConfidentialItems = getNonConfidentialItems(medications)
 
 			nonConfidentialItems.forEach { m ->
-				if (null == m.closingDate) {
-					m.closingDate = FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)
-				}
 				val items = getAssessment(trn).headingsAndItemsAndTexts
-                createItemWithContent(m, items.size+1, "medication", m.content.entries.mapNotNull {
-					if ((it.value.booleanValue == true || it.value.instantValue != null || it.value.numberValue != null ) && it.value.stringValue?.length ?: 0 == 0) {it.value.stringValue = m.label}
-					it.value.booleanValue = null
-					it.value.binaryValue = null
-					it.value.documentId = null
-					it.value.measureValue = null
-					it.value.numberValue = null
-					it.value.instantValue = null
-
-					makeContent(it.key, it.value)
+                createItemWithContent(m.copy(closingDate = m.closingDate ?: FuzzyValues.getFuzzyDate(LocalDateTime.now().plusMonths(1), ChronoUnit.SECONDS)), items.size+1, "medication", m.content.entries.mapNotNull {
+					makeContent(it.key, (if ((it.value.booleanValue == true || it.value.instantValue != null || it.value.numberValue != null ) && it.value.stringValue?.length ?: 0 == 0) it.value.copy(stringValue = m.label) else it.value).copy(
+                            booleanValue = null,
+                            binaryValue = null,
+                            documentId = null,
+                            measureValue = null,
+                            numberValue = null,
+                            instantValue = null
+                    ))
 				})?.let { item ->
 					if (item.contents?.size ?: 0>  0) {
 						val medicationEntry = m.content.entries.find { null != it.value.medicationValue }

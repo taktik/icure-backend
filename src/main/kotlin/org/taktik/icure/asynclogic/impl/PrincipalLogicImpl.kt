@@ -44,8 +44,8 @@ abstract class PrincipalLogicImpl<P : Principal>(protected val roleDAO: RoleDAO,
 
     override fun getProperties(principalId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<PropertyStub> = flow {
         val principal: Principal? = getPrincipal(principalId)
-        principal?.let { emitAll(buildProperties(principal, includeDirect, includeHerited, includeDefault, mutableSetOf())) }
-                ?: emitAll(emptyFlow<Property>())
+        principal?.let { emitAll(buildProperties(principal, includeDirect, includeHerited, includeDefault, mutableSetOf<PropertyTypeStub>())) }
+                ?: emitAll(emptyFlow<PropertyStub>())
     }
 
     override fun getPermissions(principalId: String, virtualHostId: String, includeDirect: Boolean, includeHerited: Boolean, includeDefault: Boolean): Flow<Permission> = flow {

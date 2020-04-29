@@ -25,6 +25,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.chain.FilterChain
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import java.io.InputStream
 import java.io.Serializable
 
@@ -58,9 +59,8 @@ interface CodeLogic : EntityPersister<Code, String> {
 
     suspend fun getOrCreateCode(type: String, code: String, version: String): Code?
 
-    suspend fun ensureValid(code: Code, ofType: String?, orDefault: Code?): Code?
-
     suspend fun isValid(code: Code, ofType: String? = null): Boolean
+    suspend fun isValid(code: CodeStub, ofType: String? = null): Boolean
 
     suspend fun getCodeByLabel(region: String, label: String, ofType: String, labelLang: List<String> = listOf("fr", "nl")): Code?
 }

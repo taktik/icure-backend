@@ -42,6 +42,7 @@ import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.constants.ServiceStatus
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal
@@ -178,7 +179,7 @@ open class KmehrExport(
             if(cdItem == "medication") {
                 svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code!!.toLowerCase()) }
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
@@ -256,8 +257,8 @@ open class KmehrExport(
         return addresses?.filter { it.addressType != null }?.flatMapTo(ArrayList<TelecomType>()) { a ->
             a.telecoms?.filter {it.telecomNumber?.length?:0>0}?.map {
                 TelecomType().apply {
-                    cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_ADDRESS); value = a.addressType!!.name })
-                    cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = it.telecomType!!.name })
+                    cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_ADDRESS); value = a.addressType?.name ?: "home"})
+                    cds.add(CDTELECOM().apply { s(CDTELECOMschemes.CD_TELECOM); value = it.telecomType?.name ?: "phone"})
                     telecomnumber = it.telecomNumber
                 }
             } ?: emptyList()
@@ -368,9 +369,13 @@ open class KmehrExport(
             item.contents.add(0, ContentType().apply {texts.add(TextType().apply {l=lang; value= cnt?.medicationValue?.medicinalProduct?.intendedname?:cnt?.medicationValue?.substanceProduct?.intendedname?:cnt?.medicationValue?.compoundPrescription?:cnt?.stringValue?:""})})
             cnt?.medicationValue?.substanceProduct.let {sp->
                 cnt?.medicationValue?.duration?.let { d ->
-                    item.duration = DurationType().apply { decimal= BigDecimal.valueOf(d.value); unit = d.unit?.code?.let {
-                        TimeunitType().apply { cd=CDTIMEUNIT().apply { s(CDTIMEUNITschemes.CD_TIMEUNIT); value=it } }
-                    }}
+                    if (d.value != null) {
+                        item.duration = DurationType().apply {
+                            decimal = BigDecimal.valueOf(d.value); unit = d.unit?.code?.let {
+                            TimeunitType().apply { cd = CDTIMEUNIT().apply { s(CDTIMEUNITschemes.CD_TIMEUNIT); value = it } }
+                        }
+                        }
+                    }
                 }
             }
             cnt?.medicationValue?.posologyText?.let {
@@ -517,7 +522,7 @@ open class KmehrExport(
 
     private suspend fun mapToCountryCode(country: String?): String? {
         if (country == null) {return null }
-        return if (codeLogic.isValid(Code("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
+        return if (codeLogic.isValid(CodeStub.from("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
             country.toLowerCase()
         } else {
             try {

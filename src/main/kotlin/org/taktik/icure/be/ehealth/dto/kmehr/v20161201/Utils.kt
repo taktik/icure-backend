@@ -210,4 +210,13 @@ object Utils {
         }
     }
 
+    fun makeFuzzyLongFromMomentType(moment: org.taktik.icure.services.external.rest.v1.dto.be.ehealth.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType): Long? {
+        if(moment.year != null) {
+            return makeFuzzyLongFromDateAndTime(moment.year, moment.time)
+        } else if(moment.yearmonth != null) {
+            return makeFuzzyLongFromDateAndTime(moment.yearmonth, moment.time)
+        } else {
+            return makeFuzzyLongFromDateAndTime(moment.date, moment.time)
+        }
+    }
 }
