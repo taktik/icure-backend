@@ -95,12 +95,9 @@ class PatientController(
                     paginationOffset,
                     filterValue,
                     Sorting(null, sortDirection))
-                    .let { PaginatedList(it.paginatedList<Patient, PatientDto>(mapper, realLimit)) }
+                    .let { it.paginatedList<Patient, PatientDto>(mapper, realLimit) }
         } ?: PaginatedList() }
     }
-
-    private fun PaginatedListResponse(patients: PaginatedList<Patient>): PaginatedList =
-            PaginatedList(patients.pageSize, patients.totalSize, patients.rows.map { mapper.map(it, PatientDto::class.java) }, mapper.map(patients.nextKeyPair, PaginatedDocumentKeyIdPair::class.java))
 
     @Operation(summary = "List patients of a specific HcParty or of the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
     @GetMapping("/ofHcParty/{hcPartyId}")
@@ -113,7 +110,7 @@ class PatientController(
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
-        PaginatedList(patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(mapper, realLimit))
+        patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(mapper, realLimit)
     }
 
     @Operation(summary = "List patients that have been merged towards another patient ", description = "Returns a list of patients that have been merged after the provided date")
@@ -127,8 +124,8 @@ class PatientController(
                                     @Parameter(description = "The start key for pagination the date of the first element of the new page") @RequestParam(required = false) startKey: Long?,
                                     @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
-        PaginatedList(patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, (limit
-                ?: DEFAULT_LIMIT) + 1).paginatedList<Patient, PatientDto>(mapper, limit ?: DEFAULT_LIMIT))
+        patientLogic.listOfPatientsModifiedAfter(date, startKey, startDocumentId, (limit
+                ?: DEFAULT_LIMIT) + 1).paginatedList<Patient, PatientDto>(mapper, limit ?: DEFAULT_LIMIT)
     }
 
     @Operation(summary = "List patients for a specific HcParty or for the current HcParty ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -150,7 +147,7 @@ class PatientController(
     @Operation(summary = "Get count of patients for a specific HcParty or for the current HcParty ", description = "Returns the count of patients")
     @GetMapping("/hcParty/{hcPartyId}/count")
     fun countOfPatients(@Parameter(description = "Healthcare party id") @PathVariable hcPartyId: String) = mono {
-        ContentDto.fromNumberValue(patientLogic.countByHcParty(hcPartyId))
+        ContentDto(numberValue = patientLogic.countByHcParty(hcPartyId).toDouble())
     }
 
     @Operation(summary = "List patients for a specific HcParty", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -168,11 +165,10 @@ class PatientController(
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
             (hcp?.parentId ?: hcp?.id)?.let { hcpId ->
                 patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(
-                        hcpId,
-                        paginationOffset,
-                        null,
-                        Sorting(sortField, sortDirection))
-                        .let { PaginatedList(it.paginatedList<Patient, PatientDto>(mapper, realLimit)) }
+                hcpId,
+                paginationOffset,
+                null,
+                Sorting(sortField, sortDirection)).paginatedList<Patient, PatientDto>(mapper, realLimit)
             } ?: PaginatedList()
         }
     }
@@ -211,30 +207,26 @@ class PatientController(
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
                 .let {
-                    val patientsDtos = PaginatedList()
-
-                    patientsDtos.nextKeyPair = mapper.map(it.nextKeyPair, PaginatedDocumentKeyIdPair::class.java)
-                    patientsDtos.pageSize = it.pageSize
-                    patientsDtos.totalSize = it.totalSize
-
-                    val patientIds = it.rows.filterNotNull().sortedBy { accessLog -> accessLog.date }.map { it.patientId }.distinct()
-
-                    patientsDtos.rows = patientLogic.getPatients(patientIds).filter { it.deletionDate == null }.map { p ->
-                        val pdto = PatientDto()
-                        pdto.id = p.id
-                        pdto.lastName = p.lastName
-                        pdto.firstName = p.firstName
-                        pdto.partnerName = p.partnerName
-                        pdto.maidenName = p.maidenName
-                        pdto.dateOfBirth = p.dateOfBirth
-                        pdto.ssin = p.ssin
-                        pdto.externalId = p.externalId
-                        pdto.patientHealthCareParties = p.patientHealthCareParties.map { phcp -> mapper.map(phcp, PatientHealthCarePartyDto::class.java) }
-                        pdto.addresses = p.addresses.map { mapper.map(it, AddressDto::class.java) }
-                        pdto
-                    }.toList()
-
-                    patientsDtos
+                    val patientIds = it.rows.sortedBy { accessLog -> accessLog.date }.mapNotNull { it.patientId }.distinct()
+                    org.taktik.icure.services.external.rest.v1.dto.PaginatedList<PatientDto>(
+                            nextKeyPair = mapper.map(it.nextKeyPair, PaginatedDocumentKeyIdPair::class.java),
+                            pageSize = it.pageSize,
+                            totalSize = it.totalSize,
+                            rows = patientLogic.getPatients(patientIds).filter { it.deletionDate == null }.map { p ->
+                                PatientDto(
+                                        id = p.id,
+                                        lastName = p.lastName,
+                                        firstName = p.firstName,
+                                        partnerName = p.partnerName,
+                                        maidenName = p.maidenName,
+                                        dateOfBirth = p.dateOfBirth,
+                                        ssin = p.ssin,
+                                        externalId = p.externalId,
+                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> mapper.map(phcp, PatientHealthCarePartyDto::class.java) },
+                                        addresses = p.addresses.map { mapper.map(it, AddressDto::class.java) }
+                                )
+                            }.toList()
+                    )
                 }
     }
 

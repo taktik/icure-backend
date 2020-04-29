@@ -33,9 +33,7 @@ data class InsuranceDto(
         val code: String? = null,
         val agreementNumber: String? = null,
         val parent: String? = null, //ID of the parent
-        val address: AddressDto = AddressDto(),
-
-        override val _type: String = InsuranceDto::javaClass.name
+        val address: AddressDto = AddressDto()
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

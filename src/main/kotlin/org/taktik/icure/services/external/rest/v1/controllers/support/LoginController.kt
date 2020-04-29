@@ -74,7 +74,7 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
             val loginInfo = Moshi.Builder().build().adapter(LoginCredentials::class.java).fromJson(bodyText)
             return@withContext loginInfo?.let {
                 val response = AuthenticationResponse()
-                val authentication = sessionLogic.login(loginInfo.username, loginInfo.password, request, session)
+                val authentication = sessionLogic.login(loginInfo.username!!, loginInfo.password!!, request, session)
                 response.isSuccessful = authentication != null && authentication.isAuthenticated
                 if (response.isSuccessful) {
                     val secContext =  SecurityContextImpl(authentication)

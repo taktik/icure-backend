@@ -108,7 +108,7 @@ class InvoiceController(private val invoiceLogic: InvoiceLogic,
     @Operation(summary = "Modifies an invoice")
     @PostMapping("/reassign")
     fun reassignInvoice(@RequestBody invoiceDto: InvoiceDto) = mono {
-        val invoice = Invoice.reassignationInvoiceFromOtherInvoice(mapper.map(invoiceDto, Invoice::class.java), uuidGenerator)
+        val invoice = mapper.map(invoiceDto, Invoice::class.java).let { it.reassign(it.invoicingCodes, uuidGenerator) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invoice modification failed")
 
         mapper.map(invoice, InvoiceDto::class.java)

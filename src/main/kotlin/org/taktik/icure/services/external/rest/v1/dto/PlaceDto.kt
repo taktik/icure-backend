@@ -10,9 +10,7 @@ data class PlaceDto(
         override val deletionDate: Long? = null,
 
         override val name: String? = null,
-        val address: AddressDto? = null,
-
-        override val _type: String = PlaceDto::javaClass.name
+        val address: AddressDto? = null
 ) : StoredDocumentDto, NamedDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

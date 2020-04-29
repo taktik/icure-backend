@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.services.external.rest.v1.dto.base
+package org.taktik.icure.services.external.rest.v1.dto
 
-import com.squareup.moshi.Json
+import java.io.Serializable
 
-interface StoredDocumentDto : VersionableDto<String> {
-    @Json(name = "deleted")
-    val deletionDate: Long?
-
-    fun withDeletionDate(deletionDate: Long?): StoredDocumentDto
-}
+data class DatabaseInitialisationDto(
+        val users: List<UserDto>? = listOf(),
+        val healthcareParties: List<HealthcarePartyDto>? = listOf(),
+        val replication: ReplicationDto? = null
+) : Serializable

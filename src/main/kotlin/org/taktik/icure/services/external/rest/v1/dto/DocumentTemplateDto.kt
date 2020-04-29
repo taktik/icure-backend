@@ -50,9 +50,7 @@ data class DocumentTemplateDto(
         val group: DocumentGroupDto? = null,
         val descr: String? = null,
         val disabled: String? = null,
-        val specialty: CodeStubDto? = null,
-
-        override val _type: String = DocumentTemplateDto::javaClass.name
+        val specialty: CodeStubDto? = null
 ) : StoredDocumentDto, ICureDocumentDto {
     companion object : DynamicInitializer<DocumentTemplateDto>
 

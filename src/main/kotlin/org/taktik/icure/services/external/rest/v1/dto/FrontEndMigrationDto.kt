@@ -16,9 +16,7 @@ data class FrontEndMigrationDto(
         val userId: String? = null,
         val startKey: String? = null,
         val startKeyDocId: String? = null,
-        val processCount: Long? = null,
-
-        override val _type: String = FrontEndMigrationDto::javaClass.name
+        val processCount: Long? = null
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

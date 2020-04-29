@@ -32,9 +32,7 @@ data class PropertyTypeDto(
         val scope: PropertyTypeScope? = null,
         val unique: Boolean = false,
         val editor: String? = null,
-        val localized: Boolean = false,
-
-        override val _type: String = PropertyTypeDto::javaClass.name
+        val localized: Boolean = false
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

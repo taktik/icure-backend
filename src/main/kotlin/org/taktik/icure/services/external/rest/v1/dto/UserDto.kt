@@ -75,9 +75,7 @@ data class UserDto(
         val termsOfUseDate: Instant? = null,
 
         val email: String? = null,
-        val applicationTokens: Map<String, String> = mapOf(),
-
-        override val _type: String = UserDto::javaClass.name
+        val applicationTokens: Map<String, String> = mapOf()
 ) : StoredDocumentDto, PrincipalDto, Cloneable, Serializable {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

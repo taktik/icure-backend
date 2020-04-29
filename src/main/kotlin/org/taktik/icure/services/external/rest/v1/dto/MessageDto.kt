@@ -79,8 +79,7 @@ data class MessageDto(
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
-        override val encryptedSelf: String? = null,
-        override val _type: String = MessageDto::javaClass.name
+        override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto, EncryptableDto {
     companion object : DynamicInitializer<MessageDto> {
         const val STATUS_LABO_RESULT = 1 shl 0

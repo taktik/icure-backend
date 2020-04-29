@@ -67,25 +67,25 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
             mono {
                 if (timeTableId.equals("new", ignoreCase = true)) {
                     //Create an hourItem
-                    val timeTableHour = TimeTableHour().apply {
-                        startHour = java.lang.Long.parseLong("0800")
-                        startHour = java.lang.Long.parseLong("0900")
-                    }
+                    val timeTableHour = TimeTableHour(
+                            startHour = java.lang.Long.parseLong("0800"),
+                            endHour = java.lang.Long.parseLong("0900"))
 
                     //Create a timeTableItem
-                    val timeTableItem = TimeTableItem().apply {
-                        calendarItemTypeId = "consult"
-                        days = mutableListOf("monday")
-                        recurrenceTypes = ArrayList()
-                        hours = mutableListOf(timeTableHour)
-                    }
+                    val timeTableItem = TimeTableItem(
+                            calendarItemTypeId = "consult",
+                            days = mutableListOf("monday"),
+                            recurrenceTypes = ArrayList(),
+                            hours = mutableListOf(timeTableHour)
+                    )
                     //Create the timeTable
-                    val timeTable = TimeTable().apply {
-                        startTime = java.lang.Long.parseLong("20180601000")
-                        endTime = java.lang.Long.parseLong("20180801000")
-                        name = "myPeriod"
-                        items = mutableListOf(timeTableItem)
-                    }
+                    val timeTable = TimeTable(
+                            id = UUID.randomUUID().toString(),
+                            startTime = java.lang.Long.parseLong("20180601000"),
+                            endTime = java.lang.Long.parseLong("20180801000"),
+                            name = "myPeriod",
+                            items = mutableListOf(timeTableItem)
+                    )
 
                     //Return it
                     mapper.map(timeTable, TimeTableDto::class.java)

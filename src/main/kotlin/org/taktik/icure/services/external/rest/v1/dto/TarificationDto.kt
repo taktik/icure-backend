@@ -55,9 +55,7 @@ data class TarificationDto(
         val needsPrescriber: Boolean? = null,
         val relatedCodes: Set<String> = setOf(),
         val nGroup: String? = null,
-        val letterValues: List<LetterValueDto> = listOf(),
-
-        override val _type: String = TarificationDto::javaClass.name
+        val letterValues: List<LetterValueDto> = listOf()
 ) : StoredDocumentDto, CodeIdentificationDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

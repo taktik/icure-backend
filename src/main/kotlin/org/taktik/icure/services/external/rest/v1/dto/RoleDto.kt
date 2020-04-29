@@ -32,9 +32,7 @@ data class RoleDto(
         override val properties: Set<PropertyDto> = setOf(),
         override val permissions: Set<PermissionDto> = setOf(),
         val children: Set<String> = setOf(),
-        val users: Set<String> = setOf(),
-
-        override val _type: String = RoleDto::javaClass.name
+        val users: Set<String> = setOf()
 ) : StoredDocumentDto, PrincipalDto, Cloneable, Serializable {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

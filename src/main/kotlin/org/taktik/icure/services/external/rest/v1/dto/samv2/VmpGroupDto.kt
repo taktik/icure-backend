@@ -16,9 +16,7 @@ data class VmpGroupDto(
         val code: String? = null,
         val name: SamTextDto? = null,
         val noGenericPrescriptionReason: NoGenericPrescriptionReasonDto? = null,
-        val noSwitchReason: NoSwitchReasonDto? = null,
-
-        override val _type: String = EntityReferenceDto::javaClass.name
+        val noSwitchReason: NoSwitchReasonDto? = null
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

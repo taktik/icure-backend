@@ -77,7 +77,7 @@ class TarificationController(private val mapper: MapperFacade,
             }
         }
 
-        PaginatedList(tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit))
+        tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit)
     }
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
@@ -96,10 +96,9 @@ class TarificationController(private val mapper: MapperFacade,
                 } else {
                     null
                 }
-        PaginatedList(
+
                 tarificationLogic.findTarificationsBy(region, type, tarification, version, PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, realLimit+1))
                         .paginatedList<Tarification, TarificationDto>(mapper, realLimit)
-        )
     }
 
 

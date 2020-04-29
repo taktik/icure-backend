@@ -23,9 +23,7 @@ data class VmpDto(
         val vtm: VtmDto? = null,
         val wadas: List<WadaDto>? = null,
         val components: List<VmpComponentDto>? = null,
-        val commentedClassifications: List<CommentedClassificationDto>? = null,
-
-        override val _type: String = EntityReferenceDto::javaClass.name
+        val commentedClassifications: List<CommentedClassificationDto>? = null
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

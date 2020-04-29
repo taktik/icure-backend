@@ -129,8 +129,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     @Operation(summary = "Modify a document template with the current user", description = "Returns an instance of created document template.")
     @PutMapping("/{documentTemplateId}")
     fun updateDocumentTemplate(@PathVariable documentTemplateId: String, @RequestBody ft: DocumentTemplateDto) = mono {
-        val template = mapper.map(ft, DocumentTemplate::class.java)
-        template.id = documentTemplateId
+        val template = mapper.map(ft, DocumentTemplate::class.java).copy(id = documentTemplateId )
         val documentTemplate = documentTemplateLogic.modifyDocumentTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document Template update failed")
 
@@ -184,8 +183,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     fun setDocumentTemplateAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
-        documentTemplate.attachment = payload
-        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto::class.java)
+        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload)), DocumentTemplateDto::class.java)
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -193,7 +191,6 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     fun setDocumentTemplateAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
-        documentTemplate.attachment = payload.data
-        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate), DocumentTemplateDto::class.java)
+        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload.data)), DocumentTemplateDto::class.java)
     }
 }

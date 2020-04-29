@@ -54,8 +54,7 @@ data class AccessLogDto(
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
-        override val encryptedSelf: String? = null,
-        override val _type: String = AccessLogDto::javaClass.name
+        override val encryptedSelf: String? = null
 ) : StoredDocumentDto, ICureDocumentDto, EncryptableDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

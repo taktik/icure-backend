@@ -30,9 +30,7 @@ data class EntityTemplateDto(
         var entityType: String? = null,
         var subType: String? = null,
         var isDefaultTemplate: Boolean? = null,
-        var entity: List<Map<String, Any>> = listOf(),
-
-        override val _type: String = EntityTemplateDto::javaClass.name
+        var entity: List<Map<String, Any>> = listOf()
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

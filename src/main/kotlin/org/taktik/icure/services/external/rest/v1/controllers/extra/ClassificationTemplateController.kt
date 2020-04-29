@@ -79,7 +79,7 @@ class ClassificationTemplateController(private val mapper: MapperFacade,
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationTemplateLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
-        return elementList.map { mapper.map(it, ClassificationDto::class.java) }.injectReactorContext()
+        return elementList.map { mapper.map(it, ClassificationTemplateDto::class.java) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete classification Templates.", description = "Response is a set containing the ID's of deleted classification Templates.")

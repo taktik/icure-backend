@@ -47,6 +47,7 @@ import org.taktik.icure.dao.replicator.GroupDBUrl
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
+import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.properties.TwilioProperties
 import org.taktik.icure.security.database.DatabaseUserDetails
 import org.taktik.icure.services.external.rest.v1.dto.*
@@ -114,7 +115,7 @@ class UserController(private val mapper: MapperFacade,
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(paginationOffset)
 
-        PaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
+        allUsers.paginatedList<User, UserDto>(mapper, realLimit)
     }
 
     @Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
@@ -128,17 +129,14 @@ class UserController(private val mapper: MapperFacade,
         val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
         val allUsers = userLogic.listUsers(groupId, paginationOffset)
-        PaginatedList(allUsers.paginatedList<User, UserDto>(mapper, realLimit))
+        allUsers.paginatedList<User, UserDto>(mapper, realLimit)
     }
 
     @Operation(summary = "Create a user", description = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
     @PostMapping
     fun createUser(@RequestBody userDto: UserDto) = mono {
-        //Sanitize group
-        userDto.groupId = null
-
         val user = try {
-            userLogic.createUser(mapper.map(userDto, User::class.java))
+            userLogic.createUser(mapper.map(userDto.copy(groupId = null), User::class.java))
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -152,11 +150,8 @@ class UserController(private val mapper: MapperFacade,
     fun createUserInGroup(
             @PathVariable groupId: String,
             @RequestBody userDto: UserDto) = mono {
-        //Sanitize group
-        userDto.groupId = null
-
         val user = try {
-            userLogic.createUser(groupId, mapper.map(userDto, User::class.java))
+            userLogic.createUser(groupId, mapper.map(userDto.copy(groupId = null), User::class.java))
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -171,9 +166,7 @@ class UserController(private val mapper: MapperFacade,
             @PathVariable groupId: String,
             @RequestBody userDto: UserDto) = mono {
         //Sanitize group
-        userDto.groupId = null
-
-        userLogic.modifyUser(groupId, mapper.map(userDto, User::class.java))
+        userLogic.modifyUser(groupId, mapper.map(userDto.copy(groupId = null), User::class.java))
         val modifiedUser = userLogic.getUser(userDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
 
@@ -230,9 +223,7 @@ class UserController(private val mapper: MapperFacade,
     @PutMapping
     fun modifyUser(@RequestBody userDto: UserDto) = mono {
         //Sanitize group
-        userDto.groupId = null
-
-        userLogic.modifyUser(mapper.map(userDto, User::class.java))
+        userLogic.modifyUser(mapper.map(userDto.copy(groupId = null), User::class.java))
         val modifiedUser = userLogic.getUser(userDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
 
@@ -244,8 +235,7 @@ class UserController(private val mapper: MapperFacade,
     fun assignHealthcareParty(@PathVariable healthcarePartyId: String) = mono {
         val modifiedUser = userLogic.getUser(sessionLogic.getCurrentUserId())
         modifiedUser?.let {
-            modifiedUser.healthcarePartyId = healthcarePartyId
-            userLogic.save(modifiedUser)
+            userLogic.save(modifiedUser.copy(healthcarePartyId = healthcarePartyId))
 
             mapper.map(modifiedUser, UserDto::class.java)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
@@ -256,7 +246,7 @@ class UserController(private val mapper: MapperFacade,
     fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyDto>?) = mono {
         val user = userLogic.getUser(userId)
         user?.let {
-            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, Property::class.java) }
+            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> mapper.map(p, PropertyStub::class.java) }
                     ?: listOf())
             if (modifiedUser == null) {
                 logger.error("Modify a User property failed.")

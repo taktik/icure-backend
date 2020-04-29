@@ -84,9 +84,7 @@ data class HealthcarePartyDto(
         // the key encrypted using delegate's public key.
         override val hcPartyKeys: Map<String, Array<String>> = mapOf(),
         override val privateKeyShamirPartitions: Map<String, String> = mapOf(), //Format is hcpId of key that has been partitionned : "threshold|partition in hex"
-        override val publicKey: String? = null,
-
-        override val _type: String = HealthcarePartyDto::javaClass.name
+        override val publicKey: String? = null
 ) : StoredDocumentDto, NamedDto, PersonDto, CryptoActorDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)

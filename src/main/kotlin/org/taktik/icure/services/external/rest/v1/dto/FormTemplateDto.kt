@@ -50,9 +50,7 @@ data class FormTemplateDto(
         val mediumReport: String? = null,
         val longReport: String? = null,
         val reports: Set<String> = setOf(),
-        val layoutAttachmentId: String? = null,
-
-        override val _type: String = FormTemplateDto::javaClass.name //userId
+        val layoutAttachmentId: String? = null
 ) : StoredDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
