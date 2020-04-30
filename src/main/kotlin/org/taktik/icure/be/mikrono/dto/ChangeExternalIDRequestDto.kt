@@ -15,30 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.mikrono.dto
 
-package org.taktik.icure.dao.impl.keymanagers;
+import java.io.Serializable
 
-
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator;
-import org.taktik.icure.entities.base.Identifiable;
-
-
-public class IdentifiableKeyManager<T extends Identifiable<Integer>> implements KeyManager<T, Integer> {
-	private final IDGenerator idGenerator;
-
-    public IdentifiableKeyManager(IDGenerator idGenerator) {
-		this.idGenerator = idGenerator;
-	}
-
-	@Override
-	public void setNewKey(T entity, String sequenceName) {
-		if (entity.getId() == null) {
-			entity.setId(idGenerator.incrementAndGet(sequenceName));
-		}
-	}
-
-	@Override
-	public Integer getKey(T entity) {
-		return entity.getId();
-	}
-}
+class ChangeExternalIDRequestDto(var ids: Map<String, String>? = null) : Serializable

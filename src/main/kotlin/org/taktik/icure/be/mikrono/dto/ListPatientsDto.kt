@@ -15,21 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.mikrono.dto
 
-package org.taktik.icure.be.mikrono.dto;
+import java.io.Serializable
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+class ListPatientsDto : Serializable {
+    var patients: List<String>? = null
 
-public class ChangeExternalIDReplyDto implements Serializable {
-	List<String> errors;
-
-	public List<String> getErrors() {
-		return errors;
-	}
-
-	public void setErrors(List<String> errors) {
-		this.errors = errors;
-	}
 }

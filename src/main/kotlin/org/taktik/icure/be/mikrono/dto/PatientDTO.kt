@@ -15,23 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.mikrono.dto
 
-package org.taktik.icure.be.mikrono.dto;
+import org.taktik.icure.be.mikrono.dto.kmehr.Person
+import java.io.Serializable
 
-import java.io.Serializable;
-import java.util.List;
+/**
+ * Created by aduchate on 16/12/11, 13:57
+ */
+class PatientDTO : Serializable {
+    var doctorId: Long? = null
+    var patient: Person? = null
+    var externalId: String? = null
 
-public class ListPatientsDto implements Serializable {
-	List<String> patients;
-
-	public ListPatientsDto() {
-	}
-
-	public List<String> getPatients() {
-		return patients;
-	}
-
-	public void setPatients(List<String> patients) {
-		this.patients = patients;
-	}
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }

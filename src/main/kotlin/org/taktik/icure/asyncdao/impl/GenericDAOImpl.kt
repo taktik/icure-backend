@@ -48,7 +48,6 @@ import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.dao.impl.keymanagers.UniversallyUniquelyIdentifiableKeyManager
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
@@ -61,7 +60,6 @@ import java.util.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator, protected val mapper: MapperFacade) : GenericDAO<T> {
-    protected val keyManager = UniversallyUniquelyIdentifiableKeyManager<T>(idGenerator)
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override suspend fun contains(dbInstanceUrl: URI, groupId: String, id: String): Boolean {
@@ -150,23 +148,6 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it); it }
     }
 
-    override fun newInstance(): T {
-        // Instantiate new entity
-        val entity: T
-        try {
-            entity = entityClass.newInstance()
-        } catch (e: InstantiationException) {
-            throw RuntimeException("Could not instantiate entity of class " + entityClass.name, e)
-        } catch (e: IllegalAccessException) {
-            throw RuntimeException("Could not instantiate entity of class " + entityClass.name, e)
-        }
-
-        // Set new key
-        keyManager.setNewKey(entity, entityClass.simpleName)
-
-        return entity
-    }
-
     override suspend fun create(dbInstanceUrl: URI, groupId: String, entity: T): T? {
         return save(dbInstanceUrl, groupId, true, entity)
     }
@@ -184,17 +165,8 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
 
         beforeSave(dbInstanceUrl, groupId, entity)
 
-        // Check if key is missing and if this is a new entity
-        val missingKey = entity.id == null
-
-        // Add new key if missing
-        if (missingKey) {
-            keyManager.setNewKey(entity, entityClass.simpleName)
-            newEntity = true
-        } else {
-            if (newEntity == null) {
-                newEntity = entity.rev == null
-            }
+        if (newEntity == null) {
+            newEntity = entity.rev == null
         }
 
         return if (newEntity) {

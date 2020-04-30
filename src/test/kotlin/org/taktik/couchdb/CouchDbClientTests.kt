@@ -52,7 +52,7 @@ class CouchDbClientTests {
         }
         // Wait a bit before updating DB
         delay(3000)
-        val tarifications = List(testSize) { Tarification("test", UUID.randomUUID().toString(), "test") }
+        val tarifications = List(testSize) { Tarification.from("test", UUID.randomUUID().toString(), "test") }
         val createdTarifications = client.bulkUpdate(tarifications).toList()
         val changes = deferredChanges.await()
         assertEquals(createdTarifications.size, changes.size)
@@ -162,7 +162,7 @@ class CouchDbClientTests {
     @Test
     fun testClientCreateAndGet() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification("test", randomCode, "test")
+        val toCreate = Tarification.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
@@ -176,15 +176,14 @@ class CouchDbClientTests {
     @Test
     fun testClientUpdate() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification("test", randomCode, "test")
+        val toCreate = Tarification.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
         assertNotNull(created.rev)
         // update code
         val anotherRandomCode = UUID.randomUUID().toString()
-        created.code = anotherRandomCode
-        val updated = client.update(created)
+        val updated = client.update(created.copy(code = anotherRandomCode))
         assertEquals(created.id, updated.id)
         assertEquals(anotherRandomCode, updated.code)
         assertNotEquals(created.rev, updated.rev)
@@ -197,15 +196,14 @@ class CouchDbClientTests {
     @Test(expected = CouchDbException::class)
     fun testClientUpdateOutdated() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification("test", randomCode, "test")
+        val toCreate = Tarification.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
         assertNotNull(created.rev)
         // update code
         val anotherRandomCode = UUID.randomUUID().toString()
-        created.code = anotherRandomCode
-        val updated = client.update(created)
+        val updated = client.update(created.copy(code = anotherRandomCode))
         assertEquals(created.id, updated.id)
         assertEquals(anotherRandomCode, updated.code)
         assertNotEquals(created.rev, updated.rev)
@@ -221,7 +219,7 @@ class CouchDbClientTests {
     @Test
     fun testClientDelete() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification("test", randomCode, "test")
+        val toCreate = Tarification.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
@@ -250,7 +248,7 @@ class CouchDbClientTests {
     @Test
     fun testClientBulkUpdate() = runBlocking {
         val testSize = 100
-        val tarifications = List(testSize) { Tarification("test", UUID.randomUUID().toString(), "test") }
+        val tarifications = List(testSize) { Tarification.from("test", UUID.randomUUID().toString(), "test") }
         val updateResult = client.bulkUpdate(tarifications).toList()
         assertEquals(testSize, updateResult.size)
         assertTrue(updateResult.all { it.error == null })

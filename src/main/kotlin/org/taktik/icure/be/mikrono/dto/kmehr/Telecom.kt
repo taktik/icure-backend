@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /*
  * Copyright (c) 2010. Taktik SA.
  *
@@ -34,12 +33,9 @@
  * You should have received a copy of the GNU General Public License
  * along with JoepieViewer.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.mikrono.dto.kmehr
 
-
-package org.taktik.icure.be.mikrono.dto.kmehr;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,60 +44,36 @@ import java.util.List;
  * Time: 15:34:03
  * To change this template use File | Settings | File Templates.
  */
-public class Telecom extends KmehrElement {
-    String location;
-    String type;
-    String address;
+class Telecom : KmehrElement {
+    var location: String? = null
+    var type: String? = null
+    var address: String? = null
 
-    public Telecom() {
+    constructor() {}
+    constructor(address: String?, location: String?, type: String?) {
+        this.location = location
+        this.type = type
+        this.address = address
     }
 
-    public Telecom(String address, String location, String type) {
-        this.location = location;
-        this.type = type;
-        this.address = address;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public List<String> getTypes() {
-        List<String> res = super.getTypes();
-
-        if (res == null && type == null && location == null) {
-            return res;
+    override var types: MutableList<String?>?
+        get() {
+            var res = super.types
+            if (res == null && type == null && location == null) {
+                return res
+            }
+            if (res == null) {
+                res = ArrayList()
+            }
+            if (location != null) {
+                res.add("CD-ADDRESS:$location")
+            }
+            if (type != null) {
+                res.add("CD-TELECOM:$type")
+            }
+            return res
         }
-        if (res == null) {
-            res = new ArrayList<>();
+        set(types) {
+            super.types = types
         }
-
-        if (location != null) {
-            res.add("CD-ADDRESS:" + location);
-        }
-        if (type != null) {
-            res.add("CD-TELECOM:" + type);
-        }
-        return res;
-    }
 }

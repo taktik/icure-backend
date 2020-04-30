@@ -48,6 +48,7 @@ data class PropertyType(
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
         @JsonProperty("java_type") override val _type: String = PropertyType::javaClass.name
 ) : StoredDocument {
+    constructor(type: TypedValuesType, scope: PropertyTypeScope, identifier: String) : this(id = identifier, type = type, scope = scope, identifier = identifier)
     companion object : DynamicInitializer<PropertyType>
 
     fun merge(other: PropertyType) = PropertyType(args = this.solveConflictsWith(other))

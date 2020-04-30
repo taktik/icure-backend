@@ -118,9 +118,8 @@ class MikronoController(private val mapper: MapperFacade,
             val token = uuidGenerator.newGUID().toString()
             val uu = userLogic.save(u.copy(applicationTokens = u.applicationTokens + ("MIKRONO" to token))) ?: u
 
-            val mikronoServerUrl = mikronoLogic.getMikronoServer(credentials.serverUrl)
-            var mikronoToken: String? = mikronoLogic.register(mikronoServerUrl, u.id, token)
-                    ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot obtain mikrono token")
+            val mikronoServerUrl = mikronoLogic.getMikronoServer(credentials.serverUrl)?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot obtain mikrono server url")
+            var mikronoToken = mikronoLogic.register(mikronoServerUrl, u.id, token) ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot obtain mikrono token")
 
             mikronoToken = mikronoLogic.getPassword(mikronoToken)
 
@@ -219,7 +218,7 @@ class MikronoController(private val mapper: MapperFacade,
         val loggedMikronoPassword = loggedUser.properties.find { p -> p.type?.identifier == "org.taktik.icure.be.plugins.mikrono.password" }?.typedValue?.stringValue
 
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
-            mikronoLogic.createAppointmentTypes(null, loggedMikronoUser, loggedMikronoPassword, appointmentTypes)
+            mikronoLogic.createAppointmentTypes(null, loggedMikronoUser, loggedMikronoPassword, appointmentTypes ?: listOf())
         } else throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Mikrono username/password for user")
     }
 

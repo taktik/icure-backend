@@ -48,13 +48,6 @@ interface LookupDAO<T : Identifiable<String>> {
     suspend fun get(dbInstanceUrl: URI, groupId:String, id: String, rev: String?, vararg options: Option): T?
 
     /**
-     * Create new instance of entity and generate a new key for it
-     *
-     * @return The new instance of entity
-     */
-    fun newInstance(): T
-
-    /**
      * Save entity and indicate it is a new entity
      *
      * @param dbInstanceUrl URI of the couchdb cluster

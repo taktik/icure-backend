@@ -15,29 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.mikrono.dto
 
-package org.taktik.icure.services.external.rest.propertyeditors;
+import java.io.Serializable
 
-import org.taktik.icure.services.external.rest.v1.dto.embed.FilterType;
-
-import java.beans.PropertyEditorSupport;
-
-public class FilterTypePropertyEditor extends PropertyEditorSupport {
-
-	@Override
-	public String getAsText() {
-		String text;
-		Object value = getValue();
-		if (value != null && value instanceof FilterType) {
-			text = ((FilterType) value).value();
-		} else {
-			text = "";
-		}
-		return text;
-	}
-
-	@Override
-	public void setAsText(String text) throws IllegalArgumentException {
-		super.setValue(FilterType.fromValue(text));
-	}
-}
+class ChangeExternalIDReplyDto(var errors: List<String>? = null) : Serializable

@@ -104,7 +104,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
                         currentCachedIndex++
                     }
                     // We are finally on [e], cache and emit it, and process next flow element
-                    val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(e))
+                    val fullId = getFullId(dbInstanceUrl, groupId, e.id)
                     log.debug("Cache SAVE = {}, {} - {}", fullId, e.id, e.rev)
                     cache.put(fullId, e)
 
@@ -162,7 +162,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
     }
 
     open suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: T) {
-        val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
+        val fullId = getFullId(dbInstanceUrl, groupId, entity.id)
         log.debug("Cache EVICT= {}", fullId)
         cache.evict(fullId)
     }
@@ -193,13 +193,13 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         try {
             savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity) // TODO MB : the saved entity should have the rev
         } catch (e: UpdateConflictException) {
-            val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
+            val fullId = getFullId(dbInstanceUrl, groupId, entity.id)
             log.info("Cache EVICT= {}", fullId)
             cache.evict(fullId)
             throw e
         }
         val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
-       putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
+       putInCache(dbInstanceUrl, groupId, savedEntity.id, updatedEntity)
         return entity
     }
 
@@ -243,14 +243,14 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             super.save(dbInstanceUrl, groupId, newEntity, entities)
         } catch (e: UpdateConflictException) {
             for (entity in entities) {
-                val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
+                val fullId = getFullId(dbInstanceUrl, groupId, entity.id)
                 log.debug("Cache EVICT= {}", fullId)
                 cache.evict(fullId)
             }
             throw e
         } catch (e: BulkUpdateConflictException) {
             for (entity in entities) {
-                val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
+                val fullId = getFullId(dbInstanceUrl, groupId, entity.id)
                 log.debug("Cache EVICT= {}", fullId)
                 cache.evict(fullId)
             }
@@ -258,7 +258,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         }
 
         return savedEntities.onEach { entity ->
-            putInCache(dbInstanceUrl, groupId, keyManager.getKey(entity), entity)
+            putInCache(dbInstanceUrl, groupId, entity.id, entity)
         }
     }
 

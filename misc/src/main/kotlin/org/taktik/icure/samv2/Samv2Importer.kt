@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.taktik.icure.be.samv2.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2.entities.ExportActualMedicines
 import org.taktik.icure.be.samv2.entities.ExportReimbursements
@@ -32,6 +33,7 @@ import kotlinx.coroutines.runBlocking
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.samv2.embed.AmppComponent
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
@@ -56,6 +58,7 @@ fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : Comm
     )
 }
 
+@ExperimentalCoroutinesApi
 @Suppress("NestedLambdaShadowedImplicitParameter")
 class Samv2Import : CliktCommand() {
     val samv2url: String by option(help="The url of the zip file").prompt("Samv2 file url")
@@ -157,18 +160,15 @@ class Samv2Import : CliktCommand() {
 
         val ampDAO = AmpDAOImpl(couchDbProperties, couchDbDispatcher , UUIDGenerator())
         HashSet(ampDAO.getAllIds().toList()).chunked(100).forEach { ids ->
-            ampDAO.save(ampDAO.list(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
-                var shouldAdd = false
-                amp.ampps.flatMap { it.dmpps ?: listOf() }.filterNotNull().forEach { dmpp: Dmpp ->
+            ampDAO.save(ampDAO.list(ids).fold(listOf<Amp>(), operation = { acc, amp ->
+                val ampps = amp.ampps.map { it.copy(dmpps = it.dmpps.map { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let {
                         if (dmpp.reimbursements != it) {
-                            dmpp.reimbursements = it
-                            shouldAdd = true
-                        }
-                    }
-                }
-                if (shouldAdd) acc.add(amp)
-                acc
+                            dmpp.copy(reimbursements = it)
+                        } else dmpp
+                    } ?: dmpp
+                })}
+                if (ampps != amp.ampps) acc + amp.copy(ampps = ampps) else acc
             }).asFlow())
         }
     }
@@ -191,6 +191,7 @@ class Samv2Import : CliktCommand() {
                 val id = "VMPGROUP:$code:$from".md5()
 
                 VmpGroup(
+                        id = id,
                         from = from,
                         to = to,
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -201,17 +202,14 @@ class Samv2Import : CliktCommand() {
                         noSwitchReason = d.noSwitchReason?.let { reason ->
                             NoSwitchReason(reason.code, reason.description?.let { SamText(it.fr, it.nl, it.de, it.en) })
                         }
-                ).apply {
-                    this.id = id
-                }.let { vmpg ->
+                ).let { vmpg ->
                     if (!currentVmpGroups.contains(id)) {
                         vmpGroupDAO.save(vmpg)
                     } else if (force) {
                         val prev = vmpGroupDAO.get(vmpg.id)
                         if (prev != vmpg) {
-                            vmpGroupDAO.update(vmpg.apply { this.rev = prev?.rev })
-                        }
-                        vmpg
+                            vmpGroupDAO.update(vmpg.copy(rev = prev?.rev ))
+                        } else vmpg
                     } else vmpg
                 }
             }.maxBy { it?.to ?: Long.MAX_VALUE }?.let {
@@ -231,7 +229,7 @@ class Samv2Import : CliktCommand() {
                         from = from,
                         to = to,
                         code = code,
-                        vmpGroup = d.vmpGroup?.let { VmpGroupStub(id = vmpGroupIds[d.vmpGroup.code], code = it.code.toString(), name = it.datas?.maxBy { c -> c.from?.toGregorianCalendar()?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
+                        vmpGroup = d.vmpGroup?.let { VmpGroupStub(id = vmpGroupIds[d.vmpGroup.code]!!, code = it.code.toString(), name = it.datas?.maxBy { c -> c.from?.toGregorianCalendar()?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         abbreviation = d.abbreviation?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.datas?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }),
@@ -241,10 +239,10 @@ class Samv2Import : CliktCommand() {
                                 VmpComponent(
                                         code = vmpc.code.toString(),
                                         virtualForm = comp.virtualForm?.let { virtualForm ->
-                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForms?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         },
                                         routeOfAdministrations = comp.routeOfAdministrations?.map { roa ->
-                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         phaseNumber = comp.phaseNumber,
                                         name = comp.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -286,7 +284,7 @@ class Samv2Import : CliktCommand() {
                     } else if (force) {
                         val prev = vmpDAO.get(vmp.id)
                         if(prev != vmp) {
-                            vmpDAO.update(vmp.apply {this.rev=prev?.rev})
+                            vmpDAO.update(vmp.copy(rev = prev?.rev))
                         }
                         vmp
                     } else vmp
@@ -385,7 +383,7 @@ class Samv2Import : CliktCommand() {
                                                         from = it.from?.toGregorianCalendar()?.timeInMillis,
                                                         to = it.to?.toGregorianCalendar()?.timeInMillis
                                          ) } } ?: listOf(),
-                                        dmpps = ampp.dmpps?.mapNotNull { dmpp ->
+                                        dmpps = ampp.dmpps.mapNotNull { dmpp ->
                                             dmpp.datas.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
                                             Dmpp( from = it.from?.toGregorianCalendar()?.timeInMillis,
                                                     to = it.to?.toGregorianCalendar()?.timeInMillis,
@@ -407,10 +405,10 @@ class Samv2Import : CliktCommand() {
                             ampc?.datas?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { comp ->
                                 AmpComponent(
                                         pharmaceuticalForms = comp.pharmaceuticalForms?.map { pharmForm ->
-                                            PharmaceuticalForm( pharmForm.code, pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForms?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            PharmaceuticalForm( pharmForm.code, pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForms?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         routeOfAdministrations = comp.routeOfAdministrations?.map { roa ->
-                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoutes?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         dividable = comp.dividable,
                                         scored = comp.scored,
@@ -460,12 +458,12 @@ class Samv2Import : CliktCommand() {
                     if (!currentAmps.contains(id)) {
                         ampDAO.save(amp)
                     } else if (force) {
-                        val prev = ampDAO.get(amp.id)
-                        if (amp.ampps.all { it.dmpps?.all { it?.reimbursements == null } != false }) {
-                            prev?.ampps?.forEach { it.dmpps?.forEach { it?.reimbursements = null } }
-                        }
+                        val prev =
+                        if (amp.ampps.all { it.dmpps.all { it.reimbursements == null } }) {
+                            ampDAO.get(amp.id)?.let { it.copy(ampps = it.ampps.map { it.copy(dmpps = it.dmpps.map { it.copy(reimbursements = null)})})}
+                        } else ampDAO.get(amp.id)
                         if(prev != amp) {
-                            ampDAO.update(amp.apply { this.rev = prev?.rev })
+                            ampDAO.update(amp.copy( rev = prev?.rev ))
                         }
                         amp
                     } else amp

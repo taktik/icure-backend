@@ -15,23 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.taktik.icure.be.mikrono.dto
 
-package org.taktik.icure.applications.utils;
+import org.taktik.icure.entities.Patient
 
-public class ProcessInfo {
-	private int pid;
-	private String command;
-
-	public ProcessInfo(int pid, String command) {
-		this.pid = pid;
-		this.command = command;
-	}
-
-	public int getPid() {
-		return pid;
-	}
-
-	public String getCommand() {
-		return command;
-	}
-}
+class MikronoSynchronizationResult(//In ms
+        var lastAccessIcure: Long, var patients: List<Patient>)

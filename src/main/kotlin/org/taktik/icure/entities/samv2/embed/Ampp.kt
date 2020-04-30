@@ -36,6 +36,6 @@ data class Ampp(
         val pricingInformationDecisionDate: Long? = null,
         val components: List<AmppComponent?>? = null,
         val commercializations: List<Commercialization>? = null,
-        val dmpps: List<Dmpp>? = null,
+        val dmpps: List<Dmpp> = listOf(),
         val vaccineIndicationCodes: List<String>? = null
 ) : DataPeriod

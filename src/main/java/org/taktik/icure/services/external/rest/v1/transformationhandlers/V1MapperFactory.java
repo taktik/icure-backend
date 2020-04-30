@@ -139,31 +139,6 @@ public class V1MapperFactory {
 			}
 		});
 
-		converterFactory.registerConverter(new CustomConverter<CodeDto,Code>() {
-			@Override
-			public Code convert(CodeDto source, Type<? extends Code> destinationType, MappingContext mappingContext) {
-				String defVersion =  Code.versionsMap.get(source.getType());
-				Code c = new Code(source.getType(), source.getCode(), source.getVersion() != null ? source.getVersion() : defVersion != null ? defVersion : "1");
-
-				if (source.getId() != null) { c.setId(source.getId()); }
-				if (source.getFlags() != null) { c.setFlags(source.getFlags().stream().map(i->mapperFacade.map(i, CodeFlag.class)).collect(Collectors.toSet())); }
-
-				c.setLinks(source.getLinks());
-				c.setLabel(source.getLabel());
-				c.setLevel(source.getLevel());
-				c.setRegions(source.getRegions());
-				c.setSearchTerms(source.getSearchTerms());
-				c.setDeletionDate(source.getDeletionDate());
-				c.setRev(source.getRev());
-				c.setAppendices(source.getAppendices());
-				c.setDisabled(source.isDisabled());
-				c.setQualifiedLinks(source.getQualifiedLinks());
-				c.setPeriodicity(source.getPeriodicity());
-
-				return c;
-			}
-		});
-
 
 		return factory.getMapperFacade();
     }
