@@ -214,17 +214,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
         var pharmaceuticalPrescriptions = emptyList<Pair<Service,Contact>>()
 		val specialPrescriptions = mutableListOf<TransactionType>()
 
-		contacts.forEachIndexed { index, encContact ->
-			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
-			val toBeDecryptedServices = encContact.services.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }
+        val contactDtos = contacts.map { mapper!!.map(it, ContactDto::class.java) }
+        val decryptedContacts = decryptor?.decrypt(contactDtos, ContactDto::class.java)?.get()?.map { mapper!!.map(it, Contact::class.java) } ?: contacts;
 
-            val contact = if (decryptor != null && (toBeDecryptedServices.isNotEmpty() || encContact.encryptedSelf?.length ?: 0 > 0)) {
-                val ctcDto = mapper!!.map(encContact, ContactDto::class.java)
-                ctcDto.services = toBeDecryptedServices.map { mapper!!.map(it, ServiceDto::class.java) }
-                decryptor.decrypt(listOf(ctcDto), ContactDto::class.java).get().firstOrNull()?.let { mapper!!.map(it, Contact::class.java) } ?: encContact
-            } else {
-                encContact
-            }
+        decryptedContacts.forEachIndexed { index, contact ->
+			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
 
             // newestServicesById should point to decrypted services
             contact.services.toList().forEach {
@@ -1080,7 +1074,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
                 )
                 && (
                         // is newest version: there is no history in PMF
-                        newestServicesById[svc.id] == svc
+                        newestServicesById[svc.id] != null
                 )
 			}
 		} else {
