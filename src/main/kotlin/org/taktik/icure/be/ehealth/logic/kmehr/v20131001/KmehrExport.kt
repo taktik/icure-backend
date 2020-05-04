@@ -150,7 +150,7 @@ open class KmehrExport {
             p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft!!.version; sl = "${config.soft!!.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
-            sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN}}
+            sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { try { CDSEXvalues.fromValue(it.name) } catch(e:Exception) { CDSEXvalues.UNKNOWN } } ?: CDSEXvalues.UNKNOWN}}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             recorddatetime = makeXGC(p.modified, true)
         }
