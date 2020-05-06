@@ -189,22 +189,22 @@ class PatientLogicImpl(
             patientsListToSort = patientsListToSort.sortedWith(
                     kotlin.Comparator { a, b ->
                         try {
-                            val ap = pub.getProperty(a, sort) as Comparable<*>
-                            val bp = pub.getProperty(b, sort) as Comparable<*>
+                            val ap = pub.getProperty(a, sort) as Comparable<*>?
+                            val bp = pub.getProperty(b, sort) as Comparable<*>?
                             if (ap is String && bp is String) {
                                 if (desc != null && desc) {
                                     StringUtils.compareIgnoreCase(bp, ap)
                                 } else {
                                     StringUtils.compareIgnoreCase(ap, bp)
                                 }
-                            } else if (desc != null && desc) {
-                                bp as Comparable<Comparable<*>>
-                                ap as Comparable<Comparable<*>>
-                                ObjectUtils.compare(bp, ap)
                             } else {
-                                bp as Comparable<Comparable<*>>
-                                ap as Comparable<Comparable<*>>
-                                ObjectUtils.compare(ap, bp)
+                                ap as Comparable<Any>?
+                                bp as Comparable<Any>?
+                                if (desc != null && desc) {
+                                    ap?.let { bp?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                            } else {
+                                    bp?.let { ap?.compareTo(it) ?: 1 } ?: bp?.let { -1 } ?: 0
+                                }
                             }
                         } catch (e: Exception) {
                         }
@@ -331,6 +331,7 @@ class PatientLogicImpl(
 
     @Throws(MissingRequirementsException::class)
     override suspend fun createPatient(patient: Patient) = fix(patient) { patient ->
+        checkRequirements(patient)
         if (patient.preferredUserId != null && (patient.delegations == null || patient.delegations.isEmpty())) {
             patient.delegations = HashMap()
             val user: User? = userLogic.getUser(patient.preferredUserId as String) //TODO MB remove explicit cast when Patient is kotlinized
@@ -351,9 +352,7 @@ class PatientLogicImpl(
     override suspend fun modifyPatient(patient: Patient) = fix(patient) { patient ->
         log.debug("Modifying patient with id:" + patient.id)
         // checking requirements
-        if ((patient.firstName == null || patient.lastName == null) && patient.encryptedSelf == null) {
-            throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
-        }
+        checkRequirements(patient)
         try {
             updateEntities(setOf(patient)).collect()
             val modifiedPatient = getPatient(patient.id)
@@ -363,6 +362,22 @@ class PatientLogicImpl(
             }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid patient", e)
+        }
+    }
+
+    override fun createEntities(entities: Collection<Patient>): Flow<Patient> {
+        entities.forEach { checkRequirements(it) }
+        return super.createEntities(entities)
+    }
+
+    override fun updateEntities(entities: Collection<Patient>): Flow<Patient> {
+        entities.forEach { checkRequirements(it) }
+        return super.updateEntities(entities)
+    }
+
+    private fun checkRequirements(patient: Patient) {
+        if ((patient.firstName == null && patient.lastName == null) && patient.encryptedSelf == null && patient.deletionDate == null) {
+            throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
         }
     }
 
