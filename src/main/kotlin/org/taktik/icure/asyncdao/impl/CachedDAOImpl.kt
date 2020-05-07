@@ -190,18 +190,16 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
             getList(dbInstanceUrl, groupId, getAllIds(dbInstanceUrl, groupId))
 
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? {
-        var savedEntity: T? = entity
         try {
-            savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity) // TODO MB : the saved entity should have the rev
+            return super.save(dbInstanceUrl, groupId, newEntity, entity).also {
+                putInCache(dbInstanceUrl, groupId, keyManager.getKey(it), it)
+            }
         } catch (e: CouchDbException) {
             val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
             log.info("Cache EVICT= {}", fullId)
             cache.evict(fullId)
             throw e
         }
-        val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
-        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
-        return entity
     }
 
     override suspend fun remove(dbInstanceUrl: URI, groupId: String, entity: T): DocIdentifier {
