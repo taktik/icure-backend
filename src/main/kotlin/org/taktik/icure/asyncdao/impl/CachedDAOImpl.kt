@@ -25,6 +25,7 @@ import ma.glasnost.orika.MapperFacade
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
+import org.taktik.couchdb.CouchDbException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.dao.Option
 import org.taktik.icure.dao.impl.idgenerators.IDGenerator
@@ -156,9 +157,9 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         if (value != null) {
             log.debug("Cache SAVE = {}, {} - {}", fullId, value.id, value.rev)
         } else {
-            log.debug("Cache SAVE = {}, null placeholder", fullId)
+            log.debug("Cache EVICT= {}", fullId)
         }
-        value?.let { cache.put(fullId, value) }
+        value?.let { cache.put(fullId, value) } ?: cache.evict(fullId)
     }
 
     open suspend fun evictFromCache(dbInstanceUrl: URI, groupId: String, entity: T) {
@@ -192,14 +193,14 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
         var savedEntity: T? = entity
         try {
             savedEntity = super.save(dbInstanceUrl, groupId, newEntity, entity) // TODO MB : the saved entity should have the rev
-        } catch (e: UpdateConflictException) {
+        } catch (e: CouchDbException) {
             val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
             log.info("Cache EVICT= {}", fullId)
             cache.evict(fullId)
             throw e
         }
         val updatedEntity = get(dbInstanceUrl, groupId, savedEntity!!.id)
-       putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
+        putInCache(dbInstanceUrl, groupId, keyManager.getKey(savedEntity), updatedEntity)
         return entity
     }
 
@@ -241,14 +242,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
     override suspend fun <K : Collection<T>> save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entities: K): Flow<T> {
         val savedEntities = try {
             super.save(dbInstanceUrl, groupId, newEntity, entities)
-        } catch (e: UpdateConflictException) {
-            for (entity in entities) {
-                val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
-                log.debug("Cache EVICT= {}", fullId)
-                cache.evict(fullId)
-            }
-            throw e
-        } catch (e: BulkUpdateConflictException) {
+        } catch (e: CouchDbException) {
             for (entity in entities) {
                 val fullId = getFullId(dbInstanceUrl, groupId, keyManager.getKey(entity))
                 log.debug("Cache EVICT= {}", fullId)

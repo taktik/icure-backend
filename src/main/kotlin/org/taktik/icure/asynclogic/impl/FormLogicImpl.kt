@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.*
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.CouchDbException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
@@ -104,7 +105,7 @@ class FormLogicImpl(private val formDAO: FormDAO,
             }
             form.author = healthcarePartyId
             formDAO.save(dbInstanceUri, groupId, form)
-        } catch (e: UpdateConflictException) { //resolveConflict(form, e);
+        } catch (e: CouchDbException) { //resolveConflict(form, e);
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", form.javaClass.simpleName, form.id, form.rev)
             throw IllegalArgumentException("Invalid form", e)
         } catch (e: Exception) {
