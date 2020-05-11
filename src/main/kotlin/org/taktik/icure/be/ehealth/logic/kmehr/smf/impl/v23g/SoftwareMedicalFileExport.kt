@@ -61,6 +61,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeConstants
@@ -179,7 +180,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
         val toBeDecryptedHcElements = nonConfidentialHealthItems
 
         if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
-            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
+            val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get(60L, TimeUnit.SECONDS).map {mapper!!.map(it, HealthElement::class.java)}
             nonConfidentialHealthItems = nonConfidentialHealthItems?.map { if (toBeDecryptedHcElements.contains(it) == true) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
         }
 

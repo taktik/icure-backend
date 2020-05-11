@@ -49,6 +49,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
@@ -238,7 +239,7 @@ class SumehrExport : KmehrExport() {
 			val chunkedToBeDecryptedServices = toBeDecryptedServices?.chunked(50)
 
 			chunkedToBeDecryptedServices?.forEach { itt ->
-				val decryptedServicesChunk = decryptor.decrypt(itt?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get().map { mapper!!.map(it, Service::class.java) }
+				val decryptedServicesChunk = decryptor.decrypt(itt?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java).get(60L, TimeUnit.SECONDS).map { mapper!!.map(it, Service::class.java) }
 				decryptedServices.addAll(decryptedServicesChunk)
 			}
 
@@ -589,7 +590,7 @@ class SumehrExport : KmehrExport() {
 		val toBeDecryptedHcElements = nonConfidentialItems //Decrypt everything so that the frontend has a chance to fix the tags
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
-			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get().map {mapper!!.map(it, HealthElement::class.java)}
+			val decryptedHcElements = decryptor.decrypt(toBeDecryptedHcElements.map {mapper!!.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java).get(60L, TimeUnit.SECONDS).map {mapper!!.map(it, HealthElement::class.java)}
 			nonConfidentialItems = nonConfidentialItems?.map { if (toBeDecryptedHcElements.contains(it)) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
 		}
 
