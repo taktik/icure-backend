@@ -23,6 +23,7 @@ import org.taktik.icure.dao.GenericDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.samv2.SamVersion
 
 interface AmpDAO : GenericDAO<Amp> {
     fun findAmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Amp>
@@ -37,4 +38,5 @@ interface AmpDAO : GenericDAO<Amp> {
     fun listAmpIdsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): List<String>
     fun listAmpIdsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): List<String>
     fun listAmpIdsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): List<String>
+    fun getVersion(): SamVersion?
 }
