@@ -5,6 +5,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.samv2.SamVersion
 
 interface SamV2Logic {
     fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
@@ -28,4 +29,5 @@ interface SamV2Logic {
     fun listAmpIdsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): List<String>
     fun listAmpIdsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): List<String>
     fun listAmpIdsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): List<String>
+    fun getVersion(): SamVersion?
 }

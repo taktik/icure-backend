@@ -10,6 +10,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.samv2.SamVersion
 
 @Service
 class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO) : SamV2Logic {
@@ -59,6 +60,10 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: Vm
 
     override fun listAmpIdsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): List<String> {
         return ampDAO.listAmpIdsByVmpId(vmpId, paginationOffset)
+    }
+
+    override fun getVersion(): SamVersion? {
+        return ampDAO.getVersion()
     }
 
     override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp> {

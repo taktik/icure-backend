@@ -106,6 +106,7 @@ class Samv2v4Import : CliktCommand() {
         val updateExistingDocs = (update == "true" || update == "yes")
         val reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>> = HashMap()
         val vmps : MutableMap<String, VmpStub> = HashMap()
+        val vers = samv2url.replace(Regex("(.*/)?(.+?)-.+.zip"),"$2")
 
         URI(samv2url).toURL().openStream().let { zis ->
             val zip = ZipInputStream(zis)
@@ -130,6 +131,9 @@ class Samv2v4Import : CliktCommand() {
                 }
             }
         }
+
+        val samVersion = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2")
+        samVersion?.let { it.version = vers; couchdbConfig.update(it) } ?: couchdbConfig.create(SamVersion(vers).apply { id = "org.taktik.icure.samv2" })
     }
 
     private fun <E> retry(count: Int, executor: () -> E): E {
