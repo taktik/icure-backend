@@ -35,9 +35,9 @@ class Reimbursement(
         if (temporary != other.temporary) return false
         if (reference != other.reference) return false
         if (flatRateSystem != other.flatRateSystem) return false
-        if (reimbursementBasePrice != other.reimbursementBasePrice) return false
-        if (referenceBasePrice != other.referenceBasePrice) return false
-        if (copaymentSupplement != other.copaymentSupplement) return false
+        if (reimbursementBasePrice?.compareTo(other.reimbursementBasePrice) != 0 && reimbursementBasePrice != other.reimbursementBasePrice) return false
+        if (referenceBasePrice?.compareTo(other.referenceBasePrice) != 0 && referenceBasePrice != other.referenceBasePrice) return false
+        if (copaymentSupplement?.compareTo(other.copaymentSupplement) != 0 && copaymentSupplement != other.copaymentSupplement) return false
         if (pricingUnit != other.pricingUnit) return false
         if (pricingSlice != other.pricingSlice) return false
         if (reimbursementCriterion != other.reimbursementCriterion) return false
