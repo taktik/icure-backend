@@ -9,7 +9,7 @@ class Pricing(var quantity: BigDecimal? = null, var label: SamText? = null) {
 
         other as Pricing
 
-        if (quantity != other.quantity) return false
+        if (quantity?.compareTo(other.quantity) != 0 && quantity != other.quantity) return false
         if (label != other.label) return false
 
         return true

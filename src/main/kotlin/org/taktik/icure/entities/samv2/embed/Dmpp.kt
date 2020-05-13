@@ -1,11 +1,11 @@
 package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
-import java.math.BigDecimal
 
 class Dmpp(
         from: Long? = null,
         to: Long? = null,
+        var productId: String? = null,
         var deliveryEnvironment: DeliveryEnvironment? = null,
         var code: String? = null,
         var codeType: DmppCodeType? = null,
@@ -17,11 +17,10 @@ class Dmpp(
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is Dmpp) return false
         if (!super.equals(other)) return false
 
-        other as Dmpp
-
+        if (productId != other.productId) return false
         if (deliveryEnvironment != other.deliveryEnvironment) return false
         if (code != other.code) return false
         if (codeType != other.codeType) return false
@@ -36,6 +35,7 @@ class Dmpp(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + (productId?.hashCode() ?: 0)
         result = 31 * result + (deliveryEnvironment?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (codeType?.hashCode() ?: 0)
