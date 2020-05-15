@@ -16,5 +16,6 @@ interface GroupLogic {
     ): Group?
 
     suspend fun getGroup(groupId: String): Group?
+    suspend fun setPassword(groupId: String, password: String): Group?
     fun listGroups(): Flow<Group>
 }

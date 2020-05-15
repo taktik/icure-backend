@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.*
 import org.ektorp.UpdateConflictException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.taktik.couchdb.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.dao.Option
@@ -68,7 +69,7 @@ class DocumentLogicImpl(private val documentDAO: DocumentDAO, private val sessio
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         try {
             documentDAO.save(dbInstanceUri, groupId, document)
-        } catch (e: UpdateConflictException) {
+        } catch (e: CouchDbException) {
             logger.warn("Documents of class {} with id {} and rev {} could not be merged", document.javaClass.simpleName, document.id, document.rev)
             throw IllegalStateException(e)
         }

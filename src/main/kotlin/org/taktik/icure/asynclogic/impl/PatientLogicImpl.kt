@@ -332,6 +332,7 @@ class PatientLogicImpl(
 
     @Throws(MissingRequirementsException::class)
     override suspend fun createPatient(patient: Patient) = fix(patient) { patient ->
+        checkRequirements(patient)
         (if (patient.preferredUserId != null && (patient.delegations.isEmpty())) {
             userLogic.getUser(patient.preferredUserId)?.let { user ->
                 patient.copy(
@@ -351,13 +352,27 @@ class PatientLogicImpl(
     override suspend fun modifyPatient(patient: Patient) = fix(patient) { patient ->
         log.debug("Modifying patient with id:" + patient.id)
         // checking requirements
-        if ((patient.firstName == null || patient.lastName == null) && patient.encryptedSelf == null) {
-            throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
-        }
+        checkRequirements(patient)
         try {
             updateEntities(setOf(patient)).first().also { logPatient(it, "patient.modify.") }
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid patient", e)
+        }
+    }
+
+    override fun createEntities(entities: Collection<Patient>): Flow<Patient> {
+        entities.forEach { checkRequirements(it) }
+        return super.createEntities(entities)
+    }
+
+    override fun updateEntities(entities: Collection<Patient>): Flow<Patient> {
+        entities.forEach { checkRequirements(it) }
+        return super.updateEntities(entities)
+    }
+
+    private fun checkRequirements(patient: Patient) {
+        if ((patient.firstName == null && patient.lastName == null) && patient.encryptedSelf == null && patient.deletionDate == null) {
+            throw MissingRequirementsException("modifyPatient: Name, Last name  are required.")
         }
     }
 
