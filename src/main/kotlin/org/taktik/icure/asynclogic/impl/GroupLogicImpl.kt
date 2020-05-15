@@ -118,15 +118,14 @@ class GroupLogicImpl(private val httpClient: HttpClient,
         val groupIdUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
         val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupIdUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
         val userGroup = this.groupDAO.get(userGroupId)
-        if (userGroup == null || (userGroupId != ADMIN_GROUP && !userGroup.isSuperAdmin)) {
+        if (userGroup == null || (userGroupId != ADMIN_GROUP && !userGroup.superAdmin)) {
             throw IllegalAccessException("No registered super admin user")
         }
-        val group = groupDAO.get(groupId)
+        val group = groupDAO.get(groupId) ?: throw IllegalAccessException("Invalid group")
         if (group?.superGroup != userGroupId && group?.id != userGroupId) {
             throw IllegalAccessException("Super admin user has no right on this group")
         }
-        group.password = password
-        return groupDAO.save(group)
+        return groupDAO.save(group.copy(password = password))
     }
 
     companion object {

@@ -191,7 +191,7 @@ abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatc
 
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? {
         try {
-            return super.save(dbInstanceUrl, groupId, newEntity, entity).also {
+            return super.save(dbInstanceUrl, groupId, newEntity, entity)?.also {
                 putInCache(dbInstanceUrl, groupId, it.id, it)
             }
         } catch (e: CouchDbException) {
