@@ -91,7 +91,7 @@ class GroupLogicImpl(private val httpClient: HttpClient,
                 if (it.source != null && it.localTarget != null) {
                     val src = it.source
                     val dst = URIBuilder(server).setUserInfo(group.id, group.password).setPath("/"+paths[it.localTarget.ordinal]).build().toString()
-                    client.update(ReplicatorDocument("$id-${it.target}", null, src, dst))
+                    client.update(ReplicatorDocument("$id-${it.target?:it.localTarget}-${System.currentTimeMillis()}", null, src, dst))
                 }
             }
         }
