@@ -38,7 +38,7 @@ class GroupController(couchDbProperties: CouchDbProperties,
     @PostMapping("/{id}")
     fun createGroup(@Parameter(description="The id of the group, also used for subsequent authentication against the db (can only contain digits, letters, - and _)") @PathVariable id: String,
                     @Parameter(description="The name of the group") @RequestParam name: String,
-                    @Parameter(description="The password of the group, also used for subsequent authentication against the db (can only contain digits, letters, - and _)") @RequestHeader password: String,
+                    @Parameter(description="The password of the group (can only contain digits, letters, - and _)") @RequestHeader password: String,
                     @Parameter(description="The server on which the group dbs will be created") @RequestParam(required = false) server: String?,
                     @Parameter(description="The number of shards for patient and healthdata dbs : 3-8 is a recommended range of value") @RequestParam(required = false) q: Int?,
                     @Parameter(description="The number of replications for dbs : 3 is a recommended value") @RequestParam(required = false) n: Int?,
@@ -66,4 +66,9 @@ class GroupController(couchDbProperties: CouchDbProperties,
     @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
     @GetMapping
     fun listGroups() = groupLogic.listGroups().map { mapper.map(it, GroupDto::class.java) }.injectReactorContext()
+
+    @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
+    @PutMapping("/{id}/password")
+    fun setGroupPassword(@Parameter(description="The id of the group") @PathVariable id: String,
+                         @Parameter(description="The new password for the group (can only contain digits, letters, - and _)") @RequestHeader password: String) = mono { groupLogic.setPassword(id, password) }
 }

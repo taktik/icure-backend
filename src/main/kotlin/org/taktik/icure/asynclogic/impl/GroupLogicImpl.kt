@@ -17,16 +17,13 @@ import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.ICureLogic
-import org.taktik.icure.dao.replicator.Replicator
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.Replication
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.User
-import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
 import java.lang.IllegalArgumentException
 import java.net.URI
-import java.net.URISyntaxException
 
 @Service
 class GroupLogicImpl(private val httpClient: HttpClient,
@@ -109,6 +106,24 @@ class GroupLogicImpl(private val httpClient: HttpClient,
         val groupId = userDAO.getOnFallback(dbInstanceUri, groupUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
 
         emitAll(groupDAO.getAll().filter { it.superGroup == groupId  })
+    }
+
+    override suspend fun setPassword(groupId: String, password: String): Group? {
+        if (password != password.replace(Regex("[^a-zA-Z0-9_\\-]"), "")) {
+            throw IllegalArgumentException("Invalid password, must only contain characters of class [a-zA-Z0-9_-]")
+        }
+        val groupIdUserId = sessionLogic.getCurrentSessionContext().getGroupIdUserId()
+        val userGroupId = userDAO.getOnFallback(dbInstanceUri, groupIdUserId, false)?.groupId ?: throw IllegalAccessException("Invalid user, no group")
+        val userGroup = this.groupDAO.get(userGroupId)
+        if (userGroup == null || (userGroupId != ADMIN_GROUP && !userGroup.isSuperAdmin)) {
+            throw IllegalAccessException("No registered super admin user")
+        }
+        val group = groupDAO.get(groupId)
+        if (group?.superGroup != userGroupId && group?.id != userGroupId) {
+            throw IllegalAccessException("Super admin user has no right on this group")
+        }
+        group.password = password
+        return groupDAO.save(group)
     }
 
     companion object {
