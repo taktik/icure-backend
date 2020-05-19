@@ -234,7 +234,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 						var services: List<Service> = excludesServiceForPMF(contact.services.toList(), config)
 						val trn = this
 
-						var (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
+						val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
 							"labresult" -> Triple("labresult", "lab", false)
 							else -> {
                                 if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
