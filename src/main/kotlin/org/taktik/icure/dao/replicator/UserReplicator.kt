@@ -26,6 +26,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
 
     override suspend fun prepareReplication(client: Client, group: Group) = withContext(IO) {
         userDAO.initSystemDocumentIfAbsent(client)
+        userDAO.forceInitStandardDesignDocument(client, false)
     }
 
     override fun replicate(client: Client, group: Group, entityIds: Flow<IdAndRev>): Flow<IdAndRev> {
