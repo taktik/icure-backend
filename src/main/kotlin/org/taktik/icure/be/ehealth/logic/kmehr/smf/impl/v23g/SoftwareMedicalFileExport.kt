@@ -213,6 +213,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 		var documents = emptyList<Triple<String,Service,Contact>>()
         var pharmaceuticalPrescriptions = emptyList<Pair<Service,Contact>>()
 		val specialPrescriptions = mutableListOf<TransactionType>()
+        val summaries = mutableListOf<TransactionType>()
 
         val contactDtos = contacts.map { mapper!!.map(it, ContactDto::class.java) }
         val decryptedContacts = decryptor?.decrypt(contactDtos, ContactDto::class.java)?.get()?.map { mapper!!.map(it, Contact::class.java) } ?: contacts;
@@ -324,6 +325,10 @@ class SoftwareMedicalFileExport : KmehrExport() {
                             specialPrescriptions.add(makeNursePrescriptionTransaction(nurseService))
                         }
 
+                        contact.services.filter { s -> isSummary(s) }.forEach { summaryService ->
+                            summaries.add(makeSummaryTransaction(contact, summaryService))
+                        }
+
 						// services
                         if (exportAsDocument && services.size == 1) {
                             services[0].content.values.forEach { doc ->
@@ -349,8 +354,9 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                     forSeparateTransaction = true
                                 }
 
-                                if (!forSeparateTransaction) {
+                                forSeparateTransaction = forSeparateTransaction || isSummary(svc)
 
+                                if (!forSeparateTransaction) {
                                     var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
                                     val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
                                         if (it == "parameter") {
@@ -360,7 +366,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                             } //Change parameters to technicals if not real parameters
                                         } else it
                                     }
-
 
                                     var contents: List<ContentType> = svc.content.entries.flatMap {
                                         makeContent(it.key, it.value)?.let { c ->
@@ -556,6 +561,10 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			folder.transactions.add(it)
 		}
 
+        summaries.forEach {
+            folder.transactions.add(it)
+        }
+
 		renumberKmehrIds(folder)
 		return folder
 	}
@@ -671,6 +680,43 @@ class SoftwareMedicalFileExport : KmehrExport() {
             service.modified?.let {
                 recorddatetime = Utils.makeXGC(it, true)
             }
+        }
+    }
+
+    private fun isSummary(s: Service) = s.label == "Summary" && s.tags.find { t -> t.code == "summary" } != null
+    private fun makeSummaryTransaction(contact: Contact, service: Service): TransactionType {
+        val defaultLanguage = "fr";
+        fun getCompoundValueContent(service: Service, label: String) = service.content?.get(defaultLanguage)?.compoundValue?.firstOrNull { it.label == label }?.content?.get(defaultLanguage);
+        fun getCompoundValueTag(service: Service, label: String, tagType: String) = service.content?.get(defaultLanguage)?.compoundValue?.firstOrNull { it.label == label }?.tags?.find { it.type == tagType };
+
+        return TransactionType().apply {
+            val title = getCompoundValueContent(service, "SummaryTitle")
+            val content = getCompoundValueContent(service, "SummaryContent")
+            val cdMediaType = getCompoundValueTag(service, "SummaryContent", "CD-MEDIATYPE")
+            val mediaType = try {
+                CDMEDIATYPEvalues.fromValue(cdMediaType?.code)
+            } catch (ignored: IllegalArgumentException) {
+                null
+            }
+
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; value = "1" })
+            ids.add(IDKMEHR().apply { s = IDKMEHRschemes.LOCAL; sl = "MF-ID"; value = service.id })
+            cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; value = "note"; dn = title?.stringValue })
+            (service.modified ?: service.created)?.let {
+                date = makeXGC(it)
+                time = makeXGC(it, unsetMillis = true)
+            }
+            service.responsible?.let {
+                author = AuthorType().apply { hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(it)!!, emptyList())) }
+            }
+            service.created?.let {
+                recorddatetime = Utils.makeXGC(it)
+            }
+            isIscomplete = true
+            isIsvalidated = true
+
+            headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = mediaType; value = content?.stringValue?.toByteArray() })
+            headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.ISACHILDOF; url = makeLnkUrl(contact.id!!) })
         }
     }
 
