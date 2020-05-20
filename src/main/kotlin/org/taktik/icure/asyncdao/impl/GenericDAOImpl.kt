@@ -348,9 +348,12 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }.map { afterSave(dbInstanceUrl, groupId, it) })
     }
 
-    override suspend fun forceInitStandardDesignDocument(dbInstanceUrl: URI, groupId: String) {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)
-        val designDocId = NameConventions.designDocName(this.entityClass)
+    override suspend fun forceInitStandardDesignDocument(dbInstanceUrl: URI, groupId: String, updateIfExists: Boolean) {
+        forceInitStandardDesignDocument(couchDbDispatcher.getClient(dbInstanceUrl, groupId), updateIfExists)
+    }
+
+    override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
+            val designDocId = NameConventions.designDocName(this.entityClass)
         val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
             org.ektorp.support.DesignDocument(it.id).apply {
                 revision = it.rev
@@ -362,7 +365,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
         val generated = StdDesignDocumentFactory().generateFrom(this)
         val changed: Boolean = fromDatabase?.mergeWith(generated, true) ?: true
-        if (changed) {
+        if (changed && (updateIfExists || fromDatabase == null)) {
             client.update((fromDatabase ?: generated).let {
                 DesignDocument(
                         id = designDocId,

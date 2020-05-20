@@ -32,7 +32,7 @@ import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto
 import org.taktik.icure.utils.injectReactorContext
 
 @RestController
-@RequestMapping("/rest/v1/medicalLocation")
+@RequestMapping("/rest/v1/medicallocation")
 @Tag(name = "medicallocation")
 class MedicalLocationController(private val medicalLocationLogic: MedicalLocationLogic, private val mapper: MapperFacade) {
 
