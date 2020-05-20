@@ -236,7 +236,13 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 						val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
 							"labresult" -> Triple("labresult", "lab", false)
-							else -> Triple("contactreport", "parameter", false)
+							else -> {
+                                if (contact.tags?.any { it.type == "CD-TRANSACTION" && it.code == "labresult" } == true) {
+                                    Triple("labresult", "lab", true)
+                                } else {
+                                    Triple("contactreport", "parameter", false)
+                                }
+                            }
 						}
 
 						ids.add(idKmehr(startIndex))
@@ -324,109 +330,107 @@ class SoftwareMedicalFileExport : KmehrExport() {
                         }
 
 						// services
-
-						services.forEach { svc ->
-							var forSeparateTransaction = false
-
-                            // documents are in separate transaction in *MF
-							svc.content.values.find{ it.documentId != null }?.let {
-								documents = documents.plus(Triple(it.documentId!!, svc, contact))
-								forSeparateTransaction = true
-							}
-
-                            // prescriptions are in separate transaction in *MF
-                            // icure prescriptions have another tag (and in separate transaction in *MF)
-                            svc.tags.find{
-                                (it.type == "CD-ITEM" && it.code == "treatment")
-                                || (it.type == "ICURE" && it.code == "PRESC")
-                            }?.let {
-                                pharmaceuticalPrescriptions = pharmaceuticalPrescriptions.plus(Pair(svc, contact))
-                                forSeparateTransaction = true
+                        if (exportAsDocument && services.size == 1) {
+                            services[0].content.values.forEach { doc ->
+                                doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
                             }
+                        } else {
+                            services.forEach { svc ->
+                                var forSeparateTransaction = false
 
-                            forSeparateTransaction = forSeparateTransaction || isSummary(svc)
+                                // documents are in separate transaction in *MF
+                                svc.content.values.find { it.documentId != null }?.let {
+                                    documents = documents.plus(Triple(it.documentId!!, svc, contact))
+                                    forSeparateTransaction = true
+                                }
 
-                            if(!forSeparateTransaction) {
+                                // prescriptions are in separate transaction in *MF
+                                // icure prescriptions have another tag (and in separate transaction in *MF)
+                                svc.tags.find {
+                                    (it.type == "CD-ITEM" && it.code == "treatment")
+                                            || (it.type == "ICURE" && it.code == "PRESC")
+                                }?.let {
+                                    pharmaceuticalPrescriptions = pharmaceuticalPrescriptions.plus(Pair(svc, contact))
+                                    forSeparateTransaction = true
+                                }
 
-								var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
-								val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
-									if (it == "parameter") {
-										svc.content.let {
-											it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" }
-													?: "clinical" // FIXME: change to clinical instead of technical because medinote doesnt support technical
-										} //Change parameters to technicals if not real parameters
-									} else it
-								}
+                                forSeparateTransaction = forSeparateTransaction || isSummary(svc)
 
-
-								var contents: List<ContentType> = svc.content.entries.flatMap {
-									makeContent(it.key, it.value)?.let { c ->
-										listOf(c.apply {
-											if (svcCdItem == null && texts.size > 0) {
-                                                if(svc.label != null) {
-                                                    texts.first().value = "${svc.label}: ${texts.first().value}"
-                                                }
-											}
-										})
-									} ?: emptyList()
-								}
-								contents += codesToKmehr(svc.codes)
-								if (contents.isNotEmpty()) {
-									val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
-										this.ids.add(IDKMEHR().apply {
-											this.s = IDKMEHRschemes.LOCAL
-											this.sv = "1.0"
-											this.sl = "org.taktik.icure.label"
-											this.value = svc.label
-										})
-										if (cdItem == "parameter") {
-											svc.tags.find { it.type == "CD-PARAMETER" }?.let {
-												this.cds.add(
-													CDITEM().apply {
-														s = CDITEMschemes.CD_PARAMETER
-														value = it.code
-													}
-												)
-											}
-											this.cds.add(
-												CDITEM().apply {
-													s = CDITEMschemes.LOCAL
-													sl = "LOCAL-PARAMETER"
-													sv = "1.0"
-													dn = if (svc.comment == "" || svc.comment == null) {
-														svc.label
-													} else {
-														svc.comment
-													}
-													value = svc.label
-												}
-											)
-										}
-										if(cdItem == "medication") {
-											svc.content.values.find{ it.medicationValue?.instructionForPatient != null}?.let {
-												this.posology = ItemType.Posology().apply {
-													text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
-												}
-											}
-										}
-										svc.comment?.let {
-											(it != "") && it.let{
-												this.contents.add( ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
-
-                                        }
+                                if (!forSeparateTransaction) {
+                                    var svcCdItem = svc.tags.filter { it.type == "CD-ITEM" }.firstOrNull()
+                                    val cdItem = (svcCdItem?.code ?: defaultCdItemRef).let {
+                                        if (it == "parameter") {
+                                            svc.content.let {
+                                                it.entries.firstOrNull()?.value?.measureValue?.let { "parameter" }
+                                                        ?: "clinical" // FIXME: change to clinical instead of technical because medinote doesnt support technical
+                                            } //Change parameters to technicals if not real parameters
+                                        } else it
                                     }
 
-                                    addHistoryLinkAndCacheService(this, svc, config)
-										headingsAndItemsAndTexts.add(this)
-									}
-								}
-							}
-						}
-						if (exportAsDocument && services.size == 1) {
-							services[0].content.values.forEach { doc ->
-								doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
-							}
-						}
+                                    var contents: List<ContentType> = svc.content.entries.flatMap {
+                                        makeContent(it.key, it.value)?.let { c ->
+                                            listOf(c.apply {
+                                                if (svcCdItem == null && texts.size > 0) {
+                                                    if (svc.label != null) {
+                                                        texts.first().value = "${svc.label}: ${texts.first().value}"
+                                                    }
+                                                }
+                                            })
+                                        } ?: emptyList()
+                                    }
+                                    contents += codesToKmehr(svc.codes)
+                                    if (contents.isNotEmpty()) {
+                                        val item = createItemWithContent(svc, headingsAndItemsAndTexts.size + 1, cdItem, contents, "MF-ID")?.apply {
+                                            this.ids.add(IDKMEHR().apply {
+                                                this.s = IDKMEHRschemes.LOCAL
+                                                this.sv = "1.0"
+                                                this.sl = "org.taktik.icure.label"
+                                                this.value = svc.label
+                                            })
+                                            if (cdItem == "parameter") {
+                                                svc.tags.find { it.type == "CD-PARAMETER" }?.let {
+                                                    this.cds.add(
+                                                            CDITEM().apply {
+                                                                s = CDITEMschemes.CD_PARAMETER
+                                                                value = it.code
+                                                            }
+                                                    )
+                                                }
+                                                this.cds.add(
+                                                        CDITEM().apply {
+                                                            s = CDITEMschemes.LOCAL
+                                                            sl = "LOCAL-PARAMETER"
+                                                            sv = "1.0"
+                                                            dn = if (svc.comment == "" || svc.comment == null) {
+                                                                svc.label
+                                                            } else {
+                                                                svc.comment
+                                                            }
+                                                            value = svc.label
+                                                        }
+                                                )
+                                            }
+                                            if (cdItem == "medication") {
+                                                svc.content.values.find { it.medicationValue?.instructionForPatient != null }?.let {
+                                                    this.posology = ItemType.Posology().apply {
+                                                        text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
+                                                    }
+                                                }
+                                            }
+                                            svc.comment?.let {
+                                                (it != "") && it.let {
+                                                    this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
+
+                                                }
+                                            }
+
+                                            addHistoryLinkAndCacheService(this, svc, config)
+                                            headingsAndItemsAndTexts.add(this)
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
                         val subContactsByFormId = contact.subContacts.groupBy { it.formId }
                         val subContactServicesByFormId = subContactsByFormId.mapValues {
