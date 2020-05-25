@@ -4,6 +4,7 @@ import org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed.SamTextDto
 import java.io.Serializable
 
 class VmpGroupStubDto(
+        var productId: String? = null,
         var id: String? = null,
         var code: String? = null,
         var name: SamTextDto? = null
