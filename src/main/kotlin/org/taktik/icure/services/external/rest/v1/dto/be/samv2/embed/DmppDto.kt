@@ -6,6 +6,7 @@ import java.math.BigDecimal
 class DmppDto(
         from: Long? = null,
         to: Long? = null,
+        var productId: String? = null,
         var deliveryEnvironment: DeliveryEnvironmentDto? = null,
         var code: String? = null,
         var codeType: DmppCodeTypeDto? = null,
