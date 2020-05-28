@@ -218,7 +218,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
         val contactDtos = contacts.map { mapper!!.map(it, ContactDto::class.java) }
         val decryptedContacts = decryptor?.decrypt(contactDtos, ContactDto::class.java)?.get()?.map { mapper!!.map(it, Contact::class.java) } ?: contacts;
 
-        decryptedContacts.forEachIndexed { index, contact ->
+        decryptedContacts.forEachIndexed contactsLoop@{ index, contact ->
 			progressor?.progress((1.0 * index) / (contacts.size + documents.size))
 
             // newestServicesById should point to decrypted services
@@ -229,9 +229,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
                     }
             }
 
+            var services: List<Service> = excludesServiceForPMF(contact.services.toList(), config)
+            if (services.isEmpty()) return@contactsLoop
+
 			folder.transactions.add(
 					TransactionType().apply {
-						var services: List<Service> = excludesServiceForPMF(contact.services.toList(), config)
 						val trn = this
 
 						val (cdTransactionRef, defaultCdItemRef, exportAsDocument) = when (contact.encounterType?.code) {
@@ -415,6 +417,19 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                                     this.posology = ItemType.Posology().apply {
                                                         text = TextType().apply { l = language; value = it.medicationValue!!.instructionForPatient }
                                                     }
+                                                }
+                                            }
+                                            if (cdItem == "problem") {
+                                                svc.tags.find { it.type == "ICURE" && it.code == "ANTEC" }?.let {
+                                                    this.cds.add(
+                                                            CDITEM().apply {
+                                                                s = CDITEMschemes.LOCAL
+                                                                sl = "ICURE"
+                                                                sv = "1.0"
+                                                                dn = "ANTEC"
+                                                                value = "ANTEC"
+                                                            }
+                                                    )
                                                 }
                                             }
                                             svc.comment?.let {
