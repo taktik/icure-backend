@@ -19,6 +19,7 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.utils.MergeUtil.mergeSets
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -30,6 +31,7 @@ import java.util.*
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class PatientHealthCareParty(
         val type: PatientHealthCarePartyType? = null,
         val isReferral: Boolean = false, // mark this phcp as THE active referral link (gmd)

@@ -17,14 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.google.common.base.Joiner
-import org.apache.commons.lang3.StringUtils
+import com.github.pozo.KotlinBuilder
+import com.github.pozo.KotlinBuilderimport
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import java.io.Serializable
-import java.util.stream.Collectors
+
+java.util.stream.Collectors
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MedicationDto(
         val compoundPrescription: String? = null,
         val substanceProduct: SubstanceproductDto? = null,

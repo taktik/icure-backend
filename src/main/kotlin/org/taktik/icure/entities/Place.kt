@@ -2,6 +2,7 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.entities.base.StoredDocument
@@ -11,6 +12,7 @@ import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@KotlinBuilder
 data class Place(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

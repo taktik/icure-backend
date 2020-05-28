@@ -21,7 +21,6 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -47,7 +46,7 @@ import java.net.URI
 @FlowPreview
 @Repository("contactDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Contact' && !doc.deleted) emit( null, doc._id )}")
-class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericDAOImpl<Contact>(Contact::class.java, couchDbDispatcher, idGenerator, mapper), ContactDAO {
+class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Contact>(Contact::class.java, couchDbDispatcher, idGenerator, mapper), ContactDAO {
 
     override suspend fun getContact(dbInstanceUrl: URI, groupId: String, id: String): Contact? {
         return get(dbInstanceUrl, groupId, id)

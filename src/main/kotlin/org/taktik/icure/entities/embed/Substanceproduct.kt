@@ -26,6 +26,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Substanceproduct(
         @ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val intendedcds: List<CodeStub> = listOf(),

@@ -1,6 +1,8 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 //NOTE: better classname would be MedicalHouseInscriptionPeriod
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MedicalHouseContractDto(
         val contractId: String? = null,
         val validFrom: Long? = null,  //yyyyMMdd : start of contract period

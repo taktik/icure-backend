@@ -40,6 +40,8 @@ import org.taktik.icure.validation.ValidCode
 import java.util.*
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PatientDto(
         override val id: String,
         override val rev: String? = null,

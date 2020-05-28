@@ -19,7 +19,6 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -35,7 +34,7 @@ import java.net.URI
 
 @Repository("propertyDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Property' && !doc.deleted) emit(doc._id )}")
-class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<Property>(Property::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), PropertyDAO {
+class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Property>(Property::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), PropertyDAO {
 
     @View(name = "by_identifier", map = "classpath:js/property/By_identifier_Map.js")
     override suspend fun getByIdentifier(dbInstanceUrl: URI, groupId: String, propertyIdentifier: String): Property? {

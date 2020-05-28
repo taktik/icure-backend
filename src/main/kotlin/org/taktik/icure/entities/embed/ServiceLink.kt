@@ -27,6 +27,7 @@ import java.io.Serializable
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class ServiceLink(
         val serviceId: String? = null,
         @get:JsonIgnore @set:JsonIgnore @JsonIgnore @Transient var service: Service? = null

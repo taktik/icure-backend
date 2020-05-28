@@ -17,4 +17,6 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MapOfIdsDto(val mapOfIds: Map<String, List<String>> = mapOf())

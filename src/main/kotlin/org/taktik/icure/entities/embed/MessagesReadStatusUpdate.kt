@@ -17,6 +17,9 @@
  */
 package org.taktik.icure.entities.embed
 
+import com.github.pozo.KotlinBuilder
+
+@KotlinBuilder
 data class MessagesReadStatusUpdate(
         val ids: List<String>? = null,
         val userId: String? = null,

@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -41,8 +40,7 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/classification")
 @Tag(name = "classification")
-class ClassificationController(private val mapper: MapperFacade,
-                               private val classificationLogic: ClassificationLogic) {
+class ClassificationController(private private val classificationLogic: ClassificationLogic) {
 
     @Operation(summary = "Create a classification with the current user", description = "Returns an instance of created classification Template.")
     @PostMapping
@@ -50,7 +48,7 @@ class ClassificationController(private val mapper: MapperFacade,
         val element = classificationLogic.createClassification(mapper.map(c, Classification::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification creation failed.")
 
-        mapper.map(element, ClassificationDto::class.java)
+        Mappers.getMapper(ClassificationMapper::class.java).map(element)
     }
 
     @Operation(summary = "Get a classification Template")
@@ -59,7 +57,7 @@ class ClassificationController(private val mapper: MapperFacade,
         val element = classificationLogic.getClassification(classificationId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting classification failed. Possible reasons: no such classification exists, or server error. Please try again or read the server log.")
 
-        mapper.map(element, ClassificationDto::class.java)
+        Mappers.getMapper(ClassificationMapper::class.java).map(element)
     }
 
     @Operation(summary = "Get a list of classifications", description = "Ids are seperated by a coma")
@@ -67,7 +65,7 @@ class ClassificationController(private val mapper: MapperFacade,
     fun getClassificationByHcPartyId(@PathVariable ids: String): Flux<ClassificationDto> {
         val elements = classificationLogic.getClassificationByIds(ids.split(','))
 
-        return elements.map { mapper.map(it, ClassificationDto::class.java) }.injectReactorContext()
+        return elements.map { Mappers.getMapper(ClassificationMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "List classification Templates found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
@@ -76,7 +74,7 @@ class ClassificationController(private val mapper: MapperFacade,
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val elementList = classificationLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
 
-        return elementList.map { mapper.map(it, ClassificationDto::class.java) }.injectReactorContext()
+        return elementList.map { Mappers.getMapper(ClassificationMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete classification Templates.", description = "Response is a set containing the ID's of deleted classification Templates.")
@@ -97,7 +95,7 @@ class ClassificationController(private val mapper: MapperFacade,
         val modifiedClassification = classificationLogic.getClassification(classificationDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Classification modification failed.")
 
-        mapper.map(modifiedClassification, ClassificationDto::class.java)
+        Mappers.getMapper(ClassificationMapper::class.java).map(modifiedClassification)
     }
 
 
@@ -109,7 +107,7 @@ class ClassificationController(private val mapper: MapperFacade,
 
         val succeed = classificationWithDelegation != null && classificationWithDelegation.delegations != null && classificationWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            mapper.map(classificationWithDelegation, ClassificationDto::class.java)
+            Mappers.getMapper(ClassificationMapper::class.java).map(classificationWithDelegation)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for classification failed.")
         }
@@ -127,6 +125,6 @@ class ClassificationController(private val mapper: MapperFacade,
                 )
             } ?: classification
         }
-        emitAll(classificationLogic.updateEntities(classifications.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+        emitAll(classificationLogic.updateEntities(classifications.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it) })
     }.injectReactorContext()
 }

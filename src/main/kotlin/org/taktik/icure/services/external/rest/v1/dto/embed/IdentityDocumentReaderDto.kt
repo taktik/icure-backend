@@ -1,8 +1,9 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
-
-
+import com.github.pozo.KotlinBuilder
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class IdentityDocumentReaderDto(
         val justificatifDocumentNumber: String? = null,
         val supportSerialNumber: String? = null,

@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.ektorp.ComplexKey
@@ -51,7 +50,7 @@ import java.nio.ByteBuffer
 
 @Repository("formTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted) emit(doc._id, null )}")
-internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : GenericDAOImpl<FormTemplate>(FormTemplate::class.java, couchDbDispatcher, idGenerator, mapper), FormTemplateDAO {
+internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : GenericDAOImpl<FormTemplate>(FormTemplate::class.java, couchDbDispatcher, idGenerator, mapper), FormTemplateDAO {
 
     @View(name = "by_userId_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.FormTemplate' && !doc.deleted && doc.author) emit([doc.author,doc.guid], null )}")
     override fun findByUserGuid(dbInstanceUrl: URI, groupId: String, userId: String, guid: String?, loadLayout: Boolean): Flow<FormTemplate> {

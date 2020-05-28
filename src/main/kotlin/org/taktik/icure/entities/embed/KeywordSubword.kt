@@ -17,8 +17,10 @@
  */
 package org.taktik.icure.entities.embed
 
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
+@KotlinBuilder
 data class KeywordSubword(
         val value: String? = null,
         val subWords: List<KeywordSubword>? = null

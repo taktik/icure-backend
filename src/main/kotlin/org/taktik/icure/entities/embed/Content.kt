@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.github.pozo.KotlinBuilder
 import com.squareup.moshi.Json
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
@@ -30,6 +31,7 @@ import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Content(
         @JsonProperty("s") @Json(name = "s") val stringValue: String? = null,
         @JsonProperty("n") @Json(name = "n") val numberValue: Double? = null,

@@ -30,6 +30,8 @@ import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
 import java.time.Instant
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class UserStubDto(
         override val id: String,
         override val rev: String? = null,

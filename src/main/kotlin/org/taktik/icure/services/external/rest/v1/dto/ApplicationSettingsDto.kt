@@ -4,6 +4,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class ApplicationSettingsDto(
         override val id: String,
         override val rev: String? = null,

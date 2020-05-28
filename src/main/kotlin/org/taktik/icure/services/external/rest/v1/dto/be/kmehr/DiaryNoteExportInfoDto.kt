@@ -2,7 +2,6 @@ package org.taktik.icure.services.external.rest.v1.dto.be.kmehr
 
 import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto
 import java.io.Serializable
-import java.util.*
 
 class DiaryNoteExportInfoDto : Serializable {
     var secretForeignKeys: List<String> = listOf()

@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -55,8 +54,7 @@ import java.util.function.Supplier
 @RestController
 @RequestMapping("/rest/v1/be_mikrono")
 @Tag(name = "bemikrono")
-class MikronoController(private val mapper: MapperFacade,
-                        private val mikronoLogic: MikronoLogic,
+class MikronoController(private private val mikronoLogic: MikronoLogic,
                         private val patientLogic: PatientLogic,
                         private val sessionLogic: AsyncSessionLogic,
                         private val userLogic: UserLogic) {

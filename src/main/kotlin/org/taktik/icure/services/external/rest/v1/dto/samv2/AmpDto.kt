@@ -10,6 +10,10 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.MedicineTypeDt
 import org.taktik.icure.services.external.rest.v1.dto.samv2.embed.SamTextDto
 import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.VmpStubDto
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class AmpDto(
         override val id: String,
         override val rev: String? = null,

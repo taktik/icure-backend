@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -38,8 +37,7 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/entitytemplate")
 @Tag(name = "entitytemplate")
-class EntityTemplateController(private val mapper: MapperFacade,
-                               private val entityTemplateLogic: EntityTemplateLogic) {
+class EntityTemplateController(private private val entityTemplateLogic: EntityTemplateLogic) {
 
     @Operation(summary = "Finding entityTemplates by userId, entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}")
@@ -52,7 +50,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
         val entityTemplatesList = entityTemplateLogic.findEntityTemplates(userId, type, searchString, includeEntities)
 
         entityTemplatesList.map { e ->
-            val dto = mapper.map(e, EntityTemplateDto::class.java)
+            val dto = Mappers.getMapper(EntityTemplateMapper::class.java).map(e)
             if (includeEntities != null && includeEntities) {
                 dto.entity = e.entity
             }
@@ -70,7 +68,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
         val entityTemplatesList = entityTemplateLogic.findAllEntityTemplates(type, searchString, includeEntities)
 
         entityTemplatesList.map { e ->
-            val dto = mapper.map(e, EntityTemplateDto::class.java)
+            val dto = Mappers.getMapper(EntityTemplateMapper::class.java).map(e)
             if (includeEntities != null && includeEntities) {
                 dto.entity = e.entity
             }
@@ -87,7 +85,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
         val entityTemplate = entityTemplateLogic.createEntityTemplate(et)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "EntityTemplate creation failed.")
 
-        mapper.map(entityTemplate, EntityTemplateDto::class.java)
+        Mappers.getMapper(EntityTemplateMapper::class.java).map(entityTemplate)
     }
 
     @Operation(summary = "Get a list of entityTemplates by ids", description = "Keys must be delimited by coma")
@@ -95,7 +93,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
     fun getEntityTemplates(@PathVariable entityTemplateIds: String): Flux<EntityTemplateDto> {
         val entityTemplates = entityTemplateLogic.getEntityTemplates(entityTemplateIds.split(','))
 
-        val entityTemplateDtos = entityTemplates.map { f -> mapper.map(f, EntityTemplateDto::class.java).apply { entity = f.entity } }
+        val entityTemplateDtos = entityTemplates.map { f -> Mappers.getMapper(EntityTemplateMapper::class.java).map(f).apply { entity = f.entity } }
 
         return entityTemplateDtos.injectReactorContext()
     }
@@ -107,7 +105,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
         val c = entityTemplateLogic.getEntityTemplate(entityTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the entityTemplate. Read the app logs.")
 
-        val et = mapper.map(c, EntityTemplateDto::class.java)
+        val et = Mappers.getMapper(EntityTemplateMapper::class.java).map(c)
         et.entity = c.entity
         et
     }
@@ -125,7 +123,7 @@ class EntityTemplateController(private val mapper: MapperFacade,
 
         val succeed = modifiedEntityTemplate != null
         if (succeed) {
-            mapper.map(modifiedEntityTemplate, EntityTemplateDto::class.java)
+            Mappers.getMapper(EntityTemplateMapper::class.java).map(modifiedEntityTemplate)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the entityTemplate failed. Read the server log.")
         }

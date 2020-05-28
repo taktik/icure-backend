@@ -28,6 +28,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.FlowItemDto
 import org.taktik.icure.validation.NotNull
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class CalendarItemDto(
         override val id: String,
         override val rev: String? = null,

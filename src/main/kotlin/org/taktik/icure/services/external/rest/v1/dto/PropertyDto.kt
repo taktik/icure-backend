@@ -20,6 +20,8 @@ package org.taktik.icure.services.external.rest.v1.dto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.TypedValueDto
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PropertyDto(
         override val id: String,
         override val rev: String? = null,

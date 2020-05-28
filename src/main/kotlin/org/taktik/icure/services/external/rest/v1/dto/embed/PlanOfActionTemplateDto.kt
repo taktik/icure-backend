@@ -24,6 +24,8 @@ import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PlanOfActionTemplateDto(
         override val id: String,
         override val created: Long? = null,

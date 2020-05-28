@@ -17,16 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
-import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
-import org.taktik.icure.utils.DynamicInitializer
-import org.taktik.icure.utils.invoke
-
 /**
  * Created by aduchate on 09/07/13, 16:30
  */
 
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
+
+@KotlinBuilder
 data class PlanOfActionDto(
         override val id: String,
         override val created: Long? = null,

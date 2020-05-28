@@ -1,9 +1,11 @@
 package org.taktik.icure.services.external.rest.v1.dto.base
 
+
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 
-
+@KotlinBuilder
 data class CodeStubDto(
         override val id: String,         // id = type|code|version  => this must be unique
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)

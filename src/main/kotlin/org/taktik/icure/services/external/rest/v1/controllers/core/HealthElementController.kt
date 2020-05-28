@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -46,8 +45,7 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/helement")
 @Tag(name = "helement")
-class HealthElementController(private val mapper: MapperFacade,
-                              private val healthElementLogic: HealthElementLogic) {
+class HealthElementController(private private val healthElementLogic: HealthElementLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Create a health element with the current user", description = "Returns an instance of created health element.")
@@ -56,7 +54,7 @@ class HealthElementController(private val mapper: MapperFacade,
         val element = healthElementLogic.createHealthElement(mapper.map(c, HealthElement::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element creation failed.")
 
-        mapper.map(element, HealthElementDto::class.java)
+        Mappers.getMapper(HealthElementMapper::class.java).map(element)
     }
 
     @Operation(summary = "Get a health element")
@@ -65,7 +63,7 @@ class HealthElementController(private val mapper: MapperFacade,
         val element = healthElementLogic.getHealthElement(healthElementId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting health element failed. Possible reasons: no such health element exists, or server error. Please try again or read the server log.")
 
-        mapper.map(element, HealthElementDto::class.java)
+        Mappers.getMapper(HealthElementMapper::class.java).map(element)
     }
 
     @Operation(summary = "List health elements found By Healthcare Party and secret foreign keyelementIds.", description = "Keys hast to delimited by coma")
@@ -75,7 +73,7 @@ class HealthElementController(private val mapper: MapperFacade,
         val elementList = healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, ArrayList(secretPatientKeys))
 
         return elementList
-                .map { element -> mapper.map(element, HealthElementDto::class.java) }
+                .map { element -> Mappers.getMapper(HealthElementMapper::class.java).map(element) }
                 .injectReactorContext()
     }
 
@@ -85,7 +83,7 @@ class HealthElementController(private val mapper: MapperFacade,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
-                .map { contact -> mapper.map(contact, IcureStubDto::class.java) }
+                .map { contact -> Mappers.getMapper(IcureStubMapper::class.java).map(contact) }
                 .injectReactorContext()
     }
 
@@ -101,7 +99,7 @@ class HealthElementController(private val mapper: MapperFacade,
                 )
             } ?: he
         }
-        emitAll(healthElementLogic.updateEntities(healthElements.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+        emitAll(healthElementLogic.updateEntities(healthElements.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Delete health elements.", description = "Response is a set containing the ID's of deleted health elements.")
@@ -121,7 +119,7 @@ class HealthElementController(private val mapper: MapperFacade,
     fun modifyHealthElement(@RequestBody healthElementDto: HealthElementDto) = mono {
         val modifiedHealthElement = healthElementLogic.modifyHealthElement(mapper.map(healthElementDto, HealthElement::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Health element modification failed.")
-        mapper.map(modifiedHealthElement, HealthElementDto::class.java)
+        Mappers.getMapper(HealthElementMapper::class.java).map(modifiedHealthElement)
     }
 
     @Operation(summary = "Modify a batch of health elements", description = "Returns the modified health elements.")
@@ -129,7 +127,7 @@ class HealthElementController(private val mapper: MapperFacade,
     fun modifyHealthElements(@RequestBody healthElementDtos: List<HealthElementDto>): Flux<HealthElementDto> =
         try {
             val hes = healthElementLogic.updateEntities(healthElementDtos.map { f -> mapper.map(f, HealthElement::class.java) })
-            hes.map { mapper.map(it, HealthElementDto::class.java) }.injectReactorContext()
+            hes.map { Mappers.getMapper(HealthElementMapper::class.java).map(it) }.injectReactorContext()
         } catch (e: Exception) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -144,7 +142,7 @@ class HealthElementController(private val mapper: MapperFacade,
 
         val succeed = healthElementWithDelegation != null && healthElementWithDelegation.delegations != null && healthElementWithDelegation.delegations!!.isNotEmpty()
         if (succeed) {
-            mapper.map(healthElementWithDelegation, HealthElementDto::class.java)
+            Mappers.getMapper(HealthElementMapper::class.java).map(healthElementWithDelegation)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for health element failed.")
         }
@@ -154,6 +152,6 @@ class HealthElementController(private val mapper: MapperFacade,
     @PostMapping("/filter")
     fun filterHealthElementsBy(@RequestBody filterChain: FilterChain) =
             healthElementLogic.filter(org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, HealthElement>, mapper.map(filterChain.predicate, Predicate::class.java)))
-                    .map { mapper.map(it, HealthElementDto::class.java) }
+                    .map { Mappers.getMapper(HealthElementMapper::class.java).map(it) }
                     .injectReactorContext()
 }

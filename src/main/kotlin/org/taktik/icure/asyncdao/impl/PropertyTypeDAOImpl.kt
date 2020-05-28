@@ -19,7 +19,6 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -35,7 +34,7 @@ import java.net.URI
 
 @Repository("propertyTypeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.PropertyType' && !doc.deleted) emit( null, doc._id )}")
-class PropertyTypeDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<PropertyType>(PropertyType::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), PropertyTypeDAO {
+class PropertyTypeDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<PropertyType>(PropertyType::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), PropertyTypeDAO {
 
     @View(name = "by_identifier", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.PropertyType' && !doc.deleted && doc.identifier) {\n" +

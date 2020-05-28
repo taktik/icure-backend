@@ -26,7 +26,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -50,8 +49,7 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/code")
 @Tag(name = "code")
-class CodeController(private val mapper: MapperFacade,
-                     private val codeLogic: CodeLogic) {
+class CodeController(private private val codeLogic: CodeLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
 
@@ -149,7 +147,7 @@ class CodeController(private val mapper: MapperFacade,
             @Parameter(description = "Code version") @RequestParam(required = false) version: String?): Flux<CodeDto> {
 
         return codeLogic.findCodesBy(region, type, code, version)
-                .map { c -> mapper.map(c, CodeDto::class.java) }
+                .map { c -> Mappers.getMapper(CodeMapper::class.java).map(c) }
                 .injectReactorContext()
     }
 
@@ -177,7 +175,7 @@ class CodeController(private val mapper: MapperFacade,
     @PostMapping
     fun createCode(@RequestBody c: CodeDto) = mono {
         val code = codeLogic.create(mapper.map(c, Code::class.java))
-        mapper.map(code, CodeDto::class.java)
+        Mappers.getMapper(CodeMapper::class.java).map(code)
     }
 
     @Operation(summary = "Get a list of codes by ids", description = "Keys must be delimited by coma")
@@ -185,7 +183,7 @@ class CodeController(private val mapper: MapperFacade,
     fun getCodes(@PathVariable codeIds: String): Flux<CodeDto> {
         val codes = codeLogic.get(codeIds.split(','))
         return codes
-                .map { f -> mapper.map(f, CodeDto::class.java) }
+                .map { f -> Mappers.getMapper(CodeMapper::class.java).map(f) }
                 .injectReactorContext()
     }
 
@@ -194,7 +192,7 @@ class CodeController(private val mapper: MapperFacade,
     fun getCode(@Parameter(description = "Code id") @PathVariable codeId: String) = mono {
         val c = codeLogic.get(codeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code. Read the app logs.")
-        mapper.map(c, CodeDto::class.java)
+        Mappers.getMapper(CodeMapper::class.java).map(c)
     }
 
     @Operation(summary = "Get a code", description = "Get a code based on ID or (code,type,version) as query strings. (code,type,version) is unique.")
@@ -206,7 +204,7 @@ class CodeController(private val mapper: MapperFacade,
 
         val c = codeLogic.get(type, code, version)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the code with parts. Read the app logs.")
-        mapper.map(c, CodeDto::class.java)
+        Mappers.getMapper(CodeMapper::class.java).map(c)
     }
 
     @Operation(summary = "Modify a code", description = "Modification of (type, code, version) is not allowed.")
@@ -217,7 +215,7 @@ class CodeController(private val mapper: MapperFacade,
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the code. Read the app logs: " + e.message)
         }
-        mapper.map(modifiedCode, CodeDto::class.java)
+        Mappers.getMapper(CodeMapper::class.java).map(modifiedCode)
     }
 
     @Operation(summary = "Filter codes ", description = "Returns a list of codes along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

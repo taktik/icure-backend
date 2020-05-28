@@ -36,7 +36,7 @@ import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.exceptions.DeletionException
 import org.taktik.icure.utils.toComplexKeyPaginationOffset
 import java.time.Instant
-import javax.ws.rs.QueryParam
+
 
 @ExperimentalCoroutinesApi
 @Service

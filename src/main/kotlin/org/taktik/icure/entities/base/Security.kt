@@ -19,14 +19,16 @@ package org.taktik.icure.entities.base
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Security(
         val admins: Right = Right(),
         val members: Right = Right()
 ) : Serializable {
-    data class Right(val names: Set<String> = setOf(), val roles: Set<String> = setOf()) {
-    }
+    @KotlinBuilder
+    data class Right(val names: Set<String> = setOf(), val roles: Set<String> = setOf())
 }

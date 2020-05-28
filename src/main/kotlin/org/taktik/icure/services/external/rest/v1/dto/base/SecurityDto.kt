@@ -17,13 +17,17 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.base
 
+
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
-
+@KotlinBuilder
 data class SecurityDto(
         val admins: RightDto = RightDto(),
         val members: RightDto = RightDto()
 ) : Serializable {
-    data class RightDto(val names: Set<String> = setOf(), val roles: Set<String> = setOf()) {
+    import com.github.pozo.KotlinBuilder
+@KotlinBuilder
+data class RightDto(val names: Set<String> = setOf(), val roles: Set<String> = setOf()) {
     }
 }

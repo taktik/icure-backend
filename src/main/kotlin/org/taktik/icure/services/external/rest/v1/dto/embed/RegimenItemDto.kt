@@ -17,12 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import org.apache.commons.lang3.StringUtils
+import com.github.pozo.KotlinBuilder
+import com.github.pozo.KotlinBuilderimport
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import java.io.Serializable
-import java.text.SimpleDateFormat
+
+java.text.SimpleDateFormat
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class RegimenItemDto(
         //Day definition (One and only one of the three following should be not null)
         //The three are null if it applies to every day
@@ -36,12 +40,16 @@ data class RegimenItemDto(
         val timeOfDay: Long? = null, //hhmmss 103010
         val administratedQuantity: AdministrationQuantity? = null
 ) : Serializable {
-    data class Weekday(
+    import com.github.pozo.KotlinBuilder
+@KotlinBuilder
+data class Weekday(
             val weekday: CodeStubDto? = null, //CD-WEEKDAY
             val weekNumber: Int? = null //Can be null
     ) : Serializable
 
-    data class AdministrationQuantity(
+    import com.github.pozo.KotlinBuilder
+@KotlinBuilder
+data class AdministrationQuantity(
             val quantity: Double? = null,
             val administrationUnit: CodeStubDto? = null, //CD-ADMINISTRATIONUNIT
             val unit: String? = null //Should be null

@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.flux
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -73,7 +72,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @Operation(summary = "Creates a message")
     @PostMapping
     fun createMessage(@RequestBody messageDto: MessageDto) = mono {
-        mapper.map(messageDto, Message::class.java)?.let { messageLogic.createMessage(it) }?.let { mapper.map(it, MessageDto::class.java) }
+        Mappers.getMapper(Message::class.java)?.let { messageLogic.createMessage(it) }?.let { mapper.map(it, MessageMapper::class.java).map(messageDto) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message creation failed")
                         .also { logger.error(it.message) }
     }
@@ -86,7 +85,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val message = messageLogic.get(messageId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message with ID: $messageId not found").also { logger.error(it.message) }
 
-        messageLogic.updateEntities(listOf(message.copy(delegations = message.delegations - delegateId))).firstOrNull()?.let { mapper.map(it, MessageDto::class.java) }
+        messageLogic.updateEntities(listOf(message.copy(delegations = message.delegations - delegateId))).firstOrNull()?.let { Mappers.getMapper(MessageMapper::class.java).map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message delegation deletion failed").also { logger.error(it.message) }
     }
 
@@ -121,7 +120,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @Operation(summary = "Gets a message")
     @GetMapping("/{messageId}")
     fun getMessage(@PathVariable messageId: String) = mono {
-        messageLogic.get(messageId)?.let { mapper.map(it, MessageDto::class.java) }
+        messageLogic.get(messageId)?.let { Mappers.getMapper(MessageMapper::class.java).map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message not found")
                         .also { logger.error(it.message) }
     }
@@ -132,7 +131,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun findMessagesByHCPartyPatientForeignKeys(@RequestParam secretFKeys: String): Flux<MessageDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return messageLogic.listMessagesByHCPartySecretPatientKeys(secretPatientKeys)
-                .map { contact -> mapper.map(contact, MessageDto::class.java) }
+                .map { contact -> Mappers.getMapper(MessageMapper::class.java).map(contact) }
                 .injectReactorContext()
     }
 
@@ -151,21 +150,21 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @Operation(summary = "Get children messages of provided message")
     @GetMapping("/{messageId}/children")
     fun getChildrenMessages(@PathVariable messageId: String) =
-            messageLogic.getChildren(messageId).map { mapper.map(it, MessageDto::class.java) }.injectReactorContext()
+            messageLogic.getChildren(messageId).map { Mappers.getMapper(MessageMapper::class.java).map(it) }.injectReactorContext()
 
 
     @Operation(summary = "Get children messages of provided message")
     @PostMapping("/children/batch")
     fun getChildrenMessagesOfList(@RequestBody parentIds: ListOfIdsDto) =
             messageLogic.getChildren(parentIds.ids)
-                    .map { m -> m.stream().map { mm -> mapper.map(mm, MessageDto::class.java) }.toList().asFlow() }
+                    .map { m -> m.stream().map { mm -> Mappers.getMapper(MessageMapper::class.java).map(mm) }.toList().asFlow() }
                     .flattenConcat()
                     .injectReactorContext()
 
     @Operation(summary = "Get children messages of provided message")
     @PostMapping("byInvoiceId")
     fun listMessagesByInvoiceIds(@RequestBody ids: ListOfIdsDto) =
-            messageLogic.listMessagesByInvoiceIds(ids.ids).map { mapper.map(it, MessageDto::class.java) }.injectReactorContext()
+            messageLogic.listMessagesByInvoiceIds(ids.ids).map { Mappers.getMapper(MessageMapper::class.java).map(it) }.injectReactorContext()
 
     @Operation(summary = "Get all messages (paginated) for current HC Party and provided transportGuid")
     @GetMapping("/byTransportGuid")
@@ -249,7 +248,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         mapper.map(messageDto, Message::class.java)
                 ?.let {
                     messageLogic.modifyMessage(it)
-                    mapper.map(it, MessageDto::class.java)
+                    Mappers.getMapper(MessageMapper::class.java).map(it)
                 }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
                         .also { logger.error(it.message) }
@@ -259,13 +258,13 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @PutMapping("/status/{status}")
     fun setMessagesStatusBits(
             @PathVariable status: Int,
-            @RequestBody messageIds: ListOfIdsDto) = messageLogic.setStatus(messageIds.ids, status).map { mapper.map(it, MessageDto::class.java) }.injectReactorContext()
+            @RequestBody messageIds: ListOfIdsDto) = messageLogic.setStatus(messageIds.ids, status).map { Mappers.getMapper(MessageMapper::class.java).map(it) }.injectReactorContext()
 
     @Operation(summary = "Set read status for given list of messages")
     @PutMapping("/readstatus")
     fun setMessagesReadStatus(@RequestBody data: MessagesReadStatusUpdate) = flow {
         emitAll(messageLogic.setReadStatus(data.ids ?: listOf(), data.userId ?: sessionLogic.getCurrentUserId(), data.status
-                ?: false, data.time ?: System.currentTimeMillis()).map { mapper.map(it, MessageDto::class.java) })
+                ?: false, data.time ?: System.currentTimeMillis()).map { Mappers.getMapper(MessageMapper::class.java).map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Adds a delegation to a message")
@@ -273,7 +272,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun newMessageDelegations(
             @PathVariable messageId: String,
             @RequestBody ds: List<DelegationDto>) = mono {
-        messageLogic.addDelegations(messageId, ds.map { mapper.map(it, Delegation::class.java) })?.takeIf { it.delegations.isNotEmpty() }?.let { mapper.map(it, MessageDto::class.java) }
+        messageLogic.addDelegations(messageId, ds.map { Mappers.getMapper(Delegation::class.java) })?.takeIf { it.delegations.isNotEmpty() }?.let { mapper.map(it, MessageMapper::class.java).map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
     }
 

@@ -20,14 +20,14 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.google.common.base.Joiner
+import com.github.pozo.KotlinBuilder
 import org.apache.commons.lang3.StringUtils
 import org.taktik.icure.entities.base.Code
 import java.io.Serializable
-import java.util.stream.Collectors
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Medication(
         val compoundPrescription: String? = null,
         val substanceProduct: Substanceproduct? = null,

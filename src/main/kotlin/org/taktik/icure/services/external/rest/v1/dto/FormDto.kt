@@ -27,6 +27,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
  * Created by aduchate on 18/07/13, 13:06
  */
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class FormDto(
         override val id: String,
         override val rev: String? = null,

@@ -25,6 +25,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ReceiptBlobTypeDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class ReceiptDto(
         override val id: String,
         override val rev: String? = null,

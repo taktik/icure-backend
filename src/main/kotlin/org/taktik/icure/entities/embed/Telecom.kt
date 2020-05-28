@@ -28,6 +28,7 @@ import java.io.Serializable
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Telecom(
         val telecomType: TelecomType? = null,
         val telecomNumber: String? = null,

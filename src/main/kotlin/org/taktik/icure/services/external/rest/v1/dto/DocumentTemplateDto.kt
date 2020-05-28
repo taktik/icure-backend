@@ -25,6 +25,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentGroupDto
 import org.taktik.icure.utils.DynamicInitializer
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class DocumentTemplateDto(
         override val id: String,
         override val rev: String? = null,

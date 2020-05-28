@@ -1,13 +1,20 @@
 package org.taktik.icure.entities.samv2
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.samv2.embed.*
+import org.taktik.icure.entities.samv2.embed.AmpComponent
+import org.taktik.icure.entities.samv2.embed.AmpStatus
+import org.taktik.icure.entities.samv2.embed.Ampp
+import org.taktik.icure.entities.samv2.embed.Company
+import org.taktik.icure.entities.samv2.embed.MedicineType
+import org.taktik.icure.entities.samv2.embed.SamText
 import org.taktik.icure.entities.samv2.stub.VmpStub
 
+@KotlinBuilder
 data class Amp(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

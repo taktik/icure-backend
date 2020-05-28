@@ -31,6 +31,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentTypeDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class InvoiceDto(
         override val id: String,
         override val rev: String? = null,

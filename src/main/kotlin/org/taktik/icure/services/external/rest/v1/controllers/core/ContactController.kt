@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -74,8 +73,7 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/contact")
 @Tag(name = "contact")
-class ContactController(private val mapper: MapperFacade,
-                        private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+class ContactController(private private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
                         private val contactLogic: ContactLogic,
                         private val sessionLogic: AsyncSessionLogic) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -96,7 +94,7 @@ class ContactController(private val mapper: MapperFacade,
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        mapper.map(contact, ContactDto::class.java)
+        Mappers.getMapper(ContactMapper::class.java).map(contact)
     }
 
     protected fun handleServiceIndexes(c: ContactDto) = if (c.services.any { it.index == null }) {
@@ -115,14 +113,14 @@ class ContactController(private val mapper: MapperFacade,
     fun getContact(@PathVariable contactId: String) = mono {
         val contact = contactLogic.getContact(contactId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
-        mapper.map(contact, ContactDto::class.java)
+        Mappers.getMapper(ContactMapper::class.java).map(contact)
     }
 
     @Operation(summary = "Get contacts")
     @PostMapping("/byIds")
     fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flux<ContactDto> {
         val contacts = contactLogic.getContacts(contactIds.ids)
-        return contacts.map { c -> mapper.map(c, ContactDto::class.java) }.injectReactorContext()
+        return contacts.map { c -> Mappers.getMapper(ContactMapper::class.java).map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "Get the list of all used codes frequencies in services")
@@ -130,14 +128,14 @@ class ContactController(private val mapper: MapperFacade,
     fun getServiceCodesOccurences(@PathVariable codeType: String,
                                   @PathVariable minOccurences: Long) = mono {
         contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, codeType, minOccurences)
-                .map { mapper.map(it, LabelledOccurenceDto::class.java) }
+                .map { Mappers.getMapper(LabelledOccurenceMapper::class.java).map(it) }
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
     @GetMapping("/byHcPartyFormId")
     fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.findContactsByHCPartyFormId(hcPartyId, formId)
-        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
+        return contactList.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
@@ -148,7 +146,7 @@ class ContactController(private val mapper: MapperFacade,
         }
         val contactList = contactLogic.findContactsByHCPartyFormIds(hcPartyId, formIds.ids)
 
-        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
+        return contactList.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and Patient foreign keys.")
@@ -159,7 +157,7 @@ class ContactController(private val mapper: MapperFacade,
         }
         val contactList = contactLogic.findByHCPartyPatient(hcPartyId, patientForeignKeys.ids)
 
-        return contactList.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
+        return contactList.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
@@ -173,9 +171,9 @@ class ContactController(private val mapper: MapperFacade,
 
         return if (planOfActionsIds != null) {
             val poaids = planOfActionsIds.split(',')
-            contactList.filter { c -> (skipClosedContacts == null || !skipClosedContacts || c.closingDate == null) && !Collections.disjoint(c.subContacts.map { it.planOfActionId }, poaids) }.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
+            contactList.filter { c -> (skipClosedContacts == null || !skipClosedContacts || c.closingDate == null) && !Collections.disjoint(c.subContacts.map { it.planOfActionId }, poaids) }.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
         } else {
-            contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
+            contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
         }
     }
 
@@ -184,7 +182,7 @@ class ContactController(private val mapper: MapperFacade,
     fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
+        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> Mappers.getMapper(IcureStubMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -199,7 +197,7 @@ class ContactController(private val mapper: MapperFacade,
                 )
             } ?: contact
         }
-        emitAll(contactLogic.updateEntities(contacts.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+        emitAll(contactLogic.updateEntities(contacts.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it) })
     }.injectReactorContext()
 
 
@@ -218,7 +216,7 @@ class ContactController(private val mapper: MapperFacade,
             }
         }
 
-        return savedOrFailed.map { contact -> mapper.map(contact, ContactDto::class.java) }.injectReactorContext()
+        return savedOrFailed.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete contacts.", description = "Response is a set containing the ID's of deleted contacts.")
@@ -237,7 +235,7 @@ class ContactController(private val mapper: MapperFacade,
         handleServiceIndexes(contactDto)
 
         contactLogic.modifyContact(mapper.map(contactDto, Contact::class.java))?.let {
-            mapper.map(it, ContactDto::class.java)
+            Mappers.getMapper(ContactMapper::class.java).map(it)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact modification failed.")
     }
 
@@ -248,7 +246,7 @@ class ContactController(private val mapper: MapperFacade,
             contactDtos.forEach { c -> handleServiceIndexes(c) }
 
             val contacts = contactLogic.updateEntities(contactDtos.map { f -> mapper.map(f, Contact::class.java) })
-            contacts.map { f -> mapper.map(f, ContactDto::class.java) }.injectReactorContext()
+            contacts.map { f -> Mappers.getMapper(ContactMapper::class.java).map(f) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -267,7 +265,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val succeed = contactWithDelegation != null && contactWithDelegation.delegations != null && contactWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            mapper.map(contactWithDelegation, ContactDto::class.java)
+            Mappers.getMapper(ContactMapper::class.java).map(contactWithDelegation)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for Contact failed.")
         }
@@ -307,7 +305,7 @@ class ContactController(private val mapper: MapperFacade,
 
         val services = contactLogic.filterServices(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Service>, mapper.map(filterChain.predicate, Predicate::class.java)))
                 .toList().let { filterChain.filter.applyTo(it) } // TODO AD is this correct?
-                .map { mapper.map(it, ServiceDto::class.java) }
+                .map { Mappers.getMapper(ServiceMapper::class.java).map(it) }
 
         val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
 

@@ -20,24 +20,31 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.Encryptable
-import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.base.StoredICureDocument
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.IdentityDocumentReader
+import org.taktik.icure.entities.embed.InvoiceInterventionType
+import org.taktik.icure.entities.embed.InvoiceType
+import org.taktik.icure.entities.embed.InvoicingCode
+import org.taktik.icure.entities.embed.MediumType
+import org.taktik.icure.entities.embed.Payment
+import org.taktik.icure.entities.embed.PaymentType
+import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Invoice(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

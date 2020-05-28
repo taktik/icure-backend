@@ -23,6 +23,8 @@ import java.util.*
 /**
  * Created by aduchate on 12/07/2017.
  */
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class EmailOrSmsMessageDto(
         val attachments: List<AttachmentDto> = listOf(),
         val destination //email or phone number (international format)
@@ -44,5 +46,7 @@ data class EmailOrSmsMessageDto(
         EMAIL, SMS
     }
 
-    data class AttachmentDto(val data: ByteArray? = null, val fileName: String? = null, val mimeType: String? = null) : Serializable
+    import com.github.pozo.KotlinBuilder
+@KotlinBuilder
+data class AttachmentDto(val data: ByteArray? = null, val fileName: String? = null, val mimeType: String? = null) : Serializable
 }

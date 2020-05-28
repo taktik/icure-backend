@@ -17,6 +17,8 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MessagesReadStatusUpdateDto(
         val ids: List<String>? = null,
         val userId: String? = null,

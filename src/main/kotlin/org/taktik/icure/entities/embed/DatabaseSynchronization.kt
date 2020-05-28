@@ -18,9 +18,11 @@
 package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class DatabaseSynchronization(
         val source: String? = null,
         val target: String? = null,

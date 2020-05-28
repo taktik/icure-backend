@@ -23,6 +23,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class DocumentGroup(
         val guid: String? = null,
         val name: String? = null

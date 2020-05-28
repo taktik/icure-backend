@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -48,7 +47,7 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
         val insurance = insuranceLogic.createInsurance(mapper.map(insuranceDto, Insurance::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance creation failed")
 
-        mapper.map(insurance, InsuranceDto::class.java)
+        Mappers.getMapper(InsuranceMapper::class.java).map(insurance)
     }
 
     @Operation(summary = "Deletes an insurance")
@@ -63,21 +62,21 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
     fun getInsurance(@PathVariable insuranceId: String) = mono {
         val insurance = insuranceLogic.getInsurance(insuranceId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Insurance fetching failed")
-        mapper.map(insurance, InsuranceDto::class.java)
+        Mappers.getMapper(InsuranceMapper::class.java).map(insurance)
     }
 
     @Operation(summary = "Gets insurances by id")
     @PostMapping("/byIds")
     fun getInsurances(@RequestBody insuranceIds: ListOfIdsDto): Flux<InsuranceDto> {
         val insurances = insuranceLogic.getInsurances(HashSet(insuranceIds.ids))
-        return insurances.map { mapper.map(it, InsuranceDto::class.java) }.injectReactorContext()
+        return insurances.map { Mappers.getMapper(InsuranceMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets an insurance")
     @GetMapping("/byCode/{insuranceCode}")
     fun listInsurancesByCode(@PathVariable insuranceCode: String): Flux<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByCode(insuranceCode)
-        return insurances.map { mapper.map(it, InsuranceDto::class.java) }.injectReactorContext()
+        return insurances.map { Mappers.getMapper(InsuranceMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets an insurance")
@@ -85,7 +84,7 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
     fun listInsurancesByName(@PathVariable insuranceName: String): Flux<InsuranceDto> {
         val insurances = insuranceLogic.listInsurancesByName(insuranceName)
 
-        return insurances.map { mapper.map(it, InsuranceDto::class.java) }.injectReactorContext()
+        return insurances.map { Mappers.getMapper(InsuranceMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Modifies an insurance")
@@ -94,6 +93,6 @@ class InsuranceController(private val insuranceLogic: InsuranceLogic,
         val insurance = insuranceLogic.modifyInsurance(mapper.map(insuranceDto, Insurance::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Insurance modification failed")
 
-        mapper.map(insurance, InsuranceDto::class.java)
+        Mappers.getMapper(InsuranceMapper::class.java).map(insurance)
     }
 }

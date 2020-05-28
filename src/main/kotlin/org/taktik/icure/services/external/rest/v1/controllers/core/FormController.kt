@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -58,8 +57,7 @@ import javax.xml.transform.TransformerException
 @RestController
 @RequestMapping("/rest/v1/form")
 @Tag(name = "form")
-class FormController(private val mapper: MapperFacade,
-                     private val formTemplateLogic: FormTemplateLogic,
+class FormController(private private val formTemplateLogic: FormTemplateLogic,
                      private val formLogic: FormLogic,
                      private val sessionLogic: AsyncSessionLogic) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -69,14 +67,14 @@ class FormController(private val mapper: MapperFacade,
     fun getForm(@PathVariable formId: String) = mono {
         val form = formLogic.getForm(formId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Form fetching failed")
-        mapper.map(form, FormDto::class.java)
+        Mappers.getMapper(FormMapper::class.java).map(form)
     }
 
     @Operation(summary = "Get a list of forms by ids", description = "Keys must be delimited by coma")
     @PostMapping("/byIds")
     fun getForms(@RequestBody formIds: ListOfIdsDto): Flux<FormDto> {
         val forms = formLogic.getForms(formIds.ids)
-        return forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
+        return forms.map { Mappers.getMapper(FormMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Get a list of forms by ids", description = "Keys must be delimited by coma")
@@ -84,7 +82,7 @@ class FormController(private val mapper: MapperFacade,
     fun getChildrenForms(@PathVariable formId: String,
                     @PathVariable hcPartyId: String): Flux<FormDto> {
         val forms = formLogic.findByHcPartyParentId(hcPartyId, formId)
-        return forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
+        return forms.map { Mappers.getMapper(FormMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Create a form with the current user", description = "Returns an instance of created form.")
@@ -97,7 +95,7 @@ class FormController(private val mapper: MapperFacade,
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        mapper.map(form, FormDto::class.java)
+        Mappers.getMapper(FormMapper::class.java).map(form)
     }
 
     @Operation(summary = "Delegates a form to a healthcare party", description = "It delegates a form to a healthcare party. Returns the form with the new delegations.")
@@ -108,7 +106,7 @@ class FormController(private val mapper: MapperFacade,
         val formWithDelegation = formLogic.getForm(formId)
 
         if (formWithDelegation != null && formWithDelegation.delegations != null && formWithDelegation.delegations.isNotEmpty()) {
-            mapper.map(formWithDelegation, FormDto::class.java)
+            Mappers.getMapper(FormMapper::class.java).map(formWithDelegation)
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for Form failed")
         }
@@ -121,7 +119,7 @@ class FormController(private val mapper: MapperFacade,
             formLogic.modifyForm(mapper.map(formDto, Form::class.java))
             val modifiedForm = formLogic.getForm(formDto.id)
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form modification failed")
-            mapper.map(modifiedForm, FormDto::class.java)
+            Mappers.getMapper(FormMapper::class.java).map(modifiedForm)
 
         } catch (e: MissingRequirementsException) {
             log.warn(e.message, e)
@@ -143,7 +141,7 @@ class FormController(private val mapper: MapperFacade,
     fun modifyForms(@RequestBody formDtos: List<FormDto>): Flux<FormDto> {
         return try {
             val forms = formLogic.updateEntities(formDtos.map { mapper.map(it, Form::class.java) })
-            forms.map { mapper.map(it, FormDto::class.java) }.injectReactorContext()
+            forms.map { Mappers.getMapper(FormMapper::class.java).map(it) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -159,7 +157,7 @@ class FormController(private val mapper: MapperFacade,
                                         @RequestParam(required = false) formTemplateId: String?): Flux<FormDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         val formsList = formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), healthElementId, planOfActionId, formTemplateId)
-        return formsList.map { contact -> mapper.map(contact, FormDto::class.java) }.injectReactorContext()
+        return formsList.map { contact -> Mappers.getMapper(FormMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List form stubs found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
@@ -167,7 +165,7 @@ class FormController(private val mapper: MapperFacade,
     fun findFormsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { contact -> mapper.map(contact, IcureStubDto::class.java) }.injectReactorContext()
+        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { contact -> Mappers.getMapper(IcureStubMapper::class.java).map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in form.", description = "Keys must be delimited by coma")
@@ -182,7 +180,7 @@ class FormController(private val mapper: MapperFacade,
                 )
             } ?: form
         }
-        emitAll(formLogic.updateEntities(forms.toList()).map { mapper.map(it, IcureStubDto::class.java)})
+        emitAll(formLogic.updateEntities(forms.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it)})
     }.injectReactorContext()
 
     @Operation(summary = "Gets a form template by guid")
@@ -190,7 +188,7 @@ class FormController(private val mapper: MapperFacade,
     fun getFormTemplate(@PathVariable formTemplateId: String) = mono {
         val formTemplate = formTemplateLogic.getFormTemplateById(formTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "FormTemplate fetching failed")
-        mapper.map(formTemplate, FormTemplateDto::class.java)
+        Mappers.getMapper(FormTemplateMapper::class.java).map(formTemplate)
     }
 
     @Operation(summary = "Gets a form template")
@@ -198,7 +196,7 @@ class FormController(private val mapper: MapperFacade,
     fun getFormTemplatesByGuid(@PathVariable formTemplateGuid: String, @PathVariable specialityCode: String): Flux<FormTemplateDto> = flow{
         emitAll(
                 formTemplateLogic.getFormTemplatesByGuid(sessionLogic.getCurrentUserId(), specialityCode, formTemplateGuid)
-                        .map { mapper.map(it, FormTemplateDto::class.java) }
+                        .map { Mappers.getMapper(FormTemplateMapper::class.java).map(it) }
         )
     }.injectReactorContext()
 
@@ -206,7 +204,7 @@ class FormController(private val mapper: MapperFacade,
     @GetMapping("/template/bySpecialty/{specialityCode}")
     fun findFormTemplatesBySpeciality(@PathVariable specialityCode: String, @RequestParam(required = false) loadLayout: Boolean?): Flux<FormTemplateDto> {
         val formTemplates = formTemplateLogic.getFormTemplatesBySpecialty(specialityCode, loadLayout ?: true)
-        return formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }.injectReactorContext()
+        return formTemplates.map { Mappers.getMapper(FormTemplateMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all form templates for current user")
@@ -219,7 +217,7 @@ class FormController(private val mapper: MapperFacade,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
         emitAll(
-                formTemplates.map { mapper.map(it, FormTemplateDto::class.java) }
+                formTemplates.map { Mappers.getMapper(FormTemplateMapper::class.java).map(it) }
         )
     }.injectReactorContext()
 
@@ -227,7 +225,7 @@ class FormController(private val mapper: MapperFacade,
     @PostMapping("/template")
     fun createFormTemplate(@RequestBody ft: FormTemplateDto) = mono {
         val formTemplate = formTemplateLogic.createFormTemplate(mapper.map(ft, FormTemplate::class.java))
-        mapper.map(formTemplate, FormTemplateDto::class.java)
+        Mappers.getMapper(FormTemplateMapper::class.java).map(formTemplate)
     }
 
     @Operation(summary = "Delete a form template")
@@ -243,7 +241,7 @@ class FormController(private val mapper: MapperFacade,
         val template = mapper.map(ft, FormTemplate::class.java).copy(id = formTemplateId)
         val formTemplate = formTemplateLogic.modifyFormTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Form modification failed")
-        mapper.map(formTemplate, FormTemplateDto::class.java)
+        Mappers.getMapper(FormTemplateMapper::class.java).map(formTemplate)
     }
 
     @Operation(summary = "Update a form template's layout")

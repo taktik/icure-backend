@@ -1,13 +1,19 @@
 package org.taktik.icure.entities.samv2
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.RevisionInfo
-import org.taktik.icure.entities.samv2.embed.*
+import org.taktik.icure.entities.samv2.embed.CommentedClassification
+import org.taktik.icure.entities.samv2.embed.SamText
+import org.taktik.icure.entities.samv2.embed.VmpComponent
+import org.taktik.icure.entities.samv2.embed.Vtm
+import org.taktik.icure.entities.samv2.embed.Wada
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 
+@KotlinBuilder
 data class Vmp(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -53,7 +52,7 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     fun createReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
         try {
             val created = receiptLogic.createEntities(listOf(mapper.map(receiptDto, Receipt::class.java)))
-            created.firstOrNull()?.let { mapper.map(it, ReceiptDto::class.java) }
+            created.firstOrNull()?.let { Mappers.getMapper(ReceiptMapper::class.java).map(it) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
@@ -100,21 +99,21 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
         val receipt = receiptLogic.getEntity(receiptId)
         if (receipt != null) {
             receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), encryptedPayload)
-            mapper.map(receipt, ReceiptDto::class.java)
+            Mappers.getMapper(ReceiptMapper::class.java).map(receipt)
         } else throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
     }
 
     @Operation(summary = "Gets a receipt")
     @GetMapping("/{receiptId}")
     fun getReceipt(@PathVariable receiptId: String) = mono {
-        receiptLogic.getEntity(receiptId)?.let { mapper.map(it, ReceiptDto::class.java) }
+        receiptLogic.getEntity(receiptId)?.let { Mappers.getMapper(ReceiptMapper::class.java).map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
     }
 
     @Operation(summary = "Gets a receipt")
     @GetMapping("/byref/{ref}")
     fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
-            receiptLogic.listByReference(ref).map { mapper.map(it, ReceiptDto::class.java) }.injectReactorContext()
+            receiptLogic.listByReference(ref).map { Mappers.getMapper(ReceiptMapper::class.java).map(it) }.injectReactorContext()
 
     @Operation(summary = "Updates a receipt")
     @PutMapping
@@ -122,7 +121,7 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
         val receipt = mapper.map(receiptDto, Receipt::class.java)
         try {
             val updated = receiptLogic.updateEntities(listOf(receipt))
-            updated.map { mapper.map(it, ReceiptDto::class.java) }.firstOrNull()
+            updated.map { Mappers.getMapper(ReceiptMapper::class.java).map(it) }.firstOrNull()
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update receipt")
 
         } catch (e: Exception) {

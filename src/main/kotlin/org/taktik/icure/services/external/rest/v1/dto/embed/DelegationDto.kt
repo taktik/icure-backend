@@ -17,12 +17,14 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import java.io.Serializable
-
 /**
  * Created by aduchate on 29/03/13, 18:37
  */
 
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
+
+@KotlinBuilder
 data class DelegationDto(
         //This is not the owner of a piece of date (patient, contact). It is the owner of the delegation.
         var owner: String? = null, // owner id

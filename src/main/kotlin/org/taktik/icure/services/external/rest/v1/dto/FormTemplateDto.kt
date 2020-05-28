@@ -25,6 +25,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentGroupDto
  * Created by aduchate on 09/07/13, 16:27
  */
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class FormTemplateDto(
         override val id: String,
         override val rev: String? = null,

@@ -27,6 +27,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PeriodicityDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ValorisationDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class TarificationDto(
         override val id: String,         // id = type|code|version  => this must be unique
         override val rev: String? = null,

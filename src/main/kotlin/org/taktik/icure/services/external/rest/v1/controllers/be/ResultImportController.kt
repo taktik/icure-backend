@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v1.controllers.be
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.lang3.StringUtils.isBlank
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.be.format.logic.MultiFormatLogic
@@ -57,7 +56,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                     full ?: false,
                     language,
                     if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            )?.map { mapper.map(it, ResultInfoDto::class.java) }
+            )?.map { Mappers.getMapper(ResultInfoMapper::class.java).map(it) }
         }
     }
 

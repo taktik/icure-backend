@@ -22,6 +22,8 @@ import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PropertyTypeDto(
         override val id: String,
         override val rev: String? = null,

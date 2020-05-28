@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.core.io.buffer.DataBufferFactory
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.HttpStatus
@@ -53,8 +52,7 @@ import javax.xml.transform.stream.StreamSource
 @RestController
 @RequestMapping("/rest/v1/doctemplate")
 @Tag(name = "doctemplate")
-class DocumentTemplateController(private val mapper: MapperFacade,
-                                 private val documentTemplateLogic: DocumentTemplateLogic,
+class DocumentTemplateController(private private val documentTemplateLogic: DocumentTemplateLogic,
                                  private val sessionLogic: AsyncSessionLogic) {
 
     @Operation(summary = "Gets a document template")
@@ -62,7 +60,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     fun getDocumentTemplate(@PathVariable documentTemplateId: String) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "DocumentTemplate fetching failed")
-        mapper.map(documentTemplate, DocumentTemplateDto::class.java)
+        Mappers.getMapper(DocumentTemplateMapper::class.java).map(documentTemplate)
     }
 
     @Operation(summary = "Deletes a document template")
@@ -80,7 +78,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     @GetMapping("/bySpecialty/{specialityCode}")
     fun findDocumentTemplatesBySpeciality(@PathVariable specialityCode: String): Flux<DocumentTemplateDto> {
         val documentTemplates = documentTemplateLogic.getDocumentTemplatesBySpecialty(specialityCode)
-        return documentTemplates.map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }.injectReactorContext()
+        return documentTemplates.map { ft -> Mappers.getMapper(DocumentTemplateMapper::class.java).map(ft) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all document templates by Type")
@@ -89,7 +87,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
         DocumentType.fromName(documentTypeCode)
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot retrieve document templates: provided Document Type Code doesn't exists")
         val documentTemplates = documentTemplateLogic.getDocumentTemplatesByDocumentType(documentTypeCode)
-        return documentTemplates.map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }.injectReactorContext()
+        return documentTemplates.map { ft -> Mappers.getMapper(DocumentTemplateMapper::class.java).map(ft) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all document templates by Type For currentUser")
@@ -99,7 +97,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot retrieve document templates: provided Document Type Code doesn't exists")
         emitAll(
                 documentTemplateLogic.getDocumentTemplatesByDocumentTypeAndUser(documentTypeCode, sessionLogic.getCurrentUserId())
-                        .map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }
+                        .map { ft -> Mappers.getMapper(DocumentTemplateMapper::class.java).map(ft) }
         )
     }.injectReactorContext()
 
@@ -108,7 +106,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     fun findDocumentTemplates(): Flux<DocumentTemplateDto> = flow {
         emitAll(
                 documentTemplateLogic.getDocumentTemplatesByUser(sessionLogic.getCurrentUserId())
-                .map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }
+                .map { ft -> Mappers.getMapper(DocumentTemplateMapper::class.java).map(ft) }
         )
     }.injectReactorContext()
 
@@ -116,14 +114,14 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     @GetMapping("/find/all")
     fun findAllDocumentTemplates(): Flux<DocumentTemplateDto> {
         val documentTemplates = documentTemplateLogic.getAllEntities()
-        return documentTemplates.map { ft -> mapper.map(ft, DocumentTemplateDto::class.java) }.injectReactorContext()
+        return documentTemplates.map { ft -> Mappers.getMapper(DocumentTemplateMapper::class.java).map(ft) }.injectReactorContext()
     }
 
     @Operation(summary = "Create a document template with the current user", description = "Returns an instance of created document template.")
     @PostMapping
     fun createDocumentTemplate(@RequestBody ft: DocumentTemplateDto) = mono {
         val documentTemplate = documentTemplateLogic.createDocumentTemplate(mapper.map(ft, DocumentTemplate::class.java))
-        mapper.map(documentTemplate, DocumentTemplateDto::class.java)
+        Mappers.getMapper(DocumentTemplateMapper::class.java).map(documentTemplate)
     }
 
     @Operation(summary = "Modify a document template with the current user", description = "Returns an instance of created document template.")
@@ -133,7 +131,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
         val documentTemplate = documentTemplateLogic.modifyDocumentTemplate(template)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document Template update failed")
 
-        mapper.map(documentTemplate, DocumentTemplateDto::class.java)
+        Mappers.getMapper(DocumentTemplateMapper::class.java).map(documentTemplate)
     }
 
     @Operation(summary = "Download a the document template attachment")
@@ -183,7 +181,7 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     fun setDocumentTemplateAttachment(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArray) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
-        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload)), DocumentTemplateDto::class.java)
+        Mappers.getMapper(DocumentTemplateMapper::class.java).map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload)))
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -191,6 +189,6 @@ class DocumentTemplateController(private val mapper: MapperFacade,
     fun setDocumentTemplateAttachmentJson(@PathVariable documentTemplateId: String, @RequestBody payload: ByteArrayDto) = mono {
         val documentTemplate = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
-        mapper.map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload.data)), DocumentTemplateDto::class.java)
+        Mappers.getMapper(DocumentTemplateMapper::class.java).map(documentTemplateLogic.modifyDocumentTemplate(documentTemplate.copy(attachment = payload.data)))
     }
 }

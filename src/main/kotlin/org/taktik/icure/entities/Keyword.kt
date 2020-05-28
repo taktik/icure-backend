@@ -19,10 +19,9 @@ package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.KeywordSubword
 import org.taktik.icure.entities.embed.RevisionInfo
@@ -33,6 +32,7 @@ import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@KotlinBuilder
 data class Keyword(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

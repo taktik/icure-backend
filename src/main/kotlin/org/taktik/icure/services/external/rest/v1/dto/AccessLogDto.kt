@@ -31,6 +31,8 @@ import org.taktik.icure.validation.NotNull
 import java.time.Instant
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class AccessLogDto(
         override val id: String,
         override val rev: String? = null,

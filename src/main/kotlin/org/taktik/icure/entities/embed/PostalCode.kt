@@ -23,6 +23,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class PostalCode(
         val code: String? = null,
         val label: Map<String, String> = mapOf()

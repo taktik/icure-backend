@@ -17,15 +17,17 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+/**
+ * Services are created in the course a contact. Information like temperature, blood pressure and so on.
+ */
+
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.validation.NotNull
 import java.util.*
 
-/**
- * Services are created in the course a contact. Information like temperature, blood pressure and so on.
- */
-
+@KotlinBuilder
 data class ServiceDto(
         override val id: String = UUID.randomUUID().toString(),//Only used when the ServiceDto is emitted outside of its contact
         val contactId: String? = null,

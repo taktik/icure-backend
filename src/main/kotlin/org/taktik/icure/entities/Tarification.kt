@@ -20,8 +20,13 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
+import org.taktik.icure.entities.base.AppendixType
+import org.taktik.icure.entities.base.CodeFlag
+import org.taktik.icure.entities.base.CodeIdentification
+import org.taktik.icure.entities.base.LinkQualification
+import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.LetterValue
 import org.taktik.icure.entities.embed.Periodicity
 import org.taktik.icure.entities.embed.RevisionInfo
@@ -34,6 +39,7 @@ import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Tarification(
         @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
         @JsonProperty("_rev") override val rev: String? = null,

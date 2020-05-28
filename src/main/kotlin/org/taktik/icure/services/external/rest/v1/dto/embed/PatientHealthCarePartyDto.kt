@@ -18,12 +18,14 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
-import java.util.*
+import com.github.pozo.KotlinBuilderimport java.util.*
 
 /**
  * Created by aduchate on 02/07/13, 11:59
  */
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PatientHealthCarePartyDto(
         val type: PatientHealthCarePartyTypeDto? = null,
         val isReferral: Boolean = false, // mark this phcp as THE active referral link (gmd)

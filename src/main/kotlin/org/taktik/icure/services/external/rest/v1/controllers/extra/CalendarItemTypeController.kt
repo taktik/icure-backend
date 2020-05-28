@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -45,7 +44,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     @GetMapping
     fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> {
         val calendarItemTypes = calendarItemTypeLogic.getAllEntities()
-        return calendarItemTypes.map { mapper.map(it, CalendarItemTypeDto::class.java) }.injectReactorContext()
+        return calendarItemTypes.map { Mappers.getMapper(CalendarItemTypeMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all calendarItemTypes include deleted")
@@ -53,7 +52,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     fun getCalendarItemTypesIncludeDeleted(): Flux<CalendarItemTypeDto> {
         val calendarItemTypes = calendarItemTypeLogic.getAllEntitiesIncludeDelete()
 
-        return calendarItemTypes.map { mapper.map(it, CalendarItemTypeDto::class.java) }.injectReactorContext()
+        return calendarItemTypes.map { Mappers.getMapper(CalendarItemTypeMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Creates a calendarItemType")
@@ -61,7 +60,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     fun createCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
         val calendarItemType = calendarItemTypeLogic.createCalendarItemType(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType creation failed")
-        mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
+        Mappers.getMapper(CalendarItemTypeMapper::class.java).map(calendarItemType)
     }
 
     @Operation(summary = "Deletes an calendarItemType")
@@ -76,7 +75,7 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
         val calendarItemType = calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
 
-        mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
+        Mappers.getMapper(CalendarItemTypeMapper::class.java).map(calendarItemType)
     }
 
 
@@ -86,6 +85,6 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
         val calendarItemType = calendarItemTypeLogic.modifyCalendarTypeItem(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType modification failed")
 
-        mapper.map(calendarItemType, CalendarItemTypeDto::class.java)
+        Mappers.getMapper(CalendarItemTypeMapper::class.java).map(calendarItemType)
     }
 }

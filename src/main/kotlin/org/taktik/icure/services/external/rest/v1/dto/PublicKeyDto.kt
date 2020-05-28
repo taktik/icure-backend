@@ -19,4 +19,6 @@ package org.taktik.icure.services.external.rest.v1.dto
 
 import java.io.Serializable
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PublicKeyDto(val hcPartyId: String? = null, val hexString: String? = null) : Serializable

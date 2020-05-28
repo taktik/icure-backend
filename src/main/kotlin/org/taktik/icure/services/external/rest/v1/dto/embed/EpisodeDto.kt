@@ -17,14 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import org.taktik.icure.services.external.rest.v1.dto.base.IdentifiableDto
-import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
+import com.github.pozo.KotlinBuilderclass
 import org.taktik.icure.utils.DynamicInitializer
-import org.taktik.icure.utils.invoke
-import java.io.Serializable
 
-
-class EpisodeDto(
+EpisodeDto(
         override val id: String,
         override val name: String? = null,
         val comment: String? = null,

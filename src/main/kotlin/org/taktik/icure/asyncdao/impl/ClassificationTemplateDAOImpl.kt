@@ -20,7 +20,6 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -42,7 +41,7 @@ import java.util.*
  */
 @Repository("classificationTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.ClassificationTemplate' && !doc.deleted) emit( doc.label, doc._id )}")
-internal class ClassificationTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericIcureDAOImpl<ClassificationTemplate>(ClassificationTemplate::class.java, couchDbDispatcher, idGenerator, mapper), ClassificationTemplateDAO {
+internal class ClassificationTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<ClassificationTemplate>(ClassificationTemplate::class.java, couchDbDispatcher, idGenerator, mapper), ClassificationTemplateDAO {
 
     override suspend fun getClassificationTemplate(dbInstanceUrl: URI, groupId: String, classificationTemplateId: String): ClassificationTemplate? {
         return get(dbInstanceUrl, groupId, classificationTemplateId)

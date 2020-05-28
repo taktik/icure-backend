@@ -19,8 +19,7 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import org.taktik.icure.services.external.rest.v1.dto.base.EnumVersionDto
 import java.io.Serializable
-
-@EnumVersionDto(1L)
+import com.github.pozo.KotlinBuilder@EnumVersionDto(1L)
 enum class PersonalStatusDto : Serializable {
     single, in_couple, married, separated, divorced, divorcing, widowed, widower, complicated, unknown, contract, other
 }

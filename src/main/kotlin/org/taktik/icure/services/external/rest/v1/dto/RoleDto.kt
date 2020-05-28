@@ -23,6 +23,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PermissionDto
 import java.io.Serializable
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class RoleDto(
         override val id: String,
         override val rev: String? = null,

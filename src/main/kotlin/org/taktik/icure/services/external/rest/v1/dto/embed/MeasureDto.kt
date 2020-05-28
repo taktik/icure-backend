@@ -17,12 +17,13 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
 
-
+@KotlinBuilder
 data class MeasureDto(
         val value: Double? = null,
         val min: Double? = null,

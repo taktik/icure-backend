@@ -1,5 +1,7 @@
 package org.taktik.icure.services.external.rest.v1.dto
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MedexInfoDto(
     val beginDate: Long,
     val endDate: Long,

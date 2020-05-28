@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.utils.DynamicInitializer
@@ -35,6 +36,7 @@ import java.util.*
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Service(
         @JsonProperty("_id") override val id: String = UUID.randomUUID().toString(),//Only used when the Service is emitted outside of its contact
         @JsonIgnore val contactId: String? = null,

@@ -32,35 +32,39 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.GroupLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.dao.replicator.GroupDBUrl
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.properties.TwilioProperties
 import org.taktik.icure.security.database.DatabaseUserDetails
-import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.services.external.rest.v1.dto.EmailTemplateDto
+import org.taktik.icure.services.external.rest.v1.dto.PropertyDto
+import org.taktik.icure.services.external.rest.v1.dto.UserDto
+import org.taktik.icure.services.external.rest.v1.dto.UserGroupDto
 import org.taktik.icure.utils.distinctById
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import java.io.IOException
 import java.util.*
-import javax.ws.rs.PUT
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.core.Response
 
 
 /* Useful notes:
@@ -72,8 +76,7 @@ import javax.ws.rs.core.Response
 @RestController
 @RequestMapping("/rest/v1/user")
 @Tag(name = "user") // otherwise would default to "user-controller"
-class UserController(private val mapper: MapperFacade,
-                     private val userLogic: UserLogic,
+class UserController(private private val userLogic: UserLogic,
                      private val groupLogic: GroupLogic,
                      private val sessionLogic: AsyncSessionLogic,
                      private val twilioProperties: TwilioProperties) {
@@ -86,7 +89,7 @@ class UserController(private val mapper: MapperFacade,
     fun getCurrentUser() = mono {
             val user = userLogic.getUser(sessionLogic.getCurrentUserId())
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-            mapper.map(user, UserDto::class.java)
+            Mappers.getMapper(UserMapper::class.java).map(user)
     }
 
     @Operation(summary = "Get Currently logged-in user session.", description = "Get current user.")
@@ -142,7 +145,7 @@ class UserController(private val mapper: MapperFacade,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User creation failed.")
 
-        mapper.map(user, UserDto::class.java)
+        Mappers.getMapper(UserMapper::class.java).map(user)
     }
 
     @Operation(summary = "Create a user", description = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
@@ -157,7 +160,7 @@ class UserController(private val mapper: MapperFacade,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User creation failed.")
 
-        mapper.map(user, UserDto::class.java)
+        Mappers.getMapper(UserMapper::class.java).map(user)
     }
 
     @Operation(summary = "Modify a user.", description = "No particular return value. It's just a message.")
@@ -170,7 +173,7 @@ class UserController(private val mapper: MapperFacade,
         val modifiedUser = userLogic.getUser(userDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
 
-        mapper.map(modifiedUser, UserDto::class.java)
+        Mappers.getMapper(UserMapper::class.java).map(modifiedUser)
     }
 
     @Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
@@ -192,7 +195,7 @@ class UserController(private val mapper: MapperFacade,
     fun getUser(@PathVariable userId: String) = mono {
         val user = userLogic.getUser(userId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        mapper.map(user, UserDto::class.java)
+        Mappers.getMapper(UserMapper::class.java).map(user)
     }
 
     @Operation(summary = "Get a user by his Email/Login", description = "General information about the user")
@@ -200,7 +203,7 @@ class UserController(private val mapper: MapperFacade,
     fun getUserByEmail(@PathVariable email: String) = mono {
         val user = userLogic.getUserByEmail(email)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
-        mapper.map(user, UserDto::class.java)
+        Mappers.getMapper(UserMapper::class.java).map(user)
     }
 
     @Operation(summary = "Get the list of users by healthcare party id")
@@ -227,7 +230,7 @@ class UserController(private val mapper: MapperFacade,
         val modifiedUser = userLogic.getUser(userDto.id)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
 
-        mapper.map(modifiedUser, UserDto::class.java)
+        Mappers.getMapper(UserMapper::class.java).map(modifiedUser)
     }
 
     @Operation(summary = "Assign a healthcare party ID to current user", description = "UserDto gets returned.")
@@ -237,7 +240,7 @@ class UserController(private val mapper: MapperFacade,
         modifiedUser?.let {
             userLogic.save(modifiedUser.copy(healthcarePartyId = healthcarePartyId))
 
-            mapper.map(modifiedUser, UserDto::class.java)
+            Mappers.getMapper(UserMapper::class.java).map(modifiedUser)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
     }
 
@@ -252,7 +255,7 @@ class UserController(private val mapper: MapperFacade,
                 logger.error("Modify a User property failed.")
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
             }
-            mapper.map(modifiedUser, UserDto::class.java)
+            Mappers.getMapper(UserMapper::class.java).map(modifiedUser)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
 
     }

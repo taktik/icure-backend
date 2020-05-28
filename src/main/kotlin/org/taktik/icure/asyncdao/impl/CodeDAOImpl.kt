@@ -24,7 +24,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import ma.glasnost.orika.Mapper
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
@@ -46,7 +45,7 @@ import java.net.URI
 
 @Repository("codeDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.base.Code' && !doc.deleted) emit( null, doc._id )}")
-class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<Code>(Code::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), CodeDAO {
+class CodeDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Code>(Code::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), CodeDAO {
     @View(name = "by_type_code_version", map = "classpath:js/code/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findCodes(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Code> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

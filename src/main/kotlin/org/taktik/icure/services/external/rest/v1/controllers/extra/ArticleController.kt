@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -20,8 +19,7 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/article")
 @Tag(name = "article")
-class ArticleController(private val mapper: MapperFacade,
-                        private val articleLogic: ArticleLogic) {
+class ArticleController(private private val articleLogic: ArticleLogic) {
 
     @Operation(summary = "Creates a article")
     @PostMapping
@@ -29,7 +27,7 @@ class ArticleController(private val mapper: MapperFacade,
         val article = articleLogic.createArticle(mapper.map(articleDto, Article::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Article creation failed")
 
-        mapper.map(article, ArticleDto::class.java)
+        Mappers.getMapper(ArticleMapper::class.java).map(article)
     }
 
     @Operation(summary = "Deletes an article")
@@ -44,7 +42,7 @@ class ArticleController(private val mapper: MapperFacade,
         val article = articleLogic.getArticle(articleId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Article fetching failed")
 
-        mapper.map(article, ArticleDto::class.java)
+        Mappers.getMapper(ArticleMapper::class.java).map(article)
     }
 
     @Operation(summary = "Modifies an article")
@@ -52,12 +50,12 @@ class ArticleController(private val mapper: MapperFacade,
     fun modifyArticle(@RequestBody articleDto: ArticleDto) = mono {
         val article = articleLogic.modifyArticle(mapper.map(articleDto, Article::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
-        mapper.map(article, ArticleDto::class.java)
+        Mappers.getMapper(ArticleMapper::class.java).map(article)
     }
 
     @Operation(summary = "Gets all articles")
     @GetMapping
     fun getArticles(): Flux<ArticleDto> {
-        return articleLogic.getAllEntities().map { a -> mapper.map(a, ArticleDto::class.java) }.injectReactorContext()
+        return articleLogic.getAllEntities().map { a -> Mappers.getMapper(ArticleMapper::class.java).map(a) }.injectReactorContext()
     }
 }

@@ -25,7 +25,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -51,8 +50,7 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/tarification")
 @Tag(name = "tarification")
-class TarificationController(private val mapper: MapperFacade,
-                             private val tarificationLogic: TarificationLogic) {
+class TarificationController(private private val tarificationLogic: TarificationLogic) {
 
     private val DEFAULT_LIMIT = 1000
 
@@ -109,26 +107,26 @@ class TarificationController(private val mapper: MapperFacade,
             @Parameter(description = "Tarification type") @RequestParam(required = false) type: String?,
             @Parameter(description = "Tarification tarification") @RequestParam(required = false) tarification: String?,
             @Parameter(description = "Tarification version") @RequestParam(required = false) version: String?) : Flux<TarificationDto> {
-        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { mapper.map(it, TarificationDto::class.java) }.injectReactorContext()
+        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { Mappers.getMapper(TarificationMapper::class.java).map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Create a Tarification", description = "Type, Tarification and Version are required.")
     @PostMapping
     suspend fun createTarification(@RequestBody c: TarificationDto) =
-            tarificationLogic.create(mapper.map(c, Tarification::class.java))?.let { mapper.map(it, TarificationDto::class.java) }
+            tarificationLogic.create(Mappers.getMapper(Tarification::class.java))?.let { mapper.map(it, TarificationMapper::class.java).map(c) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
 
 
     @Operation(summary = "Get a list of tarifications by ids", description = "Keys must be delimited by coma")
     @PostMapping("/byIds")
     fun getTarifications(@RequestBody tarificationIds: ListOfIdsDto) =
-            tarificationLogic.get(tarificationIds.ids).map { f -> mapper.map(f, TarificationDto::class.java) }.injectReactorContext()
+            tarificationLogic.get(tarificationIds.ids).map { f -> Mappers.getMapper(TarificationMapper::class.java).map(f) }.injectReactorContext()
 
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{tarificationId}")
     suspend fun getTarification(@Parameter(description = "Tarification id") @PathVariable tarificationId: String) =
-            tarificationLogic.get(tarificationId)?.let { mapper.map(it, TarificationDto::class.java) }
+            tarificationLogic.get(tarificationId)?.let { Mappers.getMapper(TarificationMapper::class.java).map(it) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
@@ -137,7 +135,7 @@ class TarificationController(private val mapper: MapperFacade,
             @Parameter(description = "Tarification type", required = true) @PathVariable type: String,
             @Parameter(description = "Tarification tarification", required = true) @PathVariable tarification: String,
             @Parameter(description = "Tarification version", required = true) @PathVariable version: String) =
-            tarificationLogic.get(type, tarification, version)?.let { mapper.map(it, TarificationDto::class.java) }
+            tarificationLogic.get(type, tarification, version)?.let { Mappers.getMapper(TarificationMapper::class.java).map(it) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
 
@@ -145,7 +143,7 @@ class TarificationController(private val mapper: MapperFacade,
     @PutMapping
     suspend fun modifyTarification(@RequestBody tarificationDto: TarificationDto): TarificationDto =
             try {
-                tarificationLogic.modify(mapper.map(tarificationDto, Tarification::class.java))?.let { mapper.map(it, TarificationDto::class.java) }
+                tarificationLogic.modify(Mappers.getMapper(Tarification::class.java))?.let { mapper.map(it, TarificationMapper::class.java).map(tarificationDto) }
                         ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
             } catch (e: Exception) {
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")

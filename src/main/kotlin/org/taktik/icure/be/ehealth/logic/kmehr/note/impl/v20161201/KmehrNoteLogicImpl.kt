@@ -3,7 +3,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asFlow
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.buffer.DataBufferUtils

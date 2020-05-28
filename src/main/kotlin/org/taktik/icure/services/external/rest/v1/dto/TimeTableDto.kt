@@ -21,6 +21,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.TimeTableItemDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class TimeTableDto(
         override val id: String,
         override val rev: String? = null,

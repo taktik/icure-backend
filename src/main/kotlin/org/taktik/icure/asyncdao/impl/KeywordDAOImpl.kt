@@ -20,7 +20,6 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
@@ -33,7 +32,7 @@ import java.net.URI
 
 @Repository("keywordDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Keyword' && !doc.deleted) emit( doc, doc._id )}")
-internal class KeywordDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, mapper: MapperFacade) : GenericIcureDAOImpl<Keyword>(Keyword::class.java, couchDbDispatcher, idGenerator, mapper), KeywordDAO {
+internal class KeywordDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Keyword>(Keyword::class.java, couchDbDispatcher, idGenerator, mapper), KeywordDAO {
 
     override suspend fun getKeyword(dbInstanceUrl: URI, groupId: String, keywordId: String): Keyword? {
         return get(dbInstanceUrl, groupId, keywordId)

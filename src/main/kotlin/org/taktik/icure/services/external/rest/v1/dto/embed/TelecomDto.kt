@@ -17,14 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import org.taktik.icure.utils.DynamicInitializer
-import org.taktik.icure.utils.invoke
-import java.io.Serializable
-
 /**
  * Created by aduchate on 21/01/13, 14:47
  */
 
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.utils.DynamicInitializer
+import org.taktik.icure.utils.invoke
+import java.io.Serializable
+
+@KotlinBuilder
 data class TelecomDto(
         val telecomType: TelecomTypeDto? = null,
         val telecomNumber: String? = null,

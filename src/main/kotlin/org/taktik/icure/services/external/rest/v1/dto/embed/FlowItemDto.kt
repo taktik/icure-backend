@@ -18,6 +18,8 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class FlowItemDto(
         val id: String? = null,
         val title: String? = null,

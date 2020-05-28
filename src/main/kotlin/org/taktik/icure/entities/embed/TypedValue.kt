@@ -31,6 +31,7 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class TypedValue<T>(
         val type: TypedValuesType? = null,
         val booleanValue: Boolean? = null,

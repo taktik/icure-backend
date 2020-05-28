@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@KotlinBuilder
 data class Right(
         val userId: String? = null,
         val isRead: Boolean = false,

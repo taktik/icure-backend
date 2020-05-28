@@ -26,6 +26,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.MessageReadStatusDto
 import org.taktik.icure.utils.DynamicInitializer
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MessageDto(
         override val id: String,
         override val rev: String? = null,

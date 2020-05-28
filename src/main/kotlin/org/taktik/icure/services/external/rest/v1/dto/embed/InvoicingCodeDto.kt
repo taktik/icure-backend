@@ -22,6 +22,8 @@ import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class InvoicingCodeDto(
         override val id: String,
         val dateCode: Long? = null,

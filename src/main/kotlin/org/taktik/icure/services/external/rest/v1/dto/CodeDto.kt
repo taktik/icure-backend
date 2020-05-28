@@ -25,6 +25,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PeriodicityDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class CodeDto(
         override val id: String,         // id = type|code|version  => this must be unique
         override val rev: String? = null,

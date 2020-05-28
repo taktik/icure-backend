@@ -18,8 +18,9 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
-
-
+import com.github.pozo.KotlinBuilder
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class TimeTableHourDto(
         val startHour: Long? = null, // hh:mm:ss
         val endHour: Long? = null // hh:mm:ss

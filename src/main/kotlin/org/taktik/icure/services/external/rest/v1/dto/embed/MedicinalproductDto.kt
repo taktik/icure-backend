@@ -21,8 +21,9 @@ import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
-
-
+import com.github.pozo.KotlinBuilder
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MedicinalproductDto(
         @ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val intendedcds: List<CodeStubDto> = listOf(),

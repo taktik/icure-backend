@@ -19,13 +19,17 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
-import org.taktik.icure.constants.Permissions.*
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.constants.Permissions.CriterionDataType
+import org.taktik.icure.constants.Permissions.CriterionType
+import org.taktik.icure.constants.Permissions.CriterionTypeCurrentUser
 import org.taktik.icure.entities.User
 import org.taktik.icure.security.PermissionSetIdentifier
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class PermissionCriterion(
         val isNegative: Boolean = false,
         val currentUser: CriterionTypeCurrentUser? = null,

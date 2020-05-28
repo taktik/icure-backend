@@ -17,9 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
-
+@KotlinBuilder
 data class CountryDto(
         val code: String? = null,
         val name: Map<String, String>? = null

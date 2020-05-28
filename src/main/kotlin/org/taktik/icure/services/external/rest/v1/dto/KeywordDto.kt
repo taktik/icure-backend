@@ -23,6 +23,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.KeywordSubwordDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class KeywordDto(
         override val id: String,
         override val rev: String? = null,

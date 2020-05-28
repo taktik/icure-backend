@@ -19,6 +19,8 @@ package org.taktik.icure.services.external.rest.v1.dto
 
 import java.io.Serializable
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class PaginatedList<T : Serializable?>(
         val pageSize: Int = 0,
         val totalSize: Int = 0,

@@ -27,6 +27,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentStatusDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentTypeDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class DocumentDto(
         override val id: String,
         override val rev: String? = null,

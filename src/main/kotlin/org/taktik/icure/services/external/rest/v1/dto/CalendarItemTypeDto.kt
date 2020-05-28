@@ -3,6 +3,8 @@ package org.taktik.icure.services.external.rest.v1.dto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class CalendarItemTypeDto(
         override val id: String,
         override val rev: String? = null,

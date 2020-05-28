@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -39,7 +38,7 @@ class MedicalLocationController(private val medicalLocationLogic: MedicalLocatio
     @Operation(summary = "Creates a medical location")
     @PostMapping
     fun createMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
-        medicalLocationLogic.createMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
+        medicalLocationLogic.createMedicalLocation(Mappers.getMapper(MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationMapper::class.java).map(medicalLocationDto) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
     }
 
@@ -52,18 +51,18 @@ class MedicalLocationController(private val medicalLocationLogic: MedicalLocatio
     @Operation(summary = "Gets a medical location")
     @GetMapping("/{locationId}")
     fun getMedicalLocation(@PathVariable locationId: String) = mono {
-        medicalLocationLogic.getMedicalLocation(locationId)?.let { mapper.map(it, MedicalLocationDto::class.java) }
+        medicalLocationLogic.getMedicalLocation(locationId)?.let { Mappers.getMapper(MedicalLocationMapper::class.java).map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
     }
 
     @Operation(summary = "Gets all medical locations")
     @GetMapping
-    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> mapper.map(c, MedicalLocationDto::class.java) }.injectReactorContext()
+    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> Mappers.getMapper(MedicalLocationMapper::class.java).map(c) }.injectReactorContext()
 
     @Operation(summary = "Modifies a medical location")
     @PutMapping
     fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
-        medicalLocationLogic.modifyMedicalLocation(mapper.map(medicalLocationDto, MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationDto::class.java) }
+        medicalLocationLogic.modifyMedicalLocation(Mappers.getMapper(MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationMapper::class.java).map(medicalLocationDto) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
     }
 }

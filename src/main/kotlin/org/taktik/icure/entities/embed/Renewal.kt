@@ -6,6 +6,7 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Renewal(
         val decimal: Int? = null,
         val duration: Duration? = null

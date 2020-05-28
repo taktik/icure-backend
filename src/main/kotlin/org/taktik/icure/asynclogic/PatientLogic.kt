@@ -1,7 +1,6 @@
 package org.taktik.icure.asynclogic
 
 import kotlinx.coroutines.flow.Flow
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.ComplexKey
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewQueryResultEvent

@@ -19,6 +19,8 @@ package org.taktik.icure.services.external.rest.v1.dto
 
 import java.io.Serializable
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class ReplicationInfoDto(
         val active: Boolean = false,
         val running: Boolean = false,

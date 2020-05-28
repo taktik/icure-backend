@@ -19,8 +19,10 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.be.kmehr
 
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
+@KotlinBuilder
 data class SoftwareMedicalFileExportDto(
         var secretForeignKeys: List<String>,
         var comment: String,

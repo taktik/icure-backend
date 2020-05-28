@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class RegimenItem(
         //Day definition (One and only one of the three following should be not null)
         //The three are null if it applies to every day
@@ -39,12 +40,14 @@ data class RegimenItem(
         val timeOfDay: Long? = null, //hhmmss 103010
         val administratedQuantity: AdministrationQuantity? = null
 ) : Serializable {
-    data class Weekday(
+    @KotlinBuilder
+data class Weekday(
             val weekday: Code? = null, //CD-WEEKDAY
             val weekNumber: Int? = null //Can be null
     ) : Serializable
 
-    data class AdministrationQuantity(
+    @KotlinBuilder
+data class AdministrationQuantity(
             val quantity: Double? = null,
             val administrationUnit: Code? = null, //CD-ADMINISTRATIONUNIT
             val unit: String? = null //Should be null

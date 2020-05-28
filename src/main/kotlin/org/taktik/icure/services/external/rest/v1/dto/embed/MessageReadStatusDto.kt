@@ -17,4 +17,6 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class MessageReadStatusDto(val time: Long? = null, val read: Boolean = false)

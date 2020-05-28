@@ -30,6 +30,8 @@ import java.io.Serializable
 import java.time.Instant
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class UserDto(
         override val id: String,
         override val rev: String? = null,

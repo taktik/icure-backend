@@ -17,4 +17,7 @@
  */
 package org.taktik.icure.entities.embed
 
+import com.github.pozo.KotlinBuilder
+
+@KotlinBuilder
 data class MessageReadStatus(val time: Long? = null, val read: Boolean = false)

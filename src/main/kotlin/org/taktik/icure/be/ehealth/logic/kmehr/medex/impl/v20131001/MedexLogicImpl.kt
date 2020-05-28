@@ -1,6 +1,5 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.medex.impl.v20131001
 
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.commons.logging.LogFactory
 import org.springframework.stereotype.Service

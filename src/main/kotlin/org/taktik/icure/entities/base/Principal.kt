@@ -17,7 +17,6 @@
  */
 package org.taktik.icure.entities.base
 
-import org.taktik.icure.entities.Property
 import org.taktik.icure.entities.embed.Permission
 
 interface Principal : Identifiable<String>, Named {

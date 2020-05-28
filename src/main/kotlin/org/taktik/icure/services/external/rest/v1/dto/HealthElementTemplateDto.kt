@@ -24,6 +24,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PlanOfActionTemplate
 import javax.validation.Valid
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class HealthElementTemplateDto(
         override val id: String,
         override val rev: String? = null,

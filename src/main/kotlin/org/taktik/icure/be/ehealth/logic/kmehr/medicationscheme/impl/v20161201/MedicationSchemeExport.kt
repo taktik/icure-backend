@@ -21,7 +21,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.awaitFirst
-import ma.glasnost.orika.MapperFacade
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC

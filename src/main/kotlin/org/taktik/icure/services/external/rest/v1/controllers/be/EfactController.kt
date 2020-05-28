@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.asynclogic.*
@@ -15,8 +14,7 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/be_efact")
 @Tag(name = "beefact")
-class EfactController(val mapper: MapperFacade,
-                      val efactLogic: EfactLogic,
+class EfactController(val efactLogic: EfactLogic,
                       val sessionLogic: AsyncSessionLogic,
                       val healthcarePartyLogic: HealthcarePartyLogic,
                       val invoiceLogic: InvoiceLogic,

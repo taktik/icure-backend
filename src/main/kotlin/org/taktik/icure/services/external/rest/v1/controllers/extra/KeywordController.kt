@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -40,25 +39,25 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
     @Operation(summary = "Create a keyword with the current user", description = "Returns an instance of created keyword.")
     @PostMapping
     suspend fun createKeyword(@RequestBody c: KeywordDto) =
-            keywordLogic.createKeyword(mapper.map(c, Keyword::class.java))?.let { mapper.map(it, KeywordDto::class.java) }
+            keywordLogic.createKeyword(Mappers.getMapper(Keyword::class.java))?.let { mapper.map(it, KeywordMapper::class.java).map(c) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword creation failed.")
 
     @Operation(summary = "Get a keyword")
     @GetMapping("/{keywordId}")
     suspend fun getKeyword(@PathVariable keywordId: String) =
-            keywordLogic.getKeyword(keywordId)?.let { mapper.map(it, KeywordDto::class.java) }
+            keywordLogic.getKeyword(keywordId)?.let { Mappers.getMapper(KeywordMapper::class.java).map(it) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
 
 
     @Operation(summary = "Get keywords by user")
     @GetMapping("/byUser/{userId}")
     fun getKeywordsByUser(@PathVariable userId: String) =
-            keywordLogic.getKeywordsByUser(userId).let { it.map { c -> mapper.map(c, KeywordDto::class.java) } }.injectReactorContext()
+            keywordLogic.getKeywordsByUser(userId).let { it.map { c -> Mappers.getMapper(KeywordMapper::class.java).map(c) } }.injectReactorContext()
 
     @Operation(summary = "Gets all keywords")
     @GetMapping
     fun getKeywords(): Flux<KeywordDto> {
-        return keywordLogic.getAllEntities().map { c -> mapper.map(c, KeywordDto::class.java) }.injectReactorContext()
+        return keywordLogic.getAllEntities().map { c -> Mappers.getMapper(KeywordMapper::class.java).map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete keywords.", description = "Response is a set containing the ID's of deleted keywords.")
@@ -73,7 +72,7 @@ class KeywordController(private val mapper: MapperFacade, private val keywordLog
     @PutMapping
     suspend fun modifyKeyword(@RequestBody keywordDto: KeywordDto): KeywordDto {
         keywordLogic.modifyKeyword(mapper.map(keywordDto, Keyword::class.java))
-        return keywordLogic.getKeyword(keywordDto.id)?.let { mapper.map(it, KeywordDto::class.java) }
+        return keywordLogic.getKeyword(keywordDto.id)?.let { Mappers.getMapper(KeywordMapper::class.java).map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword modification failed.")
     }
 }

@@ -20,7 +20,6 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.v20130710
 
 import kotlinx.coroutines.flow.collect
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.Cache

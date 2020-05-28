@@ -20,9 +20,20 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.CryptoActor
+import org.taktik.icure.entities.base.Named
+import org.taktik.icure.entities.base.Person
+import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.embed.Address
+import org.taktik.icure.entities.embed.FinancialInstitutionInformation
+import org.taktik.icure.entities.embed.FlatRateTarification
+import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.HealthcarePartyStatus
+import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -31,6 +42,7 @@ import org.taktik.icure.validation.ValidCode
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class HealthcareParty(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

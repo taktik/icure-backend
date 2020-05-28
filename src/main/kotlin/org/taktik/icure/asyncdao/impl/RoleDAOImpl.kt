@@ -19,7 +19,6 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -35,7 +34,7 @@ import java.net.URI
 
 @Repository("roleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted) emit( null, doc._id )}")
-class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager, mapper: MapperFacade) : CachedDAOImpl<Role>(Role::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), RoleDAO {
+class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Role>(Role::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), RoleDAO {
 
     @View(name = "by_name", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted && doc.name) {\n" +

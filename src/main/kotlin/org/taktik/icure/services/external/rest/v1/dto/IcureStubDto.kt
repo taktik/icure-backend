@@ -25,6 +25,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.VersionableDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class IcureStubDto(
         override val id: String,
         override val rev: String? = null,

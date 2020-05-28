@@ -17,12 +17,14 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import java.io.Serializable
-
 /**
  * Created by aduchate on 21/01/13, 15:37
  */
 
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
+
+@KotlinBuilder
 data class InsurabilityDto(
         //Key from InsuranceParameterDto
         val parameters: Map<String, String> = mapOf(),

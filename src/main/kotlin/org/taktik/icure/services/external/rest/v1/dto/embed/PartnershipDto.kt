@@ -17,9 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
-
+@KotlinBuilder
 data class PartnershipDto(
         val type: PartnershipTypeDto? = null, //codes are from CD-CONTACT-PERSON
         val status: PartnershipStatusDto? = null,

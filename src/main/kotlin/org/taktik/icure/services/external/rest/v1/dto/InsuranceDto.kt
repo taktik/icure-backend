@@ -21,6 +21,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.AddressDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class InsuranceDto(
         override val id: String,
         override val rev: String? = null,

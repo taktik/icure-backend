@@ -29,7 +29,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
@@ -70,7 +69,6 @@ import java.util.stream.Collectors
 @RequestMapping("/rest/v1/be_kmehr")
 @Tag(name = "bekmehr")
 class KmehrController(
-        val mapper: MapperFacade,
         val sessionLogic: AsyncSessionLogic,
         @Qualifier("sumehrLogicV1") val sumehrLogicV1: SumehrLogic,
         @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic,
@@ -468,7 +466,7 @@ class KmehrController(
                     false,
                     patientId?.let { patientLogic.getPatient(patientId) },
                     mappings ?: HashMap())
-        }?.map { mapper.map(it, ImportResultDto::class.java) }
+        }?.map { Mappers.getMapper(ImportResultMapper::class.java).map(it) }
     }
 
     @Operation(summary = "Check whether patients in SMF already exists in DB")
@@ -517,7 +515,7 @@ class KmehrController(
                     mappings ?: HashMap(),
                     dryRun != true
             )
-        }?.map { mapper.map(it, ImportResultDto::class.java) }
+        }?.map { Mappers.getMapper(ImportResultMapper::class.java).map(it) }
     }
 
     @Operation(summary = "Import sumehr into patient(s) using existing document")
@@ -544,7 +542,7 @@ class KmehrController(
                     mappings ?: HashMap(),
                     dryRun != true
             )
-        }?.map { mapper.map(it, ImportResultDto::class.java) }
+        }?.map { Mappers.getMapper(ImportResultMapper::class.java).map(it) }
     }
 
     @Operation(summary = "Import MedicationScheme into patient(s) using existing document")
@@ -570,7 +568,7 @@ class KmehrController(
                     mappings ?: HashMap(),
                     dryRun != true
             )
-        }?.map { mapper.map(it, ImportResultDto::class.java) }
+        }?.map { Mappers.getMapper(ImportResultMapper::class.java).map(it) }
     }
 
     private fun mapServices(services: List<ServiceDto>?) =

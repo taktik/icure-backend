@@ -17,15 +17,15 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
-import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
-import org.taktik.icure.utils.DynamicInitializer
-import org.taktik.icure.utils.invoke
-
 /**
  * Created by aduchate on 06/07/13, 10:09
  */
 
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
+
+@KotlinBuilder
 data class SubContactDto(
         override val id: String,
         override val created: Long? = null,

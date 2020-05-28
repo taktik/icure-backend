@@ -8,6 +8,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 
 
+import com.github.pozo.KotlinBuilder
+@KotlinBuilder
 data class ArticleDto(
         override val id: String,
         override val rev: String? = null,

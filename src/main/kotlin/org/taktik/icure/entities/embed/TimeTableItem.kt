@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@KotlinBuilder
 data class TimeTableItem(
         val days: List<String> = listOf(),
         val hours: List<TimeTableHour> = listOf(),

@@ -1,10 +1,9 @@
 package org.taktik.icure.entities
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.icure.entities.base.ICureDocument
-import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.RevisionInfo
 import org.taktik.icure.utils.DynamicInitializer
@@ -13,6 +12,7 @@ import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 import org.taktik.icure.validation.ValidCode
 
+@KotlinBuilder
 data class ApplicationSettings(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

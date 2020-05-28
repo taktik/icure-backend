@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
@@ -16,19 +15,13 @@ import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.services.external.rest.v1.dto.samv2.AmpDto
 import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpDto
 import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpGroupDto
-import org.taktik.icure.utils.ResponseUtils
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.core.Response
 
 @RestController
 @RequestMapping("/rest/v1/be_samv2")
 @Tag(name = "besamv2")
-class SamV2Controller(val mapper: MapperFacade,
-                      val samV2Logic: SamV2Logic) {
+class SamV2Controller(val samV2Logic: SamV2Logic) {
     private val DEFAULT_LIMIT = 1000
 
     @Operation(summary = "Finding AMPs by label with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
@@ -157,7 +150,7 @@ class SamV2Controller(val mapper: MapperFacade,
     @GetMapping("/amp/byDmppCode/{dmppCode}")
     fun findAmpsByDmppCode(
             @Parameter(description = "dmppCode", required = true) @PathVariable dmppCode: String
-    ) = samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) }.injectReactorContext()
+    ) = samV2Logic.findAmpsByDmppCode(dmppCode).map { Mappers.getMapper(AmpMapper::class.java).map(it) }.injectReactorContext()
 
 
     @Operation(summary = "Finding codes by code, type and version with pagination.", description = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")

@@ -20,6 +20,7 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.utils.MergeUtil
@@ -34,6 +35,7 @@ import org.taktik.icure.validation.ValidCode
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class SubContact(
         @JsonProperty("_id") override val id: String,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,

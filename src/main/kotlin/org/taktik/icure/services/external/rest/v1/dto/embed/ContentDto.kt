@@ -17,15 +17,17 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.github.pozo.KotlinBuilder
 import com.squareup.moshi.Json
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
 import java.time.Instant
 
-
+@KotlinBuilder
 data class ContentDto(
         @Json(name = "s") val stringValue: String? = null,
         @Json(name = "n") val numberValue: Double? = null,

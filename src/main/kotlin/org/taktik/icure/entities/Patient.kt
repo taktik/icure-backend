@@ -20,9 +20,27 @@ package org.taktik.icure.entities
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.ektorp.Attachment
-import org.taktik.icure.entities.base.*
-import org.taktik.icure.entities.embed.*
+import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.CryptoActor
+import org.taktik.icure.entities.base.Encryptable
+import org.taktik.icure.entities.base.Person
+import org.taktik.icure.entities.base.PropertyStub
+import org.taktik.icure.entities.base.StoredICureDocument
+import org.taktik.icure.entities.embed.Address
+import org.taktik.icure.entities.embed.DeactivationReason
+import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.entities.embed.EmploymentInfo
+import org.taktik.icure.entities.embed.FinancialInstitutionInformation
+import org.taktik.icure.entities.embed.Gender
+import org.taktik.icure.entities.embed.Insurability
+import org.taktik.icure.entities.embed.MedicalHouseContract
+import org.taktik.icure.entities.embed.Partnership
+import org.taktik.icure.entities.embed.PatientHealthCareParty
+import org.taktik.icure.entities.embed.PersonalStatus
+import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.embed.SchoolingInfo
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
@@ -33,6 +51,7 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Patient(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,

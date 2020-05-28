@@ -17,14 +17,14 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import org.taktik.icure.utils.DynamicInitializer
-import org.taktik.icure.utils.invoke
-import java.io.Serializable
-
 /**
  * Created by aduchate on 21/01/13, 14:43
  */
 
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
+
+@KotlinBuilder
 data class AddressDto(
         val addressType: AddressTypeDto? = null,
         val descr: String? = null,

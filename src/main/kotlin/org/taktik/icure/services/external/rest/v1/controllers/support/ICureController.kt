@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.asynclogic.*
@@ -63,7 +62,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Get users stubs")
     @GetMapping("/u")
-    fun getUsers() = userLogic.getAllEntities().map { u -> mapper.map(u, UserStubDto::class.java) }.injectReactorContext()
+    fun getUsers() = userLogic.getAllEntities().map { u -> Mappers.getMapper(UserStubMapper::class.java).map(u) }.injectReactorContext()
 
     @Operation(summary = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])

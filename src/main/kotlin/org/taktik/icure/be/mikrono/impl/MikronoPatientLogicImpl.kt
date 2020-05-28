@@ -17,9 +17,9 @@
  */
 package org.taktik.icure.be.mikrono.impl
 
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.lang3.StringUtils
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -46,7 +46,6 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.function.Consumer
-import javax.ws.rs.core.Context
 
 /**
  * Created by aduchate on 16/12/11, 11:46
@@ -166,7 +165,7 @@ class MikronoPatientLogicImpl(applicationToken: String) : MikronoPatientLogic {
         return restTemplate.exchange(StringUtils.removeEnd(url, "/") + "/rest/patients/{from}", HttpMethod.GET, HttpEntity<Any>(getHttpHeaders(mikronoUser, mikronoPassword)), ListPatientsDto::class.java, (fromDate ?: Date(0L)).time).body?.patients ?: listOf()
     }
 
-    @Context
+    @Autowired
     fun setMapper(mapper: MapperFacade?) {
         this.mapper = mapper
     }

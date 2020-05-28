@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -33,7 +32,7 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Not authorized")
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null)
-                        .map { mapper.map(it, FrontEndMigrationDto::class.java) }
+                        .map { Mappers.getMapper(FrontEndMigrationMapper::class.java).map(it) }
         )
     }.injectReactorContext()
 
@@ -43,7 +42,7 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
         val frontEndMigration = frontEndMigrationLogic.createFrontEndMigration(mapper.map(frontEndMigrationDto, FrontEndMigration::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Frontend migration creation failed")
 
-        mapper.map(frontEndMigration, FrontEndMigrationDto::class.java)
+        Mappers.getMapper(FrontEndMigrationMapper::class.java).map(frontEndMigration)
     }
 
     @Operation(summary = "Deletes a front end migration")
@@ -57,7 +56,7 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
     fun getFrontEndMigration(@PathVariable frontEndMigrationId: String) = mono {
         val migration = frontEndMigrationLogic.getFrontEndMigration(frontEndMigrationId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Frontend migration fetching failed")
-        mapper.map(migration, FrontEndMigrationDto::class.java)
+        Mappers.getMapper(FrontEndMigrationMapper::class.java).map(migration)
     }
 
     @Operation(summary = "Gets an front end migration")
@@ -67,7 +66,7 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
 
         emitAll(
                 frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, frontEndMigrationName)
-                        .map { mapper.map(it, FrontEndMigrationDto::class.java) }
+                        .map { Mappers.getMapper(FrontEndMigrationMapper::class.java).map(it) }
         )
     }.injectReactorContext()
 
@@ -76,6 +75,6 @@ class FrontEndMigrationController(private var frontEndMigrationLogic: FrontEndMi
     fun modifyFrontEndMigration(@RequestBody frontEndMigrationDto: FrontEndMigrationDto) = mono {
         val migration = frontEndMigrationLogic.modifyFrontEndMigration(mapper.map(frontEndMigrationDto, FrontEndMigration::class.java))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Front end migration modification failed")
-        mapper.map(migration, FrontEndMigrationDto::class.java)
+        Mappers.getMapper(FrontEndMigrationMapper::class.java).map(migration)
     }
 }

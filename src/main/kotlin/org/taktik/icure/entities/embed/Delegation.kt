@@ -19,6 +19,7 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
 /**
@@ -26,6 +27,7 @@ import java.io.Serializable
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class Delegation(
         //This is not the owner of a piece of date (patient, contact). It is the owner of the delegation.
         var owner: String? = null, // owner id

@@ -1,7 +1,9 @@
 package org.taktik.icure.entities.embed
 
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
+@KotlinBuilder
 data class ParagraphAgreement(
         val timestamp: Long? = null,
         val paragraph: String? = null,

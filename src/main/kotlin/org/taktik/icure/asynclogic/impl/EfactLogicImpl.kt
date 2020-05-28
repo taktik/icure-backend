@@ -2,7 +2,6 @@ package org.taktik.icure.asynclogic.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import ma.glasnost.orika.MapperFacade
 import org.springframework.stereotype.Service
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator

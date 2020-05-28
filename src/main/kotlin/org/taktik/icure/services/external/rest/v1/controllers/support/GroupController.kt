@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -55,7 +54,7 @@ class GroupController(couchDbProperties: CouchDbProperties,
                 }
             }
 
-            mapper.map(group, GroupDto::class.java)
+            Mappers.getMapper(GroupMapper::class.java).map(group)
         } catch (e: IllegalAccessException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access.")
         } catch (e: IllegalArgumentException) {
@@ -65,7 +64,7 @@ class GroupController(couchDbProperties: CouchDbProperties,
 
     @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
     @GetMapping
-    fun listGroups() = groupLogic.listGroups().map { mapper.map(it, GroupDto::class.java) }.injectReactorContext()
+    fun listGroups() = groupLogic.listGroups().map { Mappers.getMapper(GroupMapper::class.java).map(it) }.injectReactorContext()
 
     @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
     @PutMapping("/{id}/password")

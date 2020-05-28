@@ -3,7 +3,6 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.map
-import ma.glasnost.orika.MapperFacade
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -22,7 +21,7 @@ class ApplicationSettingsController(private val applicationSettingsLogic: Applic
     @GetMapping
     fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
         val applicationSettings = applicationSettingsLogic.getAllEntities()
-        return applicationSettings.map { mapper.map(it, ApplicationSettingsDto::class.java) }.injectReactorContext()
+        return applicationSettings.map { Mappers.getMapper(ApplicationSettingsMapper::class.java).map(it) }.injectReactorContext()
     }
 }
 

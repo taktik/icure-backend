@@ -5,7 +5,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.reactor.asFlux
-import ma.glasnost.orika.MapperFacade
 import org.taktik.couchdb.TotalCount
 import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowNoDoc
@@ -26,6 +25,7 @@ fun <T> Flow<T>.distinct(): Flow<T> = flow {
     val previous = HashSet<T>()
     collect { value: T ->
         if (!previous.contains(value)) {
+
             previous.add(value)
             emit(value)
         }
@@ -86,7 +86,7 @@ fun <T : Any> Flow<T>.injectReactorContext(): Flux<T> {
 
 @Suppress("UNCHECKED_CAST")
 // TODO SH MB: handle offsets
-suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(mapper: MapperFacade, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
+suspend fun <U: Identifiable<String>, T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(mapper: (U) -> T, realLimit: Int, predicate: Predicate? = null): PaginatedList<T> {
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
     var lastProcessedViewRowNoDoc: ViewRowNoDoc<*, *>? = null
@@ -125,6 +125,73 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
                     viewRowCount == realLimit -> {
                         nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
                         viewRowCount++
+                        lastProcessedViewRowNoDoc?.id as? U
+                    }
+                    viewRowCount < realLimit -> {
+                        val previous = lastProcessedViewRowNoDoc
+                        lastProcessedViewRowNoDoc = viewQueryResultEvent
+                        viewRowCount++
+                        previous?.id  as? U // if this is the first one, the Mono will be empty, so it will be ignored by flatMap
+                    }
+                    else -> { // we have more elements than expected, just ignore them
+                        viewRowCount++
+                        null
+                    }
+                }
+            }
+            else -> {
+                null
+            }
+        }
+    }.map {
+        mapper(it)
+    }.toCollection(resultRows)
+
+    if(resultRows.size < realLimit){
+        ((lastProcessedViewRow?.doc as? U) ?: lastProcessedViewRowNoDoc?.id as U?)?.let { resultRows.add(mapper(it)) }
+    }
+    return PaginatedList(pageSize = realLimit, totalSize = totalSize, nextKeyPair = nextKeyPair, rows = resultRows)
+}
+
+suspend  fun Flow<ViewQueryResultEvent>.paginatedListOfIds(realLimit: Int): PaginatedList<String> {
+    var viewRowCount = 0
+    var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
+    var lastProcessedViewRowNoDoc: ViewRowNoDoc<*, *>? = null
+
+    var totalSize: Int = 0
+    var nextKeyPair: PaginatedDocumentKeyIdPair<*>? = null
+
+    val resultRows = mutableListOf<String>()
+    this.mapNotNull { viewQueryResultEvent ->
+        when (viewQueryResultEvent) {
+            is TotalCount -> {
+                totalSize = viewQueryResultEvent.total
+                null
+            }
+            is ViewRowWithDoc<*, *, *> -> {
+                when {
+                    viewRowCount == realLimit -> {
+                        nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id) // TODO SH MB: startKey was a List<String> before, now it is a String, ok?
+                        viewRowCount++
+                        lastProcessedViewRow?.id
+                    }
+                    viewRowCount < realLimit -> {
+                        val previous = lastProcessedViewRow
+                        lastProcessedViewRow = viewQueryResultEvent
+                        viewRowCount++
+                        previous?.id
+                    }
+                    else -> { // we have more elements than expected, just ignore them
+                        viewRowCount++
+                        null
+                    }
+                }
+            }
+            is ViewRowNoDoc<*, *> -> {
+                when{
+                    viewRowCount == realLimit -> {
+                        nextKeyPair = PaginatedDocumentKeyIdPair(viewQueryResultEvent.key, viewQueryResultEvent.id)
+                        viewRowCount++
                         lastProcessedViewRowNoDoc?.id
                     }
                     viewRowCount < realLimit -> {
@@ -143,17 +210,15 @@ suspend inline fun <U: Identifiable<String>, reified T: Serializable> Flow<ViewQ
                 null
             }
         }
-    }.map {
-        mapper.map(it, T::class.java)
     }.toCollection(resultRows)
 
     if(resultRows.size < realLimit){
-        ((lastProcessedViewRow?.doc as? U) ?: lastProcessedViewRowNoDoc?.id)?.let { resultRows.add(mapper.map(it, T::class.java)) }
+        ((lastProcessedViewRow?.id) ?: lastProcessedViewRowNoDoc?.id)?.let { resultRows.add(it) }
     }
     return PaginatedList(pageSize = realLimit, totalSize = totalSize, nextKeyPair = nextKeyPair, rows = resultRows)
 }
 
-suspend inline fun <reified T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(realLimit: Int): PaginatedList<T> {
+suspend fun <T: Serializable> Flow<ViewQueryResultEvent>.paginatedList(realLimit: Int): PaginatedList<T> {
     var viewRowCount = 0
     var lastProcessedViewRow: ViewRowWithDoc<*, *, *>? = null
 

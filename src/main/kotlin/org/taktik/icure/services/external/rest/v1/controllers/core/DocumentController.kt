@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.mono
-import ma.glasnost.orika.MapperFacade
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
@@ -65,8 +64,7 @@ import javax.xml.transform.stream.StreamSource
 @RequestMapping("/rest/v1/document")
 @Tag(name = "document")
 class DocumentController(private val documentLogic: DocumentLogic,
-                         private val mapper: MapperFacade,
-                         private val sessionLogic: AsyncSessionLogic) {
+                         private private val sessionLogic: AsyncSessionLogic) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a document")
@@ -75,7 +73,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = mapper.map(documentDto, Document::class.java)
         val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document creation failed")
-        mapper.map(createdDocument, DocumentDto::class.java)
+        Mappers.getMapper(DocumentMapper::class.java).map(createdDocument)
     }
 
     @Operation(summary = "Deletes a document")
@@ -136,7 +134,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 
         documentLogic.modifyDocument(document.copy(attachment = null))
-        mapper.map(document, DocumentDto::class.java)
+        Mappers.getMapper(DocumentMapper::class.java).map(document)
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -162,7 +160,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
-        mapper.map(document, DocumentDto::class.java)
+        Mappers.getMapper(DocumentMapper::class.java).map(document)
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -177,14 +175,14 @@ class DocumentController(private val documentLogic: DocumentLogic,
     fun getDocument(@PathVariable documentId: String) = mono {
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
-        mapper.map(document, DocumentDto::class.java)
+        Mappers.getMapper(DocumentMapper::class.java).map(document)
     }
 
     @Operation(summary = "Gets a document")
     @PostMapping("/batch")
     fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flux<DocumentDto> {
         val documents = documentLogic.get(documentIds.ids)
-        return documents.map { doc -> mapper.map(doc, DocumentDto::class.java) }.injectReactorContext()
+        return documents.map { doc -> Mappers.getMapper(DocumentMapper::class.java).map(doc) }.injectReactorContext()
     }
 
     @Operation(summary = "Updates a document")
@@ -205,7 +203,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                     attachments = prevDoc.attachments
             )) ?: throw IllegalStateException("Cannot update document") , DocumentDto::class.java)
         } else
-            mapper.map(documentLogic.modifyDocument(document) ?: throw IllegalStateException("Cannot update document") , DocumentDto::class.java)
+            Mappers.getMapper(DocumentMapper::class.java).map(documentLogic.modifyDocument(document) ?: throw IllegalStateException("Cannot update document") )
 
     }
 
@@ -227,7 +225,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
             }
             emitAll(
                     documentLogic.updateEntities(indocs)
-                            .map { f -> mapper.map(f, DocumentDto::class.java) }
+                            .map { f -> Mappers.getMapper(DocumentMapper::class.java).map(f) }
             )
         } catch (e: Exception) {
             logger.warn(e.message, e)
@@ -243,7 +241,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
-        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }.injectReactorContext()
+        return documentList.map { document -> Mappers.getMapper(DocumentMapper::class.java).map(document) }.injectReactorContext()
     }
 
     @Operation(summary = "List documents found By type, By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
@@ -258,7 +256,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, ArrayList(secretMessageKeys))
 
-        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }.injectReactorContext()
+        return documentList.map { document -> Mappers.getMapper(DocumentMapper::class.java).map(document) }.injectReactorContext()
     }
 
 
@@ -266,7 +264,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @GetMapping("/woDelegation")
     fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flux<DocumentDto> {
         val documentList = documentLogic.findWithoutDelegation(limit ?: 100)
-        return documentList.map { document -> mapper.map(document, DocumentDto::class.java) }.injectReactorContext()
+        return documentList.map { document -> Mappers.getMapper(DocumentMapper::class.java).map(document) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -281,6 +279,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 )
             } ?: document
         }
-        emitAll(documentLogic.updateDocuments(invoices.toList()).map { mapper.map(it, IcureStubDto::class.java) })
+        emitAll(documentLogic.updateDocuments(invoices.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it) })
     }.injectReactorContext()
 }

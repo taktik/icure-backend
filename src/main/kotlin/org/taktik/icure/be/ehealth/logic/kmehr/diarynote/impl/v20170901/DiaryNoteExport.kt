@@ -21,7 +21,6 @@ package org.taktik.icure.be.ehealth.logic.kmehr.diarynote.impl.v20170901
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import ma.glasnost.orika.MapperFacade
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.beans.factory.annotation.Value

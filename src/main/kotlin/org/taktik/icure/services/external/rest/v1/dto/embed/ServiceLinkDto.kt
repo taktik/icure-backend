@@ -17,13 +17,15 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import java.io.Serializable
-
 /**
  * Created by aduchate on 01/02/13, 20:10
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
+
+@KotlinBuilder
 data class ServiceLinkDto(
         val serviceId: String? = null,
         @get:JsonIgnore @set:JsonIgnore @Transient var service: ServiceDto? = null
