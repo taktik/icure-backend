@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface FrontEndMigrationDAO extends GenericDAO<FrontEndMigration> {
     List<FrontEndMigration> getByUserIdName(String userId, String name);
+    List<FrontEndMigration> getGlobalMigrations();
 }

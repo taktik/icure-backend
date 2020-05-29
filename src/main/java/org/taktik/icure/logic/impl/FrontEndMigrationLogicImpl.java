@@ -41,6 +41,12 @@ public class FrontEndMigrationLogicImpl extends GenericLogicImpl<FrontEndMigrati
     }
 
     @Override
+    public List<FrontEndMigration> getAllGlobalFrontEndMigrations() {
+        return frontEndMigrationDAO.getGlobalMigrations();
+    }
+
+
+    @Override
     public FrontEndMigration modifyFrontEndMigration(FrontEndMigration frontEndMigration) {
         return frontEndMigrationDAO.save(frontEndMigration);
     }

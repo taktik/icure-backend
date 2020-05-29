@@ -17,6 +17,7 @@ import org.taktik.icure.utils.ResponseUtils;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,7 +108,10 @@ public class FrontEndMigrationFacade implements OpenApiFacade {
             return ResponseUtils.badRequest("Not authorized");
         }
 
-        List<FrontEndMigration> migrations = frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null);
+        List<FrontEndMigration> migrations = new ArrayList<>();
+        migrations.addAll(frontEndMigrationLogic.getFrontEndMigrationByUserIdName(userId, null));
+        migrations.addAll(frontEndMigrationLogic.getAllGlobalFrontEndMigrations());
+
         if (migrations != null) {
             response = ResponseUtils.ok(migrations.stream().map(i->mapper.map(i, FrontEndMigrationDto.class)).collect(Collectors.toList()));
         } else {

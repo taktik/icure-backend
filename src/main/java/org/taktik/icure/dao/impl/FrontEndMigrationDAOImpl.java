@@ -25,7 +25,7 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
 
     @Override
     @View(name = "by_userid_name", map = "function(doc) {\n" +
-            "            if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && !doc.deleted && doc.name && doc.userId) {\n" +
+            "            if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && !doc.global && !doc.deleted && doc.name && doc.userId) {\n" +
             "            emit([doc.userId, doc.name],doc._id);\n" +
             "}\n" +
             "}")
@@ -38,6 +38,17 @@ public class FrontEndMigrationDAOImpl extends GenericDAOImpl<FrontEndMigration> 
             return result;
         }
         List<FrontEndMigration> result = queryView("by_userid_name", ComplexKey.of(userId, name));
+        return result;
+    }
+
+    @Override
+    @View(name = "by_global_property", map = "function(doc) {\n" +
+        "            if (doc.java_type == 'org.taktik.icure.entities.FrontEndMigration' && doc.global && !doc.deleted && doc.name && doc.userId) {\n" +
+        "            emit([doc.userId, doc.name],doc._id);\n" +
+        "}\n" +
+        "}")
+    public List<FrontEndMigration> getGlobalMigrations() {
+        List<FrontEndMigration> result = queryView("by_global_property");
         return result;
     }
 

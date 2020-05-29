@@ -15,5 +15,7 @@ public interface FrontEndMigrationLogic extends EntityPersister<FrontEndMigratio
 
     List<FrontEndMigration> getFrontEndMigrationByUserIdName(String userId, String name);
 
+    List<FrontEndMigration> getAllGlobalFrontEndMigrations();
+
     FrontEndMigration modifyFrontEndMigration(FrontEndMigration frontEndMigration);
 }
