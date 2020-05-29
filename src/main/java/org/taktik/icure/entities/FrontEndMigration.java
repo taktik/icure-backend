@@ -1,6 +1,7 @@
 package org.taktik.icure.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.entities.base.StoredDocument;
 import org.taktik.icure.entities.embed.FrontEndMigrationStatus;
@@ -20,6 +21,7 @@ public class FrontEndMigration extends StoredDocument implements Identifiable<St
     protected String startKey;
     protected String startKeyDocId;
     protected Long processCount;
+    protected Boolean global;
 
 
     public FrontEndMigration() {
@@ -85,6 +87,14 @@ public class FrontEndMigration extends StoredDocument implements Identifiable<St
 
     public void setLogs(String logs) {
         this.logs = logs;
+    }
+
+    public Boolean getGlobal() {
+        return global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
     }
 
     public String getStartKey() {
