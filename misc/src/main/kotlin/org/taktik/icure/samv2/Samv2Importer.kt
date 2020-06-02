@@ -255,7 +255,7 @@ class Samv2Import : CliktCommand() {
                             }
                         } ?: listOf()
                 ).let { vmp ->
-                    vmp.code?.let { vmps[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.productId, it.code, it.name) }, name = vmp.name) }
+                    vmp.code?.let { vmps[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                     if (!currentVmps.contains(id)) {
                         vmpDAO.create(vmp)
                     } else if (force) {

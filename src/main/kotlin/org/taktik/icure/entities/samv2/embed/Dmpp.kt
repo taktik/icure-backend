@@ -3,9 +3,9 @@ package org.taktik.icure.entities.samv2.embed
 import java.io.Serializable
 
 class Dmpp(
+        var id: String? = null,
         from: Long? = null,
         to: Long? = null,
-        var productId: String? = null,
         var deliveryEnvironment: DeliveryEnvironment? = null,
         var code: String? = null,
         var codeType: DmppCodeType? = null,
@@ -20,7 +20,7 @@ class Dmpp(
         if (other !is Dmpp) return false
         if (!super.equals(other)) return false
 
-        if (productId != other.productId) return false
+        if (id != other.id) return false
         if (deliveryEnvironment != other.deliveryEnvironment) return false
         if (code != other.code) return false
         if (codeType != other.codeType) return false
@@ -35,7 +35,7 @@ class Dmpp(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + (productId?.hashCode() ?: 0)
+        result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + (deliveryEnvironment?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (codeType?.hashCode() ?: 0)
