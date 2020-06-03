@@ -4,6 +4,7 @@ import java.io.Serializable
 import java.math.BigDecimal
 
 class DmppDto(
+        var id: String? = null,
         from: Long? = null,
         to: Long? = null,
         var productId: String? = null,
@@ -18,11 +19,11 @@ class DmppDto(
 ) : DataPeriodDto(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is DmppDto) return false
         if (!super.equals(other)) return false
 
-        other as DmppDto
-
+        if (id != other.id) return false
+        if (productId != other.productId) return false
         if (deliveryEnvironment != other.deliveryEnvironment) return false
         if (code != other.code) return false
         if (codeType != other.codeType) return false
@@ -37,6 +38,8 @@ class DmppDto(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + (productId?.hashCode() ?: 0)
         result = 31 * result + (deliveryEnvironment?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (codeType?.hashCode() ?: 0)

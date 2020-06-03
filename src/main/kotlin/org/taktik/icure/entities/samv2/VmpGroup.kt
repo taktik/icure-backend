@@ -10,7 +10,6 @@ class VmpGroup(
         id: String? = null,
         from: Long? = null,
         to: Long? = null,
-        var productId: String? = null,
         var code: String? = null,
         var name: SamText? = null,
         var noGenericPrescriptionReason: NoGenericPrescriptionReason? = null,
@@ -21,7 +20,6 @@ class VmpGroup(
         if (other !is VmpGroup) return false
         if (!super.equals(other)) return false
 
-        if (productId != other.productId) return false
         if (code != other.code) return false
         if (name != other.name) return false
         if (noGenericPrescriptionReason != other.noGenericPrescriptionReason) return false
@@ -32,7 +30,6 @@ class VmpGroup(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + (productId?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (noGenericPrescriptionReason?.hashCode() ?: 0)
