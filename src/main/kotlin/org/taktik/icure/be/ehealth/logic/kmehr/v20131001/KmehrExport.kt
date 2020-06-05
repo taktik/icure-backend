@@ -332,7 +332,7 @@ open class KmehrExport {
                 content.numberValue?.let { decimal = BigDecimal.valueOf(it) }
                 content.stringValue?.let { if (content.binaryValue==null && content.documentId==null) { texts.add(TextType().apply {
                     l = language;
-                    value = StringEscapeUtils.escapeXml10(content.stringValue) // escaped because imported epicure data has EOT chars in it
+                    value = content.stringValue?.replace(Regex("\\p{Cc}"), "") // escaped because imported epicure data has EOT chars in it
                 }) } }
 				Utils.makeXGC(content.instantValue?.toEpochMilli(), true)?.let { date = it; time = it; }
                 content.measureValue?.let { mv ->

@@ -1,6 +1,7 @@
 package org.taktik.icure.samv2
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.gson.Gson
@@ -66,6 +67,7 @@ import org.taktik.icure.entities.samv2.embed.Vtm
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import java.net.URI
+import java.net.URL
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -85,7 +87,7 @@ fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : Comm
 
 @Suppress("NestedLambdaShadowedImplicitParameter")
 class Samv2v4Import : CliktCommand() {
-    val samv2url: String by option(help="The url of the zip file").prompt("Samv2 file url")
+    val samv2url: String? by option(help="The url of the zip file")
     val url: String by option(help="The database server to connect to").prompt("Database server url")
     val username: String by option(help="The Username").prompt("Username")
     val password: String by option(help="The Password").prompt("Password")
@@ -111,7 +113,12 @@ class Samv2v4Import : CliktCommand() {
         var vers : String? = null
         val productIds = HashMap<String, String>()
 
-        URI(samv2url).toURL().openStream().let { zis ->
+        var zip: ByteArray? = null
+
+        (samv2url?.let { URI(it).toURL().openStream() } ?: URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-full-getLastVersion?xsd=4").toURL().readBytes().toString(Charsets.UTF_8).let {
+            zip = URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-download?type=full&version=${it}&xsd=4").toURL().readBytes()
+            zip?.inputStream()
+        }).let { zis ->
             val zip = ZipInputStream(zis)
             var entry: ZipEntry?
             while (zip.let { entry = it.nextEntry;entry != null }) {
@@ -126,7 +133,7 @@ class Samv2v4Import : CliktCommand() {
             }
         }
 
-        URI(samv2url).toURL().openStream().let { zis ->
+        (samv2url?.let { URI(it).toURL().openStream() } ?: zip?.inputStream()).let { zis ->
             val zip = ZipInputStream(zis)
             var entry: ZipEntry?
             while (zip.let { entry = it.nextEntry; entry != null }) {
