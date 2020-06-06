@@ -32,11 +32,11 @@ public class MedicalHouseContract {
 	private String suspensionSource;
 	private boolean forcedSuspension; //no automatic unSuspension
 
-	public String getContractId() { return contractId; }
+    public String getContractId() { return contractId; }
 
-	public void setContractId(String contractId) { contractId = contractId; }
+    public void setContractId(String contractId) { this.contractId = contractId; }
 
-	public Long getValidFrom() { return validFrom; }
+    public Long getValidFrom() { return validFrom; }
 
 	public void setValidFrom(Long validFrom) { this.validFrom = validFrom; }
 
