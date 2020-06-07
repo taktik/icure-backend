@@ -3,6 +3,11 @@ package org.taktik.icure.entities.embed;
 //NOTE: better classname would be MedicalHouseInscriptionPeriod
 public class MedicalHouseContract {
 
+    public final static int STATUS_NOT_MCN = 1 << 0;
+    public final static int STATUS_ONGOING_MCN = 1 << 1;
+    public final static int STATUS_CANCELLED_MCN = 1 << 2;
+    public final static int STATUS_CLOSED_MCN = 1 << 3;
+
 	private String contractId;
 	private Long validFrom; //yyyyMMdd : start of contract period
 	private Long validTo; //yyyyMMdd : end of contract period
@@ -24,6 +29,9 @@ public class MedicalHouseContract {
 	private boolean noGp;
 	private boolean noNurse;
 	private Integer unsubscriptionReasonId;
+
+    private MhcSignatureType signatureType;
+    private Integer status;
 
 	//Suspension specific data:
 	private Long startOfSuspension; //yyyyMMdd
@@ -176,7 +184,23 @@ public class MedicalHouseContract {
 
 	public void setNoNurse(boolean noNurse) { this.noNurse = noNurse; }
 
-	public void mergeFrom(MedicalHouseContract other) {
+    public MhcSignatureType getSignatureType() {
+        return signatureType;
+    }
+
+    public void setSignatureType(MhcSignatureType signatureType) {
+        this.signatureType = signatureType;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public void mergeFrom(MedicalHouseContract other) {
 		//TODO: implement
 	}
 }

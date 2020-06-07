@@ -27,6 +27,9 @@ public class MedicalHouseContractDto implements Serializable {
     private boolean noGp;
     private boolean noNurse;
 
+    private MhcSignatureTypeDto signatureType;
+    private Integer status;
+
     private Long startOfSuspension; //yyyyMMdd
     private Long endOfSuspension; //yyyyMMdd
     private SuspensionReason suspensionReason;
@@ -178,4 +181,19 @@ public class MedicalHouseContractDto implements Serializable {
 
     public void setNoNurse(boolean noNurse) { this.noNurse = noNurse; }
 
+    public MhcSignatureTypeDto getSignatureType() {
+        return signatureType;
+    }
+
+    public void setSignatureType(MhcSignatureTypeDto signatureType) {
+        this.signatureType = signatureType;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 }
