@@ -17,25 +17,18 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import com.github.pozo.KotlinBuilderclass
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v1.dto.base.IdentifiableDto
+import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
 import org.taktik.icure.utils.DynamicInitializer
+import java.io.Serializable
 
-EpisodeDto(
+@KotlinBuilder
+class EpisodeDto(
         override val id: String,
         override val name: String? = null,
         val comment: String? = null,
         var startDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         var endDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         override val encryptedSelf: String? = null
-) : EncryptedDto, Serializable, IdentifiableDto<String>, NamedDto {
-    companion object : DynamicInitializer<EpisodeDto>
-
-    fun merge(other: EpisodeDto) = EpisodeDto(args = this.solveConflictsWith(other))
-    fun solveConflictsWith(other: EpisodeDto) = super.solveConflictsWith(other) + mapOf(
-            "id" to (this.id),
-            "name" to (this.name ?: other.name),
-            "comment" to (this.comment ?: other.comment),
-            "startDate" to (startDate?.coerceAtMost(other.startDate ?: Long.MAX_VALUE) ?: other.startDate),
-            "endDate" to (endDate?.coerceAtLeast(other.endDate ?: 0L) ?: other.endDate)
-    )
-}
+) : EncryptedDto, Serializable, IdentifiableDto<String>, NamedDto

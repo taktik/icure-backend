@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.icure.asynclogic.ApplicationSettingsLogic
 import org.taktik.icure.services.external.rest.v1.dto.ApplicationSettingsDto
+import org.taktik.icure.services.external.rest.v1.mapper.ApplicationSettingsMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -15,13 +16,13 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/appsettings")
 @Tag(name = "applicationsettings")
 class ApplicationSettingsController(private val applicationSettingsLogic: ApplicationSettingsLogic,
-                                    private val mapper: MapperFacade) {
+                                    private val applicationSettingsMapper: ApplicationSettingsMapper) {
 
     @Operation(summary = "Gets all application settings")
     @GetMapping
     fun getApplicationSettings(): Flux<ApplicationSettingsDto> {
         val applicationSettings = applicationSettingsLogic.getAllEntities()
-        return applicationSettings.map { Mappers.getMapper(ApplicationSettingsMapper::class.java).map(it) }.injectReactorContext()
+        return applicationSettings.map { applicationSettingsMapper.map(it) }.injectReactorContext()
     }
 }
 

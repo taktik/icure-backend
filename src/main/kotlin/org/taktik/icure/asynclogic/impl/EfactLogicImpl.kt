@@ -27,6 +27,8 @@ import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingSideCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTimeOfDay
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.InvoicingTreatmentReasonCode
 import org.taktik.icure.services.external.rest.v1.dto.be.efact.MessageWithBatch
+import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
+import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.FuzzyValues
 import java.lang.IllegalArgumentException
@@ -45,7 +47,19 @@ import kotlin.math.roundToLong
 
 @ExperimentalCoroutinesApi
 @Service
-class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val entityReferenceLogic: EntityReferenceLogic, val messageLogic: MessageLogic, val sessionLogic: AsyncSessionLogic, val healthcarePartyLogic: HealthcarePartyLogic, val invoiceLogic: InvoiceLogic, val patientLogic: PatientLogic, val documentLogic: DocumentLogic, val insuranceLogic: InsuranceLogic) : EfactLogic {
+class EfactLogicImpl(
+        val idg : UUIDGenerator,
+        val entityReferenceLogic: EntityReferenceLogic,
+        val messageLogic: MessageLogic,
+        val sessionLogic: AsyncSessionLogic,
+        val healthcarePartyLogic: HealthcarePartyLogic,
+        val invoiceLogic: InvoiceLogic,
+        val patientLogic: PatientLogic,
+        val documentLogic: DocumentLogic,
+        val insuranceLogic: InsuranceLogic,
+        val patientMapper: PatientMapper,
+        val messageMapper: MessageMapper
+        ) : EfactLogic {
     private val LSB_MASK = BigInteger("ffffffffffffffff", 16)
     private fun decodeUuidFromRef(ref: String?): UUID? {
         var value = ref
@@ -137,7 +151,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
 
                 val invoice = org.taktik.icure.services.external.rest.v1.dto.be.efact.Invoice()
 
-                invoice.patient = mapper.map(patient, PatientDto::class.java)
+                invoice.patient = patientMapper.map(patient)
 
                 invoice.ioCode = patient.insurabilities.firstOrNull()?.insuranceId?.let { insuranceLogic.getInsurance(it)?.let { ins -> ins.parent?.let { parent -> insuranceLogic.getInsurance(parent)?.code?.substring(0,3) } } }
                 val invoiceNumber = if (iv.invoiceReference != null && iv.invoiceReference.matches("^[0-9]{4,12}$".toRegex())) java.lang.Long.valueOf(iv.invoiceReference) else this.encodeNumberFromUUID(UUID.fromString(iv.id))
@@ -291,7 +305,7 @@ class EfactLogicImpl(val idg : UUIDGenerator, val mapper: MapperFacade, val enti
                         ?: insurance.code ?: "N/A"),
                 sent = System.currentTimeMillis())
 
-                MessageWithBatch().apply { invoicesBatch = invBatch; message = mapper.map(mm, MessageDto::class.java) }
+                MessageWithBatch().apply { invoicesBatch = invBatch; message = messageMapper.map(mm) }
             }
     }
 

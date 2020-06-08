@@ -50,6 +50,8 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthElementDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
+import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 import org.taktik.icure.utils.FuzzyValues
 import reactor.core.publisher.Mono
 import java.time.Instant
@@ -66,7 +68,6 @@ import java.util.*
  */
 @org.springframework.stereotype.Service("sumehrExportV2")
 class SumehrExport(
-        mapper: MapperFacade,
         patientLogic: PatientLogic,
         codeLogic: CodeLogic,
         healthElementLogic: HealthElementLogic,
@@ -75,7 +76,10 @@ class SumehrExport(
         documentLogic: DocumentLogic,
         sessionLogic: AsyncSessionLogic,
         userLogic: UserLogic,
-        filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+        filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+        val serviceMapper: ServiceMapper,
+        val healthElementMapper: HealthElementMapper
+) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	override val log = LogFactory.getLog(SumehrExport::class.java)
 
 	suspend fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, services: List<Service>? = null, healthElements: List<HealthElement>? = null): String {
@@ -243,7 +247,7 @@ class SumehrExport(
 			val chunkedToBeDecryptedServices = toBeDecryptedServices.chunked(50)
 
 			chunkedToBeDecryptedServices.forEach { itt ->
-				val decryptedServicesChunk = Mono.fromCompletionStage ( decryptor.decrypt(itt.map { mapper.map(it, ServiceDto::class.java) }, ServiceDto::class.java) ).awaitFirst().map { mapper.map(it, Service::class.java) }
+				val decryptedServicesChunk = Mono.fromCompletionStage ( decryptor.decrypt(itt.map { serviceMapper.map(it) }, ServiceDto::class.java) ).awaitFirst().map { serviceMapper.map(it) }
 				decryptedServices.addAll(decryptedServicesChunk)
 			}
             services?.map { if (toBeDecryptedServices.contains(it)) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
@@ -591,7 +595,7 @@ class SumehrExport(
 		val toBeDecryptedHcElements = nonConfidentialItems //Decrypt everything so that the frontend has a chance to fix the tags
 
 		if (decryptor != null && toBeDecryptedHcElements.size ?: 0 >0) {
-            val decryptedHcElements = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedHcElements.map {mapper.map(it, HealthElementDto::class.java)}, HealthElementDto::class.java) ).awaitFirst().map {mapper.map(it, HealthElement::class.java)}
+            val decryptedHcElements = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedHcElements.map {healthElementMapper.map(it)}, HealthElementDto::class.java) ).awaitFirst().map {healthElementMapper.map(it)}
 			nonConfidentialItems = nonConfidentialItems.map { if (toBeDecryptedHcElements.contains(it)) decryptedHcElements[toBeDecryptedHcElements.indexOf(it)] else it }
 		}
 

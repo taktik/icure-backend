@@ -41,7 +41,7 @@ import java.time.Instant
 @ExperimentalCoroutinesApi
 @Repository("accessLogDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.AccessLog' && !doc.deleted) emit( null, doc._id )}")
-class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<AccessLog>(AccessLog::class.java, couchDbDispatcher, idGenerator, mapper), AccessLogDAO {
+class AccessLogDAOImpl(@Qualifier("patientCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<AccessLog>(AccessLog::class.java, couchDbDispatcher, idGenerator), AccessLogDAO {
 
     @View(name = "all_by_date", map = "classpath:js/accesslog/all_by_date_map.js")
     override fun list(dbInstanceUrl: URI, groupId: String, fromEpoch:Long, toEpoch: Long, paginationOffset: PaginationOffset<Long>, descending: Boolean): Flow<ViewQueryResultEvent> {

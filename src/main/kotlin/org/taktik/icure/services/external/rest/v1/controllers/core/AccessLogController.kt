@@ -35,6 +35,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v1.mapper.AccessLogMapper
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
@@ -50,10 +51,9 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/accesslog")
 @Tag(name = "accesslog")
-class AccessLogController(private val accessLogLogic: AccessLogLogic) {
-
+class AccessLogController(private val accessLogLogic: AccessLogLogic, private val accessLogMapper: AccessLogMapper) {
     private val DEFAULT_LIMIT = 1000
-    private val accessLogMapper = Mappers.getMapper(AccessLogMapper::class.java)
+    private val accessLogToAccessLogDto = { it: AccessLog -> accessLogMapper.map(it) }
 
     @Operation(summary = "Creates an access log")
     @PostMapping
@@ -84,7 +84,7 @@ class AccessLogController(private val accessLogLogic: AccessLogLogic) {
         val realLimit = limit ?: DEFAULT_LIMIT
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1) // fetch one more for nextKeyPair
         val accessLogs = accessLogLogic.listAccessLogs(fromEpoch ?: if(descending == true) Long.MAX_VALUE else 0, toEpoch ?: if(descending == true) 0 else Long.MAX_VALUE, paginationOffset, descending == true)
-        accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
+        accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
     @Operation(summary = "Get Paginated List of Access logs")
@@ -102,7 +102,7 @@ class AccessLogController(private val accessLogLogic: AccessLogLogic) {
         val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
                 ?: false)
 
-        accessLogs.paginatedList<AccessLog, AccessLogDto>(mapper, realLimit)
+        accessLogs.paginatedList(accessLogToAccessLogDto, realLimit)
     }
 
     @Operation(summary = "List access logs found By Healthcare Party and secret foreign keyelementIds.")
@@ -115,7 +115,7 @@ class AccessLogController(private val accessLogLogic: AccessLogLogic) {
     @Operation(summary = "Modifies an access log")
     @PutMapping
     fun modifyAccessLog(@RequestBody accessLogDto: AccessLogDto) = mono {
-        val accessLog = accessLogLogic.modifyAccessLog(mapper.map(accessLogDto, AccessLog::class.java))
+        val accessLog = accessLogLogic.modifyAccessLog(accessLogMapper.map(accessLogDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AccessLog modification failed")
         accessLogMapper.map(accessLog)
     }

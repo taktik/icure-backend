@@ -19,15 +19,6 @@ package org.taktik.icure.services.external.rest.v1.dto
 
 import java.io.Serializable
 
-class AuthenticationResponse : Serializable {
-    var healthcarePartyId: String? = null
-    var reason: String? = null
-    var isSuccessful = false
-    var username: String? = null
-
-    constructor() {}
-    constructor(successful: Boolean) {
-        isSuccessful = successful
-    }
-
+class AuthenticationResponse(var healthcarePartyId: String? = null, var reason: String? = null, var isSuccessful: Boolean = false, var username: String? = null) : Serializable {
+    constructor(successful: Boolean) : this(isSuccessful = successful)
 }

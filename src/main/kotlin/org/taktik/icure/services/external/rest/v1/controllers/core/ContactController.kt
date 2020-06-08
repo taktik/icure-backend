@@ -48,6 +48,7 @@ import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Contact
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
@@ -61,6 +62,10 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
+import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -73,11 +78,17 @@ import java.util.*
 @RestController
 @RequestMapping("/rest/v1/contact")
 @Tag(name = "contact")
-class ContactController(private private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+class ContactController(private val filters: org.taktik.icure.asynclogic.impl.filter.Filters,
                         private val contactLogic: ContactLogic,
-                        private val sessionLogic: AsyncSessionLogic) {
+                        private val sessionLogic: AsyncSessionLogic,
+                        private val contactMapper: ContactMapper,
+                        private val serviceMapper: ServiceMapper,
+                        private val delegationMapper: DelegationMapper,
+                        private val filterMapper: FilterMapper
+) {
     private val log = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
+    private val contactToContactDto = { it: Contact -> contactMapper.map(it) }
 
     @Operation(summary = "Get an empty content")
     @GetMapping("/service/content/empty")
@@ -88,13 +99,13 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
     fun createContact(@RequestBody c: ContactDto) = mono {
         val contact = try {
             // handling services' indexes
-            contactLogic.createContact(mapper.map(handleServiceIndexes(c), Contact::class.java))
+            contactLogic.createContact(contactMapper.map(handleServiceIndexes(c)))
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact creation failed")
         } catch (e: MissingRequirementsException) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         }
-        Mappers.getMapper(ContactMapper::class.java).map(contact)
+        contactMapper.map(contact)
     }
 
     protected fun handleServiceIndexes(c: ContactDto) = if (c.services.any { it.index == null }) {
@@ -113,14 +124,14 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
     fun getContact(@PathVariable contactId: String) = mono {
         val contact = contactLogic.getContact(contactId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Contact failed. Possible reasons: no such contact exists, or server error. Please try again or read the server log.")
-        Mappers.getMapper(ContactMapper::class.java).map(contact)
+        contactMapper.map(contact)
     }
 
     @Operation(summary = "Get contacts")
     @PostMapping("/byIds")
     fun getContacts(@RequestBody contactIds: ListOfIdsDto): Flux<ContactDto> {
         val contacts = contactLogic.getContacts(contactIds.ids)
-        return contacts.map { c -> Mappers.getMapper(ContactMapper::class.java).map(c) }.injectReactorContext()
+        return contacts.map { c -> contactMapper.map(c) }.injectReactorContext()
     }
 
     @Operation(summary = "Get the list of all used codes frequencies in services")
@@ -128,14 +139,14 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
     fun getServiceCodesOccurences(@PathVariable codeType: String,
                                   @PathVariable minOccurences: Long) = mono {
         contactLogic.getServiceCodesOccurences(sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!, codeType, minOccurences)
-                .map { Mappers.getMapper(LabelledOccurenceMapper::class.java).map(it) }
+                .map { LabelledOccurenceDto(it.label, it.occurence) }
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
     @GetMapping("/byHcPartyFormId")
     fun findByHCPartyFormId(@RequestParam hcPartyId: String, @RequestParam formId: String): Flux<ContactDto> {
         val contactList = contactLogic.findContactsByHCPartyFormId(hcPartyId, formId)
-        return contactList.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
+        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and form Id.")
@@ -146,7 +157,7 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
         }
         val contactList = contactLogic.findContactsByHCPartyFormIds(hcPartyId, formIds.ids)
 
-        return contactList.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
+        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and Patient foreign keys.")
@@ -157,7 +168,7 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
         }
         val contactList = contactLogic.findByHCPartyPatient(hcPartyId, patientForeignKeys.ids)
 
-        return contactList.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
+        return contactList.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "List contacts found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
@@ -171,9 +182,9 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
 
         return if (planOfActionsIds != null) {
             val poaids = planOfActionsIds.split(',')
-            contactList.filter { c -> (skipClosedContacts == null || !skipClosedContacts || c.closingDate == null) && !Collections.disjoint(c.subContacts.map { it.planOfActionId }, poaids) }.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
+            contactList.filter { c -> (skipClosedContacts == null || !skipClosedContacts || c.closingDate == null) && !Collections.disjoint(c.subContacts.map { it.planOfActionId }, poaids) }.map { contact -> contactMapper.map(contact) }.injectReactorContext()
         } else {
-            contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
+            contactList.filter { c -> skipClosedContacts == null || !skipClosedContacts || c.closingDate == null }.map { contact -> contactMapper.map(contact) }.injectReactorContext()
         }
     }
 
@@ -182,7 +193,7 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
     fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> Mappers.getMapper(IcureStubMapper::class.java).map(contact) }.injectReactorContext()
+        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> contactMapper.mapToStub(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -191,13 +202,13 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
         val contacts = contactLogic.getContacts(stubs.map { it.id }).map { contact ->
             stubs.find { s -> s.id == contact.id }?.let { stub ->
                 contact.copy(
-                        delegations = contact.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
-                        encryptionKeys = contact.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
-                        cryptedForeignKeys = contact.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                        delegations = contact.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = contact.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = contact.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels }
                 )
             } ?: contact
         }
-        emitAll(contactLogic.updateEntities(contacts.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it) })
+        emitAll(contactLogic.updateEntities(contacts.toList()).map { contactMapper.map(it) })
     }.injectReactorContext()
 
 
@@ -216,7 +227,7 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
             }
         }
 
-        return savedOrFailed.map { contact -> Mappers.getMapper(ContactMapper::class.java).map(contact) }.injectReactorContext()
+        return savedOrFailed.map { contact -> contactMapper.map(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Delete contacts.", description = "Response is a set containing the ID's of deleted contacts.")
@@ -234,8 +245,8 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
     fun modifyContact(@RequestBody contactDto: ContactDto) = mono {
         handleServiceIndexes(contactDto)
 
-        contactLogic.modifyContact(mapper.map(contactDto, Contact::class.java))?.let {
-            Mappers.getMapper(ContactMapper::class.java).map(it)
+        contactLogic.modifyContact(contactMapper.map(contactDto))?.let {
+            contactMapper.map(it)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact modification failed.")
     }
 
@@ -245,8 +256,8 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
         return try {
             contactDtos.forEach { c -> handleServiceIndexes(c) }
 
-            val contacts = contactLogic.updateEntities(contactDtos.map { f -> mapper.map(f, Contact::class.java) })
-            contacts.map { f -> Mappers.getMapper(ContactMapper::class.java).map(f) }.injectReactorContext()
+            val contacts = contactLogic.updateEntities(contactDtos.map { f -> contactMapper.map(f) })
+            contacts.map { f -> contactMapper.map(f) }.injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -257,15 +268,15 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
     @Operation(summary = "Delegates a contact to a healthcare party", description = "It delegates a contact to a healthcare party (By current healthcare party). Returns the contact with new delegations.")
     @PostMapping("/{contactId}/delegate")
     fun newContactDelegations(@PathVariable contactId: String, @RequestBody d: DelegationDto) = mono {
-        contactLogic.addDelegation(contactId, mapper.map(d, Delegation::class.java))
+        contactLogic.addDelegation(contactId, delegationMapper.map(d))
         val contactWithDelegation = contactLogic.getContact(contactId)
 
         // TODO: write more function to add complete access to all contacts of a patient to a HcParty, or a contact or a subset of contacts
         // TODO: kind of adding new secretForeignKeys and cryptedForeignKeys
 
-        val succeed = contactWithDelegation != null && contactWithDelegation.delegations != null && contactWithDelegation.delegations.isNotEmpty()
+        val succeed = contactWithDelegation?.delegations != null && contactWithDelegation.delegations.isNotEmpty()
         if (succeed) {
-            Mappers.getMapper(ContactMapper::class.java).map(contactWithDelegation)
+            contactWithDelegation?.let { contactMapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Delegation creation for Contact failed.")
         }
@@ -282,9 +293,9 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
 
         val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
-        val contacts = contactLogic.filterContacts(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Contact>, mapper.map(filterChain.predicate, Predicate::class.java)))
+        val contacts = contactLogic.filterContacts(paginationOffset, filterMapper.map(filterChain))
 
-        contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)
+        contacts.paginatedList(contactToContactDto, realLimit)
     }
 
     @Operation(summary = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
@@ -303,9 +314,8 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
 
         val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
-        val services = contactLogic.filterServices(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain(filterChain.filter as org.taktik.icure.dto.filter.Filter<String, Service>, mapper.map(filterChain.predicate, Predicate::class.java)))
-                .toList().let { filterChain.filter.applyTo(it) } // TODO AD is this correct?
-                .map { Mappers.getMapper(ServiceMapper::class.java).map(it) }
+        val services: List<ServiceDto> = filterMapper.map<Service>(filterChain).applyTo(contactLogic.filterServices(paginationOffset, filterMapper.map(filterChain)))
+                .map { serviceMapper.map(it) }.toList()
 
         val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
 
@@ -314,7 +324,7 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
         } else {
             val nextKeyPair = services.lastOrNull()?.let { PaginatedDocumentKeyIdPair(null, it.id) }
             val rows = services.subList(0, services.size-1)
-            org.taktik.icure.services.external.rest.v1.dto.PaginatedList<ServiceDto>(realLimit, totalSize, rows, nextKeyPair)
+            org.taktik.icure.services.external.rest.v1.dto.PaginatedList(realLimit, totalSize, rows, nextKeyPair)
         }
     }
 
@@ -332,6 +342,6 @@ class ContactController(private private val filters: org.taktik.icure.asynclogic
         val paginationOffset = PaginationOffset<List<String>>(null, startDocumentId, null, realLimit+1) // startKey is null since it is already a parameter of the subsequent function
         val contacts = contactLogic.listContactsByOpeningDate(hcpartyid, startKey, endKey, paginationOffset)
 
-        contacts.paginatedList<Contact, ContactDto>(mapper, realLimit)
+        contacts.paginatedList<Contact, ContactDto>(contactToContactDto, realLimit)
     }
 }

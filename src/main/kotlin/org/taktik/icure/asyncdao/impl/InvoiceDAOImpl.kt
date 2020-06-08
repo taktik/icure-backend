@@ -42,7 +42,7 @@ import java.util.stream.Collectors
 
 @Repository("invoiceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Invoice' && !doc.deleted) emit( null, doc._id )}")
-class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Invoice>(Invoice::class.java, couchDbDispatcher, idGenerator, mapper), InvoiceDAO {
+class InvoiceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Invoice>(Invoice::class.java, couchDbDispatcher, idGenerator), InvoiceDAO {
 
     @View(name = "by_hcparty_date", map = "classpath:js/invoice/By_hcparty_date_map.js")
     override fun findByHcParty(dbInstanceUrl: URI, groupId: String, hcParty: String, fromDate: Long?, toDate: Long?, paginationOffset: PaginationOffset<ComplexKey>): Flow<ViewQueryResultEvent> {

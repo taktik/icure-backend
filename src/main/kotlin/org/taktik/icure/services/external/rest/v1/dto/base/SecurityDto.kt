@@ -26,8 +26,6 @@ data class SecurityDto(
         val admins: RightDto = RightDto(),
         val members: RightDto = RightDto()
 ) : Serializable {
-    import com.github.pozo.KotlinBuilder
-@KotlinBuilder
-data class RightDto(val names: Set<String> = setOf(), val roles: Set<String> = setOf()) {
-    }
+    @KotlinBuilder
+    data class RightDto(val names: Set<String> = setOf(), val roles: Set<String> = setOf())
 }

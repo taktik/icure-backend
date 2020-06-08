@@ -340,7 +340,7 @@ class InvoiceLogicImpl(private val filters: Filters,
     }
 
     override fun filter(filter: FilterChain<Invoice>) = flow<Invoice> {
-        val ids = filters.resolve(filter.getFilter()).toList()
+        val ids = filters.resolve(filter.filter).toList()
         val invoices = getInvoices(ids)
         val predicate = filter.predicate
         emitAll(if (predicate != null) invoices.filter { predicate.apply(it) } else invoices)

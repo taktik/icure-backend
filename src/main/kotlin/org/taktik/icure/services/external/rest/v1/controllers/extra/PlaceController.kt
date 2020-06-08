@@ -27,17 +27,21 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.Place
 import org.taktik.icure.asynclogic.PlaceLogic
 import org.taktik.icure.services.external.rest.v1.dto.PlaceDto
+import org.taktik.icure.services.external.rest.v1.mapper.PlaceMapper
 import org.taktik.icure.utils.injectReactorContext
 
 @RestController
 @RequestMapping("/rest/v1/place")
 @Tag(name = "place")
-class PlaceController(private val placeLogic: PlaceLogic, private val mapper: MapperFacade) {
+class PlaceController(
+        private val placeLogic: PlaceLogic,
+        private val placeMapper: PlaceMapper
+) {
 
     @Operation(summary = "Creates a place")
     @PostMapping
     suspend fun createPlace(@RequestBody placeDto: PlaceDto) =
-            placeLogic.createPlace(Mappers.getMapper(Place::class.java)).let { mapper.map(it, PlaceMapper::class.java).map(placeDto) }
+            placeLogic.createPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
 
     @Operation(summary = "Deletes an place")
@@ -47,17 +51,17 @@ class PlaceController(private val placeLogic: PlaceLogic, private val mapper: Ma
     @Operation(summary = "Gets an place")
     @GetMapping("/{placeId}")
     suspend fun getPlace(@PathVariable placeId: String) =
-            placeLogic.getPlace(placeId).let { Mappers.getMapper(PlaceMapper::class.java).map(it) }
+            placeLogic.getPlace(placeId)?.let { placeMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
 
     @Operation(summary = "Gets all places")
     @GetMapping
     fun getPlaces() =
-            placeLogic.getAllEntities().let { it.map { c -> Mappers.getMapper(PlaceMapper::class.java).map(c) } }.injectReactorContext()
+            placeLogic.getAllEntities().let { it.map { c -> placeMapper.map(c) } }.injectReactorContext()
 
     @Operation(summary = "Modifies an place")
     @PutMapping
     suspend fun modifyPlace(@RequestBody placeDto: PlaceDto) =
-            placeLogic.modifyPlace(Mappers.getMapper(Place::class.java)).let { mapper.map(it, PlaceMapper::class.java).map(placeDto) }
+            placeLogic.modifyPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
 }

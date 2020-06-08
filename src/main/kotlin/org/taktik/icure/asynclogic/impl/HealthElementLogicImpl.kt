@@ -147,9 +147,9 @@ class HealthElementLogicImpl(private val filters: Filters,
             healthElementDAO.save(dbInstanceUri, groupId, modifiedContact)
         }
     }
-    
+
     override fun filter(filter: FilterChain<HealthElement>) = flow<HealthElement> {
-        val ids = filters.resolve(filter.getFilter()).toList()
+        val ids = filters.resolve(filter.filter).toList()
         val healthElements = getHealthElements(ids) //TODO MBB implement get elements flow
         val predicate = filter.predicate
         emitAll(if (predicate != null) healthElements.filter { predicate.apply(it) } else healthElements)

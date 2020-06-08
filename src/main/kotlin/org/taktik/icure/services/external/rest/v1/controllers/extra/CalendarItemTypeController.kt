@@ -30,6 +30,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.entities.CalendarItemType
 import org.taktik.icure.asynclogic.CalendarItemTypeLogic
 import org.taktik.icure.services.external.rest.v1.dto.CalendarItemTypeDto
+import org.taktik.icure.services.external.rest.v1.mapper.CalendarItemTypeMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -38,13 +39,13 @@ import reactor.core.publisher.Flux
 @RequestMapping("/rest/v1/calendarItemType")
 @Tag(name = "calendarItemType")
 class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItemTypeLogic,
-                                 private val mapper: MapperFacade) {
+                                 private val calendarItemTypeMapper: CalendarItemTypeMapper) {
 
     @Operation(summary = "Gets all calendarItemTypes")
     @GetMapping
     fun getCalendarItemTypes(): Flux<CalendarItemTypeDto> {
         val calendarItemTypes = calendarItemTypeLogic.getAllEntities()
-        return calendarItemTypes.map { Mappers.getMapper(CalendarItemTypeMapper::class.java).map(it) }.injectReactorContext()
+        return calendarItemTypes.map { calendarItemTypeMapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Gets all calendarItemTypes include deleted")
@@ -52,15 +53,15 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
     fun getCalendarItemTypesIncludeDeleted(): Flux<CalendarItemTypeDto> {
         val calendarItemTypes = calendarItemTypeLogic.getAllEntitiesIncludeDelete()
 
-        return calendarItemTypes.map { Mappers.getMapper(CalendarItemTypeMapper::class.java).map(it) }.injectReactorContext()
+        return calendarItemTypes.map { calendarItemTypeMapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Creates a calendarItemType")
     @PostMapping
     fun createCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
-        val calendarItemType = calendarItemTypeLogic.createCalendarItemType(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
+        val calendarItemType = calendarItemTypeLogic.createCalendarItemType(calendarItemTypeMapper.map(calendarItemTypeDto))
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType creation failed")
-        Mappers.getMapper(CalendarItemTypeMapper::class.java).map(calendarItemType)
+        calendarItemTypeMapper.map(calendarItemType)
     }
 
     @Operation(summary = "Deletes an calendarItemType")
@@ -75,16 +76,16 @@ class CalendarItemTypeController(private val calendarItemTypeLogic: CalendarItem
         val calendarItemType = calendarItemTypeLogic.getCalendarItemType(calendarItemTypeId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "CalendarItemType fetching failed")
 
-        Mappers.getMapper(CalendarItemTypeMapper::class.java).map(calendarItemType)
+        calendarItemTypeMapper.map(calendarItemType)
     }
 
 
     @Operation(summary = "Modifies an calendarItemType")
     @PutMapping
-    fun modifyCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto?) = mono {
-        val calendarItemType = calendarItemTypeLogic.modifyCalendarTypeItem(mapper.map(calendarItemTypeDto, CalendarItemType::class.java))
+    fun modifyCalendarItemType(@RequestBody calendarItemTypeDto: CalendarItemTypeDto) = mono {
+        val calendarItemType = calendarItemTypeLogic.modifyCalendarTypeItem(calendarItemTypeMapper.map(calendarItemTypeDto))?.let { calendarItemTypeMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CalendarItemType modification failed")
 
-        Mappers.getMapper(CalendarItemTypeMapper::class.java).map(calendarItemType)
+        calendarItemTypeMapper.map(calendarItemType)
     }
 }

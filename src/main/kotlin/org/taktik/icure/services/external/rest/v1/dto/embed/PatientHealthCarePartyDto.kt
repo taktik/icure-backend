@@ -18,13 +18,13 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
-import com.github.pozo.KotlinBuilderimport java.util.*
+import com.github.pozo.KotlinBuilder
+import java.util.*
 
 /**
  * Created by aduchate on 02/07/13, 11:59
  */
 
-import com.github.pozo.KotlinBuilder
 @KotlinBuilder
 data class PatientHealthCarePartyDto(
         val type: PatientHealthCarePartyTypeDto? = null,

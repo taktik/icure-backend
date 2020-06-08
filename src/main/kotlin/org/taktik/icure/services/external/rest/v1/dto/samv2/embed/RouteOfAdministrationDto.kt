@@ -5,6 +5,6 @@ import java.io.Serializable
 
 import com.github.pozo.KotlinBuilder
 @KotlinBuilder
-import com.github.pozo.KotlinBuilder
-@KotlinBuilder
+
+
 data class RouteOfAdministrationDto(val name: SamTextDto? = null, val standardRoutes: List<CodeStubDto> = listOf()) : Serializable

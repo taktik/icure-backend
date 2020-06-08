@@ -45,7 +45,7 @@ import java.util.*
 
 @Repository("documentDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Document' && !doc.deleted) emit( null, doc._id )}")
-class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Document>(Document::class.java, couchDbDispatcher, idGenerator, mapper), DocumentDAO {
+class DocumentDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Document>(Document::class.java, couchDbDispatcher, idGenerator), DocumentDAO {
 
     override suspend fun beforeSave(dbInstanceUrl: URI, groupId: String, entity: Document) =
             super.beforeSave(dbInstanceUrl, groupId, entity).let { document ->

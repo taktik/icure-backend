@@ -27,6 +27,8 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.apache.commons.codec.digest.DigestUtils
 import org.ektorp.DocumentNotFoundException
+import org.mapstruct.Mapper
+import org.mapstruct.factory.Mappers
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
@@ -60,6 +62,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
+import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
 import org.taktik.icure.utils.FuzzyValues
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
@@ -78,7 +81,6 @@ class SoftwareMedicalFileExport(
         val formLogic: FormLogic,
         val formTemplateLogic: FormTemplateLogic,
         val insuranceLogic: InsuranceLogic,
-        mapper: MapperFacade,
         patientLogic: PatientLogic,
         codeLogic: CodeLogic,
         healthElementLogic: HealthElementLogic,
@@ -87,7 +89,7 @@ class SoftwareMedicalFileExport(
         documentLogic: DocumentLogic,
         sessionLogic: AsyncSessionLogic,
         userLogic: UserLogic,
-        filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+        filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 	private var hesByContactId: Map<String?, List<HealthElement>> = HashMap()
     private var servicesByContactId: Map<String?, List<Service>> = HashMap()
     private var newestServicesById: MutableMap<String?, Service> = HashMap()
@@ -141,6 +143,7 @@ class SoftwareMedicalFileExport(
 
     private suspend fun makePatientFolder(patientIndex: Int, patient: Patient, sfks: List<String>,
 								  healthcareParty: HealthcareParty, config: Config, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
+        val mapper = Mappers.getMapper(ContactMapper::class.java)
 		val folder = FolderType().apply {
 			ids.add(idKmehr(patientIndex))
 			this.patient = makePatient(patient, config)
@@ -217,9 +220,9 @@ class SoftwareMedicalFileExport(
             log.info("Treating contact ${index}/${contacts.size}")
 
 			val contact = if (decryptor != null && (encContact.services.isNotEmpty())) {
-				val ctcDto = mapper.map(encContact, ContactDto::class.java)
+                val ctcDto = mapper.map(encContact)
 				Mono.fromCompletionStage (decryptor.decrypt(listOf(ctcDto), ContactDto::class.java) ).awaitFirstOrNull()?.let { ctcs ->
-                    ctcs.firstOrNull()?.let { mapper.map(it, Contact::class.java) }
+                    ctcs.firstOrNull()?.let { mapper.map(it) }
                 } ?: encContact
 			} else {
 				encContact

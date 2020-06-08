@@ -22,7 +22,6 @@ import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PermissionDto
 import java.io.Serializable
 
-
 import com.github.pozo.KotlinBuilder
 @KotlinBuilder
 data class RoleDto(
@@ -31,7 +30,7 @@ data class RoleDto(
         override val deletionDate: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<PropertyDto> = setOf(),
+        override val properties: Set<PropertyStubDto> = setOf(),
         override val permissions: Set<PermissionDto> = setOf(),
         val children: Set<String> = setOf(),
         val users: Set<String> = setOf()

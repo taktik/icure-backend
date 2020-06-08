@@ -41,7 +41,7 @@ import java.util.*
  */
 @Repository("classificationTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.ClassificationTemplate' && !doc.deleted) emit( doc.label, doc._id )}")
-internal class ClassificationTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<ClassificationTemplate>(ClassificationTemplate::class.java, couchDbDispatcher, idGenerator, mapper), ClassificationTemplateDAO {
+internal class ClassificationTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<ClassificationTemplate>(ClassificationTemplate::class.java, couchDbDispatcher, idGenerator), ClassificationTemplateDAO {
 
     override suspend fun getClassificationTemplate(dbInstanceUrl: URI, groupId: String, classificationTemplateId: String): ClassificationTemplate? {
         return get(dbInstanceUrl, groupId, classificationTemplateId)

@@ -59,6 +59,7 @@ import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.services.external.rest.v1.mapper.utils.PaginatedDocumentKeyIdPairMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -77,9 +78,11 @@ class PatientController(
         private val accessLogLogic: AccessLogLogic,
         private val filters: Filters,
         private val patientLogic: PatientLogic,
-        private val healthcarePartyLogic: HealthcarePartyLogic) {
+        private val healthcarePartyLogic: HealthcarePartyLogic,
+        private val patientMapper: PatientMapper,
+        private val filterMapper: FilterMapper
+) {
 
-    private val patientMapper = Mappers.getMapper(PatientMapper::class.java)
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
 
     @Operation(summary = "Find patients for the current user (HcParty) ", description = "Returns a list of patients along with next start keys and Document ID. If the nextStartKey is " + "Null it means that this is the last page.")
@@ -255,12 +258,7 @@ class PatientController(
         val paginationOffset = PaginationOffset<List<String>>(startKeyList, startDocumentId, skip, realLimit + 1)
 
         try {
-            //(Filter<String,O> filter, Predicate predicate)
-            val patients = filterChain?.let {
-                patientLogic.listPatients(paginationOffset, org.taktik.icure.dto.filter.chain.FilterChain<Patient>(it.filter as org.taktik.icure.dto.filter.Filter<String, Patient>, mapper.map(it.predicate, Predicate::class.java)), sort, desc)
-            }
-                    ?: patientLogic.findByHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(sessionLogic.getCurrentHealthcarePartyId(), paginationOffset, null, Sorting(null, "asc"))
-
+            val patients = patientLogic.listPatients(paginationOffset, filterMapper.map(filterChain), sort, desc)
             log.info("Filter patients in " + (System.currentTimeMillis() - System.currentTimeMillis()) + " ms.")
 
             patients.paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)
@@ -282,8 +280,8 @@ class PatientController(
             @Parameter(description = "The date of birth") @RequestParam(required = false) dateOfBirth: Int?): Flux<PatientDto> {
 
         return try {
-            patientLogic.fuzzySearchPatients(patientToPatientDto, firstName, lastName, dateOfBirth)
-                    .map(patientToPatientDto)
+            patientLogic.fuzzySearchPatients(firstName, lastName, dateOfBirth)
+                    .map { patientMapper.map(it) }
                     .injectReactorContext()
         } catch (e: Exception) {
             log.warn(e.message, e)
@@ -331,7 +329,7 @@ class PatientController(
             @Parameter(description = "First name prefix") @RequestParam(required = false) firstName: String?,
             @Parameter(description = "Last name prefix") @RequestParam(required = false) lastName: String?) =
             try {
-                patientLogic.findDeletedPatientsByNames(firstName, lastName).map(patientToPatientDto).injectReactorContext()
+                patientLogic.findDeletedPatientsByNames(firstName, lastName).map { patientMapper.map(it) }.injectReactorContext()
             } catch (e: Exception) {
                 log.warn(e.message, e)
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -367,7 +365,7 @@ class PatientController(
     @PostMapping("/byIds")
     fun getPatients(@RequestBody patientIds: ListOfIdsDto): Flux<PatientDto> {
         return patientLogic.getPatients(patientIds.ids)
-                .map(patientToPatientDto)
+                .map { patientMapper.map(it) }
                 .injectReactorContext()
     }
 

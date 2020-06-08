@@ -1,8 +1,6 @@
 package org.taktik.icure.dto.result
 
-import org.taktik.icure.entities.Patient
-
-public class CheckSMFPatientResult {
+class CheckSMFPatientResult {
     var firstName: String = ""
     var lastName: String = ""
     var ssin: String = ""
@@ -10,4 +8,3 @@ public class CheckSMFPatientResult {
     var exists: Boolean = false
     var existingPatientId: String? = null
 }
-

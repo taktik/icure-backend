@@ -30,18 +30,24 @@ import org.taktik.icure.be.ehealth.logic.kmehr.medex.MedexLogic
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.rest.v1.dto.MedexInfoDto
+import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 
 @RestController
 @RequestMapping("/rest/v1/medex")
 @Tag(name = "medex")
-class MedexController(private val medexLogic: MedexLogic, private val mapperFacade: MapperFacade) {
+class MedexController(
+        private val medexLogic: MedexLogic,
+        private val healthcarePartyMapper: HealthcarePartyMapper,
+        private val patientMapper: PatientMapper
+) {
 
     @Operation(summary = "Generate a Medex XML String")
     @PostMapping("/generate", produces = [MediaType.APPLICATION_XML_VALUE])
     fun generateMedex(@RequestBody infos: MedexInfoDto) = mono {
         medexLogic.createMedex(
-                mapperFacade.map(infos.author, HealthcareParty::class.java),
-                mapperFacade.map(infos.patient, Patient::class.java),
+                healthcarePartyMapper.map(infos.author!!),
+                patientMapper.map(infos.patient!!),
                 infos.patientLanguage,
                 infos.incapacityType,
                 infos.incapacityReason,

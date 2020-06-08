@@ -41,7 +41,7 @@ import java.net.URI
 @ExperimentalCoroutinesApi
 @Repository("healthElementDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.HealthElement' && !doc.deleted) emit( doc.patientId, doc._id )}")
-internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<HealthElement>(HealthElement::class.java, couchDbDispatcher, idGenerator, mapper), HealthElementDAO {
+internal class HealthElementDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<HealthElement>(HealthElement::class.java, couchDbDispatcher, idGenerator), HealthElementDAO {
 
     override fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<HealthElement> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

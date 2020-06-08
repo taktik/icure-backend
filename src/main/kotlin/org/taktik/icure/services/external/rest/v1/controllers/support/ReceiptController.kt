@@ -18,8 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.support
 
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -29,13 +29,22 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.ReceiptLogic
 import org.taktik.icure.entities.Receipt
 import org.taktik.icure.entities.embed.ReceiptBlobType
 import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.ReceiptDto
+import org.taktik.icure.services.external.rest.v1.mapper.ReceiptMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -44,15 +53,17 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/receipt")
 @Tag(name = "receipt")
-class ReceiptController(private val receiptLogic: ReceiptLogic,
-                        private val mapper: MapperFacade) {
+class ReceiptController(
+        private val receiptLogic: ReceiptLogic,
+        private val receiptMapper: ReceiptMapper
+) {
 
     @Operation(summary = "Creates a receipt")
     @PostMapping
     fun createReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
         try {
-            val created = receiptLogic.createEntities(listOf(mapper.map(receiptDto, Receipt::class.java)))
-            created.firstOrNull()?.let { Mappers.getMapper(ReceiptMapper::class.java).map(it) }
+            val created = receiptLogic.createEntities(listOf(receiptMapper.map(receiptDto)))
+            created.firstOrNull()?.let { receiptMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt creation failed.")
@@ -62,11 +73,11 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
     @Operation(summary = "Deletes a receipt")
     @DeleteMapping("/{receiptIds}")
     fun deleteReceipt(@PathVariable receiptIds: String) =
-        try {
-            receiptLogic.deleteByIds(receiptIds.split(',')).injectReactorContext()
-        } catch (e: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed")
-        }
+            try {
+                receiptLogic.deleteByIds(receiptIds.split(',')).injectReactorContext()
+            } catch (e: Exception) {
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt deletion failed")
+            }
 
 
     @Operation(summary = "Get an attachment")
@@ -99,29 +110,29 @@ class ReceiptController(private val receiptLogic: ReceiptLogic,
         val receipt = receiptLogic.getEntity(receiptId)
         if (receipt != null) {
             receiptLogic.addReceiptAttachment(receipt, ReceiptBlobType.valueOf(blobType), encryptedPayload)
-            Mappers.getMapper(ReceiptMapper::class.java).map(receipt)
+            receiptMapper.map(receipt)
         } else throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Receipt modification failed")
     }
 
     @Operation(summary = "Gets a receipt")
     @GetMapping("/{receiptId}")
     fun getReceipt(@PathVariable receiptId: String) = mono {
-        receiptLogic.getEntity(receiptId)?.let { Mappers.getMapper(ReceiptMapper::class.java).map(it) }
+        receiptLogic.getEntity(receiptId)?.let { receiptMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found")
     }
 
     @Operation(summary = "Gets a receipt")
     @GetMapping("/byref/{ref}")
     fun listByReference(@PathVariable ref: String): Flux<ReceiptDto> =
-            receiptLogic.listByReference(ref).map { Mappers.getMapper(ReceiptMapper::class.java).map(it) }.injectReactorContext()
+            receiptLogic.listByReference(ref).map { receiptMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Updates a receipt")
     @PutMapping
     fun modifyReceipt(@RequestBody receiptDto: ReceiptDto) = mono {
-        val receipt = mapper.map(receiptDto, Receipt::class.java)
+        val receipt = receiptMapper.map(receiptDto)
         try {
             val updated = receiptLogic.updateEntities(listOf(receipt))
-            updated.map { Mappers.getMapper(ReceiptMapper::class.java).map(it) }.firstOrNull()
+            updated.map { receiptMapper.map(it) }.firstOrNull()
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update receipt")
 
         } catch (e: Exception) {

@@ -133,7 +133,6 @@ import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
 open class KmehrExport(
-        val mapper: MapperFacade,
         val patientLogic: PatientLogic,
         val codeLogic: CodeLogic,
         val healthElementLogic: HealthElementLogic,

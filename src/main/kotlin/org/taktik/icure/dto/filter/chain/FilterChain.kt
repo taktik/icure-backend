@@ -17,12 +17,14 @@
  */
 package org.taktik.icure.dto.filter.chain
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.entities.base.Identifiable
 import java.util.stream.Collectors
 
 class FilterChain<O : Identifiable<String>> {
-    private var filter: Filter<String, O>
+    var filter: Filter<String, O>
     val predicate: org.taktik.icure.dto.filter.predicate.Predicate?
 
     constructor(filter: Filter<String, O>, predicate: org.taktik.icure.dto.filter.predicate.Predicate?) {
@@ -30,16 +32,18 @@ class FilterChain<O : Identifiable<String>> {
         this.predicate = predicate
     }
 
-    fun getFilter(): Filter<String, O> {
-        return filter
-    }
-
-    fun setFilter(filter: Filter<String, O>) {
-        this.filter = filter
-    }
-
     fun applyTo(items: List<O>): List<O> {
         val filteredItems: List<O> = filter.applyTo(items)
-        return if (predicate == null) filteredItems else filteredItems.stream().filter { input: O -> predicate.apply(input) }.collect(Collectors.toList())
+        return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }
+    }
+
+    fun applyTo(items: Set<O>): Set<O> {
+        val filteredItems: Set<O> = filter.applyTo(items)
+        return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }.toSet()
+    }
+
+    fun applyTo(items: Flow<O>): Flow<O> {
+        val filteredItems: Flow<O> = filter.applyTo(items)
+        return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }
     }
 }

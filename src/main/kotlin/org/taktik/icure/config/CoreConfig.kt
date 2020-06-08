@@ -33,7 +33,6 @@ import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1Mappe
 class CoreConfig {
     @Bean fun cacheManager(hazelcastInstance: HazelcastInstance) = com.hazelcast.spring.cache.HazelcastCacheManager(hazelcastInstance)
     @Bean fun uuidGenerator() = UUIDGenerator()
-    @Bean fun mapper(gsonMapper : Gson) = V1MapperFactory(gsonMapper).mapper
     @Bean fun filters() = Filters()
     @Bean fun permissionSetCache(cacheManager: CacheManager) =  cacheManager.getCache("org.taktik.cache.permissionSetCache")
 }

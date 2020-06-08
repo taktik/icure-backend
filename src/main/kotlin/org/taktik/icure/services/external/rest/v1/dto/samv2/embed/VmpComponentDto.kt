@@ -4,8 +4,8 @@ import java.io.Serializable
 
 import com.github.pozo.KotlinBuilder
 @KotlinBuilder
-import com.github.pozo.KotlinBuilder
-@KotlinBuilder
+
+
 data class VmpComponentDto(val code: String? = null,
                            val virtualForm: VirtualFormDto? = null,
                            val routeOfAdministrations: List<RouteOfAdministrationDto>? = null,

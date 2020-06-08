@@ -21,7 +21,6 @@ class IdWithRevDto {
     var id: String? = null
     var rev: String? = null
 
-    constructor() {}
     constructor(id: String?, rev: String?) {
         this.id = id
         this.rev = rev

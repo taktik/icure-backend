@@ -17,13 +17,12 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
-import java.io.Serializable
-import java.util.*
-
 /**
  * Created by aduchate on 12/07/2017.
  */
 import com.github.pozo.KotlinBuilder
+import java.io.Serializable
+
 @KotlinBuilder
 data class EmailOrSmsMessageDto(
         val attachments: List<AttachmentDto> = listOf(),
@@ -46,7 +45,6 @@ data class EmailOrSmsMessageDto(
         EMAIL, SMS
     }
 
-    import com.github.pozo.KotlinBuilder
-@KotlinBuilder
-data class AttachmentDto(val data: ByteArray? = null, val fileName: String? = null, val mimeType: String? = null) : Serializable
+    @KotlinBuilder
+    data class AttachmentDto(val data: ByteArray? = null, val fileName: String? = null, val mimeType: String? = null) : Serializable
 }

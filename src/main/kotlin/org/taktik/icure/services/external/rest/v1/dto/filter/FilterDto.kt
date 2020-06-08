@@ -18,6 +18,8 @@
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.handlers.JacksonFilterDeserializer
@@ -28,6 +30,10 @@ abstract class FilterDto<O : Identifiable<String>> : Filter<String, O>, Serializ
     var desc: String? = null
 
     abstract fun matches(item: O): Boolean
+    override fun applyTo(items: Flow<O>): Flow<O> {
+        return items.filter { item -> this.matches(item) }
+    }
+
     override fun applyTo(items: List<O>): List<O> {
         return items.filter { item -> this.matches(item) }
     }
@@ -36,3 +42,24 @@ abstract class FilterDto<O : Identifiable<String>> : Filter<String, O>, Serializ
         return items.filter { item -> this.matches(item) }.toSet()
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

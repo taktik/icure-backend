@@ -47,6 +47,7 @@ import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
+import org.taktik.icure.services.external.rest.v1.mapper.mikrono.EmailOrSmsMessageMapper
 import org.taktik.icure.utils.firstOrNull
 import java.io.IOException
 import java.util.function.Supplier
@@ -54,10 +55,11 @@ import java.util.function.Supplier
 @RestController
 @RequestMapping("/rest/v1/be_mikrono")
 @Tag(name = "bemikrono")
-class MikronoController(private private val mikronoLogic: MikronoLogic,
+class MikronoController(private val mikronoLogic: MikronoLogic,
                         private val patientLogic: PatientLogic,
                         private val sessionLogic: AsyncSessionLogic,
-                        private val userLogic: UserLogic) {
+                        private val userLogic: UserLogic,
+                        private val emailOrSmsMessageMapper: EmailOrSmsMessageMapper) {
 
     private val uuidGenerator = UUIDGenerator()
 
@@ -157,7 +159,7 @@ class MikronoController(private private val mikronoLogic: MikronoLogic,
 
         if (loggedMikronoUser != null && loggedMikronoPassword != null) {
             try {
-                mikronoLogic.sendMessage(null, loggedMikronoUser, loggedMikronoPassword, mapper.map(message, EmailOrSmsMessage::class.java))
+                mikronoLogic.sendMessage(null, loggedMikronoUser, loggedMikronoPassword, emailOrSmsMessageMapper.map(message))
             } catch (e: IOException) {
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
             }

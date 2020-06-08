@@ -18,14 +18,10 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import com.github.pozo.KotlinBuilder
-import com.github.pozo.KotlinBuilderimport
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import java.io.Serializable
 
-java.util.stream.Collectors
 
-
-import com.github.pozo.KotlinBuilder
 @KotlinBuilder
 data class MedicationDto(
         val compoundPrescription: String? = null,

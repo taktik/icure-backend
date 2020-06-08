@@ -35,6 +35,7 @@ import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.entities.embed.TimeTableHour
 import org.taktik.icure.entities.embed.TimeTableItem
 import org.taktik.icure.services.external.rest.v1.dto.TimeTableDto
+import org.taktik.icure.services.external.rest.v1.mapper.TimeTableMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 import java.util.*
@@ -44,13 +45,13 @@ import java.util.*
 @RequestMapping("/rest/v1/timeTable")
 @Tag(name = "timeTable")
 class TimeTableController(private val timeTableLogic: TimeTableLogic,
-                          private val mapper: MapperFacade) {
+                          private val timeTableMapper: TimeTableMapper) {
 
     @Operation(summary = "Creates a timeTable")
     @PostMapping
     fun createTimeTable(@RequestBody timeTableDto: TimeTableDto) =
             mono {
-                timeTableLogic.createTimeTable(Mappers.getMapper(TimeTable::class.java))?.let { mapper.map(it, TimeTableMapper::class.java).map(timeTableDto) }
+                timeTableLogic.createTimeTable(timeTableMapper.map(timeTableDto))?.let { timeTableMapper.map(it) }
                         ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable creation failed")
             }
 
@@ -87,9 +88,9 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                     )
 
                     //Return it
-                    Mappers.getMapper(TimeTableMapper::class.java).map(timeTable)
+                    timeTableMapper.map(timeTable)
                 } else {
-                    timeTableLogic.getTimeTable(timeTableId).let { Mappers.getMapper(TimeTableMapper::class.java).map(it) }
+                    timeTableLogic.getTimeTable(timeTableId)?.let { timeTableMapper.map(it) }
                             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "TimeTable fetching failed")
                 }
             }
@@ -98,7 +99,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
     @PutMapping
     fun modifyTimeTable(@RequestBody timeTableDto: TimeTableDto) =
             mono {
-                timeTableLogic.modifyTimeTable(Mappers.getMapper(TimeTable::class.java))?.let { mapper.map(it, TimeTableMapper::class.java).map(timeTableDto) }
+                timeTableLogic.modifyTimeTable(timeTableMapper.map(timeTableDto))?.let { timeTableMapper.map(it) }
                         ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "TimeTable modification failed")
             }
 
@@ -111,7 +112,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
-                emitAll(timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { Mappers.getMapper(TimeTableMapper::class.java).map(it) })
+                emitAll(timeTableLogic.getTimeTablesByPeriodAndAgendaId(startDate, endDate, agendaId).map { timeTableMapper.map(it) })
             }.injectReactorContext()
 
     @Operation(summary = "Get TimeTables by AgendaId")
@@ -121,7 +122,7 @@ class TimeTableController(private val timeTableLogic: TimeTableLogic,
                 if (agendaId.isBlank()) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "agendaId was empty")
                 }
-                emitAll(timeTableLogic.getTimeTablesByAgendaId(agendaId).map { Mappers.getMapper(TimeTableMapper::class.java).map(it) })
+                emitAll(timeTableLogic.getTimeTablesByAgendaId(agendaId).map { timeTableMapper.map(it) })
             }.injectReactorContext()
 
 }

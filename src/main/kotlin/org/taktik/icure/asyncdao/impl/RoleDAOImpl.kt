@@ -34,7 +34,7 @@ import java.net.URI
 
 @Repository("roleDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted) emit( null, doc._id )}")
-class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Role>(Role::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), RoleDAO {
+class RoleDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Role>(Role::class.java, couchDbDispatcher, idGenerator, asyncCacheManager), RoleDAO {
 
     @View(name = "by_name", map = "function(doc) {\n" +
             "            if (doc.java_type == 'org.taktik.icure.entities.Role' && !doc.deleted && doc.name) {\n" +

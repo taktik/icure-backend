@@ -23,8 +23,7 @@ import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
 @Service
-class MedexLogicImpl(mapper: MapperFacade,
-                     patientLogic: PatientLogic,
+class MedexLogicImpl(patientLogic: PatientLogic,
                      codeLogic: CodeLogic,
                      healthElementLogic: HealthElementLogic,
                      healthcarePartyLogic: HealthcarePartyLogic,
@@ -32,7 +31,7 @@ class MedexLogicImpl(mapper: MapperFacade,
                      documentLogic: DocumentLogic,
                      sessionLogic: AsyncSessionLogic,
                      userLogic: UserLogic,
-                     filters: org.taktik.icure.asynclogic.impl.filter.Filters) : MedexLogic, KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+                     filters: org.taktik.icure.asynclogic.impl.filter.Filters) : MedexLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
     internal override val log = LogFactory.getLog(MedexLogicImpl::class.java)
 

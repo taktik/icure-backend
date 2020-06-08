@@ -5,6 +5,6 @@ import java.math.BigDecimal
 
 import com.github.pozo.KotlinBuilder
 @KotlinBuilder
-import com.github.pozo.KotlinBuilder
-@KotlinBuilder
+
+
 data class PricingDto(val quantity: BigDecimal? = null, val label: SamTextDto? = null) : Serializable

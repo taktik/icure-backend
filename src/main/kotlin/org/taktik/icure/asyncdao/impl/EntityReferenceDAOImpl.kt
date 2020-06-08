@@ -16,7 +16,7 @@ import java.net.URI
 
 @Repository("entityReferenceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityReference' && !doc.deleted) emit(doc._id)}")
-class EntityReferenceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<EntityReference>(EntityReference::class.java, couchDbDispatcher, idGenerator, mapper), EntityReferenceDAO {
+class EntityReferenceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<EntityReference>(EntityReference::class.java, couchDbDispatcher, idGenerator), EntityReferenceDAO {
 
     override suspend fun getLatest(dbInstanceUrl: URI, groupId: String, prefix: String): EntityReference? {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

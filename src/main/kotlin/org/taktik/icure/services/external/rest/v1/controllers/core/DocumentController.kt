@@ -46,6 +46,9 @@ import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
+import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
@@ -64,16 +67,20 @@ import javax.xml.transform.stream.StreamSource
 @RequestMapping("/rest/v1/document")
 @Tag(name = "document")
 class DocumentController(private val documentLogic: DocumentLogic,
-                         private private val sessionLogic: AsyncSessionLogic) {
+                         private val sessionLogic: AsyncSessionLogic,
+                         private val documentMapper: DocumentMapper,
+                         private val delegationMapper: DelegationMapper,
+                         private val filterMapper: FilterMapper
+) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Operation(summary = "Creates a document")
     @PostMapping
     fun createDocument(@RequestBody documentDto: DocumentDto) = mono {
-        val document = mapper.map(documentDto, Document::class.java)
+        val document = documentMapper.map(documentDto)
         val createdDocument = documentLogic.createDocument(document, sessionLogic.getCurrentSessionContext().getUser().healthcarePartyId!!)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document creation failed")
-        Mappers.getMapper(DocumentMapper::class.java).map(createdDocument)
+        documentMapper.map(createdDocument)
     }
 
     @Operation(summary = "Deletes a document")
@@ -134,7 +141,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
 
         documentLogic.modifyDocument(document.copy(attachment = null))
-        Mappers.getMapper(DocumentMapper::class.java).map(document)
+        documentMapper.map(document)
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -160,7 +167,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         documentLogic.modifyDocument(document.copy(attachment = newPayload))
-        Mappers.getMapper(DocumentMapper::class.java).map(document)
+        documentMapper.map(document)
     }
 
     @Operation(summary = "Creates a document's attachment")
@@ -175,14 +182,14 @@ class DocumentController(private val documentLogic: DocumentLogic,
     fun getDocument(@PathVariable documentId: String) = mono {
         val document = documentLogic.get(documentId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
-        Mappers.getMapper(DocumentMapper::class.java).map(document)
+        documentMapper.map(document)
     }
 
     @Operation(summary = "Gets a document")
     @PostMapping("/batch")
     fun getDocuments(@RequestBody documentIds: ListOfIdsDto): Flux<DocumentDto> {
         val documents = documentLogic.get(documentIds.ids)
-        return documents.map { doc -> Mappers.getMapper(DocumentMapper::class.java).map(doc) }.injectReactorContext()
+        return documents.map { doc -> documentMapper.map(doc) }.injectReactorContext()
     }
 
     @Operation(summary = "Updates a document")
@@ -192,18 +199,18 @@ class DocumentController(private val documentLogic: DocumentLogic,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify document with no id")
         }
 
-        val document = mapper.map(documentDto, Document::class.java)
+        val document = documentMapper.map(documentDto)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Document modification failed")
         if (documentDto.attachmentId != null) {
             val prevDoc = document.id.let { documentLogic.get(it) } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No document matching input")
-            mapper.map(documentLogic.modifyDocument(if (documentDto.attachmentId == prevDoc.attachmentId) document.copy(
+            documentMapper.map(documentLogic.modifyDocument(if (documentDto.attachmentId == prevDoc.attachmentId) document.copy(
                     attachment = prevDoc.attachment,
                     attachments = prevDoc.attachments
             ) else document.copy(
                     attachments = prevDoc.attachments
-            )) ?: throw IllegalStateException("Cannot update document") , DocumentDto::class.java)
+            )) ?: throw IllegalStateException("Cannot update document"))
         } else
-            Mappers.getMapper(DocumentMapper::class.java).map(documentLogic.modifyDocument(document) ?: throw IllegalStateException("Cannot update document") )
+            documentMapper.map(documentLogic.modifyDocument(document) ?: throw IllegalStateException("Cannot update document") )
 
     }
 
@@ -211,7 +218,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @PutMapping("/batch")
     fun modifyDocuments(@RequestBody documentDtos: List<DocumentDto>): Flux<DocumentDto> = flow{
         try {
-            val indocs = documentDtos.map { f -> mapper.map(f, Document::class.java) }.mapIndexed { i, doc ->
+            val indocs = documentDtos.map { f -> documentMapper.map(f) }.mapIndexed { i, doc ->
                 if (doc.attachmentId != null) {
                     documentLogic.get(doc.id)?.let {
                         if (doc.attachmentId == it.attachmentId) doc.copy(
@@ -225,7 +232,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
             }
             emitAll(
                     documentLogic.updateEntities(indocs)
-                            .map { f -> Mappers.getMapper(DocumentMapper::class.java).map(f) }
+                            .map { f -> documentMapper.map(f) }
             )
         } catch (e: Exception) {
             logger.warn(e.message, e)
@@ -241,7 +248,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
 
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByHCPartySecretMessageKeys(hcPartyId, ArrayList(secretMessageKeys))
-        return documentList.map { document -> Mappers.getMapper(DocumentMapper::class.java).map(document) }.injectReactorContext()
+        return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }
 
     @Operation(summary = "List documents found By type, By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
@@ -256,7 +263,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val secretMessageKeys = secretFKeys.split(',').map { it.trim() }
         val documentList = documentLogic.findDocumentsByDocumentTypeHCPartySecretMessageKeys(documentTypeCode, hcPartyId, ArrayList(secretMessageKeys))
 
-        return documentList.map { document -> Mappers.getMapper(DocumentMapper::class.java).map(document) }.injectReactorContext()
+        return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }
 
 
@@ -264,7 +271,7 @@ class DocumentController(private val documentLogic: DocumentLogic,
     @GetMapping("/woDelegation")
     fun findWithoutDelegation(@RequestParam(required = false) limit: Int?): Flux<DocumentDto> {
         val documentList = documentLogic.findWithoutDelegation(limit ?: 100)
-        return documentList.map { document -> Mappers.getMapper(DocumentMapper::class.java).map(document) }.injectReactorContext()
+        return documentList.map { document -> documentMapper.map(document) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -273,12 +280,12 @@ class DocumentController(private val documentLogic: DocumentLogic,
         val invoices = documentLogic.getDocuments(stubs.map { it.id }).map { document ->
             stubs.find { s -> s.id == document.id }?.let { stub ->
                 document.copy(
-                        delegations = document.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
-                        encryptionKeys = document.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels },
-                        cryptedForeignKeys = document.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { mapper.map(it, Delegation::class.java) }?.toSet() ?: dels }
+                        delegations = document.delegations.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.delegations[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
+                        encryptionKeys = document.encryptionKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.encryptionKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels },
+                        cryptedForeignKeys = document.cryptedForeignKeys.mapValues<String, Set<Delegation>, Set<Delegation>> { (s, dels) -> stub.cryptedForeignKeys[s]?.map { delegationMapper.map(it) }?.toSet() ?: dels }
                 )
             } ?: document
         }
-        emitAll(documentLogic.updateDocuments(invoices.toList()).map { Mappers.getMapper(IcureStubMapper::class.java).map(it) })
+        emitAll(documentLogic.updateDocuments(invoices.toList()).map { documentMapper.mapToStub(it) })
     }.injectReactorContext()
 }

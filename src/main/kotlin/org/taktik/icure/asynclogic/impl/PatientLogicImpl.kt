@@ -172,7 +172,7 @@ class PatientLogicImpl(
 
     override fun listPatients(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        var ids = filters.resolve(filterChain.getFilter()).toSet().sorted()
+        var ids = filters.resolve(filterChain.filter).toSet().sorted()
         var forPagination = patientDAO.getForPagination(dbInstanceUri, groupId, ids)
         if (filterChain.predicate != null) {
             forPagination = forPagination.filterIsInstance<ViewRowWithDoc<*, *, *>>()
@@ -487,7 +487,7 @@ class PatientLogicImpl(
         emitAll(patientDAO.getDuplicatePatientsByName(dbInstanceUri, groupId, healthcarePartyId, paginationOffset.toComplexKeyPaginationOffset()))
     }
 
-    override fun fuzzySearchPatients(mapper: MapperFacade, firstName: String?, lastName: String?, dateOfBirth: Int?, healthcarePartyId: String?) = flow<Patient> {
+    override fun fuzzySearchPatients(firstName: String?, lastName: String?, dateOfBirth: Int?, healthcarePartyId: String?) = flow<Patient> {
         val healthcarePartyId = healthcarePartyId ?: sessionLogic.getCurrentHealthcarePartyId()
         if (dateOfBirth != null) { //Patients with the right date of birth
             val combined: Flow<Flow<ViewQueryResultEvent>>

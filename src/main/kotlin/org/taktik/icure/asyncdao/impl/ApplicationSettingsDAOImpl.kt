@@ -9,4 +9,4 @@ import org.taktik.icure.entities.ApplicationSettings
 
 @Repository("ApplicationSettingsDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.ApplicationSettings' && !doc.deleted) emit( null, doc._id )}")
-class ApplicationSettingsDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<ApplicationSettings>(ApplicationSettings::class.java, couchDbDispatcher, idGenerator, mapper), ApplicationSettingsDAO
+class ApplicationSettingsDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<ApplicationSettings>(ApplicationSettings::class.java, couchDbDispatcher, idGenerator), ApplicationSettingsDAO

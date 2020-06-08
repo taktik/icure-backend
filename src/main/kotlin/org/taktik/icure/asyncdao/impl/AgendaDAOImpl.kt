@@ -14,7 +14,7 @@ import java.net.URI
 
 @Repository("AgendaDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Agenda' && !doc.deleted) emit( null, doc._id )}")
-class AgendaDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Agenda>(Agenda::class.java, couchDbDispatcher, idGenerator, mapper), AgendaDAO {
+class AgendaDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Agenda>(Agenda::class.java, couchDbDispatcher, idGenerator), AgendaDAO {
 
     @View(name = "by_user", map = "classpath:js/agenda/by_user.js")
     override fun getAllAgendaForUser(dbInstanceUrl: URI, groupId: String, userId: String): Flow<Agenda> {

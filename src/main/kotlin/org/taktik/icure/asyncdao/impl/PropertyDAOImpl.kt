@@ -34,7 +34,7 @@ import java.net.URI
 
 @Repository("propertyDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Property' && !doc.deleted) emit(doc._id )}")
-class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") AsyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Property>(Property::class.java, couchDbDispatcher, idGenerator, AsyncCacheManager, mapper), PropertyDAO {
+class PropertyDAOImpl(@Qualifier("configCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<Property>(Property::class.java, couchDbDispatcher, idGenerator, asyncCacheManager), PropertyDAO {
 
     @View(name = "by_identifier", map = "classpath:js/property/By_identifier_Map.js")
     override suspend fun getByIdentifier(dbInstanceUrl: URI, groupId: String, propertyIdentifier: String): Property? {

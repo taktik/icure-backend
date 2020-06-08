@@ -22,7 +22,7 @@ import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.ValidCode
 import java.io.Serializable
 import com.github.pozo.KotlinBuilder
-import com.github.pozo.KotlinBuilder
+
 @KotlinBuilder
 data class SubstanceproductDto(
         @ValidCode(autoFix = AutoFix.NORMALIZECODE)

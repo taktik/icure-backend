@@ -28,17 +28,21 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.entities.MedicalLocation
 import org.taktik.icure.asynclogic.MedicalLocationLogic
 import org.taktik.icure.services.external.rest.v1.dto.MedicalLocationDto
+import org.taktik.icure.services.external.rest.v1.mapper.MedicalLocationMapper
 import org.taktik.icure.utils.injectReactorContext
 
 @RestController
 @RequestMapping("/rest/v1/medicallocation")
 @Tag(name = "medicallocation")
-class MedicalLocationController(private val medicalLocationLogic: MedicalLocationLogic, private val mapper: MapperFacade) {
+class MedicalLocationController(
+        private val medicalLocationLogic: MedicalLocationLogic,
+        private val medicalLocationMapper: MedicalLocationMapper
+) {
 
     @Operation(summary = "Creates a medical location")
     @PostMapping
     fun createMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
-        medicalLocationLogic.createMedicalLocation(Mappers.getMapper(MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationMapper::class.java).map(medicalLocationDto) }
+        medicalLocationLogic.createMedicalLocation(medicalLocationMapper.map(medicalLocationDto))?.let { medicalLocationMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medical location creation failed")
     }
 
@@ -51,18 +55,18 @@ class MedicalLocationController(private val medicalLocationLogic: MedicalLocatio
     @Operation(summary = "Gets a medical location")
     @GetMapping("/{locationId}")
     fun getMedicalLocation(@PathVariable locationId: String) = mono {
-        medicalLocationLogic.getMedicalLocation(locationId)?.let { Mappers.getMapper(MedicalLocationMapper::class.java).map(it) }
+        medicalLocationLogic.getMedicalLocation(locationId)?.let { medicalLocationMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "medical location fetching failed")
     }
 
     @Operation(summary = "Gets all medical locations")
     @GetMapping
-    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> Mappers.getMapper(MedicalLocationMapper::class.java).map(c) }.injectReactorContext()
+    fun getMedicalLocations() = medicalLocationLogic.getAllEntities().map { c -> medicalLocationMapper.map(c) }.injectReactorContext()
 
     @Operation(summary = "Modifies a medical location")
     @PutMapping
     fun modifyMedicalLocation(@RequestBody medicalLocationDto: MedicalLocationDto) = mono {
-        medicalLocationLogic.modifyMedicalLocation(Mappers.getMapper(MedicalLocation::class.java))?.let { mapper.map(it, MedicalLocationMapper::class.java).map(medicalLocationDto) }
+        medicalLocationLogic.modifyMedicalLocation(medicalLocationMapper.map(medicalLocationDto))?.let { medicalLocationMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "medical location modification failed")
     }
 }

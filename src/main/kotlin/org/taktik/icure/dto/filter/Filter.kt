@@ -17,10 +17,12 @@
  */
 package org.taktik.icure.dto.filter
 
+import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.base.Identifiable
 import java.io.Serializable
 
 interface Filter<T : Serializable, O : Identifiable<T>> {
     fun applyTo(items: List<O>): List<O>
     fun applyTo(items: Set<O>): Set<O>
+    fun applyTo(items: Flow<O>): Flow<O>
 }

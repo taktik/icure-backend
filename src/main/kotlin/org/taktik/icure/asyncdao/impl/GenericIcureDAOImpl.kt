@@ -31,7 +31,7 @@ import java.net.URI
  * Automatically update the modified date
  *
  */
-open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<T>(entityClass, couchDbDispatcher, idGenerator, mapper) {
+open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<T>(entityClass, couchDbDispatcher, idGenerator) {
     override suspend fun save(dbInstanceUrl: URI, groupId: String, newEntity: Boolean?, entity: T): T? =
             super.save(dbInstanceUrl, groupId, newEntity, entity.apply { setTimestamps(this) })
 

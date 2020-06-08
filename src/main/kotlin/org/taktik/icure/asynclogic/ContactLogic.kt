@@ -37,7 +37,7 @@ interface ContactLogic : EntityPersister<Contact, String> {
     fun findContactsByHCPartyFormIds(hcPartyId: String, ids: List<String>): Flow<Contact>
     fun getGenericDAO(): ContactDAO
     fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>): Flow<ViewQueryResultEvent>
-    fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<org.taktik.icure.entities.embed.Service>
+    fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Service>): Flow<Service>
 
     suspend fun solveConflicts()
     fun listContactsByOpeningDate(hcPartyId: String, startOpeningDate: Long, endOpeningDate: Long, offset: PaginationOffset<List<String>>): Flow<ViewQueryResultEvent>

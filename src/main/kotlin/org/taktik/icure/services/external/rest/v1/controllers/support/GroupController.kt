@@ -17,6 +17,11 @@ import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.services.external.rest.v1.dto.DatabaseInitialisationDto
 import org.taktik.icure.services.external.rest.v1.dto.GroupDto
+import org.taktik.icure.services.external.rest.v1.mapper.GroupMapper
+import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.ReplicationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
 import org.taktik.icure.utils.injectReactorContext
 import java.net.URI
 
@@ -27,7 +32,10 @@ class GroupController(couchDbProperties: CouchDbProperties,
                       private val groupLogic: GroupLogic,
                       private val userLogic: UserLogic,
                       private val healthcarePartyLogic: HealthcarePartyLogic,
-                      private val mapper: MapperFacade) {
+                      private val groupMapper: GroupMapper,
+                      private val userMapper: UserMapper,
+                      private val healthcarePartyMapper: HealthcarePartyMapper,
+                      private val replicationMapper: ReplicationMapper) {
 
     private val dbInstanceUri = URI(couchDbProperties.url)
 
@@ -43,18 +51,18 @@ class GroupController(couchDbProperties: CouchDbProperties,
                     @Parameter(description="The number of replications for dbs : 3 is a recommended value") @RequestParam(required = false) n: Int?,
                     @Parameter(description="initialisationData is an object that contains the initial replications (target must be an internalTarget of value base, healthdata or patient) and the users and healthcare parties to be created") @RequestBody initialisationData: DatabaseInitialisationDto) = mono {
         try {
-            val group = groupLogic.createGroup(id, name, password, server, q, n, initialisationData.replication?.let { mapper.map(it, Replication::class.java) })
+            val group = groupLogic.createGroup(id, name, password, server, q, n, initialisationData.replication?.let { replicationMapper.map(it) })
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Group creation failed")
             (group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString())?.let { uri ->
                 initialisationData.users?.forEach {
-                    group.id.let { it1 -> userLogic.createUserOnUserDb(mapper.map(it, User::class.java), it1, URI.create(uri)) }
+                    group.id.let { it1 -> userLogic.createUserOnUserDb(userMapper.map(it), it1, URI.create(uri)) }
                 }
                 initialisationData.healthcareParties?.forEach {
-                    group.id.let { it1 -> healthcarePartyLogic.createHealthcarePartyOnUserDb(mapper.map(it, HealthcareParty::class.java), it1, URI.create(uri)) }
+                    group.id.let { it1 -> healthcarePartyLogic.createHealthcarePartyOnUserDb(healthcarePartyMapper.map(it), it1, URI.create(uri)) }
                 }
             }
 
-            Mappers.getMapper(GroupMapper::class.java).map(group)
+            groupMapper.map(group)
         } catch (e: IllegalAccessException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized access.")
         } catch (e: IllegalArgumentException) {
@@ -64,7 +72,7 @@ class GroupController(couchDbProperties: CouchDbProperties,
 
     @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
     @GetMapping
-    fun listGroups() = groupLogic.listGroups().map { Mappers.getMapper(GroupMapper::class.java).map(it) }.injectReactorContext()
+    fun listGroups() = groupLogic.listGroups().map { groupMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
     @PutMapping("/{id}/password")

@@ -39,6 +39,7 @@ import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.embed.Telecom
 import org.taktik.icure.entities.embed.TelecomType
+import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.utils.FuzzyValues
 import java.time.DateTimeException
 import java.time.LocalDateTime
@@ -50,9 +51,7 @@ import java.util.function.Consumer
 /**
  * Created by aduchate on 16/12/11, 11:46
  */
-class MikronoPatientLogicImpl(applicationToken: String) : MikronoPatientLogic {
-    private var mapper: MapperFacade? = null
-    private val applicationToken: String
+class MikronoPatientLogicImpl(private val applicationToken: String, private val addressMapper: AddressMapper) : MikronoPatientLogic {
     private val restTemplate = RestTemplate()
 
     private fun getPersonFromPatient(p: Patient): Person {
@@ -71,7 +70,7 @@ class MikronoPatientLogicImpl(applicationToken: String) : MikronoPatientLogic {
             patient.addId("ID-PATIENT:" + p.ssin)
         }
         p.addresses.forEach(Consumer { a: Address ->
-            val address = mapper!!.map(a, org.taktik.icure.be.mikrono.dto.kmehr.Address::class.java)
+            val address = addressMapper.mapToMikrono(a)
             address.zip = a.postalCode
             val addressType = if (a.addressType == null) "home" else a.addressType.name
             address.types?.add("CD-ADDRESS:$addressType")
@@ -96,7 +95,7 @@ class MikronoPatientLogicImpl(applicationToken: String) : MikronoPatientLogic {
                     gender = pat.sex?.let { Gender.fromCode(it)},
                     ssin = pat.getId("ID-PATIENT"),
                     addresses = pat.addresses.filterNotNull().map { a ->
-                        mapper!!.map(a, Address::class.java).let {
+                        addressMapper.map(a).let {
                             val addressType = it.addressType
                                     ?: a.types?.firstOrNull()?.let {
                                         a.types?.filter { typ -> typ?.startsWith("CD-ADDRESS:") == true }?.firstOrNull()?.replace("CD-ADDRESS:".toRegex(), "")?.let { AddressType.valueOf(it) }
@@ -165,16 +164,7 @@ class MikronoPatientLogicImpl(applicationToken: String) : MikronoPatientLogic {
         return restTemplate.exchange(StringUtils.removeEnd(url, "/") + "/rest/patients/{from}", HttpMethod.GET, HttpEntity<Any>(getHttpHeaders(mikronoUser, mikronoPassword)), ListPatientsDto::class.java, (fromDate ?: Date(0L)).time).body?.patients ?: listOf()
     }
 
-    @Autowired
-    fun setMapper(mapper: MapperFacade?) {
-        this.mapper = mapper
-    }
-
     init {
         restTemplate.messageConverters.add(MappingJackson2HttpMessageConverter())
-    }
-
-    init {
-        this.applicationToken = applicationToken
     }
 }

@@ -33,7 +33,7 @@ import java.net.URI
 
 @Repository("timeTableDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.TimeTable' && !doc.deleted) emit( null, doc._id )}")
-class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(TimeTable::class.java, couchDbDispatcher, idGenerator, mapper), TimeTableDAO {
+class TimeTableDAOImpl (@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<TimeTable>(TimeTable::class.java, couchDbDispatcher, idGenerator), TimeTableDAO {
 
 	@View(name = "by_agenda", map = "classpath:js/timeTable/by_agenda.js")
 	override fun listTimeTableByAgendaId(dbInstanceUrl: URI, groupId:String, agendaId: String): Flow<TimeTable> {

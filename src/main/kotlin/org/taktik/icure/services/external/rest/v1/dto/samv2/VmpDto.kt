@@ -11,8 +11,8 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.stub.VmpGroupStubDto
 
 import com.github.pozo.KotlinBuilder
 @KotlinBuilder
-import com.github.pozo.KotlinBuilder
-@KotlinBuilder
+
+
 data class VmpDto(
         override val id: String,
         override val rev: String? = null,

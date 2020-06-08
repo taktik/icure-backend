@@ -57,7 +57,6 @@ import javax.xml.datatype.XMLGregorianCalendar
 import kotlin.collections.ArrayList
 
 open class KmehrExport(
-        val mapper: MapperFacade,
         val patientLogic: PatientLogic,
         val codeLogic: CodeLogic,
         val healthElementLogic: HealthElementLogic,

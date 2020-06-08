@@ -42,7 +42,7 @@ import java.time.Instant
 import java.util.*
 
 @org.springframework.stereotype.Service("dairyNoteExport")
-class DiaryNoteExport(mapper: MapperFacade,
+class DiaryNoteExport(
                       patientLogic: PatientLogic,
                       codeLogic: CodeLogic,
                       healthElementLogic: HealthElementLogic,
@@ -51,7 +51,7 @@ class DiaryNoteExport(mapper: MapperFacade,
                       documentLogic: DocumentLogic,
                       sessionLogic: AsyncSessionLogic,
                       userLogic: UserLogic,
-                      filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+                      filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
     override val log = LogFactory.getLog(DiaryNoteExport::class.java)
 
     fun getMd5(hcPartyId: String, patient: Patient, sfks: List<String>, excludedIds: List<String>): String {

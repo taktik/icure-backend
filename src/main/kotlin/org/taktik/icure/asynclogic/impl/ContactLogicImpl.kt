@@ -222,7 +222,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun filterContacts(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<Contact>)= flow<ViewQueryResultEvent> {
-        val ids = filters.resolve(filter.getFilter())
+        val ids = filters.resolve(filter.filter)
 
         val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
             ids.dropWhile { it != paginationOffset.startDocumentId }
@@ -236,7 +236,7 @@ class ContactLogicImpl(private val contactDAO: ContactDAO,
     }
 
     override fun filterServices(paginationOffset: PaginationOffset<Nothing>, filter: FilterChain<org.taktik.icure.entities.embed.Service>) = flow<org.taktik.icure.entities.embed.Service> {
-        val ids= filters.resolve(filter.getFilter())
+        val ids= filters.resolve(filter.filter)
 
         val sortedIds = if (paginationOffset.startDocumentId != null) { // Sub-set starting from startDocId to the end (including last element)
             ids.dropWhile { it != paginationOffset.startDocumentId }

@@ -55,7 +55,10 @@ import kotlin.coroutines.CoroutineContext
 @RestController
 @RequestMapping("/rest/v1/auth")
 @Tag(name = "auth")
-class LoginController(private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic, asyncCacheManager: AsyncCacheManager) {
+class LoginController(
+        private val sessionLogic: AsyncSessionLogic,
+        asyncCacheManager: AsyncCacheManager
+) {
     val cache = asyncCacheManager.getCache<String, SecurityToken>("spring.security.tokens")
 
     @Operation(summary = "login", description = "Login using username and password")
@@ -85,7 +88,7 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
                         session.attributes["SPRING_SECURITY_CONTEXT"] = secContext
                     }
                 }
-                mapper.map(response, AuthenticationResponse::class.java)
+                response
             } ?: throw BadCredentialsException("bad credentials")
         }
     }
@@ -94,14 +97,14 @@ class LoginController(private val mapper: MapperFacade, private val sessionLogic
     @GetMapping("/logout")
     fun logout() = mono {
         sessionLogic.logout()
-        mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
+        AuthenticationResponse(true)
     }
 
     @Operation(summary = "logout", description = "Logout")
     @PostMapping("/logout")
     fun logoutPost() = mono {
         sessionLogic.logout()
-        mapper.map(AuthenticationResponse(true), AuthenticationResponse::class.java)
+        AuthenticationResponse(true)
     }
 
     @Operation(summary = "token", description = "Get token for subsequent operation")

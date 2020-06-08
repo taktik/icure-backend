@@ -34,6 +34,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.User
 import org.taktik.icure.exceptions.DeletionException
@@ -41,6 +42,7 @@ import org.taktik.icure.exceptions.DocumentNotFoundException
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.exceptions.UserRegistrationException
 import org.taktik.icure.services.external.rest.v1.dto.*
+import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -49,18 +51,21 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/hcparty")
 @Tag(name = "hcparty")
-class HealthcarePartyController(private private val userLogic: UserLogic,
+class HealthcarePartyController(private val userLogic: UserLogic,
                                 private val healthcarePartyLogic: HealthcarePartyLogic,
-                                private val sessionLogic: AsyncSessionLogic) {
+                                private val sessionLogic: AsyncSessionLogic,
+                                private val healthcarePartyMapper: HealthcarePartyMapper
+) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
+    private val healthcarePartyToHealthcarePartyDto = { it: HealthcareParty -> healthcarePartyMapper.map(it) }
 
     @Operation(summary = "Get the current healthcare party if logged in.", description = "General information about the current healthcare Party")
     @GetMapping("/current")
     fun getCurrentHealthcareParty() = mono {
         val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the current healthcare party. Probable reasons: no healthcare party is logged in, or server error. Please try again or read the server log.")
-        Mappers.getMapper(HealthcarePartyMapper::class.java).map(healthcareParty)
+        healthcarePartyMapper.map(healthcareParty)
     }
 
     @Operation(summary = "List healthcare parties with(out) pagination", description = "Returns a list of healthcare parties.")
@@ -75,7 +80,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
-                .paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, realLimit)
+                .paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
@@ -93,7 +98,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
             healthcarePartyLogic.listHealthcareParties(paginationOffset, desc)
         } else {
             healthcarePartyLogic.findHealthcareParties(name, paginationOffset, desc)
-        }.paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, realLimit)
+        }.paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
     @Operation(summary = "Find healthcare parties by nihii or ssin with(out) pagination", description = "Returns a list of healthcare parties.")
@@ -109,7 +114,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
         val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit+1)
 
         healthcarePartyLogic.findHealthcarePartiesBySsinOrNihii(searchValue, paginationOffset, desc)
-                .paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, realLimit)
+                .paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, realLimit)
     }
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
@@ -117,7 +122,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
     fun listByName(@Parameter(description = "The Last name search value")
                    @PathVariable name: String) =
             healthcarePartyLogic.listByName(name)
-                           .map { Mappers.getMapper(HealthcarePartyMapper::class.java).map(it) }
+                           .map { healthcarePartyMapper.map(it) }
                            .injectReactorContext()
 
     @Operation(summary = "Find healthcare parties by name with(out) pagination", description = "Returns a list of healthcare parties.")
@@ -128,14 +133,14 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
             @Parameter(description = "The first postCode for the HCP") @PathVariable firstCode: String,
             @Parameter(description = "The last postCode for the HCP") @PathVariable lastCode: String,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int) = mono {
-        healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(mapper, limit)
+        healthcarePartyLogic.findHealthcareParties(type, spec, firstCode, lastCode).paginatedList<HealthcareParty, HealthcarePartyDto>(healthcarePartyToHealthcarePartyDto, limit)
     }
 
     @Operation(summary = "Create a healthcare party", description = "One of Name or Last name+First name, Nihii, and Public key are required.")
     @PostMapping
     fun createHealthcareParty(@RequestBody h: HealthcarePartyDto) = mono {
         val hcParty = try {
-            healthcarePartyLogic.createHealthcareParty(mapper.map(h, HealthcareParty::class.java))
+            healthcarePartyLogic.createHealthcareParty(healthcarePartyMapper.map(h))
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -143,7 +148,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
 
         val succeed = hcParty != null
         if (succeed) {
-            Mappers.getMapper(HealthcarePartyMapper::class.java).map(hcParty)
+            hcParty?.let { healthcarePartyMapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party creation failed.")
         }
@@ -160,28 +165,28 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
     fun getHealthcareParty(@PathVariable healthcarePartyId: String) = mono {
         val healthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the healthcare party. Probable reasons: no such party exists, or server error. Please try again or read the server log.")
-        Mappers.getMapper(HealthcarePartyMapper::class.java).map(healthcareParty)
+        healthcarePartyMapper.map(healthcareParty)
     }
 
     @Operation(summary = "Get healthcareParties by their IDs", description = "General information about the healthcare Party")
     @GetMapping("/byIds/{healthcarePartyIds}")
     fun getHealthcareParties(@PathVariable healthcarePartyIds: String) =
             healthcarePartyLogic.getHealthcareParties(healthcarePartyIds.split(','))
-                    .map { Mappers.getMapper(HealthcarePartyMapper::class.java).map(it) }
+                    .map { healthcarePartyMapper.map(it) }
                     .injectReactorContext()
 
     @Operation(summary = "Get healthcareParties by their IDs", description = "General information about the healthcare Party")
     @PostMapping("/inGroup/{groupId}/byIds")
     fun getHealthcarePartiesInGroup(@PathVariable groupId: String, @RequestBody(required = false) healthcarePartyIds: ListOfIdsDto? = null) =
             healthcarePartyLogic.getHealthcareParties(groupId, healthcarePartyIds?.ids)
-                    .map { Mappers.getMapper(HealthcarePartyMapper::class.java).map(it) }
+                    .map { healthcarePartyMapper.map(it) }
                     .injectReactorContext()
 
     @Operation(summary = "Find children of an healthcare parties", description = "Return a list of children hcp.")
     @GetMapping("/{parentId}/children")
     fun getHealthcarePartiesByParentId(@PathVariable parentId: String) =
             healthcarePartyLogic.getHealthcarePartiesByParentId(parentId)
-                    .map { Mappers.getMapper(HealthcarePartyMapper::class.java).map(it) }
+                    .map { healthcarePartyMapper.map(it) }
                     .injectReactorContext()
 
 
@@ -213,10 +218,10 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
     @PutMapping
     fun modifyHealthcareParty(@RequestBody healthcarePartyDto: HealthcarePartyDto) = mono {
         try {
-            healthcarePartyLogic.modifyHealthcareParty(mapper.map(healthcarePartyDto, HealthcareParty::class.java))
+            healthcarePartyLogic.modifyHealthcareParty(healthcarePartyMapper.map(healthcarePartyDto))
             val modifiedHealthcareParty = healthcarePartyLogic.getHealthcareParty(healthcarePartyDto.id)
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
-            Mappers.getMapper(HealthcarePartyMapper::class.java).map(modifiedHealthcareParty)
+            healthcarePartyMapper.map(modifiedHealthcareParty)
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -238,8 +243,8 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
     @PutMapping("/inGroup/{groupId}")
     fun modifyHealthcarePartyInGroup(@PathVariable groupId: String, @RequestBody healthcarePartyDto: HealthcarePartyDto) = mono {
         try {
-            val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(groupId, mapper.map(healthcarePartyDto, HealthcareParty::class.java)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
-            Mappers.getMapper(HealthcarePartyMapper::class.java).map(modifiedHealthcareParty)
+            val modifiedHealthcareParty = healthcarePartyLogic.modifyHealthcareParty(groupId, healthcarePartyMapper.map(healthcarePartyDto)) ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the healthcare party failed. Read the server log.")
+            healthcarePartyMapper.map(modifiedHealthcareParty)
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -250,7 +255,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
     @PostMapping("/inGroup/{groupId}")
     fun createHealthcarePartyInGroup(@PathVariable groupId: String, @RequestBody h: HealthcarePartyDto) = mono {
         val hcParty = try {
-            healthcarePartyLogic.createHealthcareParty(groupId, mapper.map(h, HealthcareParty::class.java))
+            healthcarePartyLogic.createHealthcareParty(groupId, healthcarePartyMapper.map(h))
         } catch (e: MissingRequirementsException) {
             logger.warn(e.message, e)
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
@@ -258,7 +263,7 @@ class HealthcarePartyController(private private val userLogic: UserLogic,
 
         val succeed = hcParty != null
         if (succeed) {
-            Mappers.getMapper(HealthcarePartyMapper::class.java).map(hcParty)
+            hcParty?.let { healthcarePartyMapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Healthcare party creation failed.")
         }

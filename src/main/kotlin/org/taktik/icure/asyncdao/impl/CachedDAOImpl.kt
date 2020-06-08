@@ -37,8 +37,8 @@ import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, AsyncCacheManager: AsyncCacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator, mapper) {
-    private val cache = AsyncCacheManager.getCache<String, T>(entityClass.name)
+abstract class CachedDAOImpl<T : StoredDocument>(clazz: Class<T>, couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, asyncCacheManager: AsyncCacheManager) : GenericDAOImpl<T>(clazz, couchDbDispatcher, idGenerator) {
+    private val cache = asyncCacheManager.getCache<String, T>(entityClass.name)
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {

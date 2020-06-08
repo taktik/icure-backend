@@ -271,7 +271,7 @@ class CodeLogicImpl(private val sessionLogic: AsyncSessionLogic, val codeDAO: Co
     }
 
     override fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?) = flow<ViewQueryResultEvent> {
-        var ids = filters.resolve(filterChain.getFilter()).toList().sorted()
+        var ids = filters.resolve(filterChain.filter).toList().sorted()
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         var codes = codeDAO.getForPagination(dbInstanceUri, groupId, ids)
         if (filterChain.predicate != null || sort != null && sort != "id") {

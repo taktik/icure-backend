@@ -9,4 +9,4 @@ import org.taktik.icure.entities.Place
 
 @Repository("PlaceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Place' && !doc.deleted) emit( null, doc._id )}")
-class PlaceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Place>(Place::class.java, couchDbDispatcher, idGenerator, mapper), PlaceDAO
+class PlaceDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Place>(Place::class.java, couchDbDispatcher, idGenerator), PlaceDAO

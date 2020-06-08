@@ -47,6 +47,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.MessageLogic
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
@@ -54,6 +55,9 @@ import org.taktik.icure.services.external.rest.v1.dto.MessageDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.MessagesReadStatusUpdate
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
+import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -66,13 +70,21 @@ import kotlin.streams.toList
 @RestController
 @RequestMapping("/rest/v1/message")
 @Tag(name = "message")
-class MessageController(private val messageLogic: MessageLogic, private val mapper: MapperFacade, private val sessionLogic: AsyncSessionLogic) {
+class MessageController(
+        private val messageLogic: MessageLogic,
+        private val sessionLogic: AsyncSessionLogic,
+        private val messageMapper: MessageMapper,
+        private val delegationMapper: DelegationMapper,
+        private val filterMapper: FilterMapper
+) {
     val DEFAULT_LIMIT = 1000
+    private val messageToMessageDto = { it: Message -> messageMapper.map(it) }
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Operation(summary = "Creates a message")
     @PostMapping
     fun createMessage(@RequestBody messageDto: MessageDto) = mono {
-        Mappers.getMapper(Message::class.java)?.let { messageLogic.createMessage(it) }?.let { mapper.map(it, MessageMapper::class.java).map(messageDto) }
+        messageLogic.createMessage(messageMapper.map(messageDto))?.let { messageMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message creation failed")
                         .also { logger.error(it.message) }
     }
@@ -85,7 +97,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val message = messageLogic.get(messageId)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message with ID: $messageId not found").also { logger.error(it.message) }
 
-        messageLogic.updateEntities(listOf(message.copy(delegations = message.delegations - delegateId))).firstOrNull()?.let { Mappers.getMapper(MessageMapper::class.java).map(it) }
+        messageLogic.updateEntities(listOf(message.copy(delegations = message.delegations - delegateId))).firstOrNull()?.let { messageMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Message delegation deletion failed").also { logger.error(it.message) }
     }
 
@@ -120,7 +132,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @Operation(summary = "Gets a message")
     @GetMapping("/{messageId}")
     fun getMessage(@PathVariable messageId: String) = mono {
-        messageLogic.get(messageId)?.let { Mappers.getMapper(MessageMapper::class.java).map(it) }
+        messageLogic.get(messageId)?.let { messageMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Message not found")
                         .also { logger.error(it.message) }
     }
@@ -131,7 +143,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun findMessagesByHCPartyPatientForeignKeys(@RequestParam secretFKeys: String): Flux<MessageDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return messageLogic.listMessagesByHCPartySecretPatientKeys(secretPatientKeys)
-                .map { contact -> Mappers.getMapper(MessageMapper::class.java).map(contact) }
+                .map { contact -> messageMapper.map(contact) }
                 .injectReactorContext()
     }
 
@@ -144,27 +156,27 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it) }
         val paginationOffset = PaginationOffset<List<Any>>(startKeyList, startDocumentId, null, realLimit + 1)
 
-        messageLogic.findForCurrentHcParty(paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit)
+        messageLogic.findForCurrentHcParty(paginationOffset).paginatedList(messageToMessageDto, realLimit)
     }
 
     @Operation(summary = "Get children messages of provided message")
     @GetMapping("/{messageId}/children")
     fun getChildrenMessages(@PathVariable messageId: String) =
-            messageLogic.getChildren(messageId).map { Mappers.getMapper(MessageMapper::class.java).map(it) }.injectReactorContext()
+            messageLogic.getChildren(messageId).map { messageMapper.map(it) }.injectReactorContext()
 
 
     @Operation(summary = "Get children messages of provided message")
     @PostMapping("/children/batch")
     fun getChildrenMessagesOfList(@RequestBody parentIds: ListOfIdsDto) =
             messageLogic.getChildren(parentIds.ids)
-                    .map { m -> m.stream().map { mm -> Mappers.getMapper(MessageMapper::class.java).map(mm) }.toList().asFlow() }
+                    .map { m -> m.stream().map { mm -> messageMapper.map(mm) }.toList().asFlow() }
                     .flattenConcat()
                     .injectReactorContext()
 
     @Operation(summary = "Get children messages of provided message")
     @PostMapping("byInvoiceId")
     fun listMessagesByInvoiceIds(@RequestBody ids: ListOfIdsDto) =
-            messageLogic.listMessagesByInvoiceIds(ids.ids).map { Mappers.getMapper(MessageMapper::class.java).map(it) }.injectReactorContext()
+            messageLogic.listMessagesByInvoiceIds(ids.ids).map { messageMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Get all messages (paginated) for current HC Party and provided transportGuid")
     @GetMapping("/byTransportGuid")
@@ -181,7 +193,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         val messages = received?.takeIf { it }?.let { messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
                 ?: messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset)
-        messages.paginatedList<Message, MessageDto>(mapper, realLimit)
+        messages.paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }
 
     @Operation(summary = "Get all messages starting by a prefix between two date")
@@ -203,7 +215,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
                 fromDate,
                 toDate,
                 paginationOffset
-        ).paginatedList<Message, MessageDto>(mapper, realLimit)
+        ).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }
 
 
@@ -220,7 +232,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
         val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(mapper, realLimit)
+        messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }
 
     @Operation(summary = "Get all messages (paginated) for current HC Party and provided from address")
@@ -235,7 +247,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
         val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
         val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
-        messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(mapper, realLimit)
+        messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }
 
     @Operation(summary = "Updates a message")
@@ -245,11 +257,8 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
                     .also { logger.error(it.message) }
         }
-        mapper.map(messageDto, Message::class.java)
-                ?.let {
-                    messageLogic.modifyMessage(it)
-                    Mappers.getMapper(MessageMapper::class.java).map(it)
-                }
+        messageMapper.map(messageDto)
+            messageLogic.modifyMessage(messageMapper.map(messageDto))?.let { messageMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
                         .also { logger.error(it.message) }
     }
@@ -258,13 +267,13 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     @PutMapping("/status/{status}")
     fun setMessagesStatusBits(
             @PathVariable status: Int,
-            @RequestBody messageIds: ListOfIdsDto) = messageLogic.setStatus(messageIds.ids, status).map { Mappers.getMapper(MessageMapper::class.java).map(it) }.injectReactorContext()
+            @RequestBody messageIds: ListOfIdsDto) = messageLogic.setStatus(messageIds.ids, status).map { messageMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "Set read status for given list of messages")
     @PutMapping("/readstatus")
     fun setMessagesReadStatus(@RequestBody data: MessagesReadStatusUpdate) = flow {
         emitAll(messageLogic.setReadStatus(data.ids ?: listOf(), data.userId ?: sessionLogic.getCurrentUserId(), data.status
-                ?: false, data.time ?: System.currentTimeMillis()).map { Mappers.getMapper(MessageMapper::class.java).map(it) })
+                ?: false, data.time ?: System.currentTimeMillis()).map { messageMapper.map(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Adds a delegation to a message")
@@ -272,11 +281,7 @@ class MessageController(private val messageLogic: MessageLogic, private val mapp
     fun newMessageDelegations(
             @PathVariable messageId: String,
             @RequestBody ds: List<DelegationDto>) = mono {
-        messageLogic.addDelegations(messageId, ds.map { Mappers.getMapper(Delegation::class.java) })?.takeIf { it.delegations.isNotEmpty() }?.let { mapper.map(it, MessageMapper::class.java).map(it) }
+        messageLogic.addDelegations(messageId, ds.map { delegationMapper.map(it) })?.takeIf { it.delegations.isNotEmpty() }?.let { messageMapper.mapToStub(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(javaClass)
     }
 }

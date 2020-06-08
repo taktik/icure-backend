@@ -4,8 +4,8 @@ import java.io.Serializable
 
 import com.github.pozo.KotlinBuilder
 @KotlinBuilder
-import com.github.pozo.KotlinBuilder
-@KotlinBuilder
+
+
 data class SamTextDto(
         val fr: String? = null,
         val nl: String? = null,

@@ -30,6 +30,7 @@ import org.taktik.icure.asynclogic.impl.ICureLogicImpl
 import org.taktik.icure.constants.PropertyTypes
 import org.taktik.icure.services.external.rest.v1.dto.IndexingInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.UserStubDto
+import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
 import org.taktik.icure.utils.injectReactorContext
 
 @ExperimentalCoroutinesApi
@@ -46,7 +47,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
                       private val healthElementLogic: HealthElementLogic,
                       private val formLogic: FormLogic,
                       private val sessionLogic: AsyncSessionLogic,
-                      private val mapper: MapperFacade) {
+                      private val userMapper: UserMapper) {
 
     @Operation(summary = "Get version")
     @GetMapping("/v", produces = [MediaType.TEXT_PLAIN_VALUE])
@@ -62,7 +63,7 @@ class ICureController(private val iCureLogic: ICureLogicImpl,
 
     @Operation(summary = "Get users stubs")
     @GetMapping("/u")
-    fun getUsers() = userLogic.getAllEntities().map { u -> Mappers.getMapper(UserStubMapper::class.java).map(u) }.injectReactorContext()
+    fun getUsers() = userLogic.getAllEntities().map { u -> userMapper.map(u) }.injectReactorContext()
 
     @Operation(summary = "Get process info")
     @GetMapping("/p", produces = [MediaType.TEXT_PLAIN_VALUE])

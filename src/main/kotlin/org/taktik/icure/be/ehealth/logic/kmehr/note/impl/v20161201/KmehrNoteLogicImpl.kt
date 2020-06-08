@@ -31,8 +31,7 @@ import javax.xml.bind.Marshaller
 import kotlin.text.Charsets.UTF_8
 
 @Service
-class KmehrNoteLogicImpl(mapper: MapperFacade,
-                         patientLogic: PatientLogic,
+class KmehrNoteLogicImpl(patientLogic: PatientLogic,
                          codeLogic: CodeLogic,
                          healthElementLogic: HealthElementLogic,
                          healthcarePartyLogic: HealthcarePartyLogic,
@@ -40,7 +39,7 @@ class KmehrNoteLogicImpl(mapper: MapperFacade,
                          documentLogic: DocumentLogic,
                          sessionLogic: AsyncSessionLogic,
                          userLogic: UserLogic,
-                         filters: Filters) : KmehrNoteLogic, KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+                         filters: Filters) : KmehrNoteLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
     override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
 
@@ -72,7 +71,7 @@ class KmehrNoteLogicImpl(mapper: MapperFacade,
                 ids.add(localIdKmehr(transactionType, id, config))
                 this.date = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
-                    hcparties.add(createParty(author, emptyList()))
+                    hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
                     hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
                 }
                 this.recipients.add(RecipientType().apply {
@@ -90,7 +89,7 @@ class KmehrNoteLogicImpl(mapper: MapperFacade,
                         this.cds.add(CDTRANSACTION().apply { s(CDTRANSACTIONschemes.CD_TRANSACTION); value = transactionType})
                         this.date = makeXGC(date)
                         this.author = AuthorType().apply {
-                            hcparties.add(createParty(author, emptyList()))
+                            hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
                         }
                         this.isIscomplete = true
                         this.isIsvalidated = true

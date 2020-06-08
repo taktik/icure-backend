@@ -22,10 +22,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
-import com.github.pozo.KotlinBuilderimport java.time.Instant
-
-
 import com.github.pozo.KotlinBuilder
+import java.time.Instant
+
+
 @KotlinBuilder
 data class ReferralPeriodDto(
         @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)

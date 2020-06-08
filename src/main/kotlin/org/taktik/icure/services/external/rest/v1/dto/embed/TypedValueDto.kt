@@ -21,18 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
-import com.github.pozo.KotlinBuilderimport
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
-import java.util.*
-
-java.time.Instant
-import java.util.*
+import java.time.Instant
+import java.util.Date
 
 
-import com.github.pozo.KotlinBuilder
 @KotlinBuilder
 data class TypedValueDto<T>(
         val type: TypedValuesType? = null,

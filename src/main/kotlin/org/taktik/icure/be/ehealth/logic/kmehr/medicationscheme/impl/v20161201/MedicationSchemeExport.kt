@@ -21,6 +21,7 @@ package org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.impl.v20161201
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.awaitFirst
+import org.mapstruct.factory.Mappers
 import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.icure.asynclogic.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeXGC
@@ -40,15 +41,17 @@ import org.taktik.icure.services.external.http.websocket.AsyncProgress
 import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.Filters
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
+import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
 import reactor.core.publisher.Mono
 import java.time.Instant
 
 /**
  * @author Bernard Paulus on 29/05/17.
  */
+@Suppress("UNNECESSARY_SAFE_CALL")
 @org.springframework.stereotype.Service
-class MedicationSchemeExport(mapper: MapperFacade,
-                             patientLogic: PatientLogic,
+class MedicationSchemeExport(patientLogic: PatientLogic,
                              codeLogic: CodeLogic,
                              healthElementLogic: HealthElementLogic,
                              healthcarePartyLogic: HealthcarePartyLogic,
@@ -56,7 +59,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
                              documentLogic: DocumentLogic,
                              sessionLogic: AsyncSessionLogic,
                              userLogic: UserLogic,
-                             filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(mapper, patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+                             filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
 	fun exportMedicationScheme(
 			patient: Patient,
@@ -227,6 +230,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
 	}
 
     private suspend fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
+        val mapper = Mappers.getMapper(ServiceMapper::class.java)
         val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) } ?: HashSet()
 
         val f = Filters.UnionFilter(hcPartyIds.map { hcpId ->
@@ -246,7 +250,7 @@ class MedicationSchemeExport(mapper: MapperFacade,
         val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }?.toList()
 
         return if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
-            val decryptedServices = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedServices?.map { mapper!!.map(it, ServiceDto::class.java) }, ServiceDto::class.java) ).awaitFirst().map { mapper!!.map(it, Service::class.java) }
+            val decryptedServices = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedServices?.map { mapper.map(it) }, ServiceDto::class.java) ).awaitFirst().map { mapper!!.map(it) }
             services.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
         } else services
     }

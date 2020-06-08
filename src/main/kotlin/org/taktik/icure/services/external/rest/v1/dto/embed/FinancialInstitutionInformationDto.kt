@@ -18,10 +18,9 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 import java.io.Serializable
-import com.github.pozo.KotlinBuilderimport java.util.*
-
-
 import com.github.pozo.KotlinBuilder
+
+
 @KotlinBuilder
 data class FinancialInstitutionInformationDto(
         val name: String? = null,

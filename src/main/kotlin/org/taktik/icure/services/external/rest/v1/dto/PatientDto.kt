@@ -108,7 +108,7 @@ data class PatientDto(
         val mainSourceOfIncome: CodeStubDto? = null,
         val schoolingInfos: List<SchoolingInfoDto> = listOf(),
         val employementInfos: List<EmploymentInfoDto> = listOf(),
-        val properties: Set<PropertyDto> = HashSet(),
+        val properties: Set<PropertyStubDto> = HashSet(),
 
         // One AES key per HcParty, encrypted using this hcParty public key and the other hcParty public key
         // For a pair of HcParties, this key is called the AES exchange key

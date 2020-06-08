@@ -37,7 +37,7 @@ import java.net.URI
 @FlowPreview
 @Repository("calendarItemDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.CalendarItem' && !doc.deleted) emit( null, doc._id )}")
-class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<CalendarItem>(CalendarItem::class.java, couchDbDispatcher, idGenerator, mapper), CalendarItemDAO {
+class CalendarItemDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<CalendarItem>(CalendarItem::class.java, couchDbDispatcher, idGenerator), CalendarItemDAO {
 
     @View(name = "by_hcparty_and_startdate", map = "classpath:js/calendarItem/by_hcparty_and_startdate.js")
     override fun listCalendarItemByStartDateAndHcPartyId(dbInstanceUrl: URI, groupId: String, startDate: Long?, endDate: Long?, hcPartyId: String): Flow<CalendarItem> {

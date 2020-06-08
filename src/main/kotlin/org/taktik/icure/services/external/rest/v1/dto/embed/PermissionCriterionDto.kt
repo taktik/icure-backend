@@ -17,14 +17,11 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.constants.Permissions.CriterionDataType
-import org.taktik.icure.constants.Permissions.CriterionType
 import org.taktik.icure.constants.Permissions.CriterionTypeCurrentUser
-import org.taktik.icure.security.PermissionSetIdentifier
-import org.taktik.icure.services.external.rest.v1.dto.UserDto
 import java.io.Serializable
-import com.github.pozo.KotlinBuilder
-import com.github.pozo.KotlinBuilder
+
 @KotlinBuilder
 data class PermissionCriterionDto(
         val isNegative: Boolean = false,

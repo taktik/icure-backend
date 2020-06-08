@@ -44,8 +44,8 @@ import java.net.URI
 @FlowPreview
 @Repository("groupDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Group' && !doc.deleted) emit( null, doc._id )}")
-class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configCouchDbDispatcher") val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator, @Qualifier("asyncCacheManager") final val AsyncCacheManager: AsyncCacheManager) : GroupDAO {
-    private val cache = AsyncCacheManager.getCache<String, Group>(Group::class.java.name)
+class GroupDAOImpl(val couchDbProperties: CouchDbProperties, @Qualifier("configCouchDbDispatcher") val couchDbDispatcher: CouchDbDispatcher, val idGenerator: IDGenerator, @Qualifier("asyncCacheManager") val asyncCacheManager: AsyncCacheManager) : GroupDAO {
+    private val cache = asyncCacheManager.getCache<String, Group>(Group::class.java.name)
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun getList(ids: Flow<String>) = flow<Group> {

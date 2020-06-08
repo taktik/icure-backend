@@ -19,6 +19,7 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import java.io.Serializable

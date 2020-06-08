@@ -42,18 +42,20 @@ import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.DiaryNoteExportIn
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.MedicationSchemeExportInfoDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SoftwareMedicalFileExportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.kmehr.SumehrExportInfoDto
+import org.taktik.icure.services.external.rest.v1.mapper.HealthcarePartyMapper
 import java.time.Instant
 
 @RestController("/ws/be_kmehr")
-class KmehrWsController(private var mapper: MapperFacade,
-                        private val sessionLogic: AsyncSessionLogic,
+class KmehrWsController(private val sessionLogic: AsyncSessionLogic,
                         private val sumehrLogicV1: SumehrLogic,
                         private val sumehrLogicV2: SumehrLogic,
                         private val diaryNoteLogic: DiaryNoteLogic,
                         private val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
                         private val medicationSchemeLogic: MedicationSchemeLogic,
                         private val healthcarePartyLogic: HealthcarePartyLogic,
-                        private val patientLogic: PatientLogic) {
+                        private val patientLogic: PatientLogic,
+                        private val healthcarePartyMapper: HealthcarePartyMapper
+) {
 
     @Value("\${icure.version}")
     internal val ICUREVERSION: String = "4.0.0"
@@ -67,7 +69,7 @@ class KmehrWsController(private var mapper: MapperFacade,
             patient?.let {
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(
-                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.note, info.tags, info.contexts, info.psy ?: false, info.documentId, info.attachmentId, operation)
+                            diaryNoteLogic.createDiaryNote(it, info.secretForeignKeys, it1, healthcarePartyMapper.map(info.recipient!!), language, info.note, info.tags, info.contexts, info.psy ?: false, info.documentId, info.attachmentId, operation)
                     )
                 }
             }
@@ -86,7 +88,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                 healthcareParty?.let { it1 ->
                     operation.binaryResponse(sumehrLogicV1.createSumehr( it, info.secretForeignKeys,
                             it1,
-                            mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
+                            healthcarePartyMapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                             "" + System.currentTimeMillis(),
                             makeXGC(Instant.now().toEpochMilli(), true),
                             makeXGC(Instant.now().toEpochMilli(), true),
@@ -111,7 +113,7 @@ class KmehrWsController(private var mapper: MapperFacade,
         try {
             val patient = patientLogic.getPatient(patientId)
             val healthcareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentHealthcarePartyId())
-            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
+            patient?.let { healthcareParty?.let { it1 -> operation.binaryResponse(sumehrLogicV1.validateSumehr( it, info.secretForeignKeys, it1, healthcarePartyMapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                     "" + System.currentTimeMillis(),
                     makeXGC(Instant.now().toEpochMilli(), true),
                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -138,7 +140,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                     operation.binaryResponse(
                             sumehrLogicV2.createSumehr( it, info.secretForeignKeys,
                                     it1,
-                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
+                                    healthcarePartyMapper.map(info.recipient!!), language, info.comment, info.excludedIds, info.includeIrrelevantInformation ?: false, operation, null, null, Config(
                                     "" + System.currentTimeMillis(),
                                     makeXGC(Instant.now().toEpochMilli(), true),
                                     makeXGC(Instant.now().toEpochMilli(), true),
@@ -170,7 +172,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     it,
                                     info.secretForeignKeys,
                                     it1,
-                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java),
+                                    healthcarePartyMapper.map(info.recipient!!),
                                     language,
                                     info.comment,
                                     info.excludedIds,
@@ -208,7 +210,7 @@ class KmehrWsController(private var mapper: MapperFacade,
                                     it,
                                     info.secretForeignKeys,
                                     it1,
-                                    mapper.map<HealthcarePartyDto, HealthcareParty>(info.recipient, HealthcareParty::class.java),
+                                    healthcarePartyMapper.map(info.recipient!!),
                                     language,
                                     info.comment,
                                     info.excludedIds,

@@ -39,7 +39,7 @@ import java.net.URI
 @FlowPreview
 @Repository("classificationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Classification' && !doc.deleted) emit( doc.patientId, doc._id )}")
-internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbDispatcher, idGenerator, mapper), ClassificationDAO {
+internal class ClassificationDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericIcureDAOImpl<Classification>(Classification::class.java, couchDbDispatcher, idGenerator), ClassificationDAO {
 
     override fun findByPatient(dbInstanceUrl: URI, groupId: String, patientId: String): Flow<Classification> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl, groupId)

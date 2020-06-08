@@ -17,10 +17,12 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
-import com.github.pozo.KotlinBuilderclass
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import java.io.Serializable
 
-DurationDto(
+@KotlinBuilder
+class DurationDto(
         val value: Double? = null,
         val unit: CodeStubDto? = null //CD-TIMEUNIT
 ) : Serializable

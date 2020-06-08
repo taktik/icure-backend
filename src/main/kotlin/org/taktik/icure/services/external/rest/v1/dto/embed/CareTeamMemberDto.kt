@@ -6,7 +6,7 @@ import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import java.io.Serializable
 import com.github.pozo.KotlinBuilder
-import com.github.pozo.KotlinBuilder
+
 @KotlinBuilder
 data class CareTeamMemberDto(
         override val id: String,

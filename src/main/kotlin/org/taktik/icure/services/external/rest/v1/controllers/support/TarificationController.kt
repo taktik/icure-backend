@@ -38,10 +38,12 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.ViewRow
 import org.taktik.icure.asynclogic.TarificationLogic
 import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.AccessLog
 import org.taktik.icure.entities.Tarification
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.TarificationDto
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
+import org.taktik.icure.services.external.rest.v1.mapper.TarificationMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -50,9 +52,12 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/tarification")
 @Tag(name = "tarification")
-class TarificationController(private private val tarificationLogic: TarificationLogic) {
-
+class TarificationController(
+        private val tarificationLogic: TarificationLogic,
+        private val tarificationMapper: TarificationMapper
+) {
     private val DEFAULT_LIMIT = 1000
+    private val tarificationToTarificationDto = { it: Tarification -> tarificationMapper.map(it) }
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
     @GetMapping("/byLabel")
@@ -75,7 +80,7 @@ class TarificationController(private private val tarificationLogic: Tarification
             }
         }
 
-        tarificationsList.paginatedList<Tarification, TarificationDto>(mapper, realLimit)
+        tarificationsList.paginatedList<Tarification, TarificationDto>(tarificationToTarificationDto, realLimit)
     }
 
     @Operation(summary = "Finding tarifications by tarification, type and version with pagination.", description = "Returns a list of tarifications matched with given input.")
@@ -96,7 +101,7 @@ class TarificationController(private private val tarificationLogic: Tarification
                 }
 
                 tarificationLogic.findTarificationsBy(region, type, tarification, version, PaginationOffset(getStartKey(region, type, tarification, version), startDocumentId, null, realLimit+1))
-                        .paginatedList<Tarification, TarificationDto>(mapper, realLimit)
+                        .paginatedList<Tarification, TarificationDto>(tarificationToTarificationDto, realLimit)
     }
 
 
@@ -107,26 +112,26 @@ class TarificationController(private private val tarificationLogic: Tarification
             @Parameter(description = "Tarification type") @RequestParam(required = false) type: String?,
             @Parameter(description = "Tarification tarification") @RequestParam(required = false) tarification: String?,
             @Parameter(description = "Tarification version") @RequestParam(required = false) version: String?) : Flux<TarificationDto> {
-        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { Mappers.getMapper(TarificationMapper::class.java).map(it) }.injectReactorContext()
+        return tarificationLogic.findTarificationsBy(region, type, tarification, version).map { tarificationMapper.map(it) }.injectReactorContext()
     }
 
     @Operation(summary = "Create a Tarification", description = "Type, Tarification and Version are required.")
     @PostMapping
     suspend fun createTarification(@RequestBody c: TarificationDto) =
-            tarificationLogic.create(Mappers.getMapper(Tarification::class.java))?.let { mapper.map(it, TarificationMapper::class.java).map(c) }
+            tarificationLogic.create(tarificationMapper.map(c))?.let { tarificationMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
 
 
     @Operation(summary = "Get a list of tarifications by ids", description = "Keys must be delimited by coma")
     @PostMapping("/byIds")
     fun getTarifications(@RequestBody tarificationIds: ListOfIdsDto) =
-            tarificationLogic.get(tarificationIds.ids).map { f -> Mappers.getMapper(TarificationMapper::class.java).map(f) }.injectReactorContext()
+            tarificationLogic.get(tarificationIds.ids).map { f -> tarificationMapper.map(f) }.injectReactorContext()
 
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{tarificationId}")
     suspend fun getTarification(@Parameter(description = "Tarification id") @PathVariable tarificationId: String) =
-            tarificationLogic.get(tarificationId)?.let { Mappers.getMapper(TarificationMapper::class.java).map(it) }
+            tarificationLogic.get(tarificationId)?.let { tarificationMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
@@ -135,7 +140,7 @@ class TarificationController(private private val tarificationLogic: Tarification
             @Parameter(description = "Tarification type", required = true) @PathVariable type: String,
             @Parameter(description = "Tarification tarification", required = true) @PathVariable tarification: String,
             @Parameter(description = "Tarification version", required = true) @PathVariable version: String) =
-            tarificationLogic.get(type, tarification, version)?.let { Mappers.getMapper(TarificationMapper::class.java).map(it) }
+            tarificationLogic.get(type, tarification, version)?.let { tarificationMapper.map(it) }
                     ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
 
 
@@ -143,7 +148,7 @@ class TarificationController(private private val tarificationLogic: Tarification
     @PutMapping
     suspend fun modifyTarification(@RequestBody tarificationDto: TarificationDto): TarificationDto =
             try {
-                tarificationLogic.modify(Mappers.getMapper(Tarification::class.java))?.let { mapper.map(it, TarificationMapper::class.java).map(tarificationDto) }
+                tarificationLogic.modify(tarificationMapper.map(tarificationDto))?.let { tarificationMapper.map(it) }
                         ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
             } catch (e: Exception) {
                 throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")

@@ -46,7 +46,7 @@ import java.net.URI
 @FlowPreview
 @Repository("contactDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Contact' && !doc.deleted) emit( null, doc._id )}")
-class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Contact>(Contact::class.java, couchDbDispatcher, idGenerator, mapper), ContactDAO {
+class ContactDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Contact>(Contact::class.java, couchDbDispatcher, idGenerator), ContactDAO {
 
     override suspend fun getContact(dbInstanceUrl: URI, groupId: String, id: String): Contact? {
         return get(dbInstanceUrl, groupId, id)

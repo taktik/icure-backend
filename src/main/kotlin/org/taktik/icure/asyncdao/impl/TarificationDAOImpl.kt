@@ -38,7 +38,7 @@ import java.net.URI
 
 @Repository("tarificationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Tarification' && !doc.deleted) emit( null, doc._id )}")
-class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Tarification>(Tarification::class.java, couchDbDispatcher, idGenerator, mapper), TarificationDAO {
+class TarificationDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Tarification>(Tarification::class.java, couchDbDispatcher, idGenerator), TarificationDAO {
 
     @View(name = "by_type_code_version", map = "classpath:js/tarif/By_type_code_version.js", reduce = "function(keys, values, rereduce) {if (rereduce) {return sum(values);} else {return values.length;}}")
     override fun findTarifications(dbInstanceUrl: URI, groupId: String, type: String?, code: String?, version: String?): Flow<Tarification> {

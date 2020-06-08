@@ -24,12 +24,14 @@ import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
+import org.mapstruct.factory.Mappers
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
 import org.taktik.icure.entities.EntityTemplate
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
+import org.taktik.icure.services.external.rest.v1.mapper.EntityTemplateMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
 
@@ -37,7 +39,10 @@ import reactor.core.publisher.Flux
 @RestController
 @RequestMapping("/rest/v1/entitytemplate")
 @Tag(name = "entitytemplate")
-class EntityTemplateController(private private val entityTemplateLogic: EntityTemplateLogic) {
+class EntityTemplateController(
+        private val entityTemplateLogic: EntityTemplateLogic,
+        private val entityTemplateMapper: EntityTemplateMapper
+) {
 
     @Operation(summary = "Finding entityTemplates by userId, entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
     @GetMapping("/find/{userId}/{type}")
@@ -79,7 +84,7 @@ class EntityTemplateController(private private val entityTemplateLogic: EntityTe
     @Operation(summary = "Create a EntityTemplate", description = "Type, EntityTemplate and Version are required.")
     @PostMapping
     fun createEntityTemplate(@RequestBody c: EntityTemplateDto) = mono {
-        val et = mapper.map(c, EntityTemplate::class.java)
+        val et = entityTemplateMapper.map(c)
         et.entity = c.entity
 
         val entityTemplate = entityTemplateLogic.createEntityTemplate(et)
@@ -114,7 +119,7 @@ class EntityTemplateController(private private val entityTemplateLogic: EntityTe
     @PutMapping
     fun modifyEntityTemplate(@RequestBody entityTemplateDto: EntityTemplateDto) = mono {
         val modifiedEntityTemplate = try {
-            val et = mapper.map(entityTemplateDto, EntityTemplate::class.java)
+            val et = entityTemplateMapper.map(entityTemplateDto)
             et.entity = entityTemplateDto.entity
             entityTemplateLogic.modifyEntityTemplate(et)
         } catch (e: Exception) {
@@ -123,7 +128,7 @@ class EntityTemplateController(private private val entityTemplateLogic: EntityTe
 
         val succeed = modifiedEntityTemplate != null
         if (succeed) {
-            Mappers.getMapper(EntityTemplateMapper::class.java).map(modifiedEntityTemplate)
+            modifiedEntityTemplate?.let { entityTemplateMapper.map(it) }
         } else {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the entityTemplate failed. Read the server log.")
         }

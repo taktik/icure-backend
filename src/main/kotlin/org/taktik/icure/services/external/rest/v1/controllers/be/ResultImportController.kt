@@ -24,17 +24,19 @@ import kotlinx.coroutines.reactor.mono
 import org.apache.commons.lang3.StringUtils.isBlank
 import org.springframework.web.bind.annotation.*
 import org.taktik.icure.be.format.logic.MultiFormatLogic
-import org.taktik.icure.entities.Contact
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.services.external.rest.v1.dto.ContactDto
-import org.taktik.icure.services.external.rest.v1.dto.ResultInfoDto
+import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.ResultInfoMapper
 
 @RestController
 @RequestMapping("/rest/v1/be_result_import")
 @Tag(name = "beresultimport")
 class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                              private val documentLogic: DocumentLogic,
-                             private val mapper: MapperFacade) {
+                             private val resultInfoMapper: ResultInfoMapper,
+                             private val contactMapper: ContactMapper
+) {
 
     @Operation(summary = "Can we handle this document")
     @GetMapping("/canhandle/{id}")
@@ -56,7 +58,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                     full ?: false,
                     language,
                     if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            )?.map { Mappers.getMapper(ResultInfoMapper::class.java).map(it) }
+            )?.map { resultInfoMapper.map(it) }
         }
     }
 
@@ -69,8 +71,7 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                  @RequestParam formIds: String,
                  @RequestParam planOfActionId: String,
                  @RequestParam enckeys: String, @RequestBody ctc: ContactDto) = mono {
-        val doc = documentLogic.get(documentId)
-        mapper.map(doc?.let {
+        documentLogic.get(documentId)?.let {
             multiFormatLogic.doImport(
                     language,
                     it,
@@ -78,9 +79,9 @@ class ResultImportController(private val multiFormatLogic: MultiFormatLogic,
                     protocolIds.split(','),
                     formIds.split(','),
                     planOfActionId,
-                    mapper.map(ctc, Contact::class.java),
+                    contactMapper.map(ctc),
                     if (isBlank(enckeys)) listOf() else enckeys.split(',')
-            )
-        }, ContactDto::class.java)
+            )?.let { contactMapper.map(it) }
+        }
     }
 }

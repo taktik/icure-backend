@@ -58,7 +58,7 @@ import java.util.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator, protected val mapper: MapperFacade) : GenericDAO<T> {
+abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override suspend fun contains(dbInstanceUrl: URI, groupId: String, id: String): Boolean {
@@ -356,7 +356,9 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
             org.ektorp.support.DesignDocument(it.id).apply {
                 revision = it.rev
-                views = it.views.mapValues { mapper.map(it.value, org.ektorp.support.DesignDocument.View::class.java) }
+                views = it.views.mapValues { org.ektorp.support.DesignDocument.View().apply {
+                    map= it.value?.map; reduce= it.value?.reduce
+                } }
                 updates = it.updateHandlers
                 lists = it.lists
                 shows = it.shows
@@ -369,7 +371,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                 DesignDocument(
                         id = designDocId,
                         rev = it.revision,
-                        views = it.views.mapValues { mapper.map(it.value, View::class.java) },
+                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
                         updateHandlers = it.updates,
                         lists = it.lists,
                         shows = it.shows)
@@ -393,7 +395,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
                                 DesignDocument(
                                         id = designDocId,
                                         rev = it.revision,
-                                        views = it.views.mapValues { mapper.map(it.value, View::class.java) },
+                                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
                                         updateHandlers = it.updates,
                                         lists = it.lists,
                                         shows = it.shows)

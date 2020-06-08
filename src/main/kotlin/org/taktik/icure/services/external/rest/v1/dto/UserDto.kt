@@ -38,7 +38,7 @@ data class UserDto(
         override val deletionDate: Long? = null,
 
         override val name: String? = null,
-        override val properties: Set<PropertyDto> = setOf(),
+        override val properties: Set<PropertyStubDto> = setOf(),
         override val permissions: Set<PermissionDto> = setOf(),
         val type: Users.Type? = null,
         val status: Users.Status? = null,

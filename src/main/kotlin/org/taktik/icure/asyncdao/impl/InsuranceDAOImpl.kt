@@ -37,7 +37,7 @@ import java.net.URI
 
 @Repository("insuranceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Insurance' && !doc.deleted) emit( null, doc._id )}")
-class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Insurance>(Insurance::class.java, couchDbDispatcher, idGenerator, mapper), InsuranceDAO {
+class InsuranceDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<Insurance>(Insurance::class.java, couchDbDispatcher, idGenerator), InsuranceDAO {
 
     @View(name = "all_by_code", map = "classpath:js/insurance/all_by_code_map.js")
     override fun listByCode(dbInstanceUrl: URI, groupId: String, code: String): Flow<Insurance> {
