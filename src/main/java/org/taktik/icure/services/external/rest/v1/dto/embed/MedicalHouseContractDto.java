@@ -3,6 +3,8 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
 import org.taktik.icure.entities.embed.SuspensionReason;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MedicalHouseContractDto implements Serializable {
 
@@ -29,6 +31,7 @@ public class MedicalHouseContractDto implements Serializable {
 
     private MhcSignatureTypeDto signatureType;
     private Integer status;
+    private Map<String, String> receipts = new HashMap<>();
 
     private Long startOfSuspension; //yyyyMMdd
     private Long endOfSuspension; //yyyyMMdd
@@ -195,5 +198,13 @@ public class MedicalHouseContractDto implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Map<String, String> getReceipts() {
+        return receipts;
+    }
+
+    public void setReceipts(Map<String, String> receipts) {
+        this.receipts = receipts;
     }
 }

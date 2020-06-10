@@ -1,5 +1,9 @@
 package org.taktik.icure.entities.embed;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 //NOTE: better classname would be MedicalHouseInscriptionPeriod
 public class MedicalHouseContract {
 
@@ -32,6 +36,7 @@ public class MedicalHouseContract {
 
     private MhcSignatureType signatureType;
     private Integer status;
+    private Map<String, String> receipts = new HashMap<>();
 
 	//Suspension specific data:
 	private Long startOfSuspension; //yyyyMMdd
@@ -198,6 +203,14 @@ public class MedicalHouseContract {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Map<String, String> getReceipts() {
+        return receipts;
+    }
+
+    public void setReceipts(Map<String, String> receipts) {
+        this.receipts = receipts;
     }
 
     public void mergeFrom(MedicalHouseContract other) {
