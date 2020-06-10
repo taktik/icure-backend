@@ -5,7 +5,7 @@ import java.io.Serializable
 import com.github.pozo.KotlinBuilder
 
 @KotlinBuilder
-class EmploymentInfoDto(
+data class EmploymentInfoDto(
         val startDate: Long? = null,
         val endDate: Long? = null,
         val professionType: CodeStubDto? = null,

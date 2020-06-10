@@ -4,4 +4,7 @@ import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
 @KotlinBuilder
-data class StrengthRange(val numeratorRange: NumeratorRange? = null, val denominator: Quantity? = null) : Serializable
+data class StrengthRange(
+        val numeratorRange: NumeratorRange? = null,
+        val denominator: Quantity? = null
+) : Serializable

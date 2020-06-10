@@ -17,8 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
-class MessageReadStatus {
-    var time: Long? = null
-    var read = false
+import com.github.pozo.KotlinBuilder
 
-}
+@KotlinBuilder
+data class MessageReadStatus(var time: Long? = null, var read: Boolean = false)

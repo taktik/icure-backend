@@ -20,6 +20,7 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.utils.DynamicInitializer
@@ -30,7 +31,8 @@ import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Episode(
+@KotlinBuilder
+data class Episode(
         @JsonProperty("_id") override val id: String,
         override val name: String? = null,
         val comment: String? = null,

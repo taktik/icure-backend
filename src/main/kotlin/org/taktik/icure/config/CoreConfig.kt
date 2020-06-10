@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1MapperFactory
 
 
 @Configuration

@@ -5,4 +5,7 @@ import java.io.Serializable
 import java.math.BigDecimal
 
 @KotlinBuilder
-data class Pricing(val quantity: BigDecimal? = null, val label: SamText? = null) : Serializable
+data class Pricing(
+        val quantity: BigDecimal? = null,
+        val label: SamText? = null
+) : Serializable

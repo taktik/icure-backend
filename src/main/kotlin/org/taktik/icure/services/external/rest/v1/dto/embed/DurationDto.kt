@@ -22,7 +22,7 @@ import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import java.io.Serializable
 
 @KotlinBuilder
-class DurationDto(
+data class DurationDto(
         val value: Double? = null,
         val unit: CodeStubDto? = null //CD-TIMEUNIT
 ) : Serializable

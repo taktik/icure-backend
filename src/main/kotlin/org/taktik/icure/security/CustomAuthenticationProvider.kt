@@ -1,3 +1,5 @@
+package org.taktik.icure.security
+
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull

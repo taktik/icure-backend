@@ -24,7 +24,7 @@ import org.taktik.icure.utils.DynamicInitializer
 import java.io.Serializable
 
 @KotlinBuilder
-class EpisodeDto(
+data class EpisodeDto(
         override val id: String,
         override val name: String? = null,
         val comment: String? = null,

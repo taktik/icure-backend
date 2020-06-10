@@ -15,13 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.services.external.rest.v1.dto
 
-import com.github.pozo.KotlinBuilder
-import java.io.Serializable
+package org.taktik.icure.dto.filter.impl.predicate;
 
-/**
- * Created by emad7105 on 11/07/2014.
- */
-@KotlinBuilder
-data class PaginatedDocumentKeyIdPair<K>(var startKey: K? = null, var startKeyDocId: String? = null) : Serializable
+import java.io.Serializable;
+
+
+public abstract class Predicate implements Serializable {
+	String desc;
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+}

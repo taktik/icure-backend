@@ -17,9 +17,11 @@
  */
 package org.taktik.icure.db
 
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
 /**
  * Created by emad7105 on 11/07/2014.
  */
+@KotlinBuilder
 data class PaginatedDocumentKeyIdPair(val startKey: List<String>?, val startKeyDocId: String?) : Serializable
