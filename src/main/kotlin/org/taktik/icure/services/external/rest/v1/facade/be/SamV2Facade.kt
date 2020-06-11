@@ -64,6 +64,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
                 object : TypeBuilder<PaginatedList<Amp>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto>>() {}.build()
         )
+        addProductIdsToAmps(ampDtosPaginatedList.rows)
         response = ResponseUtils.ok(ampDtosPaginatedList)
 
         return response
@@ -197,6 +198,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
                 object : TypeBuilder<PaginatedList<Amp>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto>>() {}.build()
         )
+        addProductIdsToAmps(ampDtosPaginatedList.rows)
         response = ResponseUtils.ok(ampDtosPaginatedList)
 
         return response
@@ -207,7 +209,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     @Path("/amp/byDmppCode/{dmppCode}")
     fun findAmpsByDmppCode(
             @ApiParam(value = "dmppCode", required = true) @PathParam("dmppCode") dmppCode: String
-    ): Response = ResponseUtils.ok(samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) })
+    ): Response = ResponseUtils.ok(samV2Logic.findAmpsByDmppCode(dmppCode).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
 
     @ApiOperation(value = "Finding AMPs by group with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
@@ -237,6 +239,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
                 object : TypeBuilder<PaginatedList<Amp>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto>>() {}.build()
         )
+        addProductIdsToAmps(ampDtosPaginatedList.rows)
         response = ResponseUtils.ok(ampDtosPaginatedList)
 
         return response
@@ -270,6 +273,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
                 object : TypeBuilder<PaginatedList<Amp>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto>>() {}.build()
         )
+        addProductIdsToAmps(ampDtosPaginatedList.rows)
         response = ResponseUtils.ok(ampDtosPaginatedList)
 
         return response
@@ -303,6 +307,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
                 object : TypeBuilder<PaginatedList<Amp>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<AmpDto>>() {}.build()
         )
+        addProductIdsToAmps(ampDtosPaginatedList.rows)
         response = ResponseUtils.ok(ampDtosPaginatedList)
 
         return response
@@ -331,15 +336,31 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         }
 
         val vmpGroupDtosPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>()
-        mapper.map<PaginatedList<VmpGroup>, org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>>(
+        mapper.map(
                 vmpGroupsList,
                 vmpGroupDtosPaginatedList,
                 object : TypeBuilder<PaginatedList<VmpGroup>>() {}.build(),
                 object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>>() {}.build()
         )
+        addProductIdsToVmpGroups(vmpGroupDtosPaginatedList.rows)
         response = ResponseUtils.ok(vmpGroupDtosPaginatedList)
 
         return response
+    }
+
+    private fun addProductIdsToVmpGroups(vmpGroups: List<VmpGroupDto>) {
+        val productIds = samV2Logic.listProductIds(vmpGroups.map { "SAMID:${it.id}" })
+        vmpGroups.forEachIndexed { index, g ->
+            g.productId = if (productIds[index].id == "SAMID:${g.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${g.id}"}?.productId
+        }
+    }
+
+    private fun addProductIdsToAmps(amps: List<AmpDto>) {
+        val dmpps = amps.flatMap { it.ampps.flatMap { it.dmpps ?: listOf() } }.filterNotNull()
+        val productIds = samV2Logic.listProductIds(dmpps.map { "SAMID:${it.id}" })
+        dmpps.forEachIndexed { index, dmpp ->
+            dmpp.productId = if (productIds[index].id == "SAMID:${dmpp.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${dmpp.id}"}?.productId
+        }
     }
 
 }

@@ -7,7 +7,6 @@ import org.taktik.icure.entities.samv2.embed.StoredDocumentWithPeriod
 import java.io.Serializable
 
 class VmpGroupStub(
-        var productId: String? = null,
         var id: String? = null,
         var code: String? = null,
         var name: SamText? = null
