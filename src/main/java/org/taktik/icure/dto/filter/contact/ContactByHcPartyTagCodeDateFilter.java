@@ -29,6 +29,6 @@ public interface ContactByHcPartyTagCodeDateFilter extends Filter<String,Contact
 	String getTagCode();
 	String getCodeType();
 	String getCodeCode();
-	Long getStartServiceValueDate();
-	Long getEndServiceValueDate();
+	Long getStartOfContactOpeningDate();
+	Long getEndOfContactOpeningDate();
 }
