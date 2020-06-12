@@ -20,6 +20,7 @@ package org.taktik.icure.entities.embed
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.constants.Permissions
 import org.taktik.icure.constants.Permissions.CriterionDataType
 import org.taktik.icure.security.PermissionSetIdentifier
@@ -28,31 +29,9 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Permission : Cloneable, Serializable {
-    protected var grant = 0
-        get() {
-            var grant = grant
-            // Remove invalid grant TYPE
-            for (permissionType in Permissions.Type.values()) {
-                if (!canBeUsedWith(permissionType)) {
-                    grant = grant and permissionType.bitValue.inv()
-                }
-            }
-            return grant
-        }
-    protected var revoke = 0
-        get() {
-            var revoke = revoke
+@KotlinBuilder
+data class Permission(var grant: Int = 0, var revoke: Int = 0, var criteria: MutableSet<PermissionCriterion?>? = HashSet()) : Cloneable, Serializable {
 
-            // Remove invalid revoke TYPE
-            for (permissionType in Permissions.Type.values()) {
-                if (!canBeUsedWith(permissionType)) {
-                    revoke = revoke and permissionType.bitValue.inv()
-                }
-            }
-            return revoke
-        }
-    protected var criteria: MutableSet<PermissionCriterion?>? = HashSet()
     fun grant(permissionType: Permissions.Type) {
         // Grant TYPE
         grant = grant or permissionType.bitValue
@@ -153,50 +132,5 @@ class Permission : Cloneable, Serializable {
             }
         }
         return matched
-    }
-
-    public override fun clone(): Permission {
-        val clone = Permission()
-        clone.grant = grant
-        clone.revoke = revoke
-        if (criteria != null) {
-            for (criterion in criteria!!) {
-                criterion?.let { clone.addToCriteria(it.copy()) }
-            }
-        }
-        return clone
-    }
-
-    override fun hashCode(): Int {
-        val prime = 31
-        var result = 1
-        result = prime * result + grant
-        result = prime * result + revoke
-        result = prime * result + if (criteria == null) 0 else criteria.hashCode()
-        return result
-    }
-
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) return true
-        if (obj == null) return false
-        if (javaClass != obj.javaClass) return false
-        val other = obj as Permission
-        if (grant != other.grant) return false
-        if (revoke != other.revoke) return false
-        if (criteria == null) {
-            if (other.criteria != null) return false
-        } else if (criteria != other.criteria) return false
-        return true
-    }
-
-    companion object {
-        private const val serialVersionUID = 1L
-        fun granted(vararg permissions: Permissions.Type): Permission {
-            val p = Permission()
-            for (pt in permissions) {
-                p.grant(pt)
-            }
-            return p
-        }
     }
 }

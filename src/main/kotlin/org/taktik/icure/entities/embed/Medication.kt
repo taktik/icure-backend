@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.apache.commons.lang3.StringUtils
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -38,8 +39,8 @@ data class Medication(
         val commentForDelivery: String? = null,
         val drugRoute: String? = null, //CD-DRUG-ROUTE
         val temporality: String? = null, //CD-TEMPORALITY : chronic, acute, oneshot
-        val frequency: Code? = null, //CD-PERIODICITY
-        val reimbursementReason: Code? = null,
+        val frequency: CodeStub? = null, //CD-PERIODICITY
+        val reimbursementReason: CodeStub? = null,
         val substitutionAllowed: Boolean? = null,
         val beginMoment: Long? = null,
         val endMoment: Long? = null,

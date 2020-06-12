@@ -21,7 +21,6 @@ package org.taktik.icure.asyncdao.impl
 import com.fasterxml.uuid.Generators
 import kotlinx.coroutines.flow.*
 import org.ektorp.DocumentNotFoundException
-import org.ektorp.ViewQuery
 import org.ektorp.support.View
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -168,7 +167,7 @@ class UserDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDb
                 dbInstanceUrl,
                 groupId,
                 newEntity,
-                if (entity.isUse2fa == true && !entity.applicationTokens.containsKey("ICC"))
+                if (entity.use2fa == true && !entity.applicationTokens.containsKey("ICC"))
                     entity.copy(applicationTokens = entity.applicationTokens + ("ICC" to Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString()))
                 else entity
         )

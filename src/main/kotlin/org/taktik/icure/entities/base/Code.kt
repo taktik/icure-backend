@@ -51,7 +51,7 @@ data class Code(
         val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
         val data: String? = null,
         val appendices: Map<AppendixType, String> = mapOf(),
-        val isDisabled: Boolean = false,
+        val disabled: Boolean = false,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
@@ -76,7 +76,7 @@ data class Code(
             "searchTerms" to MergeUtil.mergeMapsOfSets(this.searchTerms, other.searchTerms),
             "data" to (this.data ?: other.data),
             "appendices" to (other.appendices + this.appendices),
-            "isDisabled" to (this.isDisabled)
+            "disabled" to (this.disabled)
     )
 
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

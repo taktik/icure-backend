@@ -46,7 +46,7 @@ data class PlanOfActionDto(
         override val name: String? = null,
         val descr: String? = null,
         val note: String? = null,
-        val isRelevant: Boolean = true,
+        val relevant: Boolean = true,
         val idOpeningContact: String? = null,
         val idClosingContact: String? = null,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present

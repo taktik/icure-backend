@@ -19,12 +19,14 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.base.CodeStub
 import java.io.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Duration(
+@KotlinBuilder
+data class Duration(
         val value: Double? = null,
         val unit: CodeStub? = null //CD-TIMEUNIT
 ) : Serializable

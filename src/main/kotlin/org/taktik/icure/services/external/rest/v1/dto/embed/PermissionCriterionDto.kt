@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.constants.Permissions.CriterionDataType
 import org.taktik.icure.constants.Permissions.CriterionTypeCurrentUser
@@ -24,7 +25,7 @@ import java.io.Serializable
 
 @KotlinBuilder
 data class PermissionCriterionDto(
-        val isNegative: Boolean = false,
+        @JsonProperty("isNegative") val negative: Boolean = false,
         val currentUser: CriterionTypeCurrentUser? = null,
         val dataType: CriterionDataType? = null,
         val patientStatus: String? = null

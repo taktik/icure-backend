@@ -1,16 +1,25 @@
 package org.taktik.icure.services.external.rest.v1.mapper
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
-import org.taktik.icure.entities.Contact
+import org.mapstruct.Mapping
+import org.mapstruct.Mappings
 import org.taktik.icure.entities.Message
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
-@Mapper(componentModel = "spring")
+import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.MessageReadStatusMapper
+
+@Mapper(componentModel = "spring", uses = [CodeStubMapper::class, DelegationMapper::class, MessageReadStatusMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface MessageMapper {
+    @Mappings(
+            Mapping(target = "attachments", ignore = true),
+            Mapping(target = "revHistory", ignore = true),
+            Mapping(target = "conflicts", ignore = true),
+            Mapping(target = "revisionsInfo", ignore = true),
+            Mapping(target = "set_type", ignore = true)
+            )
 	fun map(messageDto: MessageDto):Message
 	fun map(message: Message):MessageDto
-
-    fun mapToStub(message: Message): IcureStubDto
-    fun mapFromStub(message: IcureStubDto): Message
-
 }

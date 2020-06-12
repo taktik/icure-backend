@@ -53,7 +53,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.Instant
-import java.util.function.Consumer
 import kotlin.math.min
 
 
@@ -402,9 +401,9 @@ class PatientLogicImpl(
         val shouldSave = booleanArrayOf(false)
         //Close referrals relative to other healthcare parties
         val fixedPhcp = patient.patientHealthCareParties.map { phcp ->
-            if (phcp.isReferral && (referralId == null || referralId != phcp.healthcarePartyId)) {
+            if (phcp.referral && (referralId == null || referralId != phcp.healthcarePartyId)) {
                 phcp.copy(
-                        isReferral = false,
+                        referral = false,
                         referralPeriods = phcp.referralPeriods.map { p ->
                             if (p.endDate == null || p.endDate != startOrNow) {
                                 p.copy(endDate = startOrNow)
@@ -412,8 +411,8 @@ class PatientLogicImpl(
                         }.toSortedSet()
                 )
             } else if (referralId != null && referralId == phcp.healthcarePartyId) {
-                (if (!phcp.isReferral) {
-                    phcp.copy(isReferral = true)
+                (if (!phcp.referral) {
+                    phcp.copy(referral = true)
                 } else phcp).copy(
                         referralPeriods = phcp.referralPeriods.map {rp ->
                             if (start == rp.startDate) {
@@ -423,9 +422,9 @@ class PatientLogicImpl(
                 )
             } else phcp
         }
-        return (if (!fixedPhcp.any { it.isReferral && it.healthcarePartyId == referralId }) {
+        return (if (!fixedPhcp.any { it.referral && it.healthcarePartyId == referralId }) {
             fixedPhcp + PatientHealthCareParty(
-                    isReferral = true,
+                    referral = true,
                     healthcarePartyId = referralId,
                     referralPeriods = sortedSetOf(ReferralPeriod(startOrNow, end))
             )

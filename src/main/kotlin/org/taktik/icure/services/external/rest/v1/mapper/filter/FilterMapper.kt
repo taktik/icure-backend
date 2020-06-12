@@ -1,5 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.mapper.filter
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.dto.filter.predicate.AndPredicate
@@ -30,6 +31,8 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.patient.PatientById
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByContactsAndSubcontactsFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHcPartyTagCodeDateFilter
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceBySecretForeignKeys
+import org.taktik.icure.services.external.rest.v1.mapper.PropertyTypeMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.TypedValueMapper
 
 interface FilterMapper {
     fun <O : Identifiable<String>> map(filterChainDto: FilterChain): org.taktik.icure.dto.filter.chain.FilterChain<O>

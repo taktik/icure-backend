@@ -27,7 +27,7 @@ data class TimeTableItemDto(
         val recurrenceTypes: List<String> = listOf(),
         val calendarItemTypeId: String? = null,
 
-        val isHomeVisit: Boolean = false,
+        val homeVisit: Boolean = false,
         val placeId: String? = null,
-        val isUnavailable: Boolean = false
+        val unavailable: Boolean = false
 ) : Serializable

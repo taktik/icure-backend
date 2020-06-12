@@ -16,7 +16,6 @@ import org.taktik.icure.entities.embed.PatientHealthCareParty
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.nio.ByteBuffer
-import java.util.function.Function
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 
@@ -107,5 +106,5 @@ fun emitMessage(folder: org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.
 }
 
 fun Patient.getSignature() = DigestUtils.md5Hex(
-        "${this.firstName}:${this.lastName}:${this.patientHealthCareParties.find(PatientHealthCareParty::isReferral)?.let { "" + it.healthcarePartyId + it.referralPeriods.last().startDate + it.referralPeriods.last().endDate } ?: ""}:${this.dateOfBirth}:${this.dateOfDeath}:${this.ssin}"
+        "${this.firstName}:${this.lastName}:${this.patientHealthCareParties.find(PatientHealthCareParty::referral)?.let { "" + it.healthcarePartyId + it.referralPeriods.last().startDate + it.referralPeriods.last().endDate } ?: ""}:${this.dateOfBirth}:${this.dateOfDeath}:${this.ssin}"
 )

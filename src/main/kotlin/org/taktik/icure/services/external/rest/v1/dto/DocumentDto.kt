@@ -43,7 +43,6 @@ data class DocumentDto(
         override val deletionDate: Long? = null,
 
         val attachment: ByteArray? = null,
-        var isAttachmentDirty: Boolean = false,
         val documentLocation: DocumentLocationDto? = null,
         val documentType: DocumentTypeDto? = null,
         val documentStatus: DocumentStatusDto? = null,

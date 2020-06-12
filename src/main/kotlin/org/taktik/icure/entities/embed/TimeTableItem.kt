@@ -18,6 +18,7 @@
 package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
@@ -29,7 +30,7 @@ data class TimeTableItem(
         val recurrenceTypes: List<String> = listOf(),
         val calendarItemTypeId: String? = null,
 
-        val isHomeVisit: Boolean = false,
+        @JsonProperty("isHomeVisit") val homeVisit: Boolean = false,
         val placeId: String? = null,
-        val isUnavailable: Boolean = false
+        @JsonProperty("isUnavailable") val unavailable: Boolean = false
 ) : Serializable

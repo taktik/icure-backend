@@ -43,7 +43,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                 }
                 if (
                         to.status != from.status ||
-                        to.isUse2fa != from.isUse2fa ||
+                        to.use2fa != from.use2fa ||
                         to.passwordHash != from.passwordHash ||
                         to.healthcarePartyId != from.healthcarePartyId ||
                         to.secret != from.secret ||
@@ -54,7 +54,7 @@ class UserReplicator(private val couchDbProperties: CouchDbProperties, sslContex
                 ) {
                     userDAO.saveOnFallback(dbInstanceUri, to.copy(
                             status = from.status,
-                            isUse2fa = from.isUse2fa,
+                            use2fa = from.use2fa,
                             passwordHash = from.passwordHash,
                             healthcarePartyId = from.healthcarePartyId,
                             secret = from.secret,

@@ -28,7 +28,7 @@ import java.util.*
 @KotlinBuilder
 data class PatientHealthCarePartyDto(
         val type: PatientHealthCarePartyTypeDto? = null,
-        val isReferral: Boolean = false, // mark this phcp as THE active referral link (gmd)
+        val referral: Boolean = false, // mark this phcp as THE active referral link (gmd)
         val healthcarePartyId: String? = null,
         val sendFormats: Map<TelecomTypeDto, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
         val referralPeriods: SortedSet<ReferralPeriodDto> = sortedSetOf(), // History of DMG ownerships

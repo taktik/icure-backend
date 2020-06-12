@@ -41,7 +41,6 @@ data class DocumentTemplateDto(
         override val deletionDate: Long? = null,
 
         val attachment: ByteArray? = null,
-        var isAttachmentDirty: Boolean = false,
         val mainUti: String? = null,
         val name: String? = null,
         val otherUtis: Set<String> = setOf(),

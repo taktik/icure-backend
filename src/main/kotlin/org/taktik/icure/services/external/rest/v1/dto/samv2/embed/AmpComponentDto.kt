@@ -13,7 +13,7 @@ data class AmpComponentDto(
         val scored: String? = null,
         val crushable: CrushableDto? = null,
         val containsAlcohol: ContainsAlcoholDto? = null,
-        val isSugarFree: Boolean? = null,
+        val sugarFree: Boolean? = null,
         val modifiedReleaseType: Int? = null,
         val specificDrugDevice: Int? = null,
         val dimensions: String? = null,

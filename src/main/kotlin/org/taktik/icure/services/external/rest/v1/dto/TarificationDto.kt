@@ -49,7 +49,7 @@ data class TarificationDto(
         val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
         val data: String? = null,
         val appendices: Map<AppendixTypeDto, String> = mapOf(),
-        val isDisabled: Boolean = false,
+        val disabled: Boolean = false,
         val valorisations: Set<ValorisationDto> = setOf(),
         val category: Map<String, String> = mapOf(),
         val consultationCode: Boolean? = null,

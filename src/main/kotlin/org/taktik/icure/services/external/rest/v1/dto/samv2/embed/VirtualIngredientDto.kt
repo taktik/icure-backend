@@ -1,6 +1,9 @@
 package org.taktik.icure.services.external.rest.v1.dto.samv2.embed
 
-class VirtualIngredientDto(
+import com.github.pozo.KotlinBuilder
+
+@KotlinBuilder
+data class VirtualIngredientDto(
         override val from: Long? = null,
         override val to: Long? = null,
         val rank: Int? = null,

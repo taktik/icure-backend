@@ -56,7 +56,7 @@ data class PlanOfAction(
         override val name: String? = null,
         val descr: String? = null,
         val note: String? = null,
-        val isRelevant: Boolean = true,
+        val relevant: Boolean = true,
         val idOpeningContact: String? = null,
         val idClosingContact: String? = null,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
@@ -85,7 +85,7 @@ data class PlanOfAction(
             "name" to (this.descr ?: other.descr),
             "descr" to (this.descr ?: other.descr),
             "note" to (this.note ?: other.note),
-            "isRelevant" to (this.isRelevant ?: other.isRelevant),
+            "relevant" to (this.relevant ?: other.relevant),
             "idOpeningContact" to (this.idOpeningContact ?: other.idOpeningContact),
             "idClosingContact" to (this.idClosingContact ?: other.idClosingContact),
             "status" to (this.status),

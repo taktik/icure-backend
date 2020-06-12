@@ -60,7 +60,7 @@ data class Tarification(
         val searchTerms: Map<String, Set<String>> = mapOf(), //Extra search terms/ language
         val data: String? = null,
         val appendices: Map<AppendixType, String> = mapOf(),
-        val isDisabled: Boolean = false,
+        val disabled: Boolean = false,
         val valorisations: Set<Valorisation> = setOf(),
         val category: Map<String, String> = mapOf(),
         val consultationCode: Boolean? = null,
@@ -93,7 +93,7 @@ data class Tarification(
             "searchTerms" to mergeMapsOfSets(this.searchTerms, other.searchTerms),
             "data" to (this.data ?: other.data),
             "appendices" to (other.appendices + this.appendices),
-            "isDisabled" to (this.isDisabled),
+            "disabled" to (this.disabled),
             "valorisations" to mergeSets(this.valorisations, other.valorisations,
                     { a, b -> a.predicate == b.predicate && a.startOfValidity == b.startOfValidity && a.endOfValidity == b.endOfValidity }),
             "category" to (other.category + this.category),

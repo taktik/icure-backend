@@ -1,6 +1,9 @@
 package org.taktik.icure.entities.samv2.embed
 
-class VirtualIngredient(
+import com.github.pozo.KotlinBuilder
+
+@KotlinBuilder
+data class VirtualIngredient(
         override val from: Long? = null,
         override val to: Long? = null,
         val rank: Int? = null,

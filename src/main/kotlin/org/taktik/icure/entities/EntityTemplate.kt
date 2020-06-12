@@ -41,7 +41,7 @@ data class EntityTemplate(
         val descr: String? = null,
         var entityType: String? = null,
         var subType: String? = null,
-        var isDefaultTemplate: Boolean? = null,
+        @JsonProperty("isDefaultTemplate") var defaultTemplate: Boolean? = null,
         var entity: List<Map<String, Any>> = listOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
@@ -57,7 +57,7 @@ data class EntityTemplate(
             "descr" to (this.descr ?: other.descr),
             "entityType" to (this.entityType ?: other.entityType),
             "subType" to (this.subType ?: other.subType),
-            "isDefaultTemplate" to (this.isDefaultTemplate ?: other.isDefaultTemplate),
+            "defaultTemplate" to (this.defaultTemplate ?: other.defaultTemplate),
             "entity" to (this.entity)
     )
 

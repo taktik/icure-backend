@@ -52,7 +52,7 @@ data class HealthElementTemplate(
         val descr: String? = null,
         val note: String? = null,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
-        val isRelevant: Boolean = true,
+        @JsonProperty("isRelevant") val relevant: Boolean = true,
         val plansOfAction: @Valid List<PlanOfActionTemplate> = listOf(),
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
@@ -66,7 +66,7 @@ data class HealthElementTemplate(
     fun solveConflictsWith(other: HealthElementTemplate) = super<StoredICureDocument>.solveConflictsWith(other) + mapOf(
             "descr" to (this.descr ?: other.descr),
             "note" to (this.note ?: other.note),
-            "isRelevant" to (this.isRelevant),
+            "relevant" to (this.relevant),
             "status" to (this.status),
             "plansOfAction" to MergeUtil.mergeListsDistinct(this.plansOfAction, other.plansOfAction, { a, b -> a.id == b.id }, { a, b -> a.merge(b) })
     )

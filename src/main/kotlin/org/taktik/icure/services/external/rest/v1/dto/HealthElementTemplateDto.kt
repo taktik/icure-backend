@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
@@ -41,7 +42,7 @@ data class HealthElementTemplateDto(
         val descr: String? = null,
         val note: String? = null,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
-        val isRelevant: Boolean = true,
+        @JsonProperty("isRelevant") val relevant: Boolean = true,
         val plansOfAction: @Valid List<PlanOfActionTemplateDto> = listOf()
 ) : StoredDocumentDto, ICureDocumentDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)

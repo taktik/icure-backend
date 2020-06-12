@@ -47,7 +47,6 @@ import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -281,7 +280,7 @@ open class KmehrExport(
                     }
                 }
             }
-            isIsrelevant = ServiceStatus.isRelevant(he.status) || he.isRelevant || lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE  // FIXME: two way to store the relevant status
+            isIsrelevant = ServiceStatus.isRelevant(he.status) || he.relevant || lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE  // FIXME: two way to store the relevant status
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let {
                 if(it == 0L) {

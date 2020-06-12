@@ -49,7 +49,7 @@ data class PlanOfActionTemplate(
         override val name: String? = null,
         val descr: String? = null,
         val note: String? = null,
-        val isRelevant: Boolean = true,
+        val relevant: Boolean = true,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         var forms: List<FormSkeleton> = listOf()
 ) : ICureDocument, Named {
@@ -60,7 +60,7 @@ data class PlanOfActionTemplate(
             "name" to (this.descr ?: other.descr),
             "descr" to (this.descr ?: other.descr),
             "note" to (this.note ?: other.note),
-            "isRelevant" to (this.isRelevant ?: other.isRelevant),
+            "relevant" to (this.relevant ?: other.relevant),
             "status" to (this.status),
             "forms" to mergeListsDistinct(this.forms, other.forms)
     )

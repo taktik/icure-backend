@@ -19,6 +19,7 @@ package org.taktik.icure.entities.embed
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.constants.Permissions.CriterionDataType
 import org.taktik.icure.constants.Permissions.CriterionType
@@ -31,7 +32,7 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PermissionCriterion(
-        val isNegative: Boolean = false,
+        @JsonProperty("isNegative") val negative: Boolean = false,
         val currentUser: CriterionTypeCurrentUser? = null,
         val dataType: CriterionDataType? = null,
         val patientStatus: String? = null
@@ -70,7 +71,7 @@ data class PermissionCriterion(
         } else if (matchedPatientStatus != null) {
             return matchedPatientStatus == patientStatus
         }
-        if (isNegative) {
+        if (negative) {
             match = !match
         }
         return match

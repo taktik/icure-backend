@@ -34,7 +34,7 @@ import java.util.*
 @KotlinBuilder
 data class PatientHealthCareParty(
         val type: PatientHealthCarePartyType? = null,
-        val isReferral: Boolean = false, // mark this phcp as THE active referral link (gmd)
+        val referral: Boolean = false, // mark this phcp as THE active referral link (gmd)
         val healthcarePartyId: String? = null,
         val sendFormats: Map<TelecomType, String> = mapOf(),  // String is in fact a UTI (uniform type identifier / a sort of super-MIME)
         val referralPeriods: SortedSet<ReferralPeriod> = sortedSetOf(), // History of DMG ownerships
@@ -45,7 +45,7 @@ data class PatientHealthCareParty(
     fun merge(other: PatientHealthCareParty) = PatientHealthCareParty(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: PatientHealthCareParty) = super.solveConflictsWith(other) + mapOf(
             "type" to (this.type ?: other.type),
-            "isReferral" to this.isReferral,
+            "referral" to this.referral,
             "healthcarePartyId" to (this.healthcarePartyId ?: other.healthcarePartyId),
             "sendFormats" to (other.sendFormats + this.sendFormats),
             "referralPeriods" to mergeSets(this.referralPeriods, other.referralPeriods, { a, b -> a.startDate == b.startDate },

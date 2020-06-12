@@ -8,7 +8,7 @@ import java.io.Serializable
 @KotlinBuilder
 data class Right(
         val userId: String? = null,
-        val isRead: Boolean = false,
-        val isWrite: Boolean = false,
-        val isAdministration: Boolean = false
+        val read: Boolean = false,
+        val write: Boolean = false,
+        val administration: Boolean = false
 ) : Serializable

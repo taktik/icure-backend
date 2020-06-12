@@ -18,12 +18,12 @@ data class MedicalHouseContractDto(
         val startOfCoverage: Long? = null,  //yyyyMMdd
         val endOfContract: Long? = null,  //yyyyMMdd : signdate
         val endOfCoverage: Long? = null,  //yyyyMMdd
-        val isKine: Boolean = false,
-        val isGp: Boolean = false,
-        val isNurse: Boolean = false,
-        val isNoKine: Boolean = false,
-        val isNoGp: Boolean = false,
-        val isNoNurse: Boolean = false,
+        val kine: Boolean = false,
+        val gp: Boolean = false,
+        val nurse: Boolean = false,
+        val noKine: Boolean = false,
+        val noGp: Boolean = false,
+        val noNurse: Boolean = false,
         val unsubscriptionReasonId: Int? = null,
 
         //SuspensionDto specific data:
@@ -31,6 +31,6 @@ data class MedicalHouseContractDto(
         val endOfSuspension: Long? = null, //yyyyMMdd
         val suspensionReason: SuspensionReasonDto? = null,
         val suspensionSource: String? = null,
-        val isForcedSuspension: Boolean = false, //no automatic unSuspension = false
+        val forcedSuspension: Boolean = false, //no automatic unSuspension = false
         override val encryptedSelf: String? = null
 ) : EncryptedDto

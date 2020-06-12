@@ -23,7 +23,6 @@ import org.taktik.icure.constants.Users
 import org.taktik.icure.entities.Group
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties
-import org.taktik.icure.security.PermissionSetIdentifier
 import org.taktik.icure.security.database.DatabaseUserDetails
 import reactor.core.publisher.Mono
 import java.net.URI
@@ -106,7 +105,7 @@ class CustomAuthenticationProvider(
             throw BadCredentialsException("Invalid username or password")
         }
 
-        if (user.isUse2fa == true && user.secret?.isNotBlank() == true && !user.applicationTokens.containsValue(password)) {
+        if (user.use2fa == true && user.secret?.isNotBlank() == true && !user.applicationTokens.containsValue(password)) {
             val splittedPassword = password.split("\\|")
             if (splittedPassword.size < 2) {
                 throw BadCredentialsException("Missing verfication code")
@@ -124,7 +123,7 @@ class CustomAuthenticationProvider(
         val permissionSet = permissionLogic.getPermissionSet(permissionSetIdentifier)
         val authorities = if (permissionSet == null) HashSet() else permissionSet.grantedAuthorities
 
-        val userDetails = DatabaseUserDetails(permissionSetIdentifier, authorities, user.passwordHash, user.secret, user.isUse2fa)
+        val userDetails = DatabaseUserDetails(permissionSetIdentifier, authorities, user.passwordHash, user.secret, user.use2fa)
         if (group != null) {
             userDetails.dbInstanceUrl = group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()
         }
@@ -150,7 +149,7 @@ class CustomAuthenticationProvider(
         if (u.applicationTokens.containsValue(password)) {
             return true
         }
-        return if (u.isUse2fa == true && u.secret?.isNotBlank() == true) {
+        return if (u.use2fa == true && u.secret?.isNotBlank() == true) {
             val splittedPassword = password.split("\\|").toTypedArray()
             passwordEncoder.matches(splittedPassword[0], u.passwordHash)
         } else {
