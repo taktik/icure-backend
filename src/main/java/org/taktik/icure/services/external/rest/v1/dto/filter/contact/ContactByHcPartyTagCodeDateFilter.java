@@ -32,20 +32,20 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 	String tagCode;
 	String codeType;
 	String codeCode;
-	Long startServiceValueDate;
-	Long endServiceValueDate;
+	Long startOfContactOpeningDate;
+	Long endOfContactOpeningDate;
 
 	public ContactByHcPartyTagCodeDateFilter() {
 	}
 
-	public ContactByHcPartyTagCodeDateFilter(String healthcarePartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, String codeType, String codeCode, Long startServiceValueDate, Long endServiceValueDate) {
+	public ContactByHcPartyTagCodeDateFilter(String healthcarePartyId, List<String> patientSecretForeignKeys, String tagType, String tagCode, String codeType, String codeCode, Long startOfContactOpeningDate, Long endOfContactOpeningDate) {
 		this.healthcarePartyId = healthcarePartyId;
 		this.tagType = tagType;
 		this.tagCode = tagCode;
 		this.codeType = codeType;
 		this.codeCode = codeCode;
-		this.startServiceValueDate = startServiceValueDate;
-		this.endServiceValueDate = endServiceValueDate;
+		this.startOfContactOpeningDate = startOfContactOpeningDate;
+		this.endOfContactOpeningDate = endOfContactOpeningDate;
 	}
 
 	@Override
@@ -93,25 +93,25 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 		this.codeCode = codeCode;
 	}
 
-	public Long getStartServiceValueDate() {
-		return startServiceValueDate;
+	public Long getStartOfContactOpeningDate() {
+		return startOfContactOpeningDate;
 	}
 
-	public void setStartServiceValueDate(Long startServiceValueDate) {
-		this.startServiceValueDate = startServiceValueDate;
+	public void setStartOfContactOpeningDate(Long startOfContactOpeningDate) {
+		this.startOfContactOpeningDate = startOfContactOpeningDate;
 	}
 
-	public Long getEndServiceValueDate() {
-		return endServiceValueDate;
+	public Long getEndOfContactOpeningDate() {
+		return endOfContactOpeningDate;
 	}
 
-	public void setEndServiceValueDate(Long endServiceValueDate) {
-		this.endServiceValueDate = endServiceValueDate;
+	public void setEndOfContactOpeningDate(Long endOfContactOpeningDate) {
+		this.endOfContactOpeningDate = endOfContactOpeningDate;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startServiceValueDate, endServiceValueDate);
+		return Objects.hashCode(healthcarePartyId, tagType, tagCode, codeType, codeCode, startOfContactOpeningDate, endOfContactOpeningDate);
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 			return false;
 		}
 		final ContactByHcPartyTagCodeDateFilter other = (ContactByHcPartyTagCodeDateFilter) obj;
-		return Objects.equal(this.healthcarePartyId, other.healthcarePartyId) && Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeCode, other.codeCode) && Objects.equal(this.startServiceValueDate, other.startServiceValueDate) && Objects.equal(this.endServiceValueDate, other.endServiceValueDate);
+		return Objects.equal(this.healthcarePartyId, other.healthcarePartyId) && Objects.equal(this.tagType, other.tagType) && Objects.equal(this.tagCode, other.tagCode) && Objects.equal(this.codeType, other.codeType) && Objects.equal(this.codeCode, other.codeCode) && Objects.equal(this.startOfContactOpeningDate, other.startOfContactOpeningDate) && Objects.equal(this.endOfContactOpeningDate, other.endOfContactOpeningDate);
 	}
 
 	@Override
@@ -132,8 +132,8 @@ public class ContactByHcPartyTagCodeDateFilter extends Filter<Contact> implement
 				&& (tagType == null || item.getServices().stream().filter(s ->
 				(s.getTags().stream().filter(t -> tagType.equals(t.getType()) && (tagCode == null || tagCode.equals(t.getCode()))).findAny().isPresent())
 						&& (codeType == null || (s.getCodes().stream().filter(c -> codeType.equals(c.getType()) && (codeCode == null || codeCode.equals(c.getCode()))).findAny().isPresent()))
-						&& (startServiceValueDate == null || (s.getValueDate() != null && s.getValueDate() > startServiceValueDate) || (s.getOpeningDate() != null && s.getOpeningDate() > startServiceValueDate))
-						&& (endServiceValueDate == null || (s.getValueDate() != null && s.getValueDate() < endServiceValueDate) || (s.getOpeningDate() != null && s.getOpeningDate() < endServiceValueDate))
+						&& (startOfContactOpeningDate == null || (s.getValueDate() != null && s.getValueDate() > startOfContactOpeningDate) || (s.getOpeningDate() != null && s.getOpeningDate() > startOfContactOpeningDate))
+						&& (endOfContactOpeningDate == null || (s.getValueDate() != null && s.getValueDate() < endOfContactOpeningDate) || (s.getOpeningDate() != null && s.getOpeningDate() < endOfContactOpeningDate))
 		).findAny().isPresent());
 	}
 }

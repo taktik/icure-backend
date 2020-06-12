@@ -184,7 +184,10 @@ public class MikronoLogicImpl implements MikronoLogic {
 					log.error(e.getMessage());
 				}
 				return e.getStatusCode()+":"+e.getMessage();
-			}
+			} catch(Exception e) {
+			    log.error(e.getMessage());
+                return null;
+            }
 		}).collect(Collectors.toList());
 	}
 
@@ -201,6 +204,9 @@ public class MikronoLogicImpl implements MikronoLogic {
                     log.error(e.getMessage());
                 }
                 //return e.getStatusCode()+":"+e.getMessage();
+                return null;
+            }catch(Exception e) {
+                log.error(e.getMessage());
                 return null;
             }
         }).collect(Collectors.toList());
