@@ -113,12 +113,11 @@ class Samv2v4Import : CliktCommand() {
         var vers : String? = null
         val productIds = HashMap<String, String>()
 
-        var zip: ByteArray? = null
+        val zipData = if (samv2url == null) URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-full-getLastVersion?xsd=4").toURL().readBytes().toString(Charsets.UTF_8).let {
+            URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-download?type=full&version=${it}&xsd=4").toURL().readBytes()
+        } else null
 
-        (samv2url?.let { URI(it).toURL().openStream() } ?: URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-full-getLastVersion?xsd=4").toURL().readBytes().toString(Charsets.UTF_8).let {
-            zip = URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-download?type=full&version=${it}&xsd=4").toURL().readBytes()
-            zip?.inputStream()
-        }).let { zis ->
+        (zipData?.let { it.inputStream() } ?: samv2url?.let { URI(it).toURL().openStream() })?.let { zis ->
             val zip = ZipInputStream(zis)
             var entry: ZipEntry?
             while (zip.let { entry = it.nextEntry;entry != null }) {
@@ -133,7 +132,7 @@ class Samv2v4Import : CliktCommand() {
             }
         }
 
-        (samv2url?.let { URI(it).toURL().openStream() } ?: zip?.inputStream()).let { zis ->
+        (zipData?.let { it.inputStream() } ?: samv2url?.let { URI(it).toURL().openStream() }).let { zis ->
             val zip = ZipInputStream(zis)
             var entry: ZipEntry?
             while (zip.let { entry = it.nextEntry; entry != null }) {
@@ -202,9 +201,9 @@ class Samv2v4Import : CliktCommand() {
 
         val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
         HashSet<String>(retry(10) { ampDAO.allIds }).chunked(100).forEach { ids ->
-            ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
+            ampDAO.save(ampDAO.getList(ids).fold(LinkedList(), operation = { acc, amp ->
                 var shouldAdd = false
-                amp.ampps.flatMap { it.dmpps ?: listOf() }.filterNotNull().forEach { dmpp: Dmpp ->
+                amp.ampps.flatMap { it.dmpps ?: listOf() }.forEach { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let {
                         if (dmpp.reimbursements != it) {
                             dmpp.reimbursements = it
