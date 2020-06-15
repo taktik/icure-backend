@@ -8,9 +8,9 @@
                 <version>2.3</version>
             </specialisation>
         </standard>
-        <id S="ID-KMEHR" SV="1.0">6cb463eb-5e96-49b9-b463-eb5e9649b966.1591108628889</id>
-        <date>2020-06-02</date>
-        <time>16:37:08</time>
+        <id S="ID-KMEHR" SV="1.0">c47e7399-5671-426c-be73-995671326cff.1591964063189</id>
+        <date>2020-06-12</date>
+        <time>14:14:23</time>
         <sender>
             <hcparty>
                 <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>
@@ -43,10 +43,10 @@
         </patient>
         <transaction>
             <id S="ID-KMEHR" SV="1.0">1</id>
-            <id S="LOCAL" SV="1.0" SL="MF-ID">7129edb0-89a7-4fe9-a9ed-b089a70fe98d</id>
+            <id S="LOCAL" SV="1.0" SL="MF-ID">3c1848f9-f18c-45bd-9848-f9f18c15bd08</id>
             <cd S="CD-TRANSACTION" SV="1.0">clinicalsummary</cd>
-            <date>2020-06-02</date>
-            <time>16:37:08</time>
+            <date>2020-06-12</date>
+            <time>14:14:23</time>
             <author>
                 <hcparty>
                     <cd S="CD-HCPARTY" SV="1.6">persphysician</cd>

@@ -44,6 +44,7 @@ import org.taktik.icure.logic.GroupLogic;
 import org.taktik.icure.logic.ICureSessionLogic;
 import org.taktik.icure.logic.UserLogic;
 import org.taktik.icure.properties.TwilioProperties;
+import org.taktik.icure.security.database.DatabaseUserDetails;
 import org.taktik.icure.services.external.rest.v1.dto.EmailTemplateDto;
 import org.taktik.icure.services.external.rest.v1.dto.PropertyDto;
 import org.taktik.icure.services.external.rest.v1.dto.UserDto;
