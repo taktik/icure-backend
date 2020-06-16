@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 import com.sun.xml.internal.ws.util.NoCloseInputStream
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
+import org.slf4j.LoggerFactory
 import org.taktik.icure.be.samv2v4.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2v4.entities.ExportActualMedicinesType
 import org.taktik.icure.be.samv2v4.entities.ExportReimbursementsType
@@ -75,7 +76,7 @@ import kotlin.collections.HashSet
 
 fun main(args: Array<String>) = Samv2v4Import().main(args)
 
-fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : CommentedClassification? = cc.data?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { lcc ->
+fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : CommentedClassification? = cc.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { lcc ->
     CommentedClassification(
             lcc.title?.let { SamText(it.fr, it.nl, it.de, it.en) },
             lcc.url?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -85,21 +86,21 @@ fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : Comm
 
 @Suppress("NestedLambdaShadowedImplicitParameter")
 class Samv2v4Import : CliktCommand() {
-    val samv2url: String by option(help="The url of the zip file").prompt("Samv2 file url")
+    val log = LoggerFactory.getLogger(this::class.java)
+    val samv2url: String? by option(help="The url of the zip file")
     val url: String by option(help="The database server to connect to").prompt("Database server url")
     val username: String by option(help="The Username").prompt("Username")
     val password: String by option(help="The Password").prompt("Password")
     val dbName: String by option(help="The database name").prompt("Database name")
     val update: String by option(help="Force update of existing entries").prompt("Force update")
 
-    val vaccineIndicationsMap = Gson().fromJson<ArrayList<Map<String, *>>>(
+    val vaccineIndicationsMap = Gson().fromJson<ArrayList<VaccineCode>>(
             this.javaClass.getResource("vaccines.json").openStream().bufferedReader(),
-            object : TypeToken<ArrayList<Map<String, *>>>() {}.type
-    )
-            .fold(mutableMapOf<String, List<String>>(), { map, it ->
-                map[it["cnk"] as String] = it["codes"] as List<String>
+            object : TypeToken<ArrayList<VaccineCode>>() {}.type
+    ).fold(mutableMapOf<String, List<String>>(), { map, it ->
+                it.cnk?.let { cnk -> map[cnk] = it.codes }
                 map
-            })
+            }).toMap()
 
     override fun run() {
         val httpClient = StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url(url).username(username).password(password).build()
@@ -111,7 +112,11 @@ class Samv2v4Import : CliktCommand() {
         var vers : String? = null
         val productIds = HashMap<String, String>()
 
-        URI(samv2url).toURL().openStream().let { zis ->
+        val zipData = if (samv2url == null) URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-full-getLastVersion?xsd=4").toURL().readBytes().toString(Charsets.UTF_8).let {
+            URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-download?type=full&version=${it}&xsd=4").toURL().readBytes()
+        } else null
+
+        (zipData?.let { it.inputStream() } ?: samv2url?.let { URI(it).toURL().openStream() })?.let { zis ->
             val zip = ZipInputStream(zis)
             var entry: ZipEntry?
             while (zip.let { entry = it.nextEntry;entry != null }) {
@@ -121,12 +126,14 @@ class Samv2v4Import : CliktCommand() {
                             productIds.putAll(importVirtualMedicines(it, vmps, couchdbConfig, updateExistingDocs))
                         }
                     entry!!.name.startsWith("RMB") ->
-                        (JAXBContext.newInstance(ExportReimbursementsType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportReimbursementsType)?.let { importReimbursements(it, reimbursements, couchdbConfig, updateExistingDocs) }
+                        (JAXBContext.newInstance(ExportReimbursementsType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportReimbursementsType)?.let {
+                            importReimbursements(it, reimbursements, couchdbConfig, updateExistingDocs)
+                        }
                 }
             }
         }
 
-        URI(samv2url).toURL().openStream().let { zis ->
+        (zipData?.let { it.inputStream() } ?: samv2url?.let { URI(it).toURL().openStream() }).let { zis ->
             val zip = ZipInputStream(zis)
             var entry: ZipEntry?
             while (zip.let { entry = it.nextEntry; entry != null }) {
@@ -146,14 +153,16 @@ class Samv2v4Import : CliktCommand() {
         val productIdDAO = ProductIdDAOImpl(couchdbConfig , UUIDGenerator())
         retry(10) { productIdDAO.allIds }.let {
             val ids = HashSet(it)
-            productIds.filterKeys { !ids.contains(it) }.entries.chunked(1000).forEach {
+            productIds.filterKeys { ids.contains(it) }.entries.chunked(100).forEach {
+                productIdDAO.save(retry(10) { productIdDAO.getList(it.map { it.key }) }.map { p ->
+                    p.also { it.productId = productIds[p.id] }
+                })
+            }
+            productIds.filterKeys { !ids.contains(it) }.entries.chunked(10).forEach {
                 productIdDAO.create(it.map { ProductId(it.key, it.value) })
             }
-            productIds.filterKeys { ids.contains(it) }.entries.chunked(1000).forEach {
-                productIdDAO.save(retry(10) { productIdDAO.getList(it.map { it.key }) }.map { ProductId(it.id, productIds[it.id]).apply { rev = it.rev } })
-            }
-            ids.filter { !productIds.containsKey(it) }.chunked(1000).forEach {
-                retry(10) { productIdDAO.removeByIds(it) }
+            ids.filter { !productIds.containsKey(it) }.chunked(100).forEach {
+                retry(10) { productIdDAO.purgeByIds(it) }
             }
         }
     }
@@ -165,8 +174,8 @@ class Samv2v4Import : CliktCommand() {
     private fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
         export.reimbursementContext.forEach { reimb ->
             reimb.data.forEach { reimbd ->
-                val from = reimbd.from?.toGregorianCalendar()?.timeInMillis
-                val to = reimbd.to?.toGregorianCalendar()?.timeInMillis
+                val from = reimbd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+                val to = reimbd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
 
                 reimbursements[Triple(reimb.deliveryEnvironment?.value(), reimb.codeType?.value(), reimb.code)].let { if (it != null) it else {
                     val newList = LinkedList<Reimbursement>()
@@ -188,7 +197,7 @@ class Samv2v4Import : CliktCommand() {
                         copaymentSupplement = reimbd.copaymentSupplement,
                         pricingUnit = reimbd.pricingUnit?.let { Pricing(it.quantity, it.label?.let { SamText(it.fr, it.nl, it.de, it.en)}) },
                         pricingSlice = reimbd.pricingSlice?.let { Pricing(it.quantity, it.label?.let { SamText(it.fr, it.nl, it.de, it.en)}) },
-                        copayments = reimb.copayment?.mapNotNull { cop -> cop.data?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { copd -> Copayment(regimeType = cop.regimeType, from = copd.from?.toGregorianCalendar()?.timeInMillis, to = copd.to?.toGregorianCalendar()?.timeInMillis, feeAmount = copd.feeAmount?.toString()) } }
+                        copayments = reimb.copayment?.mapNotNull { cop -> cop.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { copd -> Copayment(regimeType = cop.regimeType, from = copd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, to = copd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, feeAmount = copd.feeAmount?.toString()) } }
                 ))
             }
         }
@@ -197,15 +206,28 @@ class Samv2v4Import : CliktCommand() {
         HashSet<String>(retry(10) { ampDAO.allIds }).chunked(100).forEach { ids ->
             ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
                 var shouldAdd = false
-                amp.ampps.flatMap { it.dmpps ?: listOf() }.filterNotNull().forEach { dmpp: Dmpp ->
+                amp.ampps.flatMap { it.dmpps ?: listOf() }.forEach { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let {
                         if (dmpp.reimbursements != it) {
-                            dmpp.reimbursements = it
+                            dmpp.reimbursements?.forEachIndexed { index, reimbursement ->
+                                if (index>=it.size) {
+                                    log.info("≠ in the number of reimbursements for dmpp ${dmpp.codeType?.name}-${dmpp.code}")
+                                } else {
+                                    if (reimbursement != it[index]) {
+                                        log.info("≠ in the reimbursement $index for dmpp ${dmpp.codeType?.name}-${dmpp.code}")
+                                    }
+                                }
+                            }
                             shouldAdd = true
+
+                            dmpp.reimbursements = it
                         }
                     }
                 }
-                if (shouldAdd) acc.add(amp)
+                if (shouldAdd) {
+                    acc.add(amp)
+                    log.info("Updating amp ${amp.code}")
+                }
                 acc
             }))
         }
@@ -221,16 +243,19 @@ class Samv2v4Import : CliktCommand() {
 
         val vmpGroupIds = HashMap<Int, String>()
 
+        val newVmpIds = mutableListOf<String>()
+        val newVmpGroupIds = mutableListOf<String>()
+
         export.vmpGroup.forEach { vmpg ->
             vmpg.data.map { d ->
                 val code = vmpg.code.toString()
-                val from = d.from?.toGregorianCalendar()?.timeInMillis
-                val to = d.to?.toGregorianCalendar()?.timeInMillis
+                val from = d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+                val to = d.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
 
                 val id = "VMPGROUP:$code:$from".md5()
 
                 result["SAMID:$id"] = vmpg.productId
-
+                newVmpGroupIds.add(id)
                 VmpGroup(
                         id = id,
                         from = from,
@@ -245,10 +270,12 @@ class Samv2v4Import : CliktCommand() {
                         }
                 ).let { vmpg ->
                     if (!currentVmpGroups.contains(id)) {
+                        log.info("New VMP group VMPGROUP:$code:$from with id ${id}")
                         vmpGroupDAO.create(vmpg)
                     } else if (force) {
                         val prev = vmpGroupDAO.get(vmpg.id)
                         if (prev != vmpg) {
+                            log.info("Modified VMP group VMPGROUP:$code:$from with id ${id}")
                             vmpGroupDAO.update(vmpg.apply { this.rev = prev.rev })
                         }
                         vmpg
@@ -261,23 +288,24 @@ class Samv2v4Import : CliktCommand() {
         export.vmp.forEach { vmp ->
             vmp.data.map { d ->
                 val code = vmp.code.toString()
-                val from = d.from?.toGregorianCalendar()?.timeInMillis
-                val to = d.to?.toGregorianCalendar()?.timeInMillis
+                val from = d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+                val to = d.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
 
                 val id = "VMP:$code:$from".md5()
+                newVmpIds.add(id)
 
                 if (!currentVmps.contains(id) || force) Vmp(
                         id = id,
                         from = from,
                         to = to,
                         code = code,
-                        vmpGroup = d.vmpGroup?.let { VmpGroupStub(id = vmpGroupIds[d.vmpGroup.code], code = it.code.toString(), name = it.data?.maxBy { c -> c.from?.toGregorianCalendar()?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
+                        vmpGroup = d.vmpGroup?.let { VmpGroupStub(id = vmpGroupIds[d.vmpGroup.code], code = it.code.toString(), name = it.data?.maxBy { c -> c.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         abbreviation = d.abbreviation?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.data?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }),
                         commentedClassifications = d.commentedClassification?.mapNotNull { cc -> commentedClassificationMapper(cc)} ?: listOf(),
                         components = vmp.vmpComponent?.mapNotNull { vmpc ->
-                            vmpc?.data?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { comp ->
+                            vmpc?.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { comp ->
                                 VmpComponent(
                                         code = vmpc.code.toString(),
                                         virtualForm = comp.virtualForm?.let { virtualForm ->
@@ -289,10 +317,10 @@ class Samv2v4Import : CliktCommand() {
                                         phaseNumber = comp.phaseNumber,
                                         name = comp.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         virtualIngredients = vmpc.virtualIngredient?.mapNotNull { vi ->
-                                            vi.data.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
+                                            vi.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 VirtualIngredient(
-                                                        from = it.from?.toGregorianCalendar()?.timeInMillis,
-                                                        to = it.to?.toGregorianCalendar()?.timeInMillis,
+                                                        from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                                        to = it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                                         rank = vi.rank?.toInt(),
                                                         type = it.type?.let { IngredientType.valueOf(it.value()) },
                                                         strengthRange = it.strength?.let { StrengthRange(NumeratorRange(it.numeratorRange.min, it.numeratorRange.max, it.numeratorRange.unit), Quantity(it.denominator.value, it.denominator.unit)) },
@@ -322,17 +350,23 @@ class Samv2v4Import : CliktCommand() {
                 ).let { vmp ->
                     vmp.code?.let { vmps[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                     if (!currentVmps.contains(id)) {
+                        log.info("New VMP VMP:$code:$from with id ${id}")
                         vmpDAO.create(vmp)
                     } else if (force) {
                         val prev = vmpDAO.get(vmp.id)
                         if(prev != vmp) {
-                            vmpDAO.update(vmp.apply {this.rev=prev.rev})
+                            log.info("Modified VMP VMP:$code:$from with id ${id}")
+                            vmpDAO.update(vmp.apply { this.rev = prev.rev })
                         }
                         vmp
                     } else vmp
                 }
             }
         }
+
+        (currentVmpGroups - newVmpGroupIds).chunked(100).forEach { vmpGroupDAO.removeByIds(it) }
+        (currentVmps - newVmpIds).chunked(100).forEach { vmpDAO.removeByIds(it) }
+
         return result
     }
 
@@ -340,14 +374,16 @@ class Samv2v4Import : CliktCommand() {
         val result = HashMap<String, String>()
         val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
         val currentAmps = HashSet(retry(10) { ampDAO.allIds })
+        val newAmpIds = mutableListOf<String>()
 
-        export.amp.forEach { amp ->
+        export.amp.forEachIndexed { idx, amp ->
             amp.data.map { d ->
                 val code = amp.code.toString()
-                val from = d.from?.toGregorianCalendar()?.timeInMillis
-                val to = d.to?.toGregorianCalendar()?.timeInMillis
+                val from = d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+                val to = d.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
 
                 val id = "AMP:$code:$from".md5()
+                newAmpIds.add(id)
 
                 if (!currentAmps.contains(id) || force) Amp(
                         id = id,
@@ -361,18 +397,18 @@ class Samv2v4Import : CliktCommand() {
                         status = d.status?.value()?.let { AmpStatus.valueOf(it) },
                         blackTriangle = d.isBlackTriangle,
                         medicineType = d.medicineType?.value()?.let { MedicineType.valueOf(it) },
-                        company = d.company?.data?.maxBy { c -> c.from?.toGregorianCalendar()?.timeInMillis ?: 0L }?.let {
-                            Company(it.from?.toGregorianCalendar()?.timeInMillis, it.to?.toGregorianCalendar()?.timeInMillis, it.authorisationNr,
+                        company = d.company?.data?.maxBy { c -> c.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0L }?.let {
+                            Company(it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.authorisationNr,
                                     it.vatNr?.countryCode?.let { cc -> it.vatNr.value?.let {v -> mapOf(Pair(cc,v))}}, it.europeanNr, it.denomination, it.legalForm, it.building,
                                     it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
                         },
                         proprietarySuffix = d.proprietarySuffix?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         prescriptionName = d.prescriptionName?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         ampps = amp.ampp?.mapNotNull { ampp ->
-                            ampp.data?.maxBy { d -> d.from?.toGregorianCalendar()?.timeInMillis ?: 0 }?.let { amppd ->
+                            ampp.data?.maxBy { d -> d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0 }?.let { amppd ->
                                 Ampp(
-                                        from = amppd.from?.toGregorianCalendar()?.timeInMillis,
-                                        to = amppd.to?.toGregorianCalendar()?.timeInMillis,
+                                        from = amppd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                        to = amppd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                         ctiExtended = ampp.ctiExtended,
                                         isOrphan = amppd.isOrphan,
                                         leafletLink = amppd.leafletLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -391,8 +427,8 @@ class Samv2v4Import : CliktCommand() {
                                         deliveryModus = amppd.deliveryModus?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         deliveryModusSpecification = amppd.deliveryModusSpecification?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         distributorCompany = amppd.distributorCompany ?.let {
-                                            it.data.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
-                                                Company(it.from?.toGregorianCalendar()?.timeInMillis, it.to?.toGregorianCalendar()?.timeInMillis, it.authorisationNr,
+                                            it.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
+                                                Company(it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.authorisationNr,
                                                         it.vatNr?.countryCode?.let { cc -> it.vatNr.value?.let { v -> mapOf(Pair(cc, v)) } }, it.europeanNr, it.denomination, it.legalForm, it.building,
                                                         it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
                                             }
@@ -409,11 +445,11 @@ class Samv2v4Import : CliktCommand() {
                                         definedDailyDose = Quantity(amppd.definedDailyDose?.value, amppd.definedDailyDose?.unit),
                                         officialExFactoryPrice = amppd.officialExFactoryPrice?.toDouble(),
                                         realExFactoryPrice = amppd.realExFactoryPrice?.toDouble(),
-                                        pricingInformationDecisionDate = amppd.pricingInformationDecisionDate?.toGregorianCalendar()?.timeInMillis,
+                                        pricingInformationDecisionDate = amppd.pricingInformationDecisionDate?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                         components = ampp.amppComponent?.map { component ->
-                                            component.data.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
+                                            component.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 AmppComponent(
-                                                        from = it.from?.toGregorianCalendar()?.timeInMillis, to = it.to?.toGregorianCalendar()?.timeInMillis,
+                                                        from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, to = it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                                         contentType = it.contentType?.let { ContentType.valueOf(it.value()) },
                                                         deviceType = it.deviceType?.let { DeviceType(code = it.code, edqmCode = it.edqmCode, edqmDefinition = it.edqmDefinition, name = it.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
                                                         packagingType = it.packagingType?.let { PackagingType(code = it.code, edqmCode = it.edqmCode, edqmDefinition = it.edqmDefinition, name = it.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) },
@@ -423,17 +459,17 @@ class Samv2v4Import : CliktCommand() {
                                             } } ?: listOf(),
                                         commercializations = ampp.commercialization?.data?.mapNotNull {
                                             Commercialization(
-                                                    from = it.from?.toGregorianCalendar()?.timeInMillis,
-                                                    to = it.to?.toGregorianCalendar()?.timeInMillis
+                                                    from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                                    to = it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
                                             ) }?: listOf(),
                                         dmpps = ampp.dmpp?.mapNotNull { dmpp ->
-                                            dmpp.data.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
+                                            dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 val dmppId = "DMPP:$code:$from".md5()
                                                 result["SAMID:$dmppId"] = dmpp.productId
 
                                                 Dmpp( id = dmppId,
-                                                        from = it.from?.toGregorianCalendar()?.timeInMillis,
-                                                        to = it.to?.toGregorianCalendar()?.timeInMillis,
+                                                        from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                                        to = it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                                         deliveryEnvironment = dmpp.deliveryEnvironment?.let { DeliveryEnvironment.valueOf(it.value()) },
                                                         code = dmpp.code,
                                                         codeType = dmpp.codeType?.let { DmppCodeType.valueOf(it.value()) },
@@ -441,15 +477,15 @@ class Samv2v4Import : CliktCommand() {
                                                         reimbursements = reimbursements[Triple(dmpp.deliveryEnvironment?.value(), dmpp.codeType?.value(), dmpp.code)])
                                             }
                                         },
-                                        vaccineIndicationCodes = ArrayList(HashSet(ampp.dmpp?.flatMap { dmpp ->
-                                            dmpp.data.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
+                                        vaccineIndicationCodes = ampp.dmpp?.flatMap { dmpp ->
+                                            dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 vaccineIndicationsMap[dmpp.code]
-                                            } ?: listOf()}))
+                                            } ?: listOf<String>()}?.toSet()?.toList()
                                 )
                             }
                         } ?: listOf(),
                         components = amp.ampComponent?.mapNotNull { ampc ->
-                            ampc?.data?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { comp ->
+                            ampc?.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { comp ->
                                 AmpComponent(
                                         pharmaceuticalForms = comp.pharmaceuticalForm?.map { pharmForm ->
                                             PharmaceuticalForm( pharmForm.code, pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, pharmForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
@@ -468,10 +504,10 @@ class Samv2v4Import : CliktCommand() {
                                         name = comp.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         note = comp.note?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         ingredients = ampc.realActualIngredient?.mapNotNull { ingredient ->
-                                            ingredient.data.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let {
+                                            ingredient.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 Ingredient(
-                                                        from = it.from?.toGregorianCalendar()?.timeInMillis,
-                                                        to = it.to?.toGregorianCalendar()?.timeInMillis,
+                                                        from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                                        to = it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                                         rank = ingredient.rank?.toInt(),
                                                         type = it.type?.let { IngredientType.valueOf(it.value()) },
                                                         knownEffect = it.isKnownEffect,
@@ -503,13 +539,15 @@ class Samv2v4Import : CliktCommand() {
                         } ?: listOf()
                 ).let { amp ->
                     if (!currentAmps.contains(id)) {
+                        log.info("New AMP AMP:$code:$from with id ${id}")
                         ampDAO.create(amp)
                     } else if (force) {
                         val prev = ampDAO.get(amp.id)
-                        if (amp.ampps.all { it.dmpps?.all { it?.reimbursements == null } != false }) {
-                            prev.ampps.forEach { it.dmpps?.forEach { it?.reimbursements = null } }
+                        if (amp.ampps.all { it.dmpps?.all { it.reimbursements == null } != false }) {
+                            prev.ampps.forEach { it.dmpps?.forEach { it.reimbursements = null } }
                         }
                         if(prev != amp) {
+                            log.info("Modified AMP AMP:$code:$from with id ${id}")
                             ampDAO.update(amp.apply { this.rev = prev.rev })
                         }
                         amp
@@ -517,6 +555,14 @@ class Samv2v4Import : CliktCommand() {
                 }
             }
         }
+
+        (currentAmps - newAmpIds).chunked(100).forEach { ampDAO.removeByIds(it) }
+
         return result
     }
+}
+
+class VaccineCode {
+    var cnk: String? = null
+    var codes: List<String> = listOf()
 }

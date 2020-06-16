@@ -17,9 +17,16 @@ apply plugin: 'kotlin'
 apply plugin: 'groovy'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker-java'
 
 sourceCompatibility = 1.8
-version = '1.0-SNAPSHOT'
+version = '1.0.5'
+compileJava {
+    options.fork = true
+    options.forkOptions.with {
+        memoryMaximumSize = "4096m"
+    }
+}
 
 repositories {
     mavenCentral()
@@ -63,6 +70,13 @@ configurations.all {
     }
 }
 
+springBoot {
+    mainClass = 'org.taktik.icure.samv2.Samv2v4ImporterKt'
+}
+
+dockerJava {
+    tag = 'docker.taktik.be/icure-misc-standalone'
+}
 // for pricare migration
 /*
 springBoot {
