@@ -464,11 +464,15 @@ class Samv2v4Import : CliktCommand() {
                                             ) }?: listOf(),
                                         dmpps = ampp.dmpp?.mapNotNull { dmpp ->
                                             dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
-                                                val dmppId = "DMPP:$code:$from".md5()
+                                                val dmppFrom = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+                                                val dmppId = "AMP:$code:$from:AMPP:${ampp.ctiExtended}:DMPP:${dmpp.code}:${dmppFrom}:${dmpp.deliveryEnvironment}".md5()
+                                                if (result["SAMID:$dmppId"] != null && result["SAMID:$dmppId"] != dmpp.productId) {
+                                                    throw IllegalStateException("duplicate dmpp in db ${code} - ${from}")
+                                                }
                                                 result["SAMID:$dmppId"] = dmpp.productId
 
                                                 Dmpp( id = dmppId,
-                                                        from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                                        from = dmppFrom,
                                                         to = it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                                         deliveryEnvironment = dmpp.deliveryEnvironment?.let { DeliveryEnvironment.valueOf(it.value()) },
                                                         code = dmpp.code,
