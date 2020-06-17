@@ -23,7 +23,7 @@ import org.taktik.icure.entities.Invoice;
 
 public interface InvoiceByHcPartyCodeDateFilter extends Filter<String, Invoice> {
 	String getHealthcarePartyId();
-	String code();
+	String getCode();
 	Long getStartInvoiceDate();
 	Long getEndInvoiceDate();
 }

@@ -56,6 +56,7 @@ import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.MessagesReadStatusUpdate
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.firstOrNull
@@ -75,7 +76,8 @@ class MessageController(
         private val sessionLogic: AsyncSessionLogic,
         private val messageMapper: MessageMapper,
         private val delegationMapper: DelegationMapper,
-        private val filterMapper: FilterMapper
+        private val filterMapper: FilterMapper,
+        private val stubMapper: StubMapper
 ) {
     val DEFAULT_LIMIT = 1000
     private val messageToMessageDto = { it: Message -> messageMapper.map(it) }
@@ -281,7 +283,7 @@ class MessageController(
     fun newMessageDelegations(
             @PathVariable messageId: String,
             @RequestBody ds: List<DelegationDto>) = mono {
-        messageLogic.addDelegations(messageId, ds.map { delegationMapper.map(it) })?.takeIf { it.delegations.isNotEmpty() }?.let { messageMapper.mapToStub(it) }
+        messageLogic.addDelegations(messageId, ds.map { delegationMapper.map(it) })?.takeIf { it.delegations.isNotEmpty() }?.let { stubMapper.mapToStub(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "New delegation for message failed")
     }
 }

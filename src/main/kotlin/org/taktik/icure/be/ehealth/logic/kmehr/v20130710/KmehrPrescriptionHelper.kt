@@ -4,6 +4,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20130710.Utils
 import org.taktik.icure.be.ehealth.dto.kmehr.v20130710.be.fgov.ehealth.standards.kmehr.cd.v1.*
 import org.taktik.icure.be.ehealth.dto.kmehr.v20130710.be.fgov.ehealth.standards.kmehr.schema.v1.*
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Duration
 import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.utils.FuzzyValues
@@ -14,7 +15,7 @@ import javax.xml.datatype.DatatypeFactory
 object KmehrPrescriptionHelper {
     val xmlDtf = DatatypeFactory.newInstance()
 
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: CodeStub?): Period? {
         if (intakes == null) {
             return null
         }
@@ -40,7 +41,7 @@ object KmehrPrescriptionHelper {
         }
     }
 
-    fun inferPeriodFromFrequency(frequency: Code?): Period? {
+    fun inferPeriodFromFrequency(frequency: CodeStub?): Period? {
         return when (frequency?.code) {
             "UH" -> Period(ChronoUnit.MINUTES, 30)
             "U" -> Period(ChronoUnit.HOURS, 1)

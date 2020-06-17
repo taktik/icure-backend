@@ -30,7 +30,10 @@ import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 public class AndPredicate implements Predicate {
 	List<Predicate> predicates;
 
-	public AndPredicate(List<Predicate> predicates) {
+    public AndPredicate() {
+    }
+
+    public AndPredicate(List<Predicate> predicates) {
 		this.predicates = predicates;
 	}
 

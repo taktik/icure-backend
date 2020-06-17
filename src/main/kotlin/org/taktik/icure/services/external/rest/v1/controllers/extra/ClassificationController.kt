@@ -34,6 +34,7 @@ import org.taktik.icure.services.external.rest.v1.dto.ClassificationDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.mapper.ClassificationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.injectReactorContext
@@ -47,8 +48,8 @@ class ClassificationController(
         private val classificationLogic: ClassificationLogic,
         private val classificationMapper: ClassificationMapper,
         private val delegationMapper: DelegationMapper,
-        private val filterMapper: FilterMapper
-
+        private val filterMapper: FilterMapper,
+        private val stubMapper: StubMapper
 ) {
 
     @Operation(summary = "Create a classification with the current user", description = "Returns an instance of created classification Template.")
@@ -134,6 +135,6 @@ class ClassificationController(
                 )
             } ?: classification
         }
-        emitAll(classificationLogic.updateEntities(classifications.toList()).map { classificationMapper.mapToStub(it) })
+        emitAll(classificationLogic.updateEntities(classifications.toList()).map { stubMapper.mapToStub(it) })
     }.injectReactorContext()
 }

@@ -45,6 +45,7 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.services.external.rest.v1.mapper.FormMapper
 import org.taktik.icure.services.external.rest.v1.mapper.FormTemplateMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.FormUtils
@@ -67,7 +68,8 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
                      private val formMapper: FormMapper,
                      private val formTemplateMapper: FormTemplateMapper,
                      private val delegationMapper: DelegationMapper,
-                     private val filterMapper: FilterMapper
+                     private val filterMapper: FilterMapper,
+                     private val stubMapper: StubMapper
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -174,7 +176,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
     fun findFormsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { form -> formMapper.mapToStub(form) }.injectReactorContext()
+        return formLogic.findByHCPartyPatient(hcPartyId, ArrayList(secretPatientKeys), null, null, null).map { form -> stubMapper.mapToStub(form) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in form.", description = "Keys must be delimited by coma")
@@ -189,7 +191,7 @@ class FormController(private val formTemplateLogic: FormTemplateLogic,
                 )
             } ?: form
         }
-        emitAll(formLogic.updateEntities(forms.toList()).map { formMapper.mapToStub(it)})
+        emitAll(formLogic.updateEntities(forms.toList()).map { stubMapper.mapToStub(it)})
     }.injectReactorContext()
 
     @Operation(summary = "Gets a form template by guid")

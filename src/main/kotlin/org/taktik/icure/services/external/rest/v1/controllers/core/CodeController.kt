@@ -41,6 +41,7 @@ import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -54,7 +55,7 @@ import reactor.core.publisher.Flux
 class CodeController(
         private val codeLogic: CodeLogic,
         private val codeMapper: CodeMapper,
-        private val filterMapper: FilterMapper
+        private val filterChainMapper: FilterChainMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -234,7 +235,7 @@ class CodeController(
             @Parameter(description = "Skip rows") @RequestParam(required = false) skip: Int?,
             @Parameter(description = "Sort key") @RequestParam(required = false) sort: String?,
             @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
-            @RequestBody(required = false) filterChain: FilterChain?) = mono {
+            @RequestBody(required = false) filterChain: FilterChain<Code>) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.split(',')?.filter { it.isNotBlank() }?.map { it.trim() } ?: listOf()
@@ -243,7 +244,7 @@ class CodeController(
         var codes: Flow<ViewQueryResultEvent>? = null
         val timing = System.currentTimeMillis()
         filterChain?.let {
-            codes = codeLogic.listCodes(paginationOffset, filterMapper.map(filterChain), sort, desc)
+            codes = codeLogic.listCodes(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
         }
         logger.info("Filter codes in " + (System.currentTimeMillis() - timing) + " ms.")
         codes?.let {

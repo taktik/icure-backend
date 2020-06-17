@@ -15,7 +15,7 @@ import javax.xml.datatype.DatatypeFactory
 object KmehrPrescriptionHelper {
     val xmlDtf = DatatypeFactory.newInstance()
 
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: CodeStub?): Period? {
         if (intakes == null) {
             return null
         }
@@ -45,7 +45,7 @@ object KmehrPrescriptionHelper {
         }
     }
 
-    fun inferPeriodFromFrequency(frequency: Code?): Period? {
+    fun inferPeriodFromFrequency(frequency: CodeStub?): Period? {
         return when (frequency?.code) {
             "UH" -> Period(ChronoUnit.MINUTES, 30)
             "U" -> Period(ChronoUnit.HOURS, 1)

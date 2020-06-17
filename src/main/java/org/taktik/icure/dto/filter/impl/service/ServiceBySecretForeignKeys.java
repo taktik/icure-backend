@@ -55,10 +55,6 @@ public class ServiceBySecretForeignKeys extends FilterDto<Service> implements or
 		return patientSecretForeignKeys;
 	}
 
-	public void setPatientSecretForeignKey(Set<String> patientSecretForeignKeys) {
-		this.patientSecretForeignKeys = patientSecretForeignKeys;
-	}
-
     public void setPatientSecretForeignKeys(Set<String> patientSecretForeignKeys) {
         this.patientSecretForeignKeys = patientSecretForeignKeys;
     }

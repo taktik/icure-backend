@@ -60,8 +60,10 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.InvoicingCodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.InvoiceMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.InvoicingCodeMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -80,9 +82,10 @@ class InvoiceController(
         private val userLogic: UserLogic,
         private val uuidGenerator: UUIDGenerator,
         private val invoiceMapper: InvoiceMapper,
-        private val filterMapper: FilterMapper,
+        private val filterChainMapper: FilterChainMapper,
         private val delegationMapper: DelegationMapper,
-        private val invoicingCodeMapper: InvoicingCodeMapper
+        private val invoicingCodeMapper: InvoicingCodeMapper,
+        private val stubMapper: StubMapper
 ) {
 
     private val invoiceToInvoiceDto = { it: Invoice -> invoiceMapper.map(it) }
@@ -229,7 +232,7 @@ class InvoiceController(
     fun findInvoicesDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }.toSet()
-        return invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys).map { invoice -> invoiceMapper.mapToStub(invoice) }.injectReactorContext()
+        return invoiceLogic.listByHcPartyPatientSks(hcPartyId, secretPatientKeys).map { invoice -> stubMapper.mapToStub(invoice) }.injectReactorContext()
     }
 
     @Operation(summary = "List invoices by groupId", description = "Keys have to delimited by coma")
@@ -263,7 +266,7 @@ class InvoiceController(
                 )
             } ?: invoice
         }.toList()
-        emitAll(invoiceLogic.updateInvoices(invoices).map { invoiceMapper.mapToStub(it) })
+        emitAll(invoiceLogic.updateInvoices(invoices).map { stubMapper.mapToStub(it) })
     }.injectReactorContext()
 
     @Operation(summary = "Gets all invoices for author at date")
@@ -371,8 +374,8 @@ class InvoiceController(
 
     @Operation(summary = "Filter invoices for the current user (HcParty)", description = "Returns a list of invoices along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterInvoicesBy(@RequestBody filterChain: FilterChain): Flux<InvoiceDto> {
-        val invoices = invoiceLogic.filter(filterMapper.map(filterChain))
+    fun filterInvoicesBy(@RequestBody filterChain: FilterChain<Invoice>): Flux<InvoiceDto> {
+        val invoices = invoiceLogic.filter(filterChainMapper.map(filterChain))
         return invoices.map { element -> invoiceMapper.map(element) }.injectReactorContext()
     }
 }

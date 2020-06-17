@@ -1,5 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.mapper.embed
 
+import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.entities.embed.Permission
 import org.taktik.icure.services.external.rest.v1.dto.embed.PermissionDto

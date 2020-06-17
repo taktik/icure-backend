@@ -32,7 +32,7 @@ class InvoiceByHcPartyCodeDateFilter(private val invoiceLogic: InvoiceLogic,
 
     @FlowPreview
     override fun resolve(filter: InvoiceByHcPartyCodeDateFilter, context: Filters): Flow<String> {
-        return if (filter.healthcarePartyId != null) invoiceLogic.listInvoiceIdsByTarificationsByCode(filter.healthcarePartyId, filter.code(), filter.startInvoiceDate, filter.endInvoiceDate)
-        else healthcarePartyLogic.getAllEntityIds().flatMapConcat { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code(), filter.startInvoiceDate, filter.endInvoiceDate) }
+        return if (filter.healthcarePartyId != null) invoiceLogic.listInvoiceIdsByTarificationsByCode(filter.healthcarePartyId, filter.code, filter.startInvoiceDate, filter.endInvoiceDate)
+        else healthcarePartyLogic.getAllEntityIds().flatMapConcat { hcpId -> invoiceLogic.listInvoiceIdsByTarificationsByCode(hcpId, filter.code, filter.startInvoiceDate, filter.endInvoiceDate) }
     }
 }

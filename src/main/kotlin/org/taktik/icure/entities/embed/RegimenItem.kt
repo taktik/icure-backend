@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.apache.commons.lang3.StringUtils
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import java.io.Serializable
 import java.text.SimpleDateFormat
 
@@ -37,20 +38,20 @@ data class RegimenItem(
 
         //Time of day definition (One and only one of the three following should be not null)
         //Both are null if not specified
-        val dayPeriod: Code? = null, //CD-DAYPERIOD
+        val dayPeriod: CodeStub? = null, //CD-DAYPERIOD
         val timeOfDay: Long? = null, //hhmmss 103010
         val administratedQuantity: AdministrationQuantity? = null
 ) : Serializable {
     @KotlinBuilder
 data class Weekday(
-            val weekday: Code? = null, //CD-WEEKDAY
+            val weekday: CodeStub? = null, //CD-WEEKDAY
             val weekNumber: Int? = null //Can be null
     ) : Serializable
 
     @KotlinBuilder
 data class AdministrationQuantity(
             val quantity: Double? = null,
-            val administrationUnit: Code? = null, //CD-ADMINISTRATIONUNIT
+            val administrationUnit: CodeStub? = null, //CD-ADMINISTRATIONUNIT
             val unit: String? = null //Should be null
     ) : Serializable {
         override fun toString(): String {

@@ -55,7 +55,7 @@ interface CodeLogic : EntityPersister<Code, String> {
     suspend fun <T : Enum<*>> importCodesFromEnum(e: Class<T>)
 
     suspend fun importCodesFromXml(md5: String, type: String, stream: InputStream)
-    fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Patient>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
+    fun listCodes(paginationOffset: PaginationOffset<*>?, filterChain: FilterChain<Code>, sort: String?, desc: Boolean?): Flow<ViewQueryResultEvent>
 
     suspend fun getOrCreateCode(type: String, code: String, version: String): Code?
 

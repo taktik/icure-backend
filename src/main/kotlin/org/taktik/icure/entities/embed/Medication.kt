@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.apache.commons.lang3.StringUtils
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import java.io.Serializable
 
@@ -51,7 +50,7 @@ data class Medication(
         val knownUsage: Boolean? = null,
         val regimen: List<RegimenItem>? = null,
         val posology: String? = null, // replace structured posology by text
-        val options: Map<String, Content>? = null,
+        //val options: Map<String, Content>? = null, //Obsolete, must go away
         val agreements: Map<String, ParagraphAgreement>? = null,
         val medicationSchemeIdOnSafe: String? = null,
         val medicationSchemeSafeVersion: Int? = null,

@@ -20,7 +20,6 @@ import java.io.Serializable
 import java.util.*
 import kotlin.collections.HashSet
 
-
 fun <T> Flow<T>.distinct(): Flow<T> = flow {
     val previous = HashSet<T>()
     collect { value: T ->

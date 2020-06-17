@@ -21,14 +21,4 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.predicate;
 import java.io.Serializable;
 
 
-public abstract class Predicate implements Serializable {
-	String desc;
-
-	public String getDesc() {
-		return desc;
-	}
-
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-}
+public abstract class Predicate implements Serializable { }

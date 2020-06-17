@@ -30,11 +30,11 @@ import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 public class OrPredicate implements Predicate {
 	List<Predicate> predicates;
 
+    public OrPredicate() {
+    }
+
 	public OrPredicate(List predicates) {
 		this.predicates = predicates;
-	}
-
-	public OrPredicate() {
 	}
 
 	public List getPredicates() {

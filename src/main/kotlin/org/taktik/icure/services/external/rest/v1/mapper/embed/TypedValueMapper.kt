@@ -4,13 +4,12 @@ import org.mapstruct.InjectionStrategy
 import org.mapstruct.Mapper
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.entities.embed.TypedValueBuilder
 import org.taktik.icure.services.external.rest.v1.dto.embed.TypedValueDto
 import org.taktik.icure.services.external.rest.v1.mapper.utils.InstantMapper
 import java.util.*
 
 @Mapper(componentModel = "spring", uses = [InstantMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
-interface TypedValueMapper {
+abstract class TypedValueMapper {
     fun map(typedValueDto: TypedValueDto<*>): TypedValue<*> {
         return when(typedValueDto.type) {
             TypedValuesType.STRING -> TypedValue.withTypeAndValue(typedValueDto.type, typedValueDto.getValue<String>())

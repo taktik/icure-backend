@@ -47,7 +47,7 @@ public class InvoiceByHcPartyCodeDateFilter extends FilterDto<Invoice> implement
     }
 
     @Override
-    public String code() {
+    public String getCode() {
         return code;
     }
 

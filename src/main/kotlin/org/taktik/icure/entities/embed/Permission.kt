@@ -133,4 +133,14 @@ data class Permission(var grant: Int = 0, var revoke: Int = 0, var criteria: Mut
         }
         return matched
     }
+
+    companion object {
+        fun granted(vararg permissions: Permissions.Type): Permission {
+            val p = Permission()
+            for (pt in permissions) {
+                p.grant(pt)
+            }
+            return p
+        }
+    }
 }

@@ -56,11 +56,12 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.PatientHealthCarePar
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.AddressMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.PatientHealthCarePartyMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
-import org.taktik.icure.services.external.rest.v1.mapper.utils.PaginatedDocumentKeyIdPairMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import org.taktik.icure.utils.paginatedListOfIds
@@ -80,7 +81,7 @@ class PatientController(
         private val patientLogic: PatientLogic,
         private val healthcarePartyLogic: HealthcarePartyLogic,
         private val patientMapper: PatientMapper,
-        private val filterMapper: FilterMapper
+        private val filterChainMapper: FilterChainMapper
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
@@ -251,14 +252,14 @@ class PatientController(
             @Parameter(description = "Skip rows") @RequestParam(required = false) skip: Int?,
             @Parameter(description = "Sort key") @RequestParam(required = false) sort: String?,
             @Parameter(description = "Descending") @RequestParam(required = false) desc: Boolean?,
-            @RequestBody filterChain: FilterChain) = mono {
+            @RequestBody filterChain: FilterChain<Patient>) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
         val startKeyList = startKey?.takeIf { it.isNotEmpty() }?.let { ArrayList(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(it)) }
         val paginationOffset = PaginationOffset<List<String>>(startKeyList, startDocumentId, skip, realLimit + 1)
 
         try {
-            val patients = patientLogic.listPatients(paginationOffset, filterMapper.map(filterChain), sort, desc)
+            val patients = patientLogic.listPatients(paginationOffset, filterChainMapper.map(filterChain), sort, desc)
             log.info("Filter patients in " + (System.currentTimeMillis() - System.currentTimeMillis()) + " ms.")
 
             patients.paginatedList<Patient, PatientDto>(patientToPatientDto, realLimit)

@@ -47,6 +47,7 @@ import org.taktik.icure.services.external.rest.v1.dto.DocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.FormUtils
@@ -70,7 +71,8 @@ class DocumentController(private val documentLogic: DocumentLogic,
                          private val sessionLogic: AsyncSessionLogic,
                          private val documentMapper: DocumentMapper,
                          private val delegationMapper: DelegationMapper,
-                         private val filterMapper: FilterMapper
+                         private val filterMapper: FilterMapper,
+                         private val stubMapper: StubMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -286,6 +288,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
                 )
             } ?: document
         }
-        emitAll(documentLogic.updateDocuments(invoices.toList()).map { documentMapper.mapToStub(it) })
+        emitAll(documentLogic.updateDocuments(invoices.toList()).map { stubMapper.mapToStub(it) })
     }.injectReactorContext()
 }

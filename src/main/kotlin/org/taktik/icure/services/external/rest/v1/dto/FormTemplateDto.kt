@@ -26,13 +26,15 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentGroupDto
  */
 
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
+
 @KotlinBuilder
 data class FormTemplateDto(
         override val id: String,
         override val rev: String? = null,
         override val deletionDate: Long? = null,
 
-        val layout: ByteArray? = null,
+        val layout: FormLayout? = null,
         val name: String? = null,
         //Globally unique and consistent accross all DBs that get their formTemplate from a icure cloud library
         //The id is not guaranteed to be consistent accross dbs

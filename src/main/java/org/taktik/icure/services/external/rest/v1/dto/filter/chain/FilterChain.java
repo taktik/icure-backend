@@ -18,26 +18,27 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.chain;
 
+import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate;
 
-public class FilterChain {
-	FilterDto filter;
+public class FilterChain<O extends Identifiable<String>> {
+	FilterDto<O> filter;
 	Predicate predicate;
 
 	public FilterChain() {
 	}
 
-	public FilterChain(FilterDto filter, Predicate predicate) {
+	public FilterChain(FilterDto<O> filter, Predicate predicate) {
 		this.filter = filter;
 		this.predicate = predicate;
 	}
 
-	public FilterDto getFilter() {
+	public FilterDto<O> getFilter() {
 		return filter;
 	}
 
-	public void setFilter(FilterDto filter) {
+	public void setFilter(FilterDto<O> filter) {
 		this.filter = filter;
 	}
 

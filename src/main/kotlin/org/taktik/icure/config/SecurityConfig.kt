@@ -19,7 +19,6 @@
 
 package org.taktik.icure.config
 
-import CustomAuthenticationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,6 +40,7 @@ import org.taktik.icure.asyncdao.UserDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PermissionLogic
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.security.CustomAuthenticationProvider
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
 import org.taktik.icure.security.TokenWebExchangeMatcher
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder

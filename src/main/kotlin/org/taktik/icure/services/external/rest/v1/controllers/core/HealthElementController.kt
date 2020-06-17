@@ -47,7 +47,9 @@ import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.HealthElementMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
@@ -61,7 +63,8 @@ class HealthElementController(
         private val healthElementLogic: HealthElementLogic,
         private val healthElementMapper: HealthElementMapper,
         private val delegationMapper: DelegationMapper,
-        private val filterMapper: FilterMapper
+        private val filterChainMapper: FilterChainMapper,
+        private val stubMapper: StubMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -100,7 +103,7 @@ class HealthElementController(
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
         return healthElementLogic.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys)
-                .map { healthElement -> healthElementMapper.mapToStub(healthElement) }
+                .map { healthElement -> stubMapper.mapToStub(healthElement) }
                 .injectReactorContext()
     }
 
@@ -167,8 +170,8 @@ class HealthElementController(
 
     @Operation(summary = "Filter health elements for the current user (HcParty)", description = "Returns a list of health elements along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")
     @PostMapping("/filter")
-    fun filterHealthElementsBy(@RequestBody filterChain: FilterChain) =
-            healthElementLogic.filter(filterMapper.map(filterChain))
+    fun filterHealthElementsBy(@RequestBody filterChain: FilterChain<HealthElement>) =
+            healthElementLogic.filter(filterChainMapper.map(filterChain))
                     .map { healthElementMapper.map(it) }
                     .injectReactorContext()
 }

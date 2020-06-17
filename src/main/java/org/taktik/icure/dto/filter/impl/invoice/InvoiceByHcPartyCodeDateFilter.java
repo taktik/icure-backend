@@ -37,8 +37,8 @@ public class InvoiceByHcPartyCodeDateFilter extends FilterDto<Invoice> implement
 	public boolean matches(Invoice item) {
 		return (healthcarePartyId == null || item.getDelegations().keySet().contains(healthcarePartyId))
                 && (item.getInvoicingCodes().stream().anyMatch(ic -> ic.getTarificationId().contains(code)))
-                && (startInvoiceDate == null || startInvoiceDate < item.getInvoiceDate())
-                && (endInvoiceDate == null || item.getInvoiceDate() > endInvoiceDate);
+                && (startInvoiceDate == null || item.getInvoiceDate() != null || startInvoiceDate < item.getInvoiceDate())
+                && (endInvoiceDate == null || item.getInvoiceDate() != null || item.getInvoiceDate() > endInvoiceDate);
 	}
 
     @Override
@@ -47,7 +47,7 @@ public class InvoiceByHcPartyCodeDateFilter extends FilterDto<Invoice> implement
     }
 
     @Override
-    public String code() {
+    public String getCode() {
         return code;
     }
 

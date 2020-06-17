@@ -30,7 +30,10 @@ import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 public class NotPredicate implements Predicate {
 	Predicate predicate;
 
-	public NotPredicate(Predicate predicate) {
+    public NotPredicate() {
+    }
+
+    public NotPredicate(Predicate predicate) {
 		this.predicate = predicate;
 	}
 

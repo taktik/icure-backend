@@ -17,21 +17,15 @@
  */
 package org.taktik.icure.dto.filter.chain
 
+import com.github.pozo.KotlinBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import org.taktik.icure.dto.filter.Filter
 import org.taktik.icure.entities.base.Identifiable
 import java.util.stream.Collectors
 
-class FilterChain<O : Identifiable<String>> {
-    var filter: Filter<String, O>
-    val predicate: org.taktik.icure.dto.filter.predicate.Predicate?
-
-    constructor(filter: Filter<String, O>, predicate: org.taktik.icure.dto.filter.predicate.Predicate?) {
-        this.filter = filter
-        this.predicate = predicate
-    }
-
+@KotlinBuilder
+data class FilterChain<O : Identifiable<String>>(val filter: Filter<String, O>,val predicate: org.taktik.icure.dto.filter.predicate.Predicate? = null) {
     fun applyTo(items: List<O>): List<O> {
         val filteredItems: List<O> = filter.applyTo(items)
         return if (predicate == null) filteredItems else filteredItems.filter { input: O -> predicate.apply(input) }

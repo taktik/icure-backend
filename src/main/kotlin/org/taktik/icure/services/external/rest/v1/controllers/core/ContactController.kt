@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -46,9 +45,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.dto.filter.predicate.Predicate
 import org.taktik.icure.entities.Contact
-import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.exceptions.MissingRequirementsException
@@ -63,8 +60,10 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.ServiceDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.ContactMapper
+import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.ServiceMapper
+import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterChainMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.FuzzyValues
 import org.taktik.icure.utils.injectReactorContext
@@ -84,7 +83,8 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
                         private val contactMapper: ContactMapper,
                         private val serviceMapper: ServiceMapper,
                         private val delegationMapper: DelegationMapper,
-                        private val filterMapper: FilterMapper
+                        private val filterChainMapper: FilterChainMapper,
+                        private val stubMapper: StubMapper
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     val DEFAULT_LIMIT = 1000
@@ -193,7 +193,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun findContactsDelegationsStubsByHCPartyPatientForeignKeys(@RequestParam hcPartyId: String,
                                                         @RequestParam secretFKeys: String): Flux<IcureStubDto> {
         val secretPatientKeys = secretFKeys.split(',').map { it.trim() }
-        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> contactMapper.mapToStub(contact) }.injectReactorContext()
+        return contactLogic.findByHCPartyPatient(hcPartyId, secretPatientKeys).map { contact -> stubMapper.mapToStub(contact) }.injectReactorContext()
     }
 
     @Operation(summary = "Update delegations in healthElements.", description = "Keys must be delimited by coma")
@@ -287,13 +287,13 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun filterContactsBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @RequestBody filterChain: FilterChain) = mono {
+            @RequestBody filterChain: FilterChain<Contact>) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
         val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
-        val contacts = contactLogic.filterContacts(paginationOffset, filterMapper.map(filterChain))
+        val contacts = contactLogic.filterContacts(paginationOffset, filterChainMapper.map(filterChain))
 
         contacts.paginatedList(contactToContactDto, realLimit)
     }
@@ -308,13 +308,13 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
     fun filterServicesBy(
             @Parameter(description = "A Contact document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
-            @RequestBody filterChain: FilterChain) = mono {
+            @RequestBody filterChain: FilterChain<Service>) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
         val paginationOffset = PaginationOffset(null, startDocumentId, null, realLimit+1)
 
-        val services: List<ServiceDto> = filterMapper.map<Service>(filterChain).applyTo(contactLogic.filterServices(paginationOffset, filterMapper.map(filterChain)))
+        val services: List<ServiceDto> = filterChainMapper.map(filterChain).applyTo(contactLogic.filterServices(paginationOffset, filterChainMapper.map(filterChain)))
                 .map { serviceMapper.map(it) }.toList()
 
         val totalSize = services.size // TODO SH AD: this is wrong! totalSize is ids.size from filterServices, which can be retrieved from the TotalCount ViewQueryResultEvent, but we can't easily recover it...
@@ -345,3 +345,4 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
         contacts.paginatedList<Contact, ContactDto>(contactToContactDto, realLimit)
     }
 }
+
