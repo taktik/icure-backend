@@ -351,7 +351,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     private fun addProductIdsToVmpGroups(vmpGroups: List<VmpGroupDto>) {
         val productIds = samV2Logic.listProductIds(vmpGroups.map { "SAMID:${it.id}" })
         vmpGroups.forEachIndexed { index, g ->
-            g.productId = if (productIds[index].id == "SAMID:${g.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${g.id}"}?.productId
+            g.productId = if (index < productIds.size && productIds[index].id == "SAMID:${g.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${g.id}"}?.productId
         }
     }
 
@@ -359,7 +359,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         val dmpps = amps.flatMap { it.ampps.flatMap { it.dmpps ?: listOf() } }.filterNotNull()
         val productIds = samV2Logic.listProductIds(dmpps.map { "SAMID:${it.id}" })
         dmpps.forEachIndexed { index, dmpp ->
-            dmpp.productId = if (productIds[index].id == "SAMID:${dmpp.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${dmpp.id}"}?.productId
+            dmpp.productId = if (index < productIds.size && productIds[index].id == "SAMID:${dmpp.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${dmpp.id}"}?.productId
         }
     }
 
