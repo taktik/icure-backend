@@ -183,4 +183,11 @@
         <DESCRIPTION L="en">Consult</DESCRIPTION>
         <CD-ENCOUNTER>consult</CD-ENCOUNTER>
     </VALUE>
+    <VALUE>
+        <CODE>27</CODE>
+        <DESCRIPTION L="fr">Consultation téléphonique</DESCRIPTION>
+        <DESCRIPTION L="nl"></DESCRIPTION>
+        <DESCRIPTION L="en">Consult by phone</DESCRIPTION>
+        <CD-ENCOUNTER>consult</CD-ENCOUNTER>
+    </VALUE>
 </kmehr-cd>

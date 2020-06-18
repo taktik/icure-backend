@@ -3,16 +3,19 @@ package org.taktik.icure.be.samv2.logic.impl
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.samv2.logic.SamV2Logic
 import org.taktik.icure.dao.samv2.AmpDAO
+import org.taktik.icure.dao.samv2.ProductIdDAO
 import org.taktik.icure.dao.samv2.VmpDAO
 import org.taktik.icure.dao.samv2.VmpGroupDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.samv2.SamVersion
 
 @Service
-class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO) : SamV2Logic {
+class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO, val productIdDAO: ProductIdDAO) : SamV2Logic {
     override fun findAmpsByDmppCode(dmppCode: String): List<Amp> {
         return ampDAO.findAmpsByDmppCode(dmppCode)
     }
@@ -61,6 +64,10 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: Vm
         return ampDAO.listAmpIdsByVmpId(vmpId, paginationOffset)
     }
 
+    override fun getVersion(): SamVersion? {
+        return ampDAO.getVersion()
+    }
+
     override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp> {
         return vmpDAO.findVmpsByGroupCode(vmpgCode, paginationOffset)
     }
@@ -87,5 +94,9 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: Vm
 
     override fun listVmpGroupIdsByLabel(language: String?, label: String?): List<String> {
         return vmpGroupDAO.listVmpGroupIdsByLabel(language, label)
+    }
+
+    override fun listProductIds(ids: Collection<String>): MutableList<ProductId> {
+        return productIdDAO.getList(ids)
     }
 }

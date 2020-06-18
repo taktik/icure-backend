@@ -27,6 +27,7 @@ public class MedicinalproductDto {
 	protected List<CodeDto> deliveredcds;
 	protected String intendedname;
 	protected Object deliveredname;
+    protected String productId;
 
 	public List<CodeDto> getIntendedcds() {
 		return intendedcds;
@@ -59,4 +60,12 @@ public class MedicinalproductDto {
 	public void setDeliveredname(Object deliveredname) {
 		this.deliveredname = deliveredname;
 	}
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
 }

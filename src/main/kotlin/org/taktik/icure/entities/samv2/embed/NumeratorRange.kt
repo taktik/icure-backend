@@ -9,8 +9,8 @@ class NumeratorRange(var min: BigDecimal? = null, var max: BigDecimal? = null, v
 
         other as NumeratorRange
 
-        if (min != other.min) return false
-        if (max != other.max) return false
+        if (min?.compareTo(other.min) != 0 && min != other.min) return false
+        if (max?.compareTo(other.max) != 0 && max != other.max) return false
         if (unit != other.unit) return false
 
         return true

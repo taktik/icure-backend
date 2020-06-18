@@ -54,19 +54,19 @@ public class ContactByHcPartyTagCodeDateFilter implements Filter<String, Contact
             HashSet<String> ids = null;
 
             if (filter.getTagType() != null && filter.getTagCode() != null) {
-                ids = new HashSet<>(contactLogic.listServiceIdsByTag(
+                ids = new HashSet<>(contactLogic.listContactIdsByTag(
                         hcPartyId,
-                        null, filter.getTagType(),
+                        filter.getTagType(),
                         filter.getTagCode(),
-						filter.getStartServiceValueDate(), filter.getEndServiceValueDate()));
+						filter.getStartOfContactOpeningDate(), filter.getEndOfContactOpeningDate()));
             }
 
             if (filter.getCodeType() != null && filter.getCodeCode() != null) {
-                List<String> byCode = contactLogic.listServiceIdsByCode(
+                List<String> byCode = contactLogic.listContactIdsByCode(
                         hcPartyId,
-                        null, filter.getTagType(),
-                        filter.getTagCode(),
-						filter.getStartServiceValueDate(), filter.getEndServiceValueDate());
+                        filter.getCodeType(),
+                        filter.getCodeCode(),
+						filter.getStartOfContactOpeningDate(), filter.getEndOfContactOpeningDate());
                 if (ids==null) { ids = new HashSet<>(byCode); } else { ids.retainAll(byCode); }
             }
 

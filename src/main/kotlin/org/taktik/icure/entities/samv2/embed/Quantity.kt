@@ -9,7 +9,7 @@ class Quantity(var value: BigDecimal? = null, var unit: String? = null) {
 
         other as Quantity
 
-        if (value != other.value) return false
+        if (value?.compareTo(other.value) != 0 && value != other.value) return false
         if (unit != other.unit) return false
 
         return true

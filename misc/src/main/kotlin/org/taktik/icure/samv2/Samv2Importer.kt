@@ -25,9 +25,7 @@ import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.entities.samv2.embed.*
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
-import java.math.BigInteger
 import java.net.URI
-import java.security.MessageDigest
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -37,11 +35,6 @@ import kotlin.collections.HashSet
 
 
 fun main(args: Array<String>) = Samv2Import().main(args)
-
-fun String.md5(): String {
-    val md = MessageDigest.getInstance("MD5")
-    return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
-}
 
 fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : CommentedClassification? = cc.datas?.maxBy { d -> d.from.toGregorianCalendar().timeInMillis }?.let { lcc ->
     CommentedClassification(
@@ -134,7 +127,7 @@ class Samv2Import : CliktCommand() {
         }
 
         val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
-        HashSet(ampDAO.allIds).chunked(100).forEach { ids ->
+        HashSet<String>(retry(10) { ampDAO.allIds }).chunked(100).forEach { ids ->
             ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
                 var shouldAdd = false
                 amp.ampps.flatMap { it.dmpps ?: listOf() }.filterNotNull().forEach { dmpp: Dmpp ->
@@ -151,12 +144,16 @@ class Samv2Import : CliktCommand() {
         }
     }
 
+    private fun <E> retry(count: Int, executor: () -> E): E {
+        return try { executor() } catch(e: Exception) { if (count>0) retry(count-1, executor) else throw e }
+    }
+
     private fun importVirtualMedicines(export: ExportVirtualMedicines, vmps: MutableMap<String, VmpStub>, couchdbConfig: CouchDbICureConnector, force: Boolean) {
         val vmpGroupDAO = VmpGroupDAOImpl(couchdbConfig , UUIDGenerator())
         val vmpDAO = VmpDAOImpl(couchdbConfig , UUIDGenerator())
 
-        val currentVmpGroups = HashSet(vmpGroupDAO.allIds)
-        val currentVmps = HashSet(vmpDAO.allIds)
+        val currentVmpGroups = HashSet(retry(10) { vmpGroupDAO.allIds })
+        val currentVmps = HashSet(retry(10) { vmpDAO.allIds })
 
         val vmpGroupIds = HashMap<Int, String>()
 
@@ -275,7 +272,7 @@ class Samv2Import : CliktCommand() {
 
     private fun importActualMedicines(export: ExportActualMedicines, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchdbConfig: CouchDbICureConnector, force: Boolean) {
         val ampDAO = AmpDAOImpl(couchdbConfig , UUIDGenerator())
-        val currentAmps = HashSet(ampDAO.allIds)
+        val currentAmps = HashSet(retry(10) { ampDAO.allIds })
 
         export.amps.forEach { amp ->
             amp.datas.map { d ->
