@@ -108,7 +108,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected CodeStub mainSourceOfIncome;
     protected List<SchoolingInfoDto> schoolingInfos;
     protected List<EmploymentInfoDto> employementInfos;
-    private Set<Property> properties = new HashSet<>();
+    private Set<PropertyDto> properties = new HashSet<>();
 
 
     public String getMergeToPatientId() {
@@ -528,7 +528,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setEmployementInfos(List<EmploymentInfoDto> employementInfos) { this.employementInfos = employementInfos; }
 
-    public Set<Property> getProperties() { return properties; }
+    public Set<PropertyDto> getProperties() { return properties; }
 
-    public void setProperties(Set<Property> properties) { this.properties = properties; }
+    public void setProperties(Set<PropertyDto> properties) { this.properties = properties; }
 }
