@@ -121,6 +121,7 @@ dependencies {
     compile group: 'org.springframework.boot', name:'spring-boot-starter-actuator', version:"${springBootVersion}"
 
 	compile group: 'com.fasterxml.jackson.module', name:'jackson-module-kotlin', version:'2.11.0'
+    compile group: 'com.fasterxml.jackson.core', name:'jackson-databind', version:'2.11.0'
 
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'

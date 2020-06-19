@@ -1,6 +1,13 @@
 package org.taktik.couchdb.parser
 
-import com.squareup.moshi.*
+import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.core.async.ByteArrayFeeder
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.squareup.moshi.EventListJsonReader
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonWriter
+import com.squareup.moshi.Moshi
 import de.undercouch.actson.JsonParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -8,7 +15,11 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.produceIn
+import kotlinx.coroutines.flow.transform
 import java.math.BigDecimal
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -215,6 +226,36 @@ fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
         }
         if (buffers.isNotEmpty()) {
             emit(buffers)
+        }
+    }
+}
+
+@ExperimentalCoroutinesApi
+fun Flow<ByteBuffer>.toJsonTokens(mapper: ObjectMapper): Flow<JsonToken> {
+    val asyncParser = mapper.createNonBlockingByteArrayParser()
+    var t: JsonToken = JsonToken.NOT_AVAILABLE
+
+    return transform { byteBuffer ->
+        while (byteBuffer.hasRemaining()) {
+            while (asyncParser.nextToken().also { t = it } === JsonToken.NOT_AVAILABLE && byteBuffer.hasRemaining()) {
+                // need to feed more
+                val feeder: ByteArrayFeeder = asyncParser.getNonBlockingInputFeeder() as ByteArrayFeeder
+                if (feeder.needMoreInput()) {
+                    val fed = if (byteBuffer.hasArray()) {
+                        feeder.feedInput(byteBuffer.array(), byteBuffer.position(), byteBuffer.position() + byteBuffer.remaining())
+                        byteBuffer.remaining()
+                    } else {
+                        val dup = byteBuffer.duplicate()
+                        val bytes = ByteArray(dup.remaining()).also { dup.get(it) }
+                        feeder.feedInput(bytes, 0 , bytes.size)
+                        dup.remaining()
+                    }
+                    byteBuffer.position(byteBuffer.position() + fed)
+                }
+            }
+            if (t !== JsonToken.NOT_AVAILABLE) {
+                emit(t)
+            }
         }
     }
 }
