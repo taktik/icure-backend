@@ -1,6 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.dto
 
-import org.taktik.icure.dto.message.Attachment
+import org.taktik.icure.dto.be.mikrono.Attachment
 import java.util.*
 
 class ImportResultDto {

@@ -42,23 +42,6 @@ data class RegimenItem(
         val timeOfDay: Long? = null, //hhmmss 103010
         val administratedQuantity: AdministrationQuantity? = null
 ) : Serializable {
-    @KotlinBuilder
-data class Weekday(
-            val weekday: CodeStub? = null, //CD-WEEKDAY
-            val weekNumber: Int? = null //Can be null
-    ) : Serializable
-
-    @KotlinBuilder
-data class AdministrationQuantity(
-            val quantity: Double? = null,
-            val administrationUnit: CodeStub? = null, //CD-ADMINISTRATIONUNIT
-            val unit: String? = null //Should be null
-    ) : Serializable {
-        override fun toString(): String {
-            return String.format("%f %s", quantity, if (administrationUnit != null) administrationUnit.code else unit)
-        }
-    }
-
     override fun toString(): String {
         val df = SimpleDateFormat("dd/MM/yyyy")
         var result = if (date != null) String.format("the %s", df.format(date)) else if (dayNumber != null) String.format("on day %d", dayNumber) else if (weekday?.weekday?.code != null) String.format("on %s", weekday.weekday.code) else null

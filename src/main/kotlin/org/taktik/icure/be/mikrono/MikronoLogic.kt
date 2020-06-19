@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.be.mikrono
 
-import org.taktik.icure.dto.message.EmailOrSmsMessage
+import org.taktik.icure.dto.be.mikrono.EmailOrSmsMessage
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto

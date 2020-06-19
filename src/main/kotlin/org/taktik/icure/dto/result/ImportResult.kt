@@ -1,6 +1,6 @@
 package org.taktik.icure.dto.result
 
-import org.taktik.icure.dto.message.Attachment
+import org.taktik.icure.dto.be.mikrono.Attachment
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.Form

@@ -330,7 +330,7 @@ class Samv2Import : CliktCommand() {
                                         from = amppd.from?.toGregorianCalendar()?.timeInMillis,
                                         to = amppd.to?.toGregorianCalendar()?.timeInMillis,
                                         ctiExtended = ampp.ctiExtended,
-                                        isOrphan = amppd.isOrphan,
+                                        orphan = amppd.isOrphan,
                                         leafletLink = amppd.leafletLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         spcLink = amppd.spcLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         rmaPatientLink = amppd.rmaPatientLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -353,7 +353,7 @@ class Samv2Import : CliktCommand() {
                                                         it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
                                             }
                                         },
-                                        isSingleUse = amppd.isSingleUse,
+                                        singleUse = amppd.isSingleUse,
                                         speciallyRegulated = amppd.speciallyRegulated,
                                         abbreviatedName = amppd.abbreviatedName?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         prescriptionName = amppd.prescriptionName?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -414,7 +414,7 @@ class Samv2Import : CliktCommand() {
                                         scored = comp.scored,
                                         crushable = comp.crushable?.value()?.let { Crushable.valueOf(it) },
                                         containsAlcohol = comp.containsAlcohol?.value()?.let { ContainsAlcohol.valueOf(it) },
-                                        isSugarFree = comp.isSugarFree,
+                                        sugarFree = comp.isSugarFree,
                                         modifiedReleaseType = comp.modifiedReleaseType,
                                         specificDrugDevice = comp.specificDrugDevice,
                                         dimensions = comp.dimensions,

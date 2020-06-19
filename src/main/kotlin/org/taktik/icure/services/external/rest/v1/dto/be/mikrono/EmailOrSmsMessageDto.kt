@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.services.external.rest.v1.dto
+package org.taktik.icure.services.external.rest.v1.dto.be.mikrono
 
 /**
  * Created by aduchate on 12/07/2017.
@@ -28,10 +28,10 @@ data class EmailOrSmsMessageDto(
         val attachments: List<AttachmentDto> = listOf(),
         val destination //email or phone number (international format)
         : String? = null,
-        val isDestinationIsNotPatient: Boolean = false, //Messages is sent to other patient's doctor but should appear in patient emails list and be highlighted.
+        val destinationIsNotPatient: Boolean = false, //Messages is sent to other patient's doctor but should appear in patient emails list and be highlighted.
         val destinationName // Case of a doc.
         : String? = null,
-        val isSendCopyToSender: Boolean = false,
+        val sendCopyToSender: Boolean = false,
         val senderName: String? = null,
         val replyToEmail: String? = null,
         val content: String? = null,
@@ -40,11 +40,4 @@ data class EmailOrSmsMessageDto(
         val senderId: String? = null,
         val subject: String? = null,
         val type: Type? = null
-) : Serializable {
-    enum class Type {
-        EMAIL, SMS
-    }
-
-    @KotlinBuilder
-    data class AttachmentDto(val data: ByteArray? = null, val fileName: String? = null, val mimeType: String? = null) : Serializable
-}
+) : Serializable

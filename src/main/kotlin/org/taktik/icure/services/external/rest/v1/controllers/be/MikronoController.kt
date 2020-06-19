@@ -37,20 +37,16 @@ import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.mikrono.MikronoLogic
 import org.taktik.icure.constants.TypedValuesType
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.dto.message.EmailOrSmsMessage
-import org.taktik.icure.entities.Property
-import org.taktik.icure.entities.PropertyType
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.PropertyTypeStub
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.services.external.rest.v1.dto.EmailOrSmsMessageDto
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.EmailOrSmsMessageDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
 import org.taktik.icure.services.external.rest.v1.mapper.mikrono.EmailOrSmsMessageMapper
 import org.taktik.icure.utils.firstOrNull
 import java.io.IOException
-import java.util.function.Supplier
 
 @RestController
 @RequestMapping("/rest/v1/be_mikrono")

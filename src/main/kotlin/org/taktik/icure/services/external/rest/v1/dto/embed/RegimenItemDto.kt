@@ -21,7 +21,6 @@ import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import java.io.Serializable
 
-
 @KotlinBuilder
 data class RegimenItemDto(
         //Day definition (One and only one of the three following should be not null)
@@ -35,17 +34,4 @@ data class RegimenItemDto(
         val dayPeriod: CodeStubDto? = null, //CD-DAYPERIOD
         val timeOfDay: Long? = null, //hhmmss 103010
         val administratedQuantity: AdministrationQuantity? = null
-) : Serializable {
-    @KotlinBuilder
-    data class Weekday(
-            val weekday: CodeStubDto? = null, //CD-WEEKDAY
-            val weekNumber: Int? = null //Can be null
-    ) : Serializable
-
-    @KotlinBuilder
-    data class AdministrationQuantity(
-            val quantity: Double? = null,
-            val administrationUnit: CodeStubDto? = null, //CD-ADMINISTRATIONUNIT
-            val unit: String? = null //Should be null
-    ) : Serializable
-}
+) : Serializable

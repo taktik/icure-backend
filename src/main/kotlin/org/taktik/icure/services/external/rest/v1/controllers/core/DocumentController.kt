@@ -71,7 +71,6 @@ class DocumentController(private val documentLogic: DocumentLogic,
                          private val sessionLogic: AsyncSessionLogic,
                          private val documentMapper: DocumentMapper,
                          private val delegationMapper: DelegationMapper,
-                         private val filterMapper: FilterMapper,
                          private val stubMapper: StubMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

@@ -29,13 +29,9 @@ import java.io.Serializable;
 /**
  * Created by aduchate on 03/12/13, 17:22
  */
-@XStreamAlias("Formula")
-@XStreamConverter(value=ToAttributedValueConverter.class, strings={"value"})
 public class Formula  implements Serializable{
     String value;
-
-	@XStreamAsAttribute
-	private FormLifecycle lifecycle;
+    private FormLifecycle lifecycle;
 
 	public Formula() {
 	}

@@ -16,7 +16,9 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dto.message;
+package org.taktik.icure.dto.be.mikrono;
+
+import org.taktik.icure.dto.be.mikrono.Attachment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,10 +29,6 @@ import java.util.List;
  */
 public class EmailOrSmsMessage implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	public enum Type {
-		EMAIL, SMS
-	}
 
 	private List<Attachment> attachments = new ArrayList<>();
 

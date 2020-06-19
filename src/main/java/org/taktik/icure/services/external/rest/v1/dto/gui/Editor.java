@@ -46,31 +46,26 @@ import org.taktik.icure.services.external.rest.v1.dto.gui.editor.StyledStringEdi
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.SubFormEditor;
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.TokenFieldEditor;
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.TypeValueStringEditor;
+import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data;
 
 /**
  * Created by aduchate on 19/11/13, 15:28
  */
-@XStreamAlias("Editor")
 @JsonDiscriminator("key")
 @JsonDeserialize(using = JacksonEditorDeserializer.class)
 public abstract class Editor implements Serializable {
-    @XStreamAsAttribute
     private Double left;
-    @XStreamAsAttribute
     private Double top;
-    @XStreamAsAttribute
     private Double width;
-    @XStreamAsAttribute
     private Double height;
 
-	@XStreamAsAttribute
 	boolean multiline;
 
-    @XStreamAsAttribute
 	LabelPosition labelPosition;
 
-	@XStreamAsAttribute
 	private boolean readOnly;
+
+	private Data defaultValue;
 
 	public Editor() {
 	}
@@ -131,7 +126,15 @@ public abstract class Editor implements Serializable {
 		this.readOnly = readOnly;
 	}
 
-	@JsonProperty("key")
+    public Data getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(Data defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    @JsonProperty("key")
     private String includeDiscriminator() {
 	    return this.getClass().getSimpleName();
     }

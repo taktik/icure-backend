@@ -57,8 +57,7 @@ import java.util.*
 @Tag(name = "calendarItem")
 class CalendarItemController(private val calendarItemLogic: CalendarItemLogic,
                              private val calendarItemMapper: CalendarItemMapper,
-                             private val delegationMapper: DelegationMapper,
-                             private val filterMapper: FilterMapper
+                             private val delegationMapper: DelegationMapper
 ) {
 
     @Operation(summary = "Gets all calendarItems")

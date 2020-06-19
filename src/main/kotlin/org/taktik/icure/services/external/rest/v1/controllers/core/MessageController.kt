@@ -76,7 +76,6 @@ class MessageController(
         private val sessionLogic: AsyncSessionLogic,
         private val messageMapper: MessageMapper,
         private val delegationMapper: DelegationMapper,
-        private val filterMapper: FilterMapper,
         private val stubMapper: StubMapper
 ) {
     val DEFAULT_LIMIT = 1000

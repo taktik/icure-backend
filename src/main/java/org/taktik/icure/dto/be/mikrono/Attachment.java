@@ -16,7 +16,7 @@
  * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dto.message;
+package org.taktik.icure.dto.be.mikrono;
 
 import java.io.Serializable;
 

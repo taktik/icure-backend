@@ -47,4 +47,11 @@ public class Formula implements Serializable{
 		this.value = value;
 	}
 
+    public FormLifecycle getLifecycle() {
+        return lifecycle;
+    }
+
+    public void setLifecycle(FormLifecycle lifecycle) {
+        this.lifecycle = lifecycle;
+    }
 }

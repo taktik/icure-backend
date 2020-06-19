@@ -53,7 +53,7 @@ public class AttributedString implements Primitive {
         initWithString(value);
     }
 
-    public byte[] rtfData() {
+    public byte[] getRtfData() {
         return this.rtfData;
     }
 
@@ -65,7 +65,7 @@ public class AttributedString implements Primitive {
         this.rtfString = string;
     }
 
-    public java.lang.String rtfString() {
+    public java.lang.String getRtfString() {
         return this.rtfString;
     }
 
@@ -89,7 +89,7 @@ public class AttributedString implements Primitive {
     @Override
     public Serializable getPrimitiveValue() {
         try {
-            return new java.lang.String(this.rtfData(),"UTF8");
+            return new java.lang.String(this.rtfData,"UTF8");
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }

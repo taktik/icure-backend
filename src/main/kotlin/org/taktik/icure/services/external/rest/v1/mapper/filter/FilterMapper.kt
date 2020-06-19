@@ -34,10 +34,11 @@ import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceByHc
 import org.taktik.icure.services.external.rest.v1.dto.filter.service.ServiceBySecretForeignKeys
 import org.taktik.icure.services.external.rest.v1.mapper.PropertyTypeMapper
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeStubMapper
+import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentGroupMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.TypedValueMapper
 
-
+@Mapper(componentModel = "spring", uses = [], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class FilterMapper {
     abstract fun map(filterDto: CodeByRegionTypeLabelLanguageFilter): org.taktik.icure.dto.filter.impl.code.CodeByRegionTypeLabelLanguageFilter
     abstract fun map(filterDto: ContactByHcPartyPatientTagCodeDateFilter): org.taktik.icure.dto.filter.impl.contact.ContactByHcPartyPatientTagCodeDateFilter

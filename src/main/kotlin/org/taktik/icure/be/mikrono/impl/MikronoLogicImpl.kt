@@ -29,7 +29,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.taktik.icure.be.mikrono.MikronoLogic
-import org.taktik.icure.dto.message.EmailOrSmsMessage
+import org.taktik.icure.dto.be.mikrono.EmailOrSmsMessage
 import org.taktik.icure.services.external.rest.v1.dto.AppointmentDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentDto
@@ -39,7 +39,6 @@ import java.io.IOException
 import java.io.Serializable
 import java.lang.IllegalStateException
 import java.util.*
-import java.util.stream.Collectors
 
 class MikronoLogicImpl(private val applicationToken: String, defaultServer: String?, defaultSuperUser: String?, defaultSuperToken: String?) : MikronoLogic {
     private val tokensPerServer: MutableMap<String, String>

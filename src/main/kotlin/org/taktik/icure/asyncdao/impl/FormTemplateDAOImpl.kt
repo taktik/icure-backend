@@ -118,7 +118,7 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
                     if (newAttachmentId != formTemplate.layoutAttachmentId && formTemplate.rev != null && formTemplate.layoutAttachmentId != null) {
                         formTemplate.attachments?.containsKey(formTemplate.layoutAttachmentId)?.takeIf { it }?.let {
                             formTemplate.copy(
-                                    rev = deleteAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.rev!!, formTemplate.layoutAttachmentId!!),
+                                    rev = deleteAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.rev, formTemplate.layoutAttachmentId),
                                     attachments = formTemplate.attachments - formTemplate.layoutAttachmentId,
                                     layoutAttachmentId = newAttachmentId,
                                     isAttachmentDirty = true

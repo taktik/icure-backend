@@ -143,7 +143,7 @@ public class FormUtils {
     public List<FormLayout> parseLegacyXml(Reader reader) throws TransformerException, IOException {
         XStream stream = getXStream();
 
-         Array<FormLayout> forms = (Array<FormLayout>) stream.fromXML(getLegacyXmlReader(reader));
+         Array forms = (Array) stream.fromXML(getLegacyXmlReader(reader));
 
         return forms.getValue();
     }

@@ -48,7 +48,6 @@ class ClassificationController(
         private val classificationLogic: ClassificationLogic,
         private val classificationMapper: ClassificationMapper,
         private val delegationMapper: DelegationMapper,
-        private val filterMapper: FilterMapper,
         private val stubMapper: StubMapper
 ) {
 
