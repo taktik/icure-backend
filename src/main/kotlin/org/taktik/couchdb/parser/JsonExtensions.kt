@@ -221,10 +221,10 @@ fun Iterable<ByteBuffer>.toJsonEvents(asyncParser: com.fasterxml.jackson.core.Js
     if (!byteBuffers.hasNext()) {
         return result
     }
-    var t: JsonToken
+    var t: JsonToken = JsonToken.NOT_AVAILABLE
     while (byteBuffers.hasNext()) {
         val byteBuffer = byteBuffers.next()
-        while (byteBuffer.hasRemaining()) {
+        while (byteBuffer.hasRemaining() || t !== JsonToken.NOT_AVAILABLE) {
             while (asyncParser.nextToken().also { t = it } === JsonToken.NOT_AVAILABLE && byteBuffer.hasRemaining()) {
                 // need to feed more
                 val feeder: ByteArrayFeeder = asyncParser.nonBlockingInputFeeder as ByteArrayFeeder
@@ -309,9 +309,9 @@ fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
 
 @ExperimentalCoroutinesApi
 fun Flow<ByteBuffer>.toJsonEvents(asyncParser: com.fasterxml.jackson.core.JsonParser): Flow<JsonEvent> {
-    var t: JsonToken
+    var t: JsonToken = JsonToken.NOT_AVAILABLE
     return transform { byteBuffer ->
-        while (byteBuffer.hasRemaining()) {
+        while (byteBuffer.hasRemaining() || t !== JsonToken.NOT_AVAILABLE) {
             while (asyncParser.nextToken().also { t = it } === JsonToken.NOT_AVAILABLE && byteBuffer.hasRemaining()) {
                 // need to feed more
                 val feeder: ByteArrayFeeder = asyncParser.getNonBlockingInputFeeder() as ByteArrayFeeder

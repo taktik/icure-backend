@@ -798,7 +798,9 @@ class ClientImpl(private val httpClient: HttpClient,
         // Split by line
         val splitByLine = responseText.split('\n')
         // Convert to json events
-        val jsonEvents = splitByLine.map { it.map { charset.encode(it) }.toJsonEvents(asyncParser) }
+        val jsonEvents = splitByLine.map { it.map {
+            charset.encode(it)
+        }.toJsonEvents(asyncParser) }
         // Parse as generic Change Object
         val changes = jsonEvents.map { events ->
             var type: String? = null
