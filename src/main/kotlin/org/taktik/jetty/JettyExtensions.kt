@@ -1,5 +1,6 @@
 package org.taktik.jetty
 
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.*
@@ -13,7 +14,6 @@ import org.eclipse.jetty.client.api.Request
 import org.eclipse.jetty.http.HttpHeader
 import org.taktik.couchdb.parser.JsonEvent
 import org.taktik.couchdb.parser.toJsonEvents
-import org.taktik.couchdb.parser.toJsonTokens
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
@@ -76,7 +76,7 @@ fun Request.getResponseJsonEvents(buffer: Int = Channel.BUFFERED): Flow<JsonEven
 Convenience method. Execute this Jetty [Request] request and get the response a [Flow] of [JsonEvent].
  */
 @ExperimentalCoroutinesApi
-fun Request.getResponseJsonTokens(objectMapper: ObjectMapper, buffer: Int = Channel.BUFFERED): Flow<JsonToken> = this.getResponseBytesFlow(buffer).toJsonTokens(objectMapper)
+fun Request.getResponseJsonEvents(asyncParser: JsonParser, buffer: Int = Channel.BUFFERED): Flow<JsonEvent> = this.getResponseBytesFlow(buffer).toJsonEvents(asyncParser)
 
 /**
     Execute this Jetty [Request] and get the response as a [Flow] of [CharBuffer].

@@ -10,7 +10,7 @@ import org.ektorp.impl.NameConventions
 import org.junit.Assert.*
 import org.junit.Test
 import org.taktik.couchdb.parser.*
-import org.taktik.icure.entities.Tarification
+import org.taktik.icure.entities.base.Code
 import org.taktik.jetty.getResponseBytesFlow
 import org.taktik.jetty.getResponseTextFlow
 import java.net.URL
@@ -48,16 +48,16 @@ class CouchDbClientTests {
     fun testSubscribeChanges() = runBlocking {
         val testSize = 10
         val deferredChanges = async {
-            client.subscribeForChanges<Tarification>().take(testSize).toList()
+            client.subscribeForChanges<Code>().take(testSize).toList()
         }
         // Wait a bit before updating DB
         delay(3000)
-        val tarifications = List(testSize) { Tarification.from("test", UUID.randomUUID().toString(), "test") }
-        val createdTarifications = client.bulkUpdate(tarifications).toList()
+        val codes = List(testSize) { Code.from("test", UUID.randomUUID().toString(), "test") }
+        val createdCodes = client.bulkUpdate(codes).toList()
         val changes = deferredChanges.await()
-        assertEquals(createdTarifications.size, changes.size)
-        assertEquals(createdTarifications.map { it.id }.toSet(), changes.map { it.id }.toSet())
-        assertEquals(tarifications.map { it.code }.toSet(), changes.map { it.doc.code }.toSet())
+        assertEquals(createdCodes.size, changes.size)
+        assertEquals(createdCodes.map { it.id }.toSet(), changes.map { it.id }.toSet())
+        assertEquals(codes.map { it.code }.toSet(), changes.map { it.doc.code }.toSet())
     }
 
     @Test
@@ -114,33 +114,33 @@ class CouchDbClientTests {
     fun testClientQueryViewIncludeDocs() = runBlocking {
         val limit = 5
         val query = ViewQuery()
-                .designDocId(NameConventions.designDocName(Tarification::class.java))
+                .designDocId(NameConventions.designDocName(Code::class.java))
                 .viewName("all")
                 .limit(limit)
                 .includeDocs(true)
-        val flow = client.queryViewIncludeDocs<String, String, Tarification>(query)
-        val tarifications = flow.toList()
-        assertEquals(limit, tarifications.size)
+        val flow = client.queryViewIncludeDocs<String, String, Code>(query)
+        val codes = flow.toList()
+        assertEquals(limit, codes.size)
     }
 
     @Test
     fun testClientQueryViewNoDocs() = runBlocking {
         val limit = 5
         val query = ViewQuery()
-                .designDocId(NameConventions.designDocName(Tarification::class.java))
+                .designDocId(NameConventions.designDocName(Code::class.java))
                 .viewName("all")
                 .limit(limit)
                 .includeDocs(false)
         val flow = client.queryView<String, String>(query)
-        val tarifications = flow.toList()
-        assertEquals(limit, tarifications.size)
+        val codes = flow.toList()
+        assertEquals(limit, codes.size)
     }
 
     @Test
     fun testRawClientQuery() = runBlocking {
         val limit = 5
         val query = ViewQuery()
-                .designDocId(NameConventions.designDocName(Tarification::class.java))
+                .designDocId(NameConventions.designDocName(Code::class.java))
                 .viewName("all")
                 .limit(limit)
                 .includeDocs(false)
@@ -155,19 +155,19 @@ class CouchDbClientTests {
     @Test
     fun testClientGetNonExisting() = runBlocking {
         val nonExistingId = UUID.randomUUID().toString()
-        val tarification = client.get<Tarification>(nonExistingId)
-        assertNull(tarification)
+        val code = client.get<Code>(nonExistingId)
+        assertNull(code)
     }
 
     @Test
     fun testClientCreateAndGet() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification.from("test", randomCode, "test")
+        val toCreate = Code.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
         assertNotNull(created.rev)
-        val fetched = checkNotNull(client.get<Tarification>(created.id)) {"Tarification was just created, it should exist"}
+        val fetched = checkNotNull(client.get<Code>(created.id)) {"Code was just created, it should exist"}
         assertEquals(fetched.id, created.id)
         assertEquals(fetched.code, created.code)
         assertEquals(fetched.rev, created.rev)
@@ -176,7 +176,7 @@ class CouchDbClientTests {
     @Test
     fun testClientUpdate() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification.from("test", randomCode, "test")
+        val toCreate = Code.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
@@ -187,7 +187,7 @@ class CouchDbClientTests {
         assertEquals(created.id, updated.id)
         assertEquals(anotherRandomCode, updated.code)
         assertNotEquals(created.rev, updated.rev)
-        val fetched = checkNotNull(client.get<Tarification>(updated.id))
+        val fetched = checkNotNull(client.get<Code>(updated.id))
         assertEquals(fetched.id, updated.id)
         assertEquals(fetched.code, updated.code)
         assertEquals(fetched.rev, updated.rev)
@@ -196,7 +196,7 @@ class CouchDbClientTests {
     @Test(expected = CouchDbException::class)
     fun testClientUpdateOutdated() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification.from("test", randomCode, "test")
+        val toCreate = Code.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
@@ -207,7 +207,7 @@ class CouchDbClientTests {
         assertEquals(created.id, updated.id)
         assertEquals(anotherRandomCode, updated.code)
         assertNotEquals(created.rev, updated.rev)
-        val fetched = checkNotNull(client.get<Tarification>(updated.id))
+        val fetched = checkNotNull(client.get<Code>(updated.id))
         assertEquals(fetched.id, updated.id)
         assertEquals(fetched.code, updated.code)
         assertEquals(fetched.rev, updated.rev)
@@ -219,44 +219,44 @@ class CouchDbClientTests {
     @Test
     fun testClientDelete() = runBlocking {
         val randomCode = UUID.randomUUID().toString()
-        val toCreate = Tarification.from("test", randomCode, "test")
+        val toCreate = Code.from("test", randomCode, "test")
         val created = client.create(toCreate)
         assertEquals(randomCode, created.code)
         assertNotNull(created.id)
         assertNotNull(created.rev)
         val deletedRev = client.delete(created)
         assertNotEquals(created.rev, deletedRev)
-        assertNull(client.get<Tarification>(created.id))
+        assertNull(client.get<Code>(created.id))
     }
 
     @Test
     fun testClientBulkGet() = runBlocking {
         val limit = 100
         val query = ViewQuery()
-                .designDocId(NameConventions.designDocName(Tarification::class.java))
+                .designDocId(NameConventions.designDocName(Code::class.java))
                 .viewName("by_language_type_label")
                 .limit(limit)
                 .includeDocs(true)
-        val flow = client.queryViewIncludeDocs<List<*>, Int, Tarification>(query)
-        val tarifications = flow.map { it.doc }.toList()
-        val tarificationIds = tarifications.map { it.id }
-        val flow2 = client.get<Tarification>(tarificationIds)
-        val tarifications2 = flow2.toList()
-        assertEquals(tarifications, tarifications2)
+        val flow = client.queryViewIncludeDocs<List<*>, Int, Code>(query)
+        val codes = flow.map { it.doc }.toList()
+        val codeIds = codes.map { it.id }
+        val flow2 = client.get<Code>(codeIds)
+        val codes2 = flow2.toList()
+        assertEquals(codes, codes2)
     }
 
     @Test
     fun testClientBulkUpdate() = runBlocking {
         val testSize = 100
-        val tarifications = List(testSize) { Tarification.from("test", UUID.randomUUID().toString(), "test") }
-        val updateResult = client.bulkUpdate(tarifications).toList()
+        val codes = List(testSize) { Code.from("test", UUID.randomUUID().toString(), "test") }
+        val updateResult = client.bulkUpdate(codes).toList()
         assertEquals(testSize, updateResult.size)
         assertTrue(updateResult.all { it.error == null })
         val revisions = updateResult.map { checkNotNull(it.rev) }
-        val ids = tarifications.map { it.id }
-        val codes = tarifications.map { it.code }
-        val fetched = client.get<Tarification>(ids).toList()
-        assertEquals(codes, fetched.map { it.code })
+        val ids = codes.map { it.id }
+        val codeCodes = codes.map { it.code }
+        val fetched = client.get<Code>(ids).toList()
+        assertEquals(codeCodes, fetched.map { it.code })
         assertEquals(revisions, fetched.map { it.rev })
     }
 

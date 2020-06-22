@@ -95,7 +95,7 @@ data class Message(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Message::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Message::class.qualifiedName!!
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Message> {
         const val STATUS_LABO_RESULT = 1 shl 0

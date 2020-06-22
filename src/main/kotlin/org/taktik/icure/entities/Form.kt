@@ -71,7 +71,7 @@ data class Form(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Form::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Form::class.qualifiedName!!
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Form>
 

@@ -50,7 +50,7 @@ data class Role(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Role::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Role::class.qualifiedName!!
 ) : StoredDocument, Principal, Cloneable, Serializable {
     companion object : DynamicInitializer<Role>
 

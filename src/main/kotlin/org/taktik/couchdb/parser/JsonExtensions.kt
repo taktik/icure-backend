@@ -2,7 +2,7 @@ package org.taktik.couchdb.parser
 
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.async.ByteArrayFeeder
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.util.TokenBuffer
 import com.squareup.moshi.EventListJsonReader
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.transform
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
@@ -72,14 +73,36 @@ class StringValue(value: String) : Value<String>(value)
 sealed class NumberValue<out N : Number>(value: N) : Value<N>(value)
 
 /**
+ * A big decimal value.
+ */
+class BigDecimalValue(value: BigDecimal) : NumberValue<BigDecimal>(value)
+
+/**
  * An integer value.
  */
-class IntValue(value: BigDecimal) : NumberValue<BigDecimal>(value)
+class BigIntValue(value: BigInteger) : NumberValue<BigInteger>(value)
+
+/**
+ * An int value.
+ */
+class IntValue(value: Int) : NumberValue<Int>(value)
+
+/**
+ * An integer value.
+ */
+class LongValue(value: Long) : NumberValue<Long>(value)
+
+/**
+ * A float value.
+ */
+class FloatValue(value: Float) : NumberValue<Float>(value)
 
 /**
  * A double value.
  */
 class DoubleValue(value: Double) : NumberValue<Double>(value)
+
+class AnyValue(value: Any) : Value<Any>(value)
 
 sealed class BooleanValue(value: Boolean) : Value<Boolean>(value)
 
@@ -97,7 +120,6 @@ object FalseValue : BooleanValue(false)
  * A `null` value.
  */
 object NullValue : Value<Any?>(null)
-
 fun Iterable<ByteBuffer>.toJsonEvents(charset: Charset = StandardCharsets.UTF_8): List<JsonEvent> {
     val result = ArrayList<JsonEvent>()
     val bytesIterator = this.iterator()
@@ -139,7 +161,7 @@ fun Iterable<ByteBuffer>.toJsonEvents(charset: Charset = StandardCharsets.UTF_8)
             ActsonJSonEvent.END_OBJECT -> result.add(EndObject)
             ActsonJSonEvent.FIELD_NAME -> result.add(FieldName(parser.currentString))
             ActsonJSonEvent.VALUE_STRING -> result.add(StringValue(parser.currentString))
-            ActsonJSonEvent.VALUE_INT -> result.add(IntValue(BigDecimal(parser.currentString)))
+            ActsonJSonEvent.VALUE_INT -> result.add(BigDecimalValue(BigDecimal(parser.currentString)))
             ActsonJSonEvent.VALUE_DOUBLE -> result.add(DoubleValue(parser.currentDouble))
             ActsonJSonEvent.VALUE_TRUE -> result.add(TrueValue)
             ActsonJSonEvent.VALUE_FALSE -> result.add(FalseValue)
@@ -181,7 +203,7 @@ fun Iterable<CharBuffer>.toJsonEvents(): List<JsonEvent> {
             ActsonJSonEvent.END_OBJECT -> result.add(EndObject)
             ActsonJSonEvent.FIELD_NAME -> result.add(FieldName(parser.currentString))
             ActsonJSonEvent.VALUE_STRING -> result.add(StringValue(parser.currentString))
-            ActsonJSonEvent.VALUE_INT -> result.add(IntValue(BigDecimal(parser.currentString)))
+            ActsonJSonEvent.VALUE_INT -> result.add(BigDecimalValue(BigDecimal(parser.currentString)))
             ActsonJSonEvent.VALUE_DOUBLE -> result.add(DoubleValue(parser.currentDouble))
             ActsonJSonEvent.VALUE_TRUE -> result.add(TrueValue)
             ActsonJSonEvent.VALUE_FALSE -> result.add(FalseValue)
@@ -190,6 +212,61 @@ fun Iterable<CharBuffer>.toJsonEvents(): List<JsonEvent> {
         }
     } while (event != ActsonJSonEvent.EOF)
 
+    return result
+}
+
+fun Iterable<ByteBuffer>.toJsonEvents(asyncParser: com.fasterxml.jackson.core.JsonParser): List<JsonEvent> {
+    val result = ArrayList<JsonEvent>()
+    val byteBuffers = this.iterator()
+    if (!byteBuffers.hasNext()) {
+        return result
+    }
+    var t: JsonToken
+    while (byteBuffers.hasNext()) {
+        val byteBuffer = byteBuffers.next()
+        while (byteBuffer.hasRemaining()) {
+            while (asyncParser.nextToken().also { t = it } === JsonToken.NOT_AVAILABLE && byteBuffer.hasRemaining()) {
+                // need to feed more
+                val feeder: ByteArrayFeeder = asyncParser.nonBlockingInputFeeder as ByteArrayFeeder
+                if (feeder.needMoreInput()) {
+                    val fed = if (byteBuffer.hasArray()) {
+                        feeder.feedInput(byteBuffer.array(), byteBuffer.position(), byteBuffer.position() + byteBuffer.remaining())
+                        byteBuffer.remaining()
+                    } else {
+                        val dup = byteBuffer.duplicate()
+                        val bytes = ByteArray(dup.remaining()).also { dup.get(it) }
+                        feeder.feedInput(bytes, 0, bytes.size)
+                        dup.remaining()
+                    }
+                    byteBuffer.position(byteBuffer.position() + fed)
+                }
+            }
+            when (t) {
+                JsonToken.START_OBJECT -> result.add(StartObject)
+                JsonToken.END_OBJECT -> result.add(EndObject)
+                JsonToken.START_ARRAY -> result.add(StartArray)
+                JsonToken.END_ARRAY -> result.add(EndArray)
+                JsonToken.FIELD_NAME -> result.add(FieldName(asyncParser.currentName))
+                JsonToken.VALUE_STRING -> result.add(StringValue(asyncParser.text))
+                JsonToken.VALUE_NUMBER_INT -> result.add(when (asyncParser.numberType) {
+                    com.fasterxml.jackson.core.JsonParser.NumberType.INT -> IntValue(asyncParser.intValue)
+                    com.fasterxml.jackson.core.JsonParser.NumberType.BIG_INTEGER -> BigIntValue(asyncParser.bigIntegerValue)
+                    else -> LongValue(asyncParser.longValue)
+                })
+                JsonToken.VALUE_NUMBER_FLOAT -> result.add(when (asyncParser.numberType) {
+                    com.fasterxml.jackson.core.JsonParser.NumberType.BIG_DECIMAL -> BigDecimalValue(asyncParser.decimalValue)
+                    com.fasterxml.jackson.core.JsonParser.NumberType.FLOAT -> FloatValue(asyncParser.floatValue)
+                    else -> DoubleValue(asyncParser.doubleValue)
+                })
+                JsonToken.VALUE_TRUE -> result.add(TrueValue)
+                JsonToken.VALUE_FALSE -> result.add(FalseValue)
+                JsonToken.VALUE_NULL -> result.add(NullValue)
+                JsonToken.VALUE_EMBEDDED_OBJECT -> result.add(AnyValue(asyncParser.embeddedObject))
+                JsonToken.NOT_AVAILABLE -> { /*skip*/
+                }
+            }
+        }
+    }
     return result
 }
 
@@ -231,10 +308,8 @@ fun Flow<CharBuffer>.split(delimiter: Char): Flow<List<CharBuffer>> = flow {
 }
 
 @ExperimentalCoroutinesApi
-fun Flow<ByteBuffer>.toJsonTokens(mapper: ObjectMapper): Flow<JsonToken> {
-    val asyncParser = mapper.createNonBlockingByteArrayParser()
-    var t: JsonToken = JsonToken.NOT_AVAILABLE
-
+fun Flow<ByteBuffer>.toJsonEvents(asyncParser: com.fasterxml.jackson.core.JsonParser): Flow<JsonEvent> {
+    var t: JsonToken
     return transform { byteBuffer ->
         while (byteBuffer.hasRemaining()) {
             while (asyncParser.nextToken().also { t = it } === JsonToken.NOT_AVAILABLE && byteBuffer.hasRemaining()) {
@@ -253,8 +328,28 @@ fun Flow<ByteBuffer>.toJsonTokens(mapper: ObjectMapper): Flow<JsonToken> {
                     byteBuffer.position(byteBuffer.position() + fed)
                 }
             }
-            if (t !== JsonToken.NOT_AVAILABLE) {
-                emit(t)
+            when (t) {
+                JsonToken.START_OBJECT -> emit(StartObject)
+                JsonToken.END_OBJECT -> emit(EndObject)
+                JsonToken.START_ARRAY -> emit(StartArray)
+                JsonToken.END_ARRAY -> emit(EndArray)
+                JsonToken.FIELD_NAME -> emit(FieldName(asyncParser.currentName))
+                JsonToken.VALUE_STRING -> emit(StringValue(asyncParser.text))
+                JsonToken.VALUE_NUMBER_INT -> emit(when (asyncParser.numberType) {
+                    com.fasterxml.jackson.core.JsonParser.NumberType.INT -> IntValue(asyncParser.intValue)
+                    com.fasterxml.jackson.core.JsonParser.NumberType.BIG_INTEGER -> BigIntValue(asyncParser.bigIntegerValue)
+                    else -> LongValue(asyncParser.longValue)
+                })
+                JsonToken.VALUE_NUMBER_FLOAT -> emit(when (asyncParser.numberType) {
+                    com.fasterxml.jackson.core.JsonParser.NumberType.BIG_DECIMAL -> BigDecimalValue(asyncParser.decimalValue)
+                    com.fasterxml.jackson.core.JsonParser.NumberType.FLOAT -> FloatValue(asyncParser.floatValue)
+                    else -> DoubleValue(asyncParser.doubleValue)
+                })
+                JsonToken.VALUE_TRUE -> emit(TrueValue)
+                JsonToken.VALUE_FALSE -> emit(FalseValue)
+                JsonToken.VALUE_NULL -> emit(NullValue)
+                JsonToken.VALUE_EMBEDDED_OBJECT -> emit(AnyValue(asyncParser.embeddedObject))
+                JsonToken.NOT_AVAILABLE -> { /*skip*/ }
             }
         }
     }
@@ -289,7 +384,7 @@ fun Flow<ByteBuffer>.toJsonEvents(): Flow<JsonEvent> {
                     ActsonJSonEvent.END_OBJECT -> emit(EndObject)
                     ActsonJSonEvent.FIELD_NAME -> emit(FieldName(parser.currentString))
                     ActsonJSonEvent.VALUE_STRING -> emit(StringValue(parser.currentString))
-                    ActsonJSonEvent.VALUE_INT -> emit(IntValue(BigDecimal(parser.currentString)))
+                    ActsonJSonEvent.VALUE_INT -> emit(BigDecimalValue(BigDecimal(parser.currentString)))
                     ActsonJSonEvent.VALUE_DOUBLE -> emit(DoubleValue(parser.currentDouble))
                     ActsonJSonEvent.VALUE_TRUE -> emit(TrueValue)
                     ActsonJSonEvent.VALUE_FALSE -> emit(FalseValue)
@@ -299,7 +394,6 @@ fun Flow<ByteBuffer>.toJsonEvents(): Flow<JsonEvent> {
                 event = parser.nextEvent()
             }
         }
-
     }
 }
 
@@ -370,6 +464,62 @@ suspend fun ReceiveChannel<JsonEvent>.nextValue(): List<JsonEvent> {
     return events
 }
 
+suspend fun ReceiveChannel<JsonEvent>.nextValue(asyncParser: com.fasterxml.jackson.core.JsonParser): TokenBuffer? {
+    val event = receive()
+    return if (event === EndArray) null else {
+        val events = TokenBuffer(asyncParser)
+        events.copyFromJsonEvent(event)
+        when (event) {
+            StartArray -> {
+                var level = 1
+                while (level > 0) {
+                    val otherEvent = receive()
+                    events.copyFromJsonEvent(otherEvent)
+                    when (otherEvent) {
+                        StartArray -> level++
+                        EndArray -> level--
+                    }
+                }
+            }
+            StartObject -> {
+                var level = 1
+                while (level > 0) {
+                    val otherEvent = receive()
+                    events.copyFromJsonEvent(otherEvent)
+                    when (otherEvent) {
+                        StartObject -> level++
+                        EndObject -> level--
+                    }
+                }
+            }
+        }
+        events
+    }
+}
+
+fun TokenBuffer.copyFromJsonEvent(jsonEvent: JsonEvent) {
+    when {
+        jsonEvent === StartObject -> this.writeStartObject()
+        jsonEvent === EndObject -> this.writeEndObject()
+        jsonEvent === StartArray -> this.writeStartArray()
+        jsonEvent === EndArray -> this.writeEndArray()
+        jsonEvent is FieldName -> this.writeFieldName(jsonEvent.name)
+        jsonEvent is StringValue -> this.writeString(jsonEvent.value)
+        jsonEvent is IntValue -> this.writeNumber(jsonEvent.value)
+        jsonEvent is FloatValue -> this.writeNumber(jsonEvent.value)
+        jsonEvent is LongValue -> this.writeNumber(jsonEvent.value)
+        jsonEvent is DoubleValue -> this.writeNumber(jsonEvent.value)
+        jsonEvent is BigIntValue -> this.writeNumber(jsonEvent.value)
+        jsonEvent is BigDecimalValue -> this.writeNumber(jsonEvent.value)
+        jsonEvent === TrueValue -> this.writeBoolean(true)
+        jsonEvent === FalseValue -> this.writeBoolean(false)
+        jsonEvent === NullValue -> this.writeNull()
+        jsonEvent is AnyValue -> this.writeObject(jsonEvent.value)
+        else -> throw RuntimeException("Internal error: should never end up through this code path")
+    }
+}
+
+
 @ExperimentalCoroutinesApi
 fun CoroutineScope.toJsonEventsFromChars(charBufs: ReceiveChannel<CharBuffer>): ReceiveChannel<JsonEvent> = produce {
     val charBuffersIterator = charBufs.iterator()
@@ -400,7 +550,7 @@ fun CoroutineScope.toJsonEventsFromChars(charBufs: ReceiveChannel<CharBuffer>): 
             ActsonJSonEvent.END_OBJECT -> send(EndObject)
             ActsonJSonEvent.FIELD_NAME -> send(FieldName(parser.currentString))
             ActsonJSonEvent.VALUE_STRING -> send(StringValue(parser.currentString))
-            ActsonJSonEvent.VALUE_INT -> send(IntValue(BigDecimal(parser.currentString)))
+            ActsonJSonEvent.VALUE_INT -> send(BigDecimalValue(BigDecimal(parser.currentString)))
             ActsonJSonEvent.VALUE_DOUBLE -> send(DoubleValue(parser.currentDouble))
             ActsonJSonEvent.VALUE_TRUE -> send(TrueValue)
             ActsonJSonEvent.VALUE_FALSE -> send(FalseValue)
@@ -440,7 +590,7 @@ object EventAdapter : JsonAdapter<List<JsonEvent>>() {
                 is StringValue -> {
                     writer.value(event.value)
                 }
-                is IntValue -> {
+                is BigDecimalValue -> {
                     writer.value(event.value)
                 }
                 is DoubleValue -> {

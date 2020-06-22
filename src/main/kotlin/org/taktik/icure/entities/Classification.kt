@@ -42,7 +42,7 @@ data class Classification(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Classification::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Classification::class.qualifiedName!!
 ) : StoredICureDocument, Encryptable {
     companion object : DynamicInitializer<Classification>
 

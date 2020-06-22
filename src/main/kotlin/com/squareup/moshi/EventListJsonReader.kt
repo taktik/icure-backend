@@ -40,7 +40,7 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
             is DoubleValue -> {
                 event.value
             }
-            is IntValue -> {
+            is BigDecimalValue -> {
                 event.value.toDouble()
             }
             is StringValue -> {
@@ -59,12 +59,17 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
             EndObject -> Token.END_OBJECT
             StartArray -> Token.BEGIN_ARRAY
             EndArray -> Token.END_ARRAY
+            NullValue -> Token.NULL
             is FieldName -> Token.NAME
             is DoubleValue -> Token.NUMBER
+            is BigDecimalValue -> Token.NUMBER
+            is BigIntValue -> Token.NUMBER
             is IntValue -> Token.NUMBER
+            is LongValue -> Token.NUMBER
+            is FloatValue -> Token.NUMBER
             is StringValue -> Token.STRING
             is BooleanValue -> Token.BOOLEAN
-            NullValue -> Token.NULL
+            is AnyValue -> throw IllegalStateException("Not supported with moshi")
         }
     }
 
@@ -90,13 +95,13 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
             is DoubleValue -> {
                 event.value.toInt()
             }
-            is IntValue -> {
+            is BigDecimalValue -> {
                 event.value.intValueExact()
             }
             is StringValue -> {
                 event.value.toInt()
             }
-            else -> throw typeMismatch(event, IntValue::class)
+            else -> throw typeMismatch(event, BigDecimalValue::class)
         }
     }
 
@@ -124,13 +129,13 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
             is DoubleValue -> {
                 event.value.toLong()
             }
-            is IntValue -> {
+            is BigDecimalValue -> {
                 event.value.longValueExact()
             }
             is StringValue -> {
                 event.value.toLong()
             }
-            else -> throw typeMismatch(event, IntValue::class)
+            else -> throw typeMismatch(event, BigDecimalValue::class)
         }
     }
 
@@ -146,7 +151,7 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
             is DoubleValue -> {
                 event.value.toString()
             }
-            is IntValue -> {
+            is BigDecimalValue -> {
                 event.value.toString()
             }
             is StringValue -> {

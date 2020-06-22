@@ -74,7 +74,7 @@ data class Tarification(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Tarification::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Tarification::class.qualifiedName!!
 ) : StoredDocument, CodeIdentification {
     companion object : DynamicInitializer<Tarification> {
         fun from(type: String, code: String, version: String) = Tarification(id = "$type:$code:$version", type = type, code = code, version = version)

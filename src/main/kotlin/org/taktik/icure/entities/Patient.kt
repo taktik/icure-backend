@@ -139,7 +139,7 @@ data class Patient(
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
         @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Patient::javaClass.name
+        @JsonProperty("java_type") override val _type: String = Patient::class.qualifiedName!!
 ) : StoredICureDocument, Person, Encryptable, CryptoActor {
     companion object : DynamicInitializer<Patient>
 

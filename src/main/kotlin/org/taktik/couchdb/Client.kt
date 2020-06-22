@@ -1,12 +1,37 @@
 package org.taktik.couchdb
 
-import com.squareup.moshi.*
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.util.TokenBuffer
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonWriter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.ToJson
+import com.squareup.moshi.Types
 import com.squareup.moshi.Types.newParameterizedType
-import com.squareup.moshi.internal.Util
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.produceIn
+import kotlinx.coroutines.launch
 import okio.Buffer
 import org.eclipse.jetty.client.HttpClient
 import org.eclipse.jetty.client.api.Request
@@ -20,9 +45,23 @@ import org.ektorp.ViewQuery
 import org.ektorp.ViewResultException
 import org.ektorp.http.URI
 import org.slf4j.LoggerFactory
-import org.taktik.couchdb.parser.*
+import org.taktik.couchdb.parser.EndArray
+import org.taktik.couchdb.parser.EndObject
+import org.taktik.couchdb.parser.FieldName
+import org.taktik.couchdb.parser.JsonEvent
+import org.taktik.couchdb.parser.NumberValue
+import org.taktik.couchdb.parser.StartArray
+import org.taktik.couchdb.parser.StartObject
+import org.taktik.couchdb.parser.StringValue
+import org.taktik.couchdb.parser.adapter
+import org.taktik.couchdb.parser.copyFromJsonEvent
+import org.taktik.couchdb.parser.nextSingleValueAs
+import org.taktik.couchdb.parser.nextSingleValueAsOrNull
+import org.taktik.couchdb.parser.nextValue
+import org.taktik.couchdb.parser.skipValue
+import org.taktik.couchdb.parser.split
+import org.taktik.couchdb.parser.toJsonEvents
 import org.taktik.icure.dao.Option
-import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.jetty.basicAuth
@@ -30,15 +69,13 @@ import org.taktik.jetty.getResponseBytesFlow
 import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
 import java.io.IOException
-import java.lang.IllegalStateException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import java.math.BigDecimal
 import java.nio.ByteBuffer
+import java.nio.charset.Charset
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.HashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -48,10 +85,13 @@ import kotlin.math.min
 
 typealias CouchDbDocument = Versionable<String>
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class DesignDocument(
-        @Json(name = "_id") override var id: String,
-        @Json(name = "_rev") override var rev: String? = null,
-        @Json(name = "rev_history") override val revHistory: Map<String, String> = mapOf(),
+        @JsonProperty("_id") override var id: String,
+        @JsonProperty("_rev") override var rev: String? = null,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String> = mapOf(),
+        val language: String? = null,
         val views: Map<String, View?> = mapOf(),
         val lists: Map<String, String> = mapOf(),
         val shows: Map<String, String> = mapOf(),
@@ -304,25 +344,7 @@ class ClientImpl(private val httpClient: HttpClient,
                  dbURI: URI,
                  private val username: String,
                  private val password: String,
-                 private val moshi: Moshi = Moshi.Builder()
-                         .add(ComplexKeyAdapterFactory())
-                         .add(ActiveTaskAdapterFactory())
-                         .add(KotlinJsonAdapterFactory())
-                         .add(Boolean::class.java, object : JsonAdapter<Boolean>() {
-                             override fun fromJson(reader: JsonReader): Boolean =
-                                     if (reader.peek() == JsonReader.Token.STRING) reader.nextString() == "true" else reader.nextBoolean()
-
-                             override fun toJson(writer: JsonWriter, value: Boolean?) {
-                                 writer.value(value)
-                             }
-                         })
-                         .add(object {
-                             @FromJson fun fromJson(string: String) = BigDecimal(string)
-                             @ToJson fun toJson(value: BigDecimal) = value.toString()
-                         })
-                         .add(InstantAdapter())
-                         .add(Base64Adapter())
-                         .add(SortedSetAdapterFactory()).build()
+                 private val objectMapper: ObjectMapper = ObjectMapper().also { it.registerModule(KotlinModule()) }
 ) : Client {
     private val log = LoggerFactory.getLogger(javaClass.name)
     // Create a copy and set to prototype to avoid unwanted mutation
@@ -341,7 +363,7 @@ class ClientImpl(private val httpClient: HttpClient,
     }
 
     override suspend fun security(security: Security): Boolean {
-        val doc = moshi.adapter<Security>(Security::class.java).toJson(security)
+        val doc = objectMapper.writeValueAsString(security)
 
         val request = newRequest(dbURI.append("_security"), doc, HttpMethod.PUT)
         val result = request
@@ -516,8 +538,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     override suspend fun <T : CouchDbDocument> create(entity: T, clazz: Class<T>): T {
         val uri = dbURI
-        val adapter = moshi.adapter(clazz)
-        val serializedDoc = adapter.toJson(entity)
+        val serializedDoc = objectMapper.writeValueAsString(entity)
         val request = newRequest(uri, serializedDoc)
 
         log.debug("Executing $request")
@@ -527,15 +548,14 @@ class ClientImpl(private val httpClient: HttpClient,
         }
         // Create a new copy of the doc and set rev/id from response
         @Suppress("BlockingMethodInNonBlockingContext")
-        return checkNotNull(adapter.fromJson(serializedDoc)).withIdRev(createResponse.id, createResponse.rev) as T
+        return checkNotNull(objectMapper.readValue(serializedDoc, clazz)).withIdRev(createResponse.id, createResponse.rev) as T
     }
 
     override suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T {
         val docId = entity.id
         require(!docId.isNullOrBlank()) { "Id cannot be blank" }
         val updateURI = dbURI.append(docId)
-        val adapter = moshi.adapter<T>(clazz)
-        val serializedDoc = adapter.toJson(entity)
+        val serializedDoc = objectMapper.writeValueAsString(entity)
         val request = newRequest(updateURI, serializedDoc, HttpMethod.PUT)
 
         log.debug("Executing $request")
@@ -545,7 +565,7 @@ class ClientImpl(private val httpClient: HttpClient,
         }
         // Create a new copy of the doc and set rev/id from response
         @Suppress("BlockingMethodInNonBlockingContext")
-        return checkNotNull(adapter.fromJson(serializedDoc)).withIdRev(updateResponse.id, updateResponse.rev) as T
+        return checkNotNull(objectMapper.readValue(serializedDoc, clazz)).withIdRev(updateResponse.id, updateResponse.rev) as T
     }
 
     override suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier {
@@ -566,29 +586,21 @@ class ClientImpl(private val httpClient: HttpClient,
     @ExperimentalCoroutinesApi
     override fun <T : CouchDbDocument> bulkUpdate(entities: Collection<T>, clazz: Class<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
-            val requestType = newParameterizedType(BulkUpdateRequest::class.java, clazz)
-            val requestAdapter = moshi.adapter<BulkUpdateRequest<T>>(requestType)
-            val responseType = newParameterizedType(BulkUpdateResult::class.java, clazz)
-
-            val resultAdapter = moshi.adapter<BulkUpdateResult>(responseType)
             val updateRequest = BulkUpdateRequest(entities)
             val uri = dbURI.append("_bulk_docs")
-            val request = newRequest(uri, requestAdapter.toJson(updateRequest))
+            val request = newRequest(uri, objectMapper.writeValueAsString(updateRequest))
 
             log.debug("Executing $request")
-            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
-            check(jsonEvents.receive() == StartArray) { "Expected result to start with StartArray" }
+            val asyncParser = objectMapper.createNonBlockingByteArrayParser()
+            val jsonTokens = request.getResponseJsonEvents(asyncParser).produceIn(this)
+            check(jsonTokens.receive() === StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
-                val nextValue = jsonEvents.nextValue()
-                if (nextValue.size == 1) {
-                    check(nextValue.single() == EndArray) { "Expected result to end with EndArray" }
-                    break
-                }
+                val nextValue = jsonTokens.nextValue(asyncParser) ?: break
                 @Suppress("BlockingMethodInNonBlockingContext")
-                val bulkUpdateResult = checkNotNull(resultAdapter.fromJson(EventListJsonReader(nextValue)))
+                val bulkUpdateResult = checkNotNull(nextValue.asParser(objectMapper).readValueAs(BulkUpdateResult::class.java))
                 emit(bulkUpdateResult)
             }
-            jsonEvents.cancel()
+            jsonTokens.cancel()
         }
     }
 
@@ -596,23 +608,18 @@ class ClientImpl(private val httpClient: HttpClient,
     @ExperimentalCoroutinesApi
     override fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult> = flow {
         coroutineScope {
-            val requestAdapter = moshi.adapter<BulkDeleteRequest>(BulkDeleteRequest::class.java)
-            val resultAdapter = moshi.adapter<BulkUpdateResult>(BulkUpdateResult::class.java)
             val updateRequest = BulkDeleteRequest(entities.map { DeleteRequest(it.id, it.rev) })
             val uri = dbURI.append("_bulk_docs")
-            val request = newRequest(uri, requestAdapter.toJson(updateRequest))
+            val request = newRequest(uri, objectMapper.writeValueAsString(updateRequest))
 
             log.debug("Executing $request")
-            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
+            val asyncParser = objectMapper.createNonBlockingByteArrayParser()
+            val jsonEvents = request.getResponseJsonEvents(asyncParser).produceIn(this)
             check(jsonEvents.receive() == StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
-                val nextValue = jsonEvents.nextValue()
-                if (nextValue.size == 1) {
-                    check(nextValue.single() == EndArray) { "Expected result to end with EndArray" }
-                    break
-                }
+                val nextValue = jsonEvents.nextValue(asyncParser) ?: break
                 @Suppress("BlockingMethodInNonBlockingContext")
-                val bulkUpdateResult = checkNotNull(resultAdapter.fromJson(EventListJsonReader(nextValue)))
+                val bulkUpdateResult = checkNotNull(nextValue.asParser(objectMapper).readValueAs(BulkUpdateResult::class.java))
                 emit(bulkUpdateResult)
             }
             jsonEvents.cancel()
@@ -625,16 +632,13 @@ class ClientImpl(private val httpClient: HttpClient,
             query.dbPath(dbURI.toString())
             val request = buildRequest(query)
             log.debug("Executing $request")
+            val asyncParser = objectMapper.createNonBlockingByteArrayParser()
             /** Execute the request and get the response as a Flow of [JsonEvent] **/
-            val jsonEvents = request.getResponseJsonEvents().produceIn(this)
-
-            // Get adapters to deserialize key, value and doc
-            val keyAdapter = moshi.adapter(keyType)
-            val valueAdapter = if (valueType == Void::class.java) null else moshi.adapter(valueType)
-            val docAdapter = if (query.isIncludeDocs) moshi.adapter(docType) else null
+            val jsonEvents = request.getResponseJsonEvents(asyncParser).produceIn(this)
 
             // Response should be a Json object
-            check(jsonEvents.receive() == StartObject) { "Expected data to start with an Object" }
+            val firstEvent = jsonEvents.receive()
+            check(firstEvent == StartObject) { "Expected data to start with an Object" }
             resultLoop@ while (true) { // Loop through result object fields
                 when (val nextEvent = jsonEvents.receive()) {
                     EndObject -> break@resultLoop // End of result object
@@ -671,24 +675,20 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     }
                                                     // Parse key
                                                     KEY_FIELD_NAME -> {
-                                                        val keyEvents = jsonEvents.nextValue()
+                                                        val keyEvents = jsonEvents.nextValue(asyncParser) ?: throw IllegalStateException("Invalid json expecting key")
                                                         @Suppress("BlockingMethodInNonBlockingContext")
-                                                        key = keyAdapter.fromJson(EventListJsonReader(keyEvents))
+                                                        key = keyEvents.asParser(objectMapper).readValueAs(keyType)
                                                     }
                                                     // Parse value
                                                     VALUE_FIELD_NAME -> {
-                                                        val valueEvents = jsonEvents.nextValue()
+                                                        val valueEvents = jsonEvents.nextValue(asyncParser) ?: throw IllegalStateException("Invalid json field name")
                                                         @Suppress("BlockingMethodInNonBlockingContext")
-                                                        value = valueAdapter?.fromJson(EventListJsonReader(valueEvents))
+                                                        value = valueEvents.asParser(objectMapper).readValueAs(valueType)
                                                     }
                                                     // Parse doc
                                                     INCLUDED_DOC_FIELD_NAME -> {
                                                         if (query.isIncludeDocs) {
-                                                            val docEvents = jsonEvents.nextValue()
-                                                            if (docEvents.size > 1) {
-                                                                @Suppress("BlockingMethodInNonBlockingContext")
-                                                                doc = docAdapter?.fromJson(EventListJsonReader(docEvents))
-                                                            }
+                                                            jsonEvents.nextValue(asyncParser)?.let { doc = it.asParser(objectMapper).readValueAs(docType)}
                                                         }
 
                                                     }
@@ -781,15 +781,14 @@ class ClientImpl(private val httpClient: HttpClient,
     @ExperimentalCoroutinesApi
     @FlowPreview
     private fun <T : CouchDbDocument> internalSubscribeForChanges(clazz: Class<T>, since: String): Flow<Change<T>> = flow {
+        val charset = Charset.forName("UTF-8")
         val changesURI = dbURI.append("_changes")
                 .param("feed", "continuous")
                 .param("heartbeat", "10000")
                 .param("include_docs", "true")
                 .param("since", since)
         log.info("Subscribing for changes of class $clazz")
-        val mapType = newParameterizedType(Map::class.java, String::class.java, Object::class.java)
-        val genericChangeType = newParameterizedType(Change::class.java, mapType)
-        val genericAdapter = moshi.adapter<Change<Map<String, *>>>(genericChangeType)
+        val asyncParser = objectMapper.createNonBlockingByteArrayParser()
         // Construct request
         val changesRequest = newRequest(changesURI)
                 .idleTimeout(60, TimeUnit.SECONDS)
@@ -799,18 +798,32 @@ class ClientImpl(private val httpClient: HttpClient,
         // Split by line
         val splitByLine = responseText.split('\n')
         // Convert to json events
-        val jsonEvents = splitByLine.map { it.toJsonEvents() }
+        val jsonEvents = splitByLine.map { it.map { charset.encode(it) }.toJsonEvents(asyncParser) }
         // Parse as generic Change Object
-        val changes = jsonEvents.parse<Change<Map<String, *>>>(genericAdapter)
-        changes.collect { change ->
-            val className = change.doc["java_type"] as? String
+        val changes = jsonEvents.map { events ->
+            var type: String? = null
+            TokenBuffer(asyncParser).also { tb -> events.mapIndexed { index, jsonEvent ->
+                tb.copyFromJsonEvent(jsonEvent)
+                if (jsonEvent is FieldName && jsonEvent.name == "java_type" && index+1<events.size) {
+                    (events[index+1] as? StringValue)?.let {type = it.value}
+                }
+            } }.let {
+                Pair(type, it)
+            }
+        }
+        changes.collect { (className, buffer) ->
             if (className != null) {
                 val changeClass = Class.forName(className)
                 if (clazz.isAssignableFrom(changeClass)) {
-                    val adapter = moshi.adapter(changeClass)
+                    val changeType = newParameterizedType(Change::class.java, changeClass)
+                    val typeRef = object : TypeReference<Change<*>>() {
+                        override fun getType(): Type {
+                            return changeType
+                        }
+                    }
                     @Suppress("UNCHECKED_CAST")
                     // Parse as actual Change object with the correct class
-                    emit(Change(change.seq, change.id, change.changes, adapter.fromJsonValue(change.doc) as T, change.deleted))
+                    emit(buffer.asParser(objectMapper).readValueAs<Change<T>>(typeRef))
                 }
             }
         }
@@ -858,7 +871,9 @@ class ClientImpl(private val httpClient: HttpClient,
                                     }
                                 } else {
                                     try {
-                                        val deserializedObject = moshi.adapter<T>(type).fromJson(buffer)
+                                        val deserializedObject = objectMapper.readValue(buffer.readByteArray(), object : TypeReference<T>() {
+                                            override fun getType() = type
+                                        })
                                         buffer.clear()
                                         if (deserializedObject == null) {
                                             continuation.resumeWithException(CouchDbException("Null result not allowed", statusCode, result.response.reason))
@@ -875,13 +890,13 @@ class ClientImpl(private val httpClient: HttpClient,
                                     @Suppress("UNCHECKED_CAST")
                                     continuation.resume(null as T)
                                 } else {
-                                    val (error, reason) = tryParseError(buffer, moshi)
+                                    val (error, reason) = tryParseError(buffer, objectMapper)
                                     continuation.resumeWithException(CouchDbException(reason
                                             ?: "Unexpected status code", statusCode, result.response.reason, error, reason))
                                 }
                             }
                             else -> {
-                                val (error, reason) = tryParseError(buffer, moshi)
+                                val (error, reason) = tryParseError(buffer, objectMapper)
                                 continuation.resumeWithException(CouchDbException(reason
                                         ?: "Unexpected status code", statusCode, result.response.reason, error, reason))
                             }
@@ -896,6 +911,10 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private fun tryParseError(buffer: Buffer, moshi: Moshi): CouchDbErrorResponse {
         return runCatching { checkNotNull(moshi.adapter<CouchDbErrorResponse>().fromJson(buffer)) }.getOrElse { CouchDbErrorResponse() }
+    }
+
+    private fun tryParseError(buffer: Buffer, objectMapper: ObjectMapper): CouchDbErrorResponse {
+        return runCatching { checkNotNull(objectMapper.readValue(buffer.readByteArray(), CouchDbErrorResponse::class.java)) }.getOrElse { CouchDbErrorResponse() }
     }
 
     internal class Base64Adapter {
