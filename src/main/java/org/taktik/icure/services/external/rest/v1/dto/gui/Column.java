@@ -18,22 +18,19 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 22:23
  */
-@XStreamAlias("Column")
 public class Column implements Serializable {
-	
-	@XStreamAsAttribute
-    String label;
-	
-	@XStreamAsAttribute
-    Double width;
+
+	String label;
+
+	Double width;
 
 	public Column() {
 	}

@@ -17,14 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.base
 
-import com.squareup.moshi.Json
-
 /**
  * @param <T> The type of the entity identity (a String, a UUID, etc.)
 </T> */
 interface VersionableDto<T> : IdentifiableDto<T> {
-    @Json(name = "_rev")
     val rev: String?
-
     fun withIdRev(id: T?, rev: String): VersionableDto<T>
 }

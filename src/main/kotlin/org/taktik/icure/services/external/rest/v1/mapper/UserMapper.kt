@@ -18,8 +18,7 @@ interface UserMapper {
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true),
-            Mapping(target = "set_type", ignore = true)
+            Mapping(target = "revisionsInfo", ignore = true)
             )
 	fun map(userDto: UserDto):User
 	fun map(user: User):UserDto

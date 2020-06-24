@@ -67,8 +67,8 @@ data class DocumentTemplate(
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = DocumentTemplate::class.qualifiedName!!
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+
 ) : StoredICureDocument {
     companion object : DynamicInitializer<DocumentTemplate>
 

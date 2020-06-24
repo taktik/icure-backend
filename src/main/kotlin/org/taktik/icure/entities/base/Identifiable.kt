@@ -17,10 +17,10 @@
  */
 package org.taktik.icure.entities.base
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.moshi.Json
 import java.io.Serializable
 
 interface Identifiable<T> : Serializable {
-    @Json(name = "_id")
     val id: T
 }

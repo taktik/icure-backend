@@ -37,7 +37,7 @@ import org.taktik.icure.validation.ValidCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class SubContact(
-        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_id") override val id: String? = null,
         @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
         @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
@@ -55,7 +55,7 @@ data class SubContact(
         val classificationId: String? = null,
         val services: List<ServiceLink> = listOf(),
         override val encryptedSelf: String? = null
-) : Encrypted, ICureDocument {
+) : Encrypted, ICureDocument<String?> {
     companion object : DynamicInitializer<SubContact> {
         const val STATUS_LABO_RESULT = 1
         const val STATUS_UNREAD = 2

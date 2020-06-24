@@ -31,7 +31,6 @@ import org.taktik.icure.asynclogic.FormTemplateLogic
 import org.taktik.icure.dto.gui.layout.FormLayout
 
 import org.taktik.icure.entities.FormTemplate
-import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.firstOrNull
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
@@ -65,14 +64,6 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
             emitAll(byUserGuid)
         } else {
             emitAll(formTemplateDAO.findBySpecialtyGuid(dbInstanceUri, groupId, specialityCode, formTemplateGuid, true))
-        }
-    }
-
-    override fun extractLayout(formTemplate: FormTemplate): FormLayout {
-        return try {
-            FormUtils().parseXml(InputStreamReader(ByteArrayInputStream(formTemplate.layout), "UTF8"))
-        } catch (e: UnsupportedEncodingException) {
-            throw IllegalArgumentException(e)
         }
     }
 

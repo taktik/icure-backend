@@ -17,10 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.base
 
-import com.squareup.moshi.Json
-
 interface StoredDocumentDto : VersionableDto<String> {
-    @Json(name = "deleted")
     val deletionDate: Long?
 
     fun withDeletionDate(deletionDate: Long?): StoredDocumentDto

@@ -17,12 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.constants.Permissions.CriterionDataType
 import org.taktik.icure.constants.Permissions.CriterionTypeCurrentUser
 import java.io.Serializable
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PermissionCriterionDto(
         @JsonProperty("isNegative") val negative: Boolean = false,

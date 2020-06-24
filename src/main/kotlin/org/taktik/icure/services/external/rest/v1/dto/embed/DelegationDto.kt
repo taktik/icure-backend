@@ -21,9 +21,13 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
  * Created by aduchate on 29/03/13, 18:37
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class DelegationDto(
         //This is not the owner of a piece of date (patient, contact). It is the owner of the delegation.

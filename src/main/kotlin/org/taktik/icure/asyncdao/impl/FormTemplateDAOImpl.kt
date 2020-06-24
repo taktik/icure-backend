@@ -64,7 +64,6 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         return if (loadLayout) {
             formTemplates.map {
                 this.postLoad(dbInstanceUrl, groupId, it)
-                it
             }
         } else formTemplates
     }
@@ -78,7 +77,6 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         return if (loadLayout) {
             formTemplates.map {
                 this.postLoad(dbInstanceUrl, groupId, it)
-                it
             }
         } else formTemplates
     }
@@ -99,7 +97,6 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
         return if (loadLayout) {
             formTemplates.map {
                 this.postLoad(dbInstanceUrl, groupId, it)
-                it
             }
         } else formTemplates
     }
@@ -158,10 +155,11 @@ internal class FormTemplateDAOImpl(private val uuidGenerator: UUIDGenerator, @Qu
                 if (formTemplate.layoutAttachmentId != null) {
                     try {
                         val attachmentIs = getAttachment(dbInstanceUrl, groupId, formTemplate.id, formTemplate.layoutAttachmentId, formTemplate.rev)
-                        formTemplate.copy(layout = ByteArrayOutputStream().use { attachment ->
+                        val copy = formTemplate.copy(layout = ByteArrayOutputStream().use { attachment ->
                             attachmentIs.collect { attachment.write(it.array()) }
                             attachment.toByteArray()
                         })
+                        copy
                     } catch (e: IOException) {
                         formTemplate //Could not load
                     }

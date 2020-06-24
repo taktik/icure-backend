@@ -23,10 +23,7 @@ import com.squareup.moshi.Json
  * @param <T> The type of the entity identity (a String, a UUID, etc.)
 </T> */
 interface Versionable<T> : Identifiable<T> {
-    @Json(name = "rev_history")
     val revHistory: Map<String, String>?
-
-    @Json(name = "_rev")
     val rev: String?
 
     fun withIdRev(id: T? = null, rev: String): Versionable<T>

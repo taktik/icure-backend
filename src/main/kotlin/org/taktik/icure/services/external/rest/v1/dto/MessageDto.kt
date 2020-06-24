@@ -17,6 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
@@ -25,8 +29,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.MessageReadStatusDto
 import org.taktik.icure.utils.DynamicInitializer
 
-
-import com.github.pozo.KotlinBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class MessageDto(
         override val id: String,
@@ -82,7 +86,7 @@ data class MessageDto(
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptedSelf: String? = null
-) : StoredDocumentDto, ICureDocumentDto, EncryptableDto {
+) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {
     companion object : DynamicInitializer<MessageDto> {
         const val STATUS_LABO_RESULT = 1 shl 0
         const val STATUS_UNREAD = 1 shl 1

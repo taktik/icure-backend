@@ -22,12 +22,11 @@ abstract class FormTemplateMapper {
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true),
-            Mapping(target = "set_type", ignore = true)
+            Mapping(target = "revisionsInfo", ignore = true)
             )
 	abstract fun map(formTemplateDto: FormTemplateDto):FormTemplate
     abstract fun map(formTemplate: FormTemplate):FormTemplateDto
 
-    fun map(formLayout: ByteArray): FormLayout = json.readValue(formLayout, FormLayout::class.java)
-    fun map(formLayout: FormLayout): ByteArray = json.writeValueAsBytes(formLayout)
+    fun map(formLayout: ByteArray?): FormLayout? = formLayout?.let { json.readValue(it, FormLayout::class.java) }
+    fun map(formLayout: FormLayout?): ByteArray? = formLayout?.let { json.writeValueAsBytes(formLayout) }
 }

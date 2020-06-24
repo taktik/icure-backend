@@ -18,34 +18,28 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 20:57
  */
-@XStreamAlias("Code")
 public class Suggest implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@XStreamAsAttribute
-    String filterKey;
-	
-	@XStreamAsAttribute
-    String filterValue;
+	String filterKey;
 
-	@XStreamAsAttribute
-    String entityClass;
-	
-	@XStreamAsAttribute
-    String fieldValue;
-	@XStreamAsAttribute
-    String fieldDisplay;
+	String filterValue;
+
+	String entityClass;
+
+	String fieldValue;
+	String fieldDisplay;
 
 	public Suggest() {
 	}

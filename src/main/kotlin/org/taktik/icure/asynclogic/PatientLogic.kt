@@ -56,8 +56,6 @@ interface PatientLogic {
     @Throws(MissingRequirementsException::class)
     suspend fun modifyPatient(patient: Patient): Patient?
 
-    suspend fun logAllPatients(hcPartyId: String)
-
     suspend fun modifyPatientReferral(patient: Patient, referralId: String?, start: Instant?, end: Instant?): Patient?
 
     suspend fun mergePatient(patient: Patient, fromPatients: List<Patient>): Patient?

@@ -22,8 +22,8 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 import org.taktik.icure.services.external.rest.handlers.JacksonEditorDeserializer;
 import org.taktik.icure.services.external.rest.handlers.JsonDiscriminator;
 import org.taktik.icure.services.external.rest.v1.dto.gui.editor.ActionButton;

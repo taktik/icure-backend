@@ -18,17 +18,15 @@
 
 package org.taktik.icure.dto.gui.type.primitive;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-@XStreamAlias("TKBoolean")
 public class PrimitiveBoolean implements Primitive {
     static List<String> positiveValues = Arrays.asList("yes", "ja", "oui", "si", "yo", "ok");
-    @XStreamAsAttribute
     java.lang.Boolean value;
 
     public java.lang.Boolean getValue() {

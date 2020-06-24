@@ -18,30 +18,33 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
-import com.squareup.moshi.Json
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
 import java.time.Instant
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ContentDto(
-        @Json(name = "s") val stringValue: String? = null,
-        @Json(name = "n") val numberValue: Double? = null,
-        @Json(name = "b") val booleanValue: Boolean? = null,
-        @Json(name = "i")
+        val stringValue: String? = null,
+        val numberValue: Double? = null,
+        val booleanValue: Boolean? = null,
+
         @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val instantValue: Instant? = null,
-        @Json(name = "dt") val fuzzyDateValue: Long? = null,
-        @Json(name = "x") val binaryValue: ByteArray? = null,
-        @Json(name = "d") val documentId: String? = null,
-        @Json(name = "m") val measureValue: MeasureDto? = null,
-        @Json(name = "p") val medicationValue: MedicationDto? = null,
-        @Json(name = "c") val compoundValue: Set<ServiceDto>? = null
+        val fuzzyDateValue: Long? = null,
+        val binaryValue: ByteArray? = null,
+        val documentId: String? = null,
+        val measureValue: MeasureDto? = null,
+        val medicationValue: MedicationDto? = null,
+        val compoundValue: Set<ServiceDto>? = null
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

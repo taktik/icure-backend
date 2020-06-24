@@ -18,18 +18,14 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 17:51
  */
-@XStreamAlias("TKSchema")
 public class Schema extends Data implements Serializable {
-	
-//TODO find a way to get the image to browser quickly.
-	//@XStreamAsAttribute
     byte[] data;
 
     public byte[] getData() {

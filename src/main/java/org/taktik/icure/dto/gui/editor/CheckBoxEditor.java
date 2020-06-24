@@ -18,13 +18,16 @@
 
 package org.taktik.icure.dto.gui.editor;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import org.taktik.icure.dto.gui.Editor;
 
-@XStreamAlias("CheckBoxEditor")
+
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.taktik.icure.dto.gui.Editor;
+import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class CheckBoxEditor extends Editor implements ValueDateEditor {
-    @XStreamAsAttribute
     boolean displayValueDate;
 
     @Override

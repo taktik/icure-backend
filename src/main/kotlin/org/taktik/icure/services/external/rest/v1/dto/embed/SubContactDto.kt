@@ -21,13 +21,17 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
  * Created by aduchate on 06/07/13, 10:09
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class SubContactDto(
-        override val id: String,
+        override val id: String? = null,
         override val created: Long? = null,
         override val modified: Long? = null,
         override val author: String? = null,
@@ -45,4 +49,4 @@ data class SubContactDto(
         val classificationId: String? = null,
         val services: List<ServiceLinkDto> = listOf(),
         override val encryptedSelf: String? = null
-) : EncryptedDto, ICureDocumentDto
+) : EncryptedDto, ICureDocumentDto<String?>

@@ -59,7 +59,9 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
                              documentLogic: DocumentLogic,
                              sessionLogic: AsyncSessionLogic,
                              userLogic: UserLogic,
-                             filters: org.taktik.icure.asynclogic.impl.filter.Filters) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
+                             filters: org.taktik.icure.asynclogic.impl.filter.Filters,
+                             val serviceMapper: ServiceMapper
+) : KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
 	fun exportMedicationScheme(
 			patient: Patient,
@@ -230,7 +232,6 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
 	}
 
     private suspend fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-        val mapper = Mappers.getMapper(ServiceMapper::class.java)
         val hcPartyIds = healthcarePartyLogic.getHealthcareParty(hcPartyId)?.let { healthcarePartyLogic.getHcpHierarchyIds(it) } ?: HashSet()
 
         val f = Filters.UnionFilter(hcPartyIds.map { hcpId ->
@@ -250,7 +251,7 @@ class MedicationSchemeExport(patientLogic: PatientLogic,
         val toBeDecryptedServices = services?.filter { it.encryptedContent?.length ?: 0 > 0 || it.encryptedSelf?.length ?: 0 > 0 }?.toList()
 
         return if (decryptor != null && toBeDecryptedServices?.size ?: 0 > 0) {
-            val decryptedServices = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedServices?.map { mapper.map(it) }, ServiceDto::class.java) ).awaitFirst().map { mapper!!.map(it) }
+            val decryptedServices = Mono.fromCompletionStage ( decryptor.decrypt(toBeDecryptedServices?.map { serviceMapper.map(it) }, ServiceDto::class.java) ).awaitFirst().map { serviceMapper.map(it) }
             services.map { if (toBeDecryptedServices?.contains(it) == true) decryptedServices[toBeDecryptedServices.indexOf(it)] else it }
         } else services
     }

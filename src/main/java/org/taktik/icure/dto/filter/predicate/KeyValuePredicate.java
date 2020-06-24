@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-import org.taktik.icure.services.external.rest.xstream.NumberConverter;
 
 @JsonPolymorphismRoot(Predicate.class)
 @JsonDeserialize(using = JsonDeserializer.None.class)

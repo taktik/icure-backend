@@ -17,13 +17,17 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.IdentifiableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.NamedDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DatabaseSynchronizationDto
 
-
-import com.github.pozo.KotlinBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ReplicationDto(
         override val id: String,

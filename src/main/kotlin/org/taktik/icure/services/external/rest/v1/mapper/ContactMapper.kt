@@ -19,8 +19,7 @@ interface ContactMapper {
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true),
-            Mapping(target = "set_type", ignore = true)
+            Mapping(target = "revisionsInfo", ignore = true)
             )
     fun map(contactDto: ContactDto): Contact
     fun map(contact: Contact): ContactDto

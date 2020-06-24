@@ -58,11 +58,9 @@ class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatc
         val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
-        documentTemplates.onEach {
+        return documentTemplates.map {
             this.postLoad(dbInstanceUrl, groupId, it)
         }
-
-        return documentTemplates
     }
 
     @View(name = "by_specialty_code_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.specialty) emit([doc.specialty.code,doc.guid], null )}")
@@ -81,11 +79,9 @@ class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatc
         }
 
         // invoke postLoad()
-        documentTemplates.onEach {
+        return documentTemplates.map {
             this.postLoad(dbInstanceUrl, groupId, it)
         }
-
-        return documentTemplates
     }
 
     @View(name = "by_document_type_code_and_user_id_and_guid", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.DocumentTemplate' && !doc.deleted && doc.documentType ) emit([doc.documentType,doc.owner,doc.guid], null )}")
@@ -107,11 +103,9 @@ class DocumentTemplateDAOImpl(@Qualifier("baseCouchDbDispatcher") couchDbDispatc
         val documentTemplates = client.queryViewIncludeDocsNoValue<Array<String>, DocumentTemplate>(viewQuery).map { it.doc }
 
         // invoke postLoad()
-        documentTemplates.onEach {
+        return documentTemplates.map {
             this.postLoad(dbInstanceUrl, groupId, it)
         }
-
-        return documentTemplates
     }
 
     override fun evictFromCache(entity: DocumentTemplate) {

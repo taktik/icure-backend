@@ -17,6 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.CryptoActorDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
@@ -39,8 +43,8 @@ import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.ValidCode
 import java.util.*
 
-
-import com.github.pozo.KotlinBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PatientDto(
         override val id: String,
@@ -125,7 +129,7 @@ data class PatientDto(
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptedSelf: String? = null
-) : StoredDocumentDto, ICureDocumentDto, PersonDto, EncryptableDto, CryptoActorDto {
+) : StoredDocumentDto, ICureDocumentDto<String>, PersonDto, EncryptableDto, CryptoActorDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

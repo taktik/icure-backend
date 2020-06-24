@@ -17,6 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.AppendixTypeDto
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeFlagDto
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeIdentificationDto
@@ -24,8 +28,8 @@ import org.taktik.icure.services.external.rest.v1.dto.base.LinkQualificationDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PeriodicityDto
 
-
-import com.github.pozo.KotlinBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class CodeDto(
         override val id: String,         // id = type|code|version  => this must be unique

@@ -18,16 +18,15 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.layout;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
 import org.taktik.icure.services.external.rest.v1.dto.gui.Tag;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@XStreamAlias("FormLayout")
 public class FormLayout implements Serializable {
     private String name;
     private Double width;

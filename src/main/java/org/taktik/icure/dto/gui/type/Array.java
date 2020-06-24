@@ -18,8 +18,8 @@
 
 package org.taktik.icure.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -30,9 +30,8 @@ import java.util.List;
 /**
  * Created by aduchate on 19/11/13, 10:21
  */
-@XStreamAlias("TKArray")
 public class Array implements Serializable, Data {
-    @XStreamImplicit
+
     private List value;
 
     public List getValue() {

@@ -81,7 +81,10 @@ class PatientController(
         private val patientLogic: PatientLogic,
         private val healthcarePartyLogic: HealthcarePartyLogic,
         private val patientMapper: PatientMapper,
-        private val filterChainMapper: FilterChainMapper
+        private val filterChainMapper: FilterChainMapper,
+        private val addressMapper: AddressMapper,
+        private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
+        private val delegationMapper: DelegationMapper
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
@@ -235,8 +238,8 @@ class PatientController(
                                         dateOfBirth = p.dateOfBirth,
                                         ssin = p.ssin,
                                         externalId = p.externalId,
-                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> Mappers.getMapper(PatientHealthCarePartyMapper::class.java).map(phcp) },
-                                        addresses = p.addresses.map { Mappers.getMapper(AddressMapper::class.java).map(it) }
+                                        patientHealthCareParties = p.patientHealthCareParties.map { phcp -> patientHealthCarePartyMapper.map(phcp) },
+                                        addresses = p.addresses.map { addressMapper.map(it) }
                                 )
                             }.toList()
                     )
@@ -351,7 +354,7 @@ class PatientController(
     fun newPatientDelegations(@PathVariable patientId: String,
                        @RequestBody ds: List<DelegationDto>) = mono {
         try {
-            patientLogic.addDelegations(patientId, ds.map { d -> Mappers.getMapper(DelegationMapper::class.java).map(d) })
+            patientLogic.addDelegations(patientId, ds.map { d -> delegationMapper.map(d) })
             val patientWithDelegations = patientLogic.getPatient(patientId)
 
             patientWithDelegations?.takeIf { it.delegations.isNotEmpty() }?.let(patientToPatientDto)

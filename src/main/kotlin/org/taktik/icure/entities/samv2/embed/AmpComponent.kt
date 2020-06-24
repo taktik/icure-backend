@@ -1,7 +1,11 @@
 package org.taktik.icure.entities.samv2.embed
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class AmpComponent(
         override val from: Long? = null,
@@ -18,4 +22,5 @@ data class AmpComponent(
         val specificDrugDevice: Int? = null,
         val dimensions: String? = null,
         val name: SamText? = null,
-        val note: SamText? = null) : DataPeriod
+        val note: SamText? = null
+) : DataPeriod

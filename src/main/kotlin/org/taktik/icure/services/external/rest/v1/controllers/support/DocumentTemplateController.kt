@@ -41,19 +41,12 @@ import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.DocumentTemplateLogic
-import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.entities.embed.DocumentType
 import org.taktik.icure.services.external.rest.v1.dto.DocumentTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.data.ByteArrayDto
 import org.taktik.icure.services.external.rest.v1.mapper.DocumentTemplateMapper
-import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import javax.xml.transform.TransformerException
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.stream.StreamSource
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -150,26 +143,7 @@ class DocumentTemplateController(
                                       response: ServerHttpResponse) = mono {
         val document = documentTemplateLogic.getDocumentTemplateById(documentTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found")
-        if (document.attachment != null) {
-            if (document.version == null) {
-                val xmlSource = StreamSource(ByteArrayInputStream(document.attachment))
-                val xsltSource = StreamSource(FormUtils::class.java.getResourceAsStream("DocumentTemplateLegacyToNew.xml"))
-                val byteOutputStream = ByteArrayOutputStream()
-                val result = javax.xml.transform.stream.StreamResult(byteOutputStream)
-                val transFact = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
-                try {
-                    val trans = transFact.newTransformer(xsltSource)
-                    trans.transform(xmlSource, result)
-                    byteOutputStream.toByteArray()
-                } catch (e: TransformerException) {
-                    throw IllegalStateException("Could not convert legacy document")
-                }
-            } else {
-                document.attachment
-            }
-        } else {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
-        }
+        document.attachment ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "AttachmentDto not found")
     }
 
     @Operation(summary = "Download a the document template attachment")

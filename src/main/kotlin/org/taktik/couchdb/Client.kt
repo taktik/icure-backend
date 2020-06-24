@@ -4,18 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.util.TokenBuffer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonReader
-import com.squareup.moshi.JsonWriter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.ToJson
-import com.squareup.moshi.Types
-import com.squareup.moshi.Types.newParameterizedType
+import com.google.common.reflect.TypeParameter
+import com.google.common.reflect.TypeToken
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +36,6 @@ import org.eclipse.jetty.client.util.StringContentProvider
 import org.eclipse.jetty.http.HttpHeader
 import org.eclipse.jetty.http.HttpMethod
 import org.eclipse.jetty.http.HttpStatus
-import org.ektorp.ComplexKey
 import org.ektorp.ViewQuery
 import org.ektorp.ViewResultException
 import org.ektorp.http.URI
@@ -53,7 +48,6 @@ import org.taktik.couchdb.parser.NumberValue
 import org.taktik.couchdb.parser.StartArray
 import org.taktik.couchdb.parser.StartObject
 import org.taktik.couchdb.parser.StringValue
-import org.taktik.couchdb.parser.adapter
 import org.taktik.couchdb.parser.copyFromJsonEvent
 import org.taktik.couchdb.parser.nextSingleValueAs
 import org.taktik.couchdb.parser.nextSingleValueAsOrNull
@@ -64,17 +58,17 @@ import org.taktik.couchdb.parser.toJsonEvents
 import org.taktik.icure.dao.Option
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.Versionable
+import org.taktik.icure.services.external.rest.handlers.JacksonActiveTaskDeserializer
+import org.taktik.icure.utils.InstantDeserializer
+import org.taktik.icure.utils.InstantSerializer
 import org.taktik.jetty.basicAuth
 import org.taktik.jetty.getResponseBytesFlow
 import org.taktik.jetty.getResponseJsonEvents
 import org.taktik.jetty.getResponseTextFlow
-import java.io.IOException
-import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.time.Instant
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -114,29 +108,98 @@ data class ReplicatorDocument(
 }
 
 
-sealed class ActiveTask(val pid: String? = null, val started_on: Instant? = null, val updated_on: Instant? = null)
+@JsonDeserialize(using = JacksonActiveTaskDeserializer::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
+sealed class ActiveTask(
+        val pid: String? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        val started_on: Instant? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        val updated_on: Instant? = null
+)
 @Suppress("unused")
+@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class UnsupportedTask(
-        pid: String? = null, progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null) : ActiveTask(pid, started_on, updated_on)
+        pid: String? = null,
+        progress: Int? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        started_on: Instant? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        updated_on: Instant? = null
+) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
+@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DatabaseCompactionTask(
-        pid: String? = null, val progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null,
+        pid: String? = null,
+        val progress: Int? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        started_on: Instant? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        updated_on: Instant? = null,
         val database: String?,
         val total_changes: Double?,
-        val completed_changes: Double?) : ActiveTask(pid, started_on, updated_on)
+        val completed_changes: Double?
+) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
-class Indexer(
-        pid: String? = null, val progress: Int? = null, started_on: Instant? = null, updated_on: Instant? = null,
+@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
+class ViewCompactionTask(
+        pid: String? = null,
+        val progress: Int? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        started_on: Instant? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        updated_on: Instant? = null,
         val database: String?,
         val design_document: String?,
+        val phase: String?,
         val total_changes: Double?,
-        val completedChanges: Double?) : ActiveTask(pid, started_on, updated_on)
+        val view: Double?,
+        val completed_changes: Double?
+) : ActiveTask(pid, started_on, updated_on)
 
 @Suppress("unused")
+@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Indexer(
+        pid: String? = null,
+        val progress: Int? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        started_on: Instant? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        updated_on: Instant? = null,
+        val database: String?,
+        val node: String?,
+        val design_document: String?,
+        val total_changes: Double?,
+        val completedChanges: Double?
+) : ActiveTask(pid, started_on, updated_on)
+
+@Suppress("unused")
+@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class ReplicationTask(
-        pid: String? = null, started_on: Instant? = null, updated_on: Instant? = null,
+        pid: String? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        started_on: Instant? = null,
+        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonDeserialize(using = InstantDeserializer::class)
+        updated_on: Instant? = null,
         val replication_id: String?,
         val doc_id: String?,
         val node: String?,
@@ -151,67 +214,8 @@ class ReplicationTask(
         val target: String?,
         val source_seq: String?,
         val checkpointed_source_seq: String?,
-        val checkpoint_interval: Double) : ActiveTask(pid, started_on, updated_on)
-
-class ActiveTaskAdapterFactory : JsonAdapter.Factory {
-    override fun create(type: Type, annotations: MutableSet<out Annotation>, moshi: Moshi): JsonAdapter<*>? {
-        return if (Types.getRawType(type) != ActiveTask::class.java || !annotations.isEmpty()) {
-            null
-        } else {
-            object : JsonAdapter<ActiveTask>() {
-                val adapters : Map<Type, JsonAdapter<out ActiveTask>> = mapOf(
-                        DatabaseCompactionTask::class.java to moshi.adapter(DatabaseCompactionTask::class.java),
-                        Indexer::class.java to moshi.adapter(Indexer::class.java),
-                        ReplicationTask::class.java to moshi.adapter(ReplicationTask::class.java)
-                )
-
-                override fun fromJson(reader: JsonReader): ActiveTask {
-                    val jsonMap = reader.readJsonValue() as? Map<String, *>
-                    return jsonMap?.let { params ->
-                        when {
-                            params["type"] == "indexer" -> adapters[Indexer::class.java]?.fromJsonValue(jsonMap)
-                            params["type"] == "replication" -> adapters[ReplicationTask::class.java]?.fromJsonValue(jsonMap)
-                            else -> adapters[DatabaseCompactionTask::class.java]?.fromJsonValue(jsonMap)
-                        }
-                    } ?: UnsupportedTask()
-                }
-
-                override fun toJson(writer: JsonWriter, value: ActiveTask?) {
-                    value?.let { at ->
-                        adapters[at.javaClass]?.let {
-                            (it as JsonAdapter<ActiveTask>).toJson(writer, at)
-                        }
-                    } ?: writer.nullValue()
-                }
-            }
-        }
-    }
-}
-
-class ComplexKeyAdapterFactory : JsonAdapter.Factory {
-    override fun create(type: Type, annotations: MutableSet<out Annotation>, moshi: Moshi): JsonAdapter<*>? {
-        return if (Types.getRawType(type) != ComplexKey::class.java || !annotations.isEmpty()) {
-            null
-        } else {
-            object : JsonAdapter<ComplexKey>() {
-                override fun fromJson(reader: JsonReader): ComplexKey {
-                    val jsonList = reader.readJsonValue() as? List<*> ?: throw IllegalStateException("Invalid complex key format detected during deserialisation")
-                    return ComplexKey.of(*jsonList.map { it?.let { moshi.adapter(it.javaClass).fromJsonValue(it)} }.toTypedArray())
-                }
-
-                override fun toJson(writer: JsonWriter, value: ComplexKey?) {
-                    value?.let { ck ->
-                        writer.beginArray()
-                        ck.components.forEach {
-                            it?.let { moshi.adapter(it.javaClass).toJson(writer, it) } ?: writer.nullValue()
-                        }
-                        writer.endArray()
-                    } ?: writer.nullValue()
-                }
-            }
-        }
-    }
-}
+        val checkpoint_interval: Double
+) : ActiveTask(pid, started_on, updated_on)
 
 class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
 data class View(val map: String, val reduce: String?)
@@ -254,10 +258,10 @@ data class ViewRowWithMissingDoc<K, V>(override val id: String, override val key
         get() = error("Doc is missing for this row")
 }
 
-private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
-private data class BulkDeleteRequest(val docs: Collection<DeleteRequest>, @Json(name = "all_or_nothing") val allOrNothing: Boolean = false)
+private data class BulkUpdateRequest<T : CouchDbDocument>(val docs: Collection<T>, @JsonProperty("all_or_nothing") val allOrNothing: Boolean = false)
+private data class BulkDeleteRequest(val docs: Collection<DeleteRequest>, @JsonProperty("all_or_nothing") val allOrNothing: Boolean = false)
 
-data class DeleteRequest(@Json(name = "_id") val id: String, @Json(name = "_id") val rev: String?, @Json(name = "_deleted") val deleted: Boolean = true)
+data class DeleteRequest(@JsonProperty("_id") val id: String, @JsonProperty("_rev") val rev: String?, @JsonProperty("_deleted") val deleted: Boolean = true)
 data class BulkUpdateResult(val id: String, val rev: String, val ok: Boolean?, val error: String?, val reason: String?)
 data class DocIdentifier(val id: String?, val rev: String?)
 
@@ -775,7 +779,7 @@ class ClientImpl(private val httpClient: HttpClient,
     override suspend fun activeTasks(): List<ActiveTask> {
         val uri = dbURI.append("_active_tasks")
         val request = newRequest(uri)
-        return request.getCouchDbResponseWithType(newParameterizedType(List::class.java, ActiveTask::class.java), nullIf404 = true)
+        return request.getCouchDbResponseWithType(object : TypeToken<List<ActiveTask>>() {}.type, nullIf404 = true)
     }
 
     @ExperimentalCoroutinesApi
@@ -817,8 +821,9 @@ class ClientImpl(private val httpClient: HttpClient,
             if (className != null) {
                 val changeClass = Class.forName(className)
                 if (clazz.isAssignableFrom(changeClass)) {
-                    val changeType = newParameterizedType(Change::class.java, changeClass)
-                    val typeRef = object : TypeReference<Change<*>>() {
+                    val coercedClass = changeClass as Class<T>
+                    val changeType = object : TypeToken<Change<T>>() {}.where(object : TypeParameter<T>() {}, coercedClass).type
+                    val typeRef = object : TypeReference<Change<T>>() {
                         override fun getType(): Type {
                             return changeType
                         }
@@ -911,66 +916,8 @@ class ClientImpl(private val httpClient: HttpClient,
 
     private data class CouchDbErrorResponse(val error: String? = null, val reason: String? = null)
 
-    private fun tryParseError(buffer: Buffer, moshi: Moshi): CouchDbErrorResponse {
-        return runCatching { checkNotNull(moshi.adapter<CouchDbErrorResponse>().fromJson(buffer)) }.getOrElse { CouchDbErrorResponse() }
-    }
-
     private fun tryParseError(buffer: Buffer, objectMapper: ObjectMapper): CouchDbErrorResponse {
         return runCatching { checkNotNull(objectMapper.readValue(buffer.readByteArray(), CouchDbErrorResponse::class.java)) }.getOrElse { CouchDbErrorResponse() }
-    }
-
-    internal class Base64Adapter {
-        @FromJson
-        fun fromJson(string: String?): ByteArray {
-            return Base64.getDecoder().decode(string)
-        }
-
-        @ToJson
-        fun toJson(bytes: ByteArray?): String {
-            return Base64.getEncoder().encodeToString(bytes)
-        }
-    }
-
-    internal class SortedSetAdapterFactory : JsonAdapter.Factory {
-        override fun create(type: Type, annotations: Set<Annotation?>, moshi: Moshi): JsonAdapter<*>? {
-            if (!annotations.isEmpty()) {
-                return null // Annotations? This factory doesn't apply.
-            }
-            if (type !is ParameterizedType) {
-                return null // No type parameter? This factory doesn't apply.
-            }
-            val parameterizedType: ParameterizedType = type as ParameterizedType
-            if (parameterizedType.getRawType() !== SortedSet::class.java) {
-                return null // Not a sorted set? This factory doesn't apply.
-            }
-            val elementType: Type = parameterizedType.getActualTypeArguments().get(0)
-            val elementAdapter = moshi.adapter<Any>(elementType)
-            return SortedSetAdapter(elementAdapter).nullSafe()
-        }
-    }
-
-    internal class SortedSetAdapter<T>(private val elementAdapter: JsonAdapter<T>) : JsonAdapter<SortedSet<T>?>() {
-        @Throws(IOException::class)
-        override fun fromJson(reader: JsonReader): SortedSet<T>? {
-            val result: SortedSet<T>? = TreeSet<T>()
-            reader.beginArray()
-            while (reader.hasNext()) {
-                result?.add(elementAdapter.fromJson(reader))
-            }
-            reader.endArray()
-            return result
-        }
-
-        @Throws(IOException::class)
-        override fun toJson(writer: JsonWriter, set: SortedSet<T>?) {
-            writer.beginArray()
-            set?.let {
-                for (element in set) {
-                    elementAdapter.toJson(writer, element)
-                }
-            }
-            writer.endArray()
-        }
     }
 
 }

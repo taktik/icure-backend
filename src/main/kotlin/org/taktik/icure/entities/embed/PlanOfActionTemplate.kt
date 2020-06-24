@@ -52,7 +52,7 @@ data class PlanOfActionTemplate(
         val relevant: Boolean = true,
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         var forms: List<FormSkeleton> = listOf()
-) : ICureDocument, Named {
+) : ICureDocument<String>, Named {
     companion object : DynamicInitializer<PlanOfActionTemplate>
 
     fun merge(other: PlanOfActionTemplate) = PlanOfActionTemplate(args = this.solveConflictsWith(other))

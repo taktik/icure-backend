@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.asynclogic.impl
 
-import com.thoughtworks.xstream.XStream
+
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -340,7 +340,6 @@ class PatientLogicImpl(
             } ?: patient
         } else patient).let {
             createEntities(setOf(it)).firstOrNull()?.let { createdPatient ->
-                logPatient(createdPatient, "patient.create.")
                 createdPatient
             }
         }
@@ -352,7 +351,7 @@ class PatientLogicImpl(
         // checking requirements
         checkRequirements(patient)
         try {
-            updateEntities(setOf(patient)).first().also { logPatient(it, "patient.modify.") }
+            updateEntities(setOf(patient)).first()
         } catch (e: Exception) {
             throw IllegalArgumentException("Invalid patient", e)
         }
@@ -374,27 +373,6 @@ class PatientLogicImpl(
         }
     }
 
-    override suspend fun logAllPatients(hcPartyId: String) { //TODO MB ask : supend collect // launch ?
-        val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        patientDAO.listIdsByHcParty(dbInstanceUri, groupId, hcPartyId)
-                .bufferedChunks(100, 101)
-                .onEach { getPatients(it).onEach { p -> logPatient(p, "patient.init.${p.id}.") } }
-                .collect()
-    }
-
-    private fun logPatient(modifiedPatient: Patient, prefix: String) {
-        val dir = File("/Library/Application Support/iCure/Patients")
-        if (dir.exists() && dir.isDirectory) {
-            val xs = XStream()
-            val file = File(dir, prefix + System.currentTimeMillis() + ".xml")
-            try {
-                val out = BufferedOutputStream(FileOutputStream(file))
-                xs.toXML(modifiedPatient, out)
-                out.close()
-            } catch (ignored: IOException) { //
-            }
-        }
-    }
 
     override suspend fun modifyPatientReferral(patient: Patient, referralId: String?, start: Instant?, end: Instant?): Patient? {
         val startOrNow = start ?: Instant.now()

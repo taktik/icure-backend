@@ -12,7 +12,6 @@ interface FormTemplateLogic : EntityPersister<FormTemplate, String> {
 
     suspend fun getFormTemplateById(formTemplateId: String): FormTemplate?
     fun getFormTemplatesByGuid(userId: String, specialityCode: String, formTemplateGuid: String): Flow<FormTemplate>
-    fun extractLayout(formTemplate: FormTemplate): FormLayout
     fun getFormTemplatesBySpecialty(specialityCode: String, loadLayout: Boolean): Flow<FormTemplate>
     fun getFormTemplatesByUser(userId: String, loadLayout: Boolean): Flow<FormTemplate>
 

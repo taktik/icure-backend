@@ -17,20 +17,20 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import org.taktik.icure.constants.Roles.VirtualHostDependency
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.constants.Users
-import org.taktik.icure.services.external.rest.v1.dto.base.PrincipalDto
 import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationTagDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.PermissionDto
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
 import java.time.Instant
 
-import com.github.pozo.KotlinBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class UserStubDto(
         override val id: String,

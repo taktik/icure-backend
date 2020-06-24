@@ -66,7 +66,7 @@ data class PlanOfAction(
         val numberOfCares: Int? = null,
         val careTeamMemberships: List<CareTeamMembership?> = listOf(),
         override val encryptedSelf: String? = null
-) : Encrypted, ICureDocument, Named {
+) : Encrypted, ICureDocument<String>, Named {
     companion object : DynamicInitializer<PlanOfAction> {
         const val STATUS_PLANNED = 1 shl 0
         const val STATUS_ONGOING = 1 shl 1

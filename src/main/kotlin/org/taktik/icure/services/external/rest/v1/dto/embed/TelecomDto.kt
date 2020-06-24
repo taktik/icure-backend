@@ -21,11 +21,15 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
  * Created by aduchate on 21/01/13, 14:47
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import java.io.Serializable
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class TelecomDto(
         val telecomType: TelecomTypeDto? = null,

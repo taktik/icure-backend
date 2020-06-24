@@ -17,17 +17,20 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
-import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
-import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
-import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentGroupDto
-
 /**
  * Created by aduchate on 09/07/13, 16:27
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
+import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
+import org.taktik.icure.services.external.rest.v1.dto.base.StoredDocumentDto
+import org.taktik.icure.services.external.rest.v1.dto.embed.DocumentGroupDto
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class FormTemplateDto(
         override val id: String,

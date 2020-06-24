@@ -21,12 +21,16 @@ package org.taktik.icure.services.external.rest.v1.dto.embed
  * Services are created in the course a contact. Information like temperature, blood pressure and so on.
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
 import org.taktik.icure.validation.NotNull
 import java.util.*
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ServiceDto(
         override val id: String = UUID.randomUUID().toString(),//Only used when the ServiceDto is emitted outside of its contact
@@ -61,7 +65,7 @@ data class ServiceDto(
         override val codes: Set<CodeStubDto> = setOf(), //stub object of the CodeDto used to qualify the content of the ServiceDto
         override val tags: Set<CodeStubDto> = setOf(), //stub object of the tag used to qualify the type of the ServiceDto
         override val encryptedSelf: String? = null
-) : EncryptedDto, ICureDocumentDto, Comparable<ServiceDto> {
+) : EncryptedDto, ICureDocumentDto<String>, Comparable<ServiceDto> {
     override fun compareTo(@NotNull other: ServiceDto): Int {
         if (this == other) {
             return 0

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.apache.commons.lang3.StringUtils
-import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.CodeStub
 import java.io.Serializable
 import java.text.SimpleDateFormat

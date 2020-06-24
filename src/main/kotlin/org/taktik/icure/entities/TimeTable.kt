@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.entities
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
@@ -31,6 +32,7 @@ import org.taktik.icure.validation.AutoFix
 import org.taktik.icure.validation.NotNull
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class TimeTable(
         @JsonProperty("_id") override val id: String,
@@ -46,8 +48,8 @@ data class TimeTable(
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = TimeTable::class.qualifiedName!!
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+
 ) : StoredDocument {
     companion object : DynamicInitializer<TimeTable>
 

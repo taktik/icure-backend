@@ -33,19 +33,19 @@ import java.time.Instant
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Content(
-        @JsonProperty("s") @Json(name = "s") val stringValue: String? = null,
-        @JsonProperty("n") @Json(name = "n") val numberValue: Double? = null,
-        @JsonProperty("b") @Json(name = "b") val booleanValue: Boolean? = null,
-        @JsonProperty("i") @Json(name = "i")
+        @JsonProperty("s") val stringValue: String? = null,
+        @JsonProperty("n") val numberValue: Double? = null,
+        @JsonProperty("b") val booleanValue: Boolean? = null,
+        @JsonProperty("i")
         @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val instantValue: Instant? = null,
-        @JsonProperty("dt") @Json(name = "dt") val fuzzyDateValue: Long? = null,
-        @JsonProperty("x") @Json(name = "x") val binaryValue: ByteArray? = null,
-        @JsonProperty("d") @Json(name = "d") val documentId: String? = null,
-        @JsonProperty("m") @Json(name = "m") val measureValue: Measure? = null,
-        @JsonProperty("p") @Json(name = "p") val medicationValue: Medication? = null,
-        @JsonProperty("c") @Json(name = "c") val compoundValue: Set<Service>? = null
+        @JsonProperty("dt") val fuzzyDateValue: Long? = null,
+        @JsonProperty("x") val binaryValue: ByteArray? = null,
+        @JsonProperty("d") val documentId: String? = null,
+        @JsonProperty("m") val measureValue: Measure? = null,
+        @JsonProperty("p") val medicationValue: Medication? = null,
+        @JsonProperty("c") val compoundValue: Set<Service>? = null
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

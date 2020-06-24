@@ -18,17 +18,14 @@
 
 package org.taktik.icure.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 17:51
  */
-@XStreamAlias("SKTDrawDocument")
 public class Schema implements Serializable , Data {
-	
-//TODO find a way to get the image to browser quickly.
-	//@XStreamAsAttribute
+
     byte[] data;
 
     public byte[] getData() {

@@ -18,19 +18,16 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 20:57
  */
-@XStreamAlias("Tag")
 public class Tag implements Serializable {
-	@XStreamAsAttribute
 	String type;
-	@XStreamAsAttribute
 	String tag;
 
 	public Tag() {

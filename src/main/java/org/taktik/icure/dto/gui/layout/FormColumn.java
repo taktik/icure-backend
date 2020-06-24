@@ -18,9 +18,16 @@
 
 package org.taktik.icure.dto.gui.layout;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.taktik.icure.dto.gui.Editor;
+import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,12 +36,12 @@ import java.util.List;
 /**
  * Created by aduchate on 07/02/13, 17:10
  */
-@XStreamAlias("FormColumn")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FormColumn implements Serializable {
-    @XStreamImplicit(itemFieldName="FormLayoutData")
+
     private List<FormLayoutData> formDataList = new ArrayList<FormLayoutData>();
 
-    @XStreamAsAttribute
     String columns;
     public String getColumns() {
         return columns;

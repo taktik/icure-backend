@@ -56,8 +56,8 @@ data class Code(
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
         @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null,
-        @JsonProperty("java_type") override val _type: String = Code::class.qualifiedName!!
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+
 ) : StoredDocument, CodeIdentification {
     companion object : DynamicInitializer<Code> {
         fun from(type: String, code: String, version: String) = Code(id = "$type:$code:$version", type = type, code = code, version = version)

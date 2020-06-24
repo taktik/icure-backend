@@ -18,37 +18,28 @@
 
 package org.taktik.icure.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamConverter;
-import org.taktik.icure.services.external.rest.xstream.NumberConverter;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 19/11/13, 10:33
  */
-@XStreamAlias("TKMeasure")
 public class Measure implements Serializable, Data {
     public final static int OK = 0;
     public final static int TOO_LOW = 1;
     public final static int TOO_HIGHT = 2;
 
-    @XStreamAsAttribute
     protected String label = "";
-    @XStreamAsAttribute
     protected String unit = "";
-    @XStreamAsAttribute
-    @XStreamConverter(NumberConverter.class)
+
     protected Number value = null;
-    @XStreamAsAttribute
-    @XStreamConverter(NumberConverter.class)
+
     protected Number minRef = 0;
-    @XStreamAsAttribute
-    @XStreamConverter(NumberConverter.class)
+
     protected Number maxRef = 0;
-    @XStreamAsAttribute
-    @XStreamConverter(NumberConverter.class)
+
     protected Number severity = 0;
 
 
@@ -142,9 +133,9 @@ public class Measure implements Serializable, Data {
         }
     }
 
-   
 
-   
+
+
 
     public String getRestriction() {
         if (getMinRef() == null) {
@@ -165,5 +156,5 @@ public class Measure implements Serializable, Data {
         }
     }
 
-  
+
 }

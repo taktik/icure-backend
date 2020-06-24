@@ -18,33 +18,25 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.thoughtworks.xstream.converters.extended.ToAttributedValueConverter;
+
+
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 16:27
  */
-@XStreamAlias("FormPlanning")
-@XStreamConverter(value=ToAttributedValueConverter.class, strings={"description"})
+
 public class FormPlanning implements Serializable{
-    @XStreamAsAttribute
     Boolean planninfForAnyDoctor;
-    @XStreamAsAttribute
     Boolean planningForDelegate;
-    @XStreamAsAttribute
     Boolean planningForPatientDoctor;
-    @XStreamAsAttribute
     Boolean planningForMe;
 
-    @XStreamAsAttribute
     Integer codedDelayInDays;
-    @XStreamAsAttribute
     Integer repetitions;
-    @XStreamAsAttribute
     Integer repetitionsUnit;
 
     String descr;

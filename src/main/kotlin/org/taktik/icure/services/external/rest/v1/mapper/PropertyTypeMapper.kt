@@ -12,8 +12,7 @@ interface PropertyTypeMapper {
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),
-            Mapping(target = "revisionsInfo", ignore = true),
-            Mapping(target = "set_type", ignore = true)
+            Mapping(target = "revisionsInfo", ignore = true)
             )
 	fun map(propertyTypeDto: PropertyTypeDto):PropertyType
 	fun map(propertyType: PropertyType):PropertyTypeDto

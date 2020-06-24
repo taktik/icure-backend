@@ -1,10 +1,14 @@
 package org.taktik.icure.services.external.rest.v1.dto.base
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class CodeStubDto(
         override val id: String,         // id = type|code|version  => this must be unique

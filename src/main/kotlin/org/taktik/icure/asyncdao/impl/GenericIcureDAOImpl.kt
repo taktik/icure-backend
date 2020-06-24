@@ -44,7 +44,7 @@ open class GenericIcureDAOImpl<T : StoredICureDocument>(entityClass: Class<T>, c
     override fun unRemove(dbInstanceUrl: URI, groupId: String, entities: Collection<T>) =
             super.unRemove(dbInstanceUrl, groupId, entities.map { it.apply { setTimestamps(this) } })
 
-    private fun setTimestamps(entity: ICureDocument) {
+    private fun setTimestamps(entity: ICureDocument<String>) {
         val epochMillis = System.currentTimeMillis()
         if (entity.created == null) {
             entity.withTimestamps(created = epochMillis, modified = epochMillis)

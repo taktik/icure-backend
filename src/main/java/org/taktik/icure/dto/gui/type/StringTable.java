@@ -18,9 +18,9 @@
 
 package org.taktik.icure.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,9 +28,8 @@ import java.util.List;
 /**
  * Created by aduchate on 19/11/13, 10:33
  */
-@XStreamAlias("TKStringTable")
 public class StringTable implements Serializable, Data {
-	@XStreamImplicit(itemFieldName = "value")
+
 	protected List<String> values;
 
 	public List<String> getValues() {

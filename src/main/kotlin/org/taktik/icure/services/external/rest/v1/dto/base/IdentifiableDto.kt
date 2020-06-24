@@ -17,10 +17,8 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.base
 
-import com.squareup.moshi.Json
 import java.io.Serializable
 
 interface IdentifiableDto<T> : Serializable {
-    @Json(name = "_id")
     val id: T
 }

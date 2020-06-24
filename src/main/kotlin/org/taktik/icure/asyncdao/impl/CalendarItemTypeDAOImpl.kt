@@ -42,7 +42,6 @@ class CalendarItemTypeDAOImpl(@Qualifier("healthdataCouchDbDispatcher") couchDbD
         val result = client.queryViewIncludeDocsNoValue<String, CalendarItemType>(viewQuery).map { it.doc }
         return result.map {
             this.postLoad(dbInstanceUrl, groupId, it)
-            it
         }
     }
 }

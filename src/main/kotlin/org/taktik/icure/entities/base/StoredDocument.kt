@@ -17,32 +17,27 @@
  */
 package org.taktik.icure.entities.base
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.squareup.moshi.Json
 import org.ektorp.Attachment
 import org.taktik.icure.entities.embed.RevisionInfo
 
 interface StoredDocument : Versionable<String> {
     @Suppress("PropertyName")
-    @Json(name = "java_type")
-    val _type: String
+    @JsonProperty("java_type")
+    fun get_type(): String {
+        return this::class.qualifiedName!!
+    }
 
-    @Json(name = "_revs_info")
     val revisionsInfo: List<RevisionInfo>?
-
-    @Json(name = "_conflicts")
     val conflicts: List<String>?
-
-    @Json(name = "_attachments")
     val attachments: Map<String, Attachment>?
-
-    @Json(name = "deleted")
     val deletionDate: Long?
 
     fun solveConflictsWith(other: StoredDocument): Map<String, Any?> {
         return mapOf(
                 "id" to this.id,
                 "rev" to this.rev,
-                "_type" to this._type,
                 "revHistory" to (other.revHistory?.let { it + (this.revHistory ?: mapOf()) } ?: this.revHistory),
                 "revisionsInfo" to this.revisionsInfo,
                 "conflicts" to this.conflicts,

@@ -21,12 +21,11 @@ package org.taktik.icure.dto.gui.type.primitive;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 
 /**
  * Created by aduchate on 19/11/13, 10:41
  */
-@XStreamAlias("TKAttributedString")
 public class AttributedString implements Primitive {
     private java.lang.String rtfString = null;
     private byte[] rtfData = null;

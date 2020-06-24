@@ -17,6 +17,10 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.EncryptableDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
@@ -30,8 +34,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.MediumTypeDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PaymentTypeDto
 
-
-import com.github.pozo.KotlinBuilder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class InvoiceDto(
         override val id: String,
@@ -106,7 +110,7 @@ data class InvoiceDto(
         override val delegations: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptionKeys: Map<String, Set<DelegationDto>> = mapOf(),
         override val encryptedSelf: String? = null
-) : StoredDocumentDto, ICureDocumentDto, EncryptableDto {
+) : StoredDocumentDto, ICureDocumentDto<String>, EncryptableDto {
     override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
     override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }

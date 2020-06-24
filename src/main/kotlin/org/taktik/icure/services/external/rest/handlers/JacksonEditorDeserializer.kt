@@ -16,7 +16,7 @@ import java.util.HashMap
 
 
 class JacksonEditorDeserializer : JsonObjectDeserializer<Editor>() {
-    private val discriminator = Editor::class.java.getAnnotation(JsonDiscriminator::class.java)?.value ?: "key" //TODO MB : is key right here ?
+    private val discriminator = Editor::class.java.getAnnotation(JsonDiscriminator::class.java)?.value ?: "key"
     private val subclasses: MutableMap<String, Class<Editor>> = HashMap()
     private val reverseSubclasses: MutableMap<Class<*>, String> = HashMap()
     private val scanner = Reflections(Editor::class.java, TypeAnnotationsScanner(), SubTypesScanner())

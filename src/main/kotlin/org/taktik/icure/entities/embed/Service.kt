@@ -70,7 +70,7 @@ data class Service(
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(), //stub object of the Code used to qualify the content of the Service
         @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(), //stub object of the tag used to qualify the type of the Service
         override val encryptedSelf: String? = null
-) : Encrypted, ICureDocument, Comparable<Service> {
+) : Encrypted, ICureDocument<String>, Comparable<Service> {
     companion object : DynamicInitializer<Service>
 
     fun merge(other: Service) = Service(args = this.solveConflictsWith(other))

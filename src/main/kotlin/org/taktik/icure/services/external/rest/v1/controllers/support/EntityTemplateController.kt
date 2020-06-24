@@ -55,7 +55,7 @@ class EntityTemplateController(
         val entityTemplatesList = entityTemplateLogic.findEntityTemplates(userId, type, searchString, includeEntities)
 
         entityTemplatesList.map { e ->
-            val dto = Mappers.getMapper(EntityTemplateMapper::class.java).map(e)
+            val dto = entityTemplateMapper.map(e)
             if (includeEntities != null && includeEntities) {
                 dto.entity = e.entity
             }
@@ -73,7 +73,7 @@ class EntityTemplateController(
         val entityTemplatesList = entityTemplateLogic.findAllEntityTemplates(type, searchString, includeEntities)
 
         entityTemplatesList.map { e ->
-            val dto = Mappers.getMapper(EntityTemplateMapper::class.java).map(e)
+            val dto = entityTemplateMapper.map(e)
             if (includeEntities != null && includeEntities) {
                 dto.entity = e.entity
             }
@@ -90,7 +90,7 @@ class EntityTemplateController(
         val entityTemplate = entityTemplateLogic.createEntityTemplate(et)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "EntityTemplate creation failed.")
 
-        Mappers.getMapper(EntityTemplateMapper::class.java).map(entityTemplate)
+        entityTemplateMapper.map(entityTemplate)
     }
 
     @Operation(summary = "Get a list of entityTemplates by ids", description = "Keys must be delimited by coma")
@@ -98,7 +98,7 @@ class EntityTemplateController(
     fun getEntityTemplates(@PathVariable entityTemplateIds: String): Flux<EntityTemplateDto> {
         val entityTemplates = entityTemplateLogic.getEntityTemplates(entityTemplateIds.split(','))
 
-        val entityTemplateDtos = entityTemplates.map { f -> Mappers.getMapper(EntityTemplateMapper::class.java).map(f).apply { entity = f.entity } }
+        val entityTemplateDtos = entityTemplates.map { f -> entityTemplateMapper.map(f).apply { entity = f.entity } }
 
         return entityTemplateDtos.injectReactorContext()
     }
@@ -110,7 +110,7 @@ class EntityTemplateController(
         val c = entityTemplateLogic.getEntityTemplate(entityTemplateId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the entityTemplate. Read the app logs.")
 
-        val et = Mappers.getMapper(EntityTemplateMapper::class.java).map(c)
+        val et = entityTemplateMapper.map(c)
         et.entity = c.entity
         et
     }

@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.entities.base
 
-interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
+interface ICureDocument<T> : Identifiable<T>, HasTags, HasCodes {
     val created: Long?
     val modified: Long?
     val endOfLife: Long?
@@ -25,7 +25,7 @@ interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
     val responsible: String?
     val medicalLocationId: String?
 
-    fun solveConflictsWith(other: ICureDocument): Map<String, Any?> {
+    fun solveConflictsWith(other: ICureDocument<T>): Map<String, Any?> {
         return mapOf(
                 "id" to this.id,
                 "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
@@ -39,5 +39,5 @@ interface ICureDocument : Identifiable<String>, HasTags, HasCodes {
         )
     }
 
-    fun withTimestamps(created: Long? = null, modified: Long? = null) : ICureDocument
+    fun withTimestamps(created: Long? = null, modified: Long? = null) : ICureDocument<T>
 }

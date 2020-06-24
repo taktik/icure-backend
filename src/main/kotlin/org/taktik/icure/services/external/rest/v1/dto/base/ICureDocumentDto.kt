@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto.base
 
-interface ICureDocumentDto : IdentifiableDto<String>, HasTagsDto, HasCodesDto {
+interface ICureDocumentDto<T> : IdentifiableDto<T>, HasTagsDto, HasCodesDto {
     val created: Long?
     val modified: Long?
     val endOfLife: Long?
@@ -25,7 +25,7 @@ interface ICureDocumentDto : IdentifiableDto<String>, HasTagsDto, HasCodesDto {
     val responsible: String?
     val medicalLocationId: String?
 
-    fun solveConflictsWith(other: ICureDocumentDto): Map<String, Any?> {
+    fun solveConflictsWith(other: ICureDocumentDto<T>): Map<String, Any?> {
         return mapOf(
                 "id" to this.id,
                 "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),

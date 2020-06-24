@@ -228,7 +228,7 @@ class SumehrExport(
         } else services).filterNotNull()?.distinctBy{s -> s.contactId + s.id}
     }
 
-	internal fun <T : ICureDocument> getNonConfidentialItems(items: List<T>): List<T> {
+	internal fun <T : ICureDocument<String>> getNonConfidentialItems(items: List<T>): List<T> {
         return items.filter { s->
             null == s.tags.find {it.type == "org.taktik.icure.entities.embed.Confidentiality" && it.code == "secret"} &&
                     null == s.codes.find {it.type == "org.taktik.icure.entities.embed.Visibility" && it.code == "maskedfromsummary"}
