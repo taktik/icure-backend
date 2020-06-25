@@ -18,10 +18,14 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.filter.chain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.entities.base.Identifiable;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 import org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FilterChain<O extends Identifiable<String>> {
 	FilterDto<O> filter;
 	Predicate predicate;

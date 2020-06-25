@@ -7,8 +7,8 @@
 
     <!-- Spring -->
 
-    <logger name="org.springframework" level="WARN" />
-    <logger name="org.springframework.security" level="DEBUG" />
+    <logger name="org.springframework" level="DEBUG" />
+    <logger name="org.springframework.security" level="INFO" />
 
     <!-- icure -->
 
@@ -24,7 +24,6 @@
 
     <!-- Spring Security -->
     <logger name="org.taktik.icure.security" level="INFO" />
-    <logger name="org.springframework.security" level="INFO" />
 
     <logger name="org.eclipse.jetty.client" level="INFO" />
     <logger name="org.eclipse.jetty" level="WARN" />
@@ -32,6 +31,7 @@
     <logger name="org.apache.commons" level="WARN" />
     <logger name="org.elasticsearch" level="WARN" />
     <logger name="com.hazelcast" level="INFO" />
+    <logger name="com.fasterxml.jackson" level="DEBUG" />
     <logger name="org.taktik.couchdb" level="DEBUG" />
     <logger name="org.springframework.web.reactive.socket.adapter" level="TRACE" />
     <!--logger name="ma.glasnost.orika" level="DEBUG" /-->

@@ -114,121 +114,121 @@ dependencies {
     kapt("com.github.pozo:mapstruct-kotlin-processor:1.3.1.2")
 
     optional group: 'org.springframework.boot', name:'spring-boot-configuration-processor'
+    implementation group:'org.springframework.boot', name:'spring-boot-starter-validation', version:"${springBootVersion}"
+    implementation group: 'org.springframework.boot', name:'spring-boot-starter-mail', version:"${springBootVersion}"
+    implementation group: 'org.springframework.boot', name:'spring-boot-starter-webflux', version:"${springBootVersion}"
+    implementation group: 'org.springframework.boot', name:'spring-boot-starter-security', version:"${springBootVersion}"
+    implementation group: 'org.springframework.boot', name:'spring-boot-starter-actuator', version:"${springBootVersion}"
 
-    compile group: 'org.springframework.boot', name:'spring-boot-starter-mail', version:"${springBootVersion}"
-    compile group: 'org.springframework.boot', name:'spring-boot-starter-webflux', version:"${springBootVersion}"
-    compile group: 'org.springframework.boot', name:'spring-boot-starter-security', version:"${springBootVersion}"
-    compile group: 'org.springframework.boot', name:'spring-boot-starter-actuator', version:"${springBootVersion}"
+	implementation group: 'com.fasterxml.jackson.module', name:'jackson-module-kotlin', version:'2.11.0'
+    implementation group: 'com.fasterxml.jackson.core', name:'jackson-databind', version:'2.11.0'
 
-	compile group: 'com.fasterxml.jackson.module', name:'jackson-module-kotlin', version:'2.11.0'
-    compile group: 'com.fasterxml.jackson.core', name:'jackson-databind', version:'2.11.0'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.3.7'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-reactor', version: '1.3.7'
+    implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-collections-immutable-jvm', version: '0.3'
 
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.3.7'
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-reactor', version: '1.3.7'
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-collections-immutable-jvm', version: '0.3'
+    implementation 'com.squareup.moshi:moshi:1.8.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.8.0'
 
-    compile 'com.squareup.moshi:moshi:1.8.0'
-    compile 'com.squareup.moshi:moshi-kotlin:1.8.0'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-client', version: '9.4.26.v20200117'
 
-    compile group: 'org.eclipse.jetty', name: 'jetty-client', version: '9.4.26.v20200117'
+    implementation group: 'org.springframework.session', name: 'spring-session-core', version: '2.2.1.RELEASE'
 
-    compile group: 'org.springframework.session', name: 'spring-session-core', version: '2.2.1.RELEASE'
-
-	compile group: 'org.springframework', name: 'spring-aspects', version: springVersion
-    compile group: 'org.springframework', name: 'spring-websocket', version: springVersion
-    compile group: 'org.springframework', name: 'spring-orm', version: springVersion
+	implementation group: 'org.springframework', name: 'spring-aspects', version: springVersion
+    implementation group: 'org.springframework', name: 'spring-websocket', version: springVersion
+    implementation group: 'org.springframework', name: 'spring-orm', version: springVersion
 
     // Logging
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
-    compile group: 'ch.qos.logback', name: 'logback-access', version: '1.1.11'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+    implementation group: 'ch.qos.logback', name: 'logback-access', version: '1.1.11'
 
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
-    compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.12'
-    compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.12'
-    compile group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.12'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+    implementation group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.12'
+    implementation group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.12'
+    implementation group: 'org.slf4j', name: 'log4j-over-slf4j', version: '1.7.12'
 
     // Java Commons
-    compile group: 'org.taktik.commons', name: 'commons-uti', version: '1.0'
+    implementation group: 'org.taktik.commons', name: 'commons-uti', version: '1.0'
     compile(group: 'org.taktik.commons', name: 'commons-service', version: '1.0') {
         exclude group: 'org.taktik.commons', module: 'commons-cluster'
         exclude group: 'org.taktik.commons', module: 'commons-utils'
     }
 
 	// APIs
-	compile group: 'javax.annotation', name: 'jsr250-api', version: '1.0'
-	compile group: 'org.apache.ws.commons.axiom', name: 'axiom-impl', version: '1.2.15'
-    compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
+	implementation group: 'javax.annotation', name: 'jsr250-api', version: '1.0'
+	implementation group: 'org.apache.ws.commons.axiom', name: 'axiom-impl', version: '1.2.15'
+    implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
 
 	// Others
-	compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
-	compile group: 'org.ow2.asm', name: 'asm', version: '5.0.4'
-	compile group: 'org.ow2.asm', name: 'asm-commons', version: '5.0.4'
-	compile group: 'com.google.guava', name: 'guava', version: '20.0'
-	compile group: 'joda-time', name: 'joda-time', version: '2.9.7'
-	compile group: 'org.jdom', name: 'jdom-legacy', version: '1.1.3'
-	compile group: 'commons-io', name: 'commons-io', version: '2.5'
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
-	compile group: 'org.apache.commons', name: 'commons-compress', version: '1.12'
-	compile group: 'com.eaio.uuid', name: 'uuid', version: '3.2'
-	compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.2'
-	compile group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '3.1.3'
-	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.2'
-	compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
-    compile group: 'com.sendgrid', name: 'sendgrid-java', version: '4.4.7'
-    compile group: 'org.mapstruct', name: 'mapstruct', version: '1.3.1.Final'
-	compile group: 'org.apache.axis2', name: 'axis2-kernel', version: '1.5.6'
-	compile group: 'org.apache.axis2', name: 'axis2-adb', version: '1.5.6'
+	implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+	implementation group: 'org.ow2.asm', name: 'asm', version: '5.0.4'
+	implementation group: 'org.ow2.asm', name: 'asm-commons', version: '5.0.4'
+	implementation group: 'com.google.guava', name: 'guava', version: '20.0'
+	implementation group: 'joda-time', name: 'joda-time', version: '2.9.7'
+	implementation group: 'org.jdom', name: 'jdom-legacy', version: '1.1.3'
+	implementation group: 'commons-io', name: 'commons-io', version: '2.5'
+	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+	implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.12'
+	implementation group: 'com.eaio.uuid', name: 'uuid', version: '3.2'
+	implementation group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.2'
+	implementation group: 'com.fasterxml.uuid', name: 'java-uuid-generator', version: '3.1.3'
+	implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.2'
+	implementation group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+    implementation group: 'com.sendgrid', name: 'sendgrid-java', version: '4.4.7'
+    implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.3.1.Final'
+	implementation group: 'org.apache.axis2', name: 'axis2-kernel', version: '1.5.6'
+	implementation group: 'org.apache.axis2', name: 'axis2-adb', version: '1.5.6'
 
-	compile group: 'org.apache.lucene', name: 'lucene-core', version: '4.10.4'
-	compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '4.10.4'
+	implementation group: 'org.apache.lucene', name: 'lucene-core', version: '4.10.4'
+	implementation group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '4.10.4'
 
 
 	// Bouncy Castle
-	compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.53'
-	compile group: 'org.bouncycastle', name: 'bcmail-jdk15on', version: '1.53'
+	implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.53'
+	implementation group: 'org.bouncycastle', name: 'bcmail-jdk15on', version: '1.53'
 
 	//2FA
-	compile group:'org.jboss.aerogear', name:'aerogear-otp-java', version:'1.0.0'
+	implementation group:'org.jboss.aerogear', name:'aerogear-otp-java', version:'1.0.0'
 
 	// Swagger
-    compile "org.springdoc:springdoc-openapi-webflux-ui:1.3.0"
-    compile "org.springdoc:springdoc-openapi-kotlin:1.3.0"
+    implementation "org.springdoc:springdoc-openapi-webflux-ui:1.3.0"
+    implementation "org.springdoc:springdoc-openapi-kotlin:1.3.0"
 
 	//Saxon
-	compile group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.6.0-6'
+	implementation group: 'net.sf.saxon', name: 'Saxon-HE', version: '9.6.0-6'
 
 	//Ektorp dependencies
-	compile group: 'de.undercouch', name: 'actson', version: '1.2.0'
+	implementation group: 'de.undercouch', name: 'actson', version: '1.2.0'
 
 
 	//DTO check
-	compile group: 'com.github.javaparser', name: 'javaparser-core', version: '2.0.0'
+	implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '2.0.0'
 
 	//JSP stuff
-	compile group: 'org.apache.taglibs', name: 'taglibs-standard-spec', version: '1.2.5'
-	compile group: 'org.apache.taglibs', name: 'taglibs-standard-impl', version: '1.2.5'
+	implementation group: 'org.apache.taglibs', name: 'taglibs-standard-spec', version: '1.2.5'
+	implementation group: 'org.apache.taglibs', name: 'taglibs-standard-impl', version: '1.2.5'
 
 	//EH Validator
-	compile group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
-	compile name: 'probatron4j-custom-0.7.4'
-	compile name: 'ehvalidator-service-core-2.1.1'
+	implementation group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
+	implementation name: 'probatron4j-custom-0.7.4'
+	implementation name: 'ehvalidator-service-core-2.1.1'
 
     //HAPI
-    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v25', version: '2.3'
+    implementation group: 'ca.uhn.hapi', name: 'hapi-structures-v25', version: '2.3'
 
     // mustache
-    compile group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
+    implementation group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.9.5'
 
 	//Cloud version
-	compile group: 'com.hazelcast', name: 'hazelcast'
-	compile group: 'com.hazelcast', name: 'hazelcast-spring'
-    compile group: 'com.hazelcast', name: 'hazelcast-kubernetes', version: '1.3'
+	implementation group: 'com.hazelcast', name: 'hazelcast'
+	implementation group: 'com.hazelcast', name: 'hazelcast-spring'
+    implementation group: 'com.hazelcast', name: 'hazelcast-kubernetes', version: '1.3'
 
-    compile group: 'javax.activation', name: 'activation', version: '1.1'
-    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-    compile group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.1'
+    implementation group: 'javax.activation', name: 'activation', version: '1.1'
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.1'
 
 	// Runtime
 	runtime group: 'org.javassist', name: 'javassist', version: '3.18.1-GA'

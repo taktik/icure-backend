@@ -23,12 +23,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.entities.embed.Gender;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import java.util.Objects;
 
 @JsonPolymorphismRoot(FilterDto.class)
 @JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PatientByHcPartyGenderEducationProfession extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyGenderEducationProfession {
     private String healthcarePartyId;
     private Gender gender;

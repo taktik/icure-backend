@@ -36,7 +36,8 @@ data class ContentDto(
         val numberValue: Double? = null,
         val booleanValue: Boolean? = null,
 
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val instantValue: Instant? = null,
         val fuzzyDateValue: Long? = null,

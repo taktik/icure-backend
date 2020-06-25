@@ -44,7 +44,8 @@ data class UserStubDto(
         val groupId: String? = null,
         val healthcarePartyId: String? = null,
         val patientId: String? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val lastLoginDate: Instant? = null,
         val email: String? = null

@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.github.pozo.KotlinBuilder
-import com.squareup.moshi.Json
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.io.Serializable
@@ -37,7 +36,8 @@ data class Content(
         @JsonProperty("n") val numberValue: Double? = null,
         @JsonProperty("b") val booleanValue: Boolean? = null,
         @JsonProperty("i")
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val instantValue: Instant? = null,
         @JsonProperty("dt") val fuzzyDateValue: Long? = null,

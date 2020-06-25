@@ -39,7 +39,7 @@ class Filters : ApplicationContextAware {
     }
 
     fun <T : Serializable, O : Identifiable<T>> resolve(filter: org.taktik.icure.dto.filter.Filter<T, O>) = flow<T> {
-        val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.".toRegex(), "")
+        val truncatedFullClassName = filter.javaClass.name.replace(".+?filter\\.impl\\.".toRegex(), "")
         val filterToBeResolved =
                 filters[truncatedFullClassName] as Filter<T, O, org.taktik.icure.dto.filter.Filter<T, O>>?
                         ?: try {

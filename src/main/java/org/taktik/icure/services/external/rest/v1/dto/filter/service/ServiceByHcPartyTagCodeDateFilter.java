@@ -19,15 +19,21 @@
 package org.taktik.icure.services.external.rest.v1.dto.filter.service;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.embed.Service;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 @JsonPolymorphismRoot(FilterDto.class)
 @JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceByHcPartyTagCodeDateFilter extends FilterDto<Service> implements org.taktik.icure.dto.filter.service.ServiceByHcPartyTagCodeDateFilter {
 	String healthcarePartyId;
 	String patientSecretForeignKey;

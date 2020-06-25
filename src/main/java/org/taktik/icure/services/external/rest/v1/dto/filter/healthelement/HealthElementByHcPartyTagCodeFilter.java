@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
 import org.taktik.icure.entities.HealthElement;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 @JsonPolymorphismRoot(FilterDto.class)
 @JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HealthElementByHcPartyTagCodeFilter extends FilterDto<HealthElement> implements org.taktik.icure.dto.filter.healthelement.HealthElementByHcPartyTagCodeFilter {
 	String healthcarePartyId;
 	String codeType;

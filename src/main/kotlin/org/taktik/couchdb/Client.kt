@@ -112,23 +112,28 @@ data class ReplicatorDocument(
 @JsonIgnoreProperties(ignoreUnknown = true)
 sealed class ActiveTask(
         val pid: String? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val updated_on: Instant? = null
 )
+
 @Suppress("unused")
 @JsonDeserialize(using = JsonDeserializer.None::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class UnsupportedTask(
         pid: String? = null,
-        progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        val progress: Int? = null,
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         updated_on: Instant? = null
 ) : ActiveTask(pid, started_on, updated_on)
@@ -139,10 +144,12 @@ class UnsupportedTask(
 class DatabaseCompactionTask(
         pid: String? = null,
         val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         updated_on: Instant? = null,
         val database: String?,
@@ -156,10 +163,12 @@ class DatabaseCompactionTask(
 class ViewCompactionTask(
         pid: String? = null,
         val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         updated_on: Instant? = null,
         val database: String?,
@@ -176,10 +185,12 @@ class ViewCompactionTask(
 class Indexer(
         pid: String? = null,
         val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         updated_on: Instant? = null,
         val database: String?,
@@ -194,10 +205,12 @@ class Indexer(
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ReplicationTask(
         pid: String? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         updated_on: Instant? = null,
         val replication_id: String?,
@@ -253,6 +266,7 @@ data class ViewRowNoDoc<K, V>(override val id: String, override val key: K?, ove
     override val doc: Nothing?
         get() = error("Row has no doc")
 }
+
 data class ViewRowWithMissingDoc<K, V>(override val id: String, override val key: K?, override val value: V?) : ViewRow<K, V, Nothing>() {
     override val doc: Nothing?
         get() = error("Doc is missing for this row")
@@ -318,6 +332,7 @@ interface Client {
     fun <T : CouchDbDocument> bulkUpdate(entities: Collection<T>, clazz: Class<T>): Flow<BulkUpdateResult>
     suspend fun <T : CouchDbDocument> delete(entity: T): DocIdentifier
     fun <T : CouchDbDocument> bulkDelete(entities: Collection<T>): Flow<BulkUpdateResult>
+
     // Query
     fun <K, V, T> queryView(query: ViewQuery, keyType: Class<K>, valueType: Class<V>, docType: Class<T>): Flow<ViewQueryResultEvent>
 
@@ -351,12 +366,15 @@ class ClientImpl(private val httpClient: HttpClient,
                  private val objectMapper: ObjectMapper = ObjectMapper().also { it.registerModule(KotlinModule()) }
 ) : Client {
     private val log = LoggerFactory.getLogger(javaClass.name)
+
     // Create a copy and set to prototype to avoid unwanted mutation
     // (the URI class is mutable)
     private val dbURI = URI.prototype(dbURI.toString())
 
     override suspend fun create(q: Int?, n: Int?): Boolean {
-        val request = newRequest(dbURI.let { q?.let { q -> it.param("q",q) } ?: it }.let { n?.let { n -> it.param("n",n) } ?: it }, "", HttpMethod.PUT)
+        val request = newRequest(dbURI.let {
+            q?.let { q -> it.param("q", q) } ?: it
+        }.let { n?.let { n -> it.param("n", n) } ?: it }, "", HttpMethod.PUT)
 
         log.debug("Executing $request")
 
@@ -557,7 +575,7 @@ class ClientImpl(private val httpClient: HttpClient,
 
     override suspend fun <T : CouchDbDocument> update(entity: T, clazz: Class<T>): T {
         val docId = entity.id
-        require(!docId.isNullOrBlank()) { "Id cannot be blank" }
+        require(!docId.isBlank()) { "Id cannot be blank" }
         val updateURI = dbURI.append(docId)
         val serializedDoc = objectMapper.writeValueAsString(entity)
         val request = newRequest(updateURI, serializedDoc, HttpMethod.PUT)
@@ -600,6 +618,7 @@ class ClientImpl(private val httpClient: HttpClient,
             check(jsonTokens.receive() === StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
                 val nextValue = jsonTokens.nextValue(asyncParser) ?: break
+
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val bulkUpdateResult = checkNotNull(nextValue.asParser(objectMapper).readValueAs(BulkUpdateResult::class.java))
                 emit(bulkUpdateResult)
@@ -622,6 +641,7 @@ class ClientImpl(private val httpClient: HttpClient,
             check(jsonEvents.receive() == StartArray) { "Expected result to start with StartArray" }
             while (true) { // Loop through result array
                 val nextValue = jsonEvents.nextValue(asyncParser) ?: break
+
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val bulkUpdateResult = checkNotNull(nextValue.asParser(objectMapper).readValueAs(BulkUpdateResult::class.java))
                 emit(bulkUpdateResult)
@@ -637,6 +657,7 @@ class ClientImpl(private val httpClient: HttpClient,
             val request = buildRequest(query)
             log.debug("Executing $request")
             val asyncParser = objectMapper.createNonBlockingByteArrayParser()
+
             /** Execute the request and get the response as a Flow of [JsonEvent] **/
             val jsonEvents = request.getResponseJsonEvents(asyncParser).produceIn(this)
 
@@ -679,20 +700,22 @@ class ClientImpl(private val httpClient: HttpClient,
                                                     }
                                                     // Parse key
                                                     KEY_FIELD_NAME -> {
-                                                        val keyEvents = jsonEvents.nextValue(asyncParser) ?: throw IllegalStateException("Invalid json expecting key")
+                                                        val keyEvents = jsonEvents.nextValue(asyncParser)
+                                                                ?: throw IllegalStateException("Invalid json expecting key")
                                                         @Suppress("BlockingMethodInNonBlockingContext")
                                                         key = keyEvents.asParser(objectMapper).readValueAs(keyType)
                                                     }
                                                     // Parse value
                                                     VALUE_FIELD_NAME -> {
-                                                        val valueEvents = jsonEvents.nextValue(asyncParser) ?: throw IllegalStateException("Invalid json field name")
+                                                        val valueEvents = jsonEvents.nextValue(asyncParser)
+                                                                ?: throw IllegalStateException("Invalid json field name")
                                                         @Suppress("BlockingMethodInNonBlockingContext")
                                                         value = valueEvents.asParser(objectMapper).readValueAs(valueType)
                                                     }
                                                     // Parse doc
                                                     INCLUDED_DOC_FIELD_NAME -> {
                                                         if (query.isIncludeDocs) {
-                                                            jsonEvents.nextValue(asyncParser)?.let { doc = it.asParser(objectMapper).readValueAs(docType)}
+                                                            jsonEvents.nextValue(asyncParser)?.let { doc = it.asParser(objectMapper).readValueAs(docType) }
                                                         }
 
                                                     }
@@ -802,18 +825,22 @@ class ClientImpl(private val httpClient: HttpClient,
         // Split by line
         val splitByLine = responseText.split('\n')
         // Convert to json events
-        val jsonEvents = splitByLine.map { it.map {
-            charset.encode(it)
-        }.toJsonEvents(asyncParser) }
+        val jsonEvents = splitByLine.map {
+            it.map {
+                charset.encode(it)
+            }.toJsonEvents(asyncParser)
+        }
         // Parse as generic Change Object
         val changes = jsonEvents.map { events ->
             var type: String? = null
-            TokenBuffer(asyncParser).also { tb -> events.mapIndexed { index, jsonEvent ->
-                tb.copyFromJsonEvent(jsonEvent)
-                if (jsonEvent is FieldName && jsonEvent.name == "java_type" && index+1<events.size) {
-                    (events[index+1] as? StringValue)?.let {type = it.value}
+            TokenBuffer(asyncParser).also { tb ->
+                events.mapIndexed { index, jsonEvent ->
+                    tb.copyFromJsonEvent(jsonEvent)
+                    if (jsonEvent is FieldName && jsonEvent.name == "java_type" && index + 1 < events.size) {
+                        (events[index + 1] as? StringValue)?.let { type = it.value }
+                    }
                 }
-            } }.let {
+            }.let {
                 Pair(type, it)
             }
         }
@@ -887,7 +914,7 @@ class ClientImpl(private val httpClient: HttpClient,
                                         } else {
                                             continuation.resume(deserializedObject)
                                         }
-                                    } catch(e:Exception) {
+                                    } catch (e: Exception) {
                                         continuation.resumeWithException(e)
                                     }
                                 }

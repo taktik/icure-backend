@@ -32,11 +32,13 @@ import java.time.Instant
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class ReferralPeriodDto(
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val startDate: Instant? = null,
 
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val endDate: Instant? = null,
         val comment: String? = null

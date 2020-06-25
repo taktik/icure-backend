@@ -169,6 +169,7 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
                     when (next()) {
                         StartArray -> level++
                         EndArray -> level--
+                        else -> {}
                     }
                 }
             }
@@ -178,9 +179,11 @@ class EventListJsonReader(private val events: List<JsonEvent>, private var repla
                     when (next()) {
                         StartObject -> level++
                         EndObject -> level--
+                        else -> {}
                     }
                 }
             }
+            else -> {}
         }
     }
 

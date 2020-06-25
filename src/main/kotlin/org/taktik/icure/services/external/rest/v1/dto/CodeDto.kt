@@ -52,7 +52,7 @@ data class CodeDto(
         val data: String? = null,
         val appendices: Map<AppendixTypeDto, String> = mapOf(),
         val disabled: Boolean = false
-) : StoredDocumentDto, CodeIdentificationDto {
+) : StoredDocumentDto, CodeIdentificationDto<String> {
     companion object {
         fun from(type: String, code: String, version: String) = CodeDto(id = "$type:$code:$version", type = type, code = code, version = version)
     }

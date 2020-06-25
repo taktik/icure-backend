@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.base.Code;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 import java.util.Objects;
@@ -13,6 +15,8 @@ import static org.taktik.icure.db.StringUtils.sanitizeString;
 
 @JsonPolymorphismRoot(FilterDto.class)
 @JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CodeByRegionTypeLabelLanguageFilter extends FilterDto<Code> implements org.taktik.icure.dto.filter.code.CodeByRegionTypeLabelLanguageFilter {
 
     private String region;

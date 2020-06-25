@@ -17,14 +17,16 @@
  */
 package org.taktik.icure.services.external.rest.v1.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import java.io.Serializable
 
-class AddFormRequest : Serializable {
-    var patientId: String? = null
-    var formId: String? = null
-    var formTemplateGuid: String? = null
-
-    companion object {
-        private const val serialVersionUID = 1L
-    }
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class AddFormRequest(
+        val patientId: String? = null,
+        val formId: String? = null,
+        val formTemplateGuid: String? = null
+) : Serializable

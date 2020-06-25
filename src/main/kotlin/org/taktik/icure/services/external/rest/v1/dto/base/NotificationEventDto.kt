@@ -32,7 +32,8 @@ import java.time.Instant
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class NotificationEventDto(
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val date: Instant? = null,
         val status: Status? = null

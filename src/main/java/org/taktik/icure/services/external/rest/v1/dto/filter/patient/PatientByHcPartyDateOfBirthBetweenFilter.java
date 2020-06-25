@@ -22,10 +22,14 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.entities.Patient;
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.services.external.rest.v1.dto.filter.FilterDto;
 
 @JsonPolymorphismRoot(FilterDto.class)
 @JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PatientByHcPartyDateOfBirthBetweenFilter extends FilterDto<Patient> implements org.taktik.icure.dto.filter.patient.PatientByHcPartyDateOfBirthBetweenFilter {
     private Integer minDateOfBirth;
 	private Integer maxDateOfBirth;

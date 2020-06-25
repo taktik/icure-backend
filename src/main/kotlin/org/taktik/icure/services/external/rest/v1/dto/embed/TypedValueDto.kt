@@ -41,7 +41,8 @@ data class TypedValueDto<T>(
         val doubleValue: Double? = null,
         val stringValue: String? = null,
 
-        @JsonSerialize(using = InstantSerializer::class, include = JsonSerialize.Inclusion.NON_NULL)
+        @JsonSerialize(using = InstantSerializer::class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonDeserialize(using = InstantDeserializer::class)
         val dateValue: Instant? = null
 ) : Comparable<TypedValueDto<T>>, Serializable {

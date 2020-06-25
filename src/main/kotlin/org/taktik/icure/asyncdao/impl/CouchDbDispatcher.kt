@@ -1,5 +1,6 @@
 package org.taktik.icure.asyncdao.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -8,7 +9,14 @@ import org.ektorp.http.URI
 import org.taktik.couchdb.ClientImpl
 import java.util.concurrent.TimeUnit
 
-class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: String, private val dbFamily: String, private val username: String, private val password: String) {
+class CouchDbDispatcher(
+        private val httpClient: HttpClient,
+        private val objectMapper: ObjectMapper,
+        private val prefix: String,
+        private val dbFamily: String,
+        private val username: String,
+        private val password: String
+) {
     @ExperimentalCoroutinesApi
     private val connectors = CacheBuilder.newBuilder()
             .maximumSize(10000)
@@ -16,7 +24,7 @@ class CouchDbDispatcher(private val httpClient: HttpClient, private val prefix: 
             .build<CouchDbConnectorReference, ClientImpl>(object : CacheLoader<CouchDbConnectorReference, ClientImpl>() {
                 @Throws(Exception::class)
                 override fun load(key: CouchDbConnectorReference): ClientImpl {
-                    return ClientImpl(httpClient, URI.of(key.dbInstanceUrl).append("$prefix-${key.groupId}-$dbFamily"), username, password)
+                    return ClientImpl(httpClient, URI.of(key.dbInstanceUrl).append("$prefix-${key.groupId}-$dbFamily"), username, password, objectMapper)
                 }
             })
 

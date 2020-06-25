@@ -21,8 +21,11 @@ package org.taktik.icure.services.external.rest.v1.dto.filter.predicate;
 import java.util.List;
 
 import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismRoot;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonPolymorphismRoot(org.taktik.icure.services.external.rest.v1.dto.filter.predicate.Predicate.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AndPredicate extends Predicate {
 	List<Predicate> predicates;
 
