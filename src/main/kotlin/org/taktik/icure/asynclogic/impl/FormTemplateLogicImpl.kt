@@ -17,8 +17,8 @@
  */
 package org.taktik.icure.asynclogic.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Charsets
-import com.google.gson.Gson
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -32,16 +32,13 @@ import org.taktik.icure.dto.gui.layout.FormLayout
 
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.utils.firstOrNull
-import java.io.ByteArrayInputStream
-import java.io.InputStreamReader
-import java.io.UnsupportedEncodingException
 import java.util.*
 
 @ExperimentalCoroutinesApi
 @Service
 class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
                             private val sessionLogic: AsyncSessionLogic,
-                            private val gsonMapper: Gson) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
+                            private val objectMapper: ObjectMapper) : GenericLogicImpl<FormTemplate, FormTemplateDAO>(sessionLogic), FormTemplateLogic {
 
     override fun createEntities(entities: Collection<FormTemplate>, createdEntities: Collection<FormTemplate>) = flow {
         emitAll(super.createEntities(entities))
@@ -83,7 +80,7 @@ class FormTemplateLogicImpl(private val formTemplateDAO: FormTemplateDAO,
     }
 
     override suspend fun build(data: ByteArray): FormLayout {
-        return gsonMapper.fromJson(String(data, Charsets.UTF_8), FormLayout::class.java)
+        return objectMapper.readValue(String(data, Charsets.UTF_8), FormLayout::class.java)
     }
 
     override fun getGenericDAO(): FormTemplateDAO {

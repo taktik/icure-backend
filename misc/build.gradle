@@ -42,6 +42,7 @@ sourceSets {
 }
 
 dependencies {
+    compile group: 'com.google.code.gson', name: 'gson'
     compile group: 'com.github.ajalt', name: 'clikt', version: '2.0.0'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.3'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'

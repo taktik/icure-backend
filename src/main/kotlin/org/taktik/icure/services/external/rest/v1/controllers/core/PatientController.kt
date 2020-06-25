@@ -18,8 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
-import com.google.gson.Gson
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -84,7 +84,8 @@ class PatientController(
         private val filterChainMapper: FilterChainMapper,
         private val addressMapper: AddressMapper,
         private val patientHealthCarePartyMapper: PatientHealthCarePartyMapper,
-        private val delegationMapper: DelegationMapper
+        private val delegationMapper: DelegationMapper,
+        private val objectMapper: ObjectMapper
 ) {
 
     private val patientToPatientDto = { it: Patient -> patientMapper.map(it) }
@@ -100,7 +101,7 @@ class PatientController(
             @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String
     ) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
@@ -124,7 +125,7 @@ class PatientController(
                               @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
                               @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
         patientLogic.findOfHcPartyAndSsinOrDateOfBirthOrNameContainsFuzzy(hcPartyId, paginationOffset, null, Sorting(sortField, sortDirection)).paginatedList(patientToPatientDto, realLimit)
     }
@@ -175,7 +176,7 @@ class PatientController(
                      @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
                      @Parameter(description = "Optional value for providing a sorting direction ('asc', 'desc'). Set to 'asc' by default.") @RequestParam(required = false, defaultValue = "asc") sortDirection: String) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let {  Gson().fromJson(it, Array<String>::class.java).toList() }
+        val startKeyElements = startKey?.let {  objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         sessionLogic.getCurrentHealthcarePartyId().let { currentHcpId ->
             val hcp = healthcarePartyLogic.getHealthcareParty(currentHcpId)
@@ -196,7 +197,7 @@ class PatientController(
                         @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                         @Parameter(description = "Page size") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
         val collected = patientLogic.findByHcPartyIdsOnly(hcPartyId, paginationOffset).toList()
         println("test")
@@ -219,7 +220,7 @@ class PatientController(
                                      @Parameter(description = "A patient document ID") @RequestParam(required = false) startDocumentId: String?,
                                      @Parameter(description = "Number of rows") @RequestParam(defaultValue = DEFAULT_LIMIT.toString()) limit: Int) = mono {
 
-        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
         accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, true).paginatedList<AccessLog>(limit)
                 .let {

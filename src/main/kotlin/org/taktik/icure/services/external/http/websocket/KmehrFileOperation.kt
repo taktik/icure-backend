@@ -17,8 +17,7 @@
  */
 package org.taktik.icure.services.external.http.websocket
 
-import com.google.gson.Gson
-import com.google.gson.JsonParser
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.apache.commons.logging.LogFactory
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -31,7 +30,7 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
-class KmehrFileOperation(webSocket: WebSocketSession, gsonMapper: Gson) : BinaryOperation(webSocket, gsonMapper), AsyncDecrypt {
+class KmehrFileOperation(webSocket: WebSocketSession, objectMapper: ObjectMapper) : BinaryOperation(webSocket, objectMapper), AsyncDecrypt {
     private val log = LogFactory.getLog(KmehrExport::class.java)
     private val decodingSessions: MutableMap<String?, DecodingSession<*>> = HashMap()
     @Throws(IOException::class)
@@ -40,26 +39,25 @@ class KmehrFileOperation(webSocket: WebSocketSession, gsonMapper: Gson) : Binary
         val future = CompletableFuture<List<K>>()
         val decodingSession = DecodingSession(future, clazz)
         decodingSessions[message.uuid] = decodingSession
-        val jsonMessage = gsonMapper.toJson(message)
-        val wsMessage = if (jsonMessage.length > 65000) webSocket.binaryMessage { it.wrap(jsonMessage.toByteArray(Charsets.UTF_8)) } else webSocket.textMessage(gsonMapper.toJson(message))
+        val jsonMessage = objectMapper.writeValueAsString(message)
+        val wsMessage = if (jsonMessage.length > 65000) webSocket.binaryMessage { it.wrap(jsonMessage.toByteArray(Charsets.UTF_8)) } else webSocket.textMessage(objectMapper.writeValueAsString(message))
         webSocket.send(Mono.just(wsMessage)).awaitFirstOrNull()
         return future
     }
 
     override fun <K : Serializable> handle(message: String?) {
         val dto = try {
-            JsonParser.parseString(message).asJsonObject
+            objectMapper.readTree(message)
         } catch(e:Exception) {
             log.error("Cannot parse because of ${e}. Object is: ${message}", e)
             throw(e)
         }
-        if (dto["command"].asString == "decryptResponse") {
-            val decodingSession = decodingSessions[dto["uuid"].asString] as DecodingSession<K>
+        if (dto["command"].asText() == "decryptResponse") {
+            val decodingSession = decodingSessions[dto["uuid"].asText()] as DecodingSession<K>
             decodingSession.future.complete(
-                    dto["body"].asJsonArray.mapNotNull { e ->
-                        val jsonObject = e.asJsonObject
+                    dto["body"].mapNotNull { jsonObject ->
                         try {
-                            gsonMapper.fromJson<K>(jsonObject, decodingSession.clazz)
+                            objectMapper.treeToValue<K>(jsonObject, decodingSession.clazz)
                         } catch (ee: Exception) {
                             log.error("Cannot parse because of ${ee}")
                             null

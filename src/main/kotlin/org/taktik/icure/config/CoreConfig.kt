@@ -19,7 +19,6 @@
 
 package org.taktik.icure.config
 
-import com.google.gson.Gson
 import com.hazelcast.core.HazelcastInstance
 import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean

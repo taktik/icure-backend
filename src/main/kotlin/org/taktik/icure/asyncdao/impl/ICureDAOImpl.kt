@@ -18,7 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.eclipse.jetty.client.HttpClient
 import org.springframework.stereotype.Repository
@@ -32,9 +32,8 @@ import java.net.URI
 
 @ExperimentalCoroutinesApi
 @Repository("iCureDAO")
-class ICureDAOImpl(couchDbProperties: CouchDbProperties, private val httpClient: HttpClient) : ICureDAO {
+class ICureDAOImpl(couchDbProperties: CouchDbProperties, httpClient: HttpClient) : ICureDAO {
     private val client = ClientImpl(httpClient, org.ektorp.http.URI.of(URI(couchDbProperties.url).toString()), couchDbProperties.username!!, couchDbProperties.password!!)
-    private val gson = GsonBuilder().create()
 
     override suspend fun getIndexingStatus(groupId: String?): Map<String, Int> {
         return client.activeTasks().filterIsInstance<Indexer>().filter { i -> groupId?.let { i.database?.contains(it) == true } ?: true }.fold(mutableMapOf()) { map, at ->

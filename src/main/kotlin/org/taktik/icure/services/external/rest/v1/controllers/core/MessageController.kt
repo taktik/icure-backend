@@ -18,10 +18,10 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Splitter
-import com.google.gson.Gson
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.reactor.flux
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -47,18 +46,14 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.MessageLogic
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Message
-import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.MessageDto
-import org.taktik.icure.services.external.rest.v1.dto.PaginatedList
 import org.taktik.icure.services.external.rest.v1.dto.MessagesReadStatusUpdate
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
 import org.taktik.icure.services.external.rest.v1.mapper.MessageMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
-import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
@@ -76,7 +71,8 @@ class MessageController(
         private val sessionLogic: AsyncSessionLogic,
         private val messageMapper: MessageMapper,
         private val delegationMapper: DelegationMapper,
-        private val stubMapper: StubMapper
+        private val stubMapper: StubMapper,
+        private val objectMapper: ObjectMapper
 ) {
     val DEFAULT_LIMIT = 1000
     private val messageToMessageDto = { it: Message -> messageMapper.map(it) }
@@ -230,8 +226,8 @@ class MessageController(
             @RequestParam(required = false) reverse: Boolean?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
-        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
+        val startKeyElements = objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyElements, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }
@@ -245,8 +241,8 @@ class MessageController(
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = Gson().fromJson(startKey, Array<Any>::class.java)
-        val paginationOffset = PaginationOffset<List<Any>>(if (startKeyElements == null) null else listOf(*startKeyElements), startDocumentId, null, realLimit + 1)
+        val startKeyElements = objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
+        val paginationOffset = PaginationOffset<List<Any>>(startKeyElements, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
     }

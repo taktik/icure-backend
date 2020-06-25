@@ -123,7 +123,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
         try {
             return rev?.let { client.get(id, entityClass, *options) }
-                    ?: client.get(id, entityClass, *options)?.apply { postLoad(dbInstanceUrl, groupId, this) }
+                    ?: client.get(id, entityClass, *options)?.let { postLoad(dbInstanceUrl, groupId, it) }
         } catch (e: DocumentNotFoundException) {
             log.warn("Document not found", e)
         }
@@ -136,7 +136,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it); it }
+        return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it) }
     }
 
     override fun getList(dbInstanceUrl: URI, groupId: String, ids: Flow<String>): Flow<T> {
@@ -144,7 +144,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".get: " + ids)
         }
-        return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it); it }
+        return client.get(ids, entityClass).map { this.postLoad(dbInstanceUrl, groupId, it) }
     }
 
     override suspend fun create(dbInstanceUrl: URI, groupId: String, entity: T): T? {

@@ -17,8 +17,7 @@
  */
 package org.taktik.icure.services.external.http
 
-import com.google.gson.Gson
-import com.google.gson.JsonParser
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -45,7 +44,7 @@ import java.lang.reflect.Parameter
 import java.nio.charset.Charset
 
 @Component
-class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController, val gsonMapper: Gson, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
+class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController, val objectMapper: ObjectMapper, val sessionLogic: AsyncSessionLogic) : WebSocketHandler {
     var prefix: String? = null
     val methods = scanBeanMethods(kmehrWsController)
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -74,11 +73,11 @@ class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController
         return mono {
             session.receive().doOnNext { wsm -> wsm.retain() }.asFlow().mapNotNull { wsm ->
                 (if (operation == null) {
-                    val jsonParameters = JsonParser.parseString(wsm.payloadAsText).asJsonObject["parameters"].asJsonObject
+                    val jsonParameters = objectMapper.readTree(wsm.payloadAsText).get("parameters")
                     val path = session.handshakeInfo.uri.path.replaceFirst("^" + (prefix?.toRegex() ?: ""), "").replaceFirst(";.+?=.*".toRegex(), "")
                     val invocation = methods[path]
                     operation = try {
-                        invocation!!.operationClass.getConstructor(WebSocketSession::class.java, Gson::class.java).newInstance(session, gsonMapper)
+                        invocation!!.operationClass.getConstructor(WebSocketSession::class.java, ObjectMapper::class.java).newInstance(session, objectMapper)
                     } catch (e: Exception) {
                         log.error("WS error",e);
                         throw IllegalStateException(e)
@@ -87,7 +86,7 @@ class WebSocketOperationHandler(private val kmehrWsController: KmehrWsController
                     try {
                         val parameters = invocation.method.parameters.map { p: Parameter ->
                             val paramAnnotation = p.getAnnotation(WebSocketParam::class.java)
-                            if (paramAnnotation == null) operation else gsonMapper.fromJson(jsonParameters[paramAnnotation.value], p.type)
+                            if (paramAnnotation == null) operation else objectMapper.readValue(jsonParameters.get(paramAnnotation.value).asText(), p.type)
                         }.toTypedArray()
 
                         async(Dispatchers.Default) {

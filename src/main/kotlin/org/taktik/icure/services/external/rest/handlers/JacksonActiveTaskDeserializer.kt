@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
-import com.google.gson.JsonParseException
 import org.springframework.boot.jackson.JsonObjectDeserializer
 import org.taktik.couchdb.ActiveTask
 import org.taktik.couchdb.DatabaseCompactionTask
 import org.taktik.couchdb.Indexer
 import org.taktik.couchdb.ViewCompactionTask
+import java.lang.IllegalArgumentException
 
 class JacksonActiveTaskDeserializer : JsonObjectDeserializer<ActiveTask>() {
     private val discriminator = "type"
@@ -21,8 +21,8 @@ class JacksonActiveTaskDeserializer : JsonObjectDeserializer<ActiveTask>() {
     )
 
     override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): ActiveTask {
-        val discr = tree[discriminator].textValue() ?: throw JsonParseException("Missing discriminator $discriminator in object")
-        val selectedSubClass = subclasses[discr] ?: throw JsonParseException("Invalid subclass $discr in object")
+        val discr = tree[discriminator].textValue() ?: throw IllegalArgumentException("Missing discriminator $discriminator in object")
+        val selectedSubClass = subclasses[discr] ?: throw IllegalArgumentException("Invalid subclass $discr in object")
         return codec.treeToValue(tree, selectedSubClass)
     }
 }

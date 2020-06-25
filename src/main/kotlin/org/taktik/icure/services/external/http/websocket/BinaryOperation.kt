@@ -17,22 +17,18 @@
  */
 package org.taktik.icure.services.external.http.websocket
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactor.asFlux
 import org.apache.commons.logging.LogFactory
 import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.web.reactive.socket.WebSocketMessage
 import org.springframework.web.reactive.socket.WebSocketSession
 import reactor.core.publisher.Mono
 import java.io.IOException
 import java.util.*
 
-abstract class BinaryOperation(protected var webSocket: WebSocketSession, protected var gsonMapper: Gson) : Operation, AsyncProgress {
+abstract class BinaryOperation(protected var webSocket: WebSocketSession, protected var objectMapper: ObjectMapper) : Operation, AsyncProgress {
     private val log = LogFactory.getLog(BinaryOperation::class.java)
 
     @Throws(IOException::class)
@@ -47,7 +43,7 @@ abstract class BinaryOperation(protected var webSocket: WebSocketSession, protec
         ed["message"] = e.message
         ed["localizedMessage"] = e.localizedMessage
         log.info("Error in socket " + e.message + ":" + e.localizedMessage + " ", e)
-        webSocket.send(Mono.just(webSocket.textMessage(gsonMapper.toJson(ed)))).awaitFirstOrNull()
+        webSocket.send(Mono.just(webSocket.textMessage(objectMapper.writeValueAsString(ed)))).awaitFirstOrNull()
     }
 
     @Throws(IOException::class)
@@ -55,7 +51,7 @@ abstract class BinaryOperation(protected var webSocket: WebSocketSession, protec
         val wrapper = HashMap<String, Double>()
         wrapper["progress"] = progress
         val message: Message<*> = Message("progress", "Map", UUID.randomUUID().toString(), listOf(wrapper))
-        webSocket.send(Mono.just(webSocket.textMessage(gsonMapper.toJson(message)))).awaitFirstOrNull()
+        webSocket.send(Mono.just(webSocket.textMessage(objectMapper.writeValueAsString(message)))).awaitFirstOrNull()
     }
 
 }

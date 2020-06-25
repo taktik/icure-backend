@@ -18,23 +18,33 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
-import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.icure.asynclogic.FormTemplateLogic
-import org.taktik.icure.entities.Form
-import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.exceptions.MissingRequirementsException
 import org.taktik.icure.services.external.rest.v1.dto.FormDto
@@ -42,21 +52,15 @@ import org.taktik.icure.services.external.rest.v1.dto.FormTemplateDto
 import org.taktik.icure.services.external.rest.v1.dto.IcureStubDto
 import org.taktik.icure.services.external.rest.v1.dto.ListOfIdsDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationDto
-import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayout
 import org.taktik.icure.services.external.rest.v1.mapper.FormMapper
 import org.taktik.icure.services.external.rest.v1.mapper.FormTemplateMapper
 import org.taktik.icure.services.external.rest.v1.mapper.StubMapper
 import org.taktik.icure.services.external.rest.v1.mapper.embed.DelegationMapper
 import org.taktik.icure.services.external.rest.v1.mapper.filter.FilterMapper
-import org.taktik.icure.utils.FormUtils
 import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
-import java.io.ByteArrayInputStream
-import java.io.IOException
-import java.io.InputStreamReader
 import java.util.*
-import javax.xml.transform.TransformerException
 
 @ExperimentalCoroutinesApi
 @RestController

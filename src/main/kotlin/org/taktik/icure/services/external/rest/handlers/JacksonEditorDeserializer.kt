@@ -5,12 +5,12 @@ import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.common.base.Preconditions
-import com.google.gson.JsonParseException
 import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 import org.reflections.scanners.TypeAnnotationsScanner
 import org.springframework.boot.jackson.JsonObjectDeserializer
 import org.taktik.icure.services.external.rest.v1.dto.gui.Editor
+import java.lang.IllegalArgumentException
 import java.lang.reflect.Modifier
 import java.util.HashMap
 
@@ -35,8 +35,8 @@ class JacksonEditorDeserializer : JsonObjectDeserializer<Editor>() {
     }
 
     override fun deserializeObject(jsonParser: JsonParser?, context: DeserializationContext?, codec: ObjectCodec, tree: JsonNode): Editor {
-        val discr = tree[discriminator].textValue() ?: throw JsonParseException("Missing discriminator $discriminator in object")
-        val selectedSubClass = subclasses[discr] ?: throw JsonParseException("Invalid subclass $discr in object")
+        val discr = tree[discriminator].textValue() ?: throw IllegalArgumentException("Missing discriminator $discriminator in object")
+        val selectedSubClass = subclasses[discr] ?: throw IllegalArgumentException("Invalid subclass $discr in object")
         return codec.treeToValue(tree, selectedSubClass)
     }
 }

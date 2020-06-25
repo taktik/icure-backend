@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -55,7 +55,8 @@ import reactor.core.publisher.Flux
 class CodeController(
         private val codeLogic: CodeLogic,
         private val codeMapper: CodeMapper,
-        private val filterChainMapper: FilterChainMapper
+        private val filterChainMapper: FilterChainMapper,
+        private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val DEFAULT_LIMIT = 1000
@@ -74,7 +75,7 @@ class CodeController(
 
         val realLimit = limit ?: DEFAULT_LIMIT
 
-        val startKeyElements: List<String?>? = if (startKey == null) null else Gson().fromJson<List<String?>>(startKey, List::class.java)
+        val startKeyElements: List<String?>? = if (startKey == null) null else objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
 
         types?.let {
@@ -138,7 +139,7 @@ class CodeController(
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements : List<String>? = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
+        val startKeyElements : List<String>? = if (startKey == null) null else objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
         codeLogic.findCodesByQualifiedLinkId(null, linkType, linkedId, paginationOffset)
                 .paginatedList<Code, CodeDto>(codeToCodeDto, realLimit)

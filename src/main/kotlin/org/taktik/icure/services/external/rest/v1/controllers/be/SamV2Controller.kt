@@ -1,18 +1,20 @@
 package org.taktik.icure.services.external.rest.v1.controllers.be
 
-import com.google.gson.Gson
-import io.swagger.v3.oas.annotations.tags.Tag
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import org.springframework.web.bind.annotation.*
-import org.taktik.couchdb.ViewQueryResultEvent
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.asynclogic.samv2.SamV2Logic
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
@@ -22,7 +24,6 @@ import org.taktik.icure.services.external.rest.v1.dto.samv2.VmpGroupDto
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.AmpMapper
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.VmpGroupMapper
 import org.taktik.icure.services.external.rest.v1.mapper.samv2.VmpMapper
-import org.taktik.icure.services.external.rest.v1.mapper.samv2.embed.DmppMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 
@@ -34,7 +35,7 @@ class SamV2Controller(
         private val ampMapper: AmpMapper,
         private val vmpMapper: VmpMapper,
         private val vmpGroupMapper: VmpGroupMapper,
-        private val dmppMapper: DmppMapper
+        private val objectMapper: ObjectMapper
 ) {
     private val DEFAULT_LIMIT = 1000
     private val ampToAmpDto = { it: Amp -> ampMapper.map(it) }
@@ -50,7 +51,7 @@ class SamV2Controller(
             @Parameter(description = "An amp document ID") @RequestParam(required = false) startDocumentId: String?,
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements: List<String>? = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
+        val startKeyElements: List<String>? = if (startKey == null) null else objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         samV2Logic.findAmpsByLabel(language, label, paginationOffset).paginatedList<Amp, AmpDto>(ampToAmpDto, realLimit)
@@ -67,7 +68,7 @@ class SamV2Controller(
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = if (startKey == null) null else Gson().fromJson<List<String>>(startKey, List::class.java)
+        val startKeyElements = if (startKey == null) null else objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         samV2Logic.findVmpsByLabel(language, label, paginationOffset).paginatedList<Vmp, VmpDto>(vmpToVmpDto, realLimit)
@@ -181,7 +182,7 @@ class SamV2Controller(
             @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
 
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, Array<String>::class.java).toList()
+        val startKeyElements = if (startKey == null) null else objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit+1)
 
         samV2Logic.findVmpGroupsByLabel(language, label, paginationOffset).paginatedList<VmpGroup, VmpGroupDto>(vmpGroupToVmpGroupDto, realLimit)

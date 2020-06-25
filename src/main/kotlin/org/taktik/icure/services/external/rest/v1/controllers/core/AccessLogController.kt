@@ -18,7 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.controllers.core
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -27,18 +27,23 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.mono
-import org.mapstruct.factory.Mappers
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asynclogic.AccessLogLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.AccessLog
-import org.taktik.icure.entities.Patient
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto
 import org.taktik.icure.services.external.rest.v1.mapper.AccessLogMapper
-import org.taktik.icure.services.external.rest.v1.mapper.PatientMapper
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
@@ -46,12 +51,15 @@ import java.time.Instant
 import java.util.*
 
 
-
 @ExperimentalCoroutinesApi
 @RestController
 @RequestMapping("/rest/v1/accesslog")
 @Tag(name = "accesslog")
-class AccessLogController(private val accessLogLogic: AccessLogLogic, private val accessLogMapper: AccessLogMapper) {
+class AccessLogController(
+        private val accessLogLogic: AccessLogLogic,
+        private val accessLogMapper: AccessLogMapper,
+        private val objectMapper: ObjectMapper
+) {
     private val DEFAULT_LIMIT = 1000
     private val accessLogToAccessLogDto = { it: AccessLog -> accessLogMapper.map(it) }
 
@@ -97,7 +105,7 @@ class AccessLogController(private val accessLogLogic: AccessLogLogic, private va
                                     @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?,
                                     @Parameter(description = "Descending order") @RequestParam(required = false) descending: Boolean?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = startKey?.let { Gson().fromJson(it, Array<String>::class.java).toList() }
+        val startKeyElements = startKey?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, realLimit + 1)
         val accessLogs = accessLogLogic.findByUserAfterDate(userId, accessType, startDate?.let { Instant.ofEpochMilli(it) }, paginationOffset, descending
                 ?: false)

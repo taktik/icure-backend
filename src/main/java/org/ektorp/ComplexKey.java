@@ -4,17 +4,21 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.taktik.icure.services.external.rest.handlers.JacksonComplexKeyDeserializer;
+import org.taktik.icure.services.external.rest.handlers.JacksonComplexKeySerializer;
+
 /**
  * Class for creating complex keys for view queries.
  * The keys's components can consists of any JSON-encodeable objects, but are most likely to be Strings and Integers.
  * @author henrik lundgren
  *
  */
+@JsonDeserialize(using = JacksonComplexKeyDeserializer.class)
+@JsonSerialize(using = JacksonComplexKeySerializer.class)
 public class ComplexKey {
-
-	private final static ObjectMapper mapper = new ObjectMapper();
-
 	private final List<Object> components;
 
 	private static final Object EMPTY_OBJECT = new Object();
@@ -46,19 +50,6 @@ public class ComplexKey {
 
 	private ComplexKey(Object[] components) {
 		this.components = Arrays.asList(components);
-	}
-
-	@JsonValue
-	public JsonNode toJson() {
-		ArrayNode key = mapper.createArrayNode();
-		for (Object component : components) {
-			if (component == EMPTY_OBJECT) {
-				key.addObject();
-			} else {
-				key.addPOJO(component);
-			}
-		}
-		return key;
 	}
 
 	@Override
