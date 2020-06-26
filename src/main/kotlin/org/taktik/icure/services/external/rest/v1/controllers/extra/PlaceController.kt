@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -40,9 +41,10 @@ class PlaceController(
 
     @Operation(summary = "Creates a place")
     @PostMapping
-    suspend fun createPlace(@RequestBody placeDto: PlaceDto) =
-            placeLogic.createPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
+    fun createPlace(@RequestBody placeDto: PlaceDto) = mono {
+        placeLogic.createPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place creation failed")
+    }
 
     @Operation(summary = "Deletes an place")
     @DeleteMapping("/{placeIds}")
@@ -50,9 +52,10 @@ class PlaceController(
 
     @Operation(summary = "Gets an place")
     @GetMapping("/{placeId}")
-    suspend fun getPlace(@PathVariable placeId: String) =
-            placeLogic.getPlace(placeId)?.let { placeMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
+    fun getPlace(@PathVariable placeId: String) = mono {
+        placeLogic.getPlace(placeId)?.let { placeMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Place fetching failed")
+    }
 
     @Operation(summary = "Gets all places")
     @GetMapping
@@ -61,7 +64,8 @@ class PlaceController(
 
     @Operation(summary = "Modifies an place")
     @PutMapping
-    suspend fun modifyPlace(@RequestBody placeDto: PlaceDto) =
-            placeLogic.modifyPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
+    fun modifyPlace(@RequestBody placeDto: PlaceDto) = mono {
+        placeLogic.modifyPlace(placeMapper.map(placeDto))?.let { placeMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Place modification failed")
+    }
 }

@@ -117,10 +117,10 @@ class TarificationController(
 
     @Operation(summary = "Create a Tarification", description = "Type, Tarification and Version are required.")
     @PostMapping
-    suspend fun createTarification(@RequestBody c: TarificationDto) =
-            tarificationLogic.create(tarificationMapper.map(c))?.let { tarificationMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
-
+    fun createTarification(@RequestBody c: TarificationDto) = mono {
+        tarificationLogic.create(tarificationMapper.map(c))?.let { tarificationMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Tarification creation failed.")
+    }
 
     @Operation(summary = "Get a list of tarifications by ids", description = "Keys must be delimited by coma")
     @PostMapping("/byIds")
@@ -130,27 +130,29 @@ class TarificationController(
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{tarificationId}")
-    suspend fun getTarification(@Parameter(description = "Tarification id") @PathVariable tarificationId: String) =
-            tarificationLogic.get(tarificationId)?.let { tarificationMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
+    fun getTarification(@Parameter(description = "Tarification id") @PathVariable tarificationId: String) = mono {
+        tarificationLogic.get(tarificationId)?.let { tarificationMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
+    }
 
     @Operation(summary = "Get a tarification", description = "Get a tarification based on ID or (tarification,type,version) as query strings. (tarification,type,version) is unique.")
     @GetMapping("/{type}/{tarification}/{version}")
-    suspend fun getTarificationWithParts(
+    fun getTarificationWithParts(
             @Parameter(description = "Tarification type", required = true) @PathVariable type: String,
             @Parameter(description = "Tarification tarification", required = true) @PathVariable tarification: String,
-            @Parameter(description = "Tarification version", required = true) @PathVariable version: String) =
-            tarificationLogic.get(type, tarification, version)?.let { tarificationMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
-
+            @Parameter(description = "Tarification version", required = true) @PathVariable version: String) = mono {
+        tarificationLogic.get(type, tarification, version)?.let { tarificationMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "A problem regarding fetching the tarification. Read the app logs.")
+    }
 
     @Operation(summary = "Modify a tarification", description = "Modification of (type, tarification, version) is not allowed.")
     @PutMapping
-    suspend fun modifyTarification(@RequestBody tarificationDto: TarificationDto): TarificationDto =
-            try {
-                tarificationLogic.modify(tarificationMapper.map(tarificationDto))?.let { tarificationMapper.map(it) }
-                        ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
-            } catch (e: Exception) {
-                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")
-            }
+    fun modifyTarification(@RequestBody tarificationDto: TarificationDto) = mono {
+        try {
+            tarificationLogic.modify(tarificationMapper.map(tarificationDto))?.let { tarificationMapper.map(it) }
+                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modification of the tarification failed. Read the server log.")
+        } catch (e: Exception) {
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the tarification. Read the app logs: ")
+        }
+    }
 }

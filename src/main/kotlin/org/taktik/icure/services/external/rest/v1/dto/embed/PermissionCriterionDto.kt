@@ -29,7 +29,7 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class PermissionCriterionDto(
-        @JsonProperty("isNegative") val negative: Boolean = false,
+        val negative: Boolean = false,
         val currentUser: CriterionTypeCurrentUser? = null,
         val dataType: CriterionDataType? = null,
         val patientStatus: String? = null

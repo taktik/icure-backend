@@ -1,5 +1,7 @@
 package org.taktik.icure.samv2
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
@@ -85,7 +87,7 @@ class Samv2Import : CliktCommand() {
         }
 
         val httpClient = HttpClient(SslContextFactory.Client()).apply { start() }
-        val couchDbDispatcher = CouchDbDispatcher(httpClient, dbName, "drug", username, password)
+        val couchDbDispatcher = CouchDbDispatcher(httpClient, ObjectMapper().registerModule(KotlinModule()), dbName, "drug", username, password)
         val updateExistingDocs = (update == "true" || update == "yes")
         val reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>> = HashMap()
         val vmps : MutableMap<String, VmpStub> = HashMap()

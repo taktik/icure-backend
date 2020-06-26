@@ -77,8 +77,8 @@ class LoginController(
             return@withContext loginInfo?.let {
                 val response = AuthenticationResponse()
                 val authentication = sessionLogic.login(loginInfo.username!!, loginInfo.password!!, request, session)
-                response.isSuccessful = authentication != null && authentication.isAuthenticated
-                if (response.isSuccessful) {
+                response.successful = authentication != null && authentication.isAuthenticated
+                if (response.successful) {
                     val secContext =  SecurityContextImpl(authentication)
                     val securityContext = kotlin.coroutines.coroutineContext[ReactorContext]?.context?.put(SecurityContext::class.java, Mono.just(secContext))
                     withContext(kotlin.coroutines.coroutineContext.plus(securityContext?.asCoroutineContext() as CoroutineContext)){
@@ -97,14 +97,14 @@ class LoginController(
     @GetMapping("/logout")
     fun logout() = mono {
         sessionLogic.logout()
-        AuthenticationResponse(true)
+        AuthenticationResponse(successful = true)
     }
 
     @Operation(summary = "logout", description = "Logout")
     @PostMapping("/logout")
     fun logoutPost() = mono {
         sessionLogic.logout()
-        AuthenticationResponse(true)
+        AuthenticationResponse(successful = true)
     }
 
     @Operation(summary = "token", description = "Get token for subsequent operation")

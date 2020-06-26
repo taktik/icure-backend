@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.controllers.extra
 import io.swagger.v3.oas.annotations.tags.Tag
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -39,16 +40,17 @@ class KeywordController(private val keywordLogic: KeywordLogic, private val keyw
 
     @Operation(summary = "Create a keyword with the current user", description = "Returns an instance of created keyword.")
     @PostMapping
-    suspend fun createKeyword(@RequestBody c: KeywordDto) =
-            keywordLogic.createKeyword(keywordMapper.map(c))?.let { keywordMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword creation failed.")
+    fun createKeyword(@RequestBody c: KeywordDto) = mono {
+        keywordLogic.createKeyword(keywordMapper.map(c))?.let { keywordMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword creation failed.")
+    }
 
     @Operation(summary = "Get a keyword")
     @GetMapping("/{keywordId}")
-    suspend fun getKeyword(@PathVariable keywordId: String) =
-            keywordLogic.getKeyword(keywordId)?.let { keywordMapper.map(it) }
-                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
-
+    fun getKeyword(@PathVariable keywordId: String) = mono {
+        keywordLogic.getKeyword(keywordId)?.let { keywordMapper.map(it) }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting keyword failed. Possible reasons: no such keyword exists, or server error. Please try again or read the server log.")
+    }
 
     @Operation(summary = "Get keywords by user")
     @GetMapping("/byUser/{userId}")
@@ -71,9 +73,9 @@ class KeywordController(private val keywordLogic: KeywordLogic, private val keyw
 
     @Operation(summary = "Modify a keyword", description = "Returns the modified keyword.")
     @PutMapping
-    suspend fun modifyKeyword(@RequestBody keywordDto: KeywordDto): KeywordDto {
+    fun modifyKeyword(@RequestBody keywordDto: KeywordDto) = mono {
         keywordLogic.modifyKeyword(keywordMapper.map(keywordDto))
-        return keywordLogic.getKeyword(keywordDto.id)?.let { keywordMapper.map(it) }
+        keywordLogic.getKeyword(keywordDto.id)?.let { keywordMapper.map(it) }
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Keyword modification failed.")
     }
 }
