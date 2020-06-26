@@ -25,13 +25,13 @@ import org.taktik.icure.utils.FuzzyValues
 import java.time.Instant
 
 enum class AutoFix(private val fixer: suspend (b:Any?,v:Any?,sl:AsyncSessionLogic?) -> Any?) {
-    FUZZYNOW({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> FuzzyValues.getCurrentFuzzyDateTime() }),
-    NOW({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> Instant.now().toEpochMilli() }),
-    UUID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString() }),
-    CURRENTUSERID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
-    CURRENTHCPID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
-    NOFIX({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> v }),
-    NORMALIZECODE({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> (v as? CodeIdentification)?.normalizeIdentification() ?: v });
+    FUZZYNOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> FuzzyValues.getCurrentFuzzyDateTime() }),
+    NOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> Instant.now().toEpochMilli() }),
+    UUID({ _: Any?, _: Any?, _: AsyncSessionLogic? -> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString() }),
+    CURRENTUSERID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
+    CURRENTHCPID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
+    NOFIX({ _: Any?, v: Any?, _: AsyncSessionLogic? -> v }),
+    NORMALIZECODE({ _: Any?, v: Any?, _: AsyncSessionLogic? -> (v as? CodeIdentification)?.normalizeIdentification() ?: v });
 
     suspend fun fix(bean: Any?, value: Any?, sessionLogic: AsyncSessionLogic?): Any? {
         return (value as? MutableSet<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableSet() }

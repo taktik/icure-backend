@@ -112,12 +112,6 @@ open class KmehrExport(
         }
     }
 
-	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
-            (
-                    ((97 - nihii.substring(0, 6).toLong()) % 97 == nihii.substring(6, 8).toLong()) ||
-                    ((89 - nihii.substring(0, 6).toLong()) % 89 == nihii.substring(6, 8).toLong())
-            )
-
     suspend fun makePatient(p : Patient, config: Config): PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
         return makePerson(p, config).apply {
@@ -371,7 +365,7 @@ open class KmehrExport(
         }.let { if (it.isBoolean != null || it.date != null || it.time != null || it.lnks.size > 0 || it.compoundprescription != null || it.substanceproduct != null || it.medicinalproduct != null || it.cds.size > 0 || it.decimal != null || it.texts.size > 0) it else null }
     }
 
-    protected fun documentMediaType(d: Document) =
+    private fun documentMediaType(d: Document) =
             (listOf(d.mainUti) + d.otherUtis).map {
                 UTI.get(it)?.mimeTypes?.firstOrNull()?.let {
                     try {
@@ -461,24 +455,30 @@ open class KmehrExport(
             }
 
             var lbl = svc.label
-            if (lbl != null) {
-                if (svc.content.values.find { it.medicationValue != null } != null) {
+            when {
+                svc.content.values.find { it.medicationValue != null } != null -> {
                     lbl += "{m}"
-                } else if (svc.content.values.find { it.measureValue != null } != null) {
+                }
+                svc.content.values.find { it.measureValue != null } != null -> {
                     lbl += "{v}"
-                } else if (svc.content.values.find { it.stringValue != null } != null) {
+                }
+                svc.content.values.find { it.stringValue != null } != null -> {
                     lbl += "{s}"
-                } else if (svc.content.values.find { it.numberValue != null } != null) {
+                }
+                svc.content.values.find { it.numberValue != null } != null -> {
                     lbl += "{n}"
-                } else if (svc.content.values.find { it.instantValue != null } != null) {
+                }
+                svc.content.values.find { it.instantValue != null } != null -> {
                     lbl += "{d}"
-                } else if (svc.content.values.find { it.binaryValue != null || it.documentId != null } != null) {
+                }
+                svc.content.values.find { it.binaryValue != null || it.documentId != null } != null -> {
                     lbl += "{x}"
-                } else if (svc.content.values.find { it.booleanValue != null } != null) {
+                }
+                svc.content.values.find { it.booleanValue != null } != null -> {
                     lbl += "{b}"
                 }
-                item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "iCure-Label"; dn = "iCure service label"; value = lbl })
             }
+            item.cds.add(CDITEM().apply { s(CDITEMschemes.LOCAL); sl = "iCure-Label"; dn = "iCure service label"; value = lbl })
 
             if (this.cds.size > 0) {
                 item.contents.add(this)

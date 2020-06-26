@@ -361,7 +361,7 @@ class UserLogicImpl(
 
     override suspend fun modifyUser(groupId: String, modifiedUser: User): User? {
         val group = getDestinationGroup(groupId)
-        return userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
+        return userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex("^[0-9a-zA-Z]{64}$"))) {
             modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
         } else modifiedUser)
     }
