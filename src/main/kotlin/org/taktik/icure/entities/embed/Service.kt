@@ -92,7 +92,7 @@ data class Service(
             "invoicingCodes" to (other.invoicingCodes + this.invoicingCodes)
     )
 
-    override fun compareTo(@NotNull other: Service): Int {
+    override fun compareTo(other: Service): Int {
         if (this == other) {
             return 0
         }

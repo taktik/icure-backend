@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 import org.taktik.icure.services.external.rest.v1.dto.base.ICureDocumentDto
-import org.taktik.icure.validation.NotNull
 import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -66,7 +65,7 @@ data class ServiceDto(
         override val tags: Set<CodeStubDto> = setOf(), //stub object of the tag used to qualify the type of the ServiceDto
         override val encryptedSelf: String? = null
 ) : EncryptedDto, ICureDocumentDto<String>, Comparable<ServiceDto> {
-    override fun compareTo(@NotNull other: ServiceDto): Int {
+    override fun compareTo(other: ServiceDto): Int {
         if (this == other) {
             return 0
         }
