@@ -61,8 +61,8 @@ data class HealthElementDto(
         val idService: String? = null, //When a service is used to create the healthElement
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         val laterality: LateralityDto? = null,
-        val plansOfAction: @Valid List<PlanOfActionDto> = listOf(),
-        val episodes: @Valid List<EpisodeDto> = listOf(),
+        val plansOfAction: List<PlanOfActionDto> = listOf(),
+        val episodes: List<EpisodeDto> = listOf(),
         val careTeam: List<CareTeamMemberDto> = listOf(),
 
         override val secretForeignKeys: Set<String> = setOf(),

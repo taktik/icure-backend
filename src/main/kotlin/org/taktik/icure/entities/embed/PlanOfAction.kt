@@ -39,18 +39,18 @@ import org.taktik.icure.validation.ValidCode
 @KotlinBuilder
 data class PlanOfAction(
         @JsonProperty("_id") override val id: String,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val deadlineDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20140101235960.
         override val name: String? = null,

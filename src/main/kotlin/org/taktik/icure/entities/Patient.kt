@@ -55,13 +55,13 @@ import java.util.*
 data class Patient(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
@@ -108,7 +108,7 @@ data class Patient(
         val medicalHouseContracts: List<MedicalHouseContract> = listOf(),
         val parameters: Map<String, List<String>> = mapOf(),
 
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val patientProfessions: List<CodeStub> = listOf(),
 
         val fatherBirthCountry: CodeStub? = null,

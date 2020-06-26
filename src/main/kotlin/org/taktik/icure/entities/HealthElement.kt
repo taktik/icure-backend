@@ -45,20 +45,20 @@ import javax.validation.Valid
 data class HealthElement(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @NotNull(autoFix = AutoFix.UUID) val healthElementId: String? = null,
+        @field:NotNull(autoFix = AutoFix.UUID) val healthElementId: String? = null,
         //Usually one of the following is used (either valueDate or openingDate and closingDate)
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val valueDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val closingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val descr: String? = null,
         val note: String? = null,
@@ -68,8 +68,8 @@ data class HealthElement(
         val idService: String? = null, //When a service is used to create the healthElement
         val status: Int = 0, //bit 0: active/inactive, bit 1: relevant/irrelevant, bit 2 : present/absent, ex: 0 = active,relevant and present
         val laterality: Laterality? = null,
-        val plansOfAction: @Valid List<PlanOfAction> = listOf(),
-        val episodes: @Valid List<Episode> = listOf(),
+        @field:Valid val plansOfAction: List<PlanOfAction> = listOf(),
+        @field:Valid val episodes: List<Episode> = listOf(),
         val careTeam: List<CareTeamMember> = listOf(),
 
         override val secretForeignKeys: Set<String> = setOf(),

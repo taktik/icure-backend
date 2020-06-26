@@ -42,18 +42,18 @@ import org.taktik.icure.validation.ValidCode
 data class Form(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.UUID) val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val openingDate: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.UUID) val groupId: String? = null, // Several contacts can be combined in a logical contact if they share the same groupId
 
         val descr: String? = null,
         val formTemplateId: String? = null,

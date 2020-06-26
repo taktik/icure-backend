@@ -27,17 +27,17 @@ import java.time.Instant
 enum class AutoFix(private val fixer: suspend (b:Any?,v:Any?,sl:AsyncSessionLogic?) -> Any?) {
     FUZZYNOW({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> FuzzyValues.getCurrentFuzzyDateTime() }),
     NOW({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> Instant.now().toEpochMilli() }),
-    UUID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate() }),
+    UUID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString() }),
     CURRENTUSERID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
     CURRENTHCPID({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
     NOFIX({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> v }),
     NORMALIZECODE({ b: Any?, v: Any?, sl: AsyncSessionLogic? -> (v as? CodeIdentification)?.normalizeIdentification() ?: v });
 
     suspend fun fix(bean: Any?, value: Any?, sessionLogic: AsyncSessionLogic?): Any? {
-        if (value is Collection<*>) {
-            val c = value as Collection<Any>
-            return c.map { v: Any? -> fixer(bean, v, sessionLogic) }
-        }
-        return fixer(bean, value, sessionLogic)
+        return (value as? MutableSet<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableSet() }
+                ?: (value as? MutableList<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toMutableList() }
+                ?: (value as? Set<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) }.toSet() }
+                ?: (value as? Collection<*>)?.let { it.map { v: Any? -> fixer(bean, v, sessionLogic) } }
+                ?: fixer(bean, value, sessionLogic)
     }
 }

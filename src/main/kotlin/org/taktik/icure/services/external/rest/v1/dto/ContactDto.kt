@@ -56,8 +56,8 @@ data class ContactDto(
         val externalId: String? = null,
         val modifiedContactId: String? = null,
         val encounterType: CodeStubDto? = null,
-        val subContacts: @Valid Set<SubContactDto> = setOf(),
-        val services: @Valid Set<ServiceDto> = setOf(),
+        val subContacts: Set<SubContactDto> = setOf(),
+        val services: Set<ServiceDto> = setOf(),
 
         override val secretForeignKeys: Set<String> = setOf(),
         override val cryptedForeignKeys: Map<String, Set<DelegationDto>> = mapOf(),

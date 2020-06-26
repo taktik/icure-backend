@@ -37,7 +37,7 @@ data class Measure(
         val severityCode: String? = null,
         val unit: String? = null,
 
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val unitCodes: Set<CodeStub>? = null,
         val comment: String? = null
 ) : Serializable

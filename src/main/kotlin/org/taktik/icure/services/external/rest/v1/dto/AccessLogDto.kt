@@ -40,8 +40,8 @@ import java.time.Instant
 data class AccessLogDto(
         override val id: String,
         override val rev: String? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
         override val author: String? = null,
         override val responsible: String? = null,
         override val medicalLocationId: String? = null,

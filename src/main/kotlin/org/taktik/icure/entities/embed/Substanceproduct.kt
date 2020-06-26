@@ -29,10 +29,10 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Substanceproduct(
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val intendedcds: List<CodeStub> = listOf(),
 
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val deliveredcds: List<CodeStub> = listOf(),
         val intendedname: String? = null,
         val deliveredname: String? = null

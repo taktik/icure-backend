@@ -343,7 +343,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(protected val entityClass: Cla
         }
         emitAll(results.asFlow().mapNotNull { r ->
             (updatedEntities.firstOrNull { u -> r.id == u.id }
-                    ?: entities.firstOrNull { u -> r.id == u.id })?.let { it.withIdRev(rev = r.rev) as T }
+                    ?: entities.firstOrNull { u -> r.id == u.id })?.let { e -> r.rev?.let { e.withIdRev(rev = it) as T } ?: e }
         }.map { afterSave(dbInstanceUrl, groupId, it) })
     }
 

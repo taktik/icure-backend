@@ -73,7 +73,7 @@ data class HealthcareParty(
         val picture: ByteArray? = null,
         val statuses: Set<HealthcarePartyStatus> = setOf(),
 
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = setOf(), //Speciality codes, default is first
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val specialityCodes: Set<CodeStub> = setOf(), //Speciality codes, default is first
 
         val sendFormats: Map<TelecomType, String> = mapOf(),
         val notes: String? = null,

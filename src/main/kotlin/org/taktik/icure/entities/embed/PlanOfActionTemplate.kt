@@ -36,13 +36,13 @@ import org.taktik.icure.validation.ValidCode
 @KotlinBuilder
 data class PlanOfActionTemplate(
         @JsonProperty("_id") override val id: String,
-        @NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
-        @NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
-        @NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val created: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) override val modified: Long? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) override val author: String? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTHCPID) override val responsible: String? = null,
         override val medicalLocationId: String? = null,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val tags: Set<CodeStub> = setOf(),
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) override val codes: Set<CodeStub> = setOf(),
         override val endOfLife: Long? = null,
 
         //Usually one of the following is used (either valueDate or openingDate and closingDate)

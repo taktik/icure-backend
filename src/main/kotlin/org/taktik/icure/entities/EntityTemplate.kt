@@ -37,7 +37,7 @@ data class EntityTemplate(
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-        @NotNull(autoFix = AutoFix.CURRENTUSERID) var userId: String? = null,
+        @field:NotNull(autoFix = AutoFix.CURRENTUSERID) var userId: String? = null,
         val descr: String? = null,
         var entityType: String? = null,
         var subType: String? = null,

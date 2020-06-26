@@ -102,7 +102,7 @@ data class PatientDto(
         val medicalHouseContracts: List<MedicalHouseContractDto> = listOf(),
         val parameters: Map<String, List<String>> = mapOf(),
 
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE)
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE)
         val patientProfessions: List<CodeStubDto> = listOf(),
 
         val fatherBirthCountry: CodeStubDto? = null,

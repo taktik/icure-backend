@@ -41,8 +41,8 @@ data class TimeTable(
 
         val name: String? = null,
         val agendaId: String? = null,
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val startTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
-        @NotNull(autoFix = AutoFix.FUZZYNOW) val endTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val startTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
+        @field:NotNull(autoFix = AutoFix.FUZZYNOW) val endTime: Long? = null, // YYYYMMDDHHMMSS if unknown, 00, ex:20010800000000. Note that to avoid all confusion: 2015/01/02 00:00:00 is encoded as 20150101235960.
         val items: List<TimeTableItem> = listOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,

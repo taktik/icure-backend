@@ -7,10 +7,7 @@ import org.taktik.icure.services.external.rest.v1.dto.base.CodeStubDto
 abstract class CodeStubMapper {
 	fun map(codeStubDto: CodeStubDto?):CodeStub? {
         return codeStubDto?.let { CodeStub(
-                id=it.id ?: "${it.type}|${it.code}|${it.version}",
-                type=it.type ?: it.id?.let { it.split('|')[0]},
-                code=it.code ?: it.id?.let { it.split('|')[1]},
-                version=it.version ?: it.id?.let { it.split('|')[2]}
+                id=it.id ?: "${it.type}|${it.code}|${it.version}"
         ) }
     }
 	abstract fun map(codeStub: CodeStub):CodeStubDto

@@ -12,6 +12,6 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class Periodicity(
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedCode: CodeStub? = null,
-        @ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedPeriodicity: CodeStub? = null
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedCode: CodeStub? = null,
+        @field:ValidCode(autoFix = AutoFix.NORMALIZECODE) val relatedPeriodicity: CodeStub? = null
 ) : Serializable
