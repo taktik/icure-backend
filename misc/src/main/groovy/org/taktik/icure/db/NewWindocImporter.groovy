@@ -813,7 +813,7 @@ class NewWindocImporter extends Importer {
         if (!limit) {
             startScan = System.currentTimeMillis()
             print("Scanning patient intolerances... ")
-            src.eachRow("select * from TIntolPat") { r ->
+            src.eachRow("select * from TIntolPat pi inner join tintol ti on pi.intol_id = ti.intol_id") { r ->
                 try {
                     def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
                     if (pId == null) {
@@ -831,6 +831,34 @@ class NewWindocImporter extends Importer {
                             created: dateParse("yyyy-MM-dd HH:mm:ss", (r['Create_dt']?:r['create_dt']))?.time ?: c.created, modified: dateParse("yyyy-MM-dd HH:mm:ss", (r['Create_dt']?:r['create_dt']))?.time ?: c.modified, responsible: c.responsible, author: c.author)
                 } catch (Exception e) {
                     println("Cannot treat intol. ${(r['PatIntol_id']?:r['patintol_id'])}")
+                }
+            }
+
+            println("" + (System.currentTimeMillis() - startScan) / 1000 + " s.")
+        }
+
+        if (!limit) {
+            startScan = System.currentTimeMillis()
+            print("Scanning patient risks... ")
+            src.eachRow("select patient_id, contact_id, create_dt, change_dt, tr.risc from tpatient_risc tp inner join trisc tr on tr.risc_id = tp.risc_id") { r ->
+                try {
+                    def pId = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])?.id
+                    if (pId == null) {
+                        return
+                    }
+                    Contact c = !(r['Contact_id']?:r['contact_id']) ? ctcs[pId][0] : contacts[(r['Contact_id']?:r['contact_id'])] ?: ctcs[pId][0]
+                    def sid = idg.newGUID().toString()
+                    def he = new HealthElement(
+                            id: sid,
+                            descr: (r['risc']),
+                            valueDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateParse("yyyy-MM-dd HH:mm:ss", (r['Create_dt'] ?: r['create_dt']))?.time ?: System.currentTimeMillis()), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                            openingDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(dateParse("yyyy-MM-dd HH:mm:ss", (r['Create_dt'] ?: r['create_dt']))?.time ?: System.currentTimeMillis()), ZoneId.systemDefault()), ChronoUnit.SECONDS),
+                            tags: [new Code('CD-ITEM', 'risk', '1'), new Code('CD-SEVERITY', 'high', '1')],
+                            idOpeningContact: c.id,
+                            created: dateParse("yyyy-MM-dd HH:mm:ss", (r['Create_dt'] ?: r['create_dt']))?.time ?: c.created, modified: dateParse("yyyy-MM-dd HH:mm:ss", (r['Create_dt'] ?: r['create_dt']))?.time ?: c.modified, responsible: c.responsible, author: c.author)
+                    healthElements[pId] << he
+                } catch (Exception e) {
+                    println("Cannot treat risk. ${r['risc']}")
                 }
             }
 
@@ -1298,7 +1326,9 @@ class NewWindocImporter extends Importer {
                     return
                 }
 
-                def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
+
+
+                 def realPat = (pats[(r['Patient_id']?:r['patient_id'])] ?: pats[-(r['Patient_id']?:r['patient_id'])] ?: pats_old[(r['Patient_id']?:r['patient_id'])])
 
                 if (realPat) {
                     def pId = realPat?.id
@@ -1319,6 +1349,7 @@ class NewWindocImporter extends Importer {
                         i = 0
                         c = new Contact(
                                 id: idg.newGUID().toString(),
+                                descr: "Labo ${r['labo_nr']} ${r['name_dr']?:''} ${r['fname_dr']?:''}",
                                 created: crDateTime,
                                 openingDate: FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(crDateTime), ZoneId.systemDefault()), ChronoUnit.DAYS),
                                 services: [],

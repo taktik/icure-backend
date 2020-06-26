@@ -158,7 +158,7 @@ class Samv2v4Import : CliktCommand() {
                     p.also { it.productId = productIds[p.id] }
                 })
             }
-            productIds.filterKeys { !ids.contains(it) }.entries.chunked(10).forEach {
+            productIds.filterKeys { !ids.contains(it) }.entries.chunked(100).forEach {
                 productIdDAO.create(it.map { ProductId(it.key, it.value) })
             }
             ids.filter { !productIds.containsKey(it) }.chunked(100).forEach {
