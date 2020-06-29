@@ -111,7 +111,7 @@ public class MedicalHouseContract {
 
 	public String getSuspensionSource() { return suspensionSource; }
 
-	public void setSuspensionSource(String suspensionSource) { this.suspensionSource = suspensionSource; }
+	public void setSuspensionSource(String suspensionSource) {this.suspensionSource = suspensionSource; }
 
 	public Long getStartOfSuspension() { return startOfSuspension; }
 
