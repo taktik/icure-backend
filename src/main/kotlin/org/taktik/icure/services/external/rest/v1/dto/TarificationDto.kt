@@ -37,7 +37,7 @@ data class TarificationDto(
         override val id: String,         // id = type|code|version  => this must be unique
         override val rev: String? = null,
         override val deletionDate: Long? = null,
-
+        override val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
         override val version: String? = null, //ex: 10. Must be lexicographically searchable
@@ -46,7 +46,6 @@ data class TarificationDto(
         val regions: Set<String> = setOf(), //ex: be,fr
         val periodicity: List<PeriodicityDto> = listOf(),
         val level: Int? = null, //ex: 0 = System, not to be modified by user, 1 = optional, created or modified by user
-        val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
         val links: List<String> = listOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
         val qualifiedLinks: Map<LinkQualificationDto, List<String>> = mapOf(), //Links towards related codes
         val flags: Set<CodeFlagDto> = setOf(), //flags (like female only) for the code

@@ -39,12 +39,12 @@ data class CodeDto(
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
         override val version: String? = null, //ex: 10. Must be lexicographically searchable
+        override val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 
         val author: String? = null,
         val regions: Set<String> = setOf(), //ex: be,fr
         val periodicity: Set<PeriodicityDto> = setOf(),
         val level: Int? = null, //ex: 0 = System, not to be modified by userDto, 1 = optional, created or modified by userDto
-        val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
         val links: Set<String> = setOf(), //Links towards related codes (corresponds to an approximate link in qualifiedLinks)
         val qualifiedLinks: Map<LinkQualificationDto, List<String>> = mapOf(), //Links towards related codes
         val flags: Set<CodeFlagDto> = setOf(), //flags (like female only) for the code

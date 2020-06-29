@@ -77,5 +77,5 @@ class GroupController(couchDbProperties: CouchDbProperties,
     @Operation(summary = "List groups", description = "Create a new gorup with associated dbs")
     @PutMapping("/{id}/password")
     fun setGroupPassword(@Parameter(description="The id of the group") @PathVariable id: String,
-                         @Parameter(description="The new password for the group (can only contain digits, letters, - and _)") @RequestHeader password: String) = mono { groupLogic.setPassword(id, password) }
+                         @Parameter(description="The new password for the group (can only contain digits, letters, - and _)") @RequestHeader password: String) = mono { groupLogic.setPassword(id, password)?.let { groupMapper.map(it) } }
 }

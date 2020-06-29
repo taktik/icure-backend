@@ -88,22 +88,22 @@ class UserLogicImpl(
 
     override suspend fun getUser(id: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, false).also { fillGroup(it) }
+        return userDAO.getUserOnUserDb(dbInstanceUri, groupId, id, false).also { fillGroup(it, groupId) }
     }
 
-    private suspend fun fillGroup(user: User): User =
-            user.copy(groupId = sessionLogic.getCurrentSessionContext().getGroupId())
+    private suspend fun fillGroup(user: User, groupId: String? = null): User =
+            user.copy(groupId = groupId ?: sessionLogic.getCurrentSessionContext().getGroupId())
 
     override suspend fun getUserByEmail(email: String): User? {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.findByEmail(dbInstanceUri, groupId, email).singleOrNull()?.also { fillGroup(it) }
+        return userDAO.findByEmail(dbInstanceUri, groupId, email).singleOrNull()?.also { fillGroup(it, groupId) }
     }
 
     suspend fun getUserByEmail(groupId: String, email: String): User? {
         val group = getDestinationGroup(groupId)
         return group.id?.let {
             userDAO.findByEmail(URI.create(group.dbInstanceUrl()
-                    ?: dbInstanceUri.toASCIIString()), it, email).singleOrNull()?.also { fillGroup(it) }
+                    ?: dbInstanceUri.toASCIIString()), it, email).singleOrNull()?.also { fillGroup(it, group.id) }
         }
     }
 
@@ -160,7 +160,7 @@ class UserLogicImpl(
 
     override fun getUsersByLogin(login: String): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).map { fillGroup(it) })
+        emitAll(userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).map { fillGroup(it, groupId) })
     }
 
     override fun listUsersByLoginOnFallbackDb(login: String): Flow<User> =
@@ -171,7 +171,7 @@ class UserLogicImpl(
 
     override suspend fun getUserByLogin(login: String): User? { // Format login
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).firstOrNull()?.also { fillGroup(it) }
+        return userDAO.findByUsername(dbInstanceUri, groupId, formatLogin(login)).firstOrNull()?.also { fillGroup(it, groupId) }
     }
 
     override suspend fun newUser(type: Users.Type, email: String, password: String?, healthcarePartyId: String): User? { // Format login
@@ -352,10 +352,10 @@ class UserLogicImpl(
     override suspend fun modifyUser(modifiedUser: User): User? {
         // Save user
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.save(dbInstanceUri, groupId,
+        return (userDAO.save(dbInstanceUri, groupId,
                 if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex("^[0-9a-zA-Z]{64}$"))) {
                     modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
-                } else modifiedUser
+                } else modifiedUser)?.let { fillGroup(it, groupId) }
         )
     }
 
@@ -412,7 +412,7 @@ class UserLogicImpl(
     }
 
     override fun updateEntities(users: Collection<User>): Flow<User> = flow {
-        emitAll(users.asFlow().mapNotNull { modifyUser(it) }.map { fillGroup(it) })
+        emitAll(users.asFlow().mapNotNull { modifyUser(it) })
     }
 
     suspend fun deleteEntities(userIds: Collection<String>) { //TODO MB was override here
@@ -429,7 +429,7 @@ class UserLogicImpl(
 
     override fun getAllEntities(): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(userDAO.getAll(dbInstanceUri, groupId).onEach { }.map { fillGroup(it) })
+        emitAll(userDAO.getAll(dbInstanceUri, groupId).onEach { }.map { fillGroup(it, groupId) })
     }
 
     override fun getAllEntityIds(): Flow<String> = flow {
@@ -448,7 +448,7 @@ class UserLogicImpl(
     }
 
     override suspend fun getEntity(id: String): User? {
-        return getUser(id)?.let { fillGroup(it) }
+        return getUser(id)
     }
 
     override suspend fun checkUsersExpiration() {
@@ -489,7 +489,7 @@ class UserLogicImpl(
 
     override fun getUsers(ids: List<String>): Flow<User> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        emitAll(userDAO.getList(dbInstanceUri, groupId, ids).map { fillGroup(it) })
+        emitAll(userDAO.getList(dbInstanceUri, groupId, ids).map { fillGroup(it, groupId) })
     }
 
     override suspend fun getUserOnFallbackDb(userId: String): User? {
@@ -511,16 +511,16 @@ class UserLogicImpl(
     }
 
     override suspend fun getUserByEmailOnUserDb(email: String, groupId: String, dbInstanceUrl: URI): User? {
-        return userDAO.findByEmail(dbInstanceUrl, groupId, email).singleOrNull()?.also { fillGroup(it) }
+        return userDAO.findByEmail(dbInstanceUrl, groupId, email).singleOrNull()?.also { fillGroup(it, groupId) }
     }
 
     override suspend fun getUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User {
-        return fillGroup(userDAO.getUserOnUserDb(dbInstanceUrl, groupId, userId, false))
+        return fillGroup(userDAO.getUserOnUserDb(dbInstanceUrl, groupId, userId, false), groupId)
     }
 
 
     override suspend fun findUserOnUserDb(userId: String, groupId: String, dbInstanceUrl: URI): User? {
-        return userDAO.findUserOnUserDb(dbInstanceUrl, groupId, userId, false)?.also { fillGroup(it) }
+        return userDAO.findUserOnUserDb(dbInstanceUrl, groupId, userId, false)?.also { fillGroup(it, groupId) }
     }
 
     override suspend fun getPrincipal(userId: String) = getUser(userId)

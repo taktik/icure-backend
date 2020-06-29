@@ -40,10 +40,11 @@ import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.PropertyTypeStub
 import org.taktik.icure.entities.embed.TypedValue
-import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.EmailOrSmsMessageDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.AppointmentImportDto
+import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.EmailOrSmsMessageDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoAppointmentTypeRestDto
 import org.taktik.icure.services.external.rest.v1.dto.be.mikrono.MikronoCredentialsDto
+import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
 import org.taktik.icure.services.external.rest.v1.mapper.mikrono.EmailOrSmsMessageMapper
 import org.taktik.icure.utils.firstOrNull
 import java.io.IOException
@@ -51,11 +52,14 @@ import java.io.IOException
 @RestController
 @RequestMapping("/rest/v1/be_mikrono")
 @Tag(name = "bemikrono")
-class MikronoController(private val mikronoLogic: MikronoLogic,
-                        private val patientLogic: PatientLogic,
-                        private val sessionLogic: AsyncSessionLogic,
-                        private val userLogic: UserLogic,
-                        private val emailOrSmsMessageMapper: EmailOrSmsMessageMapper) {
+class MikronoController(
+        private val mikronoLogic: MikronoLogic,
+        private val patientLogic: PatientLogic,
+        private val sessionLogic: AsyncSessionLogic,
+        private val userLogic: UserLogic,
+        private val emailOrSmsMessageMapper: EmailOrSmsMessageMapper,
+        private val userMapper: UserMapper
+) {
 
     private val uuidGenerator = UUIDGenerator()
 
@@ -94,7 +98,7 @@ class MikronoController(private val mikronoLogic: MikronoLogic,
                                                                 ?: PropertyStub(type = PropertyTypeStub(identifier = "org.taktik.icure.be.plugins.mikrono.password", type = TypedValuesType.STRING), typedValue = it)
                                                     }
                                             )
-                            ))).firstOrNull()
+                            ))).firstOrNull()?.let { userMapper.map(it) }
                 } catch (e: Exception) {
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
                 }
@@ -140,7 +144,7 @@ class MikronoController(private val mikronoLogic: MikronoLogic,
                                                 ?: PropertyStub(type = PropertyTypeStub(identifier = "org.taktik.icure.be.plugins.mikrono.password", type = TypedValuesType.STRING), typedValue = it)
                                     }
                             )
-            ))
+            ))?.let { userMapper.map(it) }
 
         }
 

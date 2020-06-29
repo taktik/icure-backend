@@ -14,7 +14,8 @@ data class CodeStub(
         @JsonProperty("_id") override val id: String,         // id = type|code|version  => this must be unique
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT
-        override val version: String? = null //ex: 10. Must be lexicographically searchable
+        override val version: String? = null, //ex: 10. Must be lexicographically searchable
+        override val label: Map<String, String> = mapOf() //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 ) : CodeIdentification {
     companion object : DynamicInitializer<CodeStub> {
         fun from(type: String, code: String, version: String) = CodeStub(id = "$type:$code:$version", type = type, code = code, version = version)

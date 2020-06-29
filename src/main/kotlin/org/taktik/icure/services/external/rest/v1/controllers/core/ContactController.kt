@@ -300,7 +300,7 @@ class ContactController(private val filters: org.taktik.icure.asynclogic.impl.fi
 
     @Operation(summary = "Get ids of contacts matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchContactsBy(@RequestBody filter: FilterDto<*>) = filters.resolve(filter).injectReactorContext()
+    fun matchContactsBy(@RequestBody filter: FilterDto<Contact>) = filters.resolve(filter).injectReactorContext()
 
     // TODO SH MB test this for PaginatedList construction...
     @Operation(summary = "List services for the current user (HcParty) or the given hcparty in the filter ", description = "Returns a list of contacts along with next start keys and Document ID. If the nextStartKey is Null it means that this is the last page.")

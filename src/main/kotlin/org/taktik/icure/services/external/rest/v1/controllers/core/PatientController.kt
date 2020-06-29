@@ -275,7 +275,7 @@ class PatientController(
 
     @Operation(summary = "Get ids of patients matching the provided filter for the current user (HcParty) ")
     @PostMapping("/match")
-    fun matchPatientsBy(@RequestBody filter: FilterDto<*>): Flux<String> = filters.resolve(filter).injectReactorContext()
+    fun matchPatientsBy(@RequestBody filter: FilterDto<Patient>): Flux<String> = filters.resolve(filter).injectReactorContext()
 
     @Operation(summary = "Filter patients for the current user (HcParty) ", description = "Returns a list of patients")
     @GetMapping("/fuzzy")
