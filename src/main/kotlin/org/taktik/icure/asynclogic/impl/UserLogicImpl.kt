@@ -262,7 +262,7 @@ class UserLogicImpl(
     }
 
     override fun createEntities(users: Collection<User>): Flow<User> = flow {
-        val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
+        val regex = Regex("^[0-9a-zA-Z]{64}$")
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         for (user in users) {
 
@@ -275,7 +275,7 @@ class UserLogicImpl(
     }
 
     private fun createEntities(group: Group, users: Collection<User>): Flow<User> = flow {
-        val regex = Regex.fromLiteral("^[0-9a-zA-Z]{64}$")
+        val regex = Regex("^[0-9a-zA-Z]{64}$")
         for (user in users) {
             fix(if (user.passwordHash != null && !user.passwordHash.matches(regex)) {
                 user.copy(passwordHash = encodePassword(user.passwordHash))
@@ -353,7 +353,7 @@ class UserLogicImpl(
         // Save user
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
         return userDAO.save(dbInstanceUri, groupId,
-                if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex.fromLiteral("^[0-9a-zA-Z]{64}$"))) {
+                if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex("^[0-9a-zA-Z]{64}$"))) {
                     modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
                 } else modifiedUser
         )
