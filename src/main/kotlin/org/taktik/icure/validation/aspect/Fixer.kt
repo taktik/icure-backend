@@ -49,10 +49,10 @@ class Fixer<E:Any>(private val sessionLogic: AsyncSessionLogic, private val fact
         }
     }
 
-    suspend fun<R> fix(doc: E, next: suspend (doc: E) -> R) : R {
+    suspend fun fix(doc: E) : E {
         val violations = factory.validator.validate(doc)
 
-        return next(violations.fold(listOf<Fix>()) { fixes, cv ->
+        return violations.fold(listOf<Fix>()) { fixes, cv ->
             val annotation = cv.constraintDescriptor.annotation
             try {
                 val autoFixMethod = annotation.annotationClass.members.find { it.name == "autoFix" }
@@ -76,6 +76,6 @@ class Fixer<E:Any>(private val sessionLogic: AsyncSessionLogic, private val fact
             }
         }.let { fixes ->
             applyFixes(doc, fixes)
-        })
+        }
     }
 }

@@ -37,6 +37,8 @@ import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import org.taktik.icure.utils.invoke
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
 import java.io.Serializable
 import java.time.Instant
 
@@ -47,6 +49,7 @@ data class User(
         @JsonProperty("_id") override val id: String,
         @JsonProperty("_rev") override val rev: String? = null,
         @JsonProperty("deleted") override val deletionDate: Long? = null,
+        @field:NotNull(autoFix = AutoFix.NOW) val created: Long? = null,
 
         override val name: String? = null,
         override val properties: Set<PropertyStub> = setOf(),
@@ -107,6 +110,7 @@ data class User(
 
     fun merge(other: User) = User(args = this.solveConflictsWith(other))
     fun solveConflictsWith(other: User) = super.solveConflictsWith(other) + mapOf(
+            "created" to (this.created?.coerceAtMost(other.created ?: Long.MAX_VALUE) ?: other.created),
             "name" to (this.name ?: other.name),
             "properties" to (other.properties + this.properties),
             "permissions" to (other.permissions + this.permissions),

@@ -114,14 +114,14 @@ class UserLogicImpl(
 
     override suspend fun newUser(type: Users.Type, status: Users.Status, email: String, createdDate: Instant): User {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return userDAO.create(dbInstanceUri, groupId, User(
+        return userDAO.create(dbInstanceUri, groupId, fix(User(
                 id = uuidGenerator.newGUID().toString(),
                 type = type,
                 status = status,
                 createdDate = createdDate,
                 login = email,
                 email = email
-        )) ?: throw java.lang.IllegalStateException("Cannot create user")
+        ))) ?: throw java.lang.IllegalStateException("Cannot create user")
     }
 
     override fun buildStandardUser(userName: String, password: String) = User(
@@ -349,19 +349,19 @@ class UserLogicImpl(
         } ?: false
     }
 
-    override suspend fun modifyUser(modifiedUser: User): User? {
+    override suspend fun modifyUser(modifiedUser: User) = fix(modifiedUser) { modifiedUser ->
         // Save user
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
-        return (userDAO.save(dbInstanceUri, groupId,
+        userDAO.save(dbInstanceUri, groupId,
                 if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex("^[0-9a-zA-Z]{64}$"))) {
                     modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
                 } else modifiedUser)?.let { fillGroup(it, groupId) }
-        )
     }
 
-    override suspend fun modifyUser(groupId: String, modifiedUser: User): User? {
+    override suspend fun modifyUser(groupId: String, modifiedUser: User) = fix(modifiedUser) { modifiedUser ->
         val group = getDestinationGroup(groupId)
-        return userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex("^[0-9a-zA-Z]{64}$"))) {
+
+        userDAO.save(URI.create(group.dbInstanceUrl() ?: dbInstanceUri.toASCIIString()), group.id, if (modifiedUser.passwordHash != null && !modifiedUser.passwordHash.matches(Regex("^[0-9a-zA-Z]{64}$"))) {
             modifiedUser.copy(passwordHash = encodePassword(modifiedUser.passwordHash))
         } else modifiedUser)
     }

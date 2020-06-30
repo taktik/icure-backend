@@ -30,6 +30,8 @@ import org.taktik.icure.services.external.rest.v1.dto.embed.DelegationTagDto
 import org.taktik.icure.services.external.rest.v1.dto.embed.PermissionDto
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
+import org.taktik.icure.validation.AutoFix
+import org.taktik.icure.validation.NotNull
 import java.io.Serializable
 import java.time.Instant
 
@@ -40,6 +42,7 @@ data class UserDto(
         override val id: String,
         override val rev: String? = null,
         override val deletionDate: Long? = null,
+        val created: Long? = null,
 
         override val name: String? = null,
         override val properties: Set<PropertyStubDto> = setOf(),

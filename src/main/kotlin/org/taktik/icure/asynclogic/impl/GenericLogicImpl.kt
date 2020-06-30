@@ -40,7 +40,8 @@ import kotlin.reflect.full.memberFunctions
 
 abstract class GenericLogicImpl<E : Identifiable<String>, D : GenericDAO<E>>(private val sessionLogic: AsyncSessionLogic) : EntityPersister<E, String> {
     private val fixer = Fixer<E>(sessionLogic)
-    suspend fun<R> fix(doc: E, next: suspend (doc: E) -> R) : R = fixer.fix(doc, next)
+    suspend fun<R> fix(doc: E, next: suspend (doc: E) -> R) : R = next(fixer.fix(doc))
+    suspend fun fix(doc: E) : E = fixer.fix(doc)
 
     override fun createEntities(entities: Collection<E>): Flow<E> = flow {
         val (dbInstanceUri, groupId) = sessionLogic.getInstanceAndGroupInformationFromSecurityContext()
