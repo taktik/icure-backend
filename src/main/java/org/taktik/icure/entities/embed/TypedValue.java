@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.taktik.icure.constants.TypedValuesType;
-import org.taktik.icure.entities.base.Encryptable;
 import org.taktik.icure.utils.InstantDeserializer;
 import org.taktik.icure.utils.InstantSerializer;
 
