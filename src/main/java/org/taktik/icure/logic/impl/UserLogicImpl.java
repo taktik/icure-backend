@@ -754,9 +754,9 @@ public class UserLogicImpl extends PrincipalLogicImpl<User> implements UserLogic
 			Optional<Property> prop = user.getProperties().stream().filter(pp -> pp.getType().getIdentifier().equals(p.getType().getIdentifier())).findAny();
 
 			if (!prop.isPresent()) {
-				user.getProperties().add(new Property(new PropertyType(p.getType().getType(), p.getType().getIdentifier()), new TypedValue(p.getType().getType(), p.getValue())));
+				user.getProperties().add(new Property(new PropertyType(p.getType() != null && p.getType().getType() != null ? p.getType().getType() : p.getTypedValue().getType(), p.getType().getIdentifier()), new TypedValue(p.getTypedValue().getType(), p.getValue())));
 			} else {
-				prop.orElseThrow(IllegalStateException::new).setTypedValue(new TypedValue(p.getType().getType(), p.getValue()));
+				prop.orElseThrow(IllegalStateException::new).setTypedValue(new TypedValue(p.getTypedValue().getType(), p.getValue()));
 			}
 		}
 

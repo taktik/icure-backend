@@ -1031,6 +1031,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             batch = item.batch
                             beginMoment = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
                             endMoment = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
+                            comment = item.contents.firstOrNull { it.texts.size > 0 }?.texts?.first()?.value
                         }
                     }
                     ( item.contents.any { it.decimal != null } ) -> item.contents.firstOrNull { it.decimal != null }?.let {
