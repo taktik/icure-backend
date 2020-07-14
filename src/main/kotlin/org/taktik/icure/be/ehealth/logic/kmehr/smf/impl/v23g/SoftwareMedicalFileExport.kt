@@ -432,6 +432,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                                     )
                                                 }
                                             }
+                                            if (cdItem == "vaccine") {
+                                                svc.content.values.firstOrNull { it.medicationValue != null }?.medicationValue?.batch?.let{
+                                                    this.batch = it
+                                                }
+                                            }
                                             svc.comment?.let {
                                                 (it != "") && it.let {
                                                     this.contents.add(ContentType().apply { texts.add(TextType().apply { l = language; value = it }) })
