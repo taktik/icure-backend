@@ -18,6 +18,7 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +37,8 @@ import javax.ws.rs.core.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +48,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.EntityTemplate;
 import org.taktik.icure.logic.EntityTemplateLogic;
-import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -220,13 +222,17 @@ public class EntityTemplateFacade implements OpenApiFacade{
 		}
 	}
 
+    @DELETE
+    @Path("/{entityTemplateIds}")
     @ApiOperation(
-            response = Response.class,
             value = "Delete entity templates",
             httpMethod = "DELETE"
     )
-    @DELETE
-    @Path("/{entityTemplateIds}")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entity templates deleted"),
+            @ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Request param is null"),
+            @ApiResponse(code = HttpURLConnection.HTTP_SERVER_ERROR, message = "Deletion failed")})
+
     public Response deleteEntityTemplate(@PathParam("entityTemplateIds") String entityTemplateIds) {
         Response response;
 
