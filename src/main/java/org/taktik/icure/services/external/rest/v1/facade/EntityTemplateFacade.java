@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.EntityTemplate;
 import org.taktik.icure.logic.EntityTemplateLogic;
+import org.taktik.icure.services.external.rest.v1.dto.DocumentDto;
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto;
 import org.taktik.icure.utils.ResponseUtils;
 
@@ -217,6 +219,30 @@ public class EntityTemplateFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("A problem regarding fetching the entityTemplate. Read the app logs.").build();
 		}
 	}
+
+    @ApiOperation(
+            response = Response.class,
+            value = "Delete entity templates",
+            httpMethod = "DELETE"
+    )
+    @DELETE
+    @Path("/{entityTemplateIds}")
+    public Response deleteEntityTemplate(@PathParam("entityTemplateIds") String entityTemplateIds) {
+        Response response;
+
+	    if (entityTemplateIds == null) {
+            return ResponseUtils.badRequest("Cannot delete entity template: provided entity template ID is null");
+        }
+
+        List<String> entityTemplateIdsList = Arrays.asList(entityTemplateIds.split(","));
+        try {
+            entityTemplateLogic.deleteEntities(entityTemplateIdsList);
+            response = ResponseUtils.ok();
+        } catch (Exception e) {
+            response = ResponseUtils.internalServerError("Entity template deletion failed");
+        }
+        return response;
+    }
 
 	@ApiOperation(
 			value = "Modify a entityTemplate",
