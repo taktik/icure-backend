@@ -43,6 +43,7 @@ public class Code extends StoredDocument implements CodeIdentification {
 
 	// id = type|code|version  => this must be unique
 
+    protected String parent; //ID of the parent
     protected String author;
 
 	protected Set<String> regions; //ex: be,fr
@@ -103,6 +104,10 @@ public class Code extends StoredDocument implements CodeIdentification {
 
         this.id = type+'|'+code+'|'+version;
     }
+
+    public String getParent() { return parent; }
+
+    public void setParent(String parent) { this.parent = parent; }
 
 
     public String toString() {
