@@ -100,6 +100,12 @@ public class PropertyDto extends StoredDto implements Cloneable, Serializable, E
         if (getClass() != obj.getClass())
             return false;
         PropertyDto other = (PropertyDto) obj;
+        if(encryptedSelf == null) {
+            if(other.encryptedSelf != null)
+                return false;
+        } else if (!encryptedSelf.equals(other.encryptedSelf)) {
+            return false;
+        }
         if (type == null) {
             if (other.type != null)
                 return false;
