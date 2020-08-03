@@ -527,6 +527,16 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
 		return new ArrayList<>();
 	}
 
+    @Override
+    public void warmupIndex(){
+        if (log.isDebugEnabled()) {
+            log.debug(entityClass.getSimpleName() + ".getAllIds");
+        }
+        if (designDocContainsAllView()) {
+            db.queryView(createQuery("all").includeDocs(false).limit(1), String.class);
+        }
+    }
+
 	private Options asEktorpOptions(Option... options) {
 		Options ektorpOptions = new Options();
 		for (Option option : options) {

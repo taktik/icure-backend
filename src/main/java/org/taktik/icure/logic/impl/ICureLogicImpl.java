@@ -22,22 +22,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Manifest;
 
-import org.ektorp.support.CouchDbRepositorySupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.taktik.icure.applications.utils.JarUtils;
 import org.taktik.icure.constants.PropertyTypes;
 import org.taktik.icure.dao.ICureDAO;
+import org.taktik.icure.dao.impl.GenericDAOImpl;
 import org.taktik.icure.logic.ICureLogic;
 import org.taktik.icure.logic.PropertyLogic;
-
-import javax.ws.rs.core.Context;
 
 @Service
 public class ICureLogicImpl implements ICureLogic {
 	ICureDAO iCureDAO;
 	private PropertyLogic propertyLogic;
-	List<CouchDbRepositorySupport> allDaos;
+	List<GenericDAOImpl> allDaos;
 
 	@Override
 	public Map<String,Number> getIndexingStatus() {
@@ -45,11 +43,16 @@ public class ICureLogicImpl implements ICureLogic {
 	}
 
 	@Override
-	public void updateDesignDoc(String daoEntityName) {
+	public void updateDesignDoc(String daoEntityName, boolean warmup) {
 		allDaos.stream()
 				.filter(dao -> dao.getClass().getSimpleName().startsWith(daoEntityName+"DAO"))
 				.findFirst()
-				.ifPresent(CouchDbRepositorySupport::forceInitStandardDesignDocument);
+				.ifPresent(dao -> {
+				    dao.forceInitStandardDesignDocument();
+				    if(warmup) {
+				        dao.warmupIndex();
+                    }
+                });
 	}
 
 	@Override
@@ -68,7 +71,7 @@ public class ICureLogicImpl implements ICureLogic {
 	}
 
 	@Autowired
-	public void setAllDaos(List<CouchDbRepositorySupport> allDaos) {
+	public void setAllDaos(List<GenericDAOImpl> allDaos) {
 		this.allDaos = allDaos;
 	}
 
@@ -76,6 +79,4 @@ public class ICureLogicImpl implements ICureLogic {
 	public void setPropertyLogic(PropertyLogic propertyLogic) {
 		this.propertyLogic = propertyLogic;
 	}
-
-
 }
