@@ -1,1 +1,9 @@
 iCure backend on Kubernetes.
+
+{{- if and .Values.tls }}
+{{ range .Values.tls }}
+{{- if .refName }}
+DEPRECATION WARNING: you are currently referencing a certificate secret by name (refName {{ .refName }}, for hosts {{ .hosts }}), which is deprecated. Instead of using the 'refName' field, you should use the 'credentialsSecretName' and 'provider' fields which will generate a new certificate automatically for you. Don't forget to cleanup the old wildcard certificate, if it still exists.
+{{- end }}
+{{- end }}
+{{- end }}
