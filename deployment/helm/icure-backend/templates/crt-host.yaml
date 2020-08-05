@@ -1,6 +1,6 @@
-{{- if and .Values.tls }}
+{{- if .Values.tls }}
 {{ range .Values.tls }}
-{{- if and .provider .credentialsSecretName }}
+{{- if .provider }}
 {{- $tls := . -}}
 {{ range .hosts }}
 apiVersion: voyager.appscode.com/v1beta1
@@ -15,7 +15,7 @@ spec:
   challengeProvider:
     dns:
       provider: {{ $tls.provider }}
-      credentialSecretName: {{ $tls.credentialsSecretName }}
+      {{ if $tls.credentialsSecretName }}credentialSecretName: {{ $tls.credentialsSecretName }}{{ end }}
 ---
 {{- end }}
 {{- end }}
