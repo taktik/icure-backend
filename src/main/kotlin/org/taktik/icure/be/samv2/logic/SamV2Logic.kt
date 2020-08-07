@@ -3,6 +3,7 @@ package org.taktik.icure.be.samv2.logic
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
@@ -10,6 +11,7 @@ import org.taktik.icure.samv2.SamVersion
 
 interface SamV2Logic {
     fun findAmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
+    fun findNmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Nmp>
     fun findVmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
     fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
@@ -22,6 +24,7 @@ interface SamV2Logic {
 
 
     fun listAmpIdsByLabel(language: String?, label: String?): List<String>
+    fun listNmpIdsByLabel(language: String?, label: String?): List<String>
     fun listVmpIdsByLabel(language: String?, label: String?): List<String>
     fun listVmpGroupIdsByLabel(language: String?, label: String?): List<String>
     fun listVmpIdsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): List<String>

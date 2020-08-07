@@ -11,17 +11,20 @@ import org.ektorp.impl.StdCouchDbInstance
 import org.slf4j.LoggerFactory
 import org.taktik.icure.be.samv2v4.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2v4.entities.ExportActualMedicinesType
+import org.taktik.icure.be.samv2v4.entities.ExportNonMedicinalType
 import org.taktik.icure.be.samv2v4.entities.ExportReimbursementsType
 import org.taktik.icure.be.samv2v4.entities.ExportVirtualMedicinesType
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.dao.samv2.impl.AmpDAOImpl
+import org.taktik.icure.dao.samv2.impl.NmpDAOImpl
 import org.taktik.icure.dao.samv2.impl.ProductIdDAOImpl
 import org.taktik.icure.dao.samv2.impl.VmpDAOImpl
 import org.taktik.icure.dao.samv2.impl.VmpGroupDAOImpl
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
@@ -129,6 +132,11 @@ class Samv2v4Import : CliktCommand() {
                         (JAXBContext.newInstance(ExportReimbursementsType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportReimbursementsType)?.let {
                             importReimbursements(it, reimbursements, couchdbConfig, updateExistingDocs)
                         }
+                    entry!!.name.startsWith("NONMEDICINAL") ->
+                        (JAXBContext.newInstance(ExportNonMedicinalType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportNonMedicinalType)?.let {
+                            importNonMedicinals(it, couchdbConfig, updateExistingDocs)
+                        }
+
                 }
             }
         }
@@ -562,6 +570,52 @@ class Samv2v4Import : CliktCommand() {
 
         (currentAmps - newAmpIds).chunked(100).forEach { ampDAO.removeByIds(it) }
 
+        return result
+    }
+
+    private fun importNonMedicinals(export: ExportNonMedicinalType, couchdbConfig: CouchDbICureConnector, force: Boolean) : Map<String, String> {
+        val result = HashMap<String, String>()
+        val nmpDAO = NmpDAOImpl(couchdbConfig , UUIDGenerator())
+        val currentNmps = HashSet(retry(10) { nmpDAO.allIds })
+        val newAmpIds = mutableListOf<String>()
+
+        export.nonMedicinalProduct.forEachIndexed { idx, nmp ->
+            nmp.data.map { d ->
+                val code = nmp.code.toString()
+                val from = d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+                val to = d.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
+
+                val id = "NMP:$code:$from".md5()
+                newAmpIds.add(id)
+                if (result["SAMID:$id"] != null && result["SAMID:$id"] != nmp.productId) {
+                    throw IllegalStateException("duplicate nmp in db ${code} - ${from}")
+                }
+                result["SAMID:$id"] = nmp.productId
+
+                if (!currentNmps.contains(id) || force) Nmp(
+                        id = id,
+                        from = from,
+                        to = to,
+                        code = code,
+                        name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en)},
+                        producer = d.producer?.let { SamText(it.fr, it.nl, it.de, it.en)},
+                        distributor = d.producer?.let { SamText(it.fr, it.nl, it.de, it.en)}
+                ).let { nmp ->
+                    if (!currentNmps.contains(id)) {
+                        log.info("New NMP NMP:$code:$from with id ${id}")
+                        nmpDAO.create(nmp)
+                    } else if (force) {
+                        val prev = nmpDAO.get(nmp.id)
+                        if(prev != nmp) {
+                            log.info("Modified NMP NMP:$code:$from with id ${id}")
+                            nmpDAO.update(nmp.apply { this.rev = prev.rev })
+                        }
+                        nmp
+                    } else nmp
+                }
+            }
+        }
+        (currentNmps - newAmpIds).chunked(100).forEach { nmpDAO.removeByIds(it) }
         return result
     }
 }
