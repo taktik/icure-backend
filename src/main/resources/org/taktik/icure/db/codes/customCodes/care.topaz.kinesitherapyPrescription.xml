@@ -1,0 +1,526 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+	<VERSION>1</VERSION>
+	<DATE>2020-07-27</DATE>
+	<NAME>Kinesitherapy-Prescription</NAME>
+	<VALUE>
+		<CODE>admis-soins-intensifs</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>C5. Situations pour lesquelles les ayants-droit ont été admis dans un service de soins intensifs</DESCRIPTION>
+		<DESCRIPTION L='nl'>C5. Situaties waarbij de rechthebbenden opgenomen zijn geweest in een dienst intensieve zorg</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>affections-neurologiques-centrales</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>02. Affections neurologiques centrales avec déficit moteur étendu</DESCRIPTION>
+		<DESCRIPTION L='nl'>02. Evolutieve aandoeningen van het centrale zenuwcentrum met een uitgebreid motorisch gebrek</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>affections-pulmonaires</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>10. Affections pulmonaires</DESCRIPTION>
+		<DESCRIPTION L='nl'>10. Longaandoeningen</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>agenesie-moins-18-ans</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>05. Agénésie d'un membre pour un bénéficiaire en-dessous de 18 ans ; perte fonctionnelle globale d'un membre suite à une amputation ou par des séquelles post-traumatiqeus, pendant la période évolutive</DESCRIPTION>
+		<DESCRIPTION L='nl'>05. Agenesie van een lidmaat voor een rechthebbende jonger dan 18 jaar; global functonneel verlies van een lidmaat door amputatie of door posttraumatische sequellen tijdens de evolutieve periode</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>anomalie-structurelle-locomoteur</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>12. Anomalie structurelle du système locomoteur</DESCRIPTION>
+		<DESCRIPTION L='nl'>12. Structurele anomalie van het locomotorisch stelsel</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>brulures-membres-cou-phase-evolutive</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>04. Suites de brûlures graves au niveau des membres et/ou du cou pendant la phase évolutive</DESCRIPTION>
+		<DESCRIPTION L='nl'>04. Sequellen van zware brandwonden t.h.v. de ledematen en/of de hals tijdens de evolutieve fase</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>capsulite-retractile</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>G11. Capsulite rétractile</DESCRIPTION>
+		<DESCRIPTION L='nl'>G11. Adhesieve capsulitis</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>courant</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Courant</DESCRIPTION>
+		<DESCRIPTION L='nl'>Courant</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|560210|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|561470|1.0</LINK>
+		<LINK index='4'>INAMI-RIZIV|560254|1.0</LINK>
+		<LINK index='5'>INAMI-RIZIV|560313|1.0</LINK>
+		<LINK index='6'>INAMI-RIZIV|561492|1.0</LINK>
+		<LINK index='7'>INAMI-RIZIV|560350|1.0</LINK>
+		<LINK index='8'>INAMI-RIZIV|560571|1.0</LINK>
+		<LINK index='9'>INAMI-RIZIV|560615|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>deficit-moteur-invalidite-mononeuropathie</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>E7. Déficit moteur et invalidité (mononeuropathie)</DESCRIPTION>
+		<DESCRIPTION L='nl'>E7. Motorisch deficit en invalidering (mononeuropathie)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>deficit-moteur-invalidite-myopathie</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>E9. Déficit moteur et invalidité (myopathie)</DESCRIPTION>
+		<DESCRIPTION L='nl'>E9. Motorisch deficit en invalidering (myopathie)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>deficit-moteur-invalidite-polyneuropathie</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>E8. Déficit moteur et invalidité (polyneuropathie)</DESCRIPTION>
+		<DESCRIPTION L='nl'>E8. Motorisch deficit en invalidering (polyneuropathie)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>drainage-lymphatique-120</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Drainage Lymphatique 120'</DESCRIPTION>
+		<DESCRIPTION L='nl'>Lymfe Drainage 120'</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|639531|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|639553|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>drainage-lymphatique-60</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Drainage Lymphatique 60'</DESCRIPTION>
+		<DESCRIPTION L='nl'>Lymfe Drainage 60'</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|639376|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|639391|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>dysfonction-articulaire-grave</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>07. Dysfonction articulaire grave</DESCRIPTION>
+		<DESCRIPTION L='nl'>07. Gewrichtsdysfubctie</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>dystonie-cervicale-primaire</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>G58. Dystonie cervicale primaire</DESCRIPTION>
+		<DESCRIPTION L='nl'>G58. Primaire cervicale dystonie</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>f-aigue</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>F Aigue</DESCRIPTION>
+		<DESCRIPTION L='nl'>F Acuut</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|563216|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|561470|1.0</LINK>
+		<LINK index='4'>INAMI-RIZIV|563253|1.0</LINK>
+		<LINK index='5'>INAMI-RIZIV|563312|1.0</LINK>
+		<LINK index='6'>INAMI-RIZIV|561492|1.0</LINK>
+		<LINK index='7'>INAMI-RIZIV|563356|1.0</LINK>
+		<LINK index='8'>INAMI-RIZIV|563496|1.0</LINK>
+		<LINK index='9'>INAMI-RIZIV|563533|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>f-aigue-affection-posttraumatique</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>A1. Affection posttraumatique ou postopératoire (chirurgie, arthroscopies diagnostique et thérapeutique)</DESCRIPTION>
+		<DESCRIPTION L='nl'>A1. Posttraumatische of postoperatieve aandoeningen (heelkundige, diagnostische en therapeutische arthroscopieën)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>f-aigue-affection-posttraumatique-k225</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>A2. Affection posttraumatique ou postopératoire (neurochirurgie K225 ou plus)</DESCRIPTION>
+		<DESCRIPTION L='nl'>A2. Posttraumatische of postoperatieve aandoeningen (neurochirurgie K225 of meer)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>f-aigue-affection-posttraumatique-ortho-chir-neurochir</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>A2b. Affection posttraumatique ou postopératoire (orthopédie, prestations chirugicales, neurochirurgie)</DESCRIPTION>
+		<DESCRIPTION L='nl'>A2b. Posttraumatische of postoperatieve aandoening (orthopedie, heelkundige verstrekkingen, neurochirurgie)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>f-aigue-affection-posttraumatique-postope</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>A3. Affection posttraumatique ou postopératoire (prestations 227695-227706, 227710-228821, 227813-227824, ...)</DESCRIPTION>
+		<DESCRIPTION L='nl'>A3. Posttraumatische of postoperatieve aandoeningen (verstrekkingen 227695-227706, 227710-228821, 227813-227824, ...)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>f-chronique</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>F Chronique</DESCRIPTION>
+		<DESCRIPTION L='nl'>F Chronisch</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|563813|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|561470|1.0</LINK>
+		<LINK index='4'>INAMI-RIZIV|563850|1.0</LINK>
+		<LINK index='5'>INAMI-RIZIV|563916|1.0</LINK>
+		<LINK index='6'>INAMI-RIZIV|561492|1.0</LINK>
+		<LINK index='7'>INAMI-RIZIV|563953|1.0</LINK>
+		<LINK index='8'>INAMI-RIZIV|564093|1.0</LINK>
+		<LINK index='9'>INAMI-RIZIV|564130|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>fatigue-chronique</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>E56. Syndrome de fatigue chronique</DESCRIPTION>
+		<DESCRIPTION L='nl'>E56. Chronisch vermoeidheidssyndroom</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>fibromyalgie</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Fibromyalgie</DESCRIPTION>
+		<DESCRIPTION L='nl'>Fibromyalgie</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|564955|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>insuffisance-respiratoire</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>C54. Insuffisance respiratoire</DESCRIPTION>
+		<DESCRIPTION L='nl'>C54. Ademhalingsinsufficiëntie</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>insuffisance-respiratoire-moins-16-ans</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>D6. Insuffisance respiratoire chez l'enfant de moins de 16 ans</DESCRIPTION>
+		<DESCRIPTION L='nl'>D6. Ademhalingsinsufficiëntie bij kinderen onder 16 jaar</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>lymphoedeme</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>H60. Lymphoedème</DESCRIPTION>
+		<DESCRIPTION L='nl'>H60. Lymfoedeem</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>lymphoedeme-membre</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>11. Lymphoedème d'un membre</DESCRIPTION>
+		<DESCRIPTION L='nl'>11. Lymfoedeem van een lidmaat</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>myopathies</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>09. Myopathies</DESCRIPTION>
+		<DESCRIPTION L='nl'>09. Myopathieën</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>orthopedie-traumatologie</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>F10. Situations dans le domaine de l'orthopédie - traumatologie</DESCRIPTION>
+		<DESCRIPTION L='nl'>F10. Situaties in het domein van de orthopedie - traumatology</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>palliatif</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Palliatif</DESCRIPTION>
+		<DESCRIPTION L='nl'>Palliatief</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|564211|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|564233|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>paralysie-periphérique-etendue</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>01. Paralysie périphérique étendue</DESCRIPTION>
+		<DESCRIPTION L='nl'>01. Uitgebreide perifere verlammingen</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>pathologie-e</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Pathologie E</DESCRIPTION>
+		<DESCRIPTION L='nl'>Pathologie E</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|560895|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|560932|1.0</LINK>
+		<LINK index='4'>INAMI-RIZIV|561013|1.0</LINK>
+		<LINK index='5'>INAMI-RIZIV|561050|1.0</LINK>
+		<LINK index='6'>INAMI-RIZIV|561352|1.0</LINK>
+		<LINK index='7'>INAMI-RIZIV|561396|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>perinatal</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Périnatal</DESCRIPTION>
+		<DESCRIPTION L='nl'>Perinataal</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|561632|1.0</LINK>
+		<LINK index='3'>INAMI-RIZIV|561654|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>pied-bot-moins-2-ans</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>06. Pied bot varus équin chez l'enfant de moins de 2 ans</DESCRIPTION>
+		<DESCRIPTION L='nl'>06. Spits - en klompvoet bij een kind jonger dan 2 jaar</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>polyarthrites-chroniques-inflammatoires-immunitaire</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>08. Polyarthrites chroniques inflammatoires d'origine immunitaire</DESCRIPTION>
+		<DESCRIPTION L='nl'>08. Chronische auto-immune inflammatoire polyarthritis</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>polyneuropathie-motrice-mixte</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>D55. Polyneuropathie motrice ou mixte</DESCRIPTION>
+		<DESCRIPTION L='nl'>D55. Chronische motorische of gemengde polyneuropathie</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>polytraumatismes</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>J16. Polytraumatismes</DESCRIPTION>
+		<DESCRIPTION L='nl'>J16. Polytraumatismen</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>reanimation-attestee</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>B4. Situations pour lesquelles la réanimation a été attestée</DESCRIPTION>
+		<DESCRIPTION L='nl'>B4. Situaties waarbij reanimatie warden aangerekend</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>reeducation-fonctionnelle-necessaire</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>A51. Situations qui rendent la rééducation fonctionnelle nécessaire</DESCRIPTION>
+		<DESCRIPTION L='nl'>A51. Situaties die een gangrevalidatie noodzakelijk maken</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>reeducation-uro-gyneco-colo-proctologique-aff-fonct-16-ans</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>H14. Rééducation uro-, gynéco-, colo-, ou proctologique nécessitant beaucoup de soins (affections fonctionnelles chez l'enfant jusqu'au 16ème anniversaire)</DESCRIPTION>
+		<DESCRIPTION L='nl'>H14. Uro-gynnaeco-colo-proctologische revalidatie vereisen (functionele aandoeningen bij het kind tot de 16° verjaardag)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>reeducation-uro-gyneco-colo-proctologique-neuropathie</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>H12. Rééducation uro-, gynéco-, colo-, ou proctologique nécessitant beaucoup de soins (neuropathie)</DESCRIPTION>
+		<DESCRIPTION L='nl'>H12. Uro-gynnaeco-colo-proctologische revalidatie vereisen (neuropathie)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>reeducation-uro-gyneco-colo-proctologique-revalidation-postope</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>H13. Rééducation uro-, gynéco-, colo-, ou proctologique nécessitant beaucoup de soins (revalidation postopératoire)</DESCRIPTION>
+		<DESCRIPTION L='nl'>H13. Uro-gynnaeco-colo-proctologische revalidatie vereisen (postoperatieve revalidatie)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>sdrc</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>I15. Syndrome Douloureux Régional Complexe (SDRC)</DESCRIPTION>
+		<DESCRIPTION L='nl'>I15. Reflex Sympathische Dystrofie (RSD)</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>sequelles-motrices-encephalique-medullaire</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|pathologie-e|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>03. Séquelles motrices étendues d'origine encéphalique ou médullaire</DESCRIPTION>
+		<DESCRIPTION L='nl'>03. Uitgebreide motorische sequellen van encefale of medullaire oorsprong</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>stomatologie</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-aigue|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>K17. Stomatologie</DESCRIPTION>
+		<DESCRIPTION L='nl'>K17. Stomatologie</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>syndrome-fatigue-chronique</CODE>
+		<PARENT></PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>Syndrome de fatigue chronique</DESCRIPTION>
+		<DESCRIPTION L='nl'>Chronisch vermoeidheidssyndroom</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<LINK index='2'>INAMI-RIZIV|564830|1.0</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>syndrome-fibromyalgique</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>F57. Syndrome fibromyalgique</DESCRIPTION>
+		<DESCRIPTION L='nl'>F57. Fibromyalgiesyndroom</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+	<VALUE>
+		<CODE>troubles-developpement-psychomoteur</CODE>
+		<PARENT>care.topaz.kinesitherapyPrescription|f-chronique|1</PARENT>
+		<LEVEL>0</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'>B59. Troubles du développement psychomoteur</DESCRIPTION>
+		<DESCRIPTION L='nl'>B59. Psychomotorische ontwikkelingsstoornissen</DESCRIPTION>
+		<LINK index='1'>CD-HCPARTY|deptkinesitherapy|1</LINK>
+		<FLAG index='1'>deptkinesitherapy</FLAG>
+	</VALUE>
+</kmehr-cd>
