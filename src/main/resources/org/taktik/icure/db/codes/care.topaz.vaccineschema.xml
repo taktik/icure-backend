@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+	<VERSION>1</VERSION>
+	<DATE>2020-07-27</DATE>
+	<NAME>Vaccine-Schema</NAME>
+	<VALUE>
+		<CODE>flanders</CODE>
+		<PARENT></PARENT>
+		<LEVEL>1</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'></DESCRIPTION>
+		<DESCRIPTION L='nl'></DESCRIPTION>
+	</VALUE>
+	<VALUE>
+		<CODE>wallonia</CODE>
+		<PARENT></PARENT>
+		<LEVEL>1</LEVEL>
+		<DESCRIPTION L='en'></DESCRIPTION>
+		<DESCRIPTION L='fr'></DESCRIPTION>
+		<DESCRIPTION L='nl'></DESCRIPTION>
+	</VALUE>
+</kmehr-cd>
