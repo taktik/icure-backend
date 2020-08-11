@@ -4,7 +4,9 @@ import org.springframework.stereotype.Service
 import org.taktik.icure.be.samv2.logic.SamV2Logic
 import org.taktik.icure.dao.samv2.AmpDAO
 import org.taktik.icure.dao.samv2.NmpDAO
+import org.taktik.icure.dao.samv2.PharmaceuticalFormDAO
 import org.taktik.icure.dao.samv2.ProductIdDAO
+import org.taktik.icure.dao.samv2.SubstanceDAO
 import org.taktik.icure.dao.samv2.VmpDAO
 import org.taktik.icure.dao.samv2.VmpGroupDAO
 import org.taktik.icure.db.PaginatedList
@@ -14,10 +16,12 @@ import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.entities.samv2.embed.PharmaceuticalForm
+import org.taktik.icure.entities.samv2.embed.Substance
 import org.taktik.icure.samv2.SamVersion
 
 @Service
-class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO, val productIdDAO: ProductIdDAO) : SamV2Logic {
+class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO, val productIdDAO: ProductIdDAO, val pharmaceuticalFormDAO: PharmaceuticalFormDAO, val substanceDAO: SubstanceDAO) : SamV2Logic {
     override fun findAmpsByDmppCode(dmppCode: String): List<Amp> {
         return ampDAO.findAmpsByDmppCode(dmppCode)
     }
@@ -108,5 +112,13 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
 
     override fun listProductIds(ids: Collection<String>): MutableList<ProductId> {
         return productIdDAO.getList(ids)
+    }
+
+    override fun listSubstances(): MutableList<Substance> {
+        return substanceDAO.all
+    }
+
+    override fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm> {
+        return pharmaceuticalFormDAO.all
     }
 }

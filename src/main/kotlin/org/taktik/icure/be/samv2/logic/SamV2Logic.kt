@@ -7,6 +7,8 @@ import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.entities.samv2.embed.PharmaceuticalForm
+import org.taktik.icure.entities.samv2.embed.Substance
 import org.taktik.icure.samv2.SamVersion
 
 interface SamV2Logic {
@@ -35,4 +37,6 @@ interface SamV2Logic {
     fun listAmpIdsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): List<String>
     fun getVersion(): SamVersion?
     fun listProductIds(ids: Collection<String>): MutableList<ProductId>
+    fun listSubstances(): MutableList<Substance>
+    fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm>
 }

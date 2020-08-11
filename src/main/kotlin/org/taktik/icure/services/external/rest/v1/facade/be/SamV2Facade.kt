@@ -16,6 +16,8 @@ import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.samv2.SamVersion
 import org.taktik.icure.services.external.rest.v1.dto.be.samv2.*
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed.PharmaceuticalFormDto
+import org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed.SubstanceDto
 import org.taktik.icure.services.external.rest.v1.facade.OpenApiFacade
 import org.taktik.icure.utils.ResponseUtils
 import java.util.*
@@ -382,6 +384,20 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         response = ResponseUtils.ok(vmpGroupDtosPaginatedList)
 
         return response
+    }
+
+    @ApiOperation(value = "List all substances.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of existing substances")
+    @GET
+    @Path("/substance")
+    fun listSubstances(): Response {
+        return ResponseUtils.ok(samV2Logic.listSubstances().map { mapper.map(it, SubstanceDto::class.java) })
+    }
+
+    @ApiOperation(value = "List all pharmaceutical forms.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of existing pharmaceutical forms")
+    @GET
+    @Path("/pharmaform")
+    fun listPharmaceuticalForms(): Response {
+        return ResponseUtils.ok(samV2Logic.listSubstances().map { mapper.map(it, PharmaceuticalFormDto::class.java) })
     }
 
     private fun addProductIdsToVmpGroups(vmpGroups: List<VmpGroupDto>) {
