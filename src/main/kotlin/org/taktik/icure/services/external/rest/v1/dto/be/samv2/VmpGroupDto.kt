@@ -7,6 +7,7 @@ class VmpGroupDto(
         id: String? = null,
         from: Long? = null,
         to: Long? = null,
+        var productId: String? = null,
         var code: String? = null,
         var name: SamTextDto? = null,
         var noGenericPrescriptionReason: NoGenericPrescriptionReasonDto? = null,

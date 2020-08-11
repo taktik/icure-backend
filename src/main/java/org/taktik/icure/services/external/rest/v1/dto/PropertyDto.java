@@ -22,11 +22,12 @@ import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
 
-public class PropertyDto extends StoredDto implements Cloneable, Serializable {
+public class PropertyDto extends StoredDto implements Cloneable, Serializable, EncryptableDto {
 	private static final long serialVersionUID = 1L;
 
     private PropertyTypeDto type;
 	protected TypedValueDto typedValue;
+    protected String encryptedSelf;
 
     public PropertyDto(PropertyTypeDto type, Boolean value) {
         setType(type);
@@ -99,6 +100,12 @@ public class PropertyDto extends StoredDto implements Cloneable, Serializable {
         if (getClass() != obj.getClass())
             return false;
         PropertyDto other = (PropertyDto) obj;
+        if(encryptedSelf == null) {
+            if(other.encryptedSelf != null)
+                return false;
+        } else if (!encryptedSelf.equals(other.encryptedSelf)) {
+            return false;
+        }
         if (type == null) {
             if (other.type != null)
                 return false;
@@ -110,5 +117,15 @@ public class PropertyDto extends StoredDto implements Cloneable, Serializable {
         } else if (!typedValue.equals(other.typedValue))
             return false;
         return true;
+    }
+
+    @Override
+    public String getEncryptedSelf() {
+        return this.encryptedSelf;
+    }
+
+    @Override
+    public void setEncryptedSelf(String encryptedSelf) {
+        this.encryptedSelf = encryptedSelf;
     }
 }
