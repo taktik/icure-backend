@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+	<VERSION>1</VERSION>
+	<DATE>2020-07-27</DATE>
+	<NAME>Custom-Transaction</NAME>
+	<VALUE>
+		<CODE>triptyque</CODE>
+		<PARENT></PARENT>
+		<DESCRIPTION L='en'>Triptyque</DESCRIPTION>
+		<DESCRIPTION L='fr'>Triptyque</DESCRIPTION>
+		<DESCRIPTION L='nl'>Triptyque</DESCRIPTION>
+	</VALUE>
+	<VALUE>
+		<CODE>imaging</CODE>
+		<PARENT>CD-TRANSACTION|result|1</PARENT>
+		<DESCRIPTION L='en'>Imaging</DESCRIPTION>
+		<DESCRIPTION L='fr'>Imagerie</DESCRIPTION>
+		<DESCRIPTION L='nl'>Beeldvorming</DESCRIPTION>
+	</VALUE>
+</kmehr-cd>

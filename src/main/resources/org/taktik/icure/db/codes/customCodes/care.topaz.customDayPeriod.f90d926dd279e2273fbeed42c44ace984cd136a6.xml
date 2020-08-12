@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<kmehr-cd>
+	<VERSION>1</VERSION>
+	<DATE>2020-07-27</DATE>
+	<NAME>Custom-Day-Period</NAME>
+	<VALUE>
+		<CODE>afterwakingup</CODE>
+		<PARENT></PARENT>
+		<LEVEL>1</LEVEL>
+		<DESCRIPTION L='en'>after waking up</DESCRIPTION>
+		<DESCRIPTION L='fr'>au lever</DESCRIPTION>
+		<DESCRIPTION L='nl'>bij het opstaan</DESCRIPTION>
+	</VALUE>
+	<VALUE>
+		<CODE>midday</CODE>
+		<PARENT></PARENT>
+		<LEVEL>1</LEVEL>
+		<DESCRIPTION L='en'>midday</DESCRIPTION>
+		<DESCRIPTION L='fr'>midi</DESCRIPTION>
+		<DESCRIPTION L='nl'>middag</DESCRIPTION>
+	</VALUE>
+</kmehr-cd>

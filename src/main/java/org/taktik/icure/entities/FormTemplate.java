@@ -66,6 +66,8 @@ public class FormTemplate extends StoredDocument {
 
     protected List<String> reports;
 
+    protected List<Code> tags;
+
     @JsonIgnore
 	private transient boolean attachmentDirty = false;
 
@@ -198,4 +200,12 @@ public class FormTemplate extends StoredDocument {
 	public void setReports(List<String> reports) {
 		this.reports = reports;
 	}
+
+    public List<Code> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Code> tags) {
+        this.tags = tags;
+    }
 }

@@ -78,7 +78,7 @@ dockerJava {
     tag = 'docker.taktik.be/icure-misc-standalone'
 }
 // for pricare migration
-/*
+
 springBoot {
     mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
 }
@@ -89,4 +89,4 @@ jar {
         attributes 'Main-Class': 'org.taktik.icure.db.TopazImporter.PricareImporter'
     }
 }
-*/
+
