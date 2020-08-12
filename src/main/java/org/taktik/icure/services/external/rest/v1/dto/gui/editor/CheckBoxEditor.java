@@ -28,6 +28,9 @@ public class CheckBoxEditor extends Editor implements ValueDateEditor {
     @XStreamAsAttribute
     boolean displayValueDate;
 
+    @XStreamAsAttribute
+    String groupRadio;
+
 	public CheckBoxEditor() {
 		super();
 	}
@@ -41,4 +44,8 @@ public class CheckBoxEditor extends Editor implements ValueDateEditor {
     public void setDisplayValueDate(boolean displayValueDate) {
         this.displayValueDate = displayValueDate;
     }
+
+    public String getGroupRadio() { return groupRadio; }
+
+    public void setGroupRadio(String groupRadio) { this.groupRadio = groupRadio; }
 }
