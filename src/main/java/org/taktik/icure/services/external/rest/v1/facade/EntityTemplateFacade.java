@@ -18,10 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v1.facade;
 
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -35,6 +37,8 @@ import javax.ws.rs.core.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,6 +221,34 @@ public class EntityTemplateFacade implements OpenApiFacade{
 			return Response.status(500).type("text/plain").entity("A problem regarding fetching the entityTemplate. Read the app logs.").build();
 		}
 	}
+
+    @DELETE
+    @Path("/{entityTemplateIds}")
+    @ApiOperation(
+            value = "Delete entity templates",
+            httpMethod = "DELETE"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Entity templates deleted"),
+            @ApiResponse(code = HttpURLConnection.HTTP_BAD_REQUEST, message = "Request param is null"),
+            @ApiResponse(code = HttpURLConnection.HTTP_SERVER_ERROR, message = "Deletion failed")})
+
+    public Response deleteEntityTemplate(@PathParam("entityTemplateIds") String entityTemplateIds) {
+        Response response;
+
+	    if (entityTemplateIds == null) {
+            return ResponseUtils.badRequest("Cannot delete entity template: provided entity template ID is null");
+        }
+
+        List<String> entityTemplateIdsList = Arrays.asList(entityTemplateIds.split(","));
+        try {
+            entityTemplateLogic.deleteEntities(entityTemplateIdsList);
+            response = ResponseUtils.ok();
+        } catch (Exception e) {
+            response = ResponseUtils.internalServerError("Entity template deletion failed");
+        }
+        return response;
+    }
 
 	@ApiOperation(
 			value = "Modify a entityTemplate",

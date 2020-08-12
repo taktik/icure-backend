@@ -89,6 +89,8 @@ public interface GenericDAO<T extends Identifiable<String>> extends LookupDAO<T>
 
 	List<String> getAllIds();
 
+    void warmupIndex();
+
     void initStandardDesignDocument();
 
 	void initStandardDesignDocument(Group group);

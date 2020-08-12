@@ -46,14 +46,14 @@ public class ICureLogicImpl implements ICureLogic {
 	}
 
 	@Override
-	public void updateDesignDoc(String groupId, String daoEntityName) {
+	public void updateDesignDoc(String groupId, String daoEntityName, boolean warmup) {
 		Group group = groupLogic.findGroup(groupId);
 
 		if (group == null) { throw new IllegalArgumentException("Cannot load group "+groupId); }
 		allDaos.stream()
 				.filter(dao -> dao.getClass().getSimpleName().startsWith(daoEntityName+"DAO"))
 				.findFirst()
-				.ifPresent(dao -> dao.forceInitStandardDesignDocument(group));
+				.ifPresent(dao -> { if (warmup) dao.forceInitStandardDesignDocument(group); });
 	}
 
 	@Autowired
@@ -85,6 +85,4 @@ public class ICureLogicImpl implements ICureLogic {
 	public void setPropertyLogic(PropertyLogic propertyLogic) {
 		this.propertyLogic = propertyLogic;
 	}
-
-
 }
