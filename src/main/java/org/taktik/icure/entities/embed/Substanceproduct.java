@@ -36,6 +36,7 @@ public class Substanceproduct implements Serializable {
 	@ValidCode(autoFix = AutoFix.NORMALIZECODE)
 	protected List<CodeStub> deliveredcds;
 	protected String intendedname;
+    protected String productId;
 	protected Object deliveredname;
 
 	public List<CodeStub> getIntendedcds() {
@@ -69,4 +70,12 @@ public class Substanceproduct implements Serializable {
 	public void setDeliveredname(Object deliveredname) {
 		this.deliveredname = deliveredname;
 	}
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
 }

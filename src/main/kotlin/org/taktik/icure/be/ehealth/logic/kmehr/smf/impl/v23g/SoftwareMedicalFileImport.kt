@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
 import org.taktik.icure.db.StringUtils
+import org.taktik.icure.dto.message.Attachment
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.TelecomType
 import org.taktik.icure.logic.*
@@ -183,6 +184,17 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                     services = listOf(ServiceLink().apply {
                                         serviceId = serv.id
                                     })
+                                }
+                        )
+                    }
+
+                    // documents can be linked to incapacity items, not just to contacts
+                    state.incapacitySubcontactLinks[conid]?.let {
+                        it.second.services?.add(serv)
+                        state.formServices[serv.id ?: ""] = serv
+                        it.first.services.add(
+                                ServiceLink().apply {
+                                    serviceId = serv.id
                                 }
                         )
                     }
@@ -435,6 +447,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         attachment = lnk.value
                         name = docname
 
+                        v.attachments.put(id, Attachment().apply {
+                            data = lnk.value
+                        })
+
                         var utis : List<UTI> = emptyList()
                         lnk.mediatype?.value()?.let {
                             utis = UTI.utisForMimeType(it).toList()
@@ -456,6 +472,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     stringValue = docname
                 }
                 label = "document"
+                tags.add(CodeStub( "CD-ITEM-EXT", "document", "1"))
                 valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                         trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
                             it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
@@ -583,7 +600,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     "healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, trnauthorhcpid, state)
                     "incapacity" -> parseIncapacity(item, author, trnauthorhcpid, language, contact.id).let {
                         val (services, subcontact, form) = it
+                        val mfid = getItemMFID(item)
                         state.incapacityForms.add(form)
+                        state.incapacitySubcontactLinks[mfid!!] = Pair(subcontact, contact)
                         this.services.addAll(services)
                         this.subContacts.add(subcontact)
                         services.forEach {
@@ -755,11 +774,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 "incapacité de" to
                         item.contents.find { it.incapacity != null }?.let {
                             //TODO Dorian fix that
-                            it.cds.find { it.s is CDINCAPACITY }?.value
+                            it.incapacity.cds.filterIsInstance<CDINCAPACITY>()?.map{ it -> it.value }
                         }?.let {
                             Pair(
-                                    Content().apply { stringValue = it },
-                                    listOf(CodeStub("CD-INCAPACITY", it, "1"))
+                                    Content().apply { stringValue = it.map{ incapacityValue -> incapacityValue.value() }.joinToString("|") },
+                                    it.map{ CodeStub("CD-INCAPACITY", it.value(), "1")}
                             )
                         },
                 "du" to  Content().apply{
@@ -772,23 +791,33 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 "pour cause de" to
                         item.contents.find { it.incapacity != null }?.let {
                             //TODO Dorian fix that
-                            it.cds.find { it.s is CDINCAPACITYREASON }?.value
+                            it.incapacity.incapacityreason?.cd?.value
                         }?.let {
                             Pair(
                                     Content().apply {
-                                        stringValue = it
+                                        stringValue = it.value()
                                     },
-                                    listOf(CodeStub("CD-INCAPACITYREASON", it, "1"))
+                                    listOf(CodeStub("CD-INCAPACITYREASON", it.value(), "1"))
                             )
 
                         },
-                "Commentaire" to  Content().apply {stringValue= item.texts.joinToString(" ") { it.value } }
+                "Commentaire" to  Content().apply {stringValue= item.texts.joinToString(" ") { it.value } },
+                "pourcentage" to
+                        item.contents.find { it.incapacity != null }?.let {
+                            it.incapacity.percentage
+                        }?.let {
+                            Content().apply { numberValue = it.toDouble() }
+                        },
+                "Sortie" to
+                        item.contents.find { it.incapacity != null }?.let {
+                            it.incapacity.isOutofhomeallowed
+                        }?.let {
+                            Content().apply { stringValue = if (it) "allowed" else "forbidden" }
+                        }
                 // missing:
                 //"Accident suvenu le"
-                //"Sortie"
                 //"autres"
                 //"reprise d'activité partielle"
-                //"pourcentage"
                 //"totale"
         )
 
@@ -810,7 +839,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         content = mapOf(
                                 language to (it as Pair<Content,List<CodeStub>>).first
                         )
-                        tags = it.second as Set<CodeStub>
+                        tags = HashSet<CodeStub>(it.second)
                     } else {
                         content = mapOf(language to it as Content)
                     }
@@ -911,18 +940,22 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         listOf(CDCONTENTschemes.CD_DRUG_CNK,
                                 CDCONTENTschemes.ICD,
                                 CDCONTENTschemes.ICPC,
-                                CDCONTENTschemes.CD_CLINICAL,
                                 CDCONTENTschemes.CD_ATC,
                                 CDCONTENTschemes.CD_PATIENTWILL,
                                 CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
                     }.map { CodeStub(it.s.value(), it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.LOCAL && it.sl == "BE-THESAURUS-PROCEDURES")
+                    }.map { CodeStub(it.sl, it.value, it.sv) } + it.cds.filter {
+                        (it.s == CDCONTENTschemes.CD_CLINICAL)
+                    }.map { CodeStub("BE-THESAURUS", it.value, it.sv) } + it.cds.filter {
+                        (it.s == CDCONTENTschemes.LOCAL && it.sl.startsWith("MS-EXTRADATA"))
                     }.map { CodeStub(it.sl, it.value, it.sv) }
                 }).toSet()
     }
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub(it.s.value(), it.value, it.sv) } +
+                item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub(it.sl, it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
@@ -1022,6 +1055,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             batch = item.batch
                             beginMoment = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
                             endMoment = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
+                            comment = item.contents.firstOrNull { it.texts.size > 0 }?.texts?.first()?.value
                         }
                     }
                     ( item.contents.any { it.decimal != null } ) -> item.contents.firstOrNull { it.decimal != null }?.let {
@@ -1376,7 +1410,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
             var incapacityForms : MutableList<Form> = mutableListOf(), // to add them to parent consultation form
             var serviceVersionLinks : MutableList<ServiceVersionType> = mutableListOf(), // bookkeeping for versioning services (medications)
-            var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf()
+            var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf(),
+            var incapacitySubcontactLinks:  MutableMap<String,Pair<SubContact, Contact>> = mutableMapOf() // map incapacity item MFID to (subcontact, contact) pair, used to link incapacity documents to the same subcontact as the other incapacity services
     )
 }
 

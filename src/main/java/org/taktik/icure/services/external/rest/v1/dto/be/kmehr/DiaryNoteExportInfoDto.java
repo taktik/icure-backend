@@ -9,7 +9,7 @@ import org.taktik.icure.services.external.rest.v1.dto.HealthcarePartyDto;
 public class DiaryNoteExportInfoDto extends ExportInfoDto implements Serializable {
     private List<String> tags;
     private List<String> contexts;
-    private Boolean isPsy;
+    private Boolean psy;
     private String documentId;
     private String attachmentId;
     private String note;
@@ -60,12 +60,12 @@ public class DiaryNoteExportInfoDto extends ExportInfoDto implements Serializabl
         this.recipient = recipient;
     }
 
-    public Boolean getPsy() {
-        return isPsy;
+    public Boolean isPsy() {
+        return psy;
     }
 
-    public void setPsy(Boolean psy) {
-        isPsy = psy;
+    public void setPsy(Boolean isPsy) {
+        psy = isPsy;
     }
 
     public String getDocumentId() {

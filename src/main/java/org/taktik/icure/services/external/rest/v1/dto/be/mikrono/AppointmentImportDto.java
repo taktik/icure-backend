@@ -42,6 +42,8 @@ public class AppointmentImportDto implements Serializable{
 	private String street;
 	private String sex;
 
+    private String externalId;
+
 
 	public String getCity() {
 		return city;
@@ -265,5 +267,13 @@ public class AppointmentImportDto implements Serializable{
 
     public void setOwnerRef(String ownerRef) {
         this.ownerRef = ownerRef;
+    }
+
+  public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 }

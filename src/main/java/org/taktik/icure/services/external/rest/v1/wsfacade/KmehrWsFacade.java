@@ -72,7 +72,7 @@ public class KmehrWsFacade {
         try {
             diaryNoteLogic.createDiaryNote(bos, patientLogic.getPatient(patientId), info.getSecretForeignKeys(),
                 healthcarePartyLogic.getHealthcareParty(sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId()),
-                mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getNote(), info.getTags(), info.getContexts(), info.getPsy(), info.getDocumentId(), info.getAttachmentId(), operation,
+                mapper.map(info.getRecipient(), HealthcareParty.class), language, info.getNote(), info.getTags(), info.getContexts(), info.isPsy(), info.getDocumentId(), info.getAttachmentId(), operation,
                     new Config(
                             ""+System.currentTimeMillis(),
                             Utils.INSTANCE.makeXGC(Instant.now().toEpochMilli(), true),

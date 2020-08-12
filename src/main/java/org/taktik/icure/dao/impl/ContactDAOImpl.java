@@ -219,7 +219,61 @@ public class ContactDAOImpl extends GenericIcureDAOImpl<Contact> implements Cont
         return ids;
     }
 
-	@Override
+    @Override
+    @View(name = "by_hcparty_tag", map = "classpath:js/contact/By_hcparty_tag.js", reduce = "_count")
+    public List<String> listContactIdsByTag(String hcPartyId, String tagType, String tagCode, Long startValueDate, Long endValueDate) {
+        if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
+        if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
+        ComplexKey from = ComplexKey.of(
+                hcPartyId,
+                tagType,
+                tagCode,
+                startValueDate
+        );
+        ComplexKey to = ComplexKey.of(
+                hcPartyId,
+                tagType == null ? ComplexKey.emptyObject() : tagType,
+                tagCode == null ? ComplexKey.emptyObject() : tagCode,
+                endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_hcparty_tag")
+                .startKey(from)
+                .endKey(to)
+                .includeDocs(false);
+
+        List<String> ids = db.queryView(viewQuery, String.class);
+        return ids;
+    }
+
+    @Override
+    @View(name = "by_hcparty_code", map = "classpath:js/contact/By_hcparty_code.js", reduce = "_count")
+    public List<String> listContactIdsByCode(String hcPartyId, String codeType, String codeCode, Long startValueDate, Long endValueDate) {
+        if (startValueDate != null && startValueDate<99999999) { startValueDate = startValueDate * 1000000 ; }
+        if (endValueDate != null && endValueDate<99999999) { endValueDate = endValueDate * 1000000 ; }
+        ComplexKey from = ComplexKey.of(
+                hcPartyId,
+                codeType,
+                codeCode,
+                startValueDate
+        );
+        ComplexKey to = ComplexKey.of(
+                hcPartyId,
+                codeType == null ? ComplexKey.emptyObject() : codeType,
+                codeCode == null ? ComplexKey.emptyObject() : codeCode,
+                endValueDate  == null ? ComplexKey.emptyObject() : endValueDate
+        );
+
+        ViewQuery viewQuery = createQuery("by_hcparty_code")
+                .startKey(from)
+                .endKey(to)
+                .reduce(false)
+                .includeDocs(false);
+
+        List<String> ids = db.queryView(viewQuery, String.class);
+        return ids;    }
+
+    @Override
 	public List<CouchKeyValue<Long>> listCodesFrequencies(String hcPartyId, String codeType) {
 		ComplexKey from = ComplexKey.of(
 				hcPartyId,

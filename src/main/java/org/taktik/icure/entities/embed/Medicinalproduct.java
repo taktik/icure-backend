@@ -38,6 +38,7 @@ public class Medicinalproduct implements Serializable {
 	protected List<CodeStub> deliveredcds;
 	protected String intendedname;
 	protected Object deliveredname;
+    protected String productId;
 
 	public List<CodeStub> getIntendedcds() {
 		return intendedcds;
@@ -70,4 +71,12 @@ public class Medicinalproduct implements Serializable {
 	public void setDeliveredname(Object deliveredname) {
 		this.deliveredname = deliveredname;
 	}
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
 }
