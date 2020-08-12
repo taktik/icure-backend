@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.sun.xml.internal.ws.util.NoCloseInputStream
+import org.ektorp.UpdateConflictException
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.slf4j.LoggerFactory
@@ -642,9 +643,37 @@ class Samv2v4Import : CliktCommand() {
         val currentSubstances = HashSet<String>(retry(10) { substanceDAO.allIds })
         val currentPharmaceuticalForms = HashSet<String>(retry(10) { pharmaceuticalFormDAO.allIds })
 
-        (substances - currentSubstances).values.chunked(100).forEach { substanceDAO.create(it) }
-        (pharmaceuticalForms - currentPharmaceuticalForms).values.chunked(100).forEach { pharmaceuticalFormDAO.create(it) }
+        (substances - currentSubstances).values.chunked(100).forEach {
+            try {
+                substanceDAO.create(it)
+            } catch(e:UpdateConflictException) {
+                it.forEach {
+                    try {
+                        substanceDAO.create(it)
+                    } catch (e: UpdateConflictException) {
+                        substanceDAO.get(it.id)?.let {
+                            substanceDAO.update(it.apply { this.rev = it.rev })
+                        }
+                    }
+                }
+            }
+        }
 
+        (pharmaceuticalForms - currentPharmaceuticalForms).values.chunked(100).forEach {
+            try {
+                pharmaceuticalFormDAO.create(it)
+            } catch (e: UpdateConflictException) {
+                it.forEach {
+                    try {
+                        pharmaceuticalFormDAO.create(it)
+                    } catch (e: UpdateConflictException) {
+                        pharmaceuticalFormDAO.get(it.id)?.let {
+                            pharmaceuticalFormDAO.update(it.apply { this.rev = it.rev })
+                        }
+                    }
+                }
+            }
+        }
         substances.filterKeys { currentSubstances.contains(it) }.values.chunked(100).forEach {
             val revs = substanceDAO.getList(it.map { it.id }).fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev) }
             it.forEach { substanceDAO.update(it.apply { rev = revs[id] }) }
