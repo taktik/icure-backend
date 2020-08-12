@@ -1,0 +1,23 @@
+{{- if .Values.tls }}
+{{ range .Values.tls }}
+{{- if .provider }}
+{{- $tls := . -}}
+{{ range .hosts }}
+apiVersion: voyager.appscode.com/v1beta1
+kind: Certificate
+metadata:
+  name: {{ . | replace "." "-" }}
+spec:
+  renewalBufferDays: 25
+  domains:
+    - {{ . }}
+  acmeUserSecretName: acme-account
+  challengeProvider:
+    dns:
+      provider: {{ $tls.provider }}
+      {{ if $tls.credentialsSecretName }}credentialSecretName: {{ $tls.credentialsSecretName }}{{ end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

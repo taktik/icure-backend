@@ -16,14 +16,16 @@ metadata:
 spec:
     {{- if .Values.tls }}
     tls:
+        {{- $root := . -}}
         {{- range .Values.tls }}
-        -   hosts:
-                {{- range .hosts }}
-                - "{{ . }}"
-                {{- end }}
-            ref:
+        {{- $tls := . -}}
+        {{- range .hosts }}
+        -   ref:
                 kind: Secret
-                name: {{ .refName }}
+                name: {{ $tls.refName | default ((printf "tls-%s" (. | replace "." "-"))) }}
+            hosts:
+                - {{ . | quote }}
+        {{- end }}
         {{- end }}
     frontendRules:
         -   port: 443

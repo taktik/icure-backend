@@ -44,8 +44,8 @@ spec:
                         -   name: ICURE_COUCHDB_URL
                             value: "http://{{ .Values.couchdbServiceName }}:{{ .Values.couchdbPortNumber }}"
                       {{- range $key, $value := .Values.images.backend.env }}
-                        -   name: "{{ $key }}"
-                            value: "{{ $value }}"
+                        -   name: {{ $key }}
+                            value: {{ $value | quote }}
                       {{- end }}
                     resources:
                         requests:
@@ -58,10 +58,28 @@ spec:
                           {{- if .Values.images.backend.cpuLimit }}
                             cpu: {{ .Values.images.backend.cpuLimit | quote }}
                           {{- end }}
-            initContainers:
-                -   name: init-couchdb
-                    image: busybox
-                    command: ['sh', '-c', 'until wget http://{{ .Values.couchdbServiceName }}:{{ .Values.couchdbPortNumber }}; do echo waiting for couchdb; sleep 2; done;']
+                    {{- if .Values.images.backend.readiness }}
+                    readinessProbe:
+                        httpGet:
+                            path: /rest/v1/icure/v
+                            port: 16043
+                        initialDelaySeconds: 20
+                        periodSeconds: 10
+                        timeoutSeconds: 5
+                        successThreshold: 2
+                        failureThreshold: 3
+                    {{- end }}
+                    {{- if .Values.images.backend.liveness }}
+                    livenessProbe:
+                        httpGet:
+                            path: /rest/v1/icure/v
+                            port: 16043
+                        initialDelaySeconds: 300
+                        periodSeconds: 30
+                        timeoutSeconds: 8
+                        successThreshold: 1
+                        failureThreshold: 3
+                    {{- end }}
             imagePullSecrets:
                 -   name: regsecret
   {{- end }}

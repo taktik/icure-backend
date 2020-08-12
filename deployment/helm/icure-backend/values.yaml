@@ -7,9 +7,12 @@ couchdbVirtualHosts: ["couch.icure.dev"]
 
 ingressIP: "" # defined during helm install
 #tls:
-#    -   hosts:
-#            -   example.com
-#        refName: tls-example-com
+#  - credentialsSecretName: voyager-ovh-example-com
+#    provider: ovh
+#    refName: tls-example-com # deprecated
+#    hosts:
+#      - one.example.com
+#      - two.example.com
 
 images:
     backend:
