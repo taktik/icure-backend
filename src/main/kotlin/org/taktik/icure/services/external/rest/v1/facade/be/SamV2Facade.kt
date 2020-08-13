@@ -397,7 +397,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     @GET
     @Path("/pharmaform")
     fun listPharmaceuticalForms(): Response {
-        return ResponseUtils.ok(samV2Logic.listSubstances().map { mapper.map(it, PharmaceuticalFormDto::class.java) })
+        return ResponseUtils.ok(samV2Logic.listPharmaceuticalForms().map { mapper.map(it, PharmaceuticalFormDto::class.java) })
     }
 
     private fun addProductIdsToVmpGroups(vmpGroups: List<VmpGroupDto>) {

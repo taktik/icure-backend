@@ -269,7 +269,7 @@ public class AppointmentImportDto implements Serializable{
         this.ownerRef = ownerRef;
     }
 
-    public String getExternalId() {
+  public String getExternalId() {
         return externalId;
     }
 

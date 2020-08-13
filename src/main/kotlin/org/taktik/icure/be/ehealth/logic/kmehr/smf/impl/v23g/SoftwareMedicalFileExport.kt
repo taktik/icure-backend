@@ -224,7 +224,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
             // newestServicesById should point to decrypted services
             contact.services.toList().forEach {
                 svc ->
-                    if (newestServicesById.containsKey(svc.id) && compareValues(svc.modified, newestServicesById[svc.id]?.modified) == 0) {
+                    if (!newestServicesById.containsKey(svc.id) || compareValues(svc.modified, newestServicesById[svc.id]?.modified) > 0) {
                         newestServicesById[svc.id!!] = svc
                     }
             }
@@ -337,7 +337,10 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 doc.stringValue?.let { headingsAndItemsAndTexts.add(LnkType().apply { type = CDLNKvalues.MULTIMEDIA; mediatype = CDMEDIATYPEvalues.TEXT_PLAIN; value = it.toByteArray(Charsets.UTF_8) }) }
                             }
                         } else {
-                            services.forEach { svc ->
+                            services.forEach servicesLoop@{ svc ->
+                                val incapacityTag = svc.tags.find { t -> t.code == "incapacity" }
+                                if (incapacityTag != null) return@servicesLoop
+
                                 var forSeparateTransaction = false
 
                                 // documents are in separate transaction in *MF

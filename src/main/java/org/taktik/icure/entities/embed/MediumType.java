@@ -6,5 +6,6 @@ public enum MediumType {
     efact,
     email,
     mediprima,
-    paper
+    paper,
+    technicalAct
 }

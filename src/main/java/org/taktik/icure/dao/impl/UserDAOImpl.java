@@ -43,7 +43,7 @@ import java.util.List;
 
 @Repository("userDAO")
 @Filter(name = "db_replication_filter", function = "function(doc) { return (doc.java_type == 'org.taktik.icure.entities.User' || doc.java_type == 'org.taktik.icure.entities.HealthcareParty') }")
-@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc )}")
+@View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) emit( null, doc._id )}")
 public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 
 	@Autowired
@@ -53,7 +53,7 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	@View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond,doc)  }}")
+	@View(name = "by_exp_date", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.expirationDate.epochSecond,doc._id)  }}")
 	public List<User> getExpiredUsers(Instant fromExpirationInstant, Instant toExpirationInstant) {
 		List<User> users = queryView("by_exp_date", fromExpirationInstant.toString(), toExpirationInstant.toString());
 		List<User> result = new ArrayList<>();
@@ -68,13 +68,13 @@ public class UserDAOImpl extends CachedDAOImpl<User> implements UserDAO {
 	}
 
 	@Override
-	@View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login,doc)}}")
+	@View(name = "by_username", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.login,doc._id)}}")
 	public List<User> findByUsername(String searchString) {
 		return queryView("by_username", searchString);
 	}
 
 	@Override
-	@View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email,doc)}}")
+	@View(name = "by_email", map = "function(doc) {  if (doc.java_type == 'org.taktik.icure.entities.User' && !doc.deleted) {emit(doc.email,doc._id)}}")
 	public List<User> findByEmail(String searchString) {
 		return queryView("by_email", searchString);
 	}

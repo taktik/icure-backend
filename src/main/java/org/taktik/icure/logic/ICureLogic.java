@@ -23,7 +23,7 @@ import java.util.Map;
 public interface ICureLogic {
 	Map<String,Number> getIndexingStatus();
 
-	void updateDesignDoc(String daoEntityName);
+	void updateDesignDoc(String daoEntityName, boolean warmUp);
 
 	String getVersion();
 }

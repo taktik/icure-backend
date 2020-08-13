@@ -187,6 +187,17 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 }
                         )
                     }
+
+                    // documents can be linked to incapacity items, not just to contacts
+                    state.incapacitySubcontactLinks[conid]?.let {
+                        it.second.services?.add(serv)
+                        state.formServices[serv.id ?: ""] = serv
+                        it.first.services.add(
+                                ServiceLink().apply {
+                                    serviceId = serv.id
+                                }
+                        )
+                    }
                 }
 
 
@@ -589,7 +600,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     "healthcareapproach" -> parseHealthcareApproach(cdItem, label, item, author, trnauthorhcpid, state)
                     "incapacity" -> parseIncapacity(item, author, trnauthorhcpid, language, contact.id).let {
                         val (services, subcontact, form) = it
+                        val mfid = getItemMFID(item)
                         state.incapacityForms.add(form)
+                        state.incapacitySubcontactLinks[mfid!!] = Pair(subcontact, contact)
                         this.services.addAll(services)
                         this.subContacts.add(subcontact)
                         services.forEach {
@@ -788,13 +801,23 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             )
 
                         },
-                "Commentaire" to  Content().apply {stringValue= item.texts.joinToString(" ") { it.value } }
+                "Commentaire" to  Content().apply {stringValue= item.texts.joinToString(" ") { it.value } },
+                "pourcentage" to
+                        item.contents.find { it.incapacity != null }?.let {
+                            it.incapacity.percentage
+                        }?.let {
+                            Content().apply { numberValue = it.toDouble() }
+                        },
+                "Sortie" to
+                        item.contents.find { it.incapacity != null }?.let {
+                            it.incapacity.isOutofhomeallowed
+                        }?.let {
+                            Content().apply { stringValue = if (it) "allowed" else "forbidden" }
+                        }
                 // missing:
                 //"Accident suvenu le"
-                //"Sortie"
                 //"autres"
                 //"reprise d'activité partielle"
-                //"pourcentage"
                 //"totale"
         )
 
@@ -1387,7 +1410,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             var formServices : MutableMap<String,Service> = mutableMapOf(), // services to not add to dynamic form because already in a form
             var incapacityForms : MutableList<Form> = mutableListOf(), // to add them to parent consultation form
             var serviceVersionLinks : MutableList<ServiceVersionType> = mutableListOf(), // bookkeeping for versioning services (medications)
-            var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf()
+            var serviceVersionLinksByMFID : Map<String, List<ServiceVersionType>> = mapOf(),
+            var incapacitySubcontactLinks:  MutableMap<String,Pair<SubContact, Contact>> = mutableMapOf() // map incapacity item MFID to (subcontact, contact) pair, used to link incapacity documents to the same subcontact as the other incapacity services
     )
 }
 
