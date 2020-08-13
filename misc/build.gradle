@@ -75,7 +75,7 @@ springBoot {
 }
 
 dockerJava {
-    tag = 'docker.taktik.be/icure-misc-standalone'
+    tag = 'taktik/icure-backend-misc'
 }
 // for pricare migration
 
