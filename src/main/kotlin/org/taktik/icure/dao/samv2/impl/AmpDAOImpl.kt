@@ -13,6 +13,7 @@ import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.samv2.SamVersion
 
 @Repository("ampDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.samv2.Amp' && !doc.deleted) emit( null, doc._id )}")
@@ -128,6 +129,10 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 .includeDocs(false)
                 .startKey(from)
                 .endKey(to), String::class.java)
+    }
+
+    override fun getVersion(): SamVersion? {
+        return db.get(SamVersion::class.java, "org.taktik.icure.samv2")
     }
 
     init {

@@ -68,6 +68,7 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
     protected Integer dateOfBirth; // YYYYMMDD if unknown, 00, ex:20010000 or
 	protected Integer dateOfDeath; // YYYYMMDD if unknown, 00, ex:20010000 or
+    protected Integer timestampOfLatestEidReading;
     protected String placeOfBirth;
     protected String placeOfDeath;
     protected String education;
@@ -239,6 +240,14 @@ public class Patient extends StoredICureDocument implements Person, Encryptable,
 
     public void setDateOfDeath(Integer dateOfDeath) {
         this.dateOfDeath = dateOfDeath;
+    }
+
+    public @Nullable Integer getTimestampOfLatestEidReading() {
+        return timestampOfLatestEidReading;
+    }
+
+    public void setTimestampOfLatestEidReading(Integer timestampOfLatestEidReading) {
+        this.timestampOfLatestEidReading = timestampOfLatestEidReading;
     }
 
     public @Nullable String getPlaceOfBirth() {

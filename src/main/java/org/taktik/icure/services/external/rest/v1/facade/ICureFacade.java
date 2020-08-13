@@ -20,6 +20,7 @@ package org.taktik.icure.services.external.rest.v1.facade;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,11 +193,10 @@ public class ICureFacade implements OpenApiFacade{
 	)
 	@POST
 	@Path("/dd/{entityName}")
-	public Response updateDesignDoc(@PathParam("entityName") String entityName) {
-		iCureLogic.updateDesignDoc(entityName);
+	public Response updateDesignDoc(@PathParam("entityName") String entityName, @ApiParam(value = "Trigger indexation warm up") @QueryParam("warmup") Boolean warmup) {
+		iCureLogic.updateDesignDoc(entityName, warmup);
 		return Response.ok(true).build();
 	}
-
 
 	@ApiOperation(
 			value = "Get index info",

@@ -65,6 +65,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected PersonalStatusDto personalStatus = PersonalStatusDto.unknown;
     protected Integer dateOfBirth; //YYYYMMDD if unknown, 00, ex:20010000 or
     protected Integer dateOfDeath; //YYYYMMDD if unknown, 00, ex:20010000 or
+    protected Integer timestampOfLatestEidReading;
     protected String placeOfBirth;
     protected String placeOfDeath;
     protected String education;
@@ -108,7 +109,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
     protected CodeStub mainSourceOfIncome;
     protected List<SchoolingInfoDto> schoolingInfos;
     protected List<EmploymentInfoDto> employementInfos;
-    private Set<Property> properties = new HashSet<>();
+    private Set<PropertyDto> properties = new HashSet<>();
 
 
     public String getMergeToPatientId() {
@@ -241,6 +242,14 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setDateOfDeath(Integer dateOfDeath) {
         this.dateOfDeath = dateOfDeath;
+    }
+
+    public Integer getTimestampOfLatestEidReading() {
+        return timestampOfLatestEidReading;
+    }
+
+    public void setTimestampOfLatestEidReading(Integer timestampOfLatestEidReading) {
+        this.timestampOfLatestEidReading = timestampOfLatestEidReading;
     }
 
     public String getPlaceOfBirth() {
@@ -528,7 +537,7 @@ public class PatientDto extends IcureDto implements EncryptableDto {
 
     public void setEmployementInfos(List<EmploymentInfoDto> employementInfos) { this.employementInfos = employementInfos; }
 
-    public Set<Property> getProperties() { return properties; }
+    public Set<PropertyDto> getProperties() { return properties; }
 
-    public void setProperties(Set<Property> properties) { this.properties = properties; }
+    public void setProperties(Set<PropertyDto> properties) { this.properties = properties; }
 }
