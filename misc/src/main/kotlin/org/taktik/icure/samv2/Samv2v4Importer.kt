@@ -146,7 +146,7 @@ class Samv2v4Import : CliktCommand() {
                         }
                     entry!!.name.startsWith("NONMEDICINAL") ->
                         (JAXBContext.newInstance(ExportNonMedicinalType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportNonMedicinalType)?.let {
-                            importNonMedicinals(it, couchdbConfig, updateExistingDocs)
+                            productIds.putAll(importNonMedicinals(it, couchdbConfig, updateExistingDocs))
                         }
 
                 }
