@@ -4,7 +4,7 @@ steps:
         args: [ '-c', 'git fetch --unshallow --tags && git checkout ${BRANCH_NAME} && git submodule init && git submodule update' ]
 
     -   name: 'gcr.io/cloud-builders/docker'
-        args: ['login', 'docker.taktik.be', '--username', '${_REPO_USERNAME}', '--password', '${_REPO_PASSWORD}']
+        args: ['login', '--username', '${_DOCKER_USERNAME}', '--password', '${_DOCKER_PASSWORD}']
 
     -   name: 'gcr.io/cloud-builders/javac' # java + docker
         entrypoint: 'bash'
