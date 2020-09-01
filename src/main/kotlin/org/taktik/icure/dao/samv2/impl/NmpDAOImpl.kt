@@ -63,4 +63,8 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 .startKey(from)
                 .endKey(to), String::class.java)
     }
+
+    init {
+        initStandardDesignDocument()
+    }
 }
