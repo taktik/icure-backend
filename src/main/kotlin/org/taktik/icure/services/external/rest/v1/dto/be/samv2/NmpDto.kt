@@ -21,6 +21,7 @@ class NmpDto(
         if (other !is NmpDto) return false
         if (!super.equals(other)) return false
 
+        if (productId != other.productId) return false
         if (code != other.code) return false
         if (category != other.category) return false
         if (commercialStatus != other.commercialStatus) return false
@@ -33,6 +34,7 @@ class NmpDto(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + (productId?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (category?.hashCode() ?: 0)
         result = 31 * result + (commercialStatus?.hashCode() ?: 0)
