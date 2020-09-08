@@ -286,3 +286,7 @@ publishing {
 		}
 	}
 }
+
+dockerJava {
+	tag = 'taktik/icure-backend'
+}
