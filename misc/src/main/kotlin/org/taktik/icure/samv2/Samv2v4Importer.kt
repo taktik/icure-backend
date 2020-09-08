@@ -448,7 +448,7 @@ class Samv2v4Import : CliktCommand() {
                                     it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
                         },
                         proprietarySuffix = d.proprietarySuffix?.let { SamText(it.fr, it.nl, it.de, it.en)},
-                        prescriptionName = (d.prescriptionName ?: d.prescriptionNameFamhp)?.let { SamText(it.fr, it.nl, it.de, it.en)},
+                        prescriptionName = d.prescriptionName?.let { SamText(it.fr, it.nl, it.de, it.en)},
                         ampps = amp.ampp?.mapNotNull { ampp ->
                             ampp.data?.maxBy { d -> d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0 }?.let { amppd ->
                                 Ampp(
