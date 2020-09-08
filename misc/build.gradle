@@ -20,7 +20,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
 
 sourceCompatibility = 1.8
-version = '1.0.10'
+version = '1.0.13'
 compileJava {
     options.fork = true
     options.forkOptions.with {
@@ -76,7 +76,7 @@ springBoot {
 }
 
 dockerJava {
-    tag = 'taktik/icure-backend-misc'
+    tag = 'docker.taktik.be/icure-backend-misc'
 }
 
 jar {
