@@ -1,5 +1,6 @@
 package org.taktik.icure.services.external.rest.v1.dto.be.samv2.embed
 
+import org.taktik.icure.entities.samv2.embed.SamText
 import java.io.Serializable
 
 class AmppDto(
@@ -22,6 +23,7 @@ class AmppDto(
         var deliveryModusCode: String? = null,
         var deliveryModus: SamTextDto? = null,
         var deliveryModusSpecification: SamTextDto? = null,
+        var dhpcLink: SamText? = null,
         var distributorCompany: CompanyDto? = null,
         var isSingleUse: Boolean? = null,
         var speciallyRegulated: Int? = null,
@@ -63,6 +65,7 @@ class AmppDto(
         if (deliveryModusCode != other.deliveryModusCode) return false
         if (deliveryModus != other.deliveryModus) return false
         if (deliveryModusSpecification != other.deliveryModusSpecification) return false
+        if (dhpcLink != other.dhpcLink) return false
         if (distributorCompany != other.distributorCompany) return false
         if (isSingleUse != other.isSingleUse) return false
         if (speciallyRegulated != other.speciallyRegulated) return false
@@ -105,6 +108,7 @@ class AmppDto(
         result = 31 * result + (deliveryModus?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusSpecification?.hashCode() ?: 0)
         result = 31 * result + (distributorCompany?.hashCode() ?: 0)
+        result = 31 * result + (dhpcLink?.hashCode() ?: 0)
         result = 31 * result + (isSingleUse?.hashCode() ?: 0)
         result = 31 * result + (speciallyRegulated ?: 0)
         result = 31 * result + (abbreviatedName?.hashCode() ?: 0)

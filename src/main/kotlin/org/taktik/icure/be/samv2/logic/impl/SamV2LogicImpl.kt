@@ -106,6 +106,10 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
         return vmpGroupDAO.findVmpGroupsByLabel(language, label, paginationOffset)
     }
 
+    override fun findVmpGroups(paginationOffset: PaginationOffset<Nothing?>): PaginatedList<VmpGroup> {
+        return vmpGroupDAO.findVmpGroups(paginationOffset)
+    }
+
     override fun listVmpGroupIdsByLabel(language: String?, label: String?): List<String> {
         return vmpGroupDAO.listVmpGroupIdsByLabel(language, label)
     }

@@ -175,15 +175,15 @@ class Samv2v4Import : CliktCommand() {
 
         retry(10) { productIdDAO.allIds }.let {
             val ids = HashSet(it)
-            productIds.filterKeys { ids.contains(it) }.entries.chunked(100).forEach {
+            productIds.filterKeys { ids.contains(it) }.entries.sortedWith(compareBy {it.key}).chunked(100).forEach {
                 productIdDAO.save(retry(10) { productIdDAO.getList(it.map { it.key }) }.map { p ->
                     p.also { it.productId = productIds[p.id] }
                 })
             }
-            productIds.filterKeys { !ids.contains(it) }.entries.chunked(100).forEach {
+            productIds.filterKeys { !ids.contains(it) }.entries.sortedWith(compareBy {it.key}).chunked(100).forEach {
                 productIdDAO.create(it.map { ProductId(it.key, it.value) })
             }
-            ids.filter { !productIds.containsKey(it) }.chunked(100).forEach {
+            ids.filter { !productIds.containsKey(it) }.sortedWith(compareBy {it}).chunked(100).forEach {
                 retry(10) { productIdDAO.purgeByIds(it) }
             }
         }
@@ -212,6 +212,7 @@ class Samv2v4Import : CliktCommand() {
                         multiple = reimbd.multiple?.let { MultipleType.valueOf(it.value()) },
                         temporary = reimbd.isTemporary,
                         reference = reimbd.isReference,
+                        legalReferencePath = reimb.legalReferencePath,
                         flatRateSystem = reimbd.isFlatRateSystem,
                         reimbursementBasePrice = reimbd.reimbursementBasePrice,
                         referenceBasePrice = reimbd.referenceBasePrice,
@@ -448,7 +449,7 @@ class Samv2v4Import : CliktCommand() {
                                     it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
                         },
                         proprietarySuffix = d.proprietarySuffix?.let { SamText(it.fr, it.nl, it.de, it.en)},
-                        prescriptionName = d.prescriptionName?.let { SamText(it.fr, it.nl, it.de, it.en)},
+                        prescriptionName = (d.prescriptionName ?: d.prescriptionNameFamhp)?.let { SamText(it.fr ?: d.prescriptionNameFamhp?.fr, it.nl ?: d.prescriptionNameFamhp?.nl, it.de ?: d.prescriptionNameFamhp?.de, it.en ?: d.prescriptionNameFamhp?.en)},
                         ampps = amp.ampp?.mapNotNull { ampp ->
                             ampp.data?.maxBy { d -> d.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0 }?.let { amppd ->
                                 Ampp(
@@ -471,6 +472,7 @@ class Samv2v4Import : CliktCommand() {
                                         deliveryModusCode = amppd.deliveryModus?.code,
                                         deliveryModus = amppd.deliveryModus?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         deliveryModusSpecification = amppd.deliveryModusSpecification?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
+                                        dhpcLink = amppd.dhpcLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         distributorCompany = amppd.distributorCompany ?.let {
                                             it.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 Company(it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.authorisationNr,
@@ -481,7 +483,7 @@ class Samv2v4Import : CliktCommand() {
                                         isSingleUse = amppd.isSingleUse,
                                         speciallyRegulated = amppd.speciallyRegulated,
                                         abbreviatedName = amppd.abbreviatedName?.let { SamText(it.fr, it.nl, it.de, it.en) },
-                                        prescriptionName = amppd.prescriptionName?.let { SamText(it.fr, it.nl, it.de, it.en) },
+                                        prescriptionName = (amppd.prescriptionName ?: amppd.prescriptionNameFamhp)?.let { SamText(it.fr ?: amppd.prescriptionNameFamhp?.fr, it.nl ?: amppd.prescriptionNameFamhp?.nl, it.de ?: amppd.prescriptionNameFamhp?.de, it.en ?: amppd.prescriptionNameFamhp?.en)},
                                         note = amppd.note?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         posologyNote = amppd.posologyNote?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         noGenericPrescriptionReasons = amppd.noGenericPrescriptionReason?.map { SamText(it.description.fr, it.description.nl, it.description.de, it.description.en) } ?: listOf(),

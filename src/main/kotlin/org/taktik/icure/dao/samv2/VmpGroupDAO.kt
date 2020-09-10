@@ -25,6 +25,7 @@ import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.samv2.VmpGroup
 
 interface VmpGroupDAO : GenericDAO<VmpGroup> {
+    fun findVmpGroups(paginationOffset: PaginationOffset<*>?): PaginatedList<VmpGroup>
     fun findVmpGroupsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<VmpGroup>
     fun listVmpGroupIdsByLabel(language: String?, label: String?): List<String>
 }
