@@ -25,7 +25,7 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
     override fun findVmpGroups(paginationOffset: PaginationOffset<*>?): PaginatedList<VmpGroup> {
         return pagedQueryView(
                 "all",
-                null as String,
+                null as String?,
                 null,
                 paginationOffset,
                 false
