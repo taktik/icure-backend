@@ -212,6 +212,7 @@ class Samv2v4Import : CliktCommand() {
                         multiple = reimbd.multiple?.let { MultipleType.valueOf(it.value()) },
                         temporary = reimbd.isTemporary,
                         reference = reimbd.isReference,
+                        legalReferencePath = reimb.legalReferencePath,
                         flatRateSystem = reimbd.isFlatRateSystem,
                         reimbursementBasePrice = reimbd.reimbursementBasePrice,
                         referenceBasePrice = reimbd.referenceBasePrice,
@@ -471,6 +472,7 @@ class Samv2v4Import : CliktCommand() {
                                         deliveryModusCode = amppd.deliveryModus?.code,
                                         deliveryModus = amppd.deliveryModus?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         deliveryModusSpecification = amppd.deliveryModusSpecification?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
+                                        dhpcLink = amppd.dhpcLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         distributorCompany = amppd.distributorCompany ?.let {
                                             it.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 Company(it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, it.authorisationNr,
