@@ -12,6 +12,7 @@ class ReimbursementDto(
         var multiple: MultipleTypeDto? = null,
         var temporary: Boolean? = null,
         var reference: Boolean? = null,
+        var legalReferencePath: String? = null,
         var flatRateSystem: Boolean? = null,
         var reimbursementBasePrice: BigDecimal? = null,
         var referenceBasePrice: BigDecimal? = null,
@@ -34,6 +35,7 @@ class ReimbursementDto(
         if (multiple != other.multiple) return false
         if (temporary != other.temporary) return false
         if (reference != other.reference) return false
+        if (legalReferencePath != other.legalReferencePath) return false
         if (flatRateSystem != other.flatRateSystem) return false
         if (reimbursementBasePrice != other.reimbursementBasePrice) return false
         if (referenceBasePrice != other.referenceBasePrice) return false
@@ -54,6 +56,7 @@ class ReimbursementDto(
         result = 31 * result + (multiple?.hashCode() ?: 0)
         result = 31 * result + (temporary?.hashCode() ?: 0)
         result = 31 * result + (reference?.hashCode() ?: 0)
+        result = 31 * result + (legalReferencePath?.hashCode() ?: 0)
         result = 31 * result + (flatRateSystem?.hashCode() ?: 0)
         result = 31 * result + (reimbursementBasePrice?.hashCode() ?: 0)
         result = 31 * result + (referenceBasePrice?.hashCode() ?: 0)

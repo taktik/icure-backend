@@ -386,6 +386,35 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
+    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @GET
+    @Path("/vmpgroup/all")
+    fun findPaginatedVmpGroups(
+            @ApiParam(value = "A vmpgroup document ID", required = false) @QueryParam("startDocumentId") startDocumentId: String?,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") limit: Int?): Response {
+        val response: Response
+
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, limit)
+
+        val vmpGroupsList = samV2Logic.findVmpGroups(paginationOffset)
+
+        if (vmpGroupsList.rows == null) {
+            vmpGroupsList.rows = ArrayList()
+        }
+
+        val vmpGroupDtosPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>()
+        mapper.map(
+                vmpGroupsList,
+                vmpGroupDtosPaginatedList,
+                object : TypeBuilder<PaginatedList<VmpGroup>>() {}.build(),
+                object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>>() {}.build()
+        )
+        addProductIdsToVmpGroups(vmpGroupDtosPaginatedList.rows)
+        response = ResponseUtils.ok(vmpGroupDtosPaginatedList)
+
+        return response
+    }
+
     @ApiOperation(value = "List all substances.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of existing substances")
     @GET
     @Path("/substance")

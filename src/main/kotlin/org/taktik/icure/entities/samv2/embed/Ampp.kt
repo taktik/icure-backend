@@ -22,6 +22,7 @@ class Ampp(
         var deliveryModusCode: String? = null,
         var deliveryModus: SamText? = null,
         var deliveryModusSpecification: SamText? = null,
+        var dhpcLink: SamText? = null,
         var distributorCompany: Company? = null,
         var isSingleUse: Boolean? = null,
         var speciallyRegulated: Int? = null,
@@ -65,6 +66,7 @@ class Ampp(
         if (deliveryModus != other.deliveryModus) return false
         if (deliveryModusSpecification != other.deliveryModusSpecification) return false
         if (distributorCompany != other.distributorCompany) return false
+        if (dhpcLink != other.dhpcLink) return false
         if (isSingleUse != other.isSingleUse) return false
         if (speciallyRegulated != other.speciallyRegulated) return false
         if (abbreviatedName != other.abbreviatedName) return false
@@ -106,6 +108,7 @@ class Ampp(
         result = 31 * result + (deliveryModusCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModus?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusSpecification?.hashCode() ?: 0)
+        result = 31 * result + (dhpcLink?.hashCode() ?: 0)
         result = 31 * result + (distributorCompany?.hashCode() ?: 0)
         result = 31 * result + (isSingleUse?.hashCode() ?: 0)
         result = 31 * result + (speciallyRegulated ?: 0)
