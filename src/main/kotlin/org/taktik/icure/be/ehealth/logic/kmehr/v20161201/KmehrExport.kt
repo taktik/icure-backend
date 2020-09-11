@@ -94,13 +94,8 @@ open class KmehrExport {
             }
             cds?.let {this.cds.addAll(it)}
 			this.cds.addAll(
-				if (m.specialityCodes?.size ?: 0 > 0){
-					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
-                } else if (m.speciality?: "" != ""){
-                    listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = m.speciality })
-                }
-				else
-					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" }))
+					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" })
+            )
 
             if (this.cds.filter { it.s == CDHCPARTYschemes.CD_HCPARTY }.any {it.value.startsWith("pers")}) {
                 firstname = m.firstName
@@ -114,6 +109,20 @@ open class KmehrExport {
 
             addresses.addAll(makeAddresses(m.addresses))
             telecoms.addAll(makeTelecoms(m.addresses))
+        }
+    }
+
+    fun createSpecialistParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf() ): HcpartyType {
+        return HcpartyType().apply {
+            cds?.let {this.cds.addAll(it)}
+            this.cds.addAll(
+                if (m.specialityCodes?.size ?: 0 > 0){
+                    m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
+                } else if (m.speciality?: "" != ""){
+                    listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = m.speciality })
+                }
+                else
+                    listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" }))
         }
     }
 
