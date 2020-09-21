@@ -22,6 +22,16 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
         initStandardDesignDocument()
     }
 
+    override fun findVmpGroups(paginationOffset: PaginationOffset<*>?): PaginatedList<VmpGroup> {
+        return pagedQueryView(
+                "all",
+                null as String?,
+                null,
+                paginationOffset,
+                false
+        )
+    }
+
     @View(name = "by_language_label", map = "classpath:js/vmpgroup/By_language_label.js")
     override fun findVmpGroupsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<VmpGroup> {
         val sanitizedLabel = label?.let { StringUtils.sanitizeString(it)}

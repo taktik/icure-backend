@@ -104,7 +104,6 @@ public class Code extends StoredDocument implements CodeIdentification {
         this.id = type+'|'+code+'|'+version;
     }
 
-
     public String toString() {
         return this.type + ":" + this.code;
     }

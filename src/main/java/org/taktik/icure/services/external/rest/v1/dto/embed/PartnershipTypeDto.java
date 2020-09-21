@@ -19,5 +19,5 @@
 package org.taktik.icure.services.external.rest.v1.dto.embed;
 
 public enum PartnershipTypeDto {
-    primary_contact,primary_contact_for,tutor,family,friend,counselor,contact;
+    primary_contact,primary_contact_for,tutor,family,friend,counselor,contact,brother,brotherinlaw,child,daughter,employer,father,grandchild,grandparent,husband,lawyer,mother,neighbour,notary,partner,sister,sisterinlaw,son,spouse,stepdaughter,stepfather,stepmother,stepson;
 }

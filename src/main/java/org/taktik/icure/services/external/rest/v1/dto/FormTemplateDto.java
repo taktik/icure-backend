@@ -58,6 +58,8 @@ public class FormTemplateDto extends StoredDto implements Serializable {
 
     protected List<String> reports;
 
+    protected List<CodeDto> tags;
+
     public FormTemplateDto() {
 	}
 
@@ -176,4 +178,12 @@ public class FormTemplateDto extends StoredDto implements Serializable {
     public String getDisabled() { return disabled; }
 
     public void setDisabled(String disabled) { this.disabled = disabled; }
+
+    public List<CodeDto> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<CodeDto> tags) {
+        this.tags = tags;
+    }
 }

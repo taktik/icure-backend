@@ -20,7 +20,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
 
 sourceCompatibility = 1.8
-version = '1.0.6'
+version = '1.0.14'
 compileJava {
     options.fork = true
     options.forkOptions.with {
@@ -72,21 +72,18 @@ configurations.all {
 
 springBoot {
     mainClass = 'org.taktik.icure.samv2.Samv2v4ImporterKt'
+    // for pricare migration mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
 }
 
 dockerJava {
-    tag = 'docker.taktik.be/icure-misc-standalone'
-}
-// for pricare migration
-/*
-springBoot {
-    mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
+    tag = 'docker.taktik.be/icure-backend-misc'
 }
 
 jar {
     enabled = true
     manifest {
-        attributes 'Main-Class': 'org.taktik.icure.db.TopazImporter.PricareImporter'
+        attributes 'Main-Class': 'org.taktik.icure.samv2.Samv2v4ImporterKt'
+        // for pricare migration attributes 'Main-Class': 'org.taktik.icure.db.TopazImporter.PricareImporter'
     }
 }
-*/
+

@@ -22,6 +22,7 @@ class Ampp(
         var deliveryModusCode: String? = null,
         var deliveryModus: SamText? = null,
         var deliveryModusSpecification: SamText? = null,
+        var dhpcLink: SamText? = null,
         var distributorCompany: Company? = null,
         var isSingleUse: Boolean? = null,
         var speciallyRegulated: Int? = null,
@@ -38,6 +39,7 @@ class Ampp(
         var pricingInformationDecisionDate: Long? = null,
         var components: List<AmppComponent?>? = null,
         var commercializations: List<Commercialization>? = null,
+        var supplyProblems: List<SupplyProblem>? = null,
         var dmpps: List<Dmpp>? = null,
         var vaccineIndicationCodes: List<String>? = null
 ) : DataPeriod(from, to), Serializable {
@@ -64,6 +66,7 @@ class Ampp(
         if (deliveryModus != other.deliveryModus) return false
         if (deliveryModusSpecification != other.deliveryModusSpecification) return false
         if (distributorCompany != other.distributorCompany) return false
+        if (dhpcLink != other.dhpcLink) return false
         if (isSingleUse != other.isSingleUse) return false
         if (speciallyRegulated != other.speciallyRegulated) return false
         if (abbreviatedName != other.abbreviatedName) return false
@@ -79,7 +82,9 @@ class Ampp(
         if (pricingInformationDecisionDate != other.pricingInformationDecisionDate) return false
         if (components != other.components) return false
         if (commercializations != other.commercializations) return false
+        if (supplyProblems != other.supplyProblems) return false
         if (dmpps != other.dmpps) return false
+        if (vaccineIndicationCodes != other.vaccineIndicationCodes) return false
 
         return true
     }
@@ -103,6 +108,7 @@ class Ampp(
         result = 31 * result + (deliveryModusCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModus?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusSpecification?.hashCode() ?: 0)
+        result = 31 * result + (dhpcLink?.hashCode() ?: 0)
         result = 31 * result + (distributorCompany?.hashCode() ?: 0)
         result = 31 * result + (isSingleUse?.hashCode() ?: 0)
         result = 31 * result + (speciallyRegulated ?: 0)
@@ -119,8 +125,9 @@ class Ampp(
         result = 31 * result + (pricingInformationDecisionDate?.hashCode() ?: 0)
         result = 31 * result + (components?.hashCode() ?: 0)
         result = 31 * result + (commercializations?.hashCode() ?: 0)
+        result = 31 * result + (supplyProblems?.hashCode() ?: 0)
         result = 31 * result + (dmpps?.hashCode() ?: 0)
+        result = 31 * result + (vaccineIndicationCodes?.hashCode() ?: 0)
         return result
     }
-
 }
