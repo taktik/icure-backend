@@ -177,6 +177,39 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
 
     @ApiOperation(value = "Finding VMPs by group with pagination.", response = VmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
+    @Path("/vmp/byVmpCode/{vmpCode}")
+    fun findPaginatedVmpsByVmpCode(
+            @ApiParam(value = "vmpCode", required = true) @PathParam("vmpCode") vmpCode: String,
+            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @QueryParam("startKey") startKey: String?,
+            @ApiParam(value = "A vmp document ID", required = false) @QueryParam("startDocumentId") startDocumentId: String?,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") limit: Int?): Response {
+
+        val response: Response
+
+        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+
+        val vmpsList = samV2Logic.findVmpsByVmpCode(vmpCode, paginationOffset)
+
+        if (vmpsList.rows == null) {
+            vmpsList.rows = ArrayList()
+        }
+
+        val vmpDtosPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpDto>()
+        mapper.map<PaginatedList<Vmp>, org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpDto>>(
+                vmpsList,
+                vmpDtosPaginatedList,
+                object : TypeBuilder<PaginatedList<Vmp>>() {}.build(),
+                object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpDto>>() {}.build()
+        )
+        response = ResponseUtils.ok(vmpDtosPaginatedList)
+
+        return response
+    }
+
+    @ApiOperation(value = "Finding VMPs by group with pagination.", response = VmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @GET
     @Path("/vmp/byGroupId/{vmpgId}")
     fun findPaginatedVmpsByGroupId(
             @ApiParam(value = "vmpgId", required = true) @PathParam("vmpgId") vmpgId: String,
@@ -351,7 +384,41 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
-    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by group with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of group codes matched with given input. If several types are provided, paginantion is not supported")
+    @GET
+    @Path("/vmpgroup/byGroupCode/{vmpgCode}")
+    fun findPaginatedVmpGroupsByVmpGroupCode(
+            @ApiParam(value = "vmpgCode", required = true) @PathParam("vmpgCode") vmpgCode: String,
+            @ApiParam(value = "The start key for pagination: a JSON representation of an array containing all the necessary components to form the Complex Key's startKey")
+            @QueryParam("startKey") startKey: String?,
+            @ApiParam(value = "A vmpgroup document ID", required = false) @QueryParam("startDocumentId") startDocumentId: String?,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") limit: Int?): Response {
+
+        val response: Response
+
+        val startKeyElements = if (startKey == null) null else Gson().fromJson(startKey, List::class.java)
+        val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
+
+        val vmpGroupsList = samV2Logic.findVmpGroupsByVmpGroupCode(vmpgCode, paginationOffset)
+
+        if (vmpGroupsList.rows == null) {
+            vmpGroupsList.rows = ArrayList()
+        }
+
+        val vmpGroupDtosPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>()
+        mapper.map<PaginatedList<VmpGroup>, org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>>(
+                vmpGroupsList,
+                vmpGroupDtosPaginatedList,
+                object : TypeBuilder<PaginatedList<VmpGroup>>() {}.build(),
+                object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>>() {}.build()
+        )
+        addProductIdsToVmpGroups(vmpGroupDtosPaginatedList.rows)
+        response = ResponseUtils.ok(vmpGroupDtosPaginatedList)
+
+        return response
+    }
+
+    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of group codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
     @Path("/vmpgroup")
     fun findPaginatedVmpGroupsByLabel(
@@ -368,6 +435,35 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         val paginationOffset = PaginationOffset(startKeyElements, startDocumentId, null, limit)
 
         val vmpGroupsList = samV2Logic.findVmpGroupsByLabel(language, label, paginationOffset)
+
+        if (vmpGroupsList.rows == null) {
+            vmpGroupsList.rows = ArrayList()
+        }
+
+        val vmpGroupDtosPaginatedList = org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>()
+        mapper.map(
+                vmpGroupsList,
+                vmpGroupDtosPaginatedList,
+                object : TypeBuilder<PaginatedList<VmpGroup>>() {}.build(),
+                object : TypeBuilder<org.taktik.icure.services.external.rest.v1.dto.PaginatedList<VmpGroupDto>>() {}.build()
+        )
+        addProductIdsToVmpGroups(vmpGroupDtosPaginatedList.rows)
+        response = ResponseUtils.ok(vmpGroupDtosPaginatedList)
+
+        return response
+    }
+
+    @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @GET
+    @Path("/vmpgroup/all")
+    fun findPaginatedVmpGroups(
+            @ApiParam(value = "A vmpgroup document ID", required = false) @QueryParam("startDocumentId") startDocumentId: String?,
+            @ApiParam(value = "Number of rows", required = false) @QueryParam("limit") limit: Int?): Response {
+        val response: Response
+
+        val paginationOffset = PaginationOffset(null, startDocumentId, null, limit)
+
+        val vmpGroupsList = samV2Logic.findVmpGroups(paginationOffset)
 
         if (vmpGroupsList.rows == null) {
             vmpGroupsList.rows = ArrayList()

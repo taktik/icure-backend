@@ -16,6 +16,9 @@ interface SamV2Logic {
     fun findNmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Nmp>
     fun findVmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
+    fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
+    fun findVmpGroups(paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
+    fun findVmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<Vmp>
     fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>

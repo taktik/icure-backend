@@ -6,7 +6,6 @@ class Nmp(
         id: String? = null,
         from: Long? = null,
         to: Long? = null,
-        var productId: String? = null,
         var code: String? = null,
         var category: String? = null,
         var commercialStatus: String? = null,
@@ -20,7 +19,6 @@ class Nmp(
         if (other !is Nmp) return false
         if (!super.equals(other)) return false
 
-        if (productId != other.productId) return false
         if (code != other.code) return false
         if (category != other.category) return false
         if (commercialStatus != other.commercialStatus) return false
@@ -33,7 +31,6 @@ class Nmp(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + (productId?.hashCode() ?: 0)
         result = 31 * result + (code?.hashCode() ?: 0)
         result = 31 * result + (category?.hashCode() ?: 0)
         result = 31 * result + (commercialStatus?.hashCode() ?: 0)
