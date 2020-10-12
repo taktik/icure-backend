@@ -170,22 +170,6 @@ public class SessionLogicImpl implements ICureSessionLogic {
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest httpRequest, Authentication authentication) {
-		// Get UserDetails
-		UserDetails userDetails = extractUserDetails(authentication);
-		if (userDetails != null) {
-			// Get user if any
-			PermissionSetIdentifier permissionSetIdentifier = userDetails.getPermissionSetIdentifier();
-			String userId = (permissionSetIdentifier != null) ? permissionSetIdentifier.getPrincipalIdOfClass(User.class) : null;
-			User user = (userId != null && ((DatabaseUserDetails) userDetails).getGroupId() != null) ? userLogic.getUserOnUserDb(userId, ((DatabaseUserDetails) userDetails).getGroupId(), ((DatabaseUserDetails) userDetails).getDbInstanceUrl()) : null;
-			if (user != null) {
-				// Retrieve the locale from the authentication userdetails if any
-				String authLocale = userDetails.getLocale();
-
-				// Determine locale and save it
-				String locale = determineLocale(user, httpRequest, authLocale);
-				httpRequest.getSession().setAttribute(SESSION_LOCALE_ATTRIBUTE, locale);
-			}
-		}
 	}
 
 	@Override
