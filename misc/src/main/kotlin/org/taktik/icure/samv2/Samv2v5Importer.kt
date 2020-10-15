@@ -10,11 +10,11 @@ import org.ektorp.UpdateConflictException
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
 import org.slf4j.LoggerFactory
-import org.taktik.icure.be.samv2v4.entities.CommentedClassificationFullDataType
-import org.taktik.icure.be.samv2v4.entities.ExportActualMedicinesType
-import org.taktik.icure.be.samv2v4.entities.ExportNonMedicinalType
-import org.taktik.icure.be.samv2v4.entities.ExportReimbursementsType
-import org.taktik.icure.be.samv2v4.entities.ExportVirtualMedicinesType
+import org.taktik.icure.be.samv2v5.entities.CommentedClassificationFullDataType
+import org.taktik.icure.be.samv2v5.entities.ExportActualMedicinesType
+import org.taktik.icure.be.samv2v5.entities.ExportNonMedicinalType
+import org.taktik.icure.be.samv2v5.entities.ExportReimbursementsType
+import org.taktik.icure.be.samv2v5.entities.ExportVirtualMedicinesType
 import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
 import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
@@ -82,7 +82,7 @@ import javax.xml.bind.JAXBContext
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
-fun main(args: Array<String>) = Samv2v4Import().main(args)
+fun main(args: Array<String>) = Samv2v5Import().main(args)
 
 fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : CommentedClassification? = cc.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { lcc ->
     CommentedClassification(
@@ -93,7 +93,7 @@ fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : Comm
 }
 
 @Suppress("NestedLambdaShadowedImplicitParameter")
-class Samv2v4Import : CliktCommand() {
+class Samv2v5Import : CliktCommand() {
     val log = LoggerFactory.getLogger(this::class.java)
     val samv2url: String? by option(help="The url of the zip file")
     val url: String by option(help="The database server to connect to").prompt("Database server url")
@@ -121,8 +121,8 @@ class Samv2v4Import : CliktCommand() {
         var fileName: String? = null
         val productIds = HashMap<String, String>()
 
-        val zipData = if (samv2url == null) URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-full-getLastVersion?xsd=4").toURL().readBytes().toString(Charsets.UTF_8).let {
-            URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-download?type=full&version=${it}&xsd=4").toURL().openConnection().let { conn ->
+        val zipData = if (samv2url == null) URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-full-getLastVersion?xsd=5").toURL().readBytes().toString(Charsets.UTF_8).let {
+            URI("https://www.vas.ehealth.fgov.be/websamcivics/samcivics/download/samv2-download?type=full&version=${it}&xsd=5").toURL().openConnection().let { conn ->
                 fileName = (conn.headerFields["Content-Disposition"]
                         ?: conn.headerFields["content-disposition"])?.let { it[0].replace(Regex("attachment;filename=\"(.+)\""), "$1") }
                 conn.getInputStream().readBytes()
