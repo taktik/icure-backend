@@ -20,7 +20,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
 
 sourceCompatibility = 1.8
-version = '1.0.16'
+version = '1.0.17'
 compileJava {
     options.fork = true
     options.forkOptions.with {
