@@ -455,6 +455,7 @@ class Samv2v5Import : CliktCommand() {
                                 Ampp(
                                         from = amppd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                         to = amppd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
+                                        index = amppd.index?.toLong(),
                                         ctiExtended = ampp.ctiExtended,
                                         isOrphan = amppd.isOrphan,
                                         leafletLink = amppd.leafletLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
