@@ -5,6 +5,7 @@ import java.io.Serializable
 class Ampp(
         from: Long? = null,
         to: Long? = null,
+        var index: Long? = null,
         var ctiExtended: String? = null,
         var isOrphan: Boolean = false,
         var leafletLink: SamText? = null,
@@ -41,14 +42,14 @@ class Ampp(
         var commercializations: List<Commercialization>? = null,
         var supplyProblems: List<SupplyProblem>? = null,
         var dmpps: List<Dmpp>? = null,
-        var vaccineIndicationCodes: List<String>? = null,
-        index: Long?
+        var vaccineIndicationCodes: List<String>? = null
 ) : DataPeriod(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Ampp) return false
         if (!super.equals(other)) return false
 
+        if (index != other.index) return false
         if (ctiExtended != other.ctiExtended) return false
         if (isOrphan != other.isOrphan) return false
         if (leafletLink != other.leafletLink) return false

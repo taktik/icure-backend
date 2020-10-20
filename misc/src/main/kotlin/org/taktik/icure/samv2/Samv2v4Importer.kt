@@ -548,8 +548,7 @@ class Samv2v4Import : CliktCommand() {
                                         vaccineIndicationCodes = ampp.dmpp?.flatMap { dmpp ->
                                             dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 vaccineIndicationsMap[dmpp.code]
-                                            } ?: listOf<String>()}?.toSet()?.toList(),
-                                        index = amppd.index?.toLong()
+                                            } ?: listOf<String>()}?.toSet()?.toList()
                                 )
                             }
                         } ?: listOf(),
