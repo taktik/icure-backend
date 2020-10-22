@@ -5,7 +5,7 @@ import java.io.Serializable
 class Ampp(
         from: Long? = null,
         to: Long? = null,
-        var index: Long? = null,
+        var index: Double? = null,
         var ctiExtended: String? = null,
         var isOrphan: Boolean = false,
         var leafletLink: SamText? = null,
