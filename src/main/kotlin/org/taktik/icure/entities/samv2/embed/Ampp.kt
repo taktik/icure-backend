@@ -5,6 +5,7 @@ import java.io.Serializable
 class Ampp(
         from: Long? = null,
         to: Long? = null,
+        var index: Double? = null,
         var ctiExtended: String? = null,
         var isOrphan: Boolean = false,
         var leafletLink: SamText? = null,
@@ -48,6 +49,7 @@ class Ampp(
         if (other !is Ampp) return false
         if (!super.equals(other)) return false
 
+        if (index != other.index) return false
         if (ctiExtended != other.ctiExtended) return false
         if (isOrphan != other.isOrphan) return false
         if (leafletLink != other.leafletLink) return false

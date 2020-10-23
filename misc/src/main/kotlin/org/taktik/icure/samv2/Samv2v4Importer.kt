@@ -740,9 +740,9 @@ class Samv2v4Import : CliktCommand() {
         (currentNmps - newNmpIds).chunked(100).forEach { nmpDAO.removeByIds(it) }
         return result
     }
-}
 
-class VaccineCode {
-    var cnk: String? = null
-    var codes: List<String> = listOf()
+    class VaccineCode {
+        var cnk: String? = null
+        var codes: List<String> = listOf()
+    }
 }
