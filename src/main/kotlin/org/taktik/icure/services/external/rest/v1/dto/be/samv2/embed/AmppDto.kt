@@ -6,7 +6,7 @@ import java.io.Serializable
 class AmppDto(
         from: Long? = null,
         to: Long? = null,
-        var index: Long? = null,
+        var index: Double? = null,
         var ctiExtended: String? = null,
         var isOrphan: Boolean = false,
         var leafletLink: SamTextDto? = null,

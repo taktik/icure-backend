@@ -22,5 +22,5 @@ package org.taktik.icure.entities.embed;
  * Created by aduchate on 21/01/13, 15:38
  */
 public enum InsuranceParameter {
-    status, tc1, tc2, preferentialstatus, chronicaldisease, paymentapproval;
+    status, tc1, tc2, preferentialstatus, chronicaldisease, paymentapproval, mdaInputReference;
 }
