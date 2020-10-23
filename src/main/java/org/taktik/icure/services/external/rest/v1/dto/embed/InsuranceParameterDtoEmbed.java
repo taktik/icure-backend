@@ -22,5 +22,5 @@ package org.taktik.icure.services.external.rest.v1.dto.embed;
  * Created by aduchate on 21/01/13, 15:38
  */
 public enum InsuranceParameterDtoEmbed {
-    status, tc1, tc2, preferentialstatus, chronicaldisease, paymentapproval;
+    status, tc1, tc2, preferentialstatus, chronicaldisease, paymentapproval, mdaInputReference;
 }

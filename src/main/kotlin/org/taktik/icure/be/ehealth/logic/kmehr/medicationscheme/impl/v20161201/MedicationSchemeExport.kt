@@ -139,7 +139,7 @@ class MedicationSchemeExport : KmehrExport() {
                 date = config.date
                 time = config.time
                 author = AuthorType().apply {
-                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it).healthcarePartyId } ?: healthcareParty.id)))
+                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)))
                 }
                 isIscomplete = true
                 isIsvalidated = true
