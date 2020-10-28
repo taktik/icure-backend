@@ -271,7 +271,7 @@ open class KmehrExport {
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let {
                 if(it == 0L) {
-                    null
+                    Utils.makeMomentTypeFromFuzzyLong(FuzzyValues.getCurrentFuzzyDate())
                 } else {
                     Utils.makeMomentTypeFromFuzzyLong(it)
                 }
