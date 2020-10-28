@@ -86,19 +86,23 @@ open class KmehrExport {
 	fun createParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf()): HcpartyType {
         return HcpartyType().apply {
             m.nihii?.let { nihii ->
-                if(isNihiiValid(nihii)) {
+                if(isNihiiValid(nihii) && !nihii.isNullOrEmpty()) {
                     ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii })
                 }
             }
-            m.ssin?.let { ssin -> ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.6"; value = ssin }) }
+            m.ssin?.let { ssin ->
+                if(!ssin.isNullOrEmpty()) {
+                    ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.INSS; sv = "1.6"; value = ssin })
+                }
+            }
 			cds?.let { this.cds.addAll(it) }
 			this.cds.addAll(if (m.specialityCodes?.size ?: 0 > 0)
 					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
 			else
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" }))
 
-			firstname = m.firstName
-			familyname = m.lastName
+			firstname = m.firstName ?: ""
+			familyname = m.lastName ?: ""
             addresses.addAll(makeAddresses(m.addresses))
             telecoms.addAll(makeTelecoms(m.addresses))
 		}
@@ -234,7 +238,7 @@ open class KmehrExport {
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
             beginmoment = (svc.valueDate ?: svc.openingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
-            recorddatetime = makeXGC(svc.modified ?: svc.created, true)
+            recorddatetime = makeXGC(svc.modified ?: svc.created ?: svc.valueDate, true)
         }
     }
 
