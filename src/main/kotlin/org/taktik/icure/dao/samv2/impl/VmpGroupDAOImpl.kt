@@ -12,6 +12,7 @@ import org.taktik.icure.dao.samv2.VmpGroupDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
+import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 
@@ -35,6 +36,13 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 paginationOffset,
                 false
         )
+    }
+
+    override fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup> {
+        return db.queryView(createQuery(
+                "by_groupcode")
+                .includeDocs(true)
+                .keys(vmpgCodes), VmpGroup::class.java)
     }
 
     override fun findVmpGroups(paginationOffset: PaginationOffset<*>?): PaginatedList<VmpGroup> {
