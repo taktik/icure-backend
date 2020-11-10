@@ -42,7 +42,8 @@ class AmppDto(
         var components: List<AmppComponentDto?>? = null,
         var commercializations: List<CommercializationDto>? = null,
         var supplyProblems: List<SupplyProblemDto>? = null,
-        var dmpps: List<DmppDto?>? = null
+        var dmpps: List<DmppDto?>? = null,
+        var vaccineIndicationCodes: List<String>? = null
 ) : DataPeriodDto(from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -85,6 +86,7 @@ class AmppDto(
         if (components != other.components) return false
         if (commercializations != other.commercializations) return false
         if (supplyProblems != other.supplyProblems) return false
+        if (vaccineIndicationCodes != other.vaccineIndicationCodes) return false
         if (dmpps != other.dmpps) return false
 
         return true

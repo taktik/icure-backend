@@ -133,4 +133,19 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 .endKey(to), String::class.java)
     }
 
+
+    override fun listVmpsByVmpCodes(vmpCodes: List<String>): List<Vmp> {
+        return db.queryView(createQuery(
+                "by_vmpcode")
+                .includeDocs(true)
+                .keys(vmpCodes), Vmp::class.java)
+    }
+
+    override fun listVmpsByGroupIds(vmpgIds: List<String>): List<Vmp> {
+        return db.queryView(createQuery(
+                "by_groupid")
+                .includeDocs(true)
+                .keys(vmpgIds), Vmp::class.java)
+    }
+
 }
