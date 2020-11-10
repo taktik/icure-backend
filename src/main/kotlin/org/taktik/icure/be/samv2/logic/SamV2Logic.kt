@@ -51,4 +51,5 @@ interface SamV2Logic {
     fun listAmpsByVmpCodes(vmpgCodes:  List<String>): List<Amp>
     fun listAmpsByVmpIds(vmpIds:  List<String>): List<Amp>
     fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup>
+    fun listNmpsByCnks(cnks: List<String>): List<Nmp>
 }

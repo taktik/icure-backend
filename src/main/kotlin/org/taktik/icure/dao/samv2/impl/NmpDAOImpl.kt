@@ -12,6 +12,7 @@ import org.taktik.icure.dao.samv2.NmpDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
+import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Nmp
 
 @Repository("nmpDAO")
@@ -62,6 +63,14 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 .includeDocs(false)
                 .startKey(from)
                 .endKey(to), String::class.java)
+    }
+
+    @View(name = "by_cnk", map = "classpath:js/nmp/By_cnk.js")
+    override fun listNmpsByCnks(cnks: List<String>): List<Nmp> {
+        return db.queryView(createQuery(
+                "by_cnk")
+                .includeDocs(true)
+                .keys(cnks), Nmp::class.java)
     }
 
     init {

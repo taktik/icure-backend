@@ -453,21 +453,21 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
         return response
     }
 
-    @ApiOperation(value = "Finding VMPs by group with pagination.", response = VmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding VMPs by group.", response = VmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/vmp/byVmpCodes")
     fun listVmpsByVmpCodes(
         vmpCodes: ListOfIdsDto
     ) = ResponseUtils.ok(samV2Logic.listVmpsByVmpCodes(vmpCodes.ids).map { mapper.map(it, VmpDto::class.java) })
 
-    @ApiOperation(value = "Finding VMPs by group with pagination.", response = VmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding VMPs by group.", response = VmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/vmp/byGroupIds")
     fun listVmpsByGroupIds(
             vmpgIds: ListOfIdsDto
     ) = ResponseUtils.ok(samV2Logic.listVmpsByGroupIds(vmpgIds.ids).map { mapper.map(it, VmpDto::class.java) })
 
-    @ApiOperation(value = "Finding AMPs by group with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by group.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/amp/byGroupCodes")
     fun listAmpsByGroupCodes(
@@ -481,33 +481,41 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
             dmppCodes: ListOfIdsDto
     ): Response = ResponseUtils.ok(samV2Logic.listAmpsByDmppCodes(dmppCodes.ids).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
 
-    @ApiOperation(value = "Finding AMPs by group with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by group.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/amp/byGroupIds")
     fun listAmpsByGroupIds(
         groupIds: ListOfIdsDto
     ) = ResponseUtils.ok(samV2Logic.listAmpsByGroupIds(groupIds.ids).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
 
-    @ApiOperation(value = "Finding AMPs by vmp code with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by vmp code.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/amp/byVmpCodes")
     fun listAmpsByVmpCodes(
             vmpgCodes: ListOfIdsDto
     ) = ResponseUtils.ok(samV2Logic.listAmpsByVmpCodes(vmpgCodes.ids).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
 
-    @ApiOperation(value = "Finding AMPs by vmp id with pagination.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by vmp id.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/amp/byVmpIds")
     fun listAmpsByVmpIds(
             vmpIds: ListOfIdsDto
     ) = ResponseUtils.ok(samV2Logic.listAmpsByVmpIds(vmpIds.ids).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
 
-    @ApiOperation(value = "Finding AMPs by group with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of group codes matched with given input. If several types are provided, paginantion is not supported")
+    @ApiOperation(value = "Finding AMPs by group.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of group codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
     @Path("/vmpgroup/byGroupCodes")
     fun listVmpGroupsByVmpGroupCodes(
             vmpgCodes: ListOfIdsDto
     ) = ResponseUtils.ok(samV2Logic.listVmpGroupsByVmpGroupCodes(vmpgCodes.ids).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
+
+    @ApiOperation(value = "Finding NMPs by cnk id.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
+    @POST
+    @Path("/nmp/byCnks")
+    fun listNmpsByCnks(
+            cnks: ListOfIdsDto
+    ) = ResponseUtils.ok(samV2Logic.listNmpsByCnks(cnks.ids).map { mapper.map(it, NmpDto::class.java) }.also { addProductIdsToNmps(it) })
+
 
     @ApiOperation(value = "Finding codes by code, type and version with pagination.", response = VmpGroupPaginatedList::class, httpMethod = "GET", notes = "Returns a list of group codes matched with given input. If several types are provided, paginantion is not supported")
     @GET
