@@ -39,7 +39,7 @@ import org.taktik.icure.services.external.rest.v1.wsfacade.KmehrWsFacade;
 
 @Component
 public class WebSocketServlet extends org.eclipse.jetty.websocket.servlet.WebSocketServlet {
-	public static final int MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
+	public static final int MAX_MESSAGE_SIZE = 20 * 1024 * 1024;
 	private KmehrWsFacade kmehrWsFacade;
 	private Gson gsonMapper;
 	private String prefix;

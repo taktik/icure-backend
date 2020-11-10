@@ -401,19 +401,21 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                                             }
                                                     )
                                                 }
-                                                this.cds.add(
-                                                        CDITEM().apply {
-                                                            s = CDITEMschemes.LOCAL
-                                                            sl = "LOCAL-PARAMETER"
-                                                            sv = "1.0"
-                                                            dn = if (svc.comment == "" || svc.comment == null) {
-                                                                svc.label
-                                                            } else {
-                                                                svc.comment
+                                                if(!svc.label.isNullOrEmpty()) {
+                                                    this.cds.add(
+                                                            CDITEM().apply {
+                                                                s = CDITEMschemes.LOCAL
+                                                                sl = "LOCAL-PARAMETER"
+                                                                sv = "1.0"
+                                                                dn = if (svc.comment == "" || svc.comment == null) {
+                                                                    svc.label
+                                                                } else {
+                                                                    svc.comment
+                                                                }
+                                                                value = svc.label
                                                             }
-                                                            value = svc.label
-                                                        }
-                                                )
+                                                    )
+                                                }
                                             }
                                             if (cdItem == "medication") {
                                                 svc.content.values.find { it.medicationValue?.instructionForPatient != null }?.let {
@@ -957,24 +959,31 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			if (insurability?.insuranceId?.isBlank() == false) {
 				try {
 					insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
-						if (it.code != null && it.code.length >= 3) {
-							contents.add(ContentType().apply {
-								insurance = InsuranceType().apply {
-									id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
-									membership = insurability.identificationNumber ?: ""
-									insurability.parameters["tc1"]?.let {
-										cg1 = it
-										insurability.parameters["tc2"]?.let { cg2 = it }
-									}
-								}
-							})
-						}
+                        contents.add(ContentType().apply {
+                            insurance = InsuranceType().apply {
+                                id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
+                                membership = insurability.identificationNumber ?: ""
+                                if (it.code != null && it.code.length >= 3) {
+                                    insurability.parameters["tc1"]?.let {
+                                        cg1 = it
+                                        insurability.parameters["tc2"]?.let { cg2 = it }
+                                    }
+                                }
+                            }
+                        })
 					}
 				} catch (ignored: DocumentNotFoundException) {
 				}
-			}
+			}else{
+                contents.add(ContentType().apply {
+                    insurance = InsuranceType().apply {
+                        id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = ""; }
+                        membership = ""
+                    }
+                })
+            }
 		}
-		return if (insStatus.contents.size > 0) insStatus else null
+		return insStatus
 	}
 
 	private fun cdItem(v: String): CDITEM {
@@ -1004,9 +1013,17 @@ class SoftwareMedicalFileExport : KmehrExport() {
                         // FIXME: this is specific to pricare and icure, what format should we use ?
 						s = CDCONTENTschemes.LOCAL
 						sl = "BE-THESAURUS-PROCEDURES"
+                        dn = "BE-THESAURUS-PROCEDURES"
 						sv = code.version
 						value = "${code.code}"
 					}
+                    code.type == "MEDISPRING-REASON" -> CDCONTENT().apply {
+                        s = CDCONTENTschemes.LOCAL
+                        sl = "ICURE.MEDICALCODEID"
+                        dn = "ICURE.MEDICALCODEID"
+                        sv = if (!code.version.isNullOrEmpty()) code.version else "1"
+                        value = code.code
+                    }
 					code.type =="CD-VACCINEINDICATION" -> CDCONTENT().apply { s = CDCONTENTschemes.CD_VACCINEINDICATION; sv = code.version; value = code.code }
                     code.type.startsWith("MS-EXTRADATA") -> CDCONTENT().apply { s = CDCONTENTschemes.LOCAL; sv = code.version; sl = code.type; dn = code.type; value = code.code }
 					else -> CDCONTENT().apply {

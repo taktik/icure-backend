@@ -28,4 +28,5 @@ import org.taktik.icure.entities.samv2.Nmp
 interface NmpDAO : GenericDAO<Nmp> {
     fun findNmpsByLabel(language: String?, label: String?, pagination: PaginationOffset<*>?): PaginatedList<Nmp>
     fun listNmpIdsByLabel(language: String?, label: String?): List<String>
+    fun listNmpsByCnks(cnks: List<String>): List<Nmp>
 }
