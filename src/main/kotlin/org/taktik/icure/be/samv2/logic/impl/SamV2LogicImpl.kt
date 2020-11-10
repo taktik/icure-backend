@@ -169,4 +169,8 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
     override fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup> {
         return vmpGroupDAO.listVmpGroupsByVmpGroupCodes(vmpgCodes)
     }
+
+    override fun listNmpsByCnks(cnks: List<String>): List<Nmp> {
+        return nmpDAO.listNmpsByCnks(cnks)
+    }
 }
