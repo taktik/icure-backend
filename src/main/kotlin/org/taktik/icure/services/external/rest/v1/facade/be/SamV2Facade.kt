@@ -507,7 +507,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     @Path("/vmpgroup/byGroupCodes")
     fun listVmpGroupsByVmpGroupCodes(
             vmpgCodes: ListOfIdsDto
-    ) = ResponseUtils.ok(samV2Logic.listVmpGroupsByVmpGroupCodes(vmpgCodes.ids).map { mapper.map(it, AmpDto::class.java) }.also { addProductIdsToAmps(it) })
+    ) = ResponseUtils.ok(samV2Logic.listVmpGroupsByVmpGroupCodes(vmpgCodes.ids).map { mapper.map(it, VmpGroupDto::class.java) }.also { addProductIdsToVmpGroups(it) })
 
     @ApiOperation(value = "Finding NMPs by cnk id.", response = AmpPaginatedList::class, httpMethod = "GET", notes = "Returns a list of codes matched with given input. If several types are provided, paginantion is not supported")
     @POST
