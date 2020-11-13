@@ -246,6 +246,9 @@ open class KmehrExport {
                             this.posology = ItemType.Posology().apply { text = TextType().apply { l = language; value = it } }
                         }
                     }
+                    (med.instructionForPatient)?.let {
+                        this.instructionforpatient = TextType().apply { l = language; value = it }
+                    }
                     med.renewal?.let {
                         renewal = RenewalType().apply {
                             it.decimal?.let { decimal = BigDecimal(it.toLong()) }
@@ -254,6 +257,11 @@ open class KmehrExport {
                     }
                     med.drugRoute?.let { c ->
                         route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; value = c } }
+                    }
+                    med.temporality?.let{ c ->
+                        temporality = TemporalityType().apply { cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY";
+                            value = CDTEMPORALITYvalues.fromValue(c)
+                        } }
                     }
                 }
             }
