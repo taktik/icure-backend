@@ -209,7 +209,7 @@ open class KmehrExport {
                             regimen = ItemType.Regimen().apply {
                                 for (intake in intakes) {
                                     // choice day specification
-                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) }
+                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) } ?: daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(1.toLong()))
                                     intake.date?.let { d -> daynumbersAndQuantitiesAndDates.add(Utils.makeXMLGregorianCalendarFromFuzzyLong(d)) }
                                     intake.weekday?.let { day ->
                                         daynumbersAndQuantitiesAndDates.add(ItemType.Regimen.Weekday().apply {
