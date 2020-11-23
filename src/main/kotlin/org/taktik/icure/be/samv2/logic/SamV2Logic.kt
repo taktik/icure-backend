@@ -25,6 +25,7 @@ interface SamV2Logic {
     fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
+    fun findAmpsByAtcCode(atcCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByDmppCode(dmppCode: String): List<Amp>
 
 
@@ -42,4 +43,13 @@ interface SamV2Logic {
     fun listProductIds(ids: Collection<String>): MutableList<ProductId>
     fun listSubstances(): MutableList<Substance>
     fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm>
+    fun listVmpsByVmpCodes(vmpCodes:  List<String>): List<Vmp>
+    fun listVmpsByGroupIds(vmpgIds:  List<String>): List<Vmp>
+    fun listAmpsByGroupCodes(vmpgCodes:  List<String>): List<Amp>
+    fun listAmpsByDmppCodes(dmppCodes:  List<String>): List<Amp>
+    fun listAmpsByGroupIds(groupIds:  List<String>): List<Amp>
+    fun listAmpsByVmpCodes(vmpgCodes:  List<String>): List<Amp>
+    fun listAmpsByVmpIds(vmpIds:  List<String>): List<Amp>
+    fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup>
+    fun listNmpsByCnks(cnks: List<String>): List<Nmp>
 }
