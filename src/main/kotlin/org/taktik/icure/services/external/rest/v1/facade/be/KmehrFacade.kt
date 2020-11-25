@@ -72,9 +72,9 @@ import javax.ws.rs.core.StreamingOutput
 @Consumes("application/json")
 @Produces("application/json")
 class KmehrFacade(
-    val mapper: MapperFacade,
-    val sessionLogic: SessionLogic,
-    @Qualifier("sumehrLogicV1") val sumehrLogicV1: SumehrLogic,
+        val mapper: MapperFacade,
+        val sessionLogic: SessionLogic,
+        @Qualifier("sumehrLogicV1") val sumehrLogicV1: SumehrLogic,
         @Qualifier("sumehrLogicV2") val sumehrLogicV2: SumehrLogic,
         val softwareMedicalFileLogic: SoftwareMedicalFileLogic,
         val medicationSchemeLogic: MedicationSchemeLogic,
@@ -82,7 +82,7 @@ class KmehrFacade(
         val kmehrNoteLogic: KmehrNoteLogic,
         val healthcarePartyLogic: HealthcarePartyLogic,
         val patientLogic: PatientLogic,
-    val documentLogic: DocumentLogic
+        val documentLogic: DocumentLogic
 ) : OpenApiFacade {
 
     @Value("\${icure.version}")
@@ -246,6 +246,8 @@ class KmehrFacade(
 		return if (medicationSchemeExportParams.services?.isNotEmpty() == true)
             ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), userHealthCareParty, language ?: "fr", recipientSafe, version, medicationSchemeExportParams.services!!.map {
                 s -> mapper.map(s, Service::class.java) as Service
+            }, medicationSchemeExportParams.serviceAuthors!!.map {
+                s -> mapper.map(s, HealthcareParty::class.java) as HealthcareParty
             }, null) })
         else
             ResponseUtils.ok(StreamingOutput { output -> medicationSchemeLogic.createMedicationSchemeExport(output!!, patientLogic.getPatient(patientId), medicationSchemeExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", recipientSafe, version, null, null) })
