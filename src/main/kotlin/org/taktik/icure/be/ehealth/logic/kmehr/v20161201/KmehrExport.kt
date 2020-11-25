@@ -209,7 +209,7 @@ open class KmehrExport {
                             regimen = ItemType.Regimen().apply {
                                 for (intake in intakes) {
                                     // choice day specification
-                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) }
+                                    intake.dayNumber?.let { dayNumber -> daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(dayNumber.toLong())) } ?: daynumbersAndQuantitiesAndDates.add(BigInteger.valueOf(1.toLong()))
                                     intake.date?.let { d -> daynumbersAndQuantitiesAndDates.add(Utils.makeXMLGregorianCalendarFromFuzzyLong(d)) }
                                     intake.weekday?.let { day ->
                                         daynumbersAndQuantitiesAndDates.add(ItemType.Regimen.Weekday().apply {
@@ -246,6 +246,9 @@ open class KmehrExport {
                             this.posology = ItemType.Posology().apply { text = TextType().apply { l = language; value = it } }
                         }
                     }
+                    (med.instructionForPatient)?.let {
+                        this.instructionforpatient = TextType().apply { l = language; value = it }
+                    }
                     med.renewal?.let {
                         renewal = RenewalType().apply {
                             it.decimal?.let { decimal = BigDecimal(it.toLong()) }
@@ -255,11 +258,16 @@ open class KmehrExport {
                     med.drugRoute?.let { c ->
                         route = RouteType().apply { cd = CDDRUGROUTE().apply { s = "CD-DRUG-ROUTE"; value = c } }
                     }
+                    med.temporality?.let{ c ->
+                        temporality = TemporalityType().apply { cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY";
+                            value = CDTEMPORALITYvalues.fromValue(c)
+                        } }
+                    }
                 }
             }
 
             isIsrelevant = ServiceStatus.isRelevant(svc.status)
-            beginmoment = (svc.valueDate ?: svc.openingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
+            beginmoment = (svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.beginMoment ?: svc.valueDate ?: svc.openingDate)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             endmoment = (svc.closingDate ?: svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.endMoment)?.let { if(it != 0L) Utils.makeMomentTypeDateFromFuzzyLong(it) else null }
             recorddatetime = makeXGC(svc.modified ?: svc.created)
         }

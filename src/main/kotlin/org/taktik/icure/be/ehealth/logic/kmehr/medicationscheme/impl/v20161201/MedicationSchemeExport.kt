@@ -57,6 +57,7 @@ class MedicationSchemeExport : KmehrExport() {
             recipientSafe: String?,
             version: Int?,
             services: List<Service>?,
+            serviceAuthors: List<HealthcareParty>?,
 			decryptor: AsyncDecrypt?,
 			progressor: AsyncProgress?,
 			config: Config = Config(_kmehrId = System.currentTimeMillis().toString(),
@@ -76,7 +77,7 @@ class MedicationSchemeExport : KmehrExport() {
 		})
 
 		// TODO split marshalling
-		message.folders.add(makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), decryptor, progressor))
+		message.folders.add(makePatientFolder(1, patient, version, sender, config, language, services ?: getActiveServices(sender.id, sfks, listOf("medication"), decryptor), serviceAuthors, decryptor, progressor))
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
@@ -89,7 +90,7 @@ class MedicationSchemeExport : KmehrExport() {
 
 
 	private fun makePatientFolder(patientIndex: Int, patient: Patient, version: Int?, healthcareParty: HealthcareParty,
-                                  config: Config, language: String, medicationServices: List<Service>, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
+                                  config: Config, language: String, medicationServices: List<Service>, serviceAuthors: List<HealthcareParty>?, decryptor: AsyncDecrypt?, progressor: AsyncProgress?): FolderType {
 
 		//creation of Patient
         val folder = FolderType().apply {
@@ -139,9 +140,18 @@ class MedicationSchemeExport : KmehrExport() {
                 cds.add(CDTRANSACTION().apply { s = CDTRANSACTIONschemes.CD_TRANSACTION; sv = "1.10"; value = "medicationschemeelement" })
                 date = config.date
                 time = config.time
-                author = AuthorType().apply {
-                    hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)))
+                var tmp = serviceAuthors?.find{aut -> aut.id == svc.author}
+
+                if(tmp != null){
+                    author = AuthorType().apply {
+                        hcparties.add(createParty(tmp))
+                    }
+                }else {
+                    author = AuthorType().apply {
+                        hcparties.add(createParty(healthcarePartyLogic!!.getHealthcareParty(svc.author?.let { userLogic!!.getUser(it)?.healthcarePartyId } ?: healthcareParty.id)))
+                    }
                 }
+
                 isIscomplete = true
                 isIsvalidated = true
 
@@ -227,15 +237,11 @@ class MedicationSchemeExport : KmehrExport() {
 
 
     private fun getActiveServices(hcPartyId: String, sfks: List<String>, cdItems: List<String>, decryptor: AsyncDecrypt?): List<Service> {
-        val hcPartyIds = healthcarePartyLogic!!.getHcpHierarchyIds(healthcarePartyLogic!!.getHealthcareParty(hcPartyId))
-
-        val f = Filters.UnionFilter(hcPartyIds.map { hcpId ->
-            Filters.UnionFilter(sfks.map { k ->
+        val f = Filters.UnionFilter(sfks.map { k ->
                 Filters.UnionFilter(cdItems.map { cd ->
-                    ServiceByHcPartyTagCodeDateFilter(hcpId, k, "CD-ITEM", cd, null, null, null, null)
+                    ServiceByHcPartyTagCodeDateFilter(hcPartyId, k, "CD-ITEM", cd, null, null, null, null)
                 })
             })
-        })
 
         var services = contactLogic?.getServices(filters?.resolve(f))?.filter { s ->
             s.endOfLife == null && //Not end of lifed
