@@ -75,7 +75,7 @@ import java.util.stream.Collectors;
 public class UserFacade implements OpenApiFacade{
 	private static final Logger logger = LoggerFactory.getLogger(UserFacade.class);
 
-	private UUIDGenerator idGenerator;
+	private final UUIDGenerator idGenerator = new UUIDGenerator();
 	private MapperFacade mapper;
 	private UserLogic userLogic;
 	private ICureSessionLogic sessionLogic;

@@ -33,6 +33,7 @@ interface MedicationSchemeLogic {
             recipientSafe: String,
             version: Int,
             services: List<Service>,
+            serviceAuthors: List<HealthcareParty>,
             progressor: AsyncProgress?
     )
 }
