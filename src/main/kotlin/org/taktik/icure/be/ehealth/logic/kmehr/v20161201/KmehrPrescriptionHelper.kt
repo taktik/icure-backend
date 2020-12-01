@@ -1,19 +1,30 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.v20161201
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
-import org.taktik.icure.entities.base.Code
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDDAYPERIOD
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDDAYPERIODvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDPERIODICITY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTIMEUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTIMEUNITschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.DayperiodType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.DurationType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.FrequencyType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.PeriodicityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TimequantityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TimeunitType
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Duration
 import org.taktik.icure.entities.embed.RegimenItem
 import org.taktik.icure.utils.FuzzyValues
 import java.math.BigDecimal
 import java.time.temporal.ChronoUnit
+import javax.xml.datatype.DatatypeFactory
 
 object KmehrPrescriptionHelper {
-    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: Code?): Period? {
+    val xmlDtf = DatatypeFactory.newInstance()
+
+    fun inferPeriodFromRegimen(intakes: List<RegimenItem>?, frequency: CodeStub?): Period? {
         if (intakes == null) {
             return null
         }
@@ -43,7 +54,7 @@ object KmehrPrescriptionHelper {
         }
     }
 
-    fun inferPeriodFromFrequency(frequency: Code?): Period? {
+    fun inferPeriodFromFrequency(frequency: CodeStub?): Period? {
         return when (frequency?.code) {
             "UH" -> Period(ChronoUnit.MINUTES, 30)
             "U" -> Period(ChronoUnit.HOURS, 1)
@@ -307,9 +318,9 @@ object KmehrPrescriptionHelper {
             } else {
                 val timeOfDay = intake.dayPeriod?.code ?: CDDAYPERIODvalues.DURINGLUNCH.value()
                 when (timeOfDay) {
-                    CDDAYPERIODvalues.AFTERNOON.value() -> time = XMLGregorianCalendarImpl.parse("16:00:00")
-                    CDDAYPERIODvalues.EVENING.value() -> time = XMLGregorianCalendarImpl.parse("19:00:00")
-                    CDDAYPERIODvalues.NIGHT.value() -> time = XMLGregorianCalendarImpl.parse("22:00:00")
+                    CDDAYPERIODvalues.AFTERNOON.value() -> time = xmlDtf.newXMLGregorianCalendar("16:00:00")
+                    CDDAYPERIODvalues.EVENING.value() -> time = xmlDtf.newXMLGregorianCalendar("19:00:00")
+                    CDDAYPERIODvalues.NIGHT.value() -> time = xmlDtf.newXMLGregorianCalendar("22:00:00")
                     CDDAYPERIODvalues.AFTERMEAL.value(), CDDAYPERIODvalues.BETWEENMEALS.value() -> throw IllegalArgumentException("$timeOfDay not supported: corresponds to multiple possible moments in a day")
                     else -> dayperiod = DayperiodType().apply {
                         cd = CDDAYPERIOD().apply { s = "CD-DAYPERIOD"; sv = "1.1"; value = CDDAYPERIODvalues.fromValue(timeOfDay) }

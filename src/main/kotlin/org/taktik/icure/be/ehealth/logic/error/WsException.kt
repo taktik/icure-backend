@@ -19,8 +19,6 @@
 
 package org.taktik.icure.be.ehealth.logic.error
 
-import org.taktik.icure.be.ehealth.logic.messages.AbstractMessage
-
 /**
  * @author Bernard Paulus on 23/05/17.
  */

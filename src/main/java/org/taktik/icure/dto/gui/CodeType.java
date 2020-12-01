@@ -18,17 +18,15 @@
 
 package org.taktik.icure.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 03/12/13, 20:57
  */
-@XStreamAlias("CodeType")
 public class CodeType implements Serializable {
-    @XStreamAsAttribute
     String type;
 
 	public CodeType() {

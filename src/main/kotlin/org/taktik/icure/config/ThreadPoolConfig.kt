@@ -31,15 +31,15 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 class ThreadPoolConfig {
 	@Bean
 	fun threadPoolTaskExecutor(): TaskExecutor = ThreadPoolTaskExecutor().apply {
-		corePoolSize = 4
-		maxPoolSize = 4
-		threadNamePrefix = "default_task_executor_thread_pool"
+		corePoolSize = 8
+		maxPoolSize = 24
+		setThreadNamePrefix("default_task_executor_thread_pool")
 		initialize()
 	}
 
 	@Bean
 	fun threadPoolTaskScheduler(): TaskScheduler  = ThreadPoolTaskScheduler(). apply {
-		threadNamePrefix = "default_task_scheduler_thread_pool"
+		setThreadNamePrefix("default_task_scheduler_thread_pool")
 		initialize()
 	}
 }

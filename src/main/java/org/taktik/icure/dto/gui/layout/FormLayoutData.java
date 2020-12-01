@@ -18,9 +18,11 @@
 
 package org.taktik.icure.dto.gui.layout;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.taktik.icure.dto.gui.Code;
 import org.taktik.icure.dto.gui.CodeType;
 import org.taktik.icure.dto.gui.Editor;
@@ -38,54 +40,48 @@ import java.util.Map;
 /**
  * Created by aduchate on 19/11/13, 10:50
  */
-@XStreamAlias("FormLayoutData")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FormLayoutData implements Serializable {
     public static final String OPTION_ALWAYS_INITIALIZED_IN_FORM = "AlwaysInitialized";
-    @XStreamAsAttribute
     Boolean subForm;
-    @XStreamAsAttribute
     Boolean irrelevant;
-	@XStreamAsAttribute
 	Boolean determinesSscontactName;
-    @XStreamAsAttribute
     String type;
-    @XStreamAsAttribute
     String name;
-    @XStreamAsAttribute
     Double sortOrder;
 
-    @XStreamImplicit(itemFieldName = "option", keyFieldName = "key")
+
     Map<String,FormDataOption> options;
 
-    @XStreamAlias("description")
     String descr;
     String label;
 
     Editor editor;
 
-	@XStreamImplicit(itemFieldName = "defaultValue")
+
 	List<Content> defaultValue;
 
 
     Integer defaultStatus;
 
     //Suggestions
-    @XStreamImplicit(itemFieldName = "CodeType")
+
     List<CodeType> codeTypes;
 
     //More versatile way
     //<Suggest class="org.taktik.icure.domain.base.Code" filterKey="type" filterValue="CD-ITEM"/>
     //<Suggest class="org.taktik.icure.domain.HealthcareParty" filterKey="speciality" filterValue="gp"/>
-    @XStreamImplicit(itemFieldName = "Suggest")
+
     List<Suggest> suggest;
 
-    @XStreamImplicit(itemFieldName = "FormPlanning")
+
     List<FormPlanning> plannings;
-    @XStreamImplicit(itemFieldName = "Tag")
+
     List<Code> tags;
-    @XStreamImplicit(itemFieldName = "Code")
+
     List<Code> codes;
-    @XStreamImplicit(itemFieldName = "Formula")
+
     List<Formula> formulas;
 
 	public FormLayoutData() {

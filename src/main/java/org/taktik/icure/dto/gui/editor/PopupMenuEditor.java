@@ -18,27 +18,31 @@
 
 package org.taktik.icure.dto.gui.editor;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.dto.gui.Editor;
-import org.taktik.icure.dto.gui.type.MenuOption;
+import org.taktik.icure.handlers.JsonPolymorphismRoot;
 
 import java.util.List;
 
-@XStreamAlias("PopupMenuEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PopupMenuEditor extends Editor implements ValueDateEditor {
 
-    @XStreamImplicit(itemFieldName = "menuOption")
+
     private List<String> menuOptions;
 
-    @XStreamAsAttribute
     boolean displayValueDate;
 
-    @XStreamAsAttribute
     boolean displayAllAlways;
 
-    @XStreamAsAttribute
     boolean isFreeText;
 
     @Override

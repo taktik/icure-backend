@@ -18,19 +18,17 @@
 
 package org.taktik.icure.dto.gui.type.primitive;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 19/11/13, 10:38
  */
-@XStreamAlias("TKNumber")
 public class PrimitiveNumber implements Primitive {
-	
-	@XStreamAsAttribute
-    String value;
+
+	String value;
 
 	public String getValue() {
 		return value;
@@ -52,8 +50,8 @@ public class PrimitiveNumber implements Primitive {
 	@Override
 	public void setPrimitiveValue(Serializable value) {
 	}
-	
-//	@XStreamAsAttribute
+
+//
 //    java.lang.Number value;
 //
 //
@@ -65,11 +63,11 @@ public class PrimitiveNumber implements Primitive {
 //        this.value = value;
 //    }
 //
-//    
+//
 //    public PrimitiveNumber(String value) {
 //    	 initWithString(value);
 //    }
-//    
+//
 //    public java.lang.Number getValue() {
 //        return value;
 //    }
@@ -77,7 +75,7 @@ public class PrimitiveNumber implements Primitive {
 //    public void setValue(java.lang.Number value) {
 //        this.value = value;
 //    }
-//    
+//
 //    public void setValue(String value) {
 //        initWithString(value);
 //    }

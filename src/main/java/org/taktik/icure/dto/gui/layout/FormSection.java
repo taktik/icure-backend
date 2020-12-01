@@ -18,9 +18,12 @@
 
 package org.taktik.icure.dto.gui.layout;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,18 +32,16 @@ import java.util.List;
 /**
  * Created by aduchate on 07/02/13, 17:10
  */
-@XStreamAlias("FormSection")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FormSection implements Serializable {
-    @XStreamAsAttribute
     private String icon;
 
-    @XStreamAsAttribute
     private String title;
 
-    @XStreamAsAttribute
     private Integer columns;
 
-    @XStreamImplicit(itemFieldName="FormColumn")
+
     private List<FormColumn> formColumns = new ArrayList<FormColumn>();
 
 	public FormSection() {

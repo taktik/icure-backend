@@ -1,13 +1,22 @@
 package org.taktik.icure.entities.samv2.embed
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
 import java.math.BigDecimal
 
-class NumeratorRange(var min: BigDecimal? = null, var max: BigDecimal? = null, var unit: String? = null) {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class NumeratorRange(
+        val min: BigDecimal? = null,
+        val max: BigDecimal? = null,
+        val unit: String? = null
+) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as NumeratorRange
+        if (other !is NumeratorRange) return false
 
         if (min?.compareTo(other.min) != 0 && min != other.min) return false
         if (max?.compareTo(other.max) != 0 && max != other.max) return false
@@ -17,10 +26,9 @@ class NumeratorRange(var min: BigDecimal? = null, var max: BigDecimal? = null, v
     }
 
     override fun hashCode(): Int {
-        var result = min.hashCode() ?: 0
+        var result = min?.hashCode() ?: 0
         result = 31 * result + (max?.hashCode() ?: 0)
         result = 31 * result + (unit?.hashCode() ?: 0)
         return result
     }
-
 }

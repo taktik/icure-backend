@@ -18,12 +18,16 @@
 
 package org.taktik.icure.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.dto.gui.layout.FormLayoutData;
+import org.taktik.icure.handlers.JsonPolymorphismRoot;
 
 /**
  * Created by aduchate on 03/12/13, 17:22
  */
-@XStreamAlias("FormLabel")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
 public class FormLabel extends FormLayoutData {
 }

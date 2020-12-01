@@ -18,13 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data;
 
 import java.io.Serializable;
 
-@XStreamAlias("TKString")
-//@XStreamConverter(value=ToAttributedValueConverter.class, strings={"value"})
+//
 public class PrimitiveString extends Data implements Primitive {
     String value;
 

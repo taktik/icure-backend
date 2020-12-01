@@ -18,28 +18,33 @@
 
 package org.taktik.icure.dto.gui.editor;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.dto.gui.Editor;
+import org.taktik.icure.handlers.JsonPolymorphismRoot;
 
 import java.util.List;
 
 /**
  * Created by aduchate on 03/12/13, 17:42
  */
-@XStreamAlias("SubFormEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SubFormEditor extends Editor {
-    @XStreamImplicit(itemFieldName = "OptionalForm")
+
     List<String> optionalFormGuids;
-    @XStreamImplicit(itemFieldName = "CompulsoryForm")
+
     List<String> compulsoryFormGuids;
-    @XStreamAsAttribute
     Boolean growsHorizontally;
-    @XStreamAsAttribute
     Boolean collapsed;
-    
-    @XStreamAsAttribute
+
     Boolean showHeader=true;
     public Boolean getGrowsHorizontally() {
         return growsHorizontally;

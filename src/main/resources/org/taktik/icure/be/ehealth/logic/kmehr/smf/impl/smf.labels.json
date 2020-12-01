@@ -1,9 +1,6 @@
 {
   "intubationrefusal": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Refus d'intubation"
       }
@@ -11,9 +8,6 @@
   ],
   "ntbr": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Refus de réanimation"
       }
@@ -21,9 +15,6 @@
   ],
   "bloodtransfusionrefusal": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Refus de transfusion sanguine"
       }
@@ -31,9 +22,6 @@
   ],
   "euthanasiarequest": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Demande d'euthanasie"
       }
@@ -41,9 +29,6 @@
   ],
   "clinicaltrialparticipationconsent": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Consentement pour une participation à des essais cliniques"
       }
@@ -51,9 +36,6 @@
   ],
   "datareuseforclinicalresearchconsent": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Consentement pour l'utilisation de données lors de recherches cliniques"
       }
@@ -61,9 +43,6 @@
   ],
   "datareuseforclinicaltrialsconsent": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Consentement pour l'utilisation de données lors d'essais cliniques"
       }
@@ -71,9 +50,6 @@
   ],
   "organdonationconsent": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Donneur d'organe"
       }
@@ -81,9 +57,6 @@
   ],
   "vaccinationrefusal": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "b",
       "label": {
         "fr": "Refus de se faire vacciner"
       }
@@ -91,9 +64,6 @@
   ],
   "risk": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Facteurs de risque"
       }
@@ -101,20 +71,20 @@
   ],
   "diagnostic": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
-      "cdItem": "diagnosis",
       "label": {
         "fr": "Diagnostics"
-      }
+      },
+      "tags": [
+        {
+          "type": "CD-ITEM",
+          "code": "diagnosis",
+          "version": "1"
+        }
+      ]
     }
   ],
   "diagnosis": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Diagnostics"
       }
@@ -122,9 +92,6 @@
   ],
   "conclusion": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Diagnostics"
       }
@@ -132,9 +99,6 @@
   ],
   "healthissue": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Problème de soin"
       }
@@ -142,9 +106,6 @@
   ],
   "transactionreason": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Motifs de contact"
       }
@@ -152,9 +113,6 @@
   ],
   "allergy": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Allergies"
       }
@@ -162,9 +120,6 @@
   ],
   "adr": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Facteurs de risque social"
       }
@@ -172,9 +127,6 @@
   ],
   "complaint": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Motifs de contact"
       }
@@ -182,9 +134,6 @@
   ],
   "clinical": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Examen clinique"
       }
@@ -192,8 +141,6 @@
   ],
   "medication": [
     {
-      "lifecycle": "*",
-      "content": "*",
       "type": "m",
       "label": {
         "fr": "Traitements médicamenteux"
@@ -203,15 +150,12 @@
   "vaccine": [
     {
       "lifecycle": "planned",
-      "content": "*",
       "type": "m",
       "label": {
         "fr": "Vaccination à prévoir"
       }
     },
     {
-      "lifecycle": "*",
-      "content": "*",
       "type": "m",
       "label": {
         "fr": "Vaccination"
@@ -222,13 +166,11 @@
     {
       "lifecycle": "planned",
       "content": "m",
-      "type": "s",
       "label": {
         "fr": "Prescription à faire"
       }
     },
     {
-      "lifecycle": "*",
       "content": "m",
       "type": "m",
       "label": {
@@ -237,16 +179,12 @@
     },
     {
       "lifecycle": "planned",
-      "content": "*",
       "type": "m",
       "label": {
         "fr": "Actes plannifiés"
       }
     },
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Traitements non-médicamenteux"
       }
@@ -255,16 +193,12 @@
   "actionplan": [
     {
       "lifecycle": "planned",
-      "content": "*",
       "type": "m",
       "label": {
         "fr": "Actes plannifiés"
       }
     },
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Traitements non-médicamenteux"
       }
@@ -272,8 +206,6 @@
   ],
   "referral": [
     {
-      "lifecycle": "*",
-      "content": "*",
       "type": "h",
       "label": {
         "fr": "Demande d'avis"
@@ -282,9 +214,6 @@
   ],
   "socialrisk": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Facteurs de risque social"
       }
@@ -292,9 +221,6 @@
   ],
   "professionalrisk": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Facteurs de risque"
       }
@@ -302,12 +228,105 @@
   ],
   "familyrisk": [
     {
-      "lifecycle": "*",
-      "content": "*",
-      "type": "s",
       "label": {
         "fr": "Antécédents familiaux"
       }
     }
-  ]
+  ],
+    "parameter": [
+      {
+        "cdLocal": "LOCAL-PARAMETER|009D",
+        "label": {
+          "fr": "Pouls"
+        },
+        "tags": [
+          {
+            "type": "CD-PARAMETER",
+            "code": "heartbeat",
+            "version": "1"
+          }
+        ]
+      },
+      {
+        "cdLocal": "LOCAL-PARAMETER|1E17",
+        "label": {
+          "fr": "Diagnostic"
+        },
+        "tags": [
+          {
+            "type": "CD-ITEM",
+            "code": "diagnosis",
+            "version": "1"
+          }
+        ]
+      },
+      {
+        "cdLocal": "LOCAL-PARAMETER|0260",
+        "label": {
+          "fr": "Commentaire"
+        },
+        "tags": [
+          {
+            "type": "CD-ITEM",
+            "code": "note",
+            "version": "1"
+          }
+        ]
+      },
+      {
+        "cdLocal": "LOCAL-PARAMETER|0700",
+        "label": {
+          "fr": "Prescription"
+        },
+        "tags": [
+          {
+            "type": "CD-ITEM",
+            "code": "treatment",
+            "version": "1"
+          }
+        ]
+      },
+      {
+        "cdLocal": "LOCAL-PARAMETER|00E2",
+        "label": {
+          "fr": "Vaccin"
+        },
+        "tags": [
+          {
+            "type": "CD-ITEM",
+            "code": "vaccine",
+            "version": "1"
+          }
+        ]
+      },
+      {
+        "cdLocal": "LOCAL-PARAMETER|090F",
+        "label": {
+          "fr": "Description"
+        }
+      },
+      {
+        "cdLocal": "LOCAL-PARAMETER|110E",
+        "label": {
+          "fr": "Evénement planifié"
+        },
+        "tags": [
+          {
+            "type": "CD-ITEM",
+            "code": "actionplan",
+            "version": "1"
+          },
+          {
+            "type": "CD-LIFECYCLE",
+            "code": "planned",
+            "version": "1"
+          }
+        ]
+      },
+      {
+        "label": {
+          "fr": "Observation"
+        }
+      }
+    ]
 }

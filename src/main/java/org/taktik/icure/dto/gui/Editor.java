@@ -18,62 +18,31 @@
 
 package org.taktik.icure.dto.gui;
 
-import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import org.taktik.icure.dto.gui.editor.ActionButton;
-import org.taktik.icure.dto.gui.editor.Audiometry;
-import org.taktik.icure.dto.gui.editor.CheckBoxEditor;
-import org.taktik.icure.dto.gui.editor.DashboardEditor;
-import org.taktik.icure.dto.gui.editor.DateTimeEditor;
-import org.taktik.icure.dto.gui.editor.HealthcarePartyEditor;
-import org.taktik.icure.dto.gui.editor.IntegerSliderEditor;
-import org.taktik.icure.dto.gui.editor.Label;
-import org.taktik.icure.dto.gui.editor.MeasureEditor;
-import org.taktik.icure.dto.gui.editor.MedicationEditor;
-import org.taktik.icure.dto.gui.editor.MedicationTableEditor;
-import org.taktik.icure.dto.gui.editor.NumberEditor;
-import org.taktik.icure.dto.gui.editor.PopupMenuEditor;
-import org.taktik.icure.dto.gui.editor.SchemaEditor;
-import org.taktik.icure.dto.gui.editor.StringEditor;
-import org.taktik.icure.dto.gui.editor.StringTableEditor;
-import org.taktik.icure.dto.gui.editor.StyledStringEditor;
-import org.taktik.icure.dto.gui.editor.SubFormEditor;
-import org.taktik.icure.dto.gui.editor.TokenFieldEditor;
-import org.taktik.icure.dto.gui.editor.TypeValueStringEditor;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.dto.gui.type.Data;
-import org.taktik.icure.services.external.rest.handlers.JsonDiscriminator;
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
+import org.taktik.icure.handlers.JacksonEditorDeserializer;
+import org.taktik.icure.handlers.JsonDiscriminator;
+
+import java.io.Serializable;
 
 /**
  * Created by aduchate on 19/11/13, 15:28
  */
-@XStreamAlias("Editor")
-@JsonPolymorphismSupport({
-		ActionButton.class, StringEditor.class, CheckBoxEditor.class, DashboardEditor.class, DateTimeEditor.class,
-		IntegerSliderEditor.class, MeasureEditor.class, MedicationEditor.class, MedicationTableEditor.class, NumberEditor.class,
-        PopupMenuEditor.class, SchemaEditor.class, StringTableEditor.class, StyledStringEditor.class, SubFormEditor.class, StringTableEditor.class,
-		TokenFieldEditor.class, TypeValueStringEditor.class, Label.class, StringTableEditor.class, HealthcarePartyEditor.class, Audiometry.class
-})
+
+@JsonDeserialize(using = JacksonEditorDeserializer.class)
 @JsonDiscriminator("key")
 public abstract class Editor implements Serializable {
-    @XStreamAsAttribute
     private Double left;
-    @XStreamAsAttribute
     private Double top;
-    @XStreamAsAttribute
     private Double width;
-    @XStreamAsAttribute
     private Double height;
 
-	@XStreamAsAttribute
 	boolean multiline;
-    
-    @XStreamAsAttribute
+
     LabelPosition labelPosition;
 
-	@XStreamAsAttribute
 	private boolean readOnly;
 
     Data defaultValue;

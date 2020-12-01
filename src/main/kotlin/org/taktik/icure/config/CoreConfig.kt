@@ -19,24 +19,16 @@
 
 package org.taktik.icure.config
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import org.springframework.cache.CacheManager
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager
+import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.converter.json.GsonFactoryBean
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.logic.impl.filter.Filters
-import org.taktik.icure.services.external.rest.handlers.GsonMessageBodyHandler
-import org.taktik.icure.services.external.rest.v1.transformationhandlers.V1MapperFactory
+
 
 @Configuration
 class CoreConfig {
-    @Bean fun cacheManager() = ConcurrentMapCacheManager()
     @Bean fun uuidGenerator() = UUIDGenerator()
-    @Bean fun gsonMapper() = GsonMessageBodyHandler().gson
-    @Bean fun mapper(gsonMapper : Gson) = V1MapperFactory(gsonMapper).mapper
     @Bean fun filters() = Filters()
-    @Bean fun permissionSetCache(cacheManager: CacheManager) =  cacheManager.getCache("org.taktik.cache.permissionSetCache")
+    @Bean fun permissionSetCache() = ConcurrentMapCache("permissionSetCache")
 }

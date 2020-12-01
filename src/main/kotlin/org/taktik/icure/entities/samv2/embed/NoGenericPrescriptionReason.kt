@@ -1,21 +1,14 @@
 package org.taktik.icure.entities.samv2.embed
 
-class NoGenericPrescriptionReason(var code: String? = null, var description: SamText? = null) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
 
-        other as NoGenericPrescriptionReason
-
-        if (code != other.code) return false
-        if (description != other.description) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = code?.hashCode() ?: 0
-        result = 31 * result + (description?.hashCode() ?: 0)
-        return result
-    }
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class NoGenericPrescriptionReason(
+        val code: String? = null,
+        val description: SamText? = null
+) : Serializable

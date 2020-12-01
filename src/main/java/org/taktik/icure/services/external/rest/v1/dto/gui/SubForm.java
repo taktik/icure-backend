@@ -18,13 +18,12 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import org.taktik.icure.services.external.rest.v1.dto.gui.layout.FormLayoutData;
 
 /**
  * Created by aduchate on 03/12/13, 17:36
  */
-@XStreamAlias("SubForm")
 public class SubForm extends FormLayoutData {
 
 	public SubForm() {

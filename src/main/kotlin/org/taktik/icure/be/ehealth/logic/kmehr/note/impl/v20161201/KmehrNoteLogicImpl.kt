@@ -1,29 +1,65 @@
 package org.taktik.icure.be.ehealth.logic.kmehr.note.impl.v20161201
 
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactive.asFlow
 import org.apache.commons.logging.LogFactory
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.stereotype.Service
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTY
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDSTANDARD
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
-import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.HeaderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.SenderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.StandardType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.medex.KmehrNoteLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.base.CodeStub
-import java.io.OutputStream
+import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.time.Instant
+import java.util.*
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import kotlin.text.Charsets.UTF_8
 
 @Service
-class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
+class KmehrNoteLogicImpl(patientLogic: PatientLogic,
+                         codeLogic: CodeLogic,
+                         healthElementLogic: HealthElementLogic,
+                         healthcarePartyLogic: HealthcarePartyLogic,
+                         contactLogic: ContactLogic,
+                         documentLogic: DocumentLogic,
+                         sessionLogic: AsyncSessionLogic,
+                         userLogic: UserLogic,
+                         filters: Filters) : KmehrNoteLogic, KmehrExport(patientLogic, codeLogic, healthElementLogic, healthcarePartyLogic, contactLogic, documentLogic, sessionLogic, userLogic, filters) {
 
     override val log = LogFactory.getLog(KmehrNoteLogicImpl::class.java)
 
@@ -35,27 +71,42 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
             defaultLanguage = "en"
     )
 
-    override fun createNote(
-            output: OutputStream, id: String, author: HealthcareParty, date: Long, recipientNihii: String, recipientSsin: String, recipientFirstName: String, recipientLastName: String, patient: Patient, lang: String, transactionType: String, mimeType: String, document: ByteArray
-    ) {
+    override suspend fun createNote(
+            id: String,
+            author: HealthcareParty,
+            date: Long,
+            recipientNihii: String,
+            recipientSsin: String,
+            recipientFirstName: String,
+            recipientLastName: String,
+            patient: Patient,
+            lang: String,
+            transactionType: String,
+            mimeType: String,
+            document: ByteArray
+    ) = flow {
         val message = Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply { cd = CDSTANDARD().apply { s = "CD-STANDARD"; value = STANDARD } }
-                ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = recipientNihii + "." + (config._kmehrId ?: System.currentTimeMillis()) })
+                ids.add(IDKMEHR().apply {
+                    s = IDKMEHRschemes.ID_KMEHR; value = recipientNihii + "." + (config._kmehrId
+                        ?: System.currentTimeMillis())
+                })
                 ids.add(localIdKmehr(transactionType, id, config))
                 this.date = makeXGC(Instant.now().toEpochMilli())
                 this.time = makeXGC(Instant.now().toEpochMilli())
                 this.sender = SenderType().apply {
-                    hcparties.add(createParty(author, emptyList()))
-                    hcparties.add(createSpecialistParty(author, emptyList()))
-                    hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value="application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
+                    hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
+                    hcparties.add(createSpecialistParty(author, emptyList<CDHCPARTY>()))
+                    hcparties.add(HcpartyType().apply { this.cds.addAll(listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "application" })); this.name = "${config.soft?.name} ${config.soft?.version}" })
                 }
-                val recipient = HealthcareParty().apply {
-                    lastName = recipientLastName
-                    firstName = recipientFirstName
-                    nihii = recipientNihii
-                    ssin = recipientSsin
-                }
+                val recipient = HealthcareParty(
+                        id = UUID.randomUUID().toString(),
+                        lastName = recipientLastName,
+                        firstName = recipientFirstName,
+                        nihii = recipientNihii,
+                        ssin = recipientSsin
+                )
                 this.recipients.add(RecipientType().apply {
                     hcparties.add(recipient?.let { createParty(it, emptyList()) })
                 })
@@ -72,7 +123,7 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
                         this.date = makeXGC(date)
                         this.time = makeXGC(date)
                         this.author = AuthorType().apply {
-                            hcparties.add(createParty(author, emptyList()))
+                            hcparties.add(createParty(author, emptyList<CDHCPARTY>()))
                         }
                         this.isIscomplete = true
                         this.isIsvalidated = true
@@ -89,11 +140,13 @@ class KmehrNoteLogicImpl : KmehrNoteLogic, KmehrExport() {
 
         val jaxbMarshaller = JAXBContext.newInstance(Kmehrmessage::class.java).createMarshaller()
 
+        val os = ByteArrayOutputStream(10000)
         // output pretty printed
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
         jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, UTF_8.toString())
 
-        jaxbMarshaller.marshal(message, OutputStreamWriter(output, UTF_8))
+        jaxbMarshaller.marshal(message, OutputStreamWriter(os, "UTF-8"))
+        emitAll(DataBufferUtils.read(ByteArrayResource(os.toByteArray()), DefaultDataBufferFactory(), 10000).asFlow())
     }
 
 }

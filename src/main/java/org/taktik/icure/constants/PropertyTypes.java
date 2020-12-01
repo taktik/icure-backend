@@ -77,7 +77,7 @@ public interface PropertyTypes {
 		private final PropertyType propertyType;
 
 		System(String identifier, PropertyTypeScope scope, TypedValuesType type) {
-			this.propertyType = new PropertyType(type, scope, identifier);
+			this.propertyType = PropertyType.Companion.with(type, scope, identifier);
 		}
 
 		public String getIdentifier() {
@@ -89,11 +89,11 @@ public interface PropertyTypes {
 		}
 
 		public static List<PropertyType> propertyTypes() {
-			return Arrays.asList(values()).stream().map(System::getPropertyType).collect(Collectors.toList());
+			return Arrays.stream(values()).map(System::getPropertyType).collect(Collectors.toList());
 		}
 
 		public static List<String> identifiers() {
-			return Arrays.asList(values()).stream().map(System::getIdentifier).collect(Collectors.toList());
+			return Arrays.stream(values()).map(System::getIdentifier).collect(Collectors.toList());
 		}
 	}
 
@@ -103,7 +103,7 @@ public interface PropertyTypes {
 		private final PropertyType propertyType;
 
 		Preference(String identifier, PropertyTypeScope scope, TypedValuesType type) {
-			this.propertyType = new PropertyType(type, scope, identifier);
+			this.propertyType = PropertyType.Companion.with(type, scope, identifier);
 		}
 
 		public String getIdentifier() {
@@ -115,11 +115,11 @@ public interface PropertyTypes {
 		}
 
 		public static List<PropertyType> propertyTypes() {
-			return Arrays.asList(values()).stream().map(Preference::getPropertyType).collect(Collectors.toList());
+			return Arrays.stream(values()).map(Preference::getPropertyType).collect(Collectors.toList());
 		}
 
 		public static List<String> identifiers() {
-			return Arrays.asList(values()).stream().map(Preference::getIdentifier).collect(Collectors.toList());
+			return Arrays.stream(values()).map(Preference::getIdentifier).collect(Collectors.toList());
 		}
 	}
 
@@ -151,7 +151,7 @@ public interface PropertyTypes {
 		private final PropertyType propertyType;
 
 		User(String identifier, PropertyTypeScope scope, TypedValuesType type) {
-			this.propertyType = new PropertyType(type, scope, identifier);
+			this.propertyType = PropertyType.Companion.with(type, scope, identifier);
 		}
 		public String getIdentifier() {
 			return propertyType.getIdentifier();
@@ -162,11 +162,11 @@ public interface PropertyTypes {
 		}
 
 		public static List<PropertyType> propertyTypes() {
-			return Arrays.asList(values()).stream().map(User::getPropertyType).collect(Collectors.toList());
+			return Arrays.stream(values()).map(User::getPropertyType).collect(Collectors.toList());
 		}
 
 		public static List<String> identifiers() {
-			return Arrays.asList(values()).stream().map(User::getIdentifier).collect(Collectors.toList());
+			return Arrays.stream(values()).map(User::getIdentifier).collect(Collectors.toList());
 		}
 	}
 

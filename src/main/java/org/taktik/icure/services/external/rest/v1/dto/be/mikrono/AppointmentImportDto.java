@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class AppointmentImportDto implements Serializable{
-
-
-
-
 	private static final long serialVersionUID = 8923289590887455347L;
 
 	private String comments = null;
@@ -269,7 +265,7 @@ public class AppointmentImportDto implements Serializable{
         this.ownerRef = ownerRef;
     }
 
-  public String getExternalId() {
+    public String getExternalId() {
         return externalId;
     }
 

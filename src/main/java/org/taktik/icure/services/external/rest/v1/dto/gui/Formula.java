@@ -18,10 +18,10 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.thoughtworks.xstream.converters.extended.ToAttributedValueConverter;
+
+
+
+
 import org.taktik.icure.dto.gui.FormLifecycle;
 
 import java.io.Serializable;
@@ -29,13 +29,9 @@ import java.io.Serializable;
 /**
  * Created by aduchate on 03/12/13, 17:22
  */
-@XStreamAlias("Formula")
-@XStreamConverter(value=ToAttributedValueConverter.class, strings={"value"})
 public class Formula  implements Serializable{
     String value;
-
-	@XStreamAsAttribute
-	private FormLifecycle lifecycle;
+    private FormLifecycle lifecycle;
 
 	public Formula() {
 	}

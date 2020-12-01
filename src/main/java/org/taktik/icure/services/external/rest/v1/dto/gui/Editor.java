@@ -20,60 +20,32 @@ package org.taktik.icure.services.external.rest.v1.dto.gui;
 
 import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import org.taktik.icure.services.external.rest.handlers.JsonDiscriminator;
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.ActionButton;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.Audiometry;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.CheckBoxEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.DashboardEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.DateTimeEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.HealthcarePartyEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.IntegerSliderEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.Label;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.MeasureEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.MedicationEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.MedicationTableEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.NumberEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.PopupMenuEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.SchemaEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.StringEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.StringTableEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.StyledStringEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.SubFormEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.TokenFieldEditor;
-import org.taktik.icure.services.external.rest.v1.dto.gui.editor.TypeValueStringEditor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+
+import org.taktik.icure.handlers.JacksonEditorDeserializer;
+import org.taktik.icure.handlers.JsonDiscriminator;
+import org.taktik.icure.services.external.rest.v1.dto.gui.type.Data;
 
 /**
  * Created by aduchate on 19/11/13, 15:28
  */
-@XStreamAlias("Editor")
-@JsonPolymorphismSupport({
-        ActionButton.class, StringEditor.class, CheckBoxEditor.class, DashboardEditor.class, DateTimeEditor.class,
-        IntegerSliderEditor.class, MeasureEditor.class, MedicationEditor.class, MedicationTableEditor.class, NumberEditor.class,
-        PopupMenuEditor.class, SchemaEditor.class, StringTableEditor.class, StyledStringEditor.class, SubFormEditor.class,
-        TokenFieldEditor.class, TypeValueStringEditor.class, Label.class, HealthcarePartyEditor.class, Audiometry.class
-})
 @JsonDiscriminator("key")
+@JsonDeserialize(using = JacksonEditorDeserializer.class)
 public abstract class Editor implements Serializable {
-    @XStreamAsAttribute
     private Double left;
-    @XStreamAsAttribute
     private Double top;
-    @XStreamAsAttribute
     private Double width;
-    @XStreamAsAttribute
     private Double height;
 
-	@XStreamAsAttribute
 	boolean multiline;
-    
-    @XStreamAsAttribute
+
 	LabelPosition labelPosition;
 
-	@XStreamAsAttribute
 	private boolean readOnly;
+
+	private Data defaultValue;
 
 	public Editor() {
 	}
@@ -133,4 +105,17 @@ public abstract class Editor implements Serializable {
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
 	}
+
+    public Data getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(Data defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    @JsonProperty("key")
+    private String includeDiscriminator() {
+	    return this.getClass().getSimpleName();
+    }
 }

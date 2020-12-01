@@ -19,9 +19,14 @@
 
 package org.taktik.icure.be.format.logic.impl
 
+import kotlinx.coroutines.flow.Flow
 import org.apache.commons.logging.LogFactory
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.buffer.DataBuffer
 import org.taktik.commons.uti.UTI
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.FormLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGEvalues
 import org.taktik.icure.be.ehealth.dto.kmehr.v20161201.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
@@ -37,17 +42,13 @@ import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Document
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
-import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.Service
 import org.taktik.icure.entities.embed.ServiceLink
 import org.taktik.icure.entities.embed.SubContact
-import org.taktik.icure.logic.ContactLogic
-import org.taktik.icure.logic.DocumentLogic
 import org.taktik.icure.utils.FuzzyValues
 import java.io.IOException
-import java.io.OutputStream
-import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -55,21 +56,19 @@ import java.time.temporal.ChronoUnit
 import javax.xml.bind.JAXBContext
 
 @org.springframework.stereotype.Service
-class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
+class KmehrReportLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: FormLogic, val documentLogic: DocumentLogic, val contactLogic: ContactLogic) : GenericResultFormatLogicImpl(healthcarePartyLogic, formLogic), KmehrReportLogic {
     internal var log = LogFactory.getLog(this.javaClass)
-    @Autowired var documentLogic: DocumentLogic? = null
-    @Autowired var contactLogic: ContactLogic? = null
 
-	override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, text: String?) : Flow<DataBuffer> {
 		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 
-    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?, output: OutputStream?) {
+    override fun doExport(sender: HealthcareParty?, recipient: HealthcareParty?, patient: Patient?, date: LocalDateTime?, ref: String?, mimeType: String?, content: ByteArray?) : Flow<DataBuffer> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     @Throws(IOException::class)
-	override fun canHandle(doc: Document, enckeys: MutableList<String>?): Boolean {
+	override fun canHandle(doc: Document, enckeys: List<String>): Boolean {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
         val isSmfOrPmf = msg?.header?.standard?.specialisation?.cd?.value?.let {
@@ -86,7 +85,7 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
     }
 
 	@Throws(IOException::class)
-	override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: MutableList<String>?): List<ResultInfo>? {
+    override fun getInfos(doc: Document, full: Boolean, language: String, enckeys: List<String>): List<ResultInfo> {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
 
 		return msg?.folders?.flatMap { f -> f.transactions.filter { it.cds.any { it.s == CDTRANSACTIONschemes.CD_TRANSACTION && (it.value == "contactreport" || it.value == "note" || it.value == "report" || it.value == "prescription" || it.value == "request") } }.map { t -> ResultInfo().apply {
@@ -100,81 +99,71 @@ class KmehrReportLogicImpl : GenericResultFormatLogicImpl(), KmehrReportLogic {
 			complete = t.isIscomplete
 			labo = getAuthorDescription(t)
 			demandDate = demandEpochMillis(t)
-			codes = listOf(Code("CD-TRANSACTION", "report", "1"))
+			codes = listOf(CodeStub.from("CD-TRANSACTION", "report", "1"))
 		} } } ?: listOf()
 	}
 
-	@Throws(IOException::class)
-	override fun doImport(language: String,
-		doc: Document,
-		hcpId: String,
-		protocolIds: List<String>,
-		formIds: List<String>,
-		planOfActionId: String,
-		ctc: Contact,
-		enckeys: List<String>?): Contact? {
+    override suspend fun doImport(language: String, doc: Document, hcpId: String?, protocolIds: List<String>, formIds: List<String>, planOfActionId: String?, ctc: Contact, enckeys: List<String>): Contact? {
 		val msg: Kmehrmessage? = extractMessage(doc, enckeys)
-
-		msg?.folders?.forEach { f ->
-			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds.contains(it.value) } }.forEach { t ->
+		val subContactsAndServices = msg?.folders?.flatMap { f ->
+			f.transactions.filter { it.ids.any { it.s == IDKMEHRschemes.LOCAL && protocolIds?.contains(it.value) == true } }.map { t ->
 				val protocolId = t.ids.find { it.s == IDKMEHRschemes.LOCAL }?.value
 				val demandTimestamp = demandEpochMillis(t)
 
                 var s: Service? = null;
                 val textItems = t.headingsAndItemsAndTexts.filterIsInstance(TextType::class.java);
                 if (textItems.isNotEmpty()) {
-                    s = Service().apply {
-                        id = uuidGen.newGUID().toString()
-                        content.put(language, Content(t.headingsAndItemsAndTexts.filterIsInstance(TextType::class.java).joinToString(separator = "\n") { it.value }))
-                        label = "Protocol"
-                        demandTimestamp?.let { valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()), ChronoUnit.SECONDS) }
-                    }
+                    s = Service(
+                            id = uuidGen.newGUID().toString(),
+                            content = mapOf(language to Content(stringValue = t.headingsAndItemsAndTexts.filterIsInstance(TextType::class.java).joinToString(separator = "\n") { it.value })),
+                            label = "Protocol",
+                            valueDate = demandTimestamp?.let {  FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()), ChronoUnit.SECONDS) }
+                    )
                 }
 
 				val docServices = t?.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.map { lnk ->
-					Service().apply {
-						id = uuidGen.newGUID().toString()
-						content.put(language, Content().apply {
-							documentId = documentLogic!!.createDocument(Document().apply {
-								id = uuidGen.newGUID().toString()
-								author = ctc.author
-								responsible = ctc.responsible
-								created = demandTimestamp ?: ctc.created
-								modified = created
-								attachment = lnk.value
-								name = "Protocol Document"
+                    Service(
+                            id = uuidGen.newGUID().toString(),
+                            content = mapOf(language to Content(
+                                    documentId = ctc.responsible?.let {
+                                        val utis = UTI.utisForMimeType(lnk.mediatype.value()).toList()
+                                        documentLogic.createDocument(Document(
+                                                id = uuidGen.newGUID().toString(),
+                                                author = ctc.author,
+                                                responsible = ctc.responsible,
+                                                created = demandTimestamp ?: ctc.created,
+                                                modified = demandTimestamp ?: ctc.created,
+                                                attachment = lnk.value,
+                                                name = "Protocol Document",
 
-								val utis = UTI.utisForMimeType(lnk.mediatype.value()).toList()
-								mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf"
-								otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
-							}, ctc.responsible).id
-						})
-						label = "Protocol Document"
-						demandTimestamp?.let { valueDate = FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()), ChronoUnit.SECONDS) }
-					}
+                                                mainUti = utis.firstOrNull()?.identifier ?: "com.adobe.pdf",
+                                                otherUtis = (if (utis.size > 1) utis.subList(1, utis.size).map { it.identifier } else listOf<String>()).toSet()
+                                        ), it)?.id
+                                    }
+                            )),
+                            label = "Protocol Document",
+                            valueDate = demandTimestamp?.let { FuzzyValues.getFuzzyDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()), ChronoUnit.SECONDS) }
+                    )
 				} ?: listOf()
 
-				val ssc = SubContact()
-				ssc.responsible = hcpId
-				ssc.descr = getAuthorDescription(t)
-				ssc.protocol = protocolId
-				ssc.planOfActionId = planOfActionId
+                val services = (s?.let { listOf(it) } ?: listOf()) + docServices
+				SubContact(
+                        id = uuidGen.newGUID().toString(),
+                        responsible = hcpId,
+                        descr = getAuthorDescription(t),
+                        protocol = protocolId,
+                        planOfActionId = planOfActionId,
 
-				ssc.status = SubContact.STATUS_PROTOCOL_RESULT or SubContact.STATUS_UNREAD or (if (t.isIscomplete) SubContact.STATUS_COMPLETE else 0)
-				ssc.formId = formIds[protocolIds.indexOf(protocolId)]
-
-                if (s != null) {
-                    ssc.services = listOf(ServiceLink(s.id))
-                    ctc.services.add(s)
-                }
-
-                ssc.services = ssc.services.plus(docServices.map { ServiceLink(it.id) })
-
-				ctc.services.addAll(docServices)
-				ctc.subContacts.add(ssc)
+                        status = SubContact.STATUS_PROTOCOL_RESULT or SubContact.STATUS_UNREAD or (if (t.isIscomplete) SubContact.STATUS_COMPLETE else 0),
+                        formId = protocolIds?.indexOf(protocolId)?.let { formIds?.get(it) },
+                        services = services.map { ServiceLink(it.id) }
+                ) to services
 			}
-		}
-		return contactLogic!!.modifyContact(ctc)
+		} ?: listOf()
+		return contactLogic.modifyContact(ctc.copy(
+                subContacts = ctc.subContacts + subContactsAndServices.map { it.first },
+                services = ctc.services + subContactsAndServices.flatMap { it.second }
+        ))
 	}
 
 	private fun extractMessage(doc: Document, enckeys: List<String>?) =

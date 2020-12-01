@@ -1,0 +1,123 @@
+/*
+ * Copyright (C) 2018 Taktik SA
+ *
+ * This file is part of iCureBackend.
+ *
+ * iCureBackend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
+ *
+ * iCureBackend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.taktik.icure.asynclogic.impl
+
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import org.taktik.couchdb.DocIdentifier
+import org.taktik.couchdb.ViewQueryResultEvent
+import org.taktik.icure.asyncdao.ClassificationTemplateDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.ClassificationTemplateLogic
+import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.ClassificationTemplate
+import org.taktik.icure.entities.embed.Delegation
+import org.taktik.icure.utils.firstOrNull
+import java.util.*
+
+/**
+ * Created by dlm on 16-07-18
+ */
+@ExperimentalCoroutinesApi
+@Service
+class ClassificationTemplateLogicImpl(private val classificationTemplateDAO: ClassificationTemplateDAO,
+                                      private val uuidGenerator: UUIDGenerator,
+                                      private val sessionLogic: AsyncSessionLogic) : GenericLogicImpl<ClassificationTemplate, ClassificationTemplateDAO>(sessionLogic), ClassificationTemplateLogic {
+
+    override fun getGenericDAO(): ClassificationTemplateDAO {
+        return classificationTemplateDAO
+    }
+
+    override suspend fun createClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
+        try { // Fetching the hcParty
+            val userId = sessionLogic.getCurrentUserId()
+            val healthcarePartyId = sessionLogic.getCurrentHealthcarePartyId()
+            // Setting Classification Template attributes
+            createEntities(setOf(classificationTemplate.copy(
+                    author = userId, responsible = healthcarePartyId
+            ))).firstOrNull()
+        } catch (e: Exception) {
+            log.error("createClassificationTemplate: " + e.message)
+            throw IllegalArgumentException("Invalid Classification Template", e)
+        }
+    }
+
+    override suspend fun getClassificationTemplate(classificationTemplateId: String): ClassificationTemplate? {
+        return classificationTemplateDAO.getClassificationTemplate(classificationTemplateId)
+    }
+
+    override fun deleteClassificationTemplates(ids: Set<String>): Flow<DocIdentifier> {
+        return try {
+            deleteByIds(ids)
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            flowOf()
+        }
+    }
+
+    override suspend fun modifyClassificationTemplate(classificationTemplate: ClassificationTemplate) = fix(classificationTemplate) { classificationTemplate ->
+        try {
+            getClassificationTemplate(classificationTemplate.id)?.let { toEdit ->
+                updateEntities(setOf(toEdit.copy(label = classificationTemplate.label))).firstOrNull()
+            } ?: throw IllegalArgumentException("Non-existing Classification Template")
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid Classification Template", e)
+        }
+    }
+
+    override suspend fun addDelegation(classificationTemplateId: String, healthcarePartyId: String, delegation: Delegation): ClassificationTemplate? {
+        val classificationTemplate = getClassificationTemplate(classificationTemplateId)
+        return classificationTemplate?.let {
+            classificationTemplateDAO.save(it.copy(delegations = it.delegations + mapOf(
+                    healthcarePartyId to setOf(delegation)
+            )))
+        }
+    }
+
+    override suspend fun addDelegations(classificationTemplateId: String, delegations: List<Delegation>): ClassificationTemplate? {
+        val classificationTemplate = getClassificationTemplate(classificationTemplateId)
+        return classificationTemplate?.let {
+            return classificationTemplateDAO.save(it.copy(
+                    delegations = it.delegations +
+                            delegations.mapNotNull { d -> d.delegatedTo?.let { delegateTo -> delegateTo to setOf(d) } }
+            ))
+        }
+    }
+
+    override fun getClassificationTemplateByIds(ids: List<String>): Flow<ClassificationTemplate> = flow {
+        emitAll(classificationTemplateDAO.getList(ids))
+    }
+
+    override fun findByHCPartySecretPatientKeys(hcPartyId: String, secretPatientKeys: ArrayList<String>): Flow<ClassificationTemplate> = flow {
+        emitAll(classificationTemplateDAO.findByHCPartySecretPatientKeys(hcPartyId, secretPatientKeys))
+    }
+
+    override fun listClassificationTemplates(paginationOffset: PaginationOffset<String>) =flow<ViewQueryResultEvent> {
+        emitAll(classificationTemplateDAO.listClassificationTemplates(paginationOffset))
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(ClassificationTemplateLogicImpl::class.java)
+    }
+}

@@ -20,12 +20,11 @@ package org.taktik.icure.dto.gui.type.primitive;
 
 import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 
 /**
  * Created by aduchate on 19/11/13, 10:14
  */
-@XStreamAlias("TKDate")
 public class PrimitiveDate implements Primitive {
     java.util.Date value;
 
@@ -46,7 +45,7 @@ public class PrimitiveDate implements Primitive {
 //      throw new IllegalArgumentException(e);
 //  }
 //}
-    
+
     }
 
 

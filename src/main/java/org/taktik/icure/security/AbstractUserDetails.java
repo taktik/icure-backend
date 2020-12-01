@@ -18,6 +18,7 @@
 
 package org.taktik.icure.security;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -31,8 +32,17 @@ public abstract class AbstractUserDetails implements UserDetails {
 	protected boolean realAuth = true;
 	protected String locale;
 	protected String logoutURL;
+    protected String id;
 
-	protected AbstractUserDetails(PermissionSetIdentifier permissionSetIdentifier, Collection<? extends GrantedAuthority> authorities) {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    protected AbstractUserDetails(PermissionSetIdentifier permissionSetIdentifier, Collection<? extends GrantedAuthority> authorities) {
 		this.permissionSetIdentifier = permissionSetIdentifier;
 		this.authorities = authorities;
 	}

@@ -23,7 +23,7 @@ version = '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
     maven { url = 'https://maven.taktik.be/content/groups/public' }
-    maven { url = 'http://repo.spring.io/plugins-release' }
+    maven { url = 'https://repo.spring.io/plugins-release' }
     maven { url = "https://www.e-contract.be/maven2/" }
     maven { url = "http://repo.ehealth.fgov.be/artifactory/maven2/" }
     flatDir {

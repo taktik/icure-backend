@@ -1,67 +1,28 @@
 package org.taktik.icure.entities.samv2.embed
 
-import java.io.Serializable
-class Company(
-        from: Long? = null,
-        to: Long? = null,
-        var authorisationNr: String? = null,
-        var vatNr: Map<String, String>? = null,
-        var europeanNr: String? = null,
-        var denomination: String? = null,
-        var legalForm: String? = null,
-        var building: String? = null,
-        var streetName: String? = null,
-        var streetNum: String? = null,
-        var postbox: String? = null,
-        var postcode: String? = null,
-        var city: String? = null,
-        var countryCode: String? = null,
-        var phone: String? = null,
-        var language: String? = null,
-        var website: String? = null
-) : DataPeriod(from, to), Serializable {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Company) return false
-        if (!super.equals(other)) return false
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 
-        if (authorisationNr != other.authorisationNr) return false
-        if (vatNr != other.vatNr) return false
-        if (europeanNr != other.europeanNr) return false
-        if (denomination != other.denomination) return false
-        if (legalForm != other.legalForm) return false
-        if (building != other.building) return false
-        if (streetName != other.streetName) return false
-        if (streetNum != other.streetNum) return false
-        if (postbox != other.postbox) return false
-        if (postcode != other.postcode) return false
-        if (city != other.city) return false
-        if (countryCode != other.countryCode) return false
-        if (phone != other.phone) return false
-        if (language != other.language) return false
-        if (website != other.website) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + (authorisationNr?.hashCode() ?: 0)
-        result = 31 * result + (vatNr?.hashCode() ?: 0)
-        result = 31 * result + (europeanNr?.hashCode() ?: 0)
-        result = 31 * result + (denomination?.hashCode() ?: 0)
-        result = 31 * result + (legalForm?.hashCode() ?: 0)
-        result = 31 * result + (building?.hashCode() ?: 0)
-        result = 31 * result + (streetName?.hashCode() ?: 0)
-        result = 31 * result + (streetNum?.hashCode() ?: 0)
-        result = 31 * result + (postbox?.hashCode() ?: 0)
-        result = 31 * result + (postcode?.hashCode() ?: 0)
-        result = 31 * result + (city?.hashCode() ?: 0)
-        result = 31 * result + (countryCode?.hashCode() ?: 0)
-        result = 31 * result + (phone?.hashCode() ?: 0)
-        result = 31 * result + (language?.hashCode() ?: 0)
-        result = 31 * result + (website?.hashCode() ?: 0)
-        return result
-    }
-
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class Company(
+        override val from: Long? = null,
+        override val to: Long? = null,
+        val authorisationNr: String? = null,
+        val vatNr: Map<String, String>? = null,
+        val europeanNr: String? = null,
+        val denomination: String? = null,
+        val legalForm: String? = null,
+        val building: String? = null,
+        val streetName: String? = null,
+        val streetNum: String? = null,
+        val postbox: String? = null,
+        val postcode: String? = null,
+        val city: String? = null,
+        val countryCode: String? = null,
+        val phone: String? = null,
+        val language: String? = null,
+        val website: String? = null
+) : DataPeriod

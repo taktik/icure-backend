@@ -18,20 +18,18 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
 
 /**
  * Created by aduchate on 19/11/13, 10:33
  */
-@XStreamAlias("TKMedicationTable")
 public class MedicationTable extends Data implements Serializable {
-   
 
-	@XStreamAsAttribute
-    protected String value = "";
 
-  
+	protected String value = "";
+
+
 }

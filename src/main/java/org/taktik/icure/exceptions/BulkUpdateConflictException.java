@@ -19,7 +19,6 @@
 package org.taktik.icure.exceptions;
 
 import java.util.List;
-import javax.persistence.PersistenceException;
 
 import org.taktik.icure.entities.base.StoredDocument;
 

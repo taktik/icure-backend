@@ -18,12 +18,11 @@
 
 package org.taktik.icure.dto.gui.type.primitive;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 
 /**
  * Created by aduchate on 19/11/13, 10:32
  */
-@XStreamAlias("TKLabel")
 public class Label extends PrimitiveString {
     public Label() {
     }

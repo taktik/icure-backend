@@ -1,7 +1,8 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.50'
-        springBootVersion = '1.5.10.RELEASE'
+        kotlinVersion = '1.4.0'
+        springBootVersion = '2.3.1.RELEASE'
+        springVersion = '5.2.7.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -14,26 +15,26 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'groovy'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'docker-java'
 
-sourceCompatibility = 1.8
-version = '1.0.19'
-compileJava {
-    options.fork = true
-    options.forkOptions.with {
-        memoryMaximumSize = "4096m"
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 }
+
+version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
     maven { url = 'https://maven.taktik.be/content/groups/public' }
-    maven { url = 'http://repo.spring.io/plugins-release' }
+    maven { url = 'https://repo.spring.io/plugins-release' }
     maven { url = "https://www.e-contract.be/maven2/" }
     maven { url = "http://repo.ehealth.fgov.be/artifactory/maven2/" }
+    maven { url = 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' } // required for swagger 3 snapshot, remove it once it is published
     flatDir {
         dirs '../libs'
     }
@@ -49,6 +50,7 @@ sourceSets {
 }
 
 dependencies {
+    compile group: 'com.google.code.gson', name: 'gson'
     compile group: 'com.github.ajalt', name: 'clikt', version: '2.0.0'
     compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.3'
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.40'
@@ -60,30 +62,3 @@ dependencies {
     compile ('org.codehaus.groovy:groovy-xml:2.4.3')
     compile project(path: ':')
 }
-
-// Setup resolution strategy
-configurations.all {
-    resolutionStrategy {
-        // Don't cache changing modules at all
-        cacheChangingModulesFor 0, 'seconds'
-        force group: 'net.sf.jsignature.io-tools', name: 'easystream', version: '1.2.12'
-    }
-}
-
-springBoot {
-    mainClass = 'org.taktik.icure.samv2.Samv2v5ImporterKt'
-    // for pricare migration mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
-}
-
-dockerJava {
-    tag = 'docker.taktik.be/icure-backend-misc'
-}
-
-jar {
-    enabled = true
-    manifest {
-        attributes 'Main-Class': 'org.taktik.icure.samv2.Samv2v5ImporterKt'
-        // for pricare migration attributes 'Main-Class': 'org.taktik.icure.db.TopazImporter.PricareImporter'
-    }
-}
-

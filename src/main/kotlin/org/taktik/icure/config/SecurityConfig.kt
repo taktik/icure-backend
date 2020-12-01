@@ -19,148 +19,101 @@
 
 package org.taktik.icure.config
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.properties.ConfigurationProperties
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.encoding.PasswordEncoder
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.web.DefaultSecurityFilterChain
-import org.springframework.security.web.FilterChainProxy
-import org.springframework.security.web.access.ExceptionTranslationFilter
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
-import org.springframework.security.web.firewall.HttpFirewall
+import org.springframework.http.HttpMethod
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.firewall.StrictHttpFirewall
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.taktik.icure.logic.ICureSessionLogic
-import org.taktik.icure.logic.PermissionLogic
-import org.taktik.icure.logic.UserLogic
-import org.taktik.icure.security.AuthenticationFailureHandler
-import org.taktik.icure.security.AuthenticationSuccessHandler
+import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
+import org.taktik.icure.asyncdao.UserDAO
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.PermissionLogic
+import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.security.CustomAuthenticationProvider
 import org.taktik.icure.security.Http401UnauthorizedEntryPoint
-import org.taktik.icure.security.database.CustomAuthenticationProvider
+import org.taktik.icure.security.TokenWebExchangeMatcher
 import org.taktik.icure.security.database.ShaAndVerificationCodePasswordEncoder
-import org.taktik.icure.security.web.BasicAuthenticationFilter
-import org.taktik.icure.security.web.LoginUrlAuthenticationEntryPoint
-import org.taktik.icure.security.web.UsernamePasswordAuthenticationFilter
-import javax.servlet.Filter
+import org.taktik.icure.spring.asynccache.AsyncCacheManager
 
+
+@ExperimentalCoroutinesApi
 @Configuration
 class SecurityConfig {
 
     @Bean
-    fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder(256)
+    fun passwordEncoder() = ShaAndVerificationCodePasswordEncoder("SHA-256")
 
     @Bean
-    fun authenticationProcessingFilterEntryPoint() = LoginUrlAuthenticationEntryPoint("/", mapOf("/api" to "api/login.html"))
+    fun httpFirewall() = StrictHttpFirewall().apply {
+        setAllowSemicolon(true)
+    } // TODO SH later: might be ignored if not registered in the security config
 
     @Bean
-    fun basicAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = BasicAuthenticationFilter(authenticationManager)
-
-    /*@Bean
-    fun sameSiteFilter() = object : GenericFilterBean() {
-        override fun doFilter(request: ServletRequest?, response: ServletResponse?, chain: FilterChain?) {
-            response?.let { (it as? HttpServletResponse)?.setHeader("Set-Cookie", "HttpOnly; SameSite=None; Secure") }
-            chain?.doFilter(request, response)
-        }
-    }*/
-
-    @Bean
-    fun usernamePasswordAuthenticationFilter(authenticationManager: AuthenticationManager, authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint, sessionLogic: ICureSessionLogic) = UsernamePasswordAuthenticationFilter().apply {
-        usernameParameter = "username"
-        passwordParameter = "password"
-        setAuthenticationManager(authenticationManager)
-        setAuthenticationSuccessHandler(AuthenticationSuccessHandler().apply { setDefaultTargetUrl("/"); setAlwaysUseDefaultTargetUrl(false); setSessionLogic(sessionLogic) })
-        setAuthenticationFailureHandler(AuthenticationFailureHandler().apply { setDefaultFailureUrl("/error"); })
-        setRequiresAuthenticationRequestMatcher(AntPathRequestMatcher("/login"))
-        setPostOnly(true)
-    }
-
-    @Bean
-    fun remotingExceptionTranslationFilter() = ExceptionTranslationFilter(Http401UnauthorizedEntryPoint(), HttpSessionRequestCache().apply { setCreateSessionAllowed(false) })
-
-    @Bean
-    fun exceptionTranslationFilter(authenticationProcessingFilterEntryPoint: LoginUrlAuthenticationEntryPoint) = ExceptionTranslationFilter(authenticationProcessingFilterEntryPoint)
-
-    @Bean
-    fun httpFirewal() = StrictHttpFirewall().apply { setAllowSemicolon(true) }
-
-    @Bean
-    fun securityConfigAdapter(
-            daoAuthenticationProvider: CustomAuthenticationProvider,
-            //sameSiteFilter: GenericFilterBean,
-            basicAuthenticationFilter: BasicAuthenticationFilter,
-            usernamePasswordAuthenticationFilter: UsernamePasswordAuthenticationFilter,
-            exceptionTranslationFilter: ExceptionTranslationFilter,
-            remotingExceptionTranslationFilter: ExceptionTranslationFilter,
-            httpFirewall: HttpFirewall
-                             )
-        = SecurityConfigAdapter(daoAuthenticationProvider, /*sameSiteFilter, */ basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter, remotingExceptionTranslationFilter, httpFirewall)
-
-    @Bean
-    fun daoAuthenticationProvider(userLogic: UserLogic, permissionLogic: PermissionLogic, passwordEncoder: PasswordEncoder) = CustomAuthenticationProvider(userLogic, permissionLogic).apply {
-        setPasswordEncoder(passwordEncoder)
-    }
-
+    fun authenticationManager(
+            couchDbProperties: CouchDbProperties,
+            userDAO: UserDAO,
+            permissionLogic: PermissionLogic,
+            passwordEncoder: PasswordEncoder
+    ) =
+            CustomAuthenticationProvider(couchDbProperties, userDAO, permissionLogic, passwordEncoder)
 }
 
+@ExperimentalCoroutinesApi
 @Configuration
-class SecurityConfigAdapter(private val daoAuthenticationProvider: CustomAuthenticationProvider,
-                            //private val sameSiteFilter: Filter,
-                            private val basicAuthenticationFilter: Filter,
-                            private val usernamePasswordAuthenticationFilter: Filter,
-                            private val exceptionTranslationFilter: Filter,
-                            private val remotingExceptionTranslationFilter: Filter,
-                            private val httpFirewall: HttpFirewall
-    ) : WebSecurityConfigurerAdapter(false) {
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+class SecurityConfigAdapter(private val httpFirewall: StrictHttpFirewall,
+                            private val sessionLogic: AsyncSessionLogic,
+                            private val authenticationManager: CustomAuthenticationProvider) {
 
-    @Autowired
-    fun configureGlobal(auth: AuthenticationManagerBuilder?) {
-        auth!!.authenticationProvider(daoAuthenticationProvider)
+    val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    @Bean
+    fun securityWebFilterChain(http: ServerHttpSecurity, asyncCacheManager: AsyncCacheManager): SecurityWebFilterChain {
+        return http
+                .csrf().disable()
+                .httpBasic().authenticationEntryPoint(Http401UnauthorizedEntryPoint()).securityContextRepository(WebSessionServerSecurityContextRepository())
+                //.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation // https://stackoverflow.com/questions/56056404/disable-websession-creation-when-using-spring-security-with-spring-webflux for webflux (TODO SH later: necessary?)
+                .authenticationManager(authenticationManager)
+                .and()
+                .authorizeExchange()
+                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .pathMatchers("/v3/api-docs").permitAll()
+                .pathMatchers("/api/**").permitAll()
+                .pathMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
+                .pathMatchers("/rest/*/auth/login").permitAll()
+                .pathMatchers("/rest/*/user/forgottenPassword/*").permitAll()
+                .pathMatchers("/rest/*/pubsub/auth/recover/*").permitAll()
+                .pathMatchers("/rest/*/icure/v").permitAll()
+                .pathMatchers("/rest/*/icure/p").permitAll()
+                .pathMatchers("/rest/*/icure/check").permitAll()
+                .pathMatchers("/rest/*/icure/c").permitAll()
+                .pathMatchers("/rest/*/icure/ok").permitAll()
+                .pathMatchers("/rest/*/icure/pok").permitAll()
+                .pathMatchers("/").permitAll()
+                .pathMatchers("/ping.json").permitAll()
+                .pathMatchers("/actuator/**").permitAll()
+                .matchers(
+                        TokenWebExchangeMatcher(asyncCacheManager).paths(
+                                        "/rest/v1/document/*/attachment/*",
+                                        "/rest/v1/form/template/*/attachment/*",
+                                        "/ws/**"
+                                        )).hasRole("USER")
+                .pathMatchers("/**").hasRole("USER")
+                .and().build()
     }
 
-    override fun configure(web: WebSecurity) {
-        web.httpFirewall(httpFirewall)
-    }
-
-    override fun configure(http: HttpSecurity?) {
-        //See https://stackoverflow.com/questions/50954018/prevent-session-creation-when-using-basic-auth-in-spring-security to prevent sessions creation
-        http!!.csrf().disable().addFilterBefore(
-            FilterChainProxy(
-                listOf(
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/rest/**"), /* sameSiteFilter, */ basicAuthenticationFilter, remotingExceptionTranslationFilter),
-                    DefaultSecurityFilterChain(AntPathRequestMatcher("/**"), /* sameSiteFilter, */ basicAuthenticationFilter, usernamePasswordAuthenticationFilter, exceptionTranslationFilter)
-                      )
-                ).apply {
-                    setFirewall(httpFirewall)
-                }, FilterSecurityInterceptor::class.java)
-                .authorizeRequests()
-                .antMatchers("/rest/*/replication/group/**").hasAnyRole("USER", "BOOTSTRAP")
-                .antMatchers("/rest/*/auth/login").permitAll()
-                .antMatchers("/rest/*/swagger.json").permitAll()
-                .antMatchers("/rest/*/icure/v").permitAll()
-                .antMatchers("/rest/*/icure/p").permitAll()
-                .antMatchers("/rest/*/icure/check").permitAll()
-                .antMatchers("/rest/*/icure/c").permitAll()
-                .antMatchers("/rest/*/icure/ok").permitAll()
-                .antMatchers("/rest/*/icure/pok").permitAll()
-                .antMatchers("/rest/*/user/forgottenPassword/*").permitAll()
-
-                .antMatchers("/rest/**").hasRole("USER")
-
-                .antMatchers("/api/login.html").permitAll()
-                .antMatchers("/api/css/**").permitAll()
-                .antMatchers("/api/**").hasRole("USER")
-
-                .antMatchers("/").permitAll()
-
-                .antMatchers("/ping.json").permitAll()
-
-                .antMatchers("/**").hasRole("USER")
-    }
 }
+
+private fun ServerWebExchangeMatcher.and(matcher: ServerWebExchangeMatcher): ServerWebExchangeMatcher = AndServerWebExchangeMatcher(this, matcher)
+private fun ServerWebExchangeMatcher.paths(vararg antPatterns: String): ServerWebExchangeMatcher = AndServerWebExchangeMatcher(this, ServerWebExchangeMatchers.pathMatchers(*antPatterns))

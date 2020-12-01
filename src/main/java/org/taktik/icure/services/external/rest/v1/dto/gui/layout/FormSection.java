@@ -18,9 +18,9 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.layout;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,18 +29,14 @@ import java.util.List;
 /**
  * Created by aduchate on 07/02/13, 17:10
  */
-@XStreamAlias("FormSection")
 public class FormSection implements Serializable {
-    @XStreamAsAttribute
     private String icon;
 
-    @XStreamAsAttribute
     private String title;
 
-    @XStreamAsAttribute
     private Integer columns;
 
-    @XStreamImplicit(itemFieldName="FormColumn")
+
     private List<FormColumn> formColumns = new ArrayList<FormColumn>();
 
 	public FormSection() {

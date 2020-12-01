@@ -1,43 +1,36 @@
 package org.taktik.icure.entities.samv2
 
-import org.taktik.icure.entities.samv2.embed.*
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
+import org.ektorp.Attachment
+import org.taktik.icure.entities.base.StoredDocument
+import org.taktik.icure.entities.embed.RevisionInfo
+import org.taktik.icure.entities.samv2.embed.SamText
 
-class Nmp(
-        id: String? = null,
-        from: Long? = null,
-        to: Long? = null,
-        var code: String? = null,
-        var category: String? = null,
-        var commercialStatus: String? = null,
-        var name: SamText? = null,
-        var producer: SamText? = null,
-        var distributor: SamText? = null
-) : StoredDocumentWithPeriod(id, from, to) {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class Nmp(
+        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_rev") override val rev: String? = null,
+        @JsonProperty("deleted") override val deletionDate: Long? = null,
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Nmp) return false
-        if (!super.equals(other)) return false
+        val from: Long? = null,
+        val to: Long? = null,
+        val code: String? = null,
+        val category: String? = null,
+        val commercialStatus: String? = null,
+        val name: SamText? = null,
+        val producer: SamText? = null,
+        val distributor: SamText? = null,
 
-        if (code != other.code) return false
-        if (category != other.category) return false
-        if (commercialStatus != other.commercialStatus) return false
-        if (name != other.name) return false
-        if (producer != other.producer) return false
-        if (distributor != other.distributor) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + (code?.hashCode() ?: 0)
-        result = 31 * result + (category?.hashCode() ?: 0)
-        result = 31 * result + (commercialStatus?.hashCode() ?: 0)
-        result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (producer?.hashCode() ?: 0)
-        result = 31 * result + (distributor?.hashCode() ?: 0)
-        return result
-    }
+        @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
+        @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,
+        @JsonProperty("_conflicts") override val conflicts: List<String>? = null,
+        @JsonProperty("rev_history") override val revHistory: Map<String, String>? = null
+) : StoredDocument {
+    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
+    override fun withDeletionDate(deletionDate: Long?) = this.copy(deletionDate = deletionDate)
 }
-

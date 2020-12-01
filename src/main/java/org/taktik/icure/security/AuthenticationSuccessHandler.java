@@ -22,8 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.Transactional;
-import org.taktik.icure.logic.ICureSessionLogic;
-import org.taktik.icure.logic.SessionLogic;
+import org.taktik.icure.asynclogic.SessionLogic;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,11 +31,10 @@ import java.io.IOException;
 
 @Transactional
 public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-	protected ICureSessionLogic sessionLogic;
+	protected SessionLogic sessionLogic;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Authentication authentication) throws ServletException, IOException {
-		sessionLogic.onAuthenticationSuccess(httpRequest, authentication);
 		super.onAuthenticationSuccess(httpRequest, httpResponse, authentication);
 	}
 
@@ -61,7 +59,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 	}
 
 	@Autowired
-	public void setSessionLogic(ICureSessionLogic sessionLogic) {
+	public void setSessionLogic(SessionLogic sessionLogic) {
 		this.sessionLogic = sessionLogic;
 	}
 }

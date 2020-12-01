@@ -19,49 +19,46 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.smf.impl.v23g
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
-import org.taktik.icure.dto.mapping.ImportMapping
-import org.taktik.icure.dto.result.CheckSMFPatientResult
-import org.taktik.icure.dto.result.ImportResult
+import org.taktik.icure.domain.mapping.ImportMapping
+import org.taktik.icure.domain.result.CheckSMFPatientResult
+import org.taktik.icure.domain.result.ImportResult
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.services.external.api.AsyncDecrypt
 import org.taktik.icure.services.external.http.websocket.AsyncProgress
-import java.io.InputStream
-import java.io.OutputStream
+import java.nio.ByteBuffer
 
 /**
  * @author Bernard Paulus on 24/05/17.
  */
+@ExperimentalCoroutinesApi
 @Service
 class SoftwareMedicalFileLogicImpl(val softwareMedicalFileExport: SoftwareMedicalFileExport,
                                    val softwareMedicalFileImport: SoftwareMedicalFileImport) : SoftwareMedicalFileLogic {
 
-    override fun importSmfFile(inputStream: InputStream,
-                               author: User,
-                               language: String,
-                               dryRun: Boolean,
-                               dest: Patient?,
-                               mappings: Map<String, List<ImportMapping>>
-                              ) : List<ImportResult> {
-        return softwareMedicalFileImport.importSMF(inputStream, author, language, !dryRun, mappings, dest)
-    }
+    override suspend fun importSmfFile(inputData : Flow<ByteBuffer>,
+                                       author: User,
+                                       language: String,
+                                       dryRun: Boolean,dest: Patient?,
+                                       mappings: Map<String, List<ImportMapping>>
+                              ) : List<ImportResult> =
+            softwareMedicalFileImport.importSMF(inputData, author, language, !dryRun, mappings, dest)
 
-    override fun checkIfSMFPatientsExists(inputStream: InputStream,
-                               author: User,
-                               language: String,
-                               dest: Patient?,
-                               mappings: Map<String, List<ImportMapping>>
-    ) : List<CheckSMFPatientResult> {
-        return softwareMedicalFileImport.checkIfSMFPatientsExists(inputStream, author, language, mappings, dest)
-    }
+    override suspend fun checkIfSMFPatientsExists(inputData : Flow<ByteBuffer>,
+                                                  author: User,
+                                                  language: String,
+                                                  dest: Patient?,
+                                                  mappings: Map<String, List<ImportMapping>>
+    ) : List<CheckSMFPatientResult> =
+            softwareMedicalFileImport.checkIfSMFPatientsExists(inputData, author, language, mappings, dest)
 
-    override fun createSmfExport(os: OutputStream, patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, exportAsPMF : Boolean?) {
-		softwareMedicalFileExport.exportSMF(os, patient, sfks, sender, language, decryptor, progressor,
-                Config(format = if(exportAsPMF == true) Config.Format.PMF else Config.Format.SMF)
-        )
-	}
+    override fun createSmfExport(patient: Patient, sfks: List<String>, sender: HealthcareParty, language: String, decryptor: AsyncDecrypt?, progressor: AsyncProgress?, config: Config): Flow<DataBuffer> =
+            softwareMedicalFileExport.exportSMF(patient, sfks, sender, language, decryptor, progressor, config)
 }

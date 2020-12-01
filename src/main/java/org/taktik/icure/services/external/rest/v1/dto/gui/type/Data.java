@@ -19,15 +19,8 @@
 package org.taktik.icure.services.external.rest.v1.dto.gui.type;
 
 
-import org.taktik.icure.services.external.rest.handlers.JsonDiscriminator;
-import org.taktik.icure.services.external.rest.handlers.JsonPolymorphismSupport;
-import org.taktik.icure.services.external.rest.v1.dto.gui.type.primitive.*;
+import org.taktik.icure.handlers.JsonDiscriminator;
 
-@JsonPolymorphismSupport({
-		Array.class, AttributedString.class, Dictionary.class, Label.class, Measure.class, MedicationTable.class, MenuOption.class,
-		PrimitiveBoolean.class, PrimitiveDate.class, PrimitiveNumber.class, PrimitiveString.class, Schema.class,
-		StringTable.class
-})
 @JsonDiscriminator("key")
 public abstract class Data {
 	public Data() {

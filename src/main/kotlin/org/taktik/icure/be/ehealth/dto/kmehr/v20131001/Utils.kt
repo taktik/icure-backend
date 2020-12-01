@@ -19,7 +19,6 @@
 
 package org.taktik.icure.be.ehealth.dto.kmehr.v20131001
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.DateType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType
 import java.time.Instant
@@ -33,45 +32,49 @@ import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
 object Utils {
-    fun makeXMLGregorianCalendarFromHHMMSSLong(date: Long): XMLGregorianCalendarImpl? {
-        return XMLGregorianCalendarImpl().apply {
+    val xmlDtf = DatatypeFactory.newInstance()
+
+    fun makeXMLGregorianCalendarFromHHMMSSLong(date: Long): XMLGregorianCalendar? {
+        return xmlDtf.newXMLGregorianCalendar().apply {
             hour = (date / 10000 % 100).toInt()
             minute = (date / 100 % 100).toInt()
             second = (date % 100).toInt()
         }
     }
 
-    fun makeXMLGregorianCalendarFromFuzzyLong(date: Long?): XMLGregorianCalendarImpl? {
+    fun makeXMLGregorianCalendarFromFuzzyLong(date: Long?): XMLGregorianCalendar? {
         return date?.let {
             if (it % 10000000000 == 0L) it / 10000000000 else if (it % 100000000 == 0L) it / 100000000 else if (it < 99991231 && it % 10000 == 0L) it / 10000 else if (it < 99991231 && it % 100 == 0L) it / 100 else it /*normalize*/
         }?.let { d ->
-            try {
-                XMLGregorianCalendarImpl().apply {
-                    millisecond = FIELD_UNDEFINED
-                    timezone = FIELD_UNDEFINED
+            xmlDtf.newXMLGregorianCalendar().apply {
+                millisecond = FIELD_UNDEFINED
+                timezone = FIELD_UNDEFINED
 
-                    hour = FIELD_UNDEFINED
-                    minute = FIELD_UNDEFINED
-                    second = FIELD_UNDEFINED
+                hour = FIELD_UNDEFINED
+                minute = FIELD_UNDEFINED
+                second = FIELD_UNDEFINED
 
-                    when (d) {
-                        in 0..9999 -> {
-                            year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
-                        }
-                        in 0..999912 -> {
-                            year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
-                        }
-                        in 0..99991231 -> {
-                            year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
-                        }
-                        else -> {
-                            year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
-                            hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
-                        }
+                try {
+                when (d) {
+                    in 0..9999 -> {
+                        year = d.toInt(); month = FIELD_UNDEFINED; day = FIELD_UNDEFINED
+                    }
+                    in 0..999912 -> {
+                        year = (d / 100).toInt(); month = (d % 100).toInt(); day = FIELD_UNDEFINED
+                    }
+                    in 0..99991231 -> {
+                        year = (d / 10000).toInt(); month = ((d / 100) % 100).toInt(); day = (d % 100).toInt()
+                    }
+                    else -> {
+                        year = (d / 10000000000).toInt(); month = ((d / 100000000) % 100).toInt(); day = ((d / 1000000) % 100).toInt()
+                        hour = ((d / 10000) % 100).toInt(); minute = ((d / 100) % 100).toInt(); second = (d % 100).toInt()
                     }
                 }
-            } catch (e: java.lang.IllegalArgumentException) {
-                null
+                }catch(ex : Exception) {
+                    var tmp = LocalDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.systemDefault())
+                    year = tmp.year; month = tmp.monthValue; day = tmp.dayOfMonth
+                    hour = tmp.hour; minute = tmp.minute; second = tmp.second
+                }
             }
         }
     }
@@ -162,19 +165,19 @@ object Utils {
         val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
         return when (precision) {
             ChronoUnit.YEARS -> org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
-                year = XMLGregorianCalendarImpl.createDate(dateTime.year, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
+                year = xmlDtf.newXMLGregorianCalendarDate(dateTime.year, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
             }
             ChronoUnit.MONTHS -> org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
-                yearmonth = XMLGregorianCalendarImpl.createDate(dateTime.year, dateTime.monthValue, FIELD_UNDEFINED, FIELD_UNDEFINED)
+                yearmonth = xmlDtf.newXMLGregorianCalendarDate(dateTime.year, dateTime.monthValue, FIELD_UNDEFINED, FIELD_UNDEFINED)
             }
             ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.MINUTES, ChronoUnit.SECONDS, ChronoUnit.MILLIS -> {
                 org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.MomentType().apply {
-                    date = XMLGregorianCalendarImpl.createDate(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, FIELD_UNDEFINED)
+                    date = xmlDtf.newXMLGregorianCalendarDate(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, FIELD_UNDEFINED)
                     time = when (precision) {
-                        ChronoUnit.HOURS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
-                        ChronoUnit.MINUTES -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, FIELD_UNDEFINED, FIELD_UNDEFINED)
-                        ChronoUnit.SECONDS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED)
-                        ChronoUnit.MILLIS -> XMLGregorianCalendarImpl.createTime(dateTime.hour, dateTime.minute, dateTime.second, dateTime.get(ChronoField.MILLI_OF_SECOND), FIELD_UNDEFINED)
+                        ChronoUnit.HOURS -> xmlDtf.newXMLGregorianCalendarTime(dateTime.hour, FIELD_UNDEFINED, FIELD_UNDEFINED, FIELD_UNDEFINED)
+                        ChronoUnit.MINUTES -> xmlDtf.newXMLGregorianCalendarTime(dateTime.hour, dateTime.minute, FIELD_UNDEFINED, FIELD_UNDEFINED)
+                        ChronoUnit.SECONDS -> xmlDtf.newXMLGregorianCalendarTime(dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED)
+                        ChronoUnit.MILLIS -> xmlDtf.newXMLGregorianCalendarTime(dateTime.hour, dateTime.minute, dateTime.second, dateTime.get(ChronoField.MILLI_OF_SECOND), FIELD_UNDEFINED)
                         else -> null
                     }
 
@@ -187,7 +190,7 @@ object Utils {
 
     fun makeXmlGregorianCalendar(instant: Instant): XMLGregorianCalendar {
         val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        return XMLGregorianCalendarImpl.createDateTime(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED, FIELD_UNDEFINED)
+        return xmlDtf.newXMLGregorianCalendar(dateTime.year, dateTime.monthValue, dateTime.dayOfMonth, dateTime.hour, dateTime.minute, dateTime.second, FIELD_UNDEFINED, FIELD_UNDEFINED)
     }
 
 

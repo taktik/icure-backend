@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.taktik.icure.services.external.rest.v1.dto.embed.ContentDto;
-import org.taktik.icure.services.external.rest.v1.dto.gui.Code;
-import org.taktik.icure.services.external.rest.v1.dto.gui.CodeType;
+import org.taktik.icure.services.external.rest.v1.dto.gui.GuiCode;
+import org.taktik.icure.services.external.rest.v1.dto.gui.GuiCodeType;
 import org.taktik.icure.services.external.rest.v1.dto.gui.Editor;
 import org.taktik.icure.services.external.rest.v1.dto.gui.FormDataOption;
 import org.taktik.icure.services.external.rest.v1.dto.gui.FormPlanning;
@@ -57,9 +57,9 @@ public class FormLayoutData implements Serializable {
 //  [6:28:33 PM] Antoine Duchateau: <Suggest class="org.taktik.icure.domain.HealthcareParty" filterKey="speciality" filterValue="gp"/>
 
     List<FormPlanning> plannings;
-    List<Code> tags;
-    List<Code> codes;
-    List<CodeType> codeTypes;
+    List<GuiCode> tags;
+    List<GuiCode> codes;
+    List<GuiCodeType> codeTypes;
     List<Formula> formulas;
 
 	public FormLayoutData() {
@@ -177,27 +177,27 @@ public class FormLayoutData implements Serializable {
         this.plannings = plannings;
     }
 
-    public List<Code> getTags() {
+    public List<GuiCode> getTags() {
         return tags;
     }
 
-    public void setTags(List<Code> tags) {
+    public void setTags(List<GuiCode> tags) {
         this.tags = tags;
     }
 
-    public List<Code> getCodes() {
+    public List<GuiCode> getCodes() {
         return codes;
     }
 
-    public void setCodes(List<Code> codes) {
+    public void setCodes(List<GuiCode> codes) {
         this.codes = codes;
     }
 
-    public List<CodeType> getCodeTypes() {
+    public List<GuiCodeType> getCodeTypes() {
         return codeTypes;
     }
 
-    public void setCodeTypes(List<CodeType> codeTypes) {
+    public void setCodeTypes(List<GuiCodeType> codeTypes) {
         this.codeTypes = codeTypes;
     }
 

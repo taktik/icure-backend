@@ -18,16 +18,23 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
+
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by aduchate on 19/11/13, 10:33
  */
-@XStreamAlias("TKStringTable")
 public class StringTable extends Data implements Serializable {
-   @XStreamAsAttribute
-    protected String value = "";
+    protected List<String> values;
+
+    public List<String> getValues() {
+        return values;
+    }
+
+    public void setValues(List<String> values) {
+        this.values = values;
+    }
 }

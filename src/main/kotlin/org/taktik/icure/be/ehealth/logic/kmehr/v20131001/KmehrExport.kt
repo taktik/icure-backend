@@ -19,34 +19,113 @@
 
 package org.taktik.icure.be.ehealth.logic.kmehr.v20131001
 
-import ma.glasnost.orika.MapperFacade
-import org.apache.commons.lang3.StringEscapeUtils
+import kotlinx.coroutines.flow.collect
 import org.apache.commons.logging.LogFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.Cache
+import org.springframework.cache.support.SimpleValueWrapper
 import org.taktik.commons.uti.UTI
-import org.taktik.icure.be.drugs.logic.DrugsLogic
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.CodeLogic
+import org.taktik.icure.asynclogic.ContactLogic
+import org.taktik.icure.asynclogic.DocumentLogic
+import org.taktik.icure.asynclogic.HealthElementLogic
+import org.taktik.icure.asynclogic.HealthcarePartyLogic
+import org.taktik.icure.asynclogic.PatientLogic
+import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.asynclogic.impl.filter.Filters
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESS
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDADDRESSschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDADMINISTRATIONUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCONTENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCOUNTRY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDCOUNTRYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDDRUGCNK
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDDRUGCNKschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDDRUGROUTE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDINNCLUSTER
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEM
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDITEMschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLIFECYCLEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDLNKvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMEDIATYPEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGE
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDMESSAGEvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEX
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDSEXvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDSTANDARD
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOM
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTELECOMschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTEMPORALITY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTEMPORALITYvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTIMEUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTIMEUNITschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTION
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDTRANSACTIONschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDUNIT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDUNITschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDWEEKDAY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.CDWEEKDAYvalues
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.cd.v1.LnkType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.dt.v1.TextType
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.*
-import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.*
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTY
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDHCPARTYschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHR
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDKMEHRschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENT
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.id.v1.IDPATIENTschemes
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AddressTypeBase
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AdministrationquantityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AdministrationunitType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.AuthorType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.CompoundprescriptionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ContentType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.CountryType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.DurationType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.FolderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HcpartyType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.HeaderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ItemType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.LifecycleType
 import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ObjectFactory
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.PersonType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.ProfessionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RecipientType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RenewalType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.RouteType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.SenderType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.SexType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.StandardType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TelecomType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TemporalityType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TimeunitType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.TransactionType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.UnitType
+import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards.kmehr.schema.v1.WeekdayType
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.constants.ServiceStatus
-import org.taktik.icure.entities.*
+import org.taktik.icure.entities.Document
+import org.taktik.icure.entities.Form
+import org.taktik.icure.entities.HealthElement
+import org.taktik.icure.entities.HealthcareParty
+import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Content
 import org.taktik.icure.entities.embed.PlanOfAction
 import org.taktik.icure.entities.embed.Service
-import org.taktik.icure.logic.*
-import org.taktik.icure.logic.impl.filter.Filters
 import org.taktik.icure.utils.FuzzyValues
 import java.io.OutputStream
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -57,33 +136,32 @@ import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
-open class KmehrExport {
-    @Autowired var patientLogic: PatientLogic? = null
-    @Autowired var codeLogic: CodeLogic? = null
-    @Autowired var drugsLogic: DrugsLogic? = null
-    @Autowired var healthElementLogic: HealthElementLogic? = null
-    @Autowired var healthcarePartyLogic: HealthcarePartyLogic? = null
-    @Autowired var contactLogic: ContactLogic? = null
-    @Autowired var documentLogic: DocumentLogic? = null
-    @Autowired var sessionLogic: SessionLogic? = null
-    @Autowired var userLogic: UserLogic?= null
-    @Autowired var filters: Filters? = null
-    @Autowired var mapper: MapperFacade? = null
+open class KmehrExport(
+        val patientLogic: PatientLogic,
+        val codeLogic: CodeLogic,
+        val healthElementLogic: HealthElementLogic,
+        val healthcarePartyLogic: HealthcarePartyLogic,
+        val contactLogic: ContactLogic,
+        val documentLogic: DocumentLogic,
+        val sessionLogic: AsyncSessionLogic,
+        val userLogic: UserLogic,
+        val filters: Filters
+) {
+	internal val unitCodes = HashMap<String,Code>()
+    internal val codesMap = hashMapOf<String,Cache.ValueWrapper>()
 
-	val unitCodes = HashMap<String,Code>()
-
-    internal val STANDARD = "20131001"
+    val STANDARD = "20131001"
     @Value("\${icure.version}")
-    internal val ICUREVERSION: String = "4.0.0"
+    val ICUREVERSION: String = "4.0.0"
 
-    internal val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
     internal open val log = LogFactory.getLog(KmehrExport::class.java)
+
 
     fun createParty(ids : List<IDHCPARTY>, cds : List<CDHCPARTY>, name : String) : HcpartyType  {
         return HcpartyType().apply { this.ids.addAll(ids); this.cds.addAll(cds); this.name = name }
     }
 
-	fun createParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf()): HcpartyType {
+    suspend fun createParty(m : HealthcareParty, cds : List<CDHCPARTY>? = listOf() ) : HcpartyType {
         return HcpartyType().apply {
             m.nihii?.let { nihii ->
                 if(isNihiiValid(nihii) && !nihii.isNullOrEmpty()) {
@@ -96,13 +174,25 @@ open class KmehrExport {
                 }
             }
 			cds?.let { this.cds.addAll(it) }
-			this.cds.addAll(if (m.specialityCodes?.size ?: 0 > 0)
+			this.cds.addAll(
+				if (m.specialityCodes?.size ?: 0 > 0){
 					m.specialityCodes.map { CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = it.code } }
+                } else if (m.speciality?: "" != ""){
+                    listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = m.speciality })
+                }
 			else
 					listOf(CDHCPARTY().apply { s(CDHCPARTYschemes.CD_HCPARTY); value = "persphysician" }))
 
+            if (this.cds.filter { it.s == CDHCPARTYschemes.CD_HCPARTY }.any {it.value.startsWith("pers")}) {
 			firstname = m.firstName ?: ""
 			familyname = m.lastName ?: ""
+            } else {
+                name = m.name?.trim().let { when(it) {
+                    null, "" -> listOfNotNull(m.firstName, m.lastName).joinToString(" ").trim()
+                    else -> it
+                }}
+            }
+
             addresses.addAll(makeAddresses(m.addresses))
             telecoms.addAll(makeTelecoms(m.addresses))
 		}
@@ -114,7 +204,7 @@ open class KmehrExport {
                     ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
             )
 
-	fun makePatient(p : Patient, config: Config): PersonType {
+    suspend fun makePatient(p : Patient, config: Config): PersonType {
 		val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
 		return makePerson(p, config).apply {
 			ids.clear()
@@ -128,7 +218,7 @@ open class KmehrExport {
 		}
 	}
 
-	fun makePerson(p : Patient, config: Config) : PersonType {
+    suspend fun makePerson(p : Patient, config: Config) : PersonType {
         return makePersonBase(p, config).apply {
             p.dateOfDeath?.let {
                 if(it == 0) {
@@ -143,18 +233,20 @@ open class KmehrExport {
             usuallanguage= p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
+            if(!p.nationality.isNullOrBlank()) {
             p.nationality?.let { nat -> mapToCountryCode(nat)?.let { natCode -> nationality = PersonType.Nationality().apply { cd = CDCOUNTRY().apply { s(CDCOUNTRYschemes.CD_COUNTRY); value = natCode }}}}
         }
+    }
     }
 
     fun makePersonBase(p : Patient, config: Config) : PersonType {
 		val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
         return PersonType().apply {
             ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
-            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft!!.version; sl = "${config.soft!!.name}-Person-Id"; value = id }) }
+            p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName
-            sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { CDSEXvalues.fromValue(it.name) } ?: CDSEXvalues.UNKNOWN}}
+            sex= SexType().apply {cd = CDSEX().apply { s= "CD-SEX"; sv= "1.0"; value = p.gender?.let { try { CDSEXvalues.fromValue(it.name) } catch(e:Exception) { CDSEXvalues.UNKNOWN } } ?: CDSEXvalues.UNKNOWN}}
             p.dateOfBirth?.let { birthdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             recorddatetime = makeXGC(p.modified, true)
         }
@@ -172,14 +264,14 @@ open class KmehrExport {
                 value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
                     CDLIFECYCLEvalues.INACTIVE
                 } else {
-                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { CDLIFECYCLEvalues.fromValue(it.code) }
+                    svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { try { CDLIFECYCLEvalues.fromValue(it.code) } catch(e:java.lang.IllegalArgumentException) { null } }
                             ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
                 }
             } }
             if(cdItem == "medication") {
                 svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {
-                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code.toLowerCase()) }
+                        cd = CDTEMPORALITY().apply { s = "CD-TEMPORALITY"; value = CDTEMPORALITYvalues.fromValue(it.code!!.toLowerCase()) }
                     }
                 }
                 svc.content.entries.mapNotNull { it.value.medicationValue }.firstOrNull()?.let { med ->
@@ -271,7 +363,7 @@ open class KmehrExport {
                     }
                 }
             }
-            isIsrelevant = ServiceStatus.isRelevant(he.status) || he.isRelevant || lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE  // FIXME: two way to store the relevant status
+            isIsrelevant = ServiceStatus.isRelevant(he.status) || he.relevant || lifecycle.cd.value == CDLIFECYCLEvalues.ACTIVE  // FIXME: two way to store the relevant status
             beginmoment = (he.valueDate ?: he.openingDate).let { Utils.makeMomentTypeFromFuzzyLong(it) }
             endmoment = he.closingDate?.let {
                 if(it == 0L) {
@@ -296,7 +388,7 @@ open class KmehrExport {
         } ?: emptyList()
     }
 
-    fun makeAddresses(addresses: Collection<Address>?): List<AddressType> {
+    suspend fun makeAddresses(addresses: Collection<Address>?): List<AddressType> {
         return addresses?.filter { it.addressType != null && it.postalCode != null && it.street != null }?.mapTo(ArrayList<AddressType>()) { a ->
             AddressType().apply {
                 cds.add(CDADDRESS().apply { s(CDADDRESSschemes.CD_ADDRESS); value = a.addressType!!.name })
@@ -322,7 +414,7 @@ open class KmehrExport {
         }
     }
 
-    fun makeContent(language : String, content : Content) : ContentType? {
+    suspend fun makeContent(language: String, content: Content): ContentType? {
         return (content.booleanValue ?: content.numberValue ?: content.stringValue ?: content.instantValue
                 ?: content.measureValue ?: content.medicationValue ?: content.binaryValue ?: content.documentId).let {
             ContentType().apply {
@@ -411,9 +503,10 @@ open class KmehrExport {
             item.contents.add(0, ContentType().apply {texts.add(TextType().apply {l=lang; value= cnt?.medicationValue?.medicinalProduct?.intendedname?:cnt?.medicationValue?.substanceProduct?.intendedname?:cnt?.medicationValue?.compoundPrescription?:cnt?.stringValue?:""})})
             cnt?.medicationValue?.substanceProduct.let {sp->
                 cnt?.medicationValue?.duration?.let { d ->
+                    if (d.value != null) {
                     item.duration = DurationType().apply { decimal= BigDecimal.valueOf(d.value); unit = d.unit?.code?.let {
                         TimeunitType().apply { cd=CDTIMEUNIT().apply { s(CDTIMEUNITschemes.CD_TIMEUNIT); value=it } }
-                    }}
+                    }}}
                 }
             }
             cnt?.medicationValue?.posology?.let {
@@ -504,7 +597,7 @@ open class KmehrExport {
         }
     }
 
-    fun createFolder(sender: HealthcareParty, patient: Patient, cdTransaction: String, transactionType: CDTRANSACTIONschemes, dem: PlanOfAction, ssc: Form, text: String?, attachmentDocumentIds: List<String>, config: Config): FolderType {
+    suspend fun createFolder(sender: HealthcareParty, patient: Patient, cdTransaction: String, transactionType: CDTRANSACTIONschemes, dem: PlanOfAction, ssc: Form, text: String?, attachmentDocumentIds: List<String>, config: Config): FolderType {
         return FolderType().apply {
             ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = 1.toString() })
             this.patient = makePerson(patient, config)
@@ -519,7 +612,7 @@ open class KmehrExport {
 
                 if (text?.length ?: 0 >0) headingsAndItemsAndTexts.add(TextType().apply { l = "fr"; value = text })
                 attachmentDocumentIds.forEach { id ->
-                    val d = documentLogic?.get(id)
+                    val d = documentLogic.get(id)
                     d?.attachment.let {
                         headingsAndItemsAndTexts.add(LnkType().apply {
                             type = CDLNKvalues.MULTIMEDIA; mediatype = documentMediaType(d!!); value = d.attachment
@@ -530,7 +623,7 @@ open class KmehrExport {
         }
     }
 
-    fun initializeMessage(sender : HealthcareParty, config : Config) : Kmehrmessage {
+    suspend fun initializeMessage(sender : HealthcareParty, config: Config) : Kmehrmessage {
         return Kmehrmessage().apply {
             header = HeaderType().apply {
                 standard = StandardType().apply {
@@ -568,30 +661,41 @@ open class KmehrExport {
         }
     }
 
-	fun mapToCountryCode(country: String?): String? {
-		if (country == null) {return null }
-		if (codeLogic!!.isValid(Code("CD-FED-COUNTRY", country.toLowerCase(), "1"))) {
-			return country.toLowerCase()
-		} else {
-			try {
-				return codeLogic!!.getCodeByLabel(country, "CD-FED-COUNTRY").code
-			} catch (e:IllegalArgumentException) {
-				return null
-			}
-		}
+    private suspend fun mapToCountryCode(country: String?): String? {
+		if (country == null) { return null }
+
+        val key = "COUNTRY|$country"
+
+        return (codesMap[key]?.get() as String?) ?: CodeStub.from("CD-FED-COUNTRY", country.toLowerCase(), "1").let {
+            if (codeLogic.isValid(it)) {
+                it.code
+            } else {
+                try {
+                    codeLogic.getCodeByLabel("be", country, "CD-FED-COUNTRY")?.code
+                } catch (e:IllegalArgumentException) {
+                    null
+                }
+            }
+        }?.also {
+            codesMap[key] = SimpleValueWrapper(it)
+        }
 	}
 
-    fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
-        if (recipient is HealthcareParty) {
+    suspend fun exportContactReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+        when (recipient) {
+            is HealthcareParty -> {
             exportContactReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
-        } else if (recipient == null) {
+            }
+            null -> {
             exportContactReport(patient, sender, null, dem, ssc, text, attachmentDocIds, config, stream)
-        }  else {
+            }
+            else -> {
             throw IllegalArgumentException("Recipient is not a doctor; a hospital or a generic recipient")
         }
     }
+    }
 
-    fun exportContactReport(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportContactReport(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -606,7 +710,7 @@ open class KmehrExport {
         jaxbMarshaller.marshal(message, stream)
     }
 
-    fun exportReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportReportDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
             exportReport(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
@@ -616,7 +720,7 @@ open class KmehrExport {
         }
     }
 
-    fun exportReport(patient : Patient, sender : HealthcareParty, recipient : HealthcareParty?, dem : PlanOfAction, ssc : Form, text : String, attachmentDocIds : List<String>, config: Config, stream : OutputStream) {
+    suspend fun exportReport(patient : Patient, sender : HealthcareParty, recipient : HealthcareParty?, dem : PlanOfAction, ssc : Form, text : String, attachmentDocIds : List<String>, config: Config, stream : OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -632,7 +736,7 @@ open class KmehrExport {
 
     }
 
-    fun exportNoteDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportNoteDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
             exportNote(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
@@ -642,7 +746,7 @@ open class KmehrExport {
         }
     }
 
-    fun exportNote(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportNote(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -658,7 +762,7 @@ open class KmehrExport {
 
     }
 
-    fun exportPrescriptionDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportPrescriptionDynamic(patient: Patient, sender: HealthcareParty, recipient: Any?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         if (recipient is HealthcareParty) {
             exportPrescription(patient, sender, recipient, dem, ssc, text, attachmentDocIds, config, stream)
         } else if (recipient == null) {
@@ -668,7 +772,7 @@ open class KmehrExport {
         }
     }
 
-    fun exportPrescription(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
+    suspend fun exportPrescription(patient: Patient, sender: HealthcareParty, recipient: HealthcareParty?, dem: PlanOfAction, ssc: Form, text: String, attachmentDocIds: List<String>, config: Config, stream: OutputStream) {
         val message = initializeMessage(sender, config)
 
         message.header.recipients.add(RecipientType().apply {
@@ -749,11 +853,10 @@ open class KmehrExport {
 		}
     }
 
-	fun getCode(key:String) : Code? {
-		synchronized(unitCodes) {
+	suspend fun getCode(key:String) : Code? {
 		if (unitCodes.size==0) {
-				codeLogic!!.findCodesBy("CD-UNIT", null, null).forEach { unitCodes[it.id] = it }
-		}}
+			codeLogic.findCodesBy("CD-UNIT", null, null).collect { unitCodes[it.id] = it }
+		}
 		return unitCodes[key]
 	}
 

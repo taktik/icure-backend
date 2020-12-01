@@ -1,28 +1,15 @@
 package org.taktik.icure.entities.samv2.embed
 
-import java.io.Serializable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 
-class Vtm(
-        from: Long? = null,
-        to: Long? = null,
-        var code: String? = null,
-        var name: SamText? = null
-) : DataPeriod(from, to), Serializable {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Vtm) return false
-        if (!super.equals(other)) return false
-
-        if (code != other.code) return false
-        if (name != other.name) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + (code?.hashCode() ?: 0)
-        result = 31 * result + (name?.hashCode() ?: 0)
-        return result
-    }
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class Vtm(
+        override val from: Long? = null,
+        override val to: Long? = null,
+        val code: String? = null,
+        val name: SamText? = null
+) : DataPeriod

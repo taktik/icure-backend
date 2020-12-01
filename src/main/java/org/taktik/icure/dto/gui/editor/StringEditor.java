@@ -19,14 +19,20 @@
 package org.taktik.icure.dto.gui.editor;
 
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import org.taktik.icure.dto.gui.Editor;
-import org.taktik.icure.services.external.rest.handlers.JsonDiscriminated;
 
-@XStreamAlias("StringEditor")
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.taktik.icure.dto.gui.Editor;
+import org.taktik.icure.handlers.JsonPolymorphismRoot;
+
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StringEditor extends Editor implements ValueDateEditor {
-    @XStreamAsAttribute
     boolean displayValueDate;
 
     @Override

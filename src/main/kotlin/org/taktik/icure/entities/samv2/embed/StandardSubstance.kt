@@ -1,33 +1,17 @@
 package org.taktik.icure.entities.samv2.embed
 
-class StandardSubstance(
-        var code: String? = null,
-        var type : StandardSubstanceType? = null,
-        var name: SamText? = null,
-        var definition: SamText? = null,
-        var url: String? = null
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
 
-        other as StandardSubstance
-
-        if (code != other.code) return false
-        if (type != other.type) return false
-        if (name != other.name) return false
-        if (definition != other.definition) return false
-        if (url != other.url) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = code?.hashCode() ?: 0
-        result = 31 * result + (type?.hashCode() ?: 0)
-        result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (definition?.hashCode() ?: 0)
-        result = 31 * result + (url?.hashCode() ?: 0)
-        return result
-    }
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class StandardSubstance(
+        val code: String? = null,
+        val type: StandardSubstanceType? = null,
+        val name: SamText? = null,
+        val definition: SamText? = null,
+        val url: String? = null
+) : Serializable

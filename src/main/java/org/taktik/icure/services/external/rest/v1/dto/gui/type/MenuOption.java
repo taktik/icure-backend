@@ -18,18 +18,17 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 
 import java.io.Serializable;
 
-@XStreamAlias("menuOption")
 public class MenuOption extends Data implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private String key;
 	private String display;
-	
+
 	public MenuOption(String key, String display) {
 		super();
 		this.key = key;
@@ -38,7 +37,7 @@ public class MenuOption extends Data implements Serializable {
 
 
 	public MenuOption() {};
-	
+
 
 	public String getKey() {
 		return key;

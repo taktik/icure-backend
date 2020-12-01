@@ -7,6 +7,6 @@ enum class StandardSubstanceType(val value: String) {
     SNOMED_CT("SNOMED_CT");
 
     companion object Factory {
-        fun withValue(value: String): StandardSubstanceType = if(value == "DM+D")  DM_D else valueOf(value)
+        fun withValue(value: String): StandardSubstanceType = if (value == "DM+D") DM_D else valueOf(value)
     }
 }

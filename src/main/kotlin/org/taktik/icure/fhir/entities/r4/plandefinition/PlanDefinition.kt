@@ -1,0 +1,145 @@
+//
+//  Generated from FHIR Version 4.0.1-9346c8cc45
+//
+package org.taktik.icure.fhir.entities.r4.plandefinition
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.fhir.entities.r4.DomainResource
+import org.taktik.icure.fhir.entities.r4.Meta
+import org.taktik.icure.fhir.entities.r4.Resource
+import org.taktik.icure.fhir.entities.r4.codeableconcept.CodeableConcept
+import org.taktik.icure.fhir.entities.r4.contactdetail.ContactDetail
+import org.taktik.icure.fhir.entities.r4.extension.Extension
+import org.taktik.icure.fhir.entities.r4.identifier.Identifier
+import org.taktik.icure.fhir.entities.r4.narrative.Narrative
+import org.taktik.icure.fhir.entities.r4.period.Period
+import org.taktik.icure.fhir.entities.r4.reference.Reference
+import org.taktik.icure.fhir.entities.r4.relatedartifact.RelatedArtifact
+import org.taktik.icure.fhir.entities.r4.usagecontext.UsageContext
+
+/**
+ * The definition of a plan for a series of actions, independent of any specific patient or context
+ *
+ * This resource allows for the definition of various types of plans as a sharable, consumable, and
+ * executable artifact. The resource is general enough to support the description of a broad range of
+ * clinical artifacts such as clinical decision support rules, order sets and protocols.
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class PlanDefinition(
+  val action: List<PlanDefinitionAction> = listOf(),
+  /**
+   * When the plan definition was approved by publisher
+   */
+  val approvalDate: String? = null,
+  val author: List<ContactDetail> = listOf(),
+  val contact: List<ContactDetail> = listOf(),
+  override val contained: List<Resource> = listOf(),
+  /**
+   * Use and/or publishing restrictions
+   */
+  val copyright: String? = null,
+  /**
+   * Date last changed
+   */
+  val date: String? = null,
+  /**
+   * Natural language description of the plan definition
+   */
+  val description: String? = null,
+  val editor: List<ContactDetail> = listOf(),
+  /**
+   * When the plan definition is expected to be used
+   */
+  val effectivePeriod: Period? = null,
+  val endorser: List<ContactDetail> = listOf(),
+  /**
+   * For testing purposes, not real usage
+   */
+  val experimental: Boolean? = null,
+  override val extension: List<Extension> = listOf(),
+  val goal: List<PlanDefinitionGoal> = listOf(),
+  /**
+   * Logical id of this artifact
+   */
+  override val id: String? = null,
+  val identifier: List<Identifier> = listOf(),
+  /**
+   * A set of rules under which this content was created
+   */
+  override val implicitRules: String? = null,
+  val jurisdiction: List<CodeableConcept> = listOf(),
+  /**
+   * Language of the resource content
+   */
+  override val language: String? = null,
+  /**
+   * When the plan definition was last reviewed
+   */
+  val lastReviewDate: String? = null,
+  val library: List<String> = listOf(),
+  /**
+   * Metadata about the resource
+   */
+  override val meta: Meta? = null,
+  override val modifierExtension: List<Extension> = listOf(),
+  /**
+   * Name for this plan definition (computer friendly)
+   */
+  val name: String? = null,
+  /**
+   * Name of the publisher (organization or individual)
+   */
+  val publisher: String? = null,
+  /**
+   * Why this plan definition is defined
+   */
+  val purpose: String? = null,
+  val relatedArtifact: List<RelatedArtifact> = listOf(),
+  val reviewer: List<ContactDetail> = listOf(),
+  /**
+   * draft | active | retired | unknown
+   */
+  val status: String? = null,
+  /**
+   * Type of individual the plan definition is focused on
+   */
+  val subjectCodeableConcept: CodeableConcept? = null,
+  /**
+   * Type of individual the plan definition is focused on
+   */
+  val subjectReference: Reference? = null,
+  /**
+   * Subordinate title of the plan definition
+   */
+  val subtitle: String? = null,
+  /**
+   * Text summary of the resource, for human interpretation
+   */
+  override val text: Narrative? = null,
+  /**
+   * Name for this plan definition (human friendly)
+   */
+  val title: String? = null,
+  val topic: List<CodeableConcept> = listOf(),
+  /**
+   * order-set | clinical-protocol | eca-rule | workflow-definition
+   */
+  val type: CodeableConcept? = null,
+  /**
+   * Canonical identifier for this plan definition, represented as a URI (globally unique)
+   */
+  val url: String? = null,
+  /**
+   * Describes the clinical usage of the plan
+   */
+  val usage: String? = null,
+  val useContext: List<UsageContext> = listOf(),
+  /**
+   * Business version of the plan definition
+   */
+  val version: String? = null
+) : DomainResource

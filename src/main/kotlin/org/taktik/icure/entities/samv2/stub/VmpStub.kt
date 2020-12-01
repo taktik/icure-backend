@@ -1,33 +1,17 @@
 package org.taktik.icure.entities.samv2.stub
 
-import org.taktik.icure.entities.samv2.VmpGroup
-import org.taktik.icure.entities.samv2.embed.*
-import java.io.Serializable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
+import org.taktik.icure.entities.base.Identifiable
+import org.taktik.icure.entities.samv2.embed.SamText
 
-class VmpStub(
-        var id: String? = null,
-        var code: String? = null,
-        var vmpGroup: VmpGroupStub? = null,
-        var name: SamText? = null
-) : Serializable {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is VmpStub) return false
-
-        if (id != other.id) return false
-        if (code != other.code) return false
-        if (vmpGroup != other.vmpGroup) return false
-        if (name != other.name) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id?.hashCode() ?: 0
-        result = 31 * result + (code?.hashCode() ?: 0)
-        result = 31 * result + (vmpGroup?.hashCode() ?: 0)
-        result = 31 * result + (name?.hashCode() ?: 0)
-        return result
-    }
-
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class VmpStub(
+        override val id: String,
+        val code: String? = null,
+        val vmpGroup: VmpGroupStub? = null,
+        val name: SamText? = null
+) : Identifiable<String>

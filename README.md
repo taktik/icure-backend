@@ -16,3 +16,7 @@ git submodule init
 git submodule update
 ./gradlew bootRun
 ```
+
+## Access the Swagger: 
+- docker pull swaggerapi/swagger-ui
+- docker run -p 80:8080 -e URL="http://localhost:16043/v2/api-docs" swaggerapi/swagger-ui

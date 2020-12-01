@@ -1,0 +1,202 @@
+/*
+ * Copyright (C) 2018 Taktik SA
+ *
+ * This file is part of iCureBackend.
+ *
+ * iCureBackend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as published by
+ * the Free Software Foundation.
+ *
+ * iCureBackend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.taktik.icure.services.external.rest.v1.controllers.support
+
+import com.sendgrid.Method
+import com.sendgrid.Request
+import com.sendgrid.SendGrid
+import com.sendgrid.helpers.mail.Mail
+import com.sendgrid.helpers.mail.objects.Content
+import com.sendgrid.helpers.mail.objects.Email
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.reactor.mono
+import org.apache.commons.lang3.text.StrSubstitutor
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
+import org.taktik.icure.asynclogic.AsyncSessionLogic
+import org.taktik.icure.asynclogic.UserLogic
+import org.taktik.icure.db.PaginationOffset
+import org.taktik.icure.entities.User
+import org.taktik.icure.services.external.rest.v1.dto.PropertyStubDto
+import org.taktik.icure.services.external.rest.v1.dto.UserDto
+import org.taktik.icure.services.external.rest.v1.mapper.UserMapper
+import org.taktik.icure.services.external.rest.v1.mapper.base.PropertyStubMapper
+import org.taktik.icure.utils.firstOrNull
+import org.taktik.icure.utils.injectReactorContext
+import org.taktik.icure.utils.paginatedList
+
+/* Useful notes:
+ * @RequestParam is required by default, but @ApiParam (which is useful to add a description)
+ * is not required by default and overrides it, so we have to make sure they always match!
+ * Nicknames are required so that operationId is e.g. 'modifyAccessLog' instead of 'modifyAccessLogUsingPUT' */
+
+@ExperimentalCoroutinesApi
+@RestController
+@RequestMapping("/rest/v1/user")
+@Tag(name = "user") // otherwise would default to "user-controller"
+class UserController(private val userLogic: UserLogic,
+                     private val sessionLogic: AsyncSessionLogic,
+                     private val userMapper: UserMapper,
+                     private val propertyStubMapper: PropertyStubMapper
+) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+    private val DEFAULT_LIMIT = 1000
+    private val userToUserDto = { it: User -> userMapper.map(it) }
+
+    @Operation(summary = "Get presently logged-in user.", description = "Get current user.")
+    @GetMapping(value = ["/current"])
+    fun getCurrentUser() = mono {
+            val user = userLogic.getUser(sessionLogic.getCurrentUserId())
+                    ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting Current User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+            userMapper.map(user)
+    }
+
+    @Operation(summary = "Get Currently logged-in user session.", description = "Get current user.")
+    @GetMapping("/session", produces = ["text/plain"])
+    fun getCurrentSession(): String? { // TODO MB nullable or exception ?
+        return sessionLogic.getOrCreateSession()?.id
+    }
+
+    @Operation(summary = "List users with(out) pagination", description = "Returns a list of users.")
+    @GetMapping
+    fun listUsers(
+            @Parameter(description = "An user email") @RequestParam(required = false) startKey: String?,
+            @Parameter(description = "An user document ID") @RequestParam(required = false) startDocumentId: String?,
+            @Parameter(description = "Number of rows") @RequestParam(required = false) limit: Int?) = mono {
+
+        val realLimit = limit ?: DEFAULT_LIMIT // TODO SH MB: rather use defaultValue = DEFAULT_LIMIT everywhere?
+        val paginationOffset = PaginationOffset(startKey, startDocumentId, null, realLimit + 1)
+        val allUsers = userLogic.listUsers(paginationOffset)
+
+        allUsers.paginatedList<User, UserDto>(userToUserDto, realLimit)
+    }
+
+    @Operation(summary = "Create a user", description = "Create a user. HealthcareParty ID should be set. Email has to be set and the Login has to be null. On server-side, Email will be used for Login.")
+    @PostMapping
+    fun createUser(@RequestBody userDto: UserDto) = mono {
+        val user = try {
+            userLogic.createUser(userMapper.map(userDto.copy(groupId = null)))
+        } catch (e: Exception) {
+            logger.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User creation failed.")
+
+        userMapper.map(user)
+    }
+
+
+    @Operation(summary = "Get a user by his ID", description = "General information about the user")
+    @GetMapping("/{userId}")
+    fun getUser(@PathVariable userId: String) = mono {
+        val user = userLogic.getUser(userId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+        userMapper.map(user)
+    }
+
+    @Operation(summary = "Get a user by his Email/Login", description = "General information about the user")
+    @GetMapping("/byEmail/{email}")
+
+    fun getUserByEmail(@PathVariable email: String) = mono {
+        val user = userLogic.getUserByEmail(email)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Getting User failed. Possible reasons: no such user exists, or server error. Please try again or read the server log.")
+        userMapper.map(user)
+    }
+
+    @Operation(summary = "Get the list of users by healthcare party id")
+    @GetMapping("/byHealthcarePartyId/{id}")
+    fun findByHcpartyId(@PathVariable id: String) = userLogic.findByHcpartyId(id).injectReactorContext()
+
+    @Operation(summary = "Delete a User based on his/her ID.", description = "Delete a User based on his/her ID. The return value is an array containing the ID of deleted user.")
+    @DeleteMapping("/{userId}")
+    fun deleteUser(@PathVariable userId: String) = mono {
+        try {
+            userLogic.deleteByIds(setOf(userId)).firstOrNull()
+        } catch (e: Exception) {
+            logger.warn(e.message, e)
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
+        }
+    }
+
+
+    @Operation(summary = "Modify a user.", description = "No particular return value. It's just a message.")
+    @PutMapping
+    fun modifyUser(@RequestBody userDto: UserDto) = mono {
+        //Sanitize group
+        userLogic.modifyUser(userMapper.map(userDto.copy(groupId = null)))
+        val modifiedUser = userLogic.getUser(userDto.id)
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User modification failed.")
+
+        userMapper.map(modifiedUser)
+    }
+
+    @Operation(summary = "Assign a healthcare party ID to current user", description = "UserDto gets returned.")
+    @PutMapping("/current/hcparty/{healthcarePartyId}")
+    fun assignHealthcareParty(@PathVariable healthcarePartyId: String) = mono {
+        val modifiedUser = userLogic.getUser(sessionLogic.getCurrentUserId())
+        modifiedUser?.let {
+            userLogic.save(modifiedUser.copy(healthcarePartyId = healthcarePartyId))
+
+            userMapper.map(modifiedUser)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Assigning healthcare party ID to the current user failed.").also { logger.error(it.message) }
+    }
+
+    @Operation(summary = "Modify a User property", description = "Modify a User properties based on his/her ID. The return value is the modified user.")
+    @PutMapping("/{userId}/properties")
+    fun modifyProperties(@PathVariable userId: String, @RequestBody properties: List<PropertyStubDto>?) = mono {
+        val user = userLogic.getUser(userId)
+        user?.let {
+            val modifiedUser = userLogic.setProperties(user, properties?.map { p -> propertyStubMapper.map(p) }
+                    ?: listOf())
+            if (modifiedUser == null) {
+                logger.error("Modify a User property failed.")
+                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+            }
+            userMapper.map(modifiedUser)
+        } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Modify a User property failed.")
+
+    }
+
+    @GetMapping("/checkPassword")
+    fun checkPassword(@RequestHeader("password") password: String)  = mono {
+        userLogic.checkPassword(password)
+    }
+
+    @GetMapping("/encodePassword")
+    fun encodePassword(@RequestHeader("password") password: String)  = mono {
+        userLogic.encodePassword(password)
+    }
+
+}

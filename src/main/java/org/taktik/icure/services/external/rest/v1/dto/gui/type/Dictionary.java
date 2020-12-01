@@ -18,8 +18,8 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.type;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
 
 import java.io.Serializable;
 import java.util.Map;
@@ -27,9 +27,8 @@ import java.util.Map;
 /**
  * Created by aduchate on 19/11/13, 10:29
  */
-@XStreamAlias("TKDictionary")
 public class Dictionary extends Data implements Serializable {
-    @XStreamImplicit
+
     Map<String,? extends Serializable> value;
 
     public Map<String, ? extends Serializable> getValue() {

@@ -27,4 +27,5 @@ public interface UserDetails extends org.springframework.security.core.userdetai
 
 	String getLogoutURL();
 
+	String getId();
 }

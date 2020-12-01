@@ -1,11 +1,16 @@
 package org.taktik.icure.entities.samv2.embed
 
-import java.io.Serializable
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
 import java.math.BigDecimal
 
-class Reimbursement(
-        from: Long? = null,
-        to: Long? = null,
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class Reimbursement(
+        override val from: Long? = null,
+        override val to: Long? = null,
         var deliveryEnvironment: DeliveryEnvironment? = null,
         var code: String? = null,
         var codeType: DmppCodeType? = null,
@@ -21,7 +26,7 @@ class Reimbursement(
         var pricingSlice: Pricing? = null,
         var reimbursementCriterion: ReimbursementCriterion? = null,
         var copayments: List<Copayment>? = null
-) : DataPeriod(from, to), Serializable {
+) : DataPeriod {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -19,17 +19,25 @@
 package org.taktik.icure.dto.gui.editor;
 
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.taktik.icure.dto.gui.Column;
 import org.taktik.icure.dto.gui.Editor;
+import org.taktik.icure.handlers.JsonPolymorphismRoot;
 
 import java.util.List;
 
-@XStreamAlias("StringTableEditor")
+@JsonPolymorphismRoot(Editor.class)
+@JsonDeserialize(using= JsonDeserializer.None.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StringTableEditor extends Editor {
-	
-	@XStreamImplicit(itemFieldName = "Column")
+
+
     List<Column> columns;
 
 	public List<Column> getColumns() {
@@ -41,5 +49,5 @@ public class StringTableEditor extends Editor {
 	}
 
 //	Column value;
-	
+
 }

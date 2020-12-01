@@ -18,35 +18,26 @@
 
 package org.taktik.icure.services.external.rest.v1.dto.gui.layout;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
+
+
 import org.taktik.icure.services.external.rest.v1.dto.gui.Tag;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@XStreamAlias("FormLayout")
 public class FormLayout implements Serializable {
-    @XStreamAsAttribute
     private String name;
-    @XStreamAsAttribute
     private Double width;
-    @XStreamAsAttribute
     private Double height;
-    @XStreamAsAttribute
     private String descr;
-    
+
     private Tag tag;
-  
-    @XStreamAsAttribute
+
     private String guid;
-    @XStreamAsAttribute
     private String group;
-    @XStreamImplicit(itemFieldName="FormSection")
     private List<FormSection> sections = new ArrayList<>();
-    @XStreamImplicit(itemFieldName = "ImportedServiceXPath")
     List<String> importedServiceXPaths;
 
 	public FormLayout() {
