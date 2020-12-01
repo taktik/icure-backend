@@ -1,26 +1,26 @@
 /*
- * Copyright (C) 2018 Taktik SA
+ *  iCure Data Stack. Copyright (c) 2020 Taktik SA
  *
- * This file is part of iCureBackend.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
  *
- * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
+ *     This program is distributed in the hope that it will be useful, but
+ *     WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Affero General Public License for more details.
  *
- * iCureBackend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ *     You should have received a copy of the GNU Affero General Public
+ *     License along with this program.  If not, see
+ *     <https://www.gnu.org/licenses/>.
  */
 
 //
-// Ce fichier a été généré par l'implémentation de référence JavaTM Architecture for XML Binding (JAXB), v2.2.8-b130911.1802 
-// Voir <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a> 
-// Toute modification apportée à ce fichier sera perdue lors de la recompilation du schéma source. 
-// Généré le : 2017.03.08 à 06:26:06 PM CET 
+// Ce fichier a été généré par l'implémentation de référence JavaTM Architecture for XML Binding (JAXB), v2.2.8-b130911.1802
+// Voir <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a>
+// Toute modification apportée à ce fichier sera perdue lors de la recompilation du schéma source.
+// Généré le : 2017.03.08 à 06:26:06 PM CET
 //
 
 
@@ -34,18 +34,18 @@ import javax.xml.namespace.QName;
 
 
 /**
- * This object contains factory methods for each 
- * Java content interface and Java element interface 
- * generated in the org.w3._2000._09.xmldsig_ package. 
- * <p>An ObjectFactory allows you to programatically 
- * construct new instances of the Java representation 
- * for XML content. The Java representation of XML 
- * content can consist of schema derived interfaces 
- * and classes representing the binding of schema 
- * type definitions, element declarations and model 
- * groups.  Factory methods for each of these are 
+ * This object contains factory methods for each
+ * Java content interface and Java element interface
+ * generated in the org.w3._2000._09.xmldsig_ package.
+ * <p>An ObjectFactory allows you to programatically
+ * construct new instances of the Java representation
+ * for XML content. The Java representation of XML
+ * content can consist of schema derived interfaces
+ * and classes representing the binding of schema
+ * type definitions, element declarations and model
+ * groups.  Factory methods for each of these are
  * provided in this class.
- * 
+ *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -64,14 +64,14 @@ public class ObjectFactory {
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.w3._2000._09.xmldsig_
-     * 
+     *
      */
     public ObjectFactory() {
     }
 
     /**
      * Create an instance of {@link Signature }
-     * 
+     *
      */
     public Signature createSignature() {
         return new Signature();
@@ -79,7 +79,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PGPData }
-     * 
+     *
      */
     public PGPData createPGPData() {
         return new PGPData();
@@ -87,7 +87,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link KeyValue }
-     * 
+     *
      */
     public KeyValue createKeyValue() {
         return new KeyValue();
@@ -95,7 +95,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DSAKeyValue }
-     * 
+     *
      */
     public DSAKeyValue createDSAKeyValue() {
         return new DSAKeyValue();
@@ -103,7 +103,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RSAKeyValue }
-     * 
+     *
      */
     public RSAKeyValue createRSAKeyValue() {
         return new RSAKeyValue();
@@ -111,7 +111,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Reference }
-     * 
+     *
      */
     public Reference createReference() {
         return new Reference();
@@ -119,7 +119,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Transforms }
-     * 
+     *
      */
     public Transforms createTransforms() {
         return new Transforms();
@@ -127,7 +127,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Transform }
-     * 
+     *
      */
     public Transform createTransform() {
         return new Transform();
@@ -135,7 +135,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DigestMethod }
-     * 
+     *
      */
     public DigestMethod createDigestMethod() {
         return new DigestMethod();
@@ -143,7 +143,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RetrievalMethod }
-     * 
+     *
      */
     public RetrievalMethod createRetrievalMethod() {
         return new RetrievalMethod();
@@ -151,7 +151,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link CanonicalizationMethod }
-     * 
+     *
      */
     public CanonicalizationMethod createCanonicalizationMethod() {
         return new CanonicalizationMethod();
@@ -159,7 +159,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Manifest }
-     * 
+     *
      */
     public Manifest createManifest() {
         return new Manifest();
@@ -167,7 +167,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SignatureProperty }
-     * 
+     *
      */
     public SignatureProperty createSignatureProperty() {
         return new SignatureProperty();
@@ -175,7 +175,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link X509Data }
-     * 
+     *
      */
     public X509Data createX509Data() {
         return new X509Data();
@@ -183,7 +183,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link X509IssuerSerialType }
-     * 
+     *
      */
     public X509IssuerSerialType createX509IssuerSerialType() {
         return new X509IssuerSerialType();
@@ -191,7 +191,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SignedInfo }
-     * 
+     *
      */
     public SignedInfo createSignedInfo() {
         return new SignedInfo();
@@ -199,7 +199,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SignatureMethod }
-     * 
+     *
      */
     public SignatureMethod createSignatureMethod() {
         return new SignatureMethod();
@@ -207,7 +207,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SPKIData }
-     * 
+     *
      */
     public SPKIData createSPKIData() {
         return new SPKIData();
@@ -215,7 +215,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SignatureValue }
-     * 
+     *
      */
     public SignatureValue createSignatureValue() {
         return new SignatureValue();
@@ -223,7 +223,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link KeyInfo }
-     * 
+     *
      */
     public KeyInfo createKeyInfo() {
         return new KeyInfo();
@@ -231,7 +231,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Object }
-     * 
+     *
      */
     public Object createObject() {
         return new Object();
@@ -239,7 +239,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SignatureProperties }
-     * 
+     *
      */
     public SignatureProperties createSignatureProperties() {
         return new SignatureProperties();
@@ -247,7 +247,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "KeyName")
     public JAXBElement<String> createKeyName(String value) {
@@ -256,7 +256,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "MgmtData")
     public JAXBElement<String> createMgmtData(String value) {
@@ -265,7 +265,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "DigestValue")
     public JAXBElement<byte[]> createDigestValue(byte[] value) {
@@ -274,7 +274,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "SPKISexp", scope = SPKIData.class)
     public JAXBElement<byte[]> createSPKIDataSPKISexp(byte[] value) {
@@ -283,7 +283,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link BigInteger }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "HMACOutputLength", scope = SignatureMethod.class)
     public JAXBElement<BigInteger> createSignatureMethodHMACOutputLength(BigInteger value) {
@@ -292,7 +292,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "XPath", scope = Transform.class)
     public JAXBElement<String> createTransformXPath(String value) {
@@ -301,7 +301,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link X509IssuerSerialType }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "X509IssuerSerial", scope = X509Data.class)
     public JAXBElement<X509IssuerSerialType> createX509DataX509IssuerSerial(X509IssuerSerialType value) {
@@ -310,7 +310,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "X509CRL", scope = X509Data.class)
     public JAXBElement<byte[]> createX509DataX509CRL(byte[] value) {
@@ -319,7 +319,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "X509SubjectName", scope = X509Data.class)
     public JAXBElement<String> createX509DataX509SubjectName(String value) {
@@ -328,7 +328,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "X509SKI", scope = X509Data.class)
     public JAXBElement<byte[]> createX509DataX509SKI(byte[] value) {
@@ -337,7 +337,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
-     * 
+     *
      */
     @XmlElementDecl(namespace = "http://www.w3.org/2000/09/xmldsig#", name = "X509Certificate", scope = X509Data.class)
     public JAXBElement<byte[]> createX509DataX509Certificate(byte[] value) {

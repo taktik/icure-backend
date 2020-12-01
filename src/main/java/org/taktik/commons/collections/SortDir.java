@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2018 Taktik SA
+ *  iCure Data Stack. Copyright (c) 2020 Taktik SA
  *
- * This file is part of iCureBackend.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
  *
- * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
+ *     This program is distributed in the hope that it will be useful, but
+ *     WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Affero General Public License for more details.
  *
- * iCureBackend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ *     You should have received a copy of the GNU Affero General Public
+ *     License along with this program.  If not, see
+ *     <https://www.gnu.org/licenses/>.
  */
 
 package org.taktik.commons.collections;
@@ -61,12 +61,12 @@ public enum SortDir {
 
 	/**
 	 * An example of how to use this :
-	 * 
+	 *
 	 * List<Something> list = ...
-	 * 
+	 *
 	 * Collections.sort(list, SortDir.ASC.comparator(new Comparator() { public int compare(Object o1, Object o2) { return ... } });
-	 * 
-	 * 
+	 *
+	 *
 	 * @return a Comparator that wraps the specific comparator that orders the results according to the sort direction
 	 */
 	public abstract <X> Comparator<X> comparator(Comparator<X> c);

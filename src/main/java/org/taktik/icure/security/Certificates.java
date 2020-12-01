@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2018 Taktik SA
+ *  iCure Data Stack. Copyright (c) 2020 Taktik SA
  *
- * This file is part of iCureBackend.
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as
+ *     published by the Free Software Foundation, either version 3 of the
+ *     License, or (at your option) any later version.
  *
- * iCureBackend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as published by
- * the Free Software Foundation.
+ *     This program is distributed in the hope that it will be useful, but
+ *     WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Affero General Public License for more details.
  *
- * iCureBackend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with iCureBackend.  If not, see <http://www.gnu.org/licenses/>.
+ *     You should have received a copy of the GNU Affero General Public
+ *     License along with this program.  If not, see
+ *     <https://www.gnu.org/licenses/>.
  */
 
 package org.taktik.icure.security;
@@ -60,9 +60,9 @@ public class Certificates {
 		BigInteger 	serial = BigInteger.valueOf(RSAKeysUtils.random.nextLong());
 		Date 		notBefore = new Date(System.currentTimeMillis() - 10000);
 		Date		notAfter = new Date(System.currentTimeMillis() + 24L * 3600 * 1000);
-		
+
 		SubjectPublicKeyInfo spki = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-		
+
 		X509v3CertificateBuilder x509v3CertBuilder = new X509v3CertificateBuilder(issuer, serial, notBefore, notAfter, subject, spki);
 		x509v3CertBuilder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true)); // icure is CA
 
@@ -75,7 +75,7 @@ public class Certificates {
 		X509CertificateHolder holder = x509v3CertBuilder.build(contentSigner);
 		Certificate certificateStructure = holder.toASN1Structure();
 		X509Certificate certificate = convertToJavaCertificate(certificateStructure);
-		
+
 		certificate.verify(publicKey);
 
 		return certificate;
@@ -130,7 +130,7 @@ public class Certificates {
 		Date 		notBefore = new Date(System.currentTimeMillis() - 10000);
 		Date		notAfter = new Date(System.currentTimeMillis() + 24L * 3600 * 1000);
 		SubjectPublicKeyInfo spki = SubjectPublicKeyInfo.getInstance(hcpartyPublicKey.getEncoded());
-		
+
 
 		X509v3CertificateBuilder x509v3CertBuilder = new X509v3CertificateBuilder(issuer, serial, notBefore, notAfter, subject, spki);
 		x509v3CertBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(false)); // hcparty is not CA
@@ -151,12 +151,12 @@ public class Certificates {
 		X509CertificateHolder holder = x509v3CertBuilder.build(contentSigner);
 		Certificate certificateStructure = holder.toASN1Structure();
 		X509Certificate certificate = convertToJavaCertificate(certificateStructure);
-		
+
 		certificate.verify(icurePublicKey);
 
 		return certificate;
 	}
-	
+
 	public static X509Certificate createMasterCertificateV3(KeyPair keyPair) throws Exception {
 		return createMasterCertificateV3(keyPair.getPublic(), keyPair.getPrivate());
 	}
