@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.entity.ComplexKey
@@ -39,7 +39,6 @@ import org.taktik.icure.entities.base.Code
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.firstOrNull
-import java.net.URI
 
 /**
  * Created by aduchate on 18/07/13, 13:36

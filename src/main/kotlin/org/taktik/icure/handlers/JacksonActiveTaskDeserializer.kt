@@ -23,10 +23,10 @@ import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import org.springframework.boot.jackson.JsonObjectDeserializer
-import org.taktik.couchdb.ActiveTask
-import org.taktik.couchdb.DatabaseCompactionTask
-import org.taktik.couchdb.Indexer
-import org.taktik.couchdb.ViewCompactionTask
+import org.taktik.couchdb.entity.ActiveTask
+import org.taktik.couchdb.entity.DatabaseCompactionTask
+import org.taktik.couchdb.entity.Indexer
+import org.taktik.couchdb.entity.ViewCompactionTask
 
 class JacksonActiveTaskDeserializer : JsonObjectDeserializer<ActiveTask>() {
     private val discriminator = "type"

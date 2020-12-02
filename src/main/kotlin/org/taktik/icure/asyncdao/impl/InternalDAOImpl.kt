@@ -27,13 +27,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
-import org.ektorp.impl.NameConventions
-import org.ektorp.support.StdDesignDocumentFactory
+import org.taktik.couchdb.entity.NameConventions
+import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.BulkUpdateResult
-import org.taktik.couchdb.DesignDocument
+import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.View
+import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.DocumentNotFoundException
@@ -152,9 +152,9 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
         val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         val designDocId = NameConventions.designDocName(this.entityClass)
         val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
-            org.ektorp.support.DesignDocument(it.id).apply {
+            org.taktik.couchdb.support.DesignDocument(it.id).apply {
                 revision = it.rev
-                views = it.views.mapValues { org.ektorp.support.DesignDocument.View().apply {
+                views = it.views.mapValues { org.taktik.couchdb.support.DesignDocument.View().apply {
                     map= it.value?.map; reduce= it.value?.reduce
                 } }
                 updates = it.updateHandlers

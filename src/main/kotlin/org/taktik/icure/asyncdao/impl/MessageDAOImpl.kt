@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.ViewQueryResultEvent
@@ -41,7 +41,6 @@ import org.taktik.icure.entities.Message
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
 import org.taktik.icure.utils.pagedViewQuery
-import java.net.URI
 
 
 @FlowPreview

@@ -18,14 +18,9 @@
 
 package org.taktik.couchdb
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.util.TokenBuffer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.common.reflect.TypeParameter
@@ -50,6 +45,10 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
+import org.taktik.couchdb.entity.ActiveTask
+import org.taktik.couchdb.entity.AttachmentResult
+import org.taktik.couchdb.entity.Change
+import org.taktik.couchdb.entity.CouchDbException
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.ViewResultException
 import org.taktik.couchdb.parser.EndArray
@@ -71,9 +70,6 @@ import org.taktik.couchdb.parser.toObject
 import org.taktik.icure.dao.Option
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.Versionable
-import org.taktik.icure.handlers.JacksonActiveTaskDeserializer
-import org.taktik.icure.utils.InstantDeserializer
-import org.taktik.icure.utils.InstantSerializer
 import org.taktik.springframework.web.reactive.basicAuth
 import org.taktik.springframework.web.reactive.getResponseBytesFlow
 import org.taktik.springframework.web.reactive.getResponseJsonEvents
@@ -82,194 +78,10 @@ import reactor.core.publisher.Mono
 import java.lang.reflect.Type
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import java.time.Instant
 import kotlin.math.max
 import kotlin.math.min
 
-
 typealias CouchDbDocument = Versionable<String>
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class DesignDocument(
-        @JsonProperty("_id") override var id: String,
-        @JsonProperty("_rev") override var rev: String? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String> = mapOf(),
-        val language: String? = null,
-        val views: Map<String, View?> = mapOf(),
-        val lists: Map<String, String> = mapOf(),
-        val shows: Map<String, String> = mapOf(),
-        val updateHandlers: Map<String, String>? = null,
-        val filters: Map<String, String> = mapOf()
-) : CouchDbDocument {
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-}
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class User(
-        @JsonProperty("_id") override val id: String,
-        @JsonProperty("_rev") override val rev: String? = null,
-        @JsonProperty("rev_history") override val revHistory: Map<String, String> = mapOf(),
-        val name: String? = null,
-        val password: String? = null,
-        val roles: List<String> = listOf()
-) : CouchDbDocument {
-    val type: String = "user"
-
-    override fun withIdRev(id: String?, rev: String) = if (id != null) this.copy(id = id, rev = rev) else this.copy(rev = rev)
-}
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class ReplicatorDocument(
-        override val id: String,
-        override val rev: String?,
-        val source: String? = null,
-        val target: String? = null,
-        val create_target: Boolean = false,
-        val continuous: Boolean = false,
-        override val revHistory: Map<String, String>? = null
-) : CouchDbDocument {
-    override fun withIdRev(id: String?, rev: String) = id?.let { this.copy(id = it, rev = rev) } ?: this.copy(rev = rev)
-}
-
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JacksonActiveTaskDeserializer::class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-sealed class ActiveTask(
-        val pid: String? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        val updated_on: Instant? = null
-)
-
-@Suppress("unused")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-class UnsupportedTask(
-        pid: String? = null,
-        val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        updated_on: Instant? = null
-) : ActiveTask(pid, started_on, updated_on)
-
-@Suppress("unused")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-class DatabaseCompactionTask(
-        pid: String? = null,
-        val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        updated_on: Instant? = null,
-        val database: String?,
-        val total_changes: Double?,
-        val completed_changes: Double?
-) : ActiveTask(pid, started_on, updated_on)
-
-@Suppress("unused")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-class ViewCompactionTask(
-        pid: String? = null,
-        val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        updated_on: Instant? = null,
-        val database: String?,
-        val design_document: String?,
-        val phase: String?,
-        val total_changes: Double?,
-        val view: Double?,
-        val completed_changes: Double?
-) : ActiveTask(pid, started_on, updated_on)
-
-@Suppress("unused")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Indexer(
-        pid: String? = null,
-        val progress: Int? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        updated_on: Instant? = null,
-        val database: String?,
-        val node: String?,
-        val design_document: String?,
-        val total_changes: Double?,
-        val completedChanges: Double?
-) : ActiveTask(pid, started_on, updated_on)
-
-@Suppress("unused")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-class ReplicationTask(
-        pid: String? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        started_on: Instant? = null,
-        @JsonSerialize(using = InstantSerializer::class)
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        @JsonDeserialize(using = InstantDeserializer::class)
-        updated_on: Instant? = null,
-        val replication_id: String?,
-        val doc_id: String?,
-        val node: String?,
-        val continuous: Boolean,
-        val changes_pending: Double?,
-        val doc_write_failures: Double,
-        val docs_read: Double,
-        val docs_written: Double,
-        val missing_revisions_found: Double,
-        val revisions_checked: Double,
-        val source: String?,
-        val target: String?,
-        val source_seq: String?,
-        val checkpointed_source_seq: String?,
-        val checkpoint_interval: Double
-) : ActiveTask(pid, started_on, updated_on)
-
-class CouchDbException(message: String, val statusCode: Int, val statusMessage: String, val error: String? = null, val reason: String? = null) : RuntimeException(message)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class View(val map: String, val reduce: String?)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class AttachmentResult(val id: String, val rev: String, val ok: Boolean)
 
 /**
  * An event in the [Flow] returned by [Client.queryView]
@@ -475,7 +287,7 @@ class ClientImpl(private val httpClient: WebClient,
                 .allDocs()
                 .includeDocs(true)
                 .keys(ids)
-        viewQuery.setIgnoreNotFound(true)
+                .ignoreNotFound(true)
         return queryView(viewQuery, String::class.java, AllDocsViewValue::class.java, clazz)
     }
 
@@ -889,7 +701,7 @@ class ClientImpl(private val httpClient: WebClient,
             }
 
     private fun ignoreError(query: ViewQuery, error: String): Boolean {
-        return query.isIgnoreNotFound() && NOT_FOUND_ERROR == error
+        return query.ignoreNotFound && NOT_FOUND_ERROR == error
     }
 
     suspend fun <T> WebClient.RequestHeadersSpec<*>.getCouchDbResponse(clazz: Class<T>, emptyResponseAsNull: Boolean = false, nullIf404: Boolean = false): T? = this.getCouchDbResponseWithType(clazz, emptyResponseAsNull, nullIf404)

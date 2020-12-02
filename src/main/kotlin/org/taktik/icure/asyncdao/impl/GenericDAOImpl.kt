@@ -32,13 +32,13 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
-import org.ektorp.impl.NameConventions
-import org.ektorp.support.StdDesignDocumentFactory
+import org.taktik.couchdb.entity.NameConventions
+import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.Client
-import org.taktik.couchdb.DesignDocument
+import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.View
+import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.get
@@ -80,7 +80,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
     private suspend fun designDocContainsAllView(dbInstanceUrl: URI): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.get<org.taktik.couchdb.DesignDocument>(NameConventions.designDocName(entityClass))?.views?.containsKey("all")
+        return client.get<DesignDocument>(NameConventions.designDocName(entityClass))?.views?.containsKey("all")
                 ?: false
     }
 
@@ -334,9 +334,9 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
     override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
             val designDocId = NameConventions.designDocName(this.entityClass)
         val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
-            org.ektorp.support.DesignDocument(it.id).apply {
+            org.taktik.couchdb.support.DesignDocument(it.id).apply {
                 revision = it.rev
-                views = it.views.mapValues { org.ektorp.support.DesignDocument.View().apply {
+                views = it.views.mapValues { org.taktik.couchdb.support.DesignDocument.View().apply {
                     map= it.value?.map; reduce= it.value?.reduce
                 } }
                 updates = it.updateHandlers
@@ -369,8 +369,8 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         val designDocument = client.get(designDocId, DesignDocument::class.java)
         if (designDocument == null) {
             client.update(
-                    (org.ektorp.support.DesignDocument(designDocId)
-                            .apply { addView("revs", org.ektorp.support.DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }")) })
+                    (org.taktik.couchdb.support.DesignDocument(designDocId)
+                            .apply { addView("revs", org.taktik.couchdb.support.DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }")) })
                             .let {
                                 DesignDocument(
                                         id = designDocId,

@@ -1,5 +1,5 @@
 /*
- *  iCure Data Stack. Copyright (c) 2020 Taktik SA
+ *  iCure Data Stack. Copyright (c) 2020  aduchate
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -16,10 +16,22 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.couchdb
+package org.taktik.couchdb.support
 
-data class Change<out T>(val seq: String, val id: String, val changes: List<Any>, val doc: T, val deleted: Boolean = false) {
-    override fun toString(): String {
-        return "Change(seq=$seq, id=$id, changes=$changes, deleted=$deleted)"
-    }
+import org.taktik.couchdb.entity.DesignDocument
+
+/**
+ *
+ * @author henrik lundgren
+ */
+interface DesignDocumentFactory {
+    /**
+     * Generates a design document with views, lists, shows and filters generated and loaded
+     * according to the annotations found in the metaDataSource object.
+     *
+     * @param metaDataSource
+     * @return
+     */
+    fun generateFrom(id: String, metaDataSource: Any): DesignDocument
+
 }

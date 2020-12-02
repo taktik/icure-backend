@@ -18,9 +18,8 @@
 
 package org.taktik.icure.asyncdao
 
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.taktik.icure.entities.PropertyType
-import java.net.URI
 
 interface PropertyTypeDAO: GenericDAO<PropertyType> {
     @View(name = "by_identifier", map = "function(doc) {\n" +

@@ -23,11 +23,11 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import org.taktik.couchdb.ActiveTask
-import org.taktik.couchdb.DatabaseCompactionTask
-import org.taktik.couchdb.Indexer
-import org.taktik.couchdb.ReplicationTask
-import org.taktik.couchdb.UnsupportedTask
+import org.taktik.couchdb.entity.ActiveTask
+import org.taktik.couchdb.entity.DatabaseCompactionTask
+import org.taktik.couchdb.entity.Indexer
+import org.taktik.couchdb.entity.ReplicationTask
+import org.taktik.couchdb.entity.UnsupportedTask
 import java.lang.reflect.Type
 
 class ActiveTaskAdapterFactory : JsonAdapter.Factory {

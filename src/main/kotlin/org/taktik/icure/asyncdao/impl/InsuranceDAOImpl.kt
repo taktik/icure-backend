@@ -21,7 +21,7 @@ package org.taktik.icure.asyncdao.impl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import org.ektorp.support.View
+import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.entity.ComplexKey
@@ -33,7 +33,6 @@ import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
-import java.net.URI
 
 @Repository("insuranceDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Insurance' && !doc.deleted) emit( null, doc._id )}")
