@@ -16,7 +16,9 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.couchdb.exception
+package org.taktik.couchdb.util
+
+import org.taktik.couchdb.exception.DbAccessException
 
 /**
  *
