@@ -12,7 +12,7 @@ To install compile and start:
 
 ```
 git clone git@github.com:taktik/icure-backend.git
-./gradlew bootRun
+./gradlew :bootRun
 ```
 
 if you wish to build & run this project using the IntelliJ idea, you'll have to run the kaptKotlin gradle task before
