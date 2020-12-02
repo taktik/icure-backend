@@ -18,7 +18,7 @@
 
 package org.taktik.couchdb.entity
 
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 
 /**
  * @param <T> The type of the entity identity (a String, a UUID, etc.)

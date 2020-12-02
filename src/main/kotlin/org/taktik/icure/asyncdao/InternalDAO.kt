@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.BulkUpdateResult
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.dao.Option
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 
 interface InternalDAO<T : Identifiable<String>> {
 

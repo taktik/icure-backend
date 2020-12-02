@@ -21,7 +21,7 @@ package org.taktik.icure.domain.filter.impl
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.AbstractFilter
 import org.taktik.icure.domain.filter.Filters
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 
 @KotlinBuilder
 data class ConstantFilter<O : Identifiable<String>>(

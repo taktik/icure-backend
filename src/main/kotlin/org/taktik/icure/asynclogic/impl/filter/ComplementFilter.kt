@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 import java.io.Serializable
 
 class ComplementFilter<T : Serializable, O : Identifiable<T>> : Filter<T, O, org.taktik.icure.domain.filter.Filters.ComplementFilter<T, O>> {

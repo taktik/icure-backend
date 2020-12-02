@@ -19,7 +19,7 @@
 package org.taktik.icure.asyncdao
 
 import org.taktik.couchdb.dao.Option
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 import java.net.URI
 
 interface LookupDAO<T : Identifiable<String>> {
