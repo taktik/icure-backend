@@ -21,10 +21,12 @@ package org.taktik.couchdb.entity
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.CouchDbDocument
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class DesignDocument(
         @JsonProperty("_id") override var id: String,
         @JsonProperty("_rev") override var rev: String? = null,
@@ -76,4 +78,5 @@ data class DesignDocument(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
 data class View(val map: String, val reduce: String? = null)

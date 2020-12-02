@@ -16,21 +16,25 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.couchdb.entity;
+package org.taktik.couchdb.entity
+
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  *
  * @author henrik lundgren
- *
  */
-public class ViewGenerationException extends RuntimeException {
-
-	private static final long serialVersionUID = -1442749478483625619L;
-
-	public ViewGenerationException(String message) {
-		super(message);
-	}
-
-	public ViewGenerationException(String format, Object... args) {
-		super(String.format(format, args));
-	}
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Attachment(
+        @JsonIgnore val id: String? = null,
+        @field:JsonProperty("content_type") val contentType: String? = null,
+        @JsonIgnore val contentLength: Long = 0,
+        @field:JsonProperty("data") val dataBase64: String? = null,
+        val isStub: Boolean = false,
+        val revpos: Int = 0,
+        val digest: String? = null
+)

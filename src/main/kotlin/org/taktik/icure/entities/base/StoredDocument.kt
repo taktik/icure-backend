@@ -18,7 +18,7 @@
 package org.taktik.icure.entities.base
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.ektorp.Attachment
+import org.taktik.couchdb.entity.Attachment
 import org.taktik.icure.entities.embed.RevisionInfo
 
 interface StoredDocument : Versionable<String> {
