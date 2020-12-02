@@ -20,10 +20,10 @@ package org.taktik.couchdb.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.commons.io.IOUtils
-import org.ektorp.util.ReflectionUtils
 import org.taktik.couchdb.annotation.View
 import org.taktik.couchdb.annotation.Views
 import org.taktik.couchdb.util.Exceptions
+import org.taktik.couchdb.util.ReflectionUtils
 import java.io.FileNotFoundException
 import java.lang.ref.SoftReference
 import java.util.HashMap
