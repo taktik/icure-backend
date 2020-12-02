@@ -26,11 +26,10 @@ import org.taktik.couchdb.util.Exceptions
 import org.taktik.couchdb.util.Predicate
 import org.taktik.couchdb.util.ReflectionUtils
 import java.io.FileNotFoundException
-import java.lang.ref.SoftReference
 import java.util.HashMap
 
 class SimpleViewGenerator {
-    private var mapperRef: SoftReference<ObjectMapper>? = null
+
     fun generateViews(
             repository: Any,
     ): Map<String, org.taktik.couchdb.entity.View> {
