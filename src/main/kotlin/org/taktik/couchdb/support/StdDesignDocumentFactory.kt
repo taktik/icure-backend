@@ -151,7 +151,7 @@ class StdDesignDocumentFactory : DesignDocumentFactory {
             input: Filter,
             metaDataClass: Class<*>,
     ): String {
-        if (input.file.length > 0) {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "Filter must either have file or function value set")
@@ -162,7 +162,7 @@ class StdDesignDocumentFactory : DesignDocumentFactory {
             input: UpdateHandler,
             metaDataClass: Class<*>,
     ): String {
-        if (input.file.length > 0) {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "UpdateHandler must either have file or function value set")
@@ -173,7 +173,7 @@ class StdDesignDocumentFactory : DesignDocumentFactory {
             input: ListFunction,
             metaDataClass: Class<*>,
     ): String {
-        if (input.file.length > 0) {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "ListFunction must either have file or function value set")
@@ -184,7 +184,7 @@ class StdDesignDocumentFactory : DesignDocumentFactory {
             input: ShowFunction,
             metaDataClass: Class<*>,
     ): String {
-        if (input.file.length > 0) {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "ShowFunction must either have file or function value set")
