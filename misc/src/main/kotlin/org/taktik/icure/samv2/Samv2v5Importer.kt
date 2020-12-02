@@ -18,35 +18,42 @@
 
 package org.taktik.icure.samv2
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.sun.xml.internal.ws.util.NoCloseInputStream
-import org.ektorp.UpdateConflictException
-import org.ektorp.http.StdHttpClient
-import org.ektorp.impl.StdCouchDbInstance
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import org.springframework.web.reactive.function.client.WebClient
+import org.taktik.couchdb.create
+import org.taktik.couchdb.update
+import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
+import org.taktik.icure.asyncdao.samv2.impl.AmpDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.NmpDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.PharmaceuticalFormDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.ProductIdDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.SubstanceDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.VmpDAOImpl
+import org.taktik.icure.asyncdao.samv2.impl.VmpGroupDAOImpl
 import org.taktik.icure.be.samv2v5.entities.CommentedClassificationFullDataType
 import org.taktik.icure.be.samv2v5.entities.ExportActualMedicinesType
 import org.taktik.icure.be.samv2v5.entities.ExportNonMedicinalType
 import org.taktik.icure.be.samv2v5.entities.ExportReimbursementsType
 import org.taktik.icure.be.samv2v5.entities.ExportVirtualMedicinesType
-import org.taktik.icure.dao.impl.ektorp.CouchDbICureConnector
-import org.taktik.icure.dao.impl.ektorp.StdCouchDbICureConnector
 import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
-import org.taktik.icure.dao.samv2.impl.AmpDAOImpl
-import org.taktik.icure.dao.samv2.impl.NmpDAOImpl
-import org.taktik.icure.dao.samv2.impl.PharmaceuticalFormDAOImpl
-import org.taktik.icure.dao.samv2.impl.ProductIdDAOImpl
-import org.taktik.icure.dao.samv2.impl.SubstanceDAOImpl
-import org.taktik.icure.dao.samv2.impl.VmpDAOImpl
-import org.taktik.icure.dao.samv2.impl.VmpGroupDAOImpl
-import org.taktik.icure.entities.base.Code
+import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Nmp
 import org.taktik.icure.entities.samv2.ProductId
+import org.taktik.icure.entities.samv2.SamVersion
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.entities.samv2.embed.AmpComponent
@@ -92,6 +99,8 @@ import org.taktik.icure.entities.samv2.embed.Vtm
 import org.taktik.icure.entities.samv2.embed.Wada
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
+import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.icure.utils.NoCloseInputStream
 import java.net.URI
 import java.util.*
 import java.util.zip.ZipEntry
@@ -110,31 +119,37 @@ fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : Comm
     )
 }
 
+@ExperimentalCoroutinesApi
 @Suppress("NestedLambdaShadowedImplicitParameter")
 class Samv2v5Import : CliktCommand() {
     val log = LoggerFactory.getLogger(this::class.java)
-    val samv2url: String? by option(help="The url of the zip file")
-    val url: String by option(help="The database server to connect to").prompt("Database server url")
-    val username: String by option(help="The Username").prompt("Username")
-    val password: String by option(help="The Password").prompt("Password")
-    val dbName: String by option(help="The database name").prompt("Database name")
-    val update: String by option(help="Force update of existing entries").prompt("Force update")
+    val samv2url: String? by option(help = "The url of the zip file")
+    val url: String by option(help = "The database server to connect to").prompt("Database server url")
+    val username: String by option(help = "The Username").prompt("Username")
+    val password: String by option(help = "The Password").prompt("Password")
+    val dbName: String by option(help = "The database name").prompt("Database name")
+    val update: String by option(help = "Force update of existing entries").prompt("Force update")
 
     val vaccineIndicationsMap = Gson().fromJson<ArrayList<VaccineCode>>(
             this.javaClass.getResource("vaccines.json").openStream().bufferedReader(),
             object : TypeToken<ArrayList<VaccineCode>>() {}.type
     ).fold(mutableMapOf<String, List<String>>(), { map, it ->
-                it.cnk?.let { cnk -> map[cnk] = it.codes }
-                map
-            }).toMap()
+        it.cnk?.let { cnk -> map[cnk] = it.codes }
+        map
+    }).toMap()
 
     override fun run() {
-        val httpClient = StdHttpClient.Builder().socketTimeout(120000).connectionTimeout(120000).url(url).username(username).password(password).build()
-        val dbInstance = StdCouchDbInstance(httpClient)
-        val couchdbConfig = StdCouchDbICureConnector(dbName, dbInstance)
+        val couchDbProperties = CouchDbProperties().apply {
+            this.username = this@Samv2v5Import.username
+            this.password = this@Samv2v5Import.password
+            this.url = this@Samv2v5Import.url
+        }
+
+        val httpClient = WebClient.builder().build()
+        val couchDbDispatcher = CouchDbDispatcher(httpClient, ObjectMapper().registerModule(KotlinModule()), dbName, "drugs", username, password)
         val updateExistingDocs = (update == "true" || update == "yes")
         val reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>> = HashMap()
-        val vmps : MutableMap<String, VmpStub> = HashMap()
+        val vmps: MutableMap<String, VmpStub> = HashMap()
         var vers: String? = null
         var fileName: String? = null
         val productIds = HashMap<String, String>()
@@ -156,15 +171,21 @@ class Samv2v5Import : CliktCommand() {
                 when {
                     entry!!.name.startsWith("VMP") ->
                         (JAXBContext.newInstance(ExportVirtualMedicinesType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportVirtualMedicinesType)?.let {
-                            productIds.putAll(importVirtualMedicines(it, vmps, couchdbConfig, updateExistingDocs))
+                            runBlocking {
+                                productIds.putAll(importVirtualMedicines(it, vmps, couchDbProperties, couchDbDispatcher, updateExistingDocs))
+                            }
                         }
                     entry!!.name.startsWith("RMB") ->
                         (JAXBContext.newInstance(ExportReimbursementsType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportReimbursementsType)?.let {
-                            importReimbursements(it, reimbursements, couchdbConfig, updateExistingDocs)
+                            runBlocking {
+                                importReimbursements(it, reimbursements, couchDbProperties, couchDbDispatcher, updateExistingDocs)
+                            }
                         }
                     entry!!.name.startsWith("NONMEDICINAL") ->
                         (JAXBContext.newInstance(ExportNonMedicinalType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportNonMedicinalType)?.let {
-                            productIds.putAll(importNonMedicinals(it, couchdbConfig, updateExistingDocs))
+                            runBlocking {
+                                productIds.putAll(importNonMedicinals(it, couchDbProperties, couchDbDispatcher, updateExistingDocs))
+                            }
                         }
 
                 }
@@ -177,41 +198,48 @@ class Samv2v5Import : CliktCommand() {
             while (zip.let { entry = it.nextEntry; entry != null }) {
                 when {
                     entry!!.name.startsWith("AMP") ->
+                        runBlocking {
                         (JAXBContext.newInstance(ExportActualMedicinesType::class.java).createUnmarshaller().unmarshal(NoCloseInputStream(zip)) as? ExportActualMedicinesType)?.let {
                             vers = it.samId
-                            productIds.putAll(importActualMedicines(it, vmps, reimbursements, couchdbConfig, updateExistingDocs))
+                            productIds.putAll(importActualMedicines(it, vmps, reimbursements, couchDbProperties, couchDbDispatcher, updateExistingDocs))
                         }
                 }
             }
         }
+    }
 
-        val samVersion = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2")
-        samVersion?.let { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
-                ?: couchdbConfig.create(SamVersion(vers).apply { id = "org.taktik.icure.samv2" })
+    val dbInstanceUri = URI(couchDbProperties.url)
+    val client = couchDbDispatcher.getClient(dbInstanceUri)
 
-        val productIdDAO = ProductIdDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
+    runBlocking {
+            val ampDAO = AmpDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { forceInitStandardDesignDocument(true) }
+            val productIdDAO = ProductIdDAOImpl(couchDbProperties, couchDbDispatcher , UUIDGenerator()).apply { forceInitStandardDesignDocument(true) }
 
-        retry(10) { productIdDAO.allIds }.let {
+            val samVersion = ampDAO.getVersion()
+            samVersion?.let { client.update(it.copy(version = vers, date = versionDate)) } ?: client.create(SamVersion(id = "org.taktik.icure.samv2" , version = vers, date = versionDate))
+
+            retry(10) { productIdDAO.getAllIds().toList() }.let {
             val ids = HashSet(it)
-            productIds.filterKeys { ids.contains(it) }.entries.sortedWith(compareBy {it.key}).chunked(100).forEach {
-                productIdDAO.save(retry(10) { productIdDAO.getList(it.map { it.key }) }.map { p ->
-                    p.also { it.productId = productIds[p.id] }
+            productIds.filterKeys { ids.contains(it) }.entries.sortedWith(compareBy { it.key }).chunked(100).forEach {
+                    productIdDAO.save(retry(10) { productIdDAO.list(it.map { it.key }) }.map { p ->
+                        p.let { it.copy(productId = productIds[p.id]) }
                 })
             }
-            productIds.filterKeys { !ids.contains(it) }.entries.sortedWith(compareBy {it.key}).chunked(100).forEach {
-                productIdDAO.create(it.map { ProductId(it.key, it.value) })
+            productIds.filterKeys { !ids.contains(it) }.entries.sortedWith(compareBy { it.key }).chunked(100).forEach {
+                    productIdDAO.save(it.map { ProductId(id = it.key, productId = it.value) })
             }
-            ids.filter { !productIds.containsKey(it) }.sortedWith(compareBy {it}).chunked(100).forEach {
-                retry(10) { productIdDAO.purgeByIds(it) }
+            ids.filter { !productIds.containsKey(it) }.sortedWith(compareBy { it }).chunked(100).forEach {
+                    retry(10) { productIdDAO.purge(productIdDAO.list(it)) }
             }
         }
     }
+}
 
-    private fun <E> retry(count: Int, executor: () -> E): E {
+    private suspend fun <E> retry(count: Int, executor: suspend () -> E): E {
         return try { executor() } catch(e: Exception) { if (count>0) retry(count-1, executor) else throw e }
     }
 
-    private fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
+    private suspend fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) {
         export.reimbursementContext.forEach { reimb ->
             reimb.data.forEach { reimbd ->
                 val from = reimbd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
@@ -243,11 +271,10 @@ class Samv2v5Import : CliktCommand() {
             }
         }
 
-        val ampDAO = AmpDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
-        HashSet<String>(retry(10) { ampDAO.allIds }).chunked(100).forEach { ids ->
-            ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
-                var shouldAdd = false
-                amp.ampps.flatMap { it.dmpps ?: listOf() }.forEach { dmpp: Dmpp ->
+        val ampDAO = AmpDAOImpl(couchDbProperties, couchDbDispatcher , UUIDGenerator()).apply { force }
+        HashSet<String>(retry(10) { ampDAO.getAllIds().toList() }).chunked(100).forEach { ids ->
+            ampDAO.save(ampDAO.list(ids).fold(listOf<Amp>()) { acc, amp ->
+                val ampps = amp.ampps.map { it.copy(dmpps = it.dmpps.map { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let {
                         if (dmpp.reimbursements != it) {
                             dmpp.reimbursements?.forEachIndexed { index, reimbursement ->
@@ -259,28 +286,22 @@ class Samv2v5Import : CliktCommand() {
                                     }
                                 }
                             }
-                            shouldAdd = true
-
-                            dmpp.reimbursements = it
-                        }
-                    }
-                }
-                if (shouldAdd) {
-                    acc.add(amp)
-                    log.info("Updating amp ${amp.code}")
-                }
-                acc
-            }))
+                            dmpp.copy(reimbursements = it)
+                        } else dmpp
+                    } ?: dmpp
+                })}
+                if (ampps != amp.ampps) acc + amp.copy(ampps = ampps) else acc
+            }.asFlow())
         }
     }
 
-    private fun importVirtualMedicines(export: ExportVirtualMedicinesType, vmpsMap: MutableMap<String, VmpStub>, couchdbConfig: CouchDbICureConnector, force: Boolean) : Map<String, String> {
+    private suspend fun importVirtualMedicines(export: ExportVirtualMedicinesType, vmpsMap: MutableMap<String, VmpStub>, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) : Map<String, String>  {
         val result = HashMap<String, String>()
-        val vmpGroupDAO = VmpGroupDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
-        val vmpDAO = VmpDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
+        val vmpGroupDAO = VmpGroupDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { force }
+        val vmpDAO = VmpDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { force }
 
-        val currentVmpGroups = HashSet(retry(10) { vmpGroupDAO.allIds })
-        val currentVmps = HashSet(retry(10) { vmpDAO.allIds })
+        val currentVmpGroups = HashSet(retry(10) { vmpGroupDAO.getAllIds().toList() })
+        val currentVmps = HashSet(retry(10) { vmpDAO.getAllIds().toList() })
 
         val vmpGroupIds = HashMap<Int, String>()
 
@@ -312,19 +333,16 @@ class Samv2v5Import : CliktCommand() {
                 ).let { vmpg ->
                     if (!currentVmpGroups.contains(id)) {
                         log.info("New VMP group VMPGROUP:$code:$from with id ${id}")
-                        try { vmpGroupDAO.create(vmpg) } catch (e:org.ektorp.UpdateConflictException) {
-                            vmpGroupDAO.get(vmpg.id)?.let { vmpg.apply { this.rev = it.rev }.also { vmpGroupDAO.update(it) } }
-                        }
+                        try { vmpGroupDAO.save(vmpg) } catch (e:Exception) { vmpGroupDAO.get(vmpg.id)?.let { vmpGroupDAO.update(vmpg.copy(rev = it.rev)) } }
                     } else if (force) {
                         val prev = vmpGroupDAO.get(vmpg.id)
                         if (prev != vmpg) {
                             log.info("Modified VMP group VMPGROUP:$code:$from with id ${id}")
-                            vmpGroupDAO.update(vmpg.apply { this.rev = prev.rev })
-                        }
-                        vmpg
+                            vmpGroupDAO.update(vmpg.copy(rev = prev?.rev ))
+                        } else vmpg
                     } else vmpg
                 }
-            }.filterNotNull().maxBy { it.to ?: Long.MAX_VALUE }?.let {
+            }.filterNotNull().maxBy { it?.to ?: Long.MAX_VALUE }?.let {
                 latestVmpGroup -> vmpGroupIds[vmpg.code] = latestVmpGroup.id
             }
         }
@@ -342,11 +360,7 @@ class Samv2v5Import : CliktCommand() {
                         from = from,
                         to = to,
                         code = code,
-                        vmpGroup = d.vmpGroup?.let {
-                            VmpGroupStub(id = vmpGroupIds[d.vmpGroup.code], code = it.code.toString(), name = it.data?.maxBy { c ->
-                                c.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0L
-                            }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) })
-                        },
+                        vmpGroup = d.vmpGroup?.let { vmpGroupIds[d.vmpGroup.code]?.let { vmpgId -> VmpGroupStub(id = vmpgId, code = it.code.toString(), name = it.data?.maxBy { c -> c.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis ?: 0L }?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }) } },
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
                         abbreviation = d.abbreviation?.let { SamText(it.fr, it.nl, it.de, it.en) },
                         vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.data?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }),
@@ -357,12 +371,10 @@ class Samv2v5Import : CliktCommand() {
                                 VmpComponent(
                                         code = vmpc.code.toString(),
                                         virtualForm = comp.virtualForm?.let { virtualForm ->
-                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") }
-                                                    ?: listOf())
+                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForm?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         },
                                         routeOfAdministrations = comp.routeOfAdministration?.map { roa ->
-                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { Code(it.standard.value(), it.code, "1.0") }
-                                                    ?: listOf())
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         phaseNumber = comp.phaseNumber,
                                         name = comp.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -376,6 +388,7 @@ class Samv2v5Import : CliktCommand() {
                                                         strengthRange = it.strength?.let { StrengthRange(NumeratorRange(it.numeratorRange.min, it.numeratorRange.max, it.numeratorRange.unit), Quantity(it.denominator.value, it.denominator.unit)) },
                                                         substance = it.substance?.let {
                                                             Substance(
+                                                                    id = "SAM-SUBSTANCE:${it.code}:${it.chemicalForm}".md5(),
                                                                     code = it.code,
                                                                     chemicalForm = it.chemicalForm,
                                                                     name = it.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -401,40 +414,41 @@ class Samv2v5Import : CliktCommand() {
                 )
             }
         }.chunked(100).map { vmps ->
-            val currentVmpsWithDoc = vmpDAO.getList(vmps.map { it.id }.filter { currentVmps.contains(it) })
+                    val currentVmpsWithDoc = vmpDAO.getList(vmps.map { it.id }.filter { currentVmps.contains(it) }).toList()
             vmps.forEach { vmp ->
                 vmp.code?.let { vmpsMap[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                 if (!currentVmps.contains(vmp.id)) {
-                    log.info("New VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
-
-                    try { vmpDAO.create(vmp) } catch (e:org.ektorp.UpdateConflictException) {
-                        vmpDAO.get(vmp.id)?.let { vmp.apply { this.rev = it.rev }.also { vmpDAO.update(it) } }
+                            log.info("New VMP VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
+                            try {
+                                vmpDAO.save(vmp)
+                            } catch (e: Exception) {
+                                vmpDAO.get(vmp.id)?.let { vmpDAO.update(vmp.copy(rev = it.rev)) }
                     }
                 } else if (force) {
                     val prev = currentVmpsWithDoc.find { it.id == vmp.id }!!
                     if (prev != vmp) {
-                        log.info("Modified VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
-                        vmpDAO.update(vmp.apply { this.rev = prev.rev })
+                                log.info("Modified VMP VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
+                                vmpDAO.update(vmp.copy(rev = prev?.rev))
                     }
                     vmp
                 } else vmp
             }
         }
 
-        (currentVmpGroups - newVmpGroupIds).chunked(100).forEach { vmpGroupDAO.removeByIds(it) }
-        (currentVmps - newVmpIds).chunked(100).forEach { vmpDAO.removeByIds(it) }
+        (currentVmpGroups - newVmpGroupIds).chunked(100).forEach { vmpGroupDAO.remove(vmpGroupDAO.list(it)) }
+        (currentVmps - newVmpIds).chunked(100).forEach { vmpDAO.remove(vmpDAO.list(it)) }
 
         return result
     }
 
-    private fun importActualMedicines(export: ExportActualMedicinesType, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchdbConfig: CouchDbICureConnector, force: Boolean) : Map<String, String> {
+    private suspend fun importActualMedicines(export: ExportActualMedicinesType, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, MutableList<Reimbursement>>, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) : Map<String, String> {
         val result = HashMap<String, String>()
 
-        val ampDAO = AmpDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
-        val substanceDAO = SubstanceDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
-        val pharmaceuticalFormDAO = PharmaceuticalFormDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
+        val ampDAO = AmpDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { forceInitStandardDesignDocument(true) }
+        val substanceDAO = SubstanceDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { forceInitStandardDesignDocument(true) }
+        val pharmaceuticalFormDAO = PharmaceuticalFormDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { forceInitStandardDesignDocument(true) }
 
-        val currentAmps = HashSet(retry(10) { ampDAO.allIds })
+        val currentAmps = HashSet(retry(10) { ampDAO.getAllIds().toList() })
         val newAmpIds = mutableListOf<String>()
 
         val substances = mutableMapOf<String, Substance>()
@@ -475,7 +489,7 @@ class Samv2v5Import : CliktCommand() {
                                         to = amppd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
                                         index = amppd.index?.toDouble(),
                                         ctiExtended = ampp.ctiExtended,
-                                        isOrphan = amppd.isOrphan,
+                                        orphan = amppd.isOrphan,
                                         leafletLink = amppd.leafletLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         spcLink = amppd.spcLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         rmaPatientLink = amppd.rmaPatientLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -499,7 +513,7 @@ class Samv2v5Import : CliktCommand() {
                                                         it.streetName, it.streetNum, it.postbox, it.postcode, it.city, it.countryCode, it.phone, it.language?.value(), it.website)
                                             }
                                         },
-                                        isSingleUse = amppd.isSingleUse,
+                                        singleUse = amppd.isSingleUse,
                                         speciallyRegulated = amppd.speciallyRegulated,
                                         abbreviatedName = amppd.abbreviatedName?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         prescriptionName = (amppd.prescriptionName ?: amppd.prescriptionNameFamhp)?.let { SamText(it.fr ?: amppd.prescriptionNameFamhp?.fr, it.nl ?: amppd.prescriptionNameFamhp?.nl, it.de ?: amppd.prescriptionNameFamhp?.de, it.en ?: amppd.prescriptionNameFamhp?.en)},
@@ -563,7 +577,7 @@ class Samv2v5Import : CliktCommand() {
                                                         price = it.price?.toString(), cheap = it.isCheap, cheapest = it.isCheapest, reimbursable = it.isReimbursable,
                                                         reimbursements = reimbursements[Triple(dmpp.deliveryEnvironment?.value(), dmpp.codeType?.value(), dmpp.code)])
                                             }
-                                        },
+                                        } ?: listOf(),
                                         vaccineIndicationCodes = ampp.dmpp?.flatMap { dmpp ->
                                             dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 vaccineIndicationsMap[dmpp.code]
@@ -575,23 +589,24 @@ class Samv2v5Import : CliktCommand() {
                             ampc?.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { comp ->
                                 AmpComponent(
                                         pharmaceuticalForms = comp.pharmaceuticalForm?.map { pharmForm ->
-                                            PharmaceuticalForm(code = pharmForm.code, name = pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, standardForms = pharmForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") }
-                                                    ?: listOf()).let {
-                                                val id = "SAM-PHARMAFORM:${it.code}:${it.name?.fr}:${it.name?.nl}:${it.name?.de}:${it.name?.en}".md5()
-                                                pharmaceuticalForms[id] ?: it.also {
-                                                    it.id = id
+                                            val id = "SAM-PHARMAFORM:${pharmForm.code}:${pharmForm.name?.fr}:${pharmForm.name?.nl}:${pharmForm.name?.de}:${pharmForm.name?.en}".md5()
+                                            pharmaceuticalForms[id] ?: PharmaceuticalForm(
+                                                    id = id,
+                                                    code = pharmForm.code,
+                                                    name = pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
+                                                    standardForms = pharmForm.standardForm?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf()
+                                            ).also {
                                                     pharmaceuticalForms[id] = it
                                                 }
-                                            }
                                         } ?: listOf(),
                                         routeOfAdministrations = comp.routeOfAdministration?.map { roa ->
-                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { Code(it.standard.value(), it.code, "1.0") } ?: listOf())
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { CodeStub.from(it.standard.value(), it.code, "1.0") } ?: listOf())
                                         } ?: listOf(),
                                         dividable = comp.dividable,
                                         scored = comp.scored,
                                         crushable = comp.crushable?.value()?.let { Crushable.valueOf(it) },
                                         containsAlcohol = comp.containsAlcohol?.value()?.let { ContainsAlcohol.valueOf(it) },
-                                        isSugarFree = comp.isSugarFree,
+                                        sugarFree = comp.isSugarFree,
                                         modifiedReleaseType = comp.modifiedReleaseType,
                                         specificDrugDevice = comp.specificDrugDevice,
                                         dimensions = comp.dimensions,
@@ -609,7 +624,9 @@ class Samv2v5Import : CliktCommand() {
                                                         strengthDescription = it.strengthDescription,
                                                         additionalInformation = it.additionalInformation,
                                                         substance = it.substance?.let {
-                                                            Substance(
+                                                            val id = "SAM-SUBSTANCE:${it.code}:${it.chemicalForm}".md5()
+                                                            substances[id] ?: Substance(
+                                                                    id = id,
                                                                     code = it.code,
                                                                     chemicalForm = it.chemicalForm,
                                                                     name = it.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -623,13 +640,10 @@ class Samv2v5Import : CliktCommand() {
                                                                                 definition = it.definition?.let { SamText(it.fr, it.nl, it.de, it.en) }
                                                                         )
                                                                     } ?: listOf()
-                                                            ).let {
-                                                                val id = "SAM-SUBSTANCE:${it.code}:${it.chemicalForm}".md5()
-                                                                substances[id] ?: it.also {
-                                                                    it.id = id
+                                                            ).also {
                                                                     substances[id] = it
                                                                 }
-                                                            }
+
                                                         }
                                                 )
                                             }
@@ -640,40 +654,42 @@ class Samv2v5Import : CliktCommand() {
                 )
             }
         }.chunked(100).map { amps ->
-            val currentAmpsWithDoc = ampDAO.getList(amps.map { it.id }.filter { currentAmps.contains(it) })
+            val currentAmpsWithDoc = ampDAO.getList(amps.map { it.id }.filter { currentAmps.contains(it) }).toList()
             amps.forEach { amp ->
                 if (!currentAmps.contains(amp.id)) {
                     log.info("New AMP AMP:${amp.code}:${amp.from} with id ${amp.id}")
-                    try { ampDAO.create(amp) } catch (e:org.ektorp.UpdateConflictException) {
-                        ampDAO.get(amp.id)?.let { amp.apply { this.rev = it.rev }.also { ampDAO.update(it) } }
+                    try {
+                        ampDAO.save(amp)
+                    } catch (e: Exception) {
+                        ampDAO.get(amp.id)?.let { ampDAO.update(amp.copy(rev = it.rev)) }
                     }
                 } else if (force) {
                     val prev = currentAmpsWithDoc.find { it.id == amp.id }!!
-                    if (amp.ampps.all { it.dmpps?.all { it.reimbursements == null } != false }) {
-                        prev.ampps.forEach { it.dmpps?.forEach { it.reimbursements = null } }
-                    }
+                    if (amp.ampps.all { it.dmpps.all { it.reimbursements == null } != false }) {
+                        prev.let { it.copy(ampps = it.ampps.map { it.copy(dmpps = it.dmpps.map { it.copy(reimbursements = null) }) }) }
+                    } else ampDAO.get(amp.id)
                     if (prev != amp) {
-                        log.info("Modified AMP:${amp.code}:${amp.from} with id ${amp.id}")
-                        ampDAO.update(amp.apply { this.rev = prev.rev })
+                        log.info("Modified AMP AMP:${amp.code}:${amp.from} with id ${amp.id}")
+                        ampDAO.update(amp.copy(rev = prev.rev))
                     }
                     amp
                 } else amp
             }
         }
 
-        val currentSubstances = HashSet<String>(retry(10) { substanceDAO.allIds })
-        val currentPharmaceuticalForms = HashSet<String>(retry(10) { pharmaceuticalFormDAO.allIds })
+        val currentSubstances = HashSet<String>(retry(10) { substanceDAO.getAllIds().toList() })
+        val currentPharmaceuticalForms = HashSet<String>(retry(10) { pharmaceuticalFormDAO.getAllIds().toList() })
 
         (substances - currentSubstances).values.chunked(100).forEach {
             try {
-                substanceDAO.create(it)
-            } catch(e:UpdateConflictException) {
+                substanceDAO.save(it)
+            } catch(e:Exception) {
                 it.forEach {
                     try {
-                        substanceDAO.create(it)
-                    } catch (e: UpdateConflictException) {
+                        substanceDAO.save(it)
+                    } catch (e: Exception) {
                         substanceDAO.get(it.id)?.let {
-                            substanceDAO.update(it.apply { this.rev = it.rev })
+                            substanceDAO.update(it.copy(rev = it.rev))
                         }
                     }
                 }
@@ -682,39 +698,39 @@ class Samv2v5Import : CliktCommand() {
 
         (pharmaceuticalForms - currentPharmaceuticalForms).values.chunked(100).forEach {
             try {
-                pharmaceuticalFormDAO.create(it)
-            } catch (e: UpdateConflictException) {
+                pharmaceuticalFormDAO.save(it)
+            } catch (e: Exception) {
                 it.forEach {
                     try {
-                        pharmaceuticalFormDAO.create(it)
-                    } catch (e: UpdateConflictException) {
+                        pharmaceuticalFormDAO.save(it)
+                    } catch (e: Exception) {
                         pharmaceuticalFormDAO.get(it.id)?.let {
-                            pharmaceuticalFormDAO.update(it.apply { this.rev = it.rev })
+                            pharmaceuticalFormDAO.update(it.copy(rev = it.rev))
                         }
                     }
                 }
             }
         }
         substances.filterKeys { currentSubstances.contains(it) }.values.chunked(100).forEach {
-            val revs = substanceDAO.getList(it.map { it.id }).fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev) }
-            it.forEach { substanceDAO.update(it.apply { rev = revs[id] }) }
+            val revs = substanceDAO.getList(it.map { it.id }).toList().fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev!!) }
+            it.forEach { substanceDAO.update(it.copy(rev = it.rev)) }
         }
         pharmaceuticalForms.filterKeys { currentPharmaceuticalForms.contains(it) }.values.chunked(100).forEach {
-            val revs = pharmaceuticalFormDAO.getList(it.map { it.id }).fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev) }
-            it.forEach { pharmaceuticalFormDAO.update(it.apply { rev = revs[id] }) }
+            val revs = pharmaceuticalFormDAO.getList(it.map { it.id }).toList().fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev!!) }
+            it.forEach { pharmaceuticalFormDAO.update(it.copy(rev = it.rev)) }
         }
 
-        (currentSubstances - substances.keys).chunked(100).forEach { substanceDAO.removeByIds(it) }
-        (currentPharmaceuticalForms - pharmaceuticalForms.keys).chunked(100).forEach { pharmaceuticalFormDAO.removeByIds(it) }
-        (currentAmps - newAmpIds).chunked(100).forEach { ampDAO.removeByIds(it) }
+        (currentSubstances - substances.keys).chunked(100).forEach { substanceDAO.remove(substanceDAO.getList(it)) }
+        (currentPharmaceuticalForms - pharmaceuticalForms.keys).chunked(100).forEach { pharmaceuticalFormDAO.remove(pharmaceuticalFormDAO.getList(it)) }
+        (currentAmps - newAmpIds).chunked(100).forEach { ampDAO.remove(ampDAO.list(it)) }
 
         return result
     }
 
-    private fun importNonMedicinals(export: ExportNonMedicinalType, couchdbConfig: CouchDbICureConnector, force: Boolean) : Map<String, String> {
+    private suspend fun importNonMedicinals(export: ExportNonMedicinalType, couchDbProperties: CouchDbProperties, couchDbDispatcher: CouchDbDispatcher, force: Boolean) : Map<String, String> {
         val result = HashMap<String, String>()
-        val nmpDAO = NmpDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
-        val currentNmps = HashSet(retry(10) { nmpDAO.allIds })
+        val nmpDAO = NmpDAOImpl(couchDbProperties, couchDbDispatcher, UUIDGenerator()).apply { forceInitStandardDesignDocument(true) }
+        val currentNmps = HashSet(retry(10) { nmpDAO.getAllIds().toList() })
         val newNmpIds = mutableListOf<String>()
 
         export.nonMedicinalProduct.flatMap { nmp ->
@@ -741,22 +757,26 @@ class Samv2v5Import : CliktCommand() {
                 )
             }
         }.chunked(100).map { nmps ->
-            val currentNmpsWithDoc = nmpDAO.getList(nmps.map { it.id }.filter { currentNmps.contains(it) })
+            val currentNmpsWithDoc = nmpDAO.getList(nmps.map { it.id }.filter { currentNmps.contains(it) }).toList()
             nmps.map { nmp ->
                 if (!currentNmps.contains(nmp.id)) {
                     log.info("New NMP NMP:${nmp.code}:${nmp.from} with id ${nmp.id}")
-                    nmpDAO.create(nmp)
+                    try {
+                        nmpDAO.save(nmp)
+                    } catch (e: Exception) {
+                        nmpDAO.get(nmp.id)?.let { nmpDAO.update(nmp.copy(rev = it.rev)) }
+                    }
                 } else if (force) {
                     val prev = currentNmpsWithDoc.find { it.id == nmp.id }!!
                     if (prev != nmp) {
                         log.info("Modified NMP NMP:${nmp.code}:${nmp.from} with id ${nmp.id}")
-                        nmpDAO.update(nmp.apply { this.rev = prev.rev })
+                        nmpDAO.update(nmp.copy(rev = prev.rev))
                     }
                     nmp
                 } else nmp
             }
         }
-        (currentNmps - newNmpIds).chunked(100).forEach { nmpDAO.removeByIds(it) }
+        (currentNmps - newNmpIds).chunked(100).forEach { nmpDAO.remove(nmpDAO.getList(it)) }
         return result
     }
 
