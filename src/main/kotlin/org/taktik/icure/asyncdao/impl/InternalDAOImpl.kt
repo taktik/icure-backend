@@ -40,8 +40,8 @@ import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.InternalDAO
-import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
 import java.net.URI

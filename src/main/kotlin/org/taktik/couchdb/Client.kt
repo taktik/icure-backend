@@ -45,6 +45,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
+import org.taktik.couchdb.dao.Option
 import org.taktik.couchdb.entity.ActiveTask
 import org.taktik.couchdb.entity.AttachmentResult
 import org.taktik.couchdb.entity.Change
@@ -67,7 +68,6 @@ import org.taktik.couchdb.parser.skipValue
 import org.taktik.couchdb.parser.split
 import org.taktik.couchdb.parser.toJsonEvents
 import org.taktik.couchdb.parser.toObject
-import org.taktik.icure.dao.Option
 import org.taktik.icure.entities.base.Security
 import org.taktik.icure.entities.base.Versionable
 import org.taktik.springframework.web.reactive.basicAuth
