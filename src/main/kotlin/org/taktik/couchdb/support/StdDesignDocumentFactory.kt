@@ -32,7 +32,6 @@ import org.taktik.couchdb.util.Exceptions
 import org.taktik.couchdb.util.Predicate
 import org.taktik.couchdb.util.ReflectionUtils
 import java.io.FileNotFoundException
-import java.util.*
 
 /**
  *
