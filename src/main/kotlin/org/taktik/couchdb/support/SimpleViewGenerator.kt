@@ -41,7 +41,6 @@ class SimpleViewGenerator {
     }
 
     private fun createDeclaredViews(views: MutableMap<String, org.taktik.couchdb.entity.View>, klass: Class<*>) {
-
         ReflectionUtils.eachAnnotation(klass, Views::class.java, object : Predicate<Views> {
             override fun apply(input: Views): Boolean {
                 for (v in input.value) {
@@ -63,7 +62,7 @@ class SimpleViewGenerator {
             views: MutableMap<String, org.taktik.couchdb.entity.View>, input: View,
             repositoryClass: Class<*>,
     ) {
-        if (input.file.length > 0) {
+        if (input.file.isNotEmpty()) {
             views[input.name] = loadViewFromFile(views, input, repositoryClass)
         } else if (shouldLoadFunctionFromClassPath(input.map)
                 || shouldLoadFunctionFromClassPath(input.reduce)) {
@@ -84,18 +83,17 @@ class SimpleViewGenerator {
             repositoryClass: Class<*>,
     ): org.taktik.couchdb.entity.View {
         val mapPath: String = input.map
-        val map: String
-        map = if (shouldLoadFunctionFromClassPath(mapPath)) {
+        val map: String = if (shouldLoadFunctionFromClassPath(mapPath)) {
             loadResourceFromClasspath(repositoryClass, mapPath.substring(10))
         } else {
             mapPath
         }
+
         val reducePath: String = input.reduce
-        val reduce: String?
-        reduce = if (shouldLoadFunctionFromClassPath(reducePath)) {
+        val reduce: String? = if (shouldLoadFunctionFromClassPath(reducePath)) {
             loadResourceFromClasspath(repositoryClass, reducePath.substring(10))
         } else {
-            if (reducePath.length > 0) reducePath else null
+            if (reducePath.isNotEmpty()) reducePath else null
         }
         return org.taktik.couchdb.entity.View(map, reduce)
     }
