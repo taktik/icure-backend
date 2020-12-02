@@ -151,29 +151,11 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
     override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {
         val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         val designDocId = NameConventions.designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
-            org.taktik.couchdb.support.DesignDocument(it.id).apply {
-                revision = it.rev
-                views = it.views.mapValues { org.taktik.couchdb.support.DesignDocument.View().apply {
-                    map= it.value?.map; reduce= it.value?.reduce
-                } }
-                updates = it.updateHandlers
-                lists = it.lists
-                shows = it.shows
-            }
-        }
-        val generated = StdDesignDocumentFactory().generateFrom(this)
-        val changed: Boolean = fromDatabase?.mergeWith(generated, true) ?: true
+        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
+        val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
+        val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update((fromDatabase ?: generated).let {
-                DesignDocument(
-                        id = designDocId,
-                        rev = it.revision,
-                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
-                        updateHandlers = it.updates,
-                        lists = it.lists,
-                        shows = it.shows)
-            })
+            client.update(merged)
         }
     }
 

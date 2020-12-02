@@ -332,30 +332,12 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
     }
 
     override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
-            val designDocId = NameConventions.designDocName(this.entityClass)
-        val fromDatabase = client.get(designDocId, DesignDocument::class.java)?.let {
-            org.taktik.couchdb.support.DesignDocument(it.id).apply {
-                revision = it.rev
-                views = it.views.mapValues { org.taktik.couchdb.support.DesignDocument.View().apply {
-                    map= it.value?.map; reduce= it.value?.reduce
-                } }
-                updates = it.updateHandlers
-                lists = it.lists
-                shows = it.shows
-            }
-        }
-        val generated = StdDesignDocumentFactory().generateFrom(this)
-        val changed: Boolean = fromDatabase?.mergeWith(generated, true) ?: true
+        val designDocId = NameConventions.designDocName(this.entityClass)
+        val fromDatabase = client.get(designDocId, DesignDocument::class.java)
+        val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
+        val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update((fromDatabase ?: generated).let {
-                DesignDocument(
-                        id = designDocId,
-                        rev = it.revision,
-                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
-                        updateHandlers = it.updates,
-                        lists = it.lists,
-                        shows = it.shows)
-            })
+            client.update(merged)
         }
     }
 
@@ -363,24 +345,11 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         initSystemDocumentIfAbsent(couchDbDispatcher.getClient(dbInstanceUrl))
     }
 
-
     override suspend fun initSystemDocumentIfAbsent(client: Client) {
         val designDocId = NameConventions.designDocName("_System")
         val designDocument = client.get(designDocId, DesignDocument::class.java)
         if (designDocument == null) {
-            client.update(
-                    (org.taktik.couchdb.support.DesignDocument(designDocId)
-                            .apply { addView("revs", org.taktik.couchdb.support.DesignDocument.View("function (doc) { emit(doc.java_type, doc._rev); }")) })
-                            .let {
-                                DesignDocument(
-                                        id = designDocId,
-                                        rev = it.revision,
-                                        views = it.views.mapValues { View(map= it.value.map, reduce= it.value.reduce) },
-                                        updateHandlers = it.updates,
-                                        lists = it.lists,
-                                        shows = it.shows)
-                            }
-            )
+            client.update(DesignDocument(designDocId, views = mapOf("revs" to View("function (doc) { emit(doc.java_type, doc._rev); }"))))
         }
     }
 }

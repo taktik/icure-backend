@@ -21,6 +21,14 @@ import org.apache.commons.io.IOUtils
 import org.ektorp.util.Assert
 import org.ektorp.util.Exceptions
 import org.ektorp.util.ReflectionUtils
+import org.taktik.couchdb.annotation.Filter
+import org.taktik.couchdb.annotation.Filters
+import org.taktik.couchdb.annotation.ListFunction
+import org.taktik.couchdb.annotation.Lists
+import org.taktik.couchdb.annotation.ShowFunction
+import org.taktik.couchdb.annotation.Shows
+import org.taktik.couchdb.annotation.UpdateHandler
+import org.taktik.couchdb.annotation.UpdateHandlers
 import org.taktik.couchdb.entity.DesignDocument
 import java.io.FileNotFoundException
 import java.util.*
