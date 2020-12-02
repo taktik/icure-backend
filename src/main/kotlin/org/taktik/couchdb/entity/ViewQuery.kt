@@ -21,9 +21,9 @@ package org.taktik.couchdb.entity
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import org.ektorp.util.Exceptions
 import org.taktik.couchdb.append
 import org.taktik.couchdb.param
+import org.taktik.couchdb.util.Exceptions
 import java.net.URI
 import java.util.*
 
