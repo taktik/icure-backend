@@ -18,7 +18,6 @@
 
 package org.taktik.couchdb.util
 
-import org.ektorp.util.Predicate
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Field
 import java.lang.reflect.Method
