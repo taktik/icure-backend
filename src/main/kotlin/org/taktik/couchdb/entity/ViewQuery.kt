@@ -25,7 +25,6 @@ import org.taktik.couchdb.append
 import org.taktik.couchdb.param
 import org.taktik.couchdb.util.Exceptions
 import java.net.URI
-import java.util.*
 
 /**
  *
