@@ -68,8 +68,8 @@ import org.taktik.couchdb.parser.skipValue
 import org.taktik.couchdb.parser.split
 import org.taktik.couchdb.parser.toJsonEvents
 import org.taktik.couchdb.parser.toObject
-import org.taktik.icure.entities.base.Security
-import org.taktik.icure.entities.base.Versionable
+import org.taktik.couchdb.entity.Security
+import org.taktik.couchdb.entity.Versionable
 import org.taktik.springframework.web.reactive.basicAuth
 import org.taktik.springframework.web.reactive.getResponseBytesFlow
 import org.taktik.springframework.web.reactive.getResponseJsonEvents
