@@ -29,7 +29,7 @@ package org.taktik.couchdb.annotation
  * @author henrik lundgren
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FIELD, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class TypeDiscriminator(
         /**
          * If TypeDiscriminator is declared on type level, a filter condition must be specified.

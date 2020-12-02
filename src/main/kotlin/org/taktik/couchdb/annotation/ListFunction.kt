@@ -23,7 +23,7 @@ package org.taktik.couchdb.annotation
  * @author henrik lundgren
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class ListFunction(
         /**
          * The name of the list function

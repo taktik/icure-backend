@@ -23,7 +23,7 @@ package org.taktik.couchdb.annotation
  * @author henrik lundgren
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class GenerateView(
         /**
          * Defines the name of the property to use.

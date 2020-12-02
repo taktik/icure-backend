@@ -1,4 +1,4 @@
-# icure-backend
+# iCure Data Stack
 OSS version of the iCure Medical File Management software
 
 iCureBackend is free software: you can redistribute it and/or modify

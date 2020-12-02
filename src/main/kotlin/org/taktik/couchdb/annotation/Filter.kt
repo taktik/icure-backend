@@ -18,12 +18,13 @@
 
 package org.taktik.couchdb.annotation
 
+
 /**
  * Annotation for defining filter functions embedded in repositories.
  * @author henrik lundgren
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class Filter(
         /**
          * The name of the filter
