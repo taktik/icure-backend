@@ -28,7 +28,7 @@ class ReflectionUtils {
     companion object {
 
         fun eachField(clazz: Class<*>, p: Predicate<Field>): Collection<Field> {
-            val result: MutableList<Field> = ArrayList()
+            val result = mutableListOf<Field>()
 
             clazz.declaredFields.forEach {
                 if (p.apply(it)) {
@@ -44,7 +44,7 @@ class ReflectionUtils {
         }
 
         fun eachMethod(clazz: Class<*>, p: Predicate<Method>): Collection<Method> {
-            val result: MutableList<Method> = ArrayList()
+            val result = mutableListOf<Method>()
 
             clazz.declaredMethods.forEach {
                 if (p.apply(it)) {
