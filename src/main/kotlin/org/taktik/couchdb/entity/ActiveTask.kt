@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import org.taktik.icure.handlers.JacksonActiveTaskDeserializer
+import org.taktik.couchdb.handlers.JacksonActiveTaskDeserializer
 import org.taktik.icure.utils.InstantDeserializer
 import org.taktik.icure.utils.InstantSerializer
 import java.time.Instant

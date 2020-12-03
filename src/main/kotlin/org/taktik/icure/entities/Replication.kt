@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.couchdb.entity.Attachment
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.entities.embed.DatabaseSynchronization

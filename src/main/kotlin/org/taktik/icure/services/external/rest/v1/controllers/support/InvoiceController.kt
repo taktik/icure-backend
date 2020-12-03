@@ -46,7 +46,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.UserLogic
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Invoice
 import org.taktik.icure.entities.embed.Delegation

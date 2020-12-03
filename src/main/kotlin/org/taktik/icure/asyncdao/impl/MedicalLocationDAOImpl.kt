@@ -23,9 +23,9 @@ import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.MedicalLocationDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.MedicalLocation
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
@@ -33,7 +33,8 @@ import org.taktik.icure.utils.createQuery
 @Repository("MedicalLocationDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.MedicalLocation' && !doc.deleted) emit( null, doc._id )}")
 class MedicalLocationDAOImpl(couchDbProperties: CouchDbProperties,
-                             @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator) : GenericDAOImpl<MedicalLocation>(couchDbProperties, MedicalLocation::class.java, couchDbDispatcher, idGenerator), MedicalLocationDAO {
+                             @Qualifier("baseCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator
+) : GenericDAOImpl<MedicalLocation>(couchDbProperties, MedicalLocation::class.java, couchDbDispatcher, idGenerator), MedicalLocationDAO {
     @View(name = "by_post_code", map = "classpath:js/medicallocation/By_post_code_map.js")
     override fun byPostCode(postCode: String): Flow<MedicalLocation> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)

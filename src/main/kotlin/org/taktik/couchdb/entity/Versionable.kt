@@ -16,22 +16,16 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao;
+package org.taktik.couchdb.entity
 
-public enum Option {
+import org.taktik.couchdb.entity.Identifiable
 
-	CONFLICTS("conflicts"),
-	REVISIONS_INFO("revs_info"),
-	ATTACHMENTS("attachments");
+/**
+ * @param <T> The type of the entity identity (a String, a UUID, etc.)
+</T> */
+interface Versionable<T> : Identifiable<T> {
+    val revHistory: Map<String, String>?
+    val rev: String?
 
-
-	private String param;
-
-	Option(String param) {
-		this.param = param;
-	}
-
-	public String paramName() {
-		return this.param;
-	}
+    fun withIdRev(id: T? = null, rev: String): Versionable<T>
 }

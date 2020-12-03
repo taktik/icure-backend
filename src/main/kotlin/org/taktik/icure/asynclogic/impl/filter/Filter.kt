@@ -19,7 +19,7 @@ package org.taktik.icure.asynclogic.impl.filter
 
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.domain.filter.Filter
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 import java.io.Serializable
 
 interface Filter<T : Serializable, O : Identifiable<T>, F : Filter<T, O>> {

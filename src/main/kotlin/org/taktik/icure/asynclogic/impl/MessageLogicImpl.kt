@@ -32,7 +32,7 @@ import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asyncdao.MessageDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.MessageLogic
-import org.taktik.icure.dao.Option
+import org.taktik.couchdb.dao.Option
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.Message
 import org.taktik.icure.entities.embed.Delegation

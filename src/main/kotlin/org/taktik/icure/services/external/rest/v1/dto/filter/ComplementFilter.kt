@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.domain.filter.Filters
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 import org.taktik.icure.handlers.JsonPolymorphismRoot
 
 @JsonPolymorphismRoot(AbstractFilterDto::class)

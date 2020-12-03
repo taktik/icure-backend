@@ -80,7 +80,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.be.fgov.ehealth.standards
 import org.taktik.icure.be.ehealth.logic.kmehr.Config
 import org.taktik.icure.be.ehealth.logic.kmehr.emitMessage
 import org.taktik.icure.be.ehealth.logic.kmehr.v20131001.KmehrExport
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.Contact
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.HealthElement

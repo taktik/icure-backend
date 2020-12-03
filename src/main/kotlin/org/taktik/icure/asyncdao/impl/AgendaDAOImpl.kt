@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.AgendaDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Agenda
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery

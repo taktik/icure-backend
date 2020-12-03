@@ -22,7 +22,7 @@ import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
 import org.taktik.icure.asyncdao.ArticleDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Article
 import org.taktik.icure.properties.CouchDbProperties
 

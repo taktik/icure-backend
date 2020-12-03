@@ -16,7 +16,7 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.handlers
+package org.taktik.couchdb.handlers
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer

@@ -36,7 +36,7 @@ import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.be.mikrono.MikronoLogic
 import org.taktik.icure.constants.TypedValuesType
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.base.PropertyStub
 import org.taktik.icure.entities.base.PropertyTypeStub
 import org.taktik.icure.entities.embed.TypedValue

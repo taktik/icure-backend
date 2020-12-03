@@ -15,20 +15,10 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.entities.base
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.github.pozo.KotlinBuilder
-import java.io.Serializable
+package org.taktik.couchdb.dao.impl.keymanagers
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@KotlinBuilder
-data class Security(
-        val admins: Right = Right(),
-        val members: Right = Right()
-) : Serializable {
-    @KotlinBuilder
-    data class Right(val names: Set<String> = setOf(), val roles: Set<String> = setOf())
+interface KeyManager<T, K> {
+    fun setNewKey(entity: T, sequenceName: String)
+    fun getKey(entity: T): K
 }

@@ -17,6 +17,7 @@
  */
 package org.taktik.icure.entities.base
 
+import org.taktik.couchdb.entity.Identifiable
 /**
  * Used to represent an entity that is saved inside the CouchDB database and includes some basic properties used to describe the lifecycle of the entity.
  *

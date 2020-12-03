@@ -31,7 +31,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
 import org.taktik.icure.asyncdao.impl.InternalDAOImpl
 import org.taktik.icure.asyncdao.samv2.AmpDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.samv2.Amp

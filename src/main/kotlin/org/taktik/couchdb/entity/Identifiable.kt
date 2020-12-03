@@ -15,14 +15,17 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.entities.base
+
+package org.taktik.couchdb.entity
+
+import java.io.Serializable
 
 /**
- * @param <T> The type of the entity identity (a String, a UUID, etc.)
-</T> */
-interface Versionable<T> : Identifiable<T> {
-    val revHistory: Map<String, String>?
-    val rev: String?
-
-    fun withIdRev(id: T? = null, rev: String): Versionable<T>
+ *  An entity with an id
+ *
+ * @property id the Id of the entity. We encourage using either a v4 UUID or a HL7 Id.
+ *
+ */
+interface Identifiable<T> : Serializable {
+    val id: T
 }

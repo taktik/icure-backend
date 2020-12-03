@@ -39,7 +39,7 @@ import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.PatientDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient

@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service
 import org.taktik.couchdb.entity.CouchDbException
 import org.taktik.icure.asyncdao.DocumentDAO
 import org.taktik.icure.asynclogic.DocumentLogic
-import org.taktik.icure.dao.Option
+import org.taktik.couchdb.dao.Option
 import org.taktik.icure.entities.Document
 import org.taktik.icure.exceptions.CreationException
 import org.taktik.icure.utils.firstOrNull

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.entities.base.Identifiable
+import org.taktik.couchdb.entity.Identifiable
 import org.taktik.icure.entities.base.Named
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke

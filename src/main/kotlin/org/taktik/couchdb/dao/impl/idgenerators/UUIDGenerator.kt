@@ -15,16 +15,27 @@
  *     License along with this program.  If not, see
  *     <https://www.gnu.org/licenses/>.
  */
-package org.taktik.icure.entities.base
 
-import java.io.Serializable
+package org.taktik.couchdb.dao.impl.idgenerators
 
-/**
- *  An entity with an id
- *
- * @property id the Id of the entity. We encourage using either a v4 UUID or a HL7 Id.
- *
- */
-interface Identifiable<T> : Serializable {
-    val id: T
+import com.fasterxml.uuid.Generators
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.taktik.icure.security.CryptoUtils
+import java.util.UUID
+
+class UUIDGenerator : IDGenerator {
+
+    @Synchronized
+    override fun incrementAndGet(sequenceName: String): Int {
+        throw IllegalStateException("Not supported")
+    }
+
+    override fun newGUID(): UUID {
+        return Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate()
+    }
+
+    companion object {
+        val log: Logger = LoggerFactory.getLogger(UUIDGenerator::class.java)
+    }
 }

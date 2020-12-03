@@ -8,7 +8,7 @@ import org.ektorp.ViewQuery
 import org.ektorp.http.HttpClient
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
-import org.taktik.icure.dao.migration.MigrationStub
+import org.taktik.couchdb.dao.migration.MigrationStub
 import org.taktik.icure.db.Importer
 import org.taktik.icure.entities.Insurance
 import org.taktik.icure.entities.base.Code

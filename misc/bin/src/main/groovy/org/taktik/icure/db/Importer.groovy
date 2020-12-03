@@ -13,8 +13,8 @@ import org.ektorp.impl.StdCouchDbInstance
 import org.taktik.commons.io.CircularByteBuffer
 import org.taktik.commons.uti.UTI
 import org.taktik.icure.client.ICureHelper
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.*
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.entities.embed.Delegation

@@ -20,8 +20,8 @@ package org.taktik.couchdb.entity
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import org.taktik.icure.handlers.JacksonComplexKeyDeserializer
-import org.taktik.icure.handlers.JacksonComplexKeySerializer
+import org.taktik.couchdb.handlers.JacksonComplexKeyDeserializer
+import org.taktik.couchdb.handlers.JacksonComplexKeySerializer
 import java.util.*
 
 /**

@@ -40,13 +40,13 @@ import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.get
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.GenericDAO
-import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
@@ -60,7 +60,8 @@ import java.util.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProperties,
-                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator) : GenericDAO<T> {
+                                                  protected val entityClass: Class<T>, protected val couchDbDispatcher: CouchDbDispatcher, protected val idGenerator: IDGenerator
+) : GenericDAO<T> {
     private val log = LoggerFactory.getLogger(this.javaClass)
     protected val dbInstanceUrl = URI(couchDbProperties.url)
 

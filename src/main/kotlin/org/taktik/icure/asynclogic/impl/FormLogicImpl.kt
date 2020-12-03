@@ -32,8 +32,8 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
-import org.taktik.icure.dao.Option
-import org.taktik.icure.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull

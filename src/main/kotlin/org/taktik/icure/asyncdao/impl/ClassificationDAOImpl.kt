@@ -28,7 +28,7 @@ import org.springframework.stereotype.Repository
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.ClassificationDAO
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery

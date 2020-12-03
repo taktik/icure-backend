@@ -16,26 +16,10 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao.impl.idgenerators;
+package org.taktik.couchdb.dao
 
-import com.fasterxml.uuid.Generators;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.taktik.icure.security.CryptoUtils;
+enum class Option(val param: String) {
+    CONFLICTS("conflicts"), REVISIONS_INFO("revs_info"), ATTACHMENTS("attachments");
 
-import java.util.UUID;
-import javax.validation.constraints.NotNull;
-
-public class UUIDGenerator implements IDGenerator {
-	protected static final Logger log = LoggerFactory.getLogger(UUIDGenerator.class);
-
-	@Override
-	public synchronized int incrementAndGet(String sequenceName) {
-		throw new IllegalStateException("Not supported");
-	}
-
-	@Override
-	public UUID newGUID() {
-		return Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate();
-    }
+    fun paramName() = param
 }

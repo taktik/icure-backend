@@ -19,7 +19,7 @@
 package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.flow.Flow
-import org.taktik.icure.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
 import org.taktik.icure.entities.base.ICureDocument
 import org.taktik.icure.entities.base.StoredICureDocument
 import org.taktik.icure.properties.CouchDbProperties

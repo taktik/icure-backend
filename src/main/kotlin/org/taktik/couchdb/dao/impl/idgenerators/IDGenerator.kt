@@ -16,17 +16,11 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.handlers
+package org.taktik.couchdb.dao.impl.idgenerators
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.node.ArrayNode
-import org.taktik.couchdb.entity.ComplexKey
+import java.util.UUID
 
-class JacksonComplexKeyDeserializer : JsonDeserializer<ComplexKey>() {
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ComplexKey {
-        val jsonList = p.readValueAsTree<ArrayNode>()
-        return ComplexKey.of(*jsonList.map { it?.let { p.codec.treeToValue(it, Object::class.java) }}.toTypedArray())
-    }
+interface IDGenerator {
+    fun incrementAndGet(sequenceName: String): Int
+    fun newGUID(): UUID
 }

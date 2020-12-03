@@ -16,11 +16,20 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.icure.dao.impl.idgenerators;
+package org.taktik.couchdb.entity
 
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.github.pozo.KotlinBuilder
+import java.io.Serializable
 
-public interface IDGenerator {
-	int incrementAndGet(String sequenceName);
-	UUID newGUID();
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@KotlinBuilder
+data class Security(
+        val admins: Right = Right(),
+        val members: Right = Right(),
+) : Serializable {
+    @KotlinBuilder
+    data class Right(val names: Set<String> = setOf(), val roles: Set<String> = setOf())
 }
