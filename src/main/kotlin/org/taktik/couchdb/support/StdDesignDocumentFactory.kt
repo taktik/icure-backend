@@ -18,9 +18,6 @@
 package org.taktik.couchdb.support
 
 import org.apache.commons.io.IOUtils
-import org.ektorp.util.Assert
-import org.ektorp.util.Exceptions
-import org.ektorp.util.ReflectionUtils
 import org.taktik.couchdb.annotation.Filter
 import org.taktik.couchdb.annotation.Filters
 import org.taktik.couchdb.annotation.ListFunction
@@ -30,8 +27,11 @@ import org.taktik.couchdb.annotation.Shows
 import org.taktik.couchdb.annotation.UpdateHandler
 import org.taktik.couchdb.annotation.UpdateHandlers
 import org.taktik.couchdb.entity.DesignDocument
+import org.taktik.couchdb.util.Assert
+import org.taktik.couchdb.util.Exceptions
+import org.taktik.couchdb.util.Predicate
+import org.taktik.couchdb.util.ReflectionUtils
 import java.io.FileNotFoundException
-import java.util.*
 
 /**
  *
@@ -59,94 +59,131 @@ class StdDesignDocumentFactory : DesignDocumentFactory {
 
     private fun createFilterFunctions(metaDataClass: Class<*>): Map<String, String> {
         val shows: MutableMap<String, String> = HashMap()
-        ReflectionUtils.eachAnnotation(metaDataClass, Filter::class.java) { input: Filter ->
-            shows[input.name] = resolveFilterFunction(input, metaDataClass)
-            true
-        }
-        ReflectionUtils.eachAnnotation(metaDataClass, Filters::class.java) { input: Filters ->
-            for (sf in input.value) {
-                shows[sf.name] = resolveFilterFunction(sf, metaDataClass)
+
+        ReflectionUtils.eachAnnotation(metaDataClass, Filter::class.java, object : Predicate<Filter> {
+            override fun apply(input: Filter): Boolean {
+                shows[input.name] = resolveFilterFunction(input, metaDataClass)
+                return true
             }
-            true
-        }
+        })
+
+
+        ReflectionUtils.eachAnnotation(metaDataClass, Filters::class.java, object : Predicate<Filters> {
+            override fun apply(input: Filters): Boolean {
+                for (sf in input.value) {
+                    shows[sf.name] = resolveFilterFunction(sf, metaDataClass)
+                }
+                return true
+            }
+        })
+
         return shows
     }
 
     private fun createUpdateHandlerFunctions(metaDataClass: Class<*>): Map<String, String> {
         val updateHandlers: MutableMap<String, String> = HashMap()
-        ReflectionUtils.eachAnnotation(metaDataClass, UpdateHandler::class.java) { input: UpdateHandler ->
-            updateHandlers[input.name] = resolveUpdateHandlerFunction(input, metaDataClass)
-            true
-        }
-        ReflectionUtils.eachAnnotation(metaDataClass, UpdateHandlers::class.java) { input: UpdateHandlers ->
-            for (sf in input.value) {
-                updateHandlers[sf.name] = resolveUpdateHandlerFunction(sf, metaDataClass)
+
+        ReflectionUtils.eachAnnotation(metaDataClass, UpdateHandler::class.java, object : Predicate<UpdateHandler> {
+            override fun apply(input: UpdateHandler): Boolean {
+                updateHandlers[input.name] = resolveUpdateHandlerFunction(input, metaDataClass)
+                return true
             }
-            true
-        }
+        })
+
+        ReflectionUtils.eachAnnotation(metaDataClass, UpdateHandlers::class.java, object : Predicate<UpdateHandlers> {
+            override fun apply(input: UpdateHandlers): Boolean {
+                for (sf in input.value) {
+                    updateHandlers[sf.name] = resolveUpdateHandlerFunction(sf, metaDataClass)
+                }
+                return true
+            }
+        })
+
         return updateHandlers
     }
 
     private fun createShowFunctions(metaDataClass: Class<*>): Map<String, String> {
         val shows: MutableMap<String, String> = HashMap()
-        ReflectionUtils.eachAnnotation(metaDataClass, ShowFunction::class.java) { input: ShowFunction ->
-            shows[input.name] = resolveShowFunction(input, metaDataClass)
-            true
-        }
-        ReflectionUtils.eachAnnotation(metaDataClass, Shows::class.java) { input: Shows ->
-            for (sf in input.value) {
-                shows[sf.name] = resolveShowFunction(sf, metaDataClass)
+
+        ReflectionUtils.eachAnnotation(metaDataClass, ShowFunction::class.java, object : Predicate<ShowFunction> {
+            override fun apply(input: ShowFunction): Boolean {
+                shows[input.name] = resolveShowFunction(input, metaDataClass)
+                return true
             }
-            true
-        }
+        })
+
+        ReflectionUtils.eachAnnotation(metaDataClass, Shows::class.java, object : Predicate<Shows> {
+            override fun apply(input: Shows): Boolean {
+                for (sf in input.value) {
+                    shows[sf.name] = resolveShowFunction(sf, metaDataClass)
+                }
+                return true
+            }
+        })
+
         return shows
     }
 
     private fun createListFunctions(metaDataClass: Class<*>): Map<String, String> {
         val lists: MutableMap<String, String> = HashMap()
-        ReflectionUtils.eachAnnotation(metaDataClass, ListFunction::class.java) { input: ListFunction ->
-            lists[input.name] = resolveListFunction(input, metaDataClass)
-            true
-        }
-        ReflectionUtils.eachAnnotation(metaDataClass, Lists::class.java) { input: Lists ->
-            for (lf in input.value) {
-                lists[lf.name] = resolveListFunction(lf, metaDataClass)
+
+        ReflectionUtils.eachAnnotation(metaDataClass, ListFunction::class.java, object : Predicate<ListFunction> {
+            override fun apply(input: ListFunction): Boolean {
+                lists[input.name] = resolveListFunction(input, metaDataClass)
+                return true
             }
-            true
-        }
+        })
+
+        ReflectionUtils.eachAnnotation(metaDataClass, Lists::class.java, object : Predicate<Lists> {
+            override fun apply(input: Lists): Boolean {
+                for (lf in input.value) {
+                    lists[lf.name] = resolveListFunction(lf, metaDataClass)
+                }
+                return true
+            }
+        })
+
         return lists
     }
 
-    private fun resolveFilterFunction(input: Filter,
-                                      metaDataClass: Class<*>): String {
-        if (input.file.length > 0) {
+    private fun resolveFilterFunction(
+            input: Filter,
+            metaDataClass: Class<*>,
+    ): String {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "Filter must either have file or function value set")
         return input.function
     }
 
-    private fun resolveUpdateHandlerFunction(input: UpdateHandler,
-                                             metaDataClass: Class<*>): String {
-        if (input.file.length > 0) {
+    private fun resolveUpdateHandlerFunction(
+            input: UpdateHandler,
+            metaDataClass: Class<*>,
+    ): String {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "UpdateHandler must either have file or function value set")
         return input.function
     }
 
-    private fun resolveListFunction(input: ListFunction,
-                                    metaDataClass: Class<*>): String {
-        if (input.file.length > 0) {
+    private fun resolveListFunction(
+            input: ListFunction,
+            metaDataClass: Class<*>,
+    ): String {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "ListFunction must either have file or function value set")
         return input.function
     }
 
-    private fun resolveShowFunction(input: ShowFunction,
-                                    metaDataClass: Class<*>): String {
-        if (input.file.length > 0) {
+    private fun resolveShowFunction(
+            input: ShowFunction,
+            metaDataClass: Class<*>,
+    ): String {
+        if (input.file.isNotEmpty()) {
             return loadFromFile(metaDataClass, input.file)
         }
         Assert.hasText(input.function, "ShowFunction must either have file or function value set")
