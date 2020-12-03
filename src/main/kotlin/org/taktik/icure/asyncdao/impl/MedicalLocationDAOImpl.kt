@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.map
 import org.taktik.couchdb.annotation.View
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Repository
-import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.MedicalLocationDAO
 import org.taktik.icure.entities.MedicalLocation

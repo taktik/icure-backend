@@ -21,7 +21,7 @@ import com.github.pozo.KotlinBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import org.taktik.icure.domain.filter.AbstractFilter
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 
 @KotlinBuilder
 data class FilterChain<O : Identifiable<String>>(val filter: AbstractFilter<O>, val predicate: org.taktik.icure.domain.filter.predicate.Predicate? = null) {

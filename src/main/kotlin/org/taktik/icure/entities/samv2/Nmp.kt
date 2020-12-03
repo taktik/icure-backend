@@ -39,6 +39,7 @@ data class Nmp(
         val to: Long? = null,
         val code: String? = null,
         val category: String? = null,
+        var productId: String? = null,
         val commercialStatus: String? = null,
         val name: SamText? = null,
         val producer: SamText? = null,

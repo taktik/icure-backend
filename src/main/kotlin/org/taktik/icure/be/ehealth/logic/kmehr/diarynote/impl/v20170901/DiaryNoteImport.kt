@@ -23,7 +23,7 @@ import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.HealthElementLogic
 import org.taktik.icure.asynclogic.HealthcarePartyLogic
 import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.ImportResult
 import org.taktik.icure.entities.Patient

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.pozo.KotlinBuilder
 import org.taktik.icure.entities.base.CodeStub
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 import java.io.Serializable

@@ -36,7 +36,7 @@ import org.taktik.couchdb.ViewQueryResultEvent
 import org.taktik.couchdb.ViewRowNoDoc
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.icure.domain.filter.predicate.Predicate
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedDocumentKeyIdPair
 import org.taktik.icure.services.external.rest.v1.dto.PaginatedList

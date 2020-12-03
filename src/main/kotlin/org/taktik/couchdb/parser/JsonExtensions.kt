@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.transform
 import org.apache.commons.logging.LogFactory
-import org.taktik.couchdb.entity.CouchDbException
+import org.taktik.couchdb.exception.CouchDbException
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.nio.ByteBuffer

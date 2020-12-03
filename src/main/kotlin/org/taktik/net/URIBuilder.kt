@@ -16,7 +16,7 @@
  *     <https://www.gnu.org/licenses/>.
  */
 
-package org.taktik.couchdb
+package org.taktik.net
 
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.message.BasicNameValuePair

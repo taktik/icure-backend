@@ -39,7 +39,7 @@ import org.taktik.couchdb.queryView
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.PatientDAO
-import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.entities.Patient
@@ -424,8 +424,7 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
     @View(name = "conflicts", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && !doc.deleted && doc._conflicts) emit(doc._id )}")
     override fun listConflicts(): Flow<Patient> {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        val viewQuery = createQuery<Patient>("conflicts").includeDocs(true)
-        return client.queryViewIncludeDocsNoValue<String, Patient>(viewQuery).map { it.doc }
+        return client.queryViewIncludeDocsNoValue<String, Patient>(createQuery<Patient>("conflicts").includeDocs(true)).map { it.doc }
     }
 
     @View(name = "by_modification_date", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.Patient' && doc.modified) emit(doc.modified)}")

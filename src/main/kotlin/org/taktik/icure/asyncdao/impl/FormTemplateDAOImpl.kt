@@ -31,8 +31,8 @@ import org.springframework.stereotype.Repository
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.FormTemplateDAO
-import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.FormTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager

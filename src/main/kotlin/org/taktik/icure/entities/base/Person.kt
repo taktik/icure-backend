@@ -20,7 +20,7 @@ package org.taktik.icure.entities.base
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.Gender
 import org.taktik.icure.entities.utils.MergeUtil.mergeListsDistinct
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.io.Serializable
 
 interface Person : Serializable, Identifiable<String> {

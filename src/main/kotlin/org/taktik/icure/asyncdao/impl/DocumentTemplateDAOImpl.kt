@@ -30,7 +30,7 @@ import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.asyncdao.DocumentTemplateDAO
-import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.DocumentTemplate
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.spring.asynccache.AsyncCacheManager

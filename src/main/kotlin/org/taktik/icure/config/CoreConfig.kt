@@ -22,7 +22,7 @@ import org.springframework.cache.concurrent.ConcurrentMapCache
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 
 
 @Configuration

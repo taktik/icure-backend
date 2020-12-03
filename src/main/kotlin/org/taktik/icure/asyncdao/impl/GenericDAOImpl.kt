@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
-import org.taktik.couchdb.entity.NameConventions
+import org.taktik.couchdb.dao.NameConventions
 import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.Client
@@ -41,7 +41,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.ViewRowWithDoc
 import org.taktik.couchdb.dao.Option
-import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.get
 import org.taktik.couchdb.queryView

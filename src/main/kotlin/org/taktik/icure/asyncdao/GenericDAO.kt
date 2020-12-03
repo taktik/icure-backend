@@ -21,7 +21,7 @@ package org.taktik.icure.asyncdao
 import kotlinx.coroutines.flow.Flow
 import org.taktik.couchdb.Client
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.net.URI
 import java.nio.ByteBuffer
 

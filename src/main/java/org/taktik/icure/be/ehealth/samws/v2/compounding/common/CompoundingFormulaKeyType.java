@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.taktik.icure.be.ehealth.samws.v2.consultation.ConsultCompoundingFormulaType;
 import org.taktik.icure.be.ehealth.samws.v2.core.DmppCodeTypeType;
-import org.taktik.icure.be.samv2.entities.CompoundingFormulaFullDataType;
+import org.taktik.icure.be.samv2v5.entities.CompoundingFormulaFullDataType;
 
 
 /**

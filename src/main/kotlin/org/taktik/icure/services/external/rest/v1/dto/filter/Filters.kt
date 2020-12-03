@@ -18,7 +18,7 @@
 package org.taktik.icure.services.external.rest.v1.dto.filter
 
 import org.taktik.icure.domain.filter.Filter
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 
 object Filters {
     fun <O : Identifiable<String>> union(vararg filters: AbstractFilterDto<O>): UnionFilter<O> {

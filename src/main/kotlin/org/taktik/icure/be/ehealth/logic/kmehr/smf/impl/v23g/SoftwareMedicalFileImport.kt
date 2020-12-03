@@ -41,7 +41,7 @@ import org.taktik.icure.be.ehealth.dto.kmehr.v20131001.Utils
 import org.taktik.icure.be.ehealth.logic.kmehr.toInputStream
 import org.taktik.icure.be.ehealth.logic.kmehr.validNihiiOrNull
 import org.taktik.icure.be.ehealth.logic.kmehr.validSsinOrNull
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.db.StringUtils
 import org.taktik.icure.domain.mapping.ImportMapping
 import org.taktik.icure.domain.result.CheckSMFPatientResult

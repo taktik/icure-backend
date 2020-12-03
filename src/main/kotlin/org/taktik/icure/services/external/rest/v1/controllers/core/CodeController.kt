@@ -46,7 +46,7 @@ import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.domain.filter.predicate.Predicate
 import org.taktik.icure.entities.base.Code
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.services.external.rest.v1.dto.CodeDto
 import org.taktik.icure.services.external.rest.v1.dto.filter.chain.FilterChain
 import org.taktik.icure.services.external.rest.v1.mapper.base.CodeMapper

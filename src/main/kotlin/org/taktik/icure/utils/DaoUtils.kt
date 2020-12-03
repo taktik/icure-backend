@@ -18,7 +18,7 @@
 
 package org.taktik.icure.utils
 
-import org.taktik.couchdb.entity.NameConventions
+import org.taktik.couchdb.dao.NameConventions
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.icure.db.PaginationOffset

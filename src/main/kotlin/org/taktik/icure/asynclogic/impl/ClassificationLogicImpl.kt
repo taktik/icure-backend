@@ -27,7 +27,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.ClassificationDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.ClassificationLogic
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Classification
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull

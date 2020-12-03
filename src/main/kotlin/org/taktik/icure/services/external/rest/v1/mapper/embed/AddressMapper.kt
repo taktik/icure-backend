@@ -32,6 +32,7 @@ interface AddressMapper {
             Mapping(target = "descr", ignore = true),
             Mapping(target = "postalCode", ignore = true),
             Mapping(target = "country", ignore = true),
+            Mapping(target = "state", ignore = true),
             Mapping(target = "telecoms", ignore = true),
             Mapping(target = "encryptedSelf", ignore = true),
             Mapping(target = "note", ignore = true)

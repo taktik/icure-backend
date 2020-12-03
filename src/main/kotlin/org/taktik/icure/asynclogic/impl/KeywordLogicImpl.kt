@@ -28,7 +28,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.KeywordDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.KeywordLogic
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Keyword
 import org.taktik.icure.utils.firstOrNull
 

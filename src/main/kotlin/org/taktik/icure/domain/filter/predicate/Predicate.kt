@@ -17,7 +17,7 @@
  */
 package org.taktik.icure.domain.filter.predicate
 
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 
 
 interface Predicate {

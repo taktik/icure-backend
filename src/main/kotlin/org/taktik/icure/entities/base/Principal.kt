@@ -18,7 +18,7 @@
 package org.taktik.icure.entities.base
 
 import org.taktik.icure.entities.embed.Permission
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 
 interface Principal : Identifiable<String>, Named {
     val permissions: Set<Permission>

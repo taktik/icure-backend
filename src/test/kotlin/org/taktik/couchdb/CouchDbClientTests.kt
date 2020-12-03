@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.taktik.couchdb.entity.ViewQuery
-import org.taktik.couchdb.entity.NameConventions
+import org.taktik.couchdb.dao.NameConventions
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -22,7 +22,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.WebClient
-import org.taktik.couchdb.entity.CouchDbException
+import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.parser.EndArray
 import org.taktik.couchdb.parser.StartArray
 import org.taktik.couchdb.parser.StartObject

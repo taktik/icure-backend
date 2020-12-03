@@ -33,7 +33,7 @@ import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.UserDAO
-import org.taktik.couchdb.dao.impl.idgenerators.IDGenerator
+import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.entities.User
 import org.taktik.icure.properties.CouchDbProperties

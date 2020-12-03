@@ -49,7 +49,7 @@ import org.taktik.couchdb.dao.Option
 import org.taktik.couchdb.entity.ActiveTask
 import org.taktik.couchdb.entity.AttachmentResult
 import org.taktik.couchdb.entity.Change
-import org.taktik.couchdb.entity.CouchDbException
+import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.ViewResultException
 import org.taktik.couchdb.parser.EndArray
@@ -70,6 +70,9 @@ import org.taktik.couchdb.parser.toJsonEvents
 import org.taktik.couchdb.parser.toObject
 import org.taktik.couchdb.entity.Security
 import org.taktik.couchdb.entity.Versionable
+import org.taktik.net.append
+import org.taktik.net.param
+import org.taktik.net.params
 import org.taktik.springframework.web.reactive.basicAuth
 import org.taktik.springframework.web.reactive.getResponseBytesFlow
 import org.taktik.springframework.web.reactive.getResponseJsonEvents

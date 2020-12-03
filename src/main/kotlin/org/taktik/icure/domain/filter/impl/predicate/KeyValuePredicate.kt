@@ -20,7 +20,7 @@ package org.taktik.icure.domain.filter.impl.predicate
 import com.github.pozo.KotlinBuilder
 import org.apache.commons.beanutils.PropertyUtilsBean
 import org.taktik.icure.domain.filter.predicate.Predicate
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.lang.reflect.InvocationTargetException
 
 @KotlinBuilder

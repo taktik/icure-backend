@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.taktik.icure.be.ehealth.samws.v2.consultation.ConsultRealActualIngredientType;
-import org.taktik.icure.be.samv2.entities.RealActualIngredientFullDataType;
+import org.taktik.icure.be.samv2v5.entities.RealActualIngredientFullDataType;
 
 
 /**

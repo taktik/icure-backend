@@ -32,7 +32,7 @@ import org.taktik.icure.asynclogic.InsuranceLogic
 import org.taktik.icure.asynclogic.InvoiceLogic
 import org.taktik.icure.asynclogic.MessageLogic
 import org.taktik.icure.asynclogic.PatientLogic
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.EntityReference
 import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Insurance

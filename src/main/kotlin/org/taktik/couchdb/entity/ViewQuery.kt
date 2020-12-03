@@ -21,8 +21,8 @@ package org.taktik.couchdb.entity
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import org.taktik.couchdb.append
-import org.taktik.couchdb.param
+import org.taktik.net.append
+import org.taktik.net.param
 import org.taktik.couchdb.util.Exceptions
 import java.net.URI
 
@@ -74,24 +74,8 @@ data class ViewQuery(
     fun key(key: Collection<*>?) = this.copy(key = key)
     fun key(key: ComplexKey) = this.copy(key = key)
     fun keys(keys: Collection<*>?) = this.copy(keys = keys?.toList())
-    fun startKey(startKey: String?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Int?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Long?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Double?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Float?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Boolean?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Map<String,*>?) = this.copy(startKey = startKey)
-    fun startKey(startKey: Collection<*>?) = this.copy(startKey = startKey)
-    fun startKey(startKey: ComplexKey) = this.copy(startKey = startKey)
-    fun endKey(endKey: String?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Int?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Long?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Double?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Float?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Boolean?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Map<String,*>?) = this.copy(endKey = endKey)
-    fun endKey(endKey: Collection<*>?) = this.copy(endKey = endKey)
-    fun endKey(endKey: ComplexKey) = this.copy(endKey = endKey)
+    fun startKey(startKey: Any?) = this.copy(startKey = startKey)
+    fun endKey(startKey: Any?) = this.copy(startKey = startKey)
     fun startDocId(startDocId: String?) = this.copy(startDocId = startDocId)
     fun endDocId(endDocId: String?) = this.copy(endDocId = endDocId)
 

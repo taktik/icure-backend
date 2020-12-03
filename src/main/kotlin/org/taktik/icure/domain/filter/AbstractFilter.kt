@@ -19,7 +19,7 @@ package org.taktik.icure.domain.filter
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import java.io.Serializable
 
 interface AbstractFilter<O : Identifiable<String>> : Filter<String, O>, Serializable {

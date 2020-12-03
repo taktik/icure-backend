@@ -26,7 +26,7 @@ import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.EntityPersister
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.validation.aspect.Fixer
 
 

@@ -20,7 +20,7 @@ package org.taktik.icure.services.external.rest.v1.dto.filter
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.domain.filter.Filter
-import org.taktik.couchdb.entity.Identifiable
+import org.taktik.couchdb.id.Identifiable
 import org.taktik.icure.handlers.JacksonFilterDeserializer
 import java.io.Serializable
 

@@ -27,13 +27,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.taktik.couchdb.entity.CouchDbException
+import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.icure.asyncdao.FormDAO
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.FormLogic
 import org.taktik.couchdb.dao.Option
-import org.taktik.couchdb.dao.impl.idgenerators.UUIDGenerator
+import org.taktik.couchdb.id.UUIDGenerator
 import org.taktik.icure.entities.Form
 import org.taktik.icure.entities.embed.Delegation
 import org.taktik.icure.utils.firstOrNull
