@@ -22,6 +22,7 @@ class Ampp(
         var crmLink: SamText? = null,
         var deliveryModusCode: String? = null,
         var deliveryModus: SamText? = null,
+        var deliveryModusSpecificationCode: String? = null,
         var deliveryModusSpecification: SamText? = null,
         var dhpcLink: SamText? = null,
         var distributorCompany: Company? = null,
@@ -66,6 +67,7 @@ class Ampp(
         if (crmLink != other.crmLink) return false
         if (deliveryModusCode != other.deliveryModusCode) return false
         if (deliveryModus != other.deliveryModus) return false
+        if (deliveryModusSpecificationCode != other.deliveryModusSpecificationCode) return false
         if (deliveryModusSpecification != other.deliveryModusSpecification) return false
         if (distributorCompany != other.distributorCompany) return false
         if (dhpcLink != other.dhpcLink) return false
@@ -109,6 +111,7 @@ class Ampp(
         result = 31 * result + (crmLink?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModus?.hashCode() ?: 0)
+        result = 31 * result + (deliveryModusSpecificationCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusSpecification?.hashCode() ?: 0)
         result = 31 * result + (dhpcLink?.hashCode() ?: 0)
         result = 31 * result + (distributorCompany?.hashCode() ?: 0)
