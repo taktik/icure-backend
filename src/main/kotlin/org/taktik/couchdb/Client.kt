@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.asFlux
 import okio.Buffer
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -378,7 +379,7 @@ class ClientImpl(private val httpClient: WebClient,
         require(rev.isNotBlank()) { "rev cannot be blank" }
 
         val uri = dbURI.append(id).append(attachmentId)
-        val request = newRequest(uri.param("rev", rev), HttpMethod.PUT).header("Content-type", contentType).body(data, ByteBuffer::class.java)
+        val request = newRequest(uri.param("rev", rev), HttpMethod.PUT).header("Content-type", contentType).body(data.asFlux(), ByteBuffer::class.java)
 
         request.getCouchDbResponse<AttachmentResult>()!!.rev
     }
