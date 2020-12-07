@@ -458,8 +458,8 @@ class PatientDAOImpl(couchDbProperties: CouchDbProperties,
 
         val resultMap = HashMap<String, String>()
         result.collect {
-            if (it.value != null) {
-                resultMap[it.value[0]] = it.value[1]
+            it.value?.let {
+                resultMap[it[0]] = it[1]
             }
         }
 

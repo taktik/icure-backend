@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.cache.Cache
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.couchdb.DocIdentifier
-import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties

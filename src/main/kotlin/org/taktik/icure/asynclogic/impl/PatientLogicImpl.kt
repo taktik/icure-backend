@@ -45,7 +45,7 @@ import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.asynclogic.PatientLogic
 import org.taktik.icure.asynclogic.UserLogic
 import org.taktik.icure.asynclogic.impl.filter.Filters
-import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.entity.Option
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.Sorting
 import org.taktik.icure.domain.filter.chain.FilterChain

@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
-import org.taktik.couchdb.dao.NameConventions
 import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.Client
@@ -40,7 +39,8 @@ import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.entity.View
 import org.taktik.couchdb.ViewRowWithDoc
-import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.dao.designDocName
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.get
@@ -81,7 +81,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
     private suspend fun designDocContainsAllView(dbInstanceUrl: URI): Boolean {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
-        return client.get<DesignDocument>(NameConventions.designDocName(entityClass))?.views?.containsKey("all")
+        return client.get<DesignDocument>(designDocName(entityClass))?.views?.containsKey("all")
                 ?: false
     }
 
@@ -333,12 +333,12 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
     }
 
     override suspend fun forceInitStandardDesignDocument(client: Client, updateIfExists: Boolean) {
-        val designDocId = NameConventions.designDocName(this.entityClass)
+        val designDocId = designDocName(this.entityClass)
         val fromDatabase = client.get(designDocId, DesignDocument::class.java)
         val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
         val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update(merged)
+            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
         }
     }
 
@@ -347,7 +347,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
     }
 
     override suspend fun initSystemDocumentIfAbsent(client: Client) {
-        val designDocId = NameConventions.designDocName("_System")
+        val designDocId = designDocName("_System")
         val designDocument = client.get(designDocId, DesignDocument::class.java)
         if (designDocument == null) {
             client.update(DesignDocument(designDocId, views = mapOf("revs" to View("function (doc) { emit(doc.java_type, doc._rev); }"))))

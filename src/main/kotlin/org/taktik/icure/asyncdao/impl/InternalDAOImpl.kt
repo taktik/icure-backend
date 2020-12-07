@@ -27,19 +27,19 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.ArrayUtils
-import org.taktik.couchdb.dao.NameConventions
 import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
 import org.taktik.couchdb.BulkUpdateResult
 import org.taktik.couchdb.entity.DesignDocument
 import org.taktik.couchdb.DocIdentifier
 import org.taktik.couchdb.ViewRowWithDoc
+import org.taktik.couchdb.dao.designDocName
 import org.taktik.couchdb.entity.ViewQuery
 import org.taktik.couchdb.exception.DocumentNotFoundException
 import org.taktik.couchdb.queryView
 import org.taktik.couchdb.update
 import org.taktik.icure.asyncdao.InternalDAO
-import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.properties.CouchDbProperties
@@ -51,7 +51,7 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun getAll() = couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
-            .designDocId(NameConventions.designDocName(entityClass))
+            .designDocId(designDocName(entityClass))
             .viewName("all").includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
 
 
@@ -60,7 +60,7 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
             log.debug(entityClass.simpleName + ".getAllIds")
         }
         return couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView<String, String>(ViewQuery()
-                .designDocId(NameConventions.designDocName(entityClass))
+                .designDocId(designDocName(entityClass))
                 .viewName("all").includeDocs(false)).map { it.id }.filterNotNull()
     }
 
@@ -128,7 +128,7 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
 
     override fun list(ids: List<String>) =
             couchDbDispatcher.getClient(URI(couchDbProperties.url)).queryView(ViewQuery()
-                    .designDocId(NameConventions.designDocName(entityClass))
+                    .designDocId(designDocName(entityClass))
                     .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
 
     override suspend fun purge(entities: Flow<T>): Flow<BulkUpdateResult> {
@@ -149,12 +149,12 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
 
     override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {
         val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
-        val designDocId = NameConventions.designDocName(this.entityClass)
+        val designDocId = designDocName(this.entityClass)
         val fromDatabase = client.get(designDocId, DesignDocument::class.java)
         val generated = StdDesignDocumentFactory().generateFrom(designDocId, this)
         val (merged, changed) = fromDatabase?.mergeWith(generated, true) ?: generated to true
         if (changed && (updateIfExists || fromDatabase == null)) {
-            client.update(merged)
+            client.update(fromDatabase?.let { merged.copy(rev = it.rev) } ?: merged)
         }
     }
 

@@ -18,8 +18,5 @@
 
 package org.taktik.couchdb.dao
 
-object NameConventions {
-    fun backReferenceViewName(fieldName: String?) = "ektorp_docrefs_${fieldName}"
-    fun designDocName(docName: String?): String = "_design/$docName"
-    fun designDocName(klass: Class<*>) = designDocName(klass.simpleName)
-}
+fun designDocName(clazz: Class<*>) = designDocName(clazz.simpleName)
+fun designDocName(name: String) = "_design/${name}"

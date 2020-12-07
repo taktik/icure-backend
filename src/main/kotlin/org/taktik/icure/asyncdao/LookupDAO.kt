@@ -18,7 +18,7 @@
 
 package org.taktik.icure.asyncdao
 
-import org.taktik.couchdb.dao.Option
+import org.taktik.couchdb.entity.Option
 import org.taktik.couchdb.id.Identifiable
 
 interface LookupDAO<T : Identifiable<String>> {

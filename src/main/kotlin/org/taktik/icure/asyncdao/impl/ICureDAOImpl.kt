@@ -20,13 +20,13 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.stereotype.Repository
-import org.springframework.web.reactive.function.client.WebClient
 import org.taktik.couchdb.ClientImpl
 import org.taktik.couchdb.entity.Indexer
 import org.taktik.couchdb.entity.ReplicationTask
 import org.taktik.icure.asyncdao.ICureDAO
 import org.taktik.icure.entities.embed.DatabaseSynchronization
 import org.taktik.icure.properties.CouchDbProperties
+import org.taktik.net.web.WebClient
 import java.net.URI
 
 @ExperimentalCoroutinesApi

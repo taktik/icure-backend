@@ -164,6 +164,7 @@ dependencies {
         exclude group: 'org.taktik.commons', module: 'commons-cluster'
         exclude group: 'org.taktik.commons', module: 'commons-utils'
     }
+    implementation group: 'org.taktik.couchdb', name: 'krouch', version: '1.0.2-2-g544e41a88d'
 
 	// APIs
 	implementation group: 'javax.annotation', name: 'jsr250-api', version: '1.0'
@@ -217,7 +218,6 @@ dependencies {
 
 	//EH Validator
 	implementation group: 'com.ibm.icu', name: 'icu4j', version: '57.1'
-	implementation name: 'probatron4j-custom-0.7.4'
 	implementation name: 'ehvalidator-service-core-2.1.1'
 
     // mustache
