@@ -472,6 +472,7 @@ class Samv2v5Import : CliktCommand() {
                                         crmLink = amppd.crmLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         deliveryModusCode = amppd.deliveryModus?.code,
                                         deliveryModus = amppd.deliveryModus?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
+                                        deliveryModusSpecificationCode = amppd.deliveryModusSpecification?.code,
                                         deliveryModusSpecification = amppd.deliveryModusSpecification?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         dhpcLink = amppd.dhpcLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         distributorCompany = amppd.distributorCompany ?.let {
