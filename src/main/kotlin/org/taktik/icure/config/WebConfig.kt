@@ -106,17 +106,7 @@ class WebConfig : WebFluxConfigurer {
             val parentGroup: EventLoopGroup = EpollEventLoopGroup()
             val childGroup: EventLoopGroup = EpollEventLoopGroup()
             return NettyServerCustomizer { httpServer ->
-                httpServer
-                        .tcpConfiguration { tcpServer ->
-                            tcpServer
-                                    .bootstrap { serverBootstrap ->
-                                        serverBootstrap
-                                                .group(parentGroup, childGroup)
-                                                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                                                .option(ChannelOption.SO_BACKLOG, 2048)
-                                                .channel(EpollServerSocketChannel::class.java)
-                                    }
-                        }
+                httpServer.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.SO_BACKLOG, 2048)
             }
         } else {
             return NettyServerCustomizer { httpServer ->

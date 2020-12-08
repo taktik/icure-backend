@@ -22,9 +22,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders
 import io.netty.handler.codec.http.HttpHeaders
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactor.asFlux
-import org.reactivestreams.Publisher
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.taktik.couchdb.exception.CouchDbException
 import org.taktik.net.web.*
@@ -34,9 +32,11 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.util.function.Consumer
 
-class SpringWebfluxWebClient(val reactorClientHttpConnector: ReactorClientHttpConnector, val filters: Consumer<MutableList<ExchangeFilterFunction>>) : WebClient {
+class SpringWebfluxWebClient(val reactorClientHttpConnector: ReactorClientHttpConnector? = null, val filters: Consumer<MutableList<ExchangeFilterFunction>>? = null) : WebClient {
     override fun uri(uri: URI): Request {
-        return SpringWebfluxRequest(org.springframework.web.reactive.function.client.WebClient.builder().clientConnector(reactorClientHttpConnector).filters(filters).build(), uri)
+        return SpringWebfluxRequest( org.springframework.web.reactive.function.client.WebClient.builder()
+                .let { c -> reactorClientHttpConnector?.let { c.clientConnector(it) } ?: c }
+                .let { c -> filters?.let { c.filters(it) } ?: c }.build(), uri )
     }
 }
 
@@ -58,7 +58,13 @@ class SpringWebfluxRequest(
 class SpringWebfluxResponse(private val responseSpec: org.springframework.web.reactive.function.client.WebClient.ResponseSpec) : Response {
     override fun onStatus(status: Int, handler: (ResponseStatus) -> Mono<out Throwable>) =
             SpringWebfluxResponse(responseSpec.onStatus({it.value() == status}, { response ->
-                response.createException().flatMap { ex -> Mono.error<CouchDbException>(CouchDbException("Not found", response.statusCode().value(), ex.responseBodyAsString)) }
+                response.bodyToMono(ByteBuffer::class.java).flatMap { byteBuffer ->
+                    val arr = ByteArray(byteBuffer.remaining())
+                    byteBuffer.get(arr)
+                    handler(object : ResponseStatus(response.statusCode().value()) {
+                        override fun responseBodyAsString() = arr.toString(Charsets.UTF_8)
+                    })
+                }
             }))
     override fun toFlux(): Flux<ByteBuffer> = responseSpec.bodyToFlux(ByteBuffer::class.java)
 }

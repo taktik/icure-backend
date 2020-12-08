@@ -49,6 +49,7 @@ import org.taktik.icure.be.samv2v5.entities.ExportNonMedicinalType
 import org.taktik.icure.be.samv2v5.entities.ExportReimbursementsType
 import org.taktik.icure.be.samv2v5.entities.ExportVirtualMedicinesType
 import org.taktik.couchdb.id.UUIDGenerator
+import org.taktik.couchdb.springramework.webclient.SpringWebfluxWebClient
 import org.taktik.icure.entities.base.CodeStub
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Nmp
@@ -145,7 +146,7 @@ class Samv2v5Import : CliktCommand() {
             this.url = this@Samv2v5Import.url
         }
 
-        val httpClient = WebClient.builder().build()
+        val httpClient = SpringWebfluxWebClient()
         val couchDbDispatcher = CouchDbDispatcher(httpClient, ObjectMapper().registerModule(KotlinModule()), dbName, "drugs", username, password)
         val updateExistingDocs = (update == "true" || update == "yes")
         val reimbursements: MutableMap<Triple<String?, String?, String?>, MutableList<Reimbursement>> = HashMap()
