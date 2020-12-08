@@ -164,7 +164,7 @@ dependencies {
         exclude group: 'org.taktik.commons', module: 'commons-cluster'
         exclude group: 'org.taktik.commons', module: 'commons-utils'
     }
-    implementation group: 'org.taktik.couchdb', name: 'krouch', version: '1.0.2-2-g544e41a88d'
+    implementation group: 'org.taktik.couchdb', name: 'krouch', version: '1.0.2-26-g5441c3f659'
 
 	// APIs
 	implementation group: 'javax.annotation', name: 'jsr250-api', version: '1.0'
