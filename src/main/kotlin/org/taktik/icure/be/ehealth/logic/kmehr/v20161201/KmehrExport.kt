@@ -406,9 +406,12 @@ open class KmehrExport {
                     mv.value?.let { decimal = BigDecimal.valueOf(it) }
                 }
                 content.medicationValue?.medicinalProduct?.let {
+                    val medicationType = content.medicationValue?.options?.get("type")?.stringValue
                     medicinalproduct = MedicinalProductType().apply {
                         intendedname = content.medicationValue?.medicinalProduct?.intendedname
-                        intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        if (medicationType != "FRE") {
+                            intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        }
                     }
                 }
                 content.medicationValue?.substanceProduct?.let {
