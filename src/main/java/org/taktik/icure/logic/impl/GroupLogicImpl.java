@@ -126,16 +126,8 @@ public class GroupLogicImpl implements org.taktik.icure.logic.GroupLogic {
 	}
 
 	@Override
-	public Group findGroup(String groupId) throws IllegalAccessException {
-        String id = sessionLogic.getCurrentSessionContext().getGroupIdUserId();
-        if (id == null) {
-            throw new IllegalAccessException("No registered user");
-        }
-        String validatedGroupId = userLogic.getUserOnFallbackDb(id).getGroupId();
-        if (validatedGroupId != groupId && !ADMIN_GROUP.equals(validatedGroupId)) {
-            throw new IllegalAccessException("No registered user");
-        }
-        return groupDAO.find(groupId);
+	public Group findGroup(String groupId) {
+		return groupDAO.find(groupId);
 	}
 
 }
