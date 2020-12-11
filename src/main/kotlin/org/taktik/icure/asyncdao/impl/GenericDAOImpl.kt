@@ -50,7 +50,7 @@ import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.entities.base.StoredDocument
 import org.taktik.icure.exceptions.BulkUpdateConflictException
 import org.taktik.icure.exceptions.PersistenceException
-import org.taktik.icure.exceptions.UpdateConflictException
+import org.taktik.couchdb.exception.UpdateConflictException
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
 import java.net.URI
@@ -318,7 +318,7 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
 
         val results = client.bulkUpdate(orderedEntities, entityClass).toList()
 
-        val conflicts = results.filter { it.error == "conflict" }.map { r -> UpdateConflictException(orderedEntities.firstOrNull { e -> e.id == r.id }) }.toList()
+        val conflicts = results.filter { it.error == "conflict" }.map { r -> UpdateConflictException(r.id, r.rev ?: "unknown") }.toList()
         if (conflicts.isNotEmpty()) {
             throw BulkUpdateConflictException(conflicts, orderedEntities)
         }

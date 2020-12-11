@@ -37,7 +37,7 @@ data class TarificationDto(
         override val id: String,         // id = type|code|version  => this must be unique
         override val rev: String? = null,
         override val deletionDate: Long? = null,
-        override val label: Map<String, String> = mapOf(), //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
+        override val label: Map<String, String>? = null, //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
         override val context: String? = null, //ex: When embedded the context where this code is used
         override val type: String? = null, //ex: ICD (type + version + code combination must be unique) (or from tags -> CD-ITEM)
         override val code: String? = null, //ex: I06.2 (or from tags -> healthcareelement). Local codes are encoded as LOCAL:SLLOCALFROMMYSOFT

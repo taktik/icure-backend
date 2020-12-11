@@ -88,7 +88,6 @@ class CustomAuthenticationProvider(
                 .toList()
                 .sortedBy { it.id }
 
-        var user: User? = null
 
         val matchingUsers = mutableListOf<User>()
         val password: String = authentication.credentials.toString()
@@ -98,6 +97,8 @@ class CustomAuthenticationProvider(
                 matchingUsers.add(candidate)
             }
         }
+
+        val user: User? = matchingUsers.firstOrNull()
 
         if (user == null) {
             log.warn("Invalid username or password for user " + username + ", no user matched out of " + users.size + " candidates")

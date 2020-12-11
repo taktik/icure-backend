@@ -68,6 +68,7 @@ class SpringWebfluxResponse(private val responseSpec: org.springframework.web.re
             }))
     override fun toFlux(): Flux<ByteBuffer> = responseSpec.bodyToFlux(ByteBuffer::class.java)
 }
+
 private fun HttpMethod?.toSpringMethod(): org.springframework.http.HttpMethod {
     return when(this) {
         HttpMethod.GET -> org.springframework.http.HttpMethod.GET

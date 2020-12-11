@@ -17,17 +17,15 @@
  */
 package org.taktik.icure.validation
 
-import com.fasterxml.uuid.Generators
 import org.taktik.icure.asynclogic.AsyncSessionLogic
 import org.taktik.icure.entities.base.CodeIdentification
-import org.taktik.icure.security.CryptoUtils
 import org.taktik.icure.utils.FuzzyValues
 import java.time.Instant
 
 enum class AutoFix(private val fixer: suspend (b:Any?,v:Any?,sl:AsyncSessionLogic?) -> Any?) {
     FUZZYNOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> FuzzyValues.getCurrentFuzzyDateTime() }),
     NOW({ _: Any?, _: Any?, _: AsyncSessionLogic? -> Instant.now().toEpochMilli() }),
-    UUID({ _: Any?, _: Any?, _: AsyncSessionLogic? -> Generators.randomBasedGenerator(CryptoUtils.getRandom()).generate().toString() }),
+    UUID({ _: Any?, _: Any?, _: AsyncSessionLogic? -> java.util.UUID.randomUUID().toString() }),
     CURRENTUSERID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentUserId() }),
     CURRENTHCPID({ _: Any?, _: Any?, sl: AsyncSessionLogic? -> sl?.getCurrentHealthcarePartyId() }),
     NOFIX({ _: Any?, v: Any?, _: AsyncSessionLogic? -> v }),

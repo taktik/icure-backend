@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import org.taktik.commons.uti.UTI
 import org.taktik.commons.uti.impl.SimpleUTIDetector
+import org.taktik.couchdb.exception.UpdateConflictException
 import org.taktik.icure.asynclogic.ContactLogic
 import org.taktik.icure.asynclogic.DocumentLogic
 import org.taktik.icure.asynclogic.FormLogic
@@ -186,7 +187,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             else -> parseGenericTransaction(trn, author, res, language, mymappings, saveToDatabase, kmehrIndex)
         }.let { con ->
             if (saveToDatabase) {
-                contactLogic.createContact(con) ?: throw IllegalStateException("Cannot save contact")
+                try { contactLogic.createContact(con) } catch (e:UpdateConflictException) {
+                    contactLogic.createContact(con.copy(id = idGenerator.newGUID().toString())) //This happens when the Kmehr file is corrupted
+                } ?: throw IllegalStateException("Cannot save contact")
             } else con
         }
     }
@@ -247,7 +250,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             createOrProcessHcp(it, saveToDatabase, v)
         }?.firstOrNull()?.id ?: author.healthcarePartyId ?: throw IllegalArgumentException("The author's healthcarePartyId must be set")
 
-        val contactId = transactionMfid?.let { kmehrIndex.transactionIds[it]?.toString() } ?: idGenerator.newGUID().toString()
+        val contactId = transactionMfid?.let { kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val serviceAndSubContacts = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map { item ->
             val mfId = getItemMFID(item)
             val service = parseGenericItem("treatment", "Prescription", item, author, trnhcpid, language, kmehrIndex)
@@ -362,7 +365,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
                 })
         return Contact(
-                id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.toString() } ?: idGenerator.newGUID().toString(),
+                id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 author = author.id,
                 responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                     createOrProcessHcp(it, saveToDatabase, v)
@@ -394,7 +397,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
         val transactionMfid = getTransactionMFID(trn)
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
-        val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.toString() } ?: idGenerator.newGUID().toString()
+        val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val trnItems = trn.findItems()
 
         val (services, subContacts) = trnItems.filter { item ->
@@ -727,9 +730,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val serviceDate = item.beginmoment?.let { Utils.makeFuzzyLongFromMomentType(it) }
                 ?: item.recorddatetime?.let { Utils.makeFuzzyLongFromXMLGregorianCalendar(it) }
                 ?: FuzzyValues.getCurrentFuzzyDateTime()
-        val tags = listOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item) + (item.temporality?.cd?.value?.let { listOf(CodeStub.from("CD-TEMPORALITY", it.value(), "1")) }
-                ?: listOf()) + (item.lifecycle?.let { listOf(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
-                ?: listOf())
+        val tags = setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item) + (item.temporality?.cd?.value?.let { setOf(CodeStub.from("CD-TEMPORALITY", it.value(), "1")) }
+                ?: setOf()) + (item.lifecycle?.let { setOf(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
+                ?: setOf())
         val mfId = getItemMFID(item)
 
         return Service(
@@ -738,6 +741,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     consultationFormMeasureLabels[it.code]
                 } ?: label,
                 codes = extractCodes(item),
+                tags = tags,
                 responsible = trnAuthorHcpId,
                 author = author.id,
                 valueDate = serviceDate,
@@ -795,7 +799,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                         }
                                     }?.joinToString(" ") { it.trim() }
                                 } ?: "",
-                                instructionForPatient = item.instructionforpatient?.value + (item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }.joinToString(", ").let { if (it.isNotBlank()) it else "" }),
+                                instructionForPatient = (
+                                        listOf(item.instructionforpatient?.value) +
+                                        item.lnks.mapNotNull { it.value?.toString(Charsets.UTF_8) }
+                                        ).filterNotNull().joinToString(", ").let { if (it.isNotBlank()) it else null },
                                 posology = item.posology?.text?.value, // posology can be complex but SMF spec recommends text type
                                 regimen = item.regimen?.let {
                                     it.daynumbersAndQuantitiesAndDaytimes.map {
@@ -1176,31 +1183,33 @@ fun simplifySubContacts(scts : Collection<SubContact>) : Collection<SubContact> 
         scts.groupBy { it.id }.mapValues { it.value.first().copy(services = it.value.flatMap {it.services}) }.values
 
 fun Kmehrmessage.performIndexation(idGenerator: UUIDGenerator) = this.folders.fold(KmehrMessageIndex()) { kmi, folder ->
-        folder.transactions.fold(kmi) { kmi, trn ->
-            val tmfId = getTransactionMFID(trn)
-            trn.findItems().fold(kmi.copy(transactionIds = tmfId?.let { kmi.transactionIds + (it to (idGenerator.newGUID() to trn))} ?: kmi.transactionIds)) { kmi, item ->
-                val mfId = getItemMFID(item)
+    //Some SMFs are actually corrupted and MF-ID which should be unique are actually not...
+    //The sole goal of this is to allow for linking. If two items/transactions have the same ID, we have no other choice than to link to one of them (the last one in this case)
+    folder.transactions.fold(kmi) { kmi, trn ->
+        val tmfId = getTransactionMFID(trn)
+        trn.findItems().fold(kmi.copy(transactionIds = tmfId?.let { kmi.transactionIds + (it to (idGenerator.newGUID() to trn))} ?: kmi.transactionIds)) { kmi, item ->
+            val mfId = getItemMFID(item)
 
-                val previousVersion = item.lnks.find { (it.type == CDLNKvalues.ISANEWVERSIONOF) && it.url != null }?.url?.let { extractMFIDFromUrl(it) }
-                val id = previousVersion?.let { kmi.itemIds[it]?.first } ?: idGenerator.newGUID()
+            val previousVersion = item.lnks.find { (it.type == CDLNKvalues.ISANEWVERSIONOF) && it.url != null }?.url?.let { extractMFIDFromUrl(it) }
+            val id = previousVersion?.let { kmi.itemIds[it]?.first } ?: idGenerator.newGUID()
 
-                val links = item.lnks.filter { (it.type == CDLNKvalues.ISASERVICEFOR || it.type == CDLNKvalues.ISACHILDOF || it.type == CDLNKvalues.ISAPPROACHFOR) && it.url != null }.mapNotNull { lnk ->
-                    extractMFIDFromUrl(lnk.url)?.let { lnk.type to it }
-                }.groupBy { (from,to) -> from }
+            val links = item.lnks.filter { (it.type == CDLNKvalues.ISASERVICEFOR || it.type == CDLNKvalues.ISACHILDOF || it.type == CDLNKvalues.ISAPPROACHFOR) && it.url != null }.mapNotNull { lnk ->
+                extractMFIDFromUrl(lnk.url)?.let { lnk.type to it }
+            }.groupBy { (from,to) -> from }
 
-                val serviceForLinks = links[CDLNKvalues.ISASERVICEFOR]
-                val childOfLinks = links[CDLNKvalues.ISACHILDOF]
-                val approachForLinks = links[CDLNKvalues.ISAPPROACHFOR]
-                kmi.copy(
-                        itemIds = mfId?.let { kmi.itemIds + (it to (id to item)) } ?: kmi.itemIds,
-                        serviceFor = if(mfId != null && serviceForLinks != null && serviceForLinks.isNotEmpty()) kmi.serviceFor + (mfId to serviceForLinks.map { it.second })  else kmi.serviceFor,
-                        childOf = if(mfId != null && childOfLinks != null && childOfLinks.isNotEmpty()) kmi.childOf + (mfId to childOfLinks.map { it.second }) else kmi.childOf,
-                        parentOf = if(mfId != null && childOfLinks != null && childOfLinks.isNotEmpty()) kmi.parentOf + childOfLinks.map { it.second to (listOf(mfId) + (kmi.parentOf[it.second] ?: listOf())) } else kmi.parentOf,
-                        approachFor = if(mfId != null && approachForLinks != null && approachForLinks.isNotEmpty()) kmi.approachFor + (mfId to approachForLinks.map { it.second }) else kmi.approachFor
-                )
-            }
+            val serviceForLinks = links[CDLNKvalues.ISASERVICEFOR]
+            val childOfLinks = links[CDLNKvalues.ISACHILDOF]
+            val approachForLinks = links[CDLNKvalues.ISAPPROACHFOR]
+            kmi.copy(
+                    itemIds = mfId?.let { kmi.itemIds + (it to (id to item)) } ?: kmi.itemIds,
+                    serviceFor = if(mfId != null && serviceForLinks != null && serviceForLinks.isNotEmpty()) kmi.serviceFor + (mfId to serviceForLinks.map { it.second })  else kmi.serviceFor,
+                    childOf = if(mfId != null && childOfLinks != null && childOfLinks.isNotEmpty()) kmi.childOf + (mfId to childOfLinks.map { it.second }) else kmi.childOf,
+                    parentOf = if(mfId != null && childOfLinks != null && childOfLinks.isNotEmpty()) kmi.parentOf + childOfLinks.map { it.second to (listOf(mfId) + (kmi.parentOf[it.second] ?: listOf())) } else kmi.parentOf,
+                    approachFor = if(mfId != null && approachForLinks != null && approachForLinks.isNotEmpty()) kmi.approachFor + (mfId to approachForLinks.map { it.second }) else kmi.approachFor
+            )
         }
     }
+}
 
 
 

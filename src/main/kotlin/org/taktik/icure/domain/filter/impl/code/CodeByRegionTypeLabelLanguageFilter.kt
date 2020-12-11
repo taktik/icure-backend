@@ -49,8 +49,8 @@ data class CodeByRegionTypeLabelLanguageFilter(
 
     override fun matches(item: Code): Boolean {
         val ss = sanitizeString(label)
-        return ((region == null || item.regions.contains(region))
+        return ss != null && ((region == null || item.regions.contains(region))
                 && (type == null || type == type)
-                && if (language == null) item.label.values.stream().anyMatch { l: String? -> Optional.ofNullable(l).map { s: String? -> sanitizeString(s)!!.contains(ss!!) }.orElse(false) } else Optional.ofNullable(item.label[language!!]).map { s: String? -> sanitizeString(s)!!.contains(ss!!) }.orElse(false))
+                && if (language == null) item.label?.values?.any { s -> sanitizeString(s)?.contains(ss) == true } == true else item.label?.get(language)?.let { s -> sanitizeString(s)?.contains(ss) } == true)
     }
 }
