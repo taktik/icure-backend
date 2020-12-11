@@ -331,14 +331,17 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 } else Pair(it, otherUtis)
             }
 
+            val valueDate = (trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
+                    ?: trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                        it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+                    })
+
             Service(
                     id = serviceId,
                     label = "document",
                     tags = setOf(CodeStub.from( "CD-ITEM-EXT", "document", "1")),
-                    valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
-                            ?: trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                                it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                            },
+                    valueDate = valueDate,
+                    openingDate = valueDate,
                     content = mapOf(language to Content(
                             stringValue = docname,
                             documentId = Document(
@@ -639,7 +642,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val mfId = getItemMFID(item)
         return HealthElement(
                 id = idGenerator.newGUID().toString(),
-                healthElementId = mfId?.let{ kmehrIndex.itemIds[it]?.toString() } ?: idGenerator.newGUID().toString(),
+                healthElementId = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 descr = getItemDescription(item, label),
                 idService = linkedService?.id,
                 tags = setOf(CodeStub.from("CD-ITEM", cdItem, "1")) + extractTags(item) + (item.lifecycle?.let { listOf(CodeStub.from("CD-LIFECYCLE", it.cd.value.value(), "1")) }
@@ -736,7 +739,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val mfId = getItemMFID(item)
 
         return Service(
-                id = mfId?.let{ kmehrIndex.itemIds[it]?.toString() } ?: idGenerator.newGUID().toString(),
+                id = mfId?.let{ kmehrIndex.itemIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 label = tags.find { it.type == "CD-PARAMETER" }?.let {
                     consultationFormMeasureLabels[it.code]
                 } ?: label,

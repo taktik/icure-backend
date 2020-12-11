@@ -78,7 +78,7 @@ data class Tarification(
 
 ) : StoredDocument, CodeIdentification {
     companion object : DynamicInitializer<Tarification> {
-        fun from(type: String, code: String, version: String) = Tarification(id = "$type:$code:$version", type = type, code = code, version = version)
+        fun from(type: String, code: String, version: String) = Tarification(id = "$type|$code|$version", type = type, code = code, version = version)
     }
 
     fun merge(other: Tarification) = Tarification(args = this.solveConflictsWith(other))

@@ -41,7 +41,7 @@ data class CodeStub(
         override val label: Map<String, String>? = null //ex: {en: Rheumatic Aortic Stenosis, fr: Sténose rhumatoïde de l'Aorte}
 ) : CodeIdentification, Serializable {
     companion object : DynamicInitializer<CodeStub> {
-        fun from(type: String, code: String, version: String) = CodeStub(id = "$type:$code:$version", type = type, code = code, version = version)
+        fun from(type: String, code: String, version: String) = CodeStub(id = "$type|$code|$version", type = type, code = code, version = version)
     }
 
     fun merge(other: CodeStub) = CodeStub(args = this.solveConflictsWith(other))

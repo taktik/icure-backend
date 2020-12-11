@@ -61,7 +61,7 @@ data class Code(
 
 ) : StoredDocument, CodeIdentification {
     companion object : DynamicInitializer<Code> {
-        fun from(type: String, code: String, version: String) = Code(id = "$type:$code:$version", type = type, code = code, version = version)
+        fun from(type: String, code: String, version: String) = Code(id = "$type|$code|$version", type = type, code = code, version = version)
     }
 
     fun merge(other: Code) = Code(args = this.solveConflictsWith(other))
