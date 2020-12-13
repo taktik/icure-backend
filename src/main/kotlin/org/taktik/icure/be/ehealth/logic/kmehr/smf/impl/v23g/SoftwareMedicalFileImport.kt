@@ -315,10 +315,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val svcRecordDateTime = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
             val serviceId = idGenerator.newGUID().toString()
 
-            val utis: List<UTI> = lnk.mediatype?.value()?.let {
-                v.attachments?.put(serviceId, MimeAttachment().apply {
+            lnk.mediatype?.value()?.let {
+                v.attachments.put(serviceId, MimeAttachment().apply {
                     data = lnk.value
                 })
+            }
+
+            val utis: List<UTI> = lnk.mediatype?.value()?.let {
                 UTI.utisForMimeType(it).toList()
             } ?: let {
                 listOf(SimpleUTIDetector().detectUTI(lnk.value.inputStream(), null, null))

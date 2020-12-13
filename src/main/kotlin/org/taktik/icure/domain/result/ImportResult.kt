@@ -36,7 +36,7 @@ class ImportResult(
         var forms: MutableList<Form> = mutableListOf(),
         var hcps: MutableList<HealthcareParty> = mutableListOf(),
         var documents: MutableList<Document> = mutableListOf(),
-        var attachments: HashMap<String, MimeAttachment>? = null
+        var attachments: MutableMap<String, MimeAttachment> = mutableMapOf()
 ) {
     fun warning(w: String): ImportResult {
         warnings.add(w)
