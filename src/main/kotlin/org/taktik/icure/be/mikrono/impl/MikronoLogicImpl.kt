@@ -162,6 +162,5 @@ class MikronoLogicImpl(private val applicationToken: String, defaultServer: Stri
         if (defaultServer != null && defaultSuperUser != null && defaultSuperToken != null) {
             tokensPerServer[defaultServer] = java.lang.String.join(":", defaultSuperUser, defaultSuperToken)
         }
-        log.info("Mikrono Logic initialised")
     }
 }

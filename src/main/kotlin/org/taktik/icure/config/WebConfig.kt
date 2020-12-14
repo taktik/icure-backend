@@ -104,6 +104,6 @@ class WebConfig : WebFluxConfigurer {
     }
 
     fun nettyCustomizer() = NettyServerCustomizer { httpServer ->
-        httpServer.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.SO_BACKLOG, 2048)
+        httpServer.option(ChannelOption.SO_BACKLOG, 2048)
     }
 }
