@@ -230,7 +230,7 @@ configurations.all {
 }
 
 springBoot {
-	mainClassName = "org.taktik.icure.ICureBackendApplicationKt"
+	mainClass.set("org.taktik.icure.ICureBackendApplicationKt")
 }
 
 bootRun {

@@ -314,9 +314,10 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: "unnamed_document"
             val svcRecordDateTime = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
             val serviceId = idGenerator.newGUID().toString()
+            val documentId = idGenerator.newGUID().toString()
 
             lnk.mediatype?.value()?.let {
-                v.attachments.put(serviceId, MimeAttachment().apply {
+                v.attachments.put(documentId, MimeAttachment().apply {
                     data = lnk.value
                 })
             }
@@ -348,7 +349,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     content = mapOf(language to Content(
                             stringValue = docname,
                             documentId = Document(
-                                id = idGenerator.newGUID().toString(),
+                                id = documentId,
                                 author = author.id,
                                 responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                                     createOrProcessHcp(it, saveToDatabase, v)
