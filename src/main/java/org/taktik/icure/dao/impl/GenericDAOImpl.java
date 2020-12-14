@@ -530,7 +530,7 @@ public abstract class GenericDAOImpl<T extends StoredDocument> extends CouchDbIC
     @Override
     public void warmupIndex(){
         if (log.isDebugEnabled()) {
-            log.debug(entityClass.getSimpleName() + ".getAllIds");
+            log.debug(entityClass.getSimpleName() + ".warmupIndex");
         }
         if (designDocContainsAllView()) {
             db.queryView(createQuery("all").includeDocs(false).limit(1), String.class);

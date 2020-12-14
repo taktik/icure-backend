@@ -45,6 +45,20 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
         )
     }
 
+    @View(name = "by_atc", map = "classpath:js/amp/By_atc.js")
+    override fun findAmpsByAtc(atc: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+        val from = atc
+        val to = atc
+
+        return pagedQueryView(
+                "by_atc",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
     @View(name = "by_groupid", map = "classpath:js/amp/By_groupid.js")
     override fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
         val from = vmpgId
@@ -186,4 +200,38 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
                 .endKey(to), String::class.java)
     }
 
+    override fun listAmpsByVmpGroupCodes(vmpgCodes: List<String>): List<Amp> {
+        return db.queryView(createQuery(
+                "by_groupcode")
+                .includeDocs(true)
+                .keys(vmpgCodes), Amp::class.java)
+    }
+
+    override fun listAmpsByDmppCodes(dmppCodes: List<String>): List<Amp> {
+                return db.queryView(createQuery(
+                "by_dmppcode")
+                .includeDocs(true)
+                .keys(dmppCodes), Amp::class.java)
+    }
+
+    override fun listAmpsByVmpGroupIds(vmpGroupIds: List<String>): List<Amp> {
+                return db.queryView(createQuery(
+                "by_groupid")
+                .includeDocs(true)
+                .keys(vmpGroupIds), Amp::class.java)
+    }
+
+    override fun listAmpsByVmpCodes(vmpCodes: List<String>): List<Amp> {
+                return db.queryView(createQuery(
+                "by_vmpcode")
+                .includeDocs(true)
+                .keys(vmpCodes), Amp::class.java)
+    }
+
+    override fun listAmpsByVmpIds(vmpIds: List<String>): List<Amp> {
+                return db.queryView(createQuery(
+                "by_vmpid")
+                .includeDocs(true)
+                .keys(vmpIds), Amp::class.java)
+    }
 }

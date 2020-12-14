@@ -74,6 +74,10 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
         return ampDAO.getVersion()
     }
 
+    override fun findVmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<Vmp> {
+        return vmpDAO.findVmpsByVmpCode(vmpCode, paginationOffset)
+    }
+
     override fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp> {
         return vmpDAO.findVmpsByGroupCode(vmpgCode, paginationOffset)
     }
@@ -106,7 +110,11 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
         return vmpGroupDAO.findVmpGroupsByLabel(language, label, paginationOffset)
     }
 
-    override fun findVmpGroups(paginationOffset: PaginationOffset<Nothing?>): PaginatedList<VmpGroup> {
+    override fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup> {
+        return vmpGroupDAO.findVmpGroupsByVmpGroupCode(vmpgCode, paginationOffset)
+    }
+
+    override fun findVmpGroups(paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup> {
         return vmpGroupDAO.findVmpGroups(paginationOffset)
     }
 
@@ -124,5 +132,45 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
 
     override fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm> {
         return pharmaceuticalFormDAO.all
+    }
+
+    override fun listVmpsByVmpCodes(vmpCodes: List<String>): List<Vmp> {
+        return vmpDAO.listVmpsByVmpCodes(vmpCodes)
+    }
+
+    override fun findAmpsByAtcCode(atcCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp> {
+        return ampDAO.findAmpsByAtc(atcCode, paginationOffset)
+    }
+
+    override fun listVmpsByGroupIds(vmpgIds: List<String>): List<Vmp> {
+        return vmpDAO.listVmpsByGroupIds(vmpgIds)
+    }
+
+    override fun listAmpsByGroupCodes(vmpgCodes: List<String>): List<Amp> {
+        return ampDAO.listAmpsByVmpGroupCodes(vmpgCodes)
+    }
+
+    override fun listAmpsByDmppCodes(dmppCodes: List<String>): List<Amp> {
+        return ampDAO.listAmpsByDmppCodes(dmppCodes)
+    }
+
+    override fun listAmpsByGroupIds(groupIds: List<String>): List<Amp> {
+        return ampDAO.listAmpsByVmpGroupIds(groupIds)
+    }
+
+    override fun listAmpsByVmpCodes(vmpgCodes: List<String>): List<Amp> {
+        return ampDAO.listAmpsByVmpCodes(vmpgCodes)
+    }
+
+    override fun listAmpsByVmpIds(vmpIds: List<String>): List<Amp> {
+        return ampDAO.listAmpsByVmpIds(vmpIds)
+    }
+
+    override fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup> {
+        return vmpGroupDAO.listVmpGroupsByVmpGroupCodes(vmpgCodes)
+    }
+
+    override fun listNmpsByCnks(cnks: List<String>): List<Nmp> {
+        return nmpDAO.listNmpsByCnks(cnks)
     }
 }

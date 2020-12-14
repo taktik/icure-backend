@@ -28,6 +28,7 @@ import org.taktik.icure.logic.SessionLogic.SessionContext;
 import org.taktik.icure.services.external.http.WebSocketServlet;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -95,7 +96,7 @@ public class WebSocket extends WebSocketAdapter {
 
 	@Override
 	public void onWebSocketBinary(byte[] payload, int offset, int len) {
-		super.onWebSocketBinary(payload, offset, len);
+        operation.handle(new String(payload, offset, len, StandardCharsets.UTF_8));
 	}
 
 	@Override

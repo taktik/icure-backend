@@ -16,13 +16,16 @@ interface SamV2Logic {
     fun findNmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Nmp>
     fun findVmpsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findVmpGroupsByLabel(language: String?, label: String?, paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
-    fun findVmpGroups(paginationOffset: PaginationOffset<Nothing?>): PaginatedList<VmpGroup>
+    fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
+    fun findVmpGroups(paginationOffset: PaginationOffset<*>): PaginatedList<VmpGroup>
+    fun findVmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<Vmp>
     fun findVmpsByGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findVmpsByGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Vmp>
     fun findAmpsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpGroupId(vmpgId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
+    fun findAmpsByAtcCode(atcCode: String, paginationOffset: PaginationOffset<*>): PaginatedList<Amp>
     fun findAmpsByDmppCode(dmppCode: String): List<Amp>
 
 
@@ -40,4 +43,13 @@ interface SamV2Logic {
     fun listProductIds(ids: Collection<String>): MutableList<ProductId>
     fun listSubstances(): MutableList<Substance>
     fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm>
+    fun listVmpsByVmpCodes(vmpCodes:  List<String>): List<Vmp>
+    fun listVmpsByGroupIds(vmpgIds:  List<String>): List<Vmp>
+    fun listAmpsByGroupCodes(vmpgCodes:  List<String>): List<Amp>
+    fun listAmpsByDmppCodes(dmppCodes:  List<String>): List<Amp>
+    fun listAmpsByGroupIds(groupIds:  List<String>): List<Amp>
+    fun listAmpsByVmpCodes(vmpgCodes:  List<String>): List<Amp>
+    fun listAmpsByVmpIds(vmpIds:  List<String>): List<Amp>
+    fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup>
+    fun listNmpsByCnks(cnks: List<String>): List<Nmp>
 }
