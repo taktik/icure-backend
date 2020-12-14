@@ -33,7 +33,9 @@ import org.taktik.icure.services.external.rest.v1.mapper.embed.DocumentTypeMappe
 @Mapper(componentModel = "spring", uses = [DocumentTypeMapper::class, DocumentLocationMapper::class, CodeStubMapper::class, DelegationMapper::class, DocumentStatusMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 interface DocumentMapper {
     @Mappings(
+            Mapping(target = "attachment", ignore = true),
             Mapping(target = "isAttachmentDirty", ignore = true),
+
             Mapping(target = "attachments", ignore = true),
             Mapping(target = "revHistory", ignore = true),
             Mapping(target = "conflicts", ignore = true),

@@ -242,7 +242,7 @@ bootRun {
 // Write the full name of the dependency to the standard output
 project.tasks.withType(AbstractPublishToMaven) {
     doFirst {
-        println "PublishToMaven: " + project.group + ":" + project.name + ":" + project.version
+        println "Artifact >>> " + project.group + ":" + project.name + ":" + project.version + " <<< published to Maven repository"
     }
 }
 
