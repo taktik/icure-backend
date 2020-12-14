@@ -18,7 +18,7 @@
     <!-- uncomment the following line to log expected errors -->
     <!-- <logger name="org.taktik.icure.services.external.rest.v1.error.WsExceptionMapper" level="DEBUG" /> -->
 
-    <!-- Spring Security -->
     <logger name="org.apache.commons" level="WARN" />
 
+    <logger name="ch.qos.logback" level="WARN" />
 </configuration>
