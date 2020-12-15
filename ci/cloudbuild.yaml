@@ -9,7 +9,7 @@ steps:
     -   name: 'gcr.io/cloud-builders/docker'
         args: ['login', 'docker.taktik.be', '--username', '${_DOCKER_USERNAME}', '--password', '${_DOCKER_PASSWORD}']
 
-    -   name: 'docker.taktik.be /javac' # java + docker
+    -   name: 'docker.taktik.be/javac' # java + docker
         entrypoint: 'bash'
         args: [ '-c', './gradlew :dockerize -x test -PdockerPush && ./gradlew publish' ]
         env:
