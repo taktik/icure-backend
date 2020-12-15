@@ -313,6 +313,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val services = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter { it.type == CDLNKvalues.MULTIMEDIA }?.map { lnk ->
             val docname = trn.cds.firstOrNull { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.dn ?: "unnamed_document"
             val svcRecordDateTime = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli()
+
             val serviceId = idGenerator.newGUID().toString()
             val documentId = idGenerator.newGUID().toString()
 
