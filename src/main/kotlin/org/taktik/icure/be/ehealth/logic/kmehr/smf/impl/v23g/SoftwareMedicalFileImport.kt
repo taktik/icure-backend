@@ -245,6 +245,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                         saveToDatabase: Boolean,
                                                         kmehrIndex: KmehrMessageIndex): Contact {
         val transactionMfid = getTransactionMFID(trn)
+        val formId = idGenerator.newGUID().toString()
 
         val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
             createOrProcessHcp(it, saveToDatabase, v)
@@ -254,18 +255,31 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val serviceAndSubContacts = trn.findItems { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "medication" } }.map { item ->
             val mfId = getItemMFID(item)
             val service = parseGenericItem("treatment", "Prescription", item, author, trnhcpid, language, kmehrIndex)
-            service to makeSubContact(contactId, null, mfId, service, kmehrIndex)
+            service to makeSubContact(contactId, formId, mfId, service, kmehrIndex)
         }
         val contactDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
                 ?: trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
                     it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
                 }
+
+        val simplifiedSubContacts = simplifySubContacts(serviceAndSubContacts.mapNotNull {it.second}).toSet()
+        if (simplifiedSubContacts.isNotEmpty()) {
+            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId }.toSet().map {
+                Form(id = it,
+                        contactId = contactId,
+                        author = author.id,
+                        responsible = trnhcpid,
+                        created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                        modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
+            })
+        }
+
         return Contact(
                 id = contactId,
                 author = author.id,
                 responsible = trnhcpid,
                 services = serviceAndSubContacts.map {it.first}.toSet() + (transactionMfid?.let { kmehrIndex.parentOf[it]?.flatMap { kmehrIndex.transactionIds[it]?.second?.let { parseTransaction(it, author, v, language, mappings, saveToDatabase, kmehrIndex).services } ?: setOf() }?.toSet() } ?: setOf()),
-                subContacts = simplifySubContacts(serviceAndSubContacts.mapNotNull {it.second}).toSet(),
+                subContacts = simplifiedSubContacts,
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null }
         )
@@ -407,6 +421,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
         val contactId = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString()
         val trnItems = trn.findItems()
+        val formId = idGenerator.newGUID().toString()
 
         val (services, subContacts) = trnItems.filter { item ->
             val cdItem = item.cds.find { it.s == CDITEMschemes.CD_ITEM }?.value ?: "note"
@@ -448,15 +463,29 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         }
                     }
 
-                    Pair(svcs + service, makeSubContact(contactId, null, mfId, service, kmehrIndex)?.let { sbctcs + it } ?: sbctcs)
+                    Pair(svcs + service, makeSubContact(contactId, formId, mfId, service, kmehrIndex)?.let { sbctcs + it } ?: sbctcs)
                 }
             }
+        }
+
+        val simplifiedSubContacts = simplifySubContacts(subContacts).toSet()
+        if (simplifiedSubContacts.isNotEmpty()) {
+            v.forms.addAll(simplifiedSubContacts.filter { sc -> !v.forms.any { it.id == sc.formId } && sc.services.isNotEmpty() }.mapNotNull { it.formId }.toSet().map {
+                Form(id = it,
+                contactId = contactId,
+                author = author.id,
+                responsible = trnauthorhcpid,
+                created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli())
+            })
         }
 
         return Contact(
                 id = contactId,
                 author = author.id,
                 responsible = trnauthorhcpid,
+                created = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                modified = trn.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 openingDate = contactDate,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null },
                 tags = trnCd?.let { setOf(CodeStub.from("CD-TRANSACTION", it, "1.0")) } ?: emptySet(),
@@ -474,7 +503,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             }?.firstOrNull()
                         } ?: CodeStub.from("CD-ENCOUNTER", "consultation", "1.0"),
                 services = services.toSet() + (transactionMfid?.let { kmehrIndex.parentOf[it]?.flatMap { kmehrIndex.transactionIds[it]?.second?.let { parseTransaction(it, author, v, language, mappings, saveToDatabase, kmehrIndex).services } ?: setOf() }?.toSet() } ?: setOf()),
-                subContacts = simplifySubContacts(subContacts).toSet()
+                subContacts = simplifiedSubContacts
         )
     }
 
