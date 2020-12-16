@@ -20,5 +20,5 @@ steps:
             - 'ORG_GRADLE_PROJECT_mavenSnapshotsRepository=https://maven.taktik.be/content/repositories/snapshots/'
 
 options:
-    machineType: 'N1_HIGHCPU_8'
+    machineType: 'N1_HIGHCPU_32'
 timeout: 2700s
