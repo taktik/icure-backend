@@ -13,8 +13,8 @@ val repoPassword: String by project
 val mavenReleasesRepository: String by project
 
 plugins {
-    kotlin("jvm") version "1.4.10"
-    kotlin("kapt") version "1.4.10"
+    kotlin("jvm") version "1.4.21"
+    kotlin("kapt") version "1.4.21"
     `maven-publish`
 }
 
@@ -28,8 +28,8 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.4.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.10")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.21")
         classpath("com.taktik.gradle:gradle-plugin-docker-java:2.0.6")
         classpath("com.taktik.gradle:gradle-plugin-git-version:1.0.13")
     }
@@ -148,9 +148,9 @@ dependencies {
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-webflux", version = "2.4.0")
     implementation(group = "org.springframework.boot", name = "spring-boot-starter-security", version = "2.4.0")
 
-    implementation(group = "org.springframework", name = "spring-aspects", version = "5.2.7.RELEASE")
-    implementation(group = "org.springframework", name = "spring-websocket", version = "5.2.7.RELEASE")
-    implementation(group = "org.springframework", name = "spring-orm", version = "5.2.7.RELEASE")
+    implementation(group = "org.springframework", name = "spring-aspects", version = "5.3.1")
+    implementation(group = "org.springframework", name = "spring-websocket", version = "5.3.1")
+    implementation(group = "org.springframework", name = "spring-orm", version = "5.3.1")
 
     implementation(group = "org.springframework.session", name = "spring-session-core", version = "2.2.1.RELEASE")
 
