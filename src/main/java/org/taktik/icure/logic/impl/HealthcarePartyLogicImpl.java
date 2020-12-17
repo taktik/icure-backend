@@ -203,7 +203,7 @@ public class HealthcarePartyLogicImpl extends GenericLogicImpl<HealthcareParty, 
 
         HealthcareParty hcpInHierarchy = sender;
 
-        while (hcpInHierarchy.getParentId() != null && hcpInHierarchy.getParentId() != "") {
+        while (hcpInHierarchy.getParentId() != null && hcpInHierarchy.getParentId().length() == 0) {
             hcpInHierarchy = this.getHealthcareParty(hcpInHierarchy.getParentId());
             hcpartyIds.add(hcpInHierarchy.getId());
         }
