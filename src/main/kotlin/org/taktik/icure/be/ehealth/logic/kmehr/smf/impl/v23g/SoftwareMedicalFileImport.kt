@@ -56,6 +56,7 @@ import org.taktik.icure.entities.HealthcareParty
 import org.taktik.icure.entities.Patient
 import org.taktik.icure.entities.User
 import org.taktik.icure.entities.base.CodeStub
+import org.taktik.icure.entities.base.LinkQualification
 import org.taktik.icure.entities.embed.Address
 import org.taktik.icure.entities.embed.AddressType
 import org.taktik.icure.entities.embed.Content
@@ -516,9 +517,9 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             }
         }
         val mapping = mappings[guessedCdItem]?.find {
-            (it.lifecycle?.let { "*" } == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) &&
-                    ((it.content?.let { "*" } == "*") || item.hasContentOfType(it.content)) &&
-                    ((it.cdLocal?.let { "*" } == "*") || (it.cdLocal?.split("|")?.let { (cdl, cdlcode) -> item.cds.any { it.s == CDITEMschemes.LOCAL && it.sl == cdl && it.value == cdlcode } } != false))
+            ((it.lifecycle ?: "*") == "*" || it.lifecycle == item.lifecycle?.cd?.value?.value()) &&
+                    (((it.content ?: "*") == "*") || item.hasContentOfType(it.content)) &&
+                    (((it.cdLocal ?: "*") == "*") || (it.cdLocal?.split("|")?.let { (cdl, cdlcode) -> item.cds.any { it.s == CDITEMschemes.LOCAL && it.sl == cdl && it.value == cdlcode } } != false))
         }
 
         val cdItem = mapping?.tags?.find { it.type == "CD-ITEM" }?.code ?: guessedCdItem
@@ -785,6 +786,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 closingDate = item.endmoment?.let { Utils.makeFuzzyLongFromMomentType(it) },
                 created = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
                 modified = item.recorddatetime?.toGregorianCalendar()?.toInstant()?.toEpochMilli(),
+                qualifiedLinks = mfId?.let{ kmehrIndex.attestationOf[it]?.firstOrNull()?.let { kmehrIndex.itemIds[it]?.first?.toString()?.let { mapOf(LinkQualification.relatedService to listOf(it)) } } } ?: mapOf(),
                 status = ((item.lifecycle?.cd?.value?.value()?.let { if (it == "inactive" || it == "aborted" || it == "canceled") 1 else if (it == "notpresent" || it == "excluded") 4 else 0 }
                         ?: 0) + if (item.isIsrelevant != true) 2 else 0),
                 content = when {
@@ -1208,6 +1210,7 @@ data class KmehrMessageIndex(
         val childOf: PersistentMap<String, List<String>> = persistentHashMapOf(),
         val parentOf: PersistentMap<String, List<String>> = persistentHashMapOf(),
         val approachFor: PersistentMap<String, List<String>> = persistentHashMapOf(),
+        val attestationOf: PersistentMap<String, List<String>> = persistentHashMapOf(),
         val formIdMask: UUID = UUID.randomUUID().xor(UUID.randomUUID()) //Ensure that marker bits are set to 0 by xoring two UUIDs
 ) {
     fun isChildTransaction(trn: TransactionType?) =
@@ -1243,19 +1246,21 @@ fun Kmehrmessage.performIndexation(idGenerator: UUIDGenerator) = this.folders.fo
             val previousVersion = item.lnks.find { (it.type == CDLNKvalues.ISANEWVERSIONOF) && it.url != null }?.url?.let { extractMFIDFromUrl(it) }
             val id = previousVersion?.let { kmi.itemIds[it]?.first } ?: idGenerator.newGUID()
 
-            val links = item.lnks.filter { (it.type == CDLNKvalues.ISASERVICEFOR || it.type == CDLNKvalues.ISACHILDOF || it.type == CDLNKvalues.ISAPPROACHFOR) && it.url != null }.mapNotNull { lnk ->
+            val links = item.lnks.filter { (it.type == CDLNKvalues.ISASERVICEFOR || it.type == CDLNKvalues.ISATTESTATIONOF || it.type == CDLNKvalues.ISACHILDOF || it.type == CDLNKvalues.ISAPPROACHFOR) && it.url != null }.mapNotNull { lnk ->
                 extractMFIDFromUrl(lnk.url)?.let { lnk.type to it }
             }.groupBy { (from,to) -> from }
 
             val serviceForLinks = links[CDLNKvalues.ISASERVICEFOR]
             val childOfLinks = links[CDLNKvalues.ISACHILDOF]
             val approachForLinks = links[CDLNKvalues.ISAPPROACHFOR]
+            val attestationOfLinks = links[CDLNKvalues.ISATTESTATIONOF]
             kmi.copy(
                     itemIds = mfId?.let { kmi.itemIds + (it to (id to item)) } ?: kmi.itemIds,
                     serviceFor = if(mfId != null && serviceForLinks != null && serviceForLinks.isNotEmpty()) kmi.serviceFor + (mfId to serviceForLinks.map { it.second })  else kmi.serviceFor,
                     childOf = if(mfId != null && childOfLinks != null && childOfLinks.isNotEmpty()) kmi.childOf + (mfId to childOfLinks.map { it.second }) else kmi.childOf,
                     parentOf = if(mfId != null && childOfLinks != null && childOfLinks.isNotEmpty()) kmi.parentOf + childOfLinks.map { it.second to (listOf(mfId) + (kmi.parentOf[it.second] ?: listOf())) } else kmi.parentOf,
-                    approachFor = if(mfId != null && approachForLinks != null && approachForLinks.isNotEmpty()) kmi.approachFor + (mfId to approachForLinks.map { it.second }) else kmi.approachFor
+                    approachFor = if(mfId != null && approachForLinks != null && approachForLinks.isNotEmpty()) kmi.approachFor + (mfId to approachForLinks.map { it.second }) else kmi.approachFor,
+                    attestationOf = if(mfId != null && attestationOfLinks != null && attestationOfLinks.isNotEmpty()) kmi.attestationOf + (mfId to attestationOfLinks.map { it.second }) else kmi.attestationOf,
             )
         }
     }
