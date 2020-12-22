@@ -383,10 +383,14 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     ))
             )
         } ?: listOf()
+
         val contactDate = extractTransactionDateTime(trn)
+        val trnCd = trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value
+
         return Contact(
                 id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 author = author.id,
+                tags = trnCd?.let { setOf(CodeStub.from("CD-TRANSACTION", it, "1.0")) } ?: emptySet(),
                 responsible = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
                     createOrProcessHcp(it, saveToDatabase, v)
                 }?.firstOrNull()?.id ?: author.healthcarePartyId,
