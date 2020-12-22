@@ -42,7 +42,6 @@ import java.net.URI
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
     "org.springframework.boot.autoconfigure.context",
-    "org.springframework.boot.autoconfigure.dao",
     "org.springframework.boot.autoconfigure.validation",
     "org.springframework.boot.autoconfigure.websocket",
     "org.taktik.icure.config",

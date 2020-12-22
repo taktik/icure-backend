@@ -258,9 +258,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
             val service = parseGenericItem("treatment", "Prescription", item, author, trnhcpid, language, kmehrIndex)
             service to makeSubContact(contactId, formId, mfId, service, kmehrIndex)
         }
-        val contactDate = trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-            it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-        } ?: trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
+        val contactDate = extractTransactionDateTime(trn)
 
         val simplifiedSubContacts = simplifySubContacts(serviceAndSubContacts.mapNotNull {it.second}).toSet()
         if (simplifiedSubContacts.isNotEmpty()) {
@@ -285,6 +283,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 closingDate = trn.isIscomplete.let { if (it) contactDate else null }
         )
     }
+
+    private fun extractTransactionDateTime(trn: TransactionType) =
+            trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
+                it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
+            } ?: trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
 
     private fun makeSubContact(contactId: String, formId: String?, mfId: String?, service: Service, kmehrIndex: KmehrMessageIndex) =
             kmehrIndex.serviceFor[mfId]?.mapNotNull { mf -> kmehrIndex.itemIds[mf]?.let { (mf to it) } }?.firstOrNull()?.let { (heOrHcaMfid, heOrHcaPair) ->
@@ -351,10 +354,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                 } else Pair(it, otherUtis)
             }
 
-            val valueDate = (trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
-                    ?: trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                        it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                    })
+            val valueDate = extractTransactionDateTime(trn)
 
             Service(
                     id = serviceId,
@@ -383,10 +383,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     ))
             )
         } ?: listOf()
-        val contactDate = (trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
-                ?: trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                    it.contents?.find { it.date != null }?.let { Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                })
+        val contactDate = extractTransactionDateTime(trn)
         return Contact(
                 id = transactionMfid?.let{ kmehrIndex.transactionIds[it]?.first?.toString() } ?: idGenerator.newGUID().toString(),
                 author = author.id,
@@ -406,10 +403,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 mappings: Map<String, List<ImportMapping>>,
                                                 saveToDatabase: Boolean,
                                                 kmehrIndex: KmehrMessageIndex): Contact {
-        val contactDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) }
-                ?: trn.findItem { it -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
-                    it.contents?.find { it.date != null }?.let { org.taktik.icure.be.ehealth.dto.kmehr.v20161201.Utils.makeFuzzyLongFromDateAndTime(it.date, it.time) }
-                }
+        val contactDate = extractTransactionDateTime(trn)
         val trnauthorhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
             createOrProcessHcp(it, saveToDatabase)?.let {
                 v.hcps.add(it)
