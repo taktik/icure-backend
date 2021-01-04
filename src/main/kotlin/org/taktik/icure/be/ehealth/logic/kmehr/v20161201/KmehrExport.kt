@@ -147,7 +147,7 @@ open class KmehrExport {
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
