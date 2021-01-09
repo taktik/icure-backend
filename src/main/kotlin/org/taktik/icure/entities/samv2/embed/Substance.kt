@@ -38,7 +38,7 @@ data class Substance(
         val chemicalForm: String? = null,
         val name: SamText? = null,
         val note: SamText? = null,
-        val standardSubstances: List<StandardSubstance>? = null,
+        val standardSubstances: Set<StandardSubstance>? = null,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,

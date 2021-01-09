@@ -28,9 +28,9 @@ import com.github.pozo.KotlinBuilder
 data class AmpComponent(
         override val from: Long? = null,
         override val to: Long? = null,
-        val ingredients: List<Ingredient>? = null,
-        val pharmaceuticalForms: List<PharmaceuticalForm>? = null,
-        val routeOfAdministrations: List<RouteOfAdministration>? = null,
+        val ingredients: Set<Ingredient>? = null,
+        val pharmaceuticalForms: Set<PharmaceuticalForm>? = null,
+        val routeOfAdministrations: Set<RouteOfAdministration>? = null,
         val dividable: String? = null,
         val scored: String? = null,
         val crushable: Crushable? = null,

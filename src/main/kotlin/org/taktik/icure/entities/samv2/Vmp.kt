@@ -47,9 +47,9 @@ data class Vmp(
         val name: SamText? = null,
         val abbreviation: SamText? = null,
         val vtm: Vtm? = null,
-        val wadas: List<Wada>? = null,
-        val components: List<VmpComponent>? = null,
-        val commentedClassifications: List<CommentedClassification>? = null,
+        val wadas: Set<Wada>? = null,
+        val components: Set<VmpComponent>? = null,
+        val commentedClassifications: Set<CommentedClassification>? = null,
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,

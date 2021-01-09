@@ -43,7 +43,7 @@ data class Reimbursement(
         var pricingUnit: Pricing? = null,
         var pricingSlice: Pricing? = null,
         var reimbursementCriterion: ReimbursementCriterion? = null,
-        var copayments: List<Copayment>? = null
+        var copayments: Set<Copayment>? = null
 ) : DataPeriod {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

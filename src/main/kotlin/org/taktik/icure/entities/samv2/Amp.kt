@@ -54,8 +54,8 @@ data class Amp(
         val abbreviatedName: SamText? = null,
         val proprietarySuffix: SamText? = null,
         val prescriptionName: SamText? = null,
-        val ampps: List<Ampp> = listOf(),
-        val components: List<AmpComponent> = listOf(),
+        val ampps: Set<Ampp> = setOf(),
+        val components: Set<AmpComponent> = setOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,

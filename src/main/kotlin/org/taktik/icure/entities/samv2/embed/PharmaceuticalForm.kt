@@ -37,7 +37,7 @@ data class PharmaceuticalForm(
 
         val code: String? = null,
         val name: SamText? = null,
-        val standardForms: List<CodeStub> = listOf(),
+        val standardForms: Set<CodeStub> = setOf(),
 
         @JsonProperty("_attachments") override val attachments: Map<String, Attachment>? = null,
         @JsonProperty("_revs_info") override val revisionsInfo: List<RevisionInfo>? = null,

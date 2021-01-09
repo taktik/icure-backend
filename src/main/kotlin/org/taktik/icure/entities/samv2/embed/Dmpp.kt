@@ -36,5 +36,5 @@ data class Dmpp(
         val cheap: Boolean? = null,
         val cheapest: Boolean? = null,
         val reimbursable: Boolean? = null,
-        val reimbursements: List<Reimbursement>? = null
+        val reimbursements: Set<Reimbursement>? = null
 ) : DataPeriod
