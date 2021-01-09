@@ -9,7 +9,13 @@ class SupplyProblem(
         var expectedEndOn: Long? = null,
         var impact: SamText? = null,
         var additionalInformation: SamText? = null
-) : DataPeriod(from, to), Serializable {
+) : DataPeriod(from, to), Serializable, Comparable<SupplyProblem> {
+    override fun compareTo(other: SupplyProblem): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.reason })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SupplyProblem) return false

@@ -3,6 +3,7 @@ package org.taktik.icure.entities.samv2
 import org.taktik.icure.entities.samv2.embed.*
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import java.io.Serializable
+import java.util.*
 
 class Vmp(
         id: String? = null,
@@ -13,9 +14,9 @@ class Vmp(
         var name: SamText? = null,
         var abbreviation: SamText? = null,
         var vtm: Vtm? = null,
-        var wadas: List<Wada>? = null,
-        var components: List<VmpComponent>? = null,
-        var commentedClassifications: List<CommentedClassification>? = null
+        var wadas: SortedSet<Wada>? = null,
+        var components: SortedSet<VmpComponent>? = null,
+        var commentedClassifications: SortedSet<CommentedClassification>? = null
 ) : StoredDocumentWithPeriod(id, from, to), Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

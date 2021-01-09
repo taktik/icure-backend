@@ -1,23 +1,30 @@
 package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
+import java.util.*
 
 class AmpComponent(
         from: Long? = null,
-                   to: Long? = null,
-                   var ingredients: List<Ingredient>? = null,
-                   var pharmaceuticalForms: List<PharmaceuticalForm>? = null,
-                   var routeOfAdministrations: List<RouteOfAdministration>? = null,
-                   var dividable: String? = null,
-                   var scored: String? = null,
-                   var crushable: Crushable? = null,
-                   var containsAlcohol: ContainsAlcohol? = null,
-                   var isSugarFree: Boolean? = null,
-                   var modifiedReleaseType: Int? = null,
-                   var specificDrugDevice: Int? = null,
-                   var dimensions: String? = null,
-                   var name: SamText? = null,
-                   var note: SamText? = null) : DataPeriod(from, to), Serializable {
+        to: Long? = null,
+        var ingredients: SortedSet<Ingredient>? = null,
+        var pharmaceuticalForms: SortedSet<PharmaceuticalForm>? = null,
+        var routeOfAdministrations: SortedSet<RouteOfAdministration>? = null,
+        var dividable: String? = null,
+        var scored: String? = null,
+        var crushable: Crushable? = null,
+        var containsAlcohol: ContainsAlcohol? = null,
+        var isSugarFree: Boolean? = null,
+        var modifiedReleaseType: Int? = null,
+        var specificDrugDevice: Int? = null,
+        var dimensions: String? = null,
+        var name: SamText? = null,
+        var note: SamText? = null) : DataPeriod(from, to), Serializable, Comparable<AmpComponent> {
+    override fun compareTo(other: AmpComponent): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.name })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AmpComponent) return false

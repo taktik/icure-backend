@@ -1,13 +1,20 @@
 package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
+import java.util.*
 
 class VmpComponent(var code: String? = null,
                    var virtualForm: VirtualForm? = null,
-                   var routeOfAdministrations: List<RouteOfAdministration>? = null,
+                   var routeOfAdministrations: SortedSet<RouteOfAdministration>? = null,
                    var name: SamText? = null,
                    var phaseNumber: Short? = null,
-                   var virtualIngredients: List<VirtualIngredient>? = null) : Serializable {
+                   var virtualIngredients: SortedSet<VirtualIngredient>? = null) : Serializable, Comparable<VmpComponent> {
+    override fun compareTo(other: VmpComponent): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.code }, { it.name })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

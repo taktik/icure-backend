@@ -142,6 +142,8 @@ class NomenFeeCode {
 
 class TarificationCodeImporter extends Importer {
     def language = 'fr'
+    def YEAR = 2020
+
     def refs = [
             "a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_sans_regime_preferentiel"                                                                                                                     : "old_no_preferentialstatus_dmg,dmg_no_preferentialstatus_chronical",
             "_"                                                                                                                                                                                                                 : "any",
@@ -504,25 +506,38 @@ class TarificationCodeImporter extends Importer {
     }
 
     void populateValorisations(File root, LinkedHashMap<String, NomensoftTarification> tarifications, LinkedHashMap<String, NomenFeeCode> valTypes) {
+        def cal = Calendar.instance
+        cal.set(YEAR,0,0, 0, 0, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+
+        def twoYearsAgo = cal.time - 1
+
         new File(root, 'NOMEN_CODE_FEE_LIM.xml').withInputStream { f ->
             new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
-                def parseVal = { e ->
-                    NomensoftTarification t = tarifications[e.nomen_code.text()]
-                    if (t && valTypes[e.fee_code.text()]) {
-                        t.valorisations << new NomensoftValorisation(e, valTypes[e.fee_code.text()])
-                    } else {
-                        println("${e.nomen_code.text()} valorisation not found")
+                new File(root, 'NOMEN_CODE_FEE_LIM_HIST.xml').withInputStream { fh ->
+                    new File(root, 'NOMEN_CODE_FEE_BIS_LIM_HIST.xml').withInputStream { fbh ->
+                        def parseVal = { e ->
+                            NomensoftTarification t = tarifications[e.nomen_code.text()]
+                            if (t && valTypes[e.fee_code.text()]) {
+                                def valorisation = new NomensoftValorisation(e, valTypes[e.fee_code.text()])
+                                if (valorisation.from.after(twoYearsAgo)) {
+                                    t.valorisations << valorisation
+                                }
+                            } else {
+                                println("${e.nomen_code.text()} valorisation not found")
+                            }
+                        }
+                        new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
+                        new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
+                        new XmlSlurper().parse(fh).NOMEN_CODE_FEE_LIM_HIST.each(parseVal)
+                        new XmlSlurper().parse(fbh).NOMEN_CODE_FEE_BIS_LIM_HIST.each(parseVal)
                     }
                 }
-                new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
-                new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
             }
         }
     }
 
     List<Tarification> doScan(File root, String type, List<Tarification> newCodes = null, List<String> subset = null) {
-        def YEAR = 2020
-
         def codes = newCodes ?: []
 
         if (codes.size() == 0) {
@@ -618,6 +633,10 @@ class TarificationCodeImporter extends Importer {
 
             //println(JsonOutput.toJson(valTypes.values()))
 
+            def farFutureCal = Calendar.instance
+            farFutureCal.set(2999,11,31, 0, 0, 0)
+            farFutureCal.set(Calendar.MILLISECOND, 0)
+
             [false, true].forEach { amb ->
                 println "Amb: $amb"
                 groups.each { kg, g ->
@@ -663,7 +682,7 @@ class TarificationCodeImporter extends Importer {
                                 if (vt) {
                                     return new Valorisation(
                                             startOfValidity: val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : (YEAR * 10000 + 101) * 1000000,
-                                            endOfValidity: (Long.valueOf(YEAR + 1L) * 10000 + 101) * 1000000L,
+                                            endOfValidity: val.to && val.to.before(farFutureCal.time) ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli((val.to+1).time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) + 10000000000L : (Long.valueOf(YEAR + 1L) * 10000 + 101) * 1000000L,
                                             label: ([fr: vt?.fr, nl: vt?.nl] as Map<String, String>),
                                             predicate: vt.predicate,
                                             patientIntervention: val.patientIntervention ?: 0,

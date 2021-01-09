@@ -9,7 +9,13 @@ class Commercialization(
         var endOfComercialization: SamText? = null,
         var impact: SamText? = null,
         var additionalInformation: SamText? = null
-) : DataPeriod(from, to), Serializable {
+) : DataPeriod(from, to), Serializable, Comparable<Commercialization> {
+    override fun compareTo(other: Commercialization): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.reason })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Commercialization) return false

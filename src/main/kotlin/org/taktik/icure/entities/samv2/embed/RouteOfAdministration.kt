@@ -1,8 +1,15 @@
 package org.taktik.icure.entities.samv2.embed
 
 import org.taktik.icure.entities.base.Code
+import java.util.*
 
-class RouteOfAdministration(var name: SamText? = null, var standardRoutes: List<Code> = listOf()) {
+class RouteOfAdministration(var name: SamText? = null, var standardRoutes: SortedSet<Code> = sortedSetOf()) : Comparable<RouteOfAdministration> {
+    override fun compareTo(other: RouteOfAdministration): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.name })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

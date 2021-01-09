@@ -7,7 +7,13 @@ class Copayment(
         from: Long? = null,
         to: Long? = null,
         var feeAmount: String? = null
-) : DataPeriod(from, to), Serializable {
+) : DataPeriod(from, to), Serializable, Comparable<Copayment> {
+    override fun compareTo(other: Copayment): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.regimeType })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

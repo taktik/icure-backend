@@ -12,7 +12,13 @@ class Ingredient(
         var strength:Quantity? = null,
         var additionalInformation:String ? = null,
         var substance: Substance? = null
-) : DataPeriod(from, to), Serializable {
+) : DataPeriod(from, to), Serializable, Comparable<Ingredient> {
+    override fun compareTo(other: Ingredient): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.type }, { it.substance })
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

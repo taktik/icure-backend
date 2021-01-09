@@ -2,6 +2,7 @@ package org.taktik.icure.entities.samv2
 
 import org.taktik.icure.entities.samv2.embed.*
 import org.taktik.icure.entities.samv2.stub.VmpStub
+import java.util.*
 
 class Amp(
         id: String? = null,
@@ -18,8 +19,8 @@ class Amp(
         var abbreviatedName: SamText? = null,
         var proprietarySuffix: SamText? = null,
         var prescriptionName: SamText? = null,
-        var ampps : List<Ampp> = listOf(),
-        var components: List<AmpComponent> = listOf()
+        var ampps : SortedSet<Ampp> = sortedSetOf(),
+        var components: SortedSet<AmpComponent> = sortedSetOf()
 ) : StoredDocumentWithPeriod(id, from, to) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

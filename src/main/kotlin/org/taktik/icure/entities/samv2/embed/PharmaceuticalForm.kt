@@ -3,8 +3,16 @@ package org.taktik.icure.entities.samv2.embed
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.base.Identifiable
 import org.taktik.icure.entities.base.StoredDocument
+import java.util.*
 
-class PharmaceuticalForm(id: String? = null, var code: String? = null, var name: SamText? = null, var standardForms: List<Code> = listOf()) : StoredDocument(id) {
+class PharmaceuticalForm(id: String? = null, var code: String? = null, var name: SamText? = null, var standardForms: SortedSet<Code> = sortedSetOf()) : StoredDocument(id), Comparable<PharmaceuticalForm> {
+    override fun compareTo(other: PharmaceuticalForm): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.id }, { it.code })
+    }
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PharmaceuticalForm) return false

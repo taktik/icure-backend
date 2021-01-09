@@ -2,6 +2,7 @@ package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
 import java.math.BigDecimal
+import java.util.*
 
 class Reimbursement(
         from: Long? = null,
@@ -20,8 +21,15 @@ class Reimbursement(
         var pricingUnit: Pricing? = null,
         var pricingSlice: Pricing? = null,
         var reimbursementCriterion: ReimbursementCriterion? = null,
-        var copayments: List<Copayment>? = null
-) : DataPeriod(from, to), Serializable {
+        var copayments: SortedSet<Copayment>? = null
+) : DataPeriod(from, to), Serializable, Comparable<Reimbursement> {
+    override fun compareTo(other: Reimbursement): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.code }, { it.deliveryEnvironment }, { it.flatRateSystem })
+    }
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
