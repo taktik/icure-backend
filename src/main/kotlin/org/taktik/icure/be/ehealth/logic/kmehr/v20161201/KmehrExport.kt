@@ -300,7 +300,9 @@ open class KmehrExport(
                                         })
                                     }
                                     // choice time of day
-                                    daynumbersAndQuantitiesAndDates.add(KmehrPrescriptionHelper.toDaytime(intake))
+                                    try { daynumbersAndQuantitiesAndDates.add(KmehrPrescriptionHelper.toDaytime(intake)) } catch (e:Exception) {
+                                        log.warn("Cannot export value $intake to kmehr in regimen")
+                                    }
 
                                     // mandatory quantity
                                     intake.administratedQuantity?.let { drugQuantity ->
