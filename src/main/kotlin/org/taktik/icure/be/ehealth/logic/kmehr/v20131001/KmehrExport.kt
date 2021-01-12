@@ -293,7 +293,7 @@ open class KmehrExport(
                                         })
                                     }
                                     // choice time of day
-                                    try { daynumbersAndQuantitiesAndDates.add(KmehrPrescriptionHelper.toDaytime(intake)) } catch (e:Exception) {
+                                    try { daynumbersAndQuantitiesAndDaytimes.add(KmehrPrescriptionHelper.toDaytime(intake)) } catch (e:Exception) {
                                         log.warn("Cannot export value $intake to kmehr in regimen")
                                     }
 
