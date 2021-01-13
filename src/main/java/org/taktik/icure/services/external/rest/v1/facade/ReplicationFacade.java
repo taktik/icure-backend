@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.taktik.icure.entities.Replication;
+import org.taktik.icure.entities.embed.DatabaseSynchronization;
 import org.taktik.icure.logic.ReplicationLogic;
 import org.taktik.icure.services.external.rest.v1.dto.AccessLogDto;
 import org.taktik.icure.services.external.rest.v1.dto.ReplicationDto;
@@ -128,8 +129,24 @@ public class ReplicationFacade implements OpenApiFacade{
 		}
 	}
 
+    @ApiOperation(response = AccessLogDto.class, value = "Creates a transient replication")
+    @POST
+    @Path("/transient")
+    public Response startTransientReplication(ReplicationDto replicationDto) throws Exception {
+        Response response;
 
-	@ApiOperation(value = "Deletes a replication")
+        if (replicationDto == null) {
+            response = ResponseUtils.badRequest("Cannot create replication: supplied replicationDto is null");
+        } else {
+            for (DatabaseSynchronizationDto s : replicationDto.getDatabaseSynchronizations()) {
+                replicationLogic.startTransientReplication(mapper.map(s, DatabaseSynchronization.class));
+            }
+        }
+        return ResponseUtils.ok();
+    }
+
+
+    @ApiOperation(value = "Deletes a replication")
 	@DELETE
 	@Path("/{replicationId}")
 	public Response deleteReplication(@PathParam("replicationId") String replicationId) throws Exception {

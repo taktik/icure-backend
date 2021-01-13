@@ -112,7 +112,13 @@ public class ReplicationLogicImpl extends GenericLogicImpl<Replication, Replicat
 		});
 	}
 
-	@Override
+    @Override
+    @Nullable
+    public void startTransientReplication(DatabaseSynchronization synchronization) throws Exception {
+	    replicationDAO.startReplication(synchronization, false);
+    }
+
+    @Override
 	@Nullable
 	public Replication createGroupReplication(String protocol, String replicationHost, String port, String groupId, String password) throws Exception {
 		synchronized (this) {

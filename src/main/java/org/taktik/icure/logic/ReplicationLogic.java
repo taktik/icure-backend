@@ -34,7 +34,10 @@ public interface ReplicationLogic extends EntityPersister<Replication, String> {
 
 	void startReplications();
 
-	@Nullable
+    @Nullable
+    void startTransientReplication(DatabaseSynchronization synchronization) throws Exception;
+
+    @Nullable
 	Replication createGroupReplication(String protocol, String replicationHost, String port, String groupId, String password) throws Exception;
 
 	Replication createReplication(Replication userHcpReplication);
