@@ -84,8 +84,8 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
 
 		String username = auth.getName();
-		boolean isFullToken = username.matches("(.+/)[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
-		boolean isPartialToken = username.matches("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}");
+		boolean isFullToken = username.matches("(.+/)([0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+)");
+		boolean isPartialToken = username.matches("[0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+");
 
 		List<User> users = (isFullToken ? Collections.singletonList(userLogic.getUserOnFallbackDb(username.replace('/', ':'))) : isPartialToken ? userLogic.getUsersByPartialIdOnFallbackDb(username) : userLogic.findUsersByLoginOnFallbackDb(username) ).stream().filter(u ->
 				u != null && u.getStatus() == Users.Status.ACTIVE && this.isPasswordValid(u, auth.getCredentials().toString())
