@@ -596,7 +596,7 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
     }
 
     private fun addProductIdsToVmpGroups(vmpGroups: List<VmpGroupDto>) : List<VmpGroupDto> {
-        val productIds = samV2Logic.listProductIds(vmpGroups.map { "SAMID:${it.id}" })
+        val productIds = samV2Logic.listProductIds(vmpGroups.map { "SAMID:${it.id}" }).filterNotNull()
         vmpGroups.forEachIndexed { index, g ->
             g.productId = if (index < productIds.size && productIds[index].id == "SAMID:${g.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${g.id}"}?.productId
         }
@@ -605,15 +605,15 @@ class SamV2Facade(val mapper: MapperFacade, val samV2Logic: SamV2Logic) : OpenAp
 
     private fun addProductIdsToAmps(amps: List<AmpDto>) : List<AmpDto> {
         val dmpps = amps.flatMap { it.ampps.flatMap { it.dmpps ?: listOf() } }.filterNotNull()
-        val productIds = samV2Logic.listProductIds(dmpps.map { "SAMID:${it.id}" })
+        val productIds = samV2Logic.listProductIds(dmpps.map { "SAMID:${it.id}" }).filterNotNull()
         dmpps.forEachIndexed { index, dmpp ->
-            dmpp.productId = if (index < productIds.size && productIds[index].id == "SAMID:${dmpp.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${dmpp.id}"}?.productId
+                dmpp.productId = if (index < productIds.size && productIds[index].id == "SAMID:${dmpp.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${dmpp.id}"}?.productId
         }
         return amps
     }
 
     private fun addProductIdsToNmps(nmps: List<NmpDto>) : List<NmpDto> {
-        val productIds = samV2Logic.listProductIds(nmps.map { "SAMID:${it.id}" })
+        val productIds = samV2Logic.listProductIds(nmps.map { "SAMID:${it.id}" }).filterNotNull()
         nmps.forEachIndexed { index, nmp ->
             nmp.productId = if (index < productIds.size && productIds[index].id == "SAMID:${nmp.id}") productIds[index].productId else productIds.find { it.id == "SAMID:${nmp.id}"}?.productId
         }
