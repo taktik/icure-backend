@@ -22,7 +22,7 @@ class AmpComponent(
     override fun compareTo(other: AmpComponent): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.name })
+        } else compareValuesBy(this, other, { it.from }, { it.name }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

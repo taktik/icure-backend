@@ -13,7 +13,7 @@ class Commercialization(
     override fun compareTo(other: Commercialization): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.reason })
+        } else compareValuesBy(this, other, { it.from }, { it.reason }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

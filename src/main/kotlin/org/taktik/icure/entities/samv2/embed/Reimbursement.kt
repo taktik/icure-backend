@@ -26,7 +26,7 @@ class Reimbursement(
     override fun compareTo(other: Reimbursement): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.code }, { it.deliveryEnvironment }, { it.flatRateSystem })
+        } else compareValuesBy(this, other, { it.from }, { it.code }, { it.deliveryEnvironment }, { it.flatRateSystem }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
 

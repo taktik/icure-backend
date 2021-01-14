@@ -9,7 +9,7 @@ class PharmaceuticalForm(id: String? = null, var code: String? = null, var name:
     override fun compareTo(other: PharmaceuticalForm): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.id }, { it.code })
+        } else compareValuesBy(this, other, { it.id }, { it.code }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
 

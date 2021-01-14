@@ -4,7 +4,7 @@ class Wada(var code: String? = null, var name: SamText? = null, var description:
     override fun compareTo(other: Wada): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.code }, { it.name })
+        } else compareValuesBy(this, other, { it.code }, { it.name }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

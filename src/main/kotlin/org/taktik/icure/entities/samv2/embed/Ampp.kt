@@ -49,7 +49,7 @@ class Ampp(
     override fun compareTo(other: Ampp): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.ctiExtended })
+        } else compareValuesBy(this, other, { it.from }, { it.ctiExtended }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

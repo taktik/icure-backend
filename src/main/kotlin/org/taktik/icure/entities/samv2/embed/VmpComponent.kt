@@ -12,7 +12,7 @@ class VmpComponent(var code: String? = null,
     override fun compareTo(other: VmpComponent): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.code }, { it.name })
+        } else compareValuesBy(this, other, { it.code }, { it.name }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

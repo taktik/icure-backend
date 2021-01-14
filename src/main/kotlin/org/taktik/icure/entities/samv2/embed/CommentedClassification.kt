@@ -7,7 +7,7 @@ class CommentedClassification(var title: SamText? = null, var url: SamText? = nu
     override fun compareTo(other: CommentedClassification): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.title })
+        } else compareValuesBy(this, other, { it.title }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

@@ -720,12 +720,24 @@ class Samv2v5Import : CliktCommand() {
             }
         }
         substances.filterKeys { currentSubstances.contains(it) }.values.chunked(100).forEach {
-            val revs = substanceDAO.getList(it.map { it.id }).fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev) }
-            it.forEach { substanceDAO.update(it.apply { rev = revs[id] }) }
+            val current = substanceDAO.getList(it.map { it.id }).fold(mapOf<String, Substance>()) { acc, it -> acc + (it.id to it) }
+            it.forEach {
+                val prev = current[it.id]!!
+                it.rev = prev.rev
+                if (it != prev) {
+                    substanceDAO.update(it)
+                }
+            }
         }
         pharmaceuticalForms.filterKeys { currentPharmaceuticalForms.contains(it) }.values.chunked(100).forEach {
-            val revs = pharmaceuticalFormDAO.getList(it.map { it.id }).fold(mapOf<String, String>()) { acc, it -> acc + (it.id to it.rev) }
-            it.forEach { pharmaceuticalFormDAO.update(it.apply { rev = revs[id] }) }
+            val current = pharmaceuticalFormDAO.getList(it.map { it.id }).fold(mapOf<String, PharmaceuticalForm>()) { acc, it -> acc + (it.id to it) }
+            it.forEach {
+                val prev = current[it.id]!!
+                it.rev = prev.rev
+                if (it != prev) {
+                    pharmaceuticalFormDAO.update(it)
+                }
+            }
         }
 
         (currentSubstances - substances.keys).chunked(100).forEach { substanceDAO.removeByIds(it) }

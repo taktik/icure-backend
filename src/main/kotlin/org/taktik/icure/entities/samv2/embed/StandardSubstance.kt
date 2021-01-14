@@ -10,7 +10,7 @@ class StandardSubstance(
     override fun compareTo(other: StandardSubstance): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.type }, { it.code })
+        } else compareValuesBy(this, other, { it.type }, { it.code }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

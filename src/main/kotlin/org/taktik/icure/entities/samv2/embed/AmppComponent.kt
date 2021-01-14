@@ -14,7 +14,7 @@ class AmppComponent(
     override fun compareTo(other: AmppComponent): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.contentType }, {it.packSpecification})
+        } else compareValuesBy(this, other, { it.from }, { it.contentType }, {it.packSpecification}, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {
