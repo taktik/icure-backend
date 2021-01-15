@@ -19,7 +19,7 @@ class Ampp(
         var packAmount: Quantity? = null,
         var packDisplayValue: String? = null,
         var status: AmpStatus? = null,
-        var atcs: SortedSet<Atc> = sortedSetOf(),
+        var atcs: Set<Atc> = sortedSetOf(),
         var crmLink: SamText? = null,
         var deliveryModusCode: String? = null,
         var deliveryModus: SamText? = null,
@@ -33,23 +33,23 @@ class Ampp(
         var prescriptionName: SamText? = null,
         var note: SamText? = null,
         var posologyNote: SamText? = null,
-        var noGenericPrescriptionReasons: SortedSet<SamText>?= sortedSetOf(),
+        var noGenericPrescriptionReasons: Set<SamText>?= sortedSetOf(),
         var exFactoryPrice: Double? = null,
         var reimbursementCode: Int? = null,
         var definedDailyDose: Quantity? = null,
         var officialExFactoryPrice: Double? = null,
         var realExFactoryPrice: Double? = null,
         var pricingInformationDecisionDate: Long? = null,
-        var components: SortedSet<AmppComponent>? = null,
-        var commercializations: SortedSet<Commercialization>? = null,
-        var supplyProblems: SortedSet<SupplyProblem>? = null,
-        var dmpps: SortedSet<Dmpp>? = null,
-        var vaccineIndicationCodes: SortedSet<String>? = null
+        var components: Set<AmppComponent>? = null,
+        var commercializations: Set<Commercialization>? = null,
+        var supplyProblems: Set<SupplyProblem>? = null,
+        var dmpps: Set<Dmpp>? = null,
+        var vaccineIndicationCodes: Set<String>? = null
 ) : DataPeriod(from, to), Serializable, Comparable<Ampp> {
     override fun compareTo(other: Ampp): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.ctiExtended }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.from }, { it.ctiExtended }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

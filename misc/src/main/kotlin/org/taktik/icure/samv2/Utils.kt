@@ -1,6 +1,7 @@
-package org.taktik.icure.samv2
-
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.FilterInputStream
+import java.io.InputStream
+import java.io.SequenceInputStream
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.*
@@ -13,56 +14,24 @@ fun String.md5(): String {
     return BigInteger(1, md.digest(toByteArray())).toString(16).padStart(32, '0')
 }
 
-
-/**
- * @author mwyraz
- * Wraps an input stream and compresses it's contents. Similiar to DeflateInputStream but adds GZIP-header and trailer
- * See GzipOutputStream for details.
- * LICENSE: Free to use. Contains some lines from GzipOutputStream, so oracle's license might apply as well!
- */
-class GzipCompressingInputStream(`in`: InputStream, bufferSize: Int = 512) : SequenceInputStream(StatefullGzipStreamEnumerator(`in`, bufferSize)) {
+class GzipCompressionInputStream(`in`: InputStream, bufferSize: Int = 512) : SequenceInputStream(StatefullGzipStreamEnumerator(`in`, bufferSize)) {
     enum class StreamState {
-        HEADER, CONTENT, TRAILER
+        HEADER, CONTENT, TRAILER, DONE
     }
 
     private class StatefullGzipStreamEnumerator(private val `in`: InputStream, private val bufferSize: Int) : Enumeration<InputStream> {
-        private var state: StreamState?
-        override fun hasMoreElements(): Boolean {
-            return state != null
-        }
-
+        private var state: StreamState = StreamState.HEADER
+        private var contentStream: DeflateInputStream? = null
+        override fun hasMoreElements() = state != StreamState.DONE
         override fun nextElement(): InputStream? {
             return when (state) {
-                StreamState.HEADER -> {
-                    state = StreamState.CONTENT
-                    createHeaderStream()
-                }
-                StreamState.CONTENT -> {
-                    state = StreamState.TRAILER
-                    createContentStream()
-                }
-                StreamState.TRAILER -> {
-                    state = null
-                    createTrailerStream()
-                }
-                null -> null
+                StreamState.HEADER -> ByteArrayInputStream(GZIP_HEADER).also { state = StreamState.CONTENT }
+                StreamState.CONTENT -> DeflateInputStream(CRC32InputStream(`in`), bufferSize)
+                        .also { state = StreamState.TRAILER; contentStream = it }
+                StreamState.TRAILER -> ByteArrayInputStream(contentStream!!.createTrailer()).also { state = StreamState.DONE }
+                StreamState.DONE -> null
             }
         }
-
-        private fun createHeaderStream(): InputStream {
-            return ByteArrayInputStream(GZIP_HEADER)
-        }
-
-        private var contentStream: InternalGzipCompressingInputStream? = null
-        private fun createContentStream(): InputStream {
-            contentStream = InternalGzipCompressingInputStream(CRC32InputStream(`in`), bufferSize)
-            return contentStream!!
-        }
-
-        private fun createTrailerStream(): InputStream {
-            return ByteArrayInputStream(contentStream!!.createTrailer())
-        }
-
         companion object {
             const val GZIP_MAGIC = 0x8b1f
             val GZIP_HEADER = byteArrayOf(
@@ -78,76 +47,49 @@ class GzipCompressingInputStream(`in`: InputStream, bufferSize: Int = 512) : Seq
                     0 // Operating system (OS)
             )
         }
-
-        init {
-            state = StreamState.HEADER
-        }
     }
 
-    /**
-     * Internal stream without header/trailer
-     */
-    private class CRC32InputStream(`in`: InputStream?) : FilterInputStream(`in`) {
-        private var crc = CRC32()
+    private class CRC32InputStream(stream: InputStream) : FilterInputStream(stream) {
+        private val crc = CRC32()
         var byteCount: Long = 0
             private set
-
-        @Throws(IOException::class)
-        override fun read(): Int {
-            val `val` = super.read()
-            if (`val` >= 0) {
-                crc.update(`val`)
-                byteCount++
-            }
-            return `val`
-        }
-
-        @Throws(IOException::class)
-        override fun read(b: ByteArray, off: Int, len: Int): Int {
-            var len = len
-            len = super.read(b, off, len)
-            if (len >= 0) {
-                crc.update(b, off, len)
-                byteCount += len.toLong()
-            }
-            return len
-        }
-
         val crcValue: Long
             get() = crc.value
+
+        override fun read() = super.read().also {
+            if (it >= 0) {
+                crc.update(it)
+                byteCount++
+            }
+        }
+        override fun read(b: ByteArray, off: Int, len: Int) = super.read(b, off, len).also {
+            if (it >= 0) {
+                crc.update(b, off, it)
+                byteCount += it.toLong()
+            }
+        }
     }
 
-    /**
-     * Internal stream without header/trailer
-     */
-    private class InternalGzipCompressingInputStream(crcIn: CRC32InputStream, bufferSize: Int) : DeflaterInputStream(crcIn, Deflater(Deflater.DEFAULT_COMPRESSION, true), bufferSize) {
-        private var crcIn: CRC32InputStream? = crcIn
-        @Throws(IOException::class)
+    private class DeflateInputStream(private var crcIn: CRC32InputStream, bufferSize: Int) : DeflaterInputStream(crcIn, Deflater(Deflater.DEFAULT_COMPRESSION, true), bufferSize) {
         override fun close() {
-            crcIn?.let {
+            crcIn.let {
                 try {
                     def.end()
                     it.close()
                 } finally {
-                    crcIn = null
                 }
             }
         }
-
-        fun createTrailer(): ByteArray {
-            val trailer = ByteArray(TRAILER_SIZE)
-            writeTrailer(trailer, 0)
-            return trailer
-        }
+        fun createTrailer() = ByteArray(TRAILER_SIZE).apply { writeTrailer(this) }
 
         /*
          * Writes GZIP member trailer to a byte array, starting at a given
          * offset.
          */
-        private fun writeTrailer(buf: ByteArray, offset: Int) {
+        private fun writeTrailer(buf: ByteArray) {
             crcIn?.let {
-                writeInt(it.crcValue.toInt(), buf, offset) // CRC-32 of uncompr. data
-                writeInt(it.byteCount.toInt(), buf, offset + 4) // Number of uncompr. bytes
+                writeInt(it.crcValue.toInt(), buf, 0) // CRC-32 of uncompr. data
+                writeInt(it.byteCount.toInt(), buf, 4) // Number of uncompr. bytes
             }
         }
 

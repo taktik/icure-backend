@@ -14,12 +14,12 @@ class Dmpp(
         var cheap: Boolean? =  null,
         var cheapest: Boolean? =  null,
         var reimbursable: Boolean? =  null,
-        var reimbursements: SortedSet<Reimbursement>? = null
+        var reimbursements: Set<Reimbursement>? = null
 ) : DataPeriod(from, to), Serializable, Comparable<Dmpp> {
     override fun compareTo(other: Dmpp): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.deliveryEnvironment }, { it.id }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.from }, { it.deliveryEnvironment }, { it.id }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

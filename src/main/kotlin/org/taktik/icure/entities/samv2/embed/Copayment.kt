@@ -11,7 +11,7 @@ class Copayment(
     override fun compareTo(other: Copayment): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.regimeType }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.from }, { it.regimeType }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

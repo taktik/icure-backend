@@ -8,7 +8,7 @@ class Atc(var code: String? = null, var description: String? = null) : Comparabl
     override fun compareTo(other: Atc): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.code }, { it.description }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.code }, { it.description }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

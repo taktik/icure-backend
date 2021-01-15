@@ -19,8 +19,8 @@ class Amp(
         var abbreviatedName: SamText? = null,
         var proprietarySuffix: SamText? = null,
         var prescriptionName: SamText? = null,
-        var ampps : SortedSet<Ampp> = sortedSetOf(),
-        var components: SortedSet<AmpComponent> = sortedSetOf()
+        var ampps : Set<Ampp> = sortedSetOf(),
+        var components: Set<AmpComponent> = sortedSetOf()
 ) : StoredDocumentWithPeriod(id, from, to) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

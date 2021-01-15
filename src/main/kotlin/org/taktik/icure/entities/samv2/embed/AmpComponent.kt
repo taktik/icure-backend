@@ -6,9 +6,9 @@ import java.util.*
 class AmpComponent(
         from: Long? = null,
         to: Long? = null,
-        var ingredients: SortedSet<Ingredient>? = null,
-        var pharmaceuticalForms: SortedSet<PharmaceuticalForm>? = null,
-        var routeOfAdministrations: SortedSet<RouteOfAdministration>? = null,
+        var ingredients: Set<Ingredient>? = null,
+        var pharmaceuticalForms: Set<PharmaceuticalForm>? = null,
+        var routeOfAdministrations: Set<RouteOfAdministration>? = null,
         var dividable: String? = null,
         var scored: String? = null,
         var crushable: Crushable? = null,
@@ -22,7 +22,7 @@ class AmpComponent(
     override fun compareTo(other: AmpComponent): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.name }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.from }, { it.name }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

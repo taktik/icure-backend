@@ -5,14 +5,14 @@ import java.util.*
 
 class VmpComponent(var code: String? = null,
                    var virtualForm: VirtualForm? = null,
-                   var routeOfAdministrations: SortedSet<RouteOfAdministration>? = null,
+                   var routeOfAdministrations: Set<RouteOfAdministration>? = null,
                    var name: SamText? = null,
                    var phaseNumber: Short? = null,
-                   var virtualIngredients: SortedSet<VirtualIngredient>? = null) : Serializable, Comparable<VmpComponent> {
+                   var virtualIngredients: Set<VirtualIngredient>? = null) : Serializable, Comparable<VmpComponent> {
     override fun compareTo(other: VmpComponent): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.code }, { it.name }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.code }, { it.name }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

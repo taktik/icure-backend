@@ -13,7 +13,7 @@ class SupplyProblem(
     override fun compareTo(other: SupplyProblem): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.reason }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.from }, { it.reason }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

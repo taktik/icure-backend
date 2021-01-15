@@ -3,11 +3,11 @@ package org.taktik.icure.entities.samv2.embed
 import org.taktik.icure.entities.base.Code
 import java.util.*
 
-class RouteOfAdministration(var name: SamText? = null, var standardRoutes: SortedSet<Code> = sortedSetOf()) : Comparable<RouteOfAdministration> {
+class RouteOfAdministration(var name: SamText? = null, var standardRoutes: Set<Code> = sortedSetOf()) : Comparable<RouteOfAdministration> {
     override fun compareTo(other: RouteOfAdministration): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.name }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.name }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

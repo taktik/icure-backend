@@ -3,11 +3,11 @@ package org.taktik.icure.entities.samv2.embed
 import java.io.Serializable
 import java.util.*
 
-class CommentedClassification(var title: SamText? = null, var url: SamText? = null, var commentedClassification: SortedSet<CommentedClassification>? = null) : Serializable, Comparable<CommentedClassification> {
+class CommentedClassification(var title: SamText? = null, var url: SamText? = null, var commentedClassification: Set<CommentedClassification>? = null) : Serializable, Comparable<CommentedClassification> {
     override fun compareTo(other: CommentedClassification): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.title }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.title }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

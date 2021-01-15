@@ -1,11 +1,13 @@
 package org.taktik.icure.samv2
 
+import GzipCompressionInputStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.sun.xml.internal.ws.util.NoCloseInputStream
+import md5
 import org.ektorp.AttachmentInputStream
 import org.ektorp.UpdateConflictException
 import org.ektorp.http.StdHttpClient
@@ -77,7 +79,6 @@ import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
 import java.net.URI
 import java.util.*
-import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.bind.JAXBContext
@@ -90,7 +91,7 @@ fun commentedClassificationMapper(cc:CommentedClassificationFullDataType) : Comm
     CommentedClassification(
             lcc.title?.let { SamText(it.fr, it.nl, it.de, it.en) },
             lcc.url?.let { SamText(it.fr, it.nl, it.de, it.en) },
-            cc.commentedClassification?.mapNotNull { cc -> commentedClassificationMapper(cc) }?.toSortedSet() ?: sortedSetOf()
+            cc.commentedClassification?.mapNotNull { cc -> commentedClassificationMapper(cc) }?.toSet() ?: setOf()
     )
 }
 
@@ -122,7 +123,7 @@ class Samv2v5Import : CliktCommand() {
         val dbInstance = StdCouchDbInstance(httpClient)
         val couchdbConfig = StdCouchDbICureConnector(dbName, dbInstance)
         val updateExistingDocs = (update == "true" || update == "yes")
-        val reimbursements: MutableMap<Triple<String?, String?, String?>, SortedSet<Reimbursement>> = HashMap()
+        val reimbursements: MutableMap<Triple<String?, String?, String?>, MutableSet<Reimbursement>> = HashMap()
         val vmps : MutableMap<String, VmpStub> = HashMap()
         var vers: String? = null
         var fileName: String? = null
@@ -190,36 +191,22 @@ class Samv2v5Import : CliktCommand() {
         log.warn("VMPs updated: ${updatedVmpIds.size}")
         log.warn("AMPs updated: ${updatedAmpIds.size}")
 
-        retry(10) { productIdDAO.allIds }.let {
-            val ids = HashSet(it)
-            productIds.filterKeys { ids.contains(it) }.entries.sortedWith(compareBy {it.key}).chunked(100).forEach {
-                productIdDAO.save(retry(10) { productIdDAO.getList(it.map { it.key }) }.map { p ->
-                    p.also { it.productId = productIds[p.id] }
-                })
-            }
-            productIds.filterKeys { !ids.contains(it) }.entries.sortedWith(compareBy {it.key}).chunked(100).forEach {
-                productIdDAO.create(it.map { ProductId(it.key, it.value) })
-            }
-            ids.filter { !productIds.containsKey(it) }.sortedWith(compareBy {it}).chunked(100).forEach {
-                retry(10) { productIdDAO.purgeByIds(it) }
-            }
-            val nmpProductIdDoc = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2.signatures.nmp")
-            (nmpProductIdDoc?.also { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
-                    ?:SamVersion(vers, versionDate).apply { id = "org.taktik.icure.samv2.signatures.nmp";  couchdbConfig.create(this) })?.let {
-                        couchdbConfig.createAttachment(it.id, it.rev, AttachmentInputStream("signatures", GzipCompressingInputStream(nmpProductIds.entries.sortedBy { it.key }.map { "${it.key}|${it.value}" }.joinToString("\n").byteInputStream(Charsets.UTF_8)) ,"application/gzip"))
-            }
+        val nmpProductIdDoc = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2.signatures.nmp")
+        (nmpProductIdDoc?.also { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
+                ?:SamVersion(vers, versionDate).apply { id = "org.taktik.icure.samv2.signatures.nmp";  couchdbConfig.create(this) })?.let {
+                    couchdbConfig.createAttachment(it.id, it.rev, AttachmentInputStream("signatures", GzipCompressionInputStream(nmpProductIds.entries.sortedBy { it.key }.map { "${it.key}|${it.value}" }.joinToString("\n").byteInputStream(Charsets.UTF_8)) ,"application/gzip"))
+        }
 
-            val ampProductIdDoc = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2.signatures.amp")
-            (ampProductIdDoc?.also { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
-                    ?:SamVersion(vers, versionDate).apply { id = "org.taktik.icure.samv2.signatures.amp";  couchdbConfig.create(this) })?.let {
-                couchdbConfig.createAttachment(it.id, it.rev, AttachmentInputStream("signatures", GzipCompressingInputStream(ampProductIds.entries.sortedBy { it.key }.map { "${it.key}|${it.value}" }.joinToString("\n").byteInputStream(Charsets.UTF_8)) ,"application/gzip"))
-            }
+        val ampProductIdDoc = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2.signatures.amp")
+        (ampProductIdDoc?.also { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
+                ?:SamVersion(vers, versionDate).apply { id = "org.taktik.icure.samv2.signatures.amp";  couchdbConfig.create(this) })?.let {
+            couchdbConfig.createAttachment(it.id, it.rev, AttachmentInputStream("signatures", GzipCompressionInputStream(ampProductIds.entries.sortedBy { it.key }.map { "${it.key}|${it.value}" }.joinToString("\n").byteInputStream(Charsets.UTF_8)) ,"application/gzip"))
+        }
 
-            val vmpProductIdDoc = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2.signatures.vmp")
-            (vmpProductIdDoc?.also { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
-                    ?:SamVersion(vers, versionDate).apply { id = "org.taktik.icure.samv2.signatures.vmp";  couchdbConfig.create(this) })?.let {
-                couchdbConfig.createAttachment(it.id, it.rev, AttachmentInputStream("signatures", GzipCompressingInputStream(vmpProductIds.entries.sortedBy { it.key }.map { "${it.key}|${it.value}" }.joinToString("\n").byteInputStream(Charsets.UTF_8)) ,"application/gzip"))
-            }
+        val vmpProductIdDoc = couchdbConfig.find(SamVersion::class.java, "org.taktik.icure.samv2.signatures.vmp")
+        (vmpProductIdDoc?.also { it.version = vers; it.date = versionDate; couchdbConfig.update(it) }
+                ?:SamVersion(vers, versionDate).apply { id = "org.taktik.icure.samv2.signatures.vmp";  couchdbConfig.create(this) })?.let {
+            couchdbConfig.createAttachment(it.id, it.rev, AttachmentInputStream("signatures", GzipCompressionInputStream(vmpProductIds.entries.sortedBy { it.key }.map { "${it.key}|${it.value}" }.joinToString("\n").byteInputStream(Charsets.UTF_8)) ,"application/gzip"))
         }
     }
 
@@ -227,14 +214,14 @@ class Samv2v5Import : CliktCommand() {
         return try { executor() } catch(e: Exception) { if (count>0) retry(count-1, executor) else throw e }
     }
 
-    private fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, SortedSet<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
+    private fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableSet<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
         export.reimbursementContext.forEach { reimb ->
             reimb.data.forEach { reimbd ->
                 val from = reimbd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
                 val to = reimbd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
 
                 reimbursements[Triple(reimb.deliveryEnvironment?.value(), reimb.codeType?.value(), reimb.code)].let { if (it != null) it else {
-                    val newList = sortedSetOf<Reimbursement>()
+                    val newList = mutableSetOf<Reimbursement>()
                     reimbursements[Triple(reimb.deliveryEnvironment?.value(), reimb.codeType?.value(), reimb.code)] = newList
                     newList
                 } }.add(Reimbursement(
@@ -254,7 +241,7 @@ class Samv2v5Import : CliktCommand() {
                         copaymentSupplement = reimbd.copaymentSupplement,
                         pricingUnit = reimbd.pricingUnit?.let { Pricing(it.quantity, it.label?.let { SamText(it.fr, it.nl, it.de, it.en)}) },
                         pricingSlice = reimbd.pricingSlice?.let { Pricing(it.quantity, it.label?.let { SamText(it.fr, it.nl, it.de, it.en)}) },
-                        copayments = reimb.copayment?.mapNotNull { cop -> cop.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { copd -> Copayment(regimeType = cop.regimeType, from = copd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, to = copd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, feeAmount = copd.feeAmount?.toString()) } }?.toSortedSet()
+                        copayments = reimb.copayment?.mapNotNull { cop -> cop.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { copd -> Copayment(regimeType = cop.regimeType, from = copd.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, to = copd.to?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis, feeAmount = copd.feeAmount?.toString()) } }?.toSet()
                 ))
             }
         }
@@ -263,7 +250,7 @@ class Samv2v5Import : CliktCommand() {
         HashSet<String>(retry(10) { ampDAO.allIds }).chunked(100).forEach { ids ->
             ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
                 var shouldAdd = false
-                amp.ampps.flatMap { it.dmpps ?: sortedSetOf() }.forEach { dmpp: Dmpp ->
+                amp.ampps.flatMap { it.dmpps ?: setOf() }.forEach { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let { newReimb ->
                         val prevReimb = dmpp.reimbursements
                         if (prevReimb != newReimb) {
@@ -336,9 +323,10 @@ class Samv2v5Import : CliktCommand() {
                         }
                     } else if (force) {
                         val prev = vmpGroupDAO.get(vmpg.id)
+                        vmpg.rev = prev.rev
                         if (prev != vmpg) {
                             log.info("Modified VMP group VMPGROUP:$code:$from with id ${id}")
-                            vmpGroupDAO.update(vmpg.apply { this.rev = prev.rev })
+                            vmpGroupDAO.update(vmpg)
                         }
                         vmpg
                     } else vmpg
@@ -369,20 +357,20 @@ class Samv2v5Import : CliktCommand() {
                         name = d.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
                         abbreviation = d.abbreviation?.let { SamText(it.fr, it.nl, it.de, it.en) },
                         vtm = Vtm(code = d.vtm?.code?.toString(), name = d.vtm?.data?.last()?.name?.let { SamText(it.fr, it.nl, it.de, it.en) }),
-                        commentedClassifications = d.commentedClassification?.mapNotNull { cc -> commentedClassificationMapper(cc) }?.toSortedSet()
-                                ?: sortedSetOf(),
+                        commentedClassifications = d.commentedClassification?.mapNotNull { cc -> commentedClassificationMapper(cc) }?.toSet()
+                                ?: setOf(),
                         components = vmp.vmpComponent?.mapNotNull { vmpc ->
                             vmpc?.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { comp ->
                                 VmpComponent(
                                         code = vmpc.code.toString(),
                                         virtualForm = comp.virtualForm?.let { virtualForm ->
-                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") }?.toSortedSet()
-                                                    ?: sortedSetOf())
+                                            VirtualForm(virtualForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, virtualForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") }?.toSet()
+                                                    ?: setOf())
                                         },
                                         routeOfAdministrations = comp.routeOfAdministration?.map { roa ->
-                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { Code(it.standard.value(), it.code, "1.0") }?.toSortedSet()
-                                                    ?: sortedSetOf())
-                                        }?.toSortedSet() ?: sortedSetOf(),
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { Code(it.standard.value(), it.code, "1.0") }?.toSet()
+                                                    ?: setOf())
+                                        }?.toSet() ?: setOf(),
                                         phaseNumber = comp.phaseNumber,
                                         name = comp.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         virtualIngredients = vmpc.virtualIngredient?.mapNotNull { vi ->
@@ -407,16 +395,16 @@ class Samv2v5Import : CliktCommand() {
                                                                                 url = it.url,
                                                                                 definition = it.definition?.let { SamText(it.fr, it.nl, it.de, it.en) }
                                                                         )
-                                                                    }?.toSortedSet() ?: sortedSetOf()
+                                                                    }?.toSet() ?: setOf()
                                                             )
                                                         }
                                                 )
                                             }
-                                        }?.toSortedSet()
+                                        }?.toSet()
                                 )
                             }
-                        }?.toSortedSet() ?: sortedSetOf(),
-                        wadas = d.wada.mapNotNull { Wada(code = it.code, name = it.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, description = it.description?.let { SamText(it.fr, it.nl, it.de, it.en) }) }?.toSortedSet()
+                        }?.toSet() ?: setOf(),
+                        wadas = d.wada.mapNotNull { Wada(code = it.code, name = it.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, description = it.description?.let { SamText(it.fr, it.nl, it.de, it.en) }) }?.toSet()
                 )
             }
         }.chunked(100).map { vmps ->
@@ -431,9 +419,10 @@ class Samv2v5Import : CliktCommand() {
                     }
                 } else if (force) {
                     val prev = currentVmpsWithDoc.find { it.id == vmp.id }!!
+                    vmp.rev = prev.rev
                     if (prev != vmp) {
                         log.info("Modified VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
-                        vmpDAO.update(vmp.apply { this.rev = prev.rev })
+                        vmpDAO.update(vmp)
                         updatedVmpIds.add(vmp.id)
                     }
                     vmp
@@ -447,7 +436,7 @@ class Samv2v5Import : CliktCommand() {
         return result
     }
 
-    private fun importActualMedicines(export: ExportActualMedicinesType, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, SortedSet<Reimbursement>>, couchdbConfig: CouchDbICureConnector, force: Boolean) : Map<String, String> {
+    private fun importActualMedicines(export: ExportActualMedicinesType, vmps: Map<String, VmpStub>, reimbursements: Map<Triple<String?, String?, String?>, MutableSet<Reimbursement>>, couchdbConfig: CouchDbICureConnector, force: Boolean) : Map<String, String> {
         val result = HashMap<String, String>()
 
         val ampDAO = AmpDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
@@ -506,7 +495,7 @@ class Samv2v5Import : CliktCommand() {
                                         packAmount = amppd.packAmount?.let { Quantity(amppd.packAmount.value, amppd.packAmount?.unit) },
                                         packDisplayValue = amppd.packDisplayValue,
                                         status = amppd.status?.value()?.let { AmpStatus.valueOf(it) },
-                                        atcs = amppd.atc?.map { Atc(it.code, it.description) }?.toSortedSet() ?: sortedSetOf(),
+                                        atcs = amppd.atc?.map { Atc(it.code, it.description) }?.toSet() ?: setOf(),
                                         crmLink = amppd.crmLink?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         deliveryModusCode = amppd.deliveryModus?.code,
                                         deliveryModus = amppd.deliveryModus?.description?.let { SamText(it.fr, it.nl, it.de, it.en) },
@@ -526,7 +515,7 @@ class Samv2v5Import : CliktCommand() {
                                         prescriptionName = (amppd.prescriptionName ?: amppd.prescriptionNameFamhp)?.let { SamText(it.fr ?: amppd.prescriptionNameFamhp?.fr, it.nl ?: amppd.prescriptionNameFamhp?.nl, it.de ?: amppd.prescriptionNameFamhp?.de, it.en ?: amppd.prescriptionNameFamhp?.en)},
                                         note = amppd.note?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                         posologyNote = amppd.posologyNote?.let { SamText(it.fr, it.nl, it.de, it.en) },
-                                        noGenericPrescriptionReasons = amppd.noGenericPrescriptionReason?.map { SamText(it.description.fr, it.description.nl, it.description.de, it.description.en) }?.toSortedSet() ?: sortedSetOf(),
+                                        noGenericPrescriptionReasons = amppd.noGenericPrescriptionReason?.map { SamText(it.description.fr, it.description.nl, it.description.de, it.description.en) }?.toSet() ?: setOf(),
                                         exFactoryPrice = amppd.exFactoryPrice?.toDouble(),
                                         reimbursementCode = amppd.reimbursementCode,
                                         definedDailyDose = Quantity(amppd.definedDailyDose?.value, amppd.definedDailyDose?.unit),
@@ -544,7 +533,7 @@ class Samv2v5Import : CliktCommand() {
                                                         contentMultiplier = it.contentMultiplier
                                                 )
                                             }
-                                        }?.toSortedSet() ?: sortedSetOf(),
+                                        }?.toSet() ?: setOf(),
                                         commercializations = ampp.commercialization?.data?.mapNotNull {
                                             Commercialization(
                                                     from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
@@ -554,7 +543,7 @@ class Samv2v5Import : CliktCommand() {
                                                     impact = it.impact?.let { SamText(it.fr, it.nl, it.de, it.en) },
                                                     additionalInformation = it.additionalInformation?.let { SamText(it.fr, it.nl, it.de, it.en) }
                                             )
-                                        }?.toSortedSet() ?: sortedSetOf(),
+                                        }?.toSet() ?: setOf(),
                                         supplyProblems = ampp.supplyProblem?.data?.mapNotNull {
                                             SupplyProblem(
                                                     from = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis,
@@ -565,7 +554,7 @@ class Samv2v5Import : CliktCommand() {
                                                     additionalInformation = it.additionalInformation?.let { SamText(it.fr, it.nl, it.de, it.en) }
 
                                             )
-                                        }?.toSortedSet(),
+                                        }?.toSet(),
                                         dmpps = ampp.dmpp?.mapNotNull { dmpp ->
                                             dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 val dmppFrom = it.from?.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null)?.timeInMillis
@@ -584,21 +573,21 @@ class Samv2v5Import : CliktCommand() {
                                                         price = it.price?.toString(), cheap = it.isCheap, cheapest = it.isCheapest, reimbursable = it.isReimbursable,
                                                         reimbursements = reimbursements[Triple(dmpp.deliveryEnvironment?.value(), dmpp.codeType?.value(), dmpp.code)])
                                             }
-                                        }?.toSortedSet(),
+                                        }?.toSet(),
                                         vaccineIndicationCodes = ampp.dmpp?.flatMap { dmpp ->
                                             dmpp.data.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let {
                                                 vaccineIndicationsMap[dmpp.code]
-                                            } ?: listOf<String>()}?.toSortedSet()
+                                            } ?: listOf<String>()}?.toSet()
                                 )
                             }
-                        }?.toSortedSet() ?: sortedSetOf(),
+                        }?.toSet() ?: setOf(),
                         components = amp.ampComponent?.mapNotNull { ampc ->
                             ampc?.data?.maxBy { d -> d.from.toGregorianCalendar(TimeZone.getTimeZone("UTC"), null, null).timeInMillis }?.let { comp ->
                                 AmpComponent(
                                         pharmaceuticalForms = comp.pharmaceuticalForm?.map { pharmForm ->
                                             PharmaceuticalForm(
                                                     code = pharmForm.code, name = pharmForm.name?.let { SamText(it.fr, it.nl, it.de, it.en) },
-                                                    standardForms = pharmForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") }?.toSortedSet() ?: sortedSetOf()
+                                                    standardForms = pharmForm.standardForm?.map { Code(it.standard.value(), it.code, "1.0") }?.toSet() ?: setOf()
                                             ).let {
                                                 val id = "SAM-PHARMAFORM:${it.code}:${it.name?.fr}:${it.name?.nl}:${it.name?.de}:${it.name?.en}".md5()
                                                 pharmaceuticalForms[id] ?: it.also {
@@ -606,10 +595,10 @@ class Samv2v5Import : CliktCommand() {
                                                     pharmaceuticalForms[id] = it
                                                 }
                                             }
-                                        }?.toSortedSet() ?: sortedSetOf(),
+                                        }?.toSet() ?: setOf(),
                                         routeOfAdministrations = comp.routeOfAdministration?.map { roa ->
-                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { Code(it.standard.value(), it.code, "1.0") }?.toSortedSet() ?: sortedSetOf())
-                                        }?.toSortedSet() ?: sortedSetOf(),
+                                            RouteOfAdministration(roa.name?.let { SamText(it.fr, it.nl, it.de, it.en) }, roa.standardRoute?.map { Code(it.standard.value(), it.code, "1.0") }?.toSet() ?: setOf())
+                                        }?.toSet() ?: setOf(),
                                         dividable = comp.dividable,
                                         scored = comp.scored,
                                         crushable = comp.crushable?.value()?.let { Crushable.valueOf(it) },
@@ -645,7 +634,7 @@ class Samv2v5Import : CliktCommand() {
                                                                                 url = it.url,
                                                                                 definition = it.definition?.let { SamText(it.fr, it.nl, it.de, it.en) }
                                                                         )
-                                                                    }?.toSortedSet() ?: sortedSetOf()
+                                                                    }?.toSet() ?: setOf()
                                                             ).let {
                                                                 val id = "SAM-SUBSTANCE:${it.code}:${it.chemicalForm}".md5()
                                                                 substances[id] ?: it.also {
@@ -656,10 +645,10 @@ class Samv2v5Import : CliktCommand() {
                                                         }
                                                 )
                                             }
-                                        }?.toSortedSet() ?: sortedSetOf()
+                                        }?.toSet() ?: setOf()
                                 )
                             }
-                        }?.toSortedSet() ?: sortedSetOf()
+                        }?.toSet() ?: setOf()
                 )
             }
         }.chunked(100).map { amps ->
@@ -675,10 +664,11 @@ class Samv2v5Import : CliktCommand() {
                     if (amp.ampps.all { it.dmpps?.all { it.reimbursements == null } != false }) {
                         prev.ampps.forEach { it.dmpps?.forEach { it.reimbursements = null } }
                     }
+                    amp.rev = prev.rev
                     if (prev != amp) {
                         log.info("Modified AMP:${amp.code}:${amp.from} with id ${amp.id}")
                         updatedAmpIds.add(amp.id)
-                        ampDAO.update(amp.apply { this.rev = prev.rev })
+                        ampDAO.update(amp)
                     }
                     amp
                 } else amp
@@ -784,9 +774,10 @@ class Samv2v5Import : CliktCommand() {
                     nmpDAO.create(nmp)
                 } else if (force) {
                     val prev = currentNmpsWithDoc.find { it.id == nmp.id }!!
+                    nmp.rev = prev.rev
                     if (prev != nmp) {
                         log.info("Modified NMP NMP:${nmp.code}:${nmp.from} with id ${nmp.id}")
-                        nmpDAO.update(nmp.apply { this.rev = prev.rev })
+                        nmpDAO.update(nmp)
                         updatedNmpIds.add(nmp.id)
                     }
                     nmp

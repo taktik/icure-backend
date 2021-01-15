@@ -13,7 +13,7 @@ class VirtualIngredient(
     override fun compareTo(other: VirtualIngredient): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.from }, { it.type }, { it.substance }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.from }, { it.type }, { it.substance }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {

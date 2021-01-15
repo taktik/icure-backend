@@ -9,12 +9,12 @@ class Substance(
         var chemicalForm: String? = null,
         var name: SamText? = null,
         var note: SamText? = null,
-        var standardSubstances: SortedSet<StandardSubstance>? = null
+        var standardSubstances: Set<StandardSubstance>? = null
 ) : StoredDocument(id), Comparable<Substance> {
     override fun compareTo(other: Substance): Int {
         return if (this == other) {
             0
-        } else compareValuesBy(this, other, { it.id }, { it.code }, { it.hashCode() }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+        } else compareValuesBy(this, other, { it.id }, { it.code }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
     }
 
     override fun equals(other: Any?): Boolean {
