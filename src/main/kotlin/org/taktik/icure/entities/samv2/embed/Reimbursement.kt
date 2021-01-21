@@ -2,6 +2,7 @@ package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
 import java.math.BigDecimal
+import java.util.*
 
 class Reimbursement(
         from: Long? = null,
@@ -20,8 +21,15 @@ class Reimbursement(
         var pricingUnit: Pricing? = null,
         var pricingSlice: Pricing? = null,
         var reimbursementCriterion: ReimbursementCriterion? = null,
-        var copayments: List<Copayment>? = null
-) : DataPeriod(from, to), Serializable {
+        var copayments: Set<Copayment>? = null
+) : DataPeriod(from, to), Serializable, Comparable<Reimbursement> {
+    override fun compareTo(other: Reimbursement): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.code }, { it.deliveryEnvironment }, { it.flatRateSystem }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -58,9 +66,9 @@ class Reimbursement(
         result = 31 * result + (reference?.hashCode() ?: 0)
         result = 31 * result + (legalReferencePath?.hashCode() ?: 0)
         result = 31 * result + (flatRateSystem?.hashCode() ?: 0)
-        result = 31 * result + (reimbursementBasePrice?.hashCode() ?: 0)
-        result = 31 * result + (referenceBasePrice?.hashCode() ?: 0)
-        result = 31 * result + (copaymentSupplement?.hashCode() ?: 0)
+        result = 31 * result + (reimbursementBasePrice?.toInt() ?: 0)
+        result = 31 * result + (referenceBasePrice?.toInt() ?: 0)
+        result = 31 * result + (copaymentSupplement?.toInt() ?: 0)
         result = 31 * result + (pricingUnit?.hashCode() ?: 0)
         result = 31 * result + (pricingSlice?.hashCode() ?: 0)
         result = 31 * result + (reimbursementCriterion?.hashCode() ?: 0)

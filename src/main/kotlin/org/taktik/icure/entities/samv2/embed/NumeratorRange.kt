@@ -17,8 +17,8 @@ class NumeratorRange(var min: BigDecimal? = null, var max: BigDecimal? = null, v
     }
 
     override fun hashCode(): Int {
-        var result = min.hashCode() ?: 0
-        result = 31 * result + (max?.hashCode() ?: 0)
+        var result = min?.toInt() ?: 0
+        result = 31 * result + (max?.toInt() ?: 0)
         result = 31 * result + (unit?.hashCode() ?: 0)
         return result
     }
