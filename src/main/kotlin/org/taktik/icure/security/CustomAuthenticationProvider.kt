@@ -67,8 +67,8 @@ class CustomAuthenticationProvider(
                         "Only UsernamePasswordAuthenticationToken is supported"))
 
         val username: String = authentication.name
-        val isFullToken = username.matches(Regex("(.+/)([0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}|idUser_idLogin_.+)"))
-        val isPartialToken = username.matches(Regex("[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}|idUser_idLogin_.+"))
+        val isFullToken = username.matches(Regex("(.+/)([0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+)"))
+        val isPartialToken = username.matches(Regex("[0-9a-zA-Z]{8}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{4}-?[0-9a-zA-Z]{12}|idUser_.+"))
 
         val usersFlow = when {
             isFullToken -> {

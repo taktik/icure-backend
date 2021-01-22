@@ -21,10 +21,10 @@ plugins {
 buildscript {
     repositories {
       mavenCentral()
-        gradlePluginPortal()
-        jcenter()
-        maven { url = uri("https://maven.taktik.be/content/groups/public") }
-        maven { url = uri("https://repo.spring.io/plugins-release") }
+      gradlePluginPortal()
+      jcenter()
+      maven { url = uri("https://maven.taktik.be/content/groups/public") }
+      maven { url = uri("https://repo.spring.io/plugins-release") }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:2.4.0")

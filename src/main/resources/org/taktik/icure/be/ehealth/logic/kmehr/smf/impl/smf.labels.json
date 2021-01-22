@@ -233,7 +233,7 @@
         "tags": [
           {
             "type": "CD-PARAMETER",
-            "code": "heartbeat",
+            "code": "heartrate",
             "version": "1"
           }
         ]
