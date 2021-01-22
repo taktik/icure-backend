@@ -957,33 +957,26 @@ class SoftwareMedicalFileExport : KmehrExport() {
 			ids.add(localIdKmehrElement(itemIndex, config))
 			cds.add(cdItem("insurancystatus"))
 			if (insurability?.insuranceId?.isBlank() == false) {
-				try {
-					insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
-                        contents.add(ContentType().apply {
-                            insurance = InsuranceType().apply {
-                                id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
-                                membership = insurability.identificationNumber ?: ""
-                                if (it.code != null && it.code.length >= 3) {
+                insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
+                    try {
+                        if (it.code != null && it.code.length >= 3) {
+                            contents.add(ContentType().apply {
+                                insurance = InsuranceType().apply {
+                                    id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
+                                    membership = insurability.identificationNumber ?: ""
                                     insurability.parameters["tc1"]?.let {
                                         cg1 = it
                                         insurability.parameters["tc2"]?.let { cg2 = it }
                                     }
                                 }
-                            }
-                        })
-					}
-				} catch (ignored: DocumentNotFoundException) {
-				}
-			}else{
-                contents.add(ContentType().apply {
-                    insurance = InsuranceType().apply {
-                        id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = ""; }
-                        membership = ""
+                            })
+                        }
+                    } catch (ignored: DocumentNotFoundException) {
                     }
-                })
+                }
             }
 		}
-		return insStatus
+		return if (insStatus.contents.size > 0) insStatus else null
 	}
 
 	private fun cdItem(v: String): CDITEM {
