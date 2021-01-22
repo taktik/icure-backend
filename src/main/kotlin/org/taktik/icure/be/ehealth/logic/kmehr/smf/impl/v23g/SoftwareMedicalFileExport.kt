@@ -953,12 +953,12 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	private fun makeInsurancyStatus(itemIndex: Int, config: Config, insurability: Insurability?): ItemType? {
 		val insStatus = ItemType().apply {
-			ids.add(idKmehr(itemIndex))
-			ids.add(localIdKmehrElement(itemIndex, config))
-			cds.add(cdItem("insurancystatus"))
-			if (insurability?.insuranceId?.isBlank() == false) {
-                insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
-                    try {
+            ids.add(idKmehr(itemIndex))
+            ids.add(localIdKmehrElement(itemIndex, config))
+            cds.add(cdItem("insurancystatus"))
+            if (insurability?.insuranceId?.isBlank() == false) {
+                try {
+                    insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
                         if (it.code != null && it.code.length >= 3) {
                             contents.add(ContentType().apply {
                                 insurance = InsuranceType().apply {
@@ -971,11 +971,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
                                 }
                             })
                         }
-                    } catch (ignored: DocumentNotFoundException) {
                     }
+                } catch (ignored: DocumentNotFoundException) {
                 }
             }
-		}
+        }
 		return if (insStatus.contents.size > 0) insStatus else null
 	}
 
