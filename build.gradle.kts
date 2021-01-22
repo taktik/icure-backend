@@ -218,7 +218,7 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("icure-backend") {
+        create<MavenPublication>("icure-oss") {
             from(components["java"])
         }
     }
