@@ -1,6 +1,5 @@
 <kmehrmessage xmlns="http://www.ehealth.fgov.be/standards/kmehr/schema/v1"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://www.ehealth.fgov.be/standards/kmehr/schema/v1 file:///Users/aduchate/Sources/github/icure-backend/src/main/resources/org/taktik/icure/logic/impl/be/ehealth/kmehr/schema/v20131001/ehealth-kmehr/XSD/kmehr_elements-1_7.xsd">
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <header>
     <standard>
       <cd S="CD-STANDARD" SV="1.8">20131001</cd>
