@@ -86,7 +86,7 @@ open class KmehrExport {
 	fun createParty(m: HealthcareParty, cds: List<CDHCPARTY>? = listOf()): HcpartyType {
         return HcpartyType().apply {
             m.nihii?.let { nihii ->
-                if(isNihiiValid(nihii) && !nihii.isNullOrEmpty()) {
+                if(isNihiiValid(nihii)) {
                     ids.add(IDHCPARTY().apply { s = IDHCPARTYschemes.ID_HCPARTY; sv = "1.0"; value = nihii })
                 }
             }
@@ -108,7 +108,7 @@ open class KmehrExport {
 		}
 	}
 
-	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
+	private fun isNihiiValid(nihii: String) = !nihii.isNullOrEmpty() && nihii.length == 11 &&
             (
                     ((97 - nihii.substring(0, 6).toLong() % 97) == nihii.substring(6, 8).toLong()) ||
                     ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
