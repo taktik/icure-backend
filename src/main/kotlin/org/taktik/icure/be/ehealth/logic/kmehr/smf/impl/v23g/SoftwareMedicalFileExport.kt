@@ -984,7 +984,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 	private fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
-		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate.isBefore(Instant.now()) && null == r.endDate }
+		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate }
 		val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any(isActive) ?: false }
 		if (gmdRelationship == null) {
 			return Pair(null, null)
@@ -1582,4 +1582,3 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	data class ServiceAndMainIssue(val service: Service, val cdItemCode: String, val mainIssueThesaurus: Code?, val linkedCodes: Set<Code>)
      */
 }
-
