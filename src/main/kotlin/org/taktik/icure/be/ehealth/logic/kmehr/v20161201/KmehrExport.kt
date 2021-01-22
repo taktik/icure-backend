@@ -415,9 +415,14 @@ open class KmehrExport {
                     }
                 }
                 content.medicationValue?.substanceProduct?.let {
+                    val innCluster = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code
+                    val vmpGroup = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-VMPGROUP" }?.code
+
                     substanceproduct = ContentType.Substanceproduct().apply {
                         intendedname = content.medicationValue?.substanceProduct?.intendedname
-                        intendedcd = CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code }
+                        intendedcd =
+                                if (vmpGroup.isNullOrEmpty()) CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = innCluster }
+                                else CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_VMPGROUP); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = vmpGroup }
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {
