@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableMap;
+import org.jetbrains.annotations.NotNull;
 import org.taktik.icure.entities.embed.Periodicity;
 
 import java.util.Arrays;
@@ -35,7 +36,7 @@ import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Code extends StoredDocument implements CodeIdentification {
+public class Code extends StoredDocument implements CodeIdentification, Comparable<Code> {
 	private static final long serialVersionUID = 1L;
 	public static final Map<String,String> versionsMap = ImmutableMap.of(
 			"INAMI-RIZIV", "1.0"
@@ -254,4 +255,10 @@ public class Code extends StoredDocument implements CodeIdentification {
 	public int hashCode() {
 		return Objects.hash(super.hashCode(), type, code, version);
 	}
+
+    @Override
+    public int compareTo(@NotNull Code o) {
+	    if (this.equals(o)) { return 0; }
+        return id == null ? (o.id == null ? 0 : 1) : (o.id == null ? -1 : id.compareTo(o.id));
+    }
 }

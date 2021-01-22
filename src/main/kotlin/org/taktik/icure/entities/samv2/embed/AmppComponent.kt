@@ -10,7 +10,13 @@ class AmppComponent(
         var packSpecification:String? = null,
         var deviceType: DeviceType? = null,
         var packagingType: PackagingType? = null
-)  : DataPeriod(from, to), Serializable {
+)  : DataPeriod(from, to), Serializable, Comparable<AmppComponent> {
+    override fun compareTo(other: AmppComponent): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.contentType }, {it.packSpecification}, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AmppComponent) return false

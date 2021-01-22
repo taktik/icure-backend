@@ -12,6 +12,8 @@ import org.taktik.icure.dao.samv2.VmpGroupDAO
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
 import org.taktik.icure.db.StringUtils
+import org.taktik.icure.entities.samv2.Amp
+import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 
 @Repository("vmpGroupDAO")
@@ -20,6 +22,27 @@ class VmpGroupDAOImpl @Autowired
 constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerator: IDGenerator) : GenericDAOImpl<VmpGroup>(VmpGroup::class.java, couchdb, idGenerator), VmpGroupDAO {
     init {
         initStandardDesignDocument()
+    }
+
+    @View(name = "by_groupcode", map = "classpath:js/vmpgroup/By_groupcode.js")
+    override fun findVmpGroupsByVmpGroupCode(vmpgCode: String, paginationOffset: PaginationOffset<*>?): PaginatedList<VmpGroup> {
+        val from = vmpgCode
+        val to = vmpgCode
+
+        return pagedQueryView(
+                "by_groupcode",
+                from,
+                to,
+                paginationOffset,
+                false
+        )
+    }
+
+    override fun listVmpGroupsByVmpGroupCodes(vmpgCodes: List<String>): List<VmpGroup> {
+        return db.queryView(createQuery(
+                "by_groupcode")
+                .includeDocs(true)
+                .keys(vmpgCodes), VmpGroup::class.java)
     }
 
     override fun findVmpGroups(paginationOffset: PaginationOffset<*>?): PaginatedList<VmpGroup> {

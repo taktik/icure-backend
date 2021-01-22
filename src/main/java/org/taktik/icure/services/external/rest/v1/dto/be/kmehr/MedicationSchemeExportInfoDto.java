@@ -27,6 +27,7 @@ import java.util.List;
 public class MedicationSchemeExportInfoDto implements Serializable {
 	List<String> secretForeignKeys;
     List<ServiceDto> services;
+    List<HealthcarePartyDto> serviceAuthors; //TO pass hcp's that do not exist locally
 	HealthcarePartyDto recipient;
 	String comment;
 
@@ -60,5 +61,13 @@ public class MedicationSchemeExportInfoDto implements Serializable {
 
     public void setServices(List<ServiceDto> services) {
         this.services = services;
+    }
+
+    public List<HealthcarePartyDto> getServiceAuthors() {
+        return serviceAuthors;
+    }
+
+    public void setServiceAuthors(List<HealthcarePartyDto> serviceAuthors) {
+        this.serviceAuthors = serviceAuthors;
     }
 }

@@ -953,29 +953,29 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	private fun makeInsurancyStatus(itemIndex: Int, config: Config, insurability: Insurability?): ItemType? {
 		val insStatus = ItemType().apply {
-            ids.add(idKmehr(itemIndex))
-            ids.add(localIdKmehrElement(itemIndex, config))
-            cds.add(cdItem("insurancystatus"))
-            if (insurability?.insuranceId?.isBlank() == false) {
-                try {
-                    insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
-                        if (it.code != null && it.code.length >= 3) {
-                            contents.add(ContentType().apply {
-                                insurance = InsuranceType().apply {
-                                    id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
-                                    membership = insurability.identificationNumber ?: ""
-                                    insurability.parameters["tc1"]?.let {
-                                        cg1 = it
-                                        insurability.parameters["tc2"]?.let { cg2 = it }
-                                    }
+        ids.add(idKmehr(itemIndex))
+        ids.add(localIdKmehrElement(itemIndex, config))
+        cds.add(cdItem("insurancystatus"))
+        if (insurability?.insuranceId?.isBlank() == false) {
+            try {
+                insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
+                    if (it.code != null && it.code.length >= 3) {
+                        contents.add(ContentType().apply {
+                            insurance = InsuranceType().apply {
+                                id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
+                                membership = insurability.identificationNumber ?: ""
+                                insurability.parameters["tc1"]?.let {
+                                    cg1 = it
+                                    insurability.parameters["tc2"]?.let { cg2 = it }
                                 }
-                            })
-                        }
+                            }
+                        })
                     }
-                } catch (ignored: DocumentNotFoundException) {
                 }
+            } catch (ignored: DocumentNotFoundException) {
             }
         }
+      }
 		return if (insStatus.contents.size > 0) insStatus else null
 	}
 

@@ -1,10 +1,12 @@
 package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
+import java.util.*
 
 class Ampp(
         from: Long? = null,
         to: Long? = null,
+        var index: Double? = null,
         var ctiExtended: String? = null,
         var isOrphan: Boolean = false,
         var leafletLink: SamText? = null,
@@ -17,10 +19,11 @@ class Ampp(
         var packAmount: Quantity? = null,
         var packDisplayValue: String? = null,
         var status: AmpStatus? = null,
-        var atcs: List<Atc> = listOf(),
+        var atcs: Set<Atc> = sortedSetOf(),
         var crmLink: SamText? = null,
         var deliveryModusCode: String? = null,
         var deliveryModus: SamText? = null,
+        var deliveryModusSpecificationCode: String? = null,
         var deliveryModusSpecification: SamText? = null,
         var dhpcLink: SamText? = null,
         var distributorCompany: Company? = null,
@@ -30,24 +33,31 @@ class Ampp(
         var prescriptionName: SamText? = null,
         var note: SamText? = null,
         var posologyNote: SamText? = null,
-        var noGenericPrescriptionReasons: List<SamText>? = listOf(),
+        var noGenericPrescriptionReasons: Set<SamText>?= sortedSetOf(),
         var exFactoryPrice: Double? = null,
         var reimbursementCode: Int? = null,
         var definedDailyDose: Quantity? = null,
         var officialExFactoryPrice: Double? = null,
         var realExFactoryPrice: Double? = null,
         var pricingInformationDecisionDate: Long? = null,
-        var components: List<AmppComponent?>? = null,
-        var commercializations: List<Commercialization>? = null,
-        var supplyProblems: List<SupplyProblem>? = null,
-        var dmpps: List<Dmpp>? = null,
-        var vaccineIndicationCodes: List<String>? = null
-) : DataPeriod(from, to), Serializable {
+        var components: Set<AmppComponent>? = null,
+        var commercializations: Set<Commercialization>? = null,
+        var supplyProblems: Set<SupplyProblem>? = null,
+        var dmpps: Set<Dmpp>? = null,
+        var vaccineIndicationCodes: Set<String>? = null
+) : DataPeriod(from, to), Serializable, Comparable<Ampp> {
+    override fun compareTo(other: Ampp): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.ctiExtended }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Ampp) return false
         if (!super.equals(other)) return false
 
+        if (index != other.index) return false
         if (ctiExtended != other.ctiExtended) return false
         if (isOrphan != other.isOrphan) return false
         if (leafletLink != other.leafletLink) return false
@@ -64,6 +74,7 @@ class Ampp(
         if (crmLink != other.crmLink) return false
         if (deliveryModusCode != other.deliveryModusCode) return false
         if (deliveryModus != other.deliveryModus) return false
+        if (deliveryModusSpecificationCode != other.deliveryModusSpecificationCode) return false
         if (deliveryModusSpecification != other.deliveryModusSpecification) return false
         if (distributorCompany != other.distributorCompany) return false
         if (dhpcLink != other.dhpcLink) return false
@@ -107,6 +118,7 @@ class Ampp(
         result = 31 * result + (crmLink?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModus?.hashCode() ?: 0)
+        result = 31 * result + (deliveryModusSpecificationCode?.hashCode() ?: 0)
         result = 31 * result + (deliveryModusSpecification?.hashCode() ?: 0)
         result = 31 * result + (dhpcLink?.hashCode() ?: 0)
         result = 31 * result + (distributorCompany?.hashCode() ?: 0)
