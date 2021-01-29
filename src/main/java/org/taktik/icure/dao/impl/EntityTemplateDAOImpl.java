@@ -79,4 +79,26 @@ public class EntityTemplateDAOImpl extends CachedDAOImpl<EntityTemplate> impleme
 		return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
 	}
 
+    @Override
+    @View(name = "by_user_type_keyword", map = "classpath:js/entitytemplate/By_user_type_keywords.js")
+    public List<EntityTemplate> getByUserIdTypeKeyword(String userId, String type, String keyword, Boolean includeEntities) {
+        ViewQuery viewQuery = createQuery("by_user_type_keyword").startKey(ComplexKey.of(userId, type, keyword)).endKey(ComplexKey.of(userId, type, (keyword != null ? keyword : "") + "\ufff0")).includeDocs(includeEntities==null?false:includeEntities);
+
+        Map<String, EntityTemplate> result = new HashMap<>();
+        db.queryView(viewQuery, EntityTemplate.class).forEach((e)->result.put(e.getId(),e));
+
+        return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
+    }
+
+    @Override
+    @View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keywords.js")
+    public List<EntityTemplate> getByTypeKeyword(String type, String keyword, Boolean includeEntities) {
+        ViewQuery viewQuery = createQuery("by_type_keyword").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword != null ? keyword : "") + "\ufff0")).includeDocs(includeEntities==null?false:includeEntities);
+
+        Map<String, EntityTemplate> result = new HashMap<>();
+        db.queryView(viewQuery, EntityTemplate.class).forEach((e)->result.put(e.getId(),e));
+
+        return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
+    }
+
 }
