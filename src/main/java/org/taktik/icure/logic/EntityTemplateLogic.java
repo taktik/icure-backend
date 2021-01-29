@@ -35,4 +35,8 @@ public interface EntityTemplateLogic extends EntityPersister<EntityTemplate, Str
 	List<EntityTemplate> findEntityTemplates(String userId, String entityType, String searchString, Boolean includeEntities);
 
 	List<EntityTemplate> findAllEntityTemplates(String entityType, String searchString, Boolean includeEntities);
+
+    List<EntityTemplate> findEntityTemplatesByKeyword(String userId, String entityType, String keyword, Boolean includeEntities);
+
+    List<EntityTemplate> findAllEntityTemplatesByKeyword(String entityType, String keyword, Boolean includeEntities);
 }

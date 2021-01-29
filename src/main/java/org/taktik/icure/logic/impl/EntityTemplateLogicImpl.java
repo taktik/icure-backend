@@ -128,4 +128,14 @@ public class EntityTemplateLogicImpl implements EntityTemplateLogic {
 	public List<EntityTemplate> findAllEntityTemplates(String entityType, String searchString, Boolean includeEntities) {
 		return entityTemplateDAO.getByTypeDescr(entityType,searchString,includeEntities);
 	}
+
+    @Override
+    public List<EntityTemplate> findEntityTemplatesByKeyword(String userId, String entityType, String keyword, Boolean includeEntities) {
+        return entityTemplateDAO.getByUserIdTypeKeyword(userId,entityType,keyword,includeEntities);
+    }
+
+    @Override
+    public List<EntityTemplate> findAllEntityTemplatesByKeyword(String entityType, String keyword, Boolean includeEntities) {
+        return entityTemplateDAO.getByTypeKeyword(entityType,keyword,includeEntities);
+    }
 }
