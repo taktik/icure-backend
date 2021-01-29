@@ -7,6 +7,6 @@ map = function(doc) {
     };
 
     if (doc.java_type === 'org.taktik.icure.entities.EntityTemplate' && !doc.deleted && doc.keywords && doc.keywords.length) {
-       doc.keywords.forEach(x => emit_word(doc, x));
+       doc.keywords.forEach(function(x) { emit_word(doc, x) });
     }
-};
+}
