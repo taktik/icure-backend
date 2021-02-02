@@ -7,7 +7,13 @@ class SamText(
         var nl: String? = null,
         var de: String? = null,
         var en: String? = null
-) : Serializable {
+) : Serializable, Comparable<SamText> {
+    override fun compareTo(other: SamText): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.fr }, { it.nl }, { it.de }, { it.en }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

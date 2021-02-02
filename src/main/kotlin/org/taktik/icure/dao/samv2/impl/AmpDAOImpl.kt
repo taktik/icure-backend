@@ -149,6 +149,10 @@ constructor(@Qualifier("couchdbDrugs") couchdb: CouchDbICureConnector, idGenerat
         return db.get(SamVersion::class.java, "org.taktik.icure.samv2")
     }
 
+    override fun getSignature(type:String): SamVersion? {
+        return db.get(SamVersion::class.java, "org.taktik.icure.samv2.signatures.${type}")
+    }
+
     init {
         initStandardDesignDocument()
     }

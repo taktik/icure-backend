@@ -40,9 +40,12 @@ interface SamV2Logic {
     fun listAmpIdsByVmpCode(vmpCode: String, paginationOffset: PaginationOffset<*>): List<String>
     fun listAmpIdsByVmpId(vmpId: String, paginationOffset: PaginationOffset<*>): List<String>
     fun getVersion(): SamVersion?
-    fun listProductIds(ids: Collection<String>): MutableList<ProductId>
-    fun listSubstances(): MutableList<Substance>
-    fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm>
+    fun listProductIds(ids: Collection<String>): List<ProductId>
+    fun listAmpProductIds(ids: Collection<String>): List<ProductId?>
+    fun listVmpgProductIds(ids: Collection<String>): List<ProductId?>
+    fun listNmpProductIds(ids: Collection<String>): List<ProductId?>
+    fun listSubstances(): List<Substance>
+    fun listPharmaceuticalForms(): List<PharmaceuticalForm>
     fun listVmpsByVmpCodes(vmpCodes:  List<String>): List<Vmp>
     fun listVmpsByGroupIds(vmpgIds:  List<String>): List<Vmp>
     fun listAmpsByGroupCodes(vmpgCodes:  List<String>): List<Amp>

@@ -1382,5 +1382,69 @@
       "hib",
       "hepatitisb"
     ]
+  },
+  {
+    "cnk": "1572452",
+    "codes": [
+      "hepatitisa"
+    ]
+  },
+  {
+    "cnk": "2415586",
+    "codes": [
+      "papillomavirus"
+    ]
+  },
+  {
+    "cnk": "1657907",
+    "codes": [
+      "hepatitisb"
+    ]
+  },
+  {
+    "cnk": "1552215",
+    "codes": [
+      "diphteria",
+      "tetanus",
+      "pertussis",
+      "poliomyelitis"
+    ]
+  },
+  {
+    "cnk": "2445344",
+    "codes": [
+      "meningitisc"
+    ]
+  },
+  {
+    "cnk": "1185685",
+    "codes": [
+      "pneumonia23"
+    ]
+  },
+  {
+    "cnk": "4201778",
+    "codes": [
+      "pneumonia13"
+    ]
+  },
+  {
+    "cnk": "1077593",
+    "codes": [
+      "diphteria",
+      "tetanus"
+    ]
+  },
+  {
+    "cnk": "1460369",
+    "codes": [
+      "typhoid"
+    ]
+  },
+  {
+    "cnk": "2231967",
+    "codes": [
+      "rabies"
+    ]
   }
 ]

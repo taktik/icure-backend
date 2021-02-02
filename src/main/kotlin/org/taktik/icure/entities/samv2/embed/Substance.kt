@@ -1,6 +1,7 @@
 package org.taktik.icure.entities.samv2.embed
 
 import org.taktik.icure.entities.base.StoredDocument
+import java.util.*
 
 class Substance(
         id: String? = null,
@@ -8,8 +9,14 @@ class Substance(
         var chemicalForm: String? = null,
         var name: SamText? = null,
         var note: SamText? = null,
-        var standardSubstances: List<StandardSubstance>? = null
-) : StoredDocument(id) {
+        var standardSubstances: Set<StandardSubstance>? = null
+) : StoredDocument(id), Comparable<Substance> {
+    override fun compareTo(other: Substance): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.id }, { it.code }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

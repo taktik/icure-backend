@@ -1,6 +1,7 @@
 package org.taktik.icure.entities.samv2.embed
 
 import java.io.Serializable
+import java.util.*
 
 class Dmpp(
         var id: String? = null,
@@ -13,8 +14,14 @@ class Dmpp(
         var cheap: Boolean? =  null,
         var cheapest: Boolean? =  null,
         var reimbursable: Boolean? =  null,
-        var reimbursements: List<Reimbursement>? = null
-) : DataPeriod(from, to), Serializable {
+        var reimbursements: Set<Reimbursement>? = null
+) : DataPeriod(from, to), Serializable, Comparable<Dmpp> {
+    override fun compareTo(other: Dmpp): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.from }, { it.deliveryEnvironment }, { it.id }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Dmpp) return false

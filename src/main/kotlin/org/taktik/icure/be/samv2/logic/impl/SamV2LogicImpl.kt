@@ -2,26 +2,21 @@ package org.taktik.icure.be.samv2.logic.impl
 
 import org.springframework.stereotype.Service
 import org.taktik.icure.be.samv2.logic.SamV2Logic
-import org.taktik.icure.dao.samv2.AmpDAO
-import org.taktik.icure.dao.samv2.NmpDAO
-import org.taktik.icure.dao.samv2.PharmaceuticalFormDAO
-import org.taktik.icure.dao.samv2.ProductIdDAO
-import org.taktik.icure.dao.samv2.SubstanceDAO
-import org.taktik.icure.dao.samv2.VmpDAO
-import org.taktik.icure.dao.samv2.VmpGroupDAO
+import org.taktik.icure.dao.samv2.*
 import org.taktik.icure.db.PaginatedList
 import org.taktik.icure.db.PaginationOffset
-import org.taktik.icure.entities.samv2.Amp
-import org.taktik.icure.entities.samv2.Nmp
-import org.taktik.icure.entities.samv2.ProductId
-import org.taktik.icure.entities.samv2.Vmp
-import org.taktik.icure.entities.samv2.VmpGroup
+import org.taktik.icure.entities.samv2.*
 import org.taktik.icure.entities.samv2.embed.PharmaceuticalForm
 import org.taktik.icure.entities.samv2.embed.Substance
 import org.taktik.icure.samv2.SamVersion
+import java.util.zip.GZIPInputStream
 
 @Service
 class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO, val vmpGroupDAO: VmpGroupDAO, val productIdDAO: ProductIdDAO, val pharmaceuticalFormDAO: PharmaceuticalFormDAO, val substanceDAO: SubstanceDAO) : SamV2Logic {
+    private var ampProductIds: HashMap<String, String>? = null
+    private var nmpProductIds: HashMap<String, String>? = null
+    private var vmpProductIds: HashMap<String, String>? = null
+
     override fun findAmpsByDmppCode(dmppCode: String): List<Amp> {
         return ampDAO.findAmpsByDmppCode(dmppCode)
     }
@@ -122,15 +117,43 @@ class SamV2LogicImpl(val ampDAO: AmpDAO, val nmpDAO: NmpDAO, val vmpDAO: VmpDAO,
         return vmpGroupDAO.listVmpGroupIdsByLabel(language, label)
     }
 
-    override fun listProductIds(ids: Collection<String>): MutableList<ProductId> {
+    override fun listProductIds(ids: Collection<String>): List<ProductId> {
         return productIdDAO.getList(ids)
     }
 
-    override fun listSubstances(): MutableList<Substance> {
+    @Synchronized
+    override fun listAmpProductIds(ids: Collection<String>): List<ProductId?> {
+        if (this.ampProductIds == null) {
+            this.ampProductIds = ampDAO.getSignature("amp")?.let {
+                GZIPInputStream(ampDAO.getAttachmentInputStream(it.id, "signatures", it.rev)).reader(Charsets.UTF_8).useLines { it.fold(HashMap<String, String>()) { acc, l -> acc.also { l.split('|').let { parts -> acc[parts[0]] = parts[1] } } } }
+            }
+        }
+        return ids.map { id -> this.ampProductIds?.get(id)?.let { ProductId(id, it)} }
+    }
+
+    override fun listVmpgProductIds(ids: Collection<String>): List<ProductId?> {
+        if (this.vmpProductIds == null) {
+            this.vmpProductIds = ampDAO.getSignature("vmp")?.let {
+                GZIPInputStream(ampDAO.getAttachmentInputStream(it.id, "signatures", it.rev)).reader(Charsets.UTF_8).useLines { it.fold(HashMap<String, String>()) { acc, l -> acc.also { l.split('|').let { parts -> acc[parts[0]] = parts[1] } } } }
+            }
+        }
+        return ids.map { id -> this.vmpProductIds?.get(id)?.let { ProductId(id, it)} }
+    }
+
+    override fun listNmpProductIds(ids: Collection<String>): List<ProductId?> {
+        if (this.nmpProductIds == null) {
+            this.nmpProductIds = ampDAO.getSignature("nmp")?.let {
+                GZIPInputStream(ampDAO.getAttachmentInputStream(it.id, "signatures", it.rev)).reader(Charsets.UTF_8).useLines { it.fold(HashMap<String, String>()) { acc, l -> acc.also { l.split('|').let { parts -> acc[parts[0]] = parts[1] } } } }
+            }
+        }
+        return ids.map { id -> this.nmpProductIds?.get(id)?.let { ProductId(id, it)} }
+    }
+
+    override fun listSubstances(): List<Substance> {
         return substanceDAO.all
     }
 
-    override fun listPharmaceuticalForms(): MutableList<PharmaceuticalForm> {
+    override fun listPharmaceuticalForms(): List<PharmaceuticalForm> {
         return pharmaceuticalFormDAO.all
     }
 

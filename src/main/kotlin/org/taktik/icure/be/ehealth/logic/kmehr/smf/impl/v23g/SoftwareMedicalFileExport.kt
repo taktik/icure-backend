@@ -953,37 +953,30 @@ class SoftwareMedicalFileExport : KmehrExport() {
 
 	private fun makeInsurancyStatus(itemIndex: Int, config: Config, insurability: Insurability?): ItemType? {
 		val insStatus = ItemType().apply {
-			ids.add(idKmehr(itemIndex))
-			ids.add(localIdKmehrElement(itemIndex, config))
-			cds.add(cdItem("insurancystatus"))
-			if (insurability?.insuranceId?.isBlank() == false) {
-				try {
-					insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
+        ids.add(idKmehr(itemIndex))
+        ids.add(localIdKmehrElement(itemIndex, config))
+        cds.add(cdItem("insurancystatus"))
+        if (insurability?.insuranceId?.isBlank() == false) {
+            try {
+                insuranceLogic!!.getInsurance(insurability.insuranceId)?.let {
+                    if (it.code != null && it.code.length >= 3) {
                         contents.add(ContentType().apply {
                             insurance = InsuranceType().apply {
                                 id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = it.code.substring(0, 3); }
                                 membership = insurability.identificationNumber ?: ""
-                                if (it.code != null && it.code.length >= 3) {
-                                    insurability.parameters["tc1"]?.let {
-                                        cg1 = it
-                                        insurability.parameters["tc2"]?.let { cg2 = it }
-                                    }
+                                insurability.parameters["tc1"]?.let {
+                                    cg1 = it
+                                    insurability.parameters["tc2"]?.let { cg2 = it }
                                 }
                             }
                         })
-					}
-				} catch (ignored: DocumentNotFoundException) {
-				}
-			}else{
-                contents.add(ContentType().apply {
-                    insurance = InsuranceType().apply {
-                        id = IDINSURANCE().apply { s = IDINSURANCEschemes.ID_INSURANCE; value = ""; }
-                        membership = ""
                     }
-                })
+                }
+            } catch (ignored: DocumentNotFoundException) {
             }
-		}
-		return insStatus
+        }
+      }
+		return if (insStatus.contents.size > 0) insStatus else null
 	}
 
 	private fun cdItem(v: String): CDITEM {
@@ -991,7 +984,7 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	}
 
 	private fun getLastGmdManager(pat: Patient): Pair<HealthcareParty?, ReferralPeriod?> {
-		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate !== null && r.startDate.isBefore(Instant.now()) && null == r.endDate }
+		val isActive: (ReferralPeriod) -> Boolean = { r -> r.startDate?.isBefore(Instant.now()) == true && null == r.endDate }
 		val gmdRelationship = pat.patientHealthCareParties?.find { it.referralPeriods?.any(isActive) ?: false }
 		if (gmdRelationship == null) {
 			return Pair(null, null)
@@ -1589,4 +1582,3 @@ class SoftwareMedicalFileExport : KmehrExport() {
 	data class ServiceAndMainIssue(val service: Service, val cdItemCode: String, val mainIssueThesaurus: Code?, val linkedCodes: Set<Code>)
      */
 }
-

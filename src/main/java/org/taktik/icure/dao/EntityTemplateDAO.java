@@ -24,10 +24,8 @@ import org.ektorp.support.View;
 import org.taktik.icure.entities.EntityTemplate;
 
 public interface EntityTemplateDAO extends GenericDAO<EntityTemplate> {
-
-	@View(name = "by_user_type_descr", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
-	List<EntityTemplate> getByUserIdTypeDescr(String userId, String type, String searchString, Boolean includeEntities);
-
-	@View(name = "by_type_descr", map = "classpath:js/patient/By_hcparty_contains_name_map.js")
-	List<EntityTemplate> getByTypeDescr(String type, String searchString, Boolean includeEntities);
+    List<EntityTemplate> getByUserIdTypeDescr(String userId, String type, String searchString, Boolean includeEntities);
+    List<EntityTemplate> getByTypeDescr(String type, String searchString, Boolean includeEntities);
+    List<EntityTemplate> getByUserIdTypeKeyword(String userId, String type, String keyword, Boolean includeEntities);
+    List<EntityTemplate> getByTypeKeyword(String type, String keyword, Boolean includeEntities);
 }
