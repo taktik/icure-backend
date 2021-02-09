@@ -544,6 +544,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
                         }
                         addHistoryLinkAndCacheService(this, svc, config)
                         headingsAndItemsAndTexts.add(this)
+                        svc.formId?.let{
+                            (it != "") && it.let{
+                                this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
+                            }
+                        }
                     }
                 }
                 // FIXME: prescriptions should be linked to medication with a ISATTESTATIONOF link but there is no such link in topaz

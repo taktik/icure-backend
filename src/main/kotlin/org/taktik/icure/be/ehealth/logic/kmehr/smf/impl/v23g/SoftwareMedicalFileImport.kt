@@ -102,7 +102,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             null
                         }
                         "pharmaceuticalprescription" -> {
-                            parsePharmaceuticalPrescription(trn, author, res, language, saveToDatabase).let {
+                            parsePharmaceuticalPrescription(trn, author, res, language, saveToDatabase, state).let {
                                 state.prescLinks.add(it)
                             }
                             null
@@ -380,7 +380,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 author: User,
                                                 v: ImportResult,
                                                 language: String,
-                                                saveToDatabase: Boolean): Pair<List<Service>, String?> {
+                                                saveToDatabase: Boolean,
+                                                state: InternalState): Pair<List<Service>, String?> {
 
         val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
             createOrProcessHcp(it, saveToDatabase, v)
@@ -398,6 +399,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             CodeStub("CD-ITEM", "treatment", "1")
                     )
             )
+            val oldMedicationServiceLink =  item.lnks.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISATTESTATIONOF }?.map { lnk ->
+                state.serviceVersionLinks.find { it.mfId == extractMFIDFromUrl(lnk.url) }
+            }?.firstOrNull()
+
+            oldMedicationServiceLink?.let {
+                if(it != null){
+                    service.formId = it.service.id
+                }
+            }
             service
         }
         val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
