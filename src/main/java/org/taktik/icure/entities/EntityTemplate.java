@@ -26,6 +26,7 @@ import org.taktik.icure.validation.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,6 +39,7 @@ public class EntityTemplate extends StoredDocument {
 	String entityType;
 	String subType;
 	Boolean defaultTemplate;
+    Set<String> keywords;
 
 	List<Map<String,Object>> entity;
 
@@ -84,4 +86,12 @@ public class EntityTemplate extends StoredDocument {
 	public void setDefaultTemplate(Boolean defaultTemplate) {
 		this.defaultTemplate = defaultTemplate;
 	}
+
+    public Set<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(Set<String> keywords) {
+        this.keywords = keywords;
+    }
 }

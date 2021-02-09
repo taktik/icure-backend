@@ -136,7 +136,81 @@ public class EntityTemplateFacade implements OpenApiFacade{
 		return response;
 	}
 
-	@ApiOperation(
+
+    @ApiOperation(
+            value = "Finding entityTemplates by userId, type and keyword.",
+            response = EntityTemplateDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = "Returns a list of entityTemplates matched with given input."
+    )
+    @GET
+    @Path("/find/{userId}/{type}/keyword/{keyword}")
+    public Response findEntityTemplatesByKeyword(
+            @PathParam(value = "userId") String userId,
+            @PathParam(value = "type") String entityType,
+            @PathParam(value = "keyword") String keyword,
+            @ApiParam(value = "includeEntities", required = false) @QueryParam("includeEntities") Boolean includeEntities) {
+
+        Response response;
+
+        List<EntityTemplate> entityTemplatesList;
+        entityTemplatesList = entityTemplateLogic.findEntityTemplatesByKeyword(userId, entityType, keyword, includeEntities);
+
+        if (entityTemplatesList != null) {
+            response = ResponseUtils.ok(entityTemplatesList.stream().map(e -> {
+                EntityTemplateDto dto = mapper.map(e, EntityTemplateDto.class);
+
+                if (includeEntities != null && includeEntities) {
+                    dto.setEntity(e.getEntity());
+                }
+
+                return dto;
+            }).collect(Collectors.toList()));
+        } else {
+            response = ResponseUtils.internalServerError("Finding entityTemplates failed");
+        }
+
+        return response;
+    }
+
+    @ApiOperation(
+            value = "Finding entityTemplates by entityTemplate, type and version with pagination.",
+            response = EntityTemplateDto.class,
+            responseContainer = "Array",
+            httpMethod = "GET",
+            notes = "Returns a list of entityTemplates matched with given input."
+    )
+    @GET
+    @Path("/findAll/{type}/keyword/{keyword}")
+    public Response findAllEntityTemplatesByKeyword(
+            @PathParam(value = "type") String entityType,
+            @PathParam(value = "keyword") String keyword,
+            @ApiParam(value = "includeEntities", required = false) @QueryParam("includeEntities") Boolean includeEntities) {
+
+        Response response;
+
+        List<EntityTemplate> entityTemplatesList;
+        entityTemplatesList = entityTemplateLogic.findAllEntityTemplatesByKeyword(entityType, keyword, includeEntities);
+
+        if (entityTemplatesList != null) {
+            response = ResponseUtils.ok(entityTemplatesList.stream().map(e -> {
+                EntityTemplateDto dto = mapper.map(e, EntityTemplateDto.class);
+
+                if (includeEntities != null && includeEntities) {
+                    dto.setEntity(e.getEntity());
+                }
+
+                return dto;
+            }).collect(Collectors.toList()));
+        } else {
+            response = ResponseUtils.internalServerError("Finding entityTemplates failed");
+        }
+
+        return response;
+    }
+
+    @ApiOperation(
 			value = "Create a EntityTemplate",
 			response = EntityTemplateDto.class,
 			httpMethod = "POST",

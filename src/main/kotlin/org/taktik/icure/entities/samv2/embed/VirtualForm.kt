@@ -1,8 +1,9 @@
 package org.taktik.icure.entities.samv2.embed
 
 import org.taktik.icure.entities.base.Code
+import java.util.*
 
-class VirtualForm(var name: SamText? = null, var standardForms: List<Code> = listOf()) {
+class VirtualForm(var name: SamText? = null, var standardForms: Set<Code> = sortedSetOf()) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

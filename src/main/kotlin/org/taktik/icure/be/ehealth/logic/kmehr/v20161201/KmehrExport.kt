@@ -406,15 +406,23 @@ open class KmehrExport {
                     mv.value?.let { decimal = BigDecimal.valueOf(it) }
                 }
                 content.medicationValue?.medicinalProduct?.let {
+                    val medicationType = content.medicationValue?.options?.get("type")?.stringValue
                     medicinalproduct = MedicinalProductType().apply {
                         intendedname = content.medicationValue?.medicinalProduct?.intendedname
-                        intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        if (medicationType != "FRE") {
+                            intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        }
                     }
                 }
                 content.medicationValue?.substanceProduct?.let {
+                    val innCluster = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code
+                    val vmpGroup = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-VMPGROUP" }?.code
+
                     substanceproduct = ContentType.Substanceproduct().apply {
                         intendedname = content.medicationValue?.substanceProduct?.intendedname
-                        intendedcd = CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code }
+                        intendedcd =
+                                if (vmpGroup.isNullOrEmpty()) CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = innCluster }
+                                else CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_VMPGROUP); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = vmpGroup }
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {

@@ -49,4 +49,5 @@ interface AmpDAO : GenericDAO<Amp> {
     fun listAmpsByVmpGroupIds(vmpGroupIds: List<String>): List<Amp>
     fun listAmpsByVmpCodes(vmpCodes: List<String>): List<Amp>
     fun listAmpsByVmpIds(vmpIds: List<String>): List<Amp>
+    fun getSignature(type: String): SamVersion?
 }

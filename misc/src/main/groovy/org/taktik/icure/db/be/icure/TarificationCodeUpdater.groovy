@@ -33,16 +33,26 @@ class TarificationCodeUpdater {
         def subset = (args.length == 4) ? Arrays.asList(args[2].split(',')) : null
 
         def executors = Executors.newFixedThreadPool(32)
-        def semaphore = new Semaphore(32)
+        def semaphore = new Semaphore(20)
 
         new File(args[0]).withReader { it.eachLine {
             String[] fields = it.split("\\s")
+
+            def host = db_host
+            def protocol = db_protocol
+
+            if (fields[0].startsWith("http")) {
+                host = fields[0].split('://')[1]
+                protocol = fields[0].split('://')[0]
+                fields = fields.drop(1)
+            }
+
             def db_group_name = fields[0]
             def password = fields.length > 1 ? fields[1] : null
             def lang = fields.length > 2 ? fields[2] : null
             def importer = fields.length == 3 ?
-                    new TarificationCodeImporter(db_protocol, db_host, db_port, "icure-"+db_group_name, db_group_name, password, lang) :
-                    new TarificationCodeImporter(db_protocol, db_host, db_port, db_group_name, null,null,null, "template","804e5824-8d79-4074-89be-def87278b51f", db_group_name.replaceAll(".+-",""))
+                    new TarificationCodeImporter(protocol, host, db_port, "icure-"+db_group_name, db_group_name, password, lang) :
+                    new TarificationCodeImporter(protocol, host, db_port, db_group_name, null,null,null, "template","804e5824-8d79-4074-89be-def87278b51f", db_group_name.replaceAll(".+-",""))
             def type = 'INAMI-RIZIV'
 
             if (codes == null) {

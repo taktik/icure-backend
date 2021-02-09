@@ -18,6 +18,7 @@
 
 package org.taktik.icure.dao.impl;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,15 @@ import org.taktik.icure.entities.EntityTemplate;
 @Repository("entityTemplateDAO")
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityTemplate' && !doc.deleted) emit( null, doc._id )}")
 public class EntityTemplateDAOImpl extends CachedDAOImpl<EntityTemplate> implements EntityTemplateDAO {
+    private static Comparator<String> nullSafeStringComparator = Comparator
+            .nullsFirst(String::compareToIgnoreCase);
+
+    private static Comparator<EntityTemplate> entityTemplateComparator = Comparator
+            .comparing(EntityTemplate::getUserId, nullSafeStringComparator)
+            .thenComparing(EntityTemplate::getEntityType, nullSafeStringComparator)
+            .thenComparing(EntityTemplate::getDescr, nullSafeStringComparator)
+            .thenComparing(EntityTemplate::getId, nullSafeStringComparator);
+
 	@Autowired
 	public EntityTemplateDAOImpl(@SuppressWarnings("SpringJavaAutowiringInspection") @Qualifier("couchdbHealthdata") CouchDbICureConnector couchdb, IDGenerator idGenerator, @Qualifier("entitiesCacheManager") CacheManager cacheManager) {
 		super(EntityTemplate.class, couchdb, idGenerator, cacheManager);
@@ -54,11 +64,7 @@ public class EntityTemplateDAOImpl extends CachedDAOImpl<EntityTemplate> impleme
 		Map<String, EntityTemplate> result = new HashMap<>();
 		db.queryView(viewQuery, EntityTemplate.class).forEach((e)->result.put(e.getId(),e));
 
-		return result.values().stream().sorted((a,b)-> ComparisonChain.start()
-				.compare(a.getUserId(), b.getUserId())
-				.compare(a.getEntityType(),b.getEntityType())
-				.compare(a.getDescr(),b.getDescr())
-				.compare(a.getId(),b.getId()).result()).collect(Collectors.toList());
+        return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
 	}
 
 	@Override
@@ -70,11 +76,29 @@ public class EntityTemplateDAOImpl extends CachedDAOImpl<EntityTemplate> impleme
 		Map<String, EntityTemplate> result = new HashMap<>();
 		db.queryView(viewQuery, EntityTemplate.class).forEach((e)->result.put(e.getId(),e));
 
-		return result.values().stream().sorted((a,b)-> ComparisonChain.start()
-				.compare(a.getUserId(), b.getUserId())
-				.compare(a.getEntityType(),b.getEntityType())
-				.compare(a.getDescr(),b.getDescr())
-				.compare(a.getId(),b.getId()).result()).collect(Collectors.toList());
+		return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
 	}
+
+    @Override
+    @View(name = "by_user_type_keyword", map = "classpath:js/entitytemplate/By_user_type_keywords.js")
+    public List<EntityTemplate> getByUserIdTypeKeyword(String userId, String type, String keyword, Boolean includeEntities) {
+        ViewQuery viewQuery = createQuery("by_user_type_keyword").startKey(ComplexKey.of(userId, type, keyword)).endKey(ComplexKey.of(userId, type, (keyword != null ? keyword : "") + "\ufff0")).includeDocs(includeEntities==null?false:includeEntities);
+
+        Map<String, EntityTemplate> result = new HashMap<>();
+        db.queryView(viewQuery, EntityTemplate.class).forEach((e)->result.put(e.getId(),e));
+
+        return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
+    }
+
+    @Override
+    @View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keywords.js")
+    public List<EntityTemplate> getByTypeKeyword(String type, String keyword, Boolean includeEntities) {
+        ViewQuery viewQuery = createQuery("by_type_keyword").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword != null ? keyword : "") + "\ufff0")).includeDocs(includeEntities==null?false:includeEntities);
+
+        Map<String, EntityTemplate> result = new HashMap<>();
+        db.queryView(viewQuery, EntityTemplate.class).forEach((e)->result.put(e.getId(),e));
+
+        return result.values().stream().sorted(entityTemplateComparator).collect(Collectors.toList());
+    }
 
 }

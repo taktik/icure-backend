@@ -21,6 +21,7 @@ package org.taktik.icure.services.external.rest.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class EntityTemplateDto extends StoredDto implements Serializable {
 	String userId;
@@ -30,6 +31,8 @@ public class EntityTemplateDto extends StoredDto implements Serializable {
 	Boolean defaultTemplate;
 
 	String subType;
+    Set<String> keywords;
+
 	List<Map<String,Object>> entity;
 
 	public String getUserId() {
@@ -75,4 +78,12 @@ public class EntityTemplateDto extends StoredDto implements Serializable {
 	public void setDefaultTemplate(Boolean defaultTemplate) {
 		this.defaultTemplate = defaultTemplate;
 	}
+
+    public Set<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(Set<String> keywords) {
+        this.keywords = keywords;
+    }
 }

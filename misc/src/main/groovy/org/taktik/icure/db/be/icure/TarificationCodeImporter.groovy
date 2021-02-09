@@ -142,6 +142,8 @@ class NomenFeeCode {
 
 class TarificationCodeImporter extends Importer {
     def language = 'fr'
+    def YEAR = 2020
+
     def refs = [
             "a_partir_du_75eme_anniversaire_avec_dmg_et_malade_chronique_avec_dmg_sans_regime_preferentiel"                                                                                                                     : "old_no_preferentialstatus_dmg,dmg_no_preferentialstatus_chronical",
             "_"                                                                                                                                                                                                                 : "any",
@@ -504,25 +506,41 @@ class TarificationCodeImporter extends Importer {
     }
 
     void populateValorisations(File root, LinkedHashMap<String, NomensoftTarification> tarifications, LinkedHashMap<String, NomenFeeCode> valTypes) {
+        def cal = Calendar.instance
+        cal.set(YEAR,0,0, 0, 0, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+
+        def twoYearsAgo = cal.time - 1
+        def notFounds = new HashSet()
         new File(root, 'NOMEN_CODE_FEE_LIM.xml').withInputStream { f ->
             new File(root, 'NOMEN_CODE_FEE_BIS_LIM.xml').withInputStream { fb ->
-                def parseVal = { e ->
-                    NomensoftTarification t = tarifications[e.nomen_code.text()]
-                    if (t && valTypes[e.fee_code.text()]) {
-                        t.valorisations << new NomensoftValorisation(e, valTypes[e.fee_code.text()])
-                    } else {
-                        println("${e.nomen_code.text()} valorisation not found")
+                new File(root, 'NOMEN_CODE_FEE_LIM_HIST.xml').withInputStream { fh ->
+                    new File(root, 'NOMEN_CODE_FEE_BIS_LIM_HIST.xml').withInputStream { fbh ->
+                        def parseVal = { e ->
+                            NomensoftTarification t = tarifications[e.nomen_code.text()]
+                            if (t && valTypes[e.fee_code.text()]) {
+                                def valorisation = new NomensoftValorisation(e, valTypes[e.fee_code.text()])
+                                if (valorisation.from.after(twoYearsAgo)) {
+                                    t.valorisations << valorisation
+                                }
+                            } else {
+                                if (!notFounds.contains(e.fee_code.text())) {
+                                    notFounds.add(e.fee_code.text())
+                                    println("${e.fee_code.text()}: valorisation not found")
+                                }
+                            }
+                        }
+                        new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
+                        new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
+                        new XmlSlurper().parse(fh).NOMEN_CODE_FEE_LIM_HIST.each(parseVal)
+                        new XmlSlurper().parse(fbh).NOMEN_CODE_FEE_BIS_LIM_HIST.each(parseVal)
                     }
                 }
-                new XmlSlurper().parse(f).NOMEN_CODE_FEE_LIM.each(parseVal)
-                new XmlSlurper().parse(fb).NOMEN_CODE_FEE_BIS_LIM.each(parseVal)
             }
         }
     }
 
     List<Tarification> doScan(File root, String type, List<Tarification> newCodes = null, List<String> subset = null) {
-        def YEAR = 2020
-
         def codes = newCodes ?: []
 
         if (codes.size() == 0) {
@@ -553,7 +571,7 @@ class TarificationCodeImporter extends Importer {
 
             LinkedHashMap<String, List<String>> groups = [
                     Base: ['Rééducation fonctionnelle et professionnelle - quote part person.', 'Consultations, visites et avis de médecins', 'Placement et frais déplacement - quote-part personnelle CMP', 'Prestations spéciales générales et ponctions', 'Prestations techniques médicales - prestations courantes', 'Prestations techniques urgentes  - Article 26, §1bis', 'Prestations techniques urgentes - Article 26, §1 et §1ter', 'Réanimation', 'Regularisations ne pouvant pas être ventilées par document N', 'Rhumatologie', 'Sevrage tabagique', 'Soins donnés par infirmières, soigneuses et gardes-malades', 'Surveillance des bénéficiaires hospitalisés'],
-                    Full: ['Accouchements - accoucheuses', 'Bandages, ceintures et protheses des seins', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radio-isotopes', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
+                    Full: ['Accouchements - accoucheuses', 'Bandages, ceintures et protheses des seins', 'Cardiologie', 'Chirurgie abdominale', 'Chirurgie des vaisseaux', 'Chirurgie générale', 'Chirurgie plastique', 'Chirurgie thoracique', 'Dermato-vénéréologie', 'Gastro-entérologie', 'Gynécologie et obstétrique', 'Logopédie', 'Médecine interne', 'Médecine nucléaire in vitro', 'Médecine nucléaire in vivo', 'Neurochirurgie', 'Neuropsychiatrie', 'Ophtalmologie', 'Orthopédie', 'Oto-rhino-laryngologie', 'Pédiatrie', 'Physiothérapie', 'Pneumologie', 'Radio-isotopes', 'Radiodiagnostic', 'Soins dentaires', 'Soins par audiciens', 'Soins par opticiens', 'Stomatologie', 'Urologie', 'Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale', 'Sevrage tabagique', 'Révalidation + quote-part personnelle']
                     //Excluded: ['Accouchements - aide opératoire', 'Aide opératoire', 'Anatomo-pathologie - Article 32', 'Anesthésiologie', 'Appareils', 'Avances prévues par convention et non récupérables', 'Biologie clinique - Article 3', 'Biologie clinique - Article 24§1', 'Biologie moléculaire - matériel génétique de micro-organismes', 'Code bande magnétique', 'Codes de régularisation', 'Conventions internationales', 'Dialyse rénale', 'Examens génétiques - Article 33', 'Honoraires forfaitaires - biologie clinique - ambulant', 'Honoraires forfaitaires - biologie clinique - Art 24§2', 'Hospitalisation', 'Materiel de synthese art 28 §1', 'Materiel de synthese art 28 §8', 'Montants payés indûment inférieur à 400 francs et non récupérés', 'Part personnelle pour patients hospitalisés', 'Pas de rubrique ou rubrique pas connu', 'Prestations interventionnelles percutanées - imagerie médicale', 'Prestations pharmaceutiques', 'Projets article 56', 'Quote-part personnelle hospitalisation', 'Radiothérapie et radiumthérapie', 'Tests de biologie moléculaire sur du matériel génétique humain', 'Tissues d\'origine humaine', 'Transplantations', 'Urinal, anus artificiel et canule tracheale']
             ]
 
@@ -618,6 +636,10 @@ class TarificationCodeImporter extends Importer {
 
             //println(JsonOutput.toJson(valTypes.values()))
 
+            def farFutureCal = Calendar.instance
+            farFutureCal.set(2999,11,31, 0, 0, 0)
+            farFutureCal.set(Calendar.MILLISECOND, 0)
+
             [false, true].forEach { amb ->
                 println "Amb: $amb"
                 groups.each { kg, g ->
@@ -663,7 +685,7 @@ class TarificationCodeImporter extends Importer {
                                 if (vt) {
                                     return new Valorisation(
                                             startOfValidity: val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : (YEAR * 10000 + 101) * 1000000,
-                                            endOfValidity: (Long.valueOf(YEAR + 1L) * 10000 + 101) * 1000000L,
+                                            endOfValidity: val.to && val.to.before(farFutureCal.time) ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli((val.to+1).time), ZoneId.systemDefault()), ChronoUnit.SECONDS) : val.from ? FuzzyValues.getFuzzyDateTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(val.from.time), ZoneId.systemDefault()), ChronoUnit.SECONDS) + 10000000000L : (Long.valueOf(YEAR + 1L) * 10000 + 101) * 1000000L,
                                             label: ([fr: vt?.fr, nl: vt?.nl] as Map<String, String>),
                                             predicate: vt.predicate,
                                             patientIntervention: val.patientIntervention ?: 0,
