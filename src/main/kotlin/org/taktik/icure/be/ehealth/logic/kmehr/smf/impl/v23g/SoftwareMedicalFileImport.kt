@@ -687,26 +687,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
     }
 
-    private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) : Boolean {
-        //TODO Dorian : really ???
-
-
-        val user = User()
-        val hcpid = "bla"
-
-        val conid = "bla"
-        val obj1 = parseHealthcareElement("risk", "bla", item, user, hcpid, conid)
-        val obj2 = parseHealthcareElement("risk", "bla", checkItem, user, hcpid, conid)
-        obj1!!.id = null
-        obj1.healthElementId = null
-        obj1.rev = null
-
-        obj2!!.id = null
-        obj2.healthElementId = null
-        obj2.rev = null
-
-        return obj1 == obj2
-    }
+    private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) =
+            item.recorddatetime == checkItem.recorddatetime &&
+                    item.beginmoment == checkItem.beginmoment &&
+                    item.lifecycle == checkItem.lifecycle &&
+                    extractTags(item) == extractTags(checkItem) &&
+                    extractCodes(item) == extractCodes(checkItem) &&
+                    getItemDescription(item, "") == getItemDescription(checkItem, "")
 
     private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, trnAuthorHcpId: String, state: InternalState) {
         PlanOfAction().apply {
@@ -944,7 +931,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun extractCodes(item: ItemType): Set<CodeStub> {
-        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD  }.map { CodeStub(it.s.value(), it.value, it.sv) } +
+        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_DRUG_CNK,
@@ -953,23 +940,22 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 CDCONTENTschemes.CD_ATC,
                                 CDCONTENTschemes.CD_PATIENTWILL,
                                 CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
-                    }.map { CodeStub(it.s.value(), it.value, it.sv) } + it.cds.filter {
+                    }.map { CodeStub.from(it.s.value(), it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.LOCAL && it.sl == "BE-THESAURUS-PROCEDURES")
-                    }.map { CodeStub(it.sl, it.value, it.sv) } + it.cds.filter {
+                    }.map { CodeStub.from(it.sl, it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.CD_CLINICAL)
-                    }.map { CodeStub("BE-THESAURUS", it.value, it.sv) } + it.cds.filter {
+                    }.map { CodeStub.from("BE-THESAURUS", it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.LOCAL && it.sl.startsWith("MS-EXTRADATA"))
-                    }.map { CodeStub(it.sl, it.value, it.sv) }
+                    }.map { CodeStub.from(it.sl, it.value, it.sv) }
                 }).toSet()
     }
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
-        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub(it.s.value(), it.value, it.sv) } +
-                item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub(it.sl, it.value, it.sv) } +
+        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
-                    }.map { CodeStub(it.s.value(), it.value, it.sv) }
+                    }.map { CodeStub.from(it.s.value(), it.value, it.sv) }
                 }).toSet()
     }
 
@@ -1105,7 +1091,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun getItemDescription(item: ItemType, defaultValue: String): String {
-        val descr : String = ( item.texts.map{ it.value } + item.contents.map{ it.texts.map{ it.value }}.flatten() ).let {
+        val descr: String = (item.texts.map{ it.value } + item.contents.map{ it.texts.map{ it.value }}.flatten()).let {
             it.filter{ it != null && it.trim() != "" }.joinToString(", ")
         }
         if(descr.trim() == "") {
