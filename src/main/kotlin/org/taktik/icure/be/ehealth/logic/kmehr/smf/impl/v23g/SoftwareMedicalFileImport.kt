@@ -654,7 +654,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         } else if(isMedication(service)) {
                             service.label = "Medication"
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
-                            state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
 
                             val mfid = getItemMFID(item)
                             state.serviceVersionLinks.add(
