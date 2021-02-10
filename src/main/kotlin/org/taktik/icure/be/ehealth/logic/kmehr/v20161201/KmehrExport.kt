@@ -227,7 +227,7 @@ open class KmehrExport(
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
             p.profession?.let { profession = ProfessionType().apply { text = TextType().apply { l= "fr"; value = it } } }
-            usuallanguage= p.languages.firstOrNull()
+            usuallanguage= if (config.format == Config.Format.SUMEHR) config.defaultLanguage else p.languages.firstOrNull()
             addresses.addAll(makeAddresses(p.addresses))
             telecoms.addAll(makeTelecoms(p.addresses))
             if(!p.nationality.isNullOrBlank()) {
@@ -482,13 +482,20 @@ open class KmehrExport(
                 content.medicationValue?.medicinalProduct?.let {
                     medicinalproduct = MedicinalProductType().apply {
                         intendedname = content.medicationValue?.medicinalProduct?.intendedname
-                        intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        if (content.medicationValue?.medicinalProduct?.intendedcds?.any { it.type == "CD-DRUG-CNK" }) {
+                            intendedcds.add(CDDRUGCNK().apply { s(CDDRUGCNKschemes.CD_DRUG_CNK); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.medicinalProduct?.intendedcds?.find { it.type == "CD-DRUG-CNK" }?.code })
+                        }
                     }
                 }
                 content.medicationValue?.substanceProduct?.let {
+                    val innCluster = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code
+                    val vmpGroup = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-VMPGROUP" }?.code
+
                     substanceproduct = ContentType.Substanceproduct().apply {
                         intendedname = content.medicationValue?.substanceProduct?.intendedname
-                        intendedcd = CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = content.medicationValue?.substanceProduct?.intendedcds?.find { it.type == "CD-INNCLUSTER" }?.code }
+                        intendedcd =
+                                if (vmpGroup.isNullOrEmpty()) CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_INNCLUSTER); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = innCluster }
+                                else CDINNCLUSTER().apply { s(CDINNCLUSTERschemes.CD_VMPGROUP); /* TODO set versions in jaxb classes */ sv = "01-2016"; value = vmpGroup }
                     }
                 }
                 content.medicationValue?.compoundPrescription?.let {

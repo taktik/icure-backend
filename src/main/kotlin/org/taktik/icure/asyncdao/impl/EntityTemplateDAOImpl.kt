@@ -48,7 +48,7 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
         val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
-        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView<ComplexKey, EntityTemplate>(viewQuery)
+        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
         return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
     }
 
@@ -60,7 +60,32 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
         val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
-        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView<ComplexKey, EntityTemplate>(viewQuery)
+        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
+        return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
+    }
+
+    @View(name = "by_user_type_keyword", map = "classpath:js/entitytemplate/By_user_type_keyword.js")
+    override suspend fun getByUserIdTypeKeyword(
+        userId: String?,
+        type: String?,
+        keyword: String?,
+        includeEntities: Boolean?
+    ): List<EntityTemplate> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, keyword)).endKey(ComplexKey.of(userId, type, (keyword
+                ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
+
+        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
+        return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
+    }
+
+    @View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keyword.js")
+    override suspend fun getByTypeKeyword(type: String?, keyword: String?, includeEntities: Boolean?): List<EntityTemplate> {
+        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+        val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword
+                ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
+
+        val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
         return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
     }
 

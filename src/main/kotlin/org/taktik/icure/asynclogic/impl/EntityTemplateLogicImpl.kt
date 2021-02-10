@@ -67,6 +67,19 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
         return entityTemplateDAO.getByTypeDescr(entityType, searchString, includeEntities)
     }
 
+    override suspend fun findEntityTemplatesByKeyword(
+        userId: String,
+        entityType: String,
+        keyword: String?,
+        includeEntities: Boolean?
+    ): List<EntityTemplate> {
+        return entityTemplateDAO.getByUserIdTypeKeyword(userId, entityType, keyword, includeEntities)
+    }
+
+    override suspend fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?): List<EntityTemplate> {
+        return entityTemplateDAO.getByTypeKeyword(entityType, keyword, includeEntities)
+    }
+
     override fun getGenericDAO(): EntityTemplateDAO {
         return entityTemplateDAO
     }

@@ -40,7 +40,7 @@ data class Quantity(val value: BigDecimal? = null, val unit: String? = null) {
     }
 
     override fun hashCode(): Int {
-        var result = value?.hashCode() ?: 0
+        var result = value?.toInt() ?: 0
         result = 31 * result + (unit?.hashCode() ?: 0)
         return result
     }

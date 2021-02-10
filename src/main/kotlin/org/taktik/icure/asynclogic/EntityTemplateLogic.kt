@@ -32,4 +32,9 @@ interface EntityTemplateLogic : EntityPersister<EntityTemplate, String> {
     suspend fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate>
 
     suspend fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate>
+
+    suspend fun findEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?): List<EntityTemplate>
+
+    suspend fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?): List<EntityTemplate>
+
 }

@@ -197,7 +197,7 @@ open class KmehrExport(
 		}
 	}
 
-	private fun isNihiiValid(nihii: String) = nihii.length == 11 &&
+	private fun isNihiiValid(nihii: String) = !nihii.isNullOrEmpty() && nihii.length == 11 &&
             (
                     ((97 - nihii.substring(0, 6).toLong() % 97) == nihii.substring(6, 8).toLong()) ||
                     ((89 - nihii.substring(0, 6).toLong() % 89) == nihii.substring(6, 8).toLong())
@@ -259,14 +259,19 @@ open class KmehrExport(
 			svc.tags.find { t -> t.type == "CD-LAB" }?.let { cds.add(CDITEM().apply {s(CDITEMschemes.CD_LAB); value = it.code } ) }
 
             this.contents.addAll(filterEmptyContent(contents))
-            lifecycle = LifecycleType().apply {cd = CDLIFECYCLE().apply {s = "CD-LIFECYCLE"
-                value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
-                    CDLIFECYCLEvalues.INACTIVE
-                } else {
+            if(cdItem == "medication" || cdItem == "healthcareelement") {
+                lifecycle = LifecycleType().apply {
+                    cd = CDLIFECYCLE().apply {
+                        s = "CD-LIFECYCLE"
+                        value = if (ServiceStatus.isIrrelevant(svc.status) || (svc.closingDate ?: 99999999 <= FuzzyValues.getCurrentFuzzyDate())) {
+                            CDLIFECYCLEvalues.INACTIVE
+                        } else {
                     svc.tags.find { t -> t.type == "CD-LIFECYCLE" }?.let { try { CDLIFECYCLEvalues.fromValue(it.code) } catch(e:java.lang.IllegalArgumentException) { null } }
-                            ?: if(cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                                    ?: if (cdItem == "medication") CDLIFECYCLEvalues.PRESCRIBED else CDLIFECYCLEvalues.ACTIVE
+                        }
+                    }
                 }
-            } }
+            }
             if(cdItem == "medication") {
                 svc.tags.find { it.type == "CD-TEMPORALITY" && it.code != null }?.let {
                     temporality = TemporalityType().apply {

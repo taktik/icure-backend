@@ -36,10 +36,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import org.taktik.icure.asynclogic.EntityTemplateLogic
+import org.taktik.icure.entities.EntityTemplate
 import org.taktik.icure.services.external.rest.v1.dto.EntityTemplateDto
 import org.taktik.icure.services.external.rest.v1.mapper.EntityTemplateMapper
 import org.taktik.icure.utils.injectReactorContext
 import reactor.core.publisher.Flux
+import java.util.stream.Collectors
 
 @ExperimentalCoroutinesApi
 @RestController
@@ -57,7 +59,6 @@ class EntityTemplateController(
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
             @RequestParam(required = false) includeEntities: Boolean?) = mono {
-
         val entityTemplatesList = entityTemplateLogic.findEntityTemplates(userId, type, searchString, includeEntities)
 
         entityTemplatesList.map { e ->
@@ -75,7 +76,6 @@ class EntityTemplateController(
             @PathVariable type: String,
             @RequestParam(required = false) searchString: String?,
             @RequestParam(required = false) includeEntities: Boolean?) = mono {
-
         val entityTemplatesList = entityTemplateLogic.findAllEntityTemplates(type, searchString, includeEntities)
 
         entityTemplatesList.map { e ->
@@ -87,12 +87,46 @@ class EntityTemplateController(
         }
     }
 
+    @Operation(summary = "Finding entityTemplates by userId, type and keyword.", description = "Returns a list of entityTemplates matched with given input.")
+    @GetMapping("/find/{userId}/{type}/keyword/{keyword}")
+    fun findEntityTemplatesByKeyword(
+            @PathVariable userId: String,
+            @PathVariable type: String,
+            @PathVariable keyword: String,
+            @RequestParam(required = false) includeEntities: Boolean?) = mono {
+        val entityTemplatesList = entityTemplateLogic.findEntityTemplatesByKeyword(userId, type, keyword, includeEntities)
+
+        entityTemplatesList.map { e ->
+            val dto = entityTemplateMapper.map(e)
+            if (includeEntities != null && includeEntities) {
+                dto.entity = e.entity
+            }
+            dto
+        }
+    }
+
+    @Operation(summary = "Finding entityTemplates by entityTemplate, type and version with pagination.", description = "Returns a list of entityTemplates matched with given input.")
+    @GetMapping("/findAll/{type}/keyword/{keyword}")
+    fun findAllEntityTemplatesByKeyword(
+            @PathVariable type: String,
+            @PathVariable keyword: String,
+            @RequestParam(required = false) includeEntities: Boolean?) = mono {
+        val entityTemplatesList = entityTemplateLogic.findAllEntityTemplatesByKeyword(type, keyword, includeEntities)
+
+        entityTemplatesList.map { e ->
+            val dto = entityTemplateMapper.map(e)
+            if (includeEntities != null && includeEntities) {
+                dto.entity = e.entity
+            }
+            dto
+        }
+    }
+
+
     @Operation(summary = "Create a EntityTemplate", description = "Type, EntityTemplate and Version are required.")
     @PostMapping
     fun createEntityTemplate(@RequestBody c: EntityTemplateDto) = mono {
-        val et = entityTemplateMapper.map(c)
-        et.entity = c.entity
-
+        val et = entityTemplateMapper.map(c).copy(entity = c.entity)
         val entityTemplate = entityTemplateLogic.createEntityTemplate(et)
                 ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "EntityTemplate creation failed.")
 
@@ -125,8 +159,7 @@ class EntityTemplateController(
     @PutMapping
     fun modifyEntityTemplate(@RequestBody entityTemplateDto: EntityTemplateDto) = mono {
         val modifiedEntityTemplate = try {
-            val et = entityTemplateMapper.map(entityTemplateDto)
-            et.entity = entityTemplateDto.entity
+            val et = entityTemplateMapper.map(entityTemplateDto).copy(entity = entityTemplateDto.entity)
             entityTemplateLogic.modifyEntityTemplate(et)
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A problem regarding modification of the entityTemplate. Read the app logs: " + e.message)
