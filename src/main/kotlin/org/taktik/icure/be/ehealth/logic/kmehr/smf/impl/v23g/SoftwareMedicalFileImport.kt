@@ -931,7 +931,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun extractCodes(item: ItemType): Set<CodeStub> {
-        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
+        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD }.map { CodeStub(it.s.value(), it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_DRUG_CNK,
@@ -940,22 +940,22 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 CDCONTENTschemes.CD_ATC,
                                 CDCONTENTschemes.CD_PATIENTWILL,
                                 CDCONTENTschemes.CD_VACCINEINDICATION).contains(it.s)
-                    }.map { CodeStub.from(it.s.value(), it.value, it.sv) } + it.cds.filter {
+                    }.map { CodeStub(it.s.value(), it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.LOCAL && it.sl == "BE-THESAURUS-PROCEDURES")
-                    }.map { CodeStub.from(it.sl, it.value, it.sv) } + it.cds.filter {
+                    }.map { CodeStub(it.sl, it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.CD_CLINICAL)
-                    }.map { CodeStub.from("BE-THESAURUS", it.value, it.sv) } + it.cds.filter {
+                    }.map { CodeStub("BE-THESAURUS", it.value, it.sv) } + it.cds.filter {
                         (it.s == CDCONTENTschemes.LOCAL && it.sl.startsWith("MS-EXTRADATA"))
-                    }.map { CodeStub.from(it.sl, it.value, it.sv) }
+                    }.map { CodeStub(it.sl, it.value, it.sv) }
                 }).toSet()
     }
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
-        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub.from(it.s.value(), it.value, it.sv) } +
+        return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub(it.s.value(), it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
-                    }.map { CodeStub.from(it.s.value(), it.value, it.sv) }
+                    }.map { CodeStub(it.s.value(), it.value, it.sv) }
                 }).toSet()
     }
 
