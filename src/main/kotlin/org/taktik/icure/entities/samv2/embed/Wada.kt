@@ -1,6 +1,12 @@
 package org.taktik.icure.entities.samv2.embed
 
-class Wada(var code: String? = null, var name: SamText? = null, var description: SamText? = null) {
+class Wada(var code: String? = null, var name: SamText? = null, var description: SamText? = null) : Comparable<Wada> {
+    override fun compareTo(other: Wada): Int {
+        return if (this == other) {
+            0
+        } else compareValuesBy(this, other, { it.code }, { it.name }, { System.identityHashCode(it) }).also { if(it==0) throw IllegalStateException("Invalid compareTo implementation") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Wada) return false
