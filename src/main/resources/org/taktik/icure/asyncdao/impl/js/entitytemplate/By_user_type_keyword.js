@@ -10,4 +10,3 @@ map = function(doc) {
         doc.keywords.forEach(function(x) { emit_word(doc, x) });
     }
 };
-q
