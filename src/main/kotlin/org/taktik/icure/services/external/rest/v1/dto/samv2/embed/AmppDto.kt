@@ -21,7 +21,6 @@ package org.taktik.icure.services.external.rest.v1.dto.samv2.embed
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.github.pozo.KotlinBuilder
-import org.taktik.icure.entities.samv2.embed.SamText
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,7 +46,7 @@ data class AmppDto(
         val deliveryModusCode: String? = null,
         val deliveryModus: SamTextDto? = null,
         val deliveryModusSpecification: SamTextDto? = null,
-        val dhpcLink: SamText? = null,
+        val dhpcLink: SamTextDto? = null,
         val distributorCompany: CompanyDto? = null,
         val singleUse: Boolean? = null,
         val speciallyRegulated: Int? = null,
