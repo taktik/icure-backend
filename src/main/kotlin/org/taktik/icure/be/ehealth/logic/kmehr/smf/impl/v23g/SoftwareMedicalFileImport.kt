@@ -121,6 +121,11 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                 val insuranceLogic: InsuranceLogic,
                                 val idGenerator: UUIDGenerator) {
 
+    val defaultMapping: Map<String, List<ImportMapping>> = ObjectMapper().let { om ->
+        val txt = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")?.readBytes()?.toString(Charsets.UTF_8)
+                ?: "{}"
+        om.readValue(txt, object : TypeReference<Map<String, List<ImportMapping>>>() {})
+    }
     val heItemTypes: List<String> = listOf("healthcareelement", "adr", "allergy", "socialrisk", "risk", "professionalrisk", "familyrisk", "healthissue")
 
     suspend fun importSMF(inputData: Flow<ByteBuffer>,
@@ -134,12 +139,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         val unmarshaller = jc.createUnmarshaller()
         val kmehrMessage = unmarshaller.unmarshal(inputStream) as Kmehrmessage
 
-        val mymappings = if (mappings.isNotEmpty()) mappings else {
-            val mapper = ObjectMapper()
-            val txt = this.javaClass.classLoader.getResourceAsStream("org/taktik/icure/be/ehealth/logic/kmehr/smf/impl/smf.labels.json")?.readBytes()?.toString(Charsets.UTF_8)
-                    ?: "{}"
-            mapper.readValue(txt, object : TypeReference<Map<String, List<ImportMapping>>>() {})
-        }
+        val mymappings = if (mappings.isNotEmpty()) defaultMapping + mappings else defaultMapping
 
         val allRes = LinkedList<ImportResult>()
         val kmehrIndex = kmehrMessage.performIndexation(idGenerator)
