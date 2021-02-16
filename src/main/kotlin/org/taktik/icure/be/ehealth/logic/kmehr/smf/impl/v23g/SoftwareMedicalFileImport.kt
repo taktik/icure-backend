@@ -359,7 +359,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
             Service(
                     id = serviceId,
-                    label = "document",
+                    label =  (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value) ?: "document",
                     tags = setOf(CodeStub.from( "CD-ITEM-EXT", "document", "1")),
                     valueDate = valueDate,
                     openingDate = valueDate,
