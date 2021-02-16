@@ -481,7 +481,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     }.let { if (saveToDatabase) documentLogic.createDocument(it, author.healthcarePartyId) else it }.id
                     stringValue = docname
                 }
-                label = "document"
+                label = (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value)
                 tags.add(CodeStub( "CD-ITEM-EXT", "document", "1"))
                 valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                         trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
