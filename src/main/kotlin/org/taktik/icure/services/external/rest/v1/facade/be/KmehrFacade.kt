@@ -33,6 +33,7 @@ import org.taktik.icure.be.ehealth.logic.kmehr.smf.SoftwareMedicalFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.medicationscheme.MedicationSchemeLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.sumehr.SumehrLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.diarynote.DiaryNoteLogic
+import org.taktik.icure.be.ehealth.logic.kmehr.patientinfo.PatientInfoFileLogic
 import org.taktik.icure.be.ehealth.logic.kmehr.v20161201.KmehrExport
 import org.taktik.icure.dto.mapping.ImportMapping
 import org.taktik.icure.dto.result.CheckSMFPatientResult
@@ -82,7 +83,8 @@ class KmehrFacade(
         val kmehrNoteLogic: KmehrNoteLogic,
         val healthcarePartyLogic: HealthcarePartyLogic,
         val patientLogic: PatientLogic,
-        val documentLogic: DocumentLogic
+        val documentLogic: DocumentLogic,
+        val patientInfoFileLogic: PatientInfoFileLogic
 ) : OpenApiFacade {
 
     @Value("\${icure.version}")
@@ -235,6 +237,15 @@ class KmehrFacade(
 		val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
 		return ResponseUtils.ok(StreamingOutput { output -> softwareMedicalFileLogic.createSmfExport(output!!, patientLogic.getPatient(patientId), smfExportParams.secretForeignKeys, userHealthCareParty, language ?: "fr", null, null, smfExportParams.exportAsPMF) })
 	}
+
+    @ApiOperation(value = "Get KMEHR Patient Info export")
+    @POST
+    @Path("/patientinfo/{patientId}/export")
+    @Produces("application/octet-stream")
+    fun generatePatientInfoExport(@PathParam("patientId") patientId: String, @QueryParam("language") language: String?) : Response {
+        val userHealthCareParty = healthcarePartyLogic.getHealthcareParty(sessionLogic.currentSessionContext.user.healthcarePartyId)
+        return ResponseUtils.ok(StreamingOutput { output -> patientInfoFileLogic.createExport(output!!, patientLogic.getPatient(patientId), userHealthCareParty, language ?: "fr") })
+    }
 
 	@ApiOperation(value = "Get Medicationscheme export")
 	@POST
