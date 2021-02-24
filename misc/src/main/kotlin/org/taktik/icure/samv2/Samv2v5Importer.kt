@@ -215,8 +215,8 @@ class Samv2v5Import : CliktCommand() {
         return try { executor() } catch(e: Exception) { if (count>0) retry(count-1, executor) else throw e }
     }
 
-    private fun <E> retryOnTimeout(count: Int, executor: () -> E): E {
-        return try { executor() } catch(e: DbAccessException) { if (e.cause is SocketTimeoutException && count>0) retry(count-1, executor) else throw e }
+    private fun <E> retryOnTimeout(count: Int, mayFailOnConflict: Boolean = false, executor: () -> E): E? {
+        return try { executor() } catch(e: DbAccessException) { if (e.cause is SocketTimeoutException && count>0) retryOnTimeout(count-1, true, executor) else if (mayFailOnConflict && e is UpdateConflictException) null else throw e }
     }
 
     private fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableSet<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
@@ -320,10 +320,10 @@ class Samv2v5Import : CliktCommand() {
                         noSwitchReason = d.noSwitchReason?.let { reason ->
                             NoSwitchReason(reason.code, reason.description?.let { SamText(it.fr, it.nl, it.de, it.en) })
                         }
-                ).let { vmpg ->
+                ).let { vmpg: VmpGroup ->
                     if (!currentVmpGroups.contains(id)) {
                         log.info("New VMP group VMPGROUP:$code:$from with id ${id}")
-                        try { retryOnTimeout(10) { vmpGroupDAO.create(vmpg) } } catch (e:UpdateConflictException) {
+                        try { retryOnTimeout(10) { vmpGroupDAO.create(vmpg) } ?: vmpg } catch (e:UpdateConflictException) {
                             vmpGroupDAO.get(vmpg.id)?.let { vmpg.apply { this.rev = it.rev }.also { retryOnTimeout(10) { vmpGroupDAO.update(it) } } }
                         }
                     } else if (force) {
@@ -339,6 +339,8 @@ class Samv2v5Import : CliktCommand() {
             }.filterNotNull().maxBy { it.to ?: Long.MAX_VALUE }?.let {
                 latestVmpGroup -> vmpGroupIds[vmpg.code] = latestVmpGroup.id
             }
+
+            null
         }
         export.vmp.flatMap { vmp ->
             vmp.data.map { d ->
