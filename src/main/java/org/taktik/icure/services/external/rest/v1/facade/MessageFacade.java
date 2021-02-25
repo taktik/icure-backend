@@ -61,6 +61,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -282,47 +283,69 @@ public class MessageFacade implements OpenApiFacade{
 		return messageLogic.listMessagesByInvoiceIds(ids.getIds()).stream().map(m->mapper.map(m,MessageDto.class)).collect(Collectors.toList());
 	}
 
-	@ApiOperation(
-			value = "Get all messages (paginated) for current HC Party and provided transportGuid",
-			httpMethod = "GET",
-			response = MessagePaginatedList.class
-	)
-	@GET
-	@Path("/byTransportGuid")
-	public Response findMessagesByTransportGuid(@QueryParam("transportGuid") String transportGuid, @QueryParam("received") Boolean received, @QueryParam("startKey") String startKey,
-												@QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit, @QueryParam("hcpId") String hcpId) throws LoginException {
-		Response response;
+    @ApiOperation(
+            value = "Get all messages (paginated) for current HC Party and provided transportGuid",
+            httpMethod = "GET",
+            response = MessagePaginatedList.class
+    )
+    @GET
+    @Path("/byTransportGuid")
+    public Response findMessagesByTransportGuid(@QueryParam("transportGuid") String transportGuid, @QueryParam("received") Boolean received, @QueryParam("startKey") String startKey,
+                                                @QueryParam("startDocumentId") String startDocumentId, @QueryParam("limit") Integer limit, @QueryParam("hcpId") String hcpId) throws LoginException {
+        Response response;
 
-		boolean receivedPrimitive = (received != null ? received : false);
+        boolean receivedPrimitive = (received != null ? received : false);
 
-		ArrayList<Object> startKeyList = null;
-		if (startKey != null && startKey.length() > 0) {
-			startKeyList = new ArrayList<>(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(startKey));
-		}
-		PaginationOffset paginationOffset = new PaginationOffset<List<Object>>(startKeyList, startDocumentId, null, limit == null ? null : limit);
+        ArrayList<Object> startKeyList = null;
+        if (startKey != null && startKey.length() > 0) {
+            startKeyList = new ArrayList<>(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(startKey));
+        }
+        PaginationOffset paginationOffset = new PaginationOffset<List<Object>>(startKeyList, startDocumentId, null, limit == null ? null : limit);
 
-		PaginatedList<Message> messages;
+        PaginatedList<Message> messages;
 
-		if(hcpId == null) {
-		    hcpId = sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId();
+        if(hcpId == null) {
+            hcpId = sessionLogic.getCurrentSessionContext().getUser().getHealthcarePartyId();
         }
 
-		if(receivedPrimitive){
+        if(receivedPrimitive){
             messages = messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset);
         } else {
             messages = messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset);
         }
 
-		if (messages != null) {
-			response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
-		} else {
-			response = ResponseUtils.internalServerError("Message listing failed");
-		}
+        if (messages != null) {
+            response = ResponseUtils.ok(mapper.map(messages, MessagePaginatedList.class));
+        } else {
+            response = ResponseUtils.internalServerError("Message listing failed");
+        }
 
-		return response;
-	}
+        return response;
+    }
 
-	@ApiOperation(
+    @ApiOperation(
+            value = "Get all messages for current HC Party and provided transportGuids",
+            httpMethod = "GET",
+            responseContainer = "Array",
+            response = MessageDto.class
+    )
+    @POST
+    @Path("/byTransportGuid/list")
+    public Response listMessagesByTransportGuids(@QueryParam("hcpId") String hcpId, @RequestBody ListOfIdsDto transportGuids) {
+        Response response;
+
+        List<Message> messages = messageLogic.getByTransportGuids(hcpId, new HashSet<>(transportGuids.getIds()));
+
+        if (messages != null) {
+            response = ResponseUtils.ok(messages.stream().map(m -> mapper.map(m, MessageDto.class)).collect(Collectors.toList()));
+        } else {
+            response = ResponseUtils.internalServerError("Message listing failed");
+        }
+
+        return response;
+    }
+
+    @ApiOperation(
 	        value = "Get all messages starting by a prefix between two date",
             httpMethod = "GET",
             response = MessagePaginatedList.class
