@@ -325,7 +325,7 @@ public class MessageFacade implements OpenApiFacade{
 
     @ApiOperation(
             value = "Get all messages for current HC Party and provided transportGuids",
-            httpMethod = "GET",
+            httpMethod = "POST",
             responseContainer = "Array",
             response = MessageDto.class
     )
