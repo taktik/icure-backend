@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken
 import com.sun.xml.internal.ws.util.NoCloseInputStream
 import md5
 import org.ektorp.AttachmentInputStream
+import org.ektorp.DbAccessException
 import org.ektorp.UpdateConflictException
 import org.ektorp.http.StdHttpClient
 import org.ektorp.impl.StdCouchDbInstance
@@ -31,7 +32,6 @@ import org.taktik.icure.dao.samv2.impl.VmpGroupDAOImpl
 import org.taktik.icure.entities.base.Code
 import org.taktik.icure.entities.samv2.Amp
 import org.taktik.icure.entities.samv2.Nmp
-import org.taktik.icure.entities.samv2.ProductId
 import org.taktik.icure.entities.samv2.Vmp
 import org.taktik.icure.entities.samv2.VmpGroup
 import org.taktik.icure.entities.samv2.embed.AmpComponent
@@ -77,6 +77,7 @@ import org.taktik.icure.entities.samv2.embed.Vtm
 import org.taktik.icure.entities.samv2.embed.Wada
 import org.taktik.icure.entities.samv2.stub.VmpGroupStub
 import org.taktik.icure.entities.samv2.stub.VmpStub
+import java.net.SocketTimeoutException
 import java.net.URI
 import java.util.*
 import java.util.zip.ZipEntry
@@ -214,6 +215,10 @@ class Samv2v5Import : CliktCommand() {
         return try { executor() } catch(e: Exception) { if (count>0) retry(count-1, executor) else throw e }
     }
 
+    private fun <E> retryOnTimeout(count: Int, mayFailOnConflict: Boolean = false, executor: () -> E): E? {
+        return try { executor() } catch(e: DbAccessException) { if (e.cause is SocketTimeoutException && count>0) retryOnTimeout(count-1, true, executor) else if (mayFailOnConflict && e is UpdateConflictException) null else throw e }
+    }
+
     private fun importReimbursements(export: ExportReimbursementsType, reimbursements: MutableMap<Triple<String?, String?, String?>, MutableSet<Reimbursement>>, couchdbConfig: StdCouchDbICureConnector, force: Boolean) {
         export.reimbursementContext.forEach { reimb ->
             reimb.data.forEach { reimbd ->
@@ -248,7 +253,7 @@ class Samv2v5Import : CliktCommand() {
 
         val ampDAO = AmpDAOImpl(couchdbConfig, UUIDGenerator()).apply { forceInitStandardDesignDocument() }
         HashSet<String>(retry(10) { ampDAO.allIds }).chunked(100).forEach { ids ->
-            ampDAO.save(ampDAO.getList(ids).fold(LinkedList<Amp>(), operation = { acc, amp ->
+            ampDAO.save(retry(10) { ampDAO.getList(ids) }.fold(LinkedList<Amp>(), operation = { acc, amp ->
                 var shouldAdd = false
                 amp.ampps.flatMap { it.dmpps ?: setOf() }.forEach { dmpp: Dmpp ->
                     reimbursements[Triple(dmpp.deliveryEnvironment?.name, dmpp.codeType?.name, dmpp.code)]?.let { newReimb ->
@@ -315,18 +320,18 @@ class Samv2v5Import : CliktCommand() {
                         noSwitchReason = d.noSwitchReason?.let { reason ->
                             NoSwitchReason(reason.code, reason.description?.let { SamText(it.fr, it.nl, it.de, it.en) })
                         }
-                ).let { vmpg ->
+                ).let { vmpg: VmpGroup ->
                     if (!currentVmpGroups.contains(id)) {
                         log.info("New VMP group VMPGROUP:$code:$from with id ${id}")
-                        try { vmpGroupDAO.create(vmpg) } catch (e:org.ektorp.UpdateConflictException) {
-                            vmpGroupDAO.get(vmpg.id)?.let { vmpg.apply { this.rev = it.rev }.also { vmpGroupDAO.update(it) } }
+                        try { retryOnTimeout(10) { vmpGroupDAO.create(vmpg) } ?: vmpg } catch (e:UpdateConflictException) {
+                            vmpGroupDAO.get(vmpg.id)?.let { vmpg.apply { this.rev = it.rev }.also { retryOnTimeout(10) { vmpGroupDAO.update(it) } } }
                         }
                     } else if (force) {
-                        val prev = vmpGroupDAO.get(vmpg.id)
+                        val prev = retry(10) { vmpGroupDAO.get(vmpg.id) }
                         vmpg.rev = prev.rev
                         if (prev != vmpg) {
                             log.info("Modified VMP group VMPGROUP:$code:$from with id ${id}")
-                            vmpGroupDAO.update(vmpg)
+                            retryOnTimeout(10) { vmpGroupDAO.update(vmpg) }
                         }
                         vmpg
                     } else vmpg
@@ -334,6 +339,8 @@ class Samv2v5Import : CliktCommand() {
             }.filterNotNull().maxBy { it.to ?: Long.MAX_VALUE }?.let {
                 latestVmpGroup -> vmpGroupIds[vmpg.code] = latestVmpGroup.id
             }
+
+            null
         }
         export.vmp.flatMap { vmp ->
             vmp.data.map { d ->
@@ -408,21 +415,21 @@ class Samv2v5Import : CliktCommand() {
                 )
             }
         }.chunked(100).map { vmps ->
-            val currentVmpsWithDoc = vmpDAO.getList(vmps.map { it.id }.filter { currentVmps.contains(it) })
+            val currentVmpsWithDoc = retry(10) { vmpDAO.getList(vmps.map { it.id }.filter { currentVmps.contains(it) }) }
             vmps.forEach { vmp ->
                 vmp.code?.let { vmpsMap[it] = VmpStub(code = vmp.code, id = vmp.id, vmpGroup = vmp.vmpGroup?.let { VmpGroupStub(it.id, it.code, it.name) }, name = vmp.name) }
                 if (!currentVmps.contains(vmp.id)) {
                     log.info("New VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
 
-                    try { vmpDAO.create(vmp) } catch (e:org.ektorp.UpdateConflictException) {
-                        vmpDAO.get(vmp.id)?.let { vmp.apply { this.rev = it.rev }.also { vmpDAO.update(it) } }
+                    try { retryOnTimeout(10) { vmpDAO.create(vmp) } } catch (e:org.ektorp.UpdateConflictException) {
+                        vmpDAO.get(vmp.id)?.let { vmp.apply { this.rev = it.rev }.also { retryOnTimeout(10) { vmpDAO.update(it) } } }
                     }
                 } else if (force) {
                     val prev = currentVmpsWithDoc.find { it.id == vmp.id }!!
                     vmp.rev = prev.rev
                     if (prev != vmp) {
                         log.info("Modified VMP:${vmp.code}:${vmp.from} with id ${vmp.id}")
-                        vmpDAO.update(vmp)
+                        retryOnTimeout(10) { vmpDAO.update(vmp) }
                         updatedVmpIds.add(vmp.id)
                     }
                     vmp
@@ -652,12 +659,12 @@ class Samv2v5Import : CliktCommand() {
                 )
             }
         }.chunked(100).map { amps ->
-            val currentAmpsWithDoc = ampDAO.getList(amps.map { it.id }.filter { currentAmps.contains(it) })
+            val currentAmpsWithDoc = retry(10) { ampDAO.getList(amps.map { it.id }.filter { currentAmps.contains(it) }) }
             amps.forEach { amp ->
                 if (!currentAmps.contains(amp.id)) {
                     log.info("New AMP AMP:${amp.code}:${amp.from} with id ${amp.id}")
-                    try { ampDAO.create(amp) } catch (e:org.ektorp.UpdateConflictException) {
-                        ampDAO.get(amp.id)?.let { amp.apply { this.rev = it.rev }.also { ampDAO.update(it) } }
+                    try { retryOnTimeout(10) { ampDAO.create(amp) } } catch (e:UpdateConflictException) {
+                        ampDAO.get(amp.id)?.let { amp.apply { this.rev = it.rev }.also { retryOnTimeout(10) { ampDAO.update(it) } } }
                     }
                 } else if (force) {
                     val prev = currentAmpsWithDoc.find { it.id == amp.id }!!
@@ -668,7 +675,7 @@ class Samv2v5Import : CliktCommand() {
                     if (prev != amp) {
                         log.info("Modified AMP:${amp.code}:${amp.from} with id ${amp.id}")
                         updatedAmpIds.add(amp.id)
-                        ampDAO.update(amp)
+                        retryOnTimeout(10) { ampDAO.update(amp) }
                     }
                     amp
                 } else amp
@@ -680,14 +687,14 @@ class Samv2v5Import : CliktCommand() {
 
         (substances - currentSubstances).values.chunked(100).forEach {
             try {
-                substanceDAO.create(it)
+                retryOnTimeout(10) { substanceDAO.create(it) }
             } catch(e:UpdateConflictException) {
                 it.forEach {
                     try {
-                        substanceDAO.create(it)
+                        retryOnTimeout(10) { substanceDAO.create(it) }
                     } catch (e: UpdateConflictException) {
                         substanceDAO.get(it.id)?.let {
-                            substanceDAO.update(it.apply { this.rev = it.rev })
+                            retryOnTimeout(10) { substanceDAO.update(it.apply { this.rev = it.rev }) }
                         }
                     }
                 }
@@ -696,36 +703,36 @@ class Samv2v5Import : CliktCommand() {
 
         (pharmaceuticalForms - currentPharmaceuticalForms).values.chunked(100).forEach {
             try {
-                pharmaceuticalFormDAO.create(it)
+                retryOnTimeout(10) { pharmaceuticalFormDAO.create(it) }
             } catch (e: UpdateConflictException) {
                 it.forEach {
                     try {
-                        pharmaceuticalFormDAO.create(it)
+                        retryOnTimeout(10) { pharmaceuticalFormDAO.create(it) }
                     } catch (e: UpdateConflictException) {
-                        pharmaceuticalFormDAO.get(it.id)?.let {
-                            pharmaceuticalFormDAO.update(it.apply { this.rev = it.rev })
+                        retry(10) { pharmaceuticalFormDAO.get(it.id) }?.let {
+                            retryOnTimeout(10) { pharmaceuticalFormDAO.update(it.apply { this.rev = it.rev }) }
                         }
                     }
                 }
             }
         }
         substances.filterKeys { currentSubstances.contains(it) }.values.chunked(100).forEach {
-            val current = substanceDAO.getList(it.map { it.id }).fold(mapOf<String, Substance>()) { acc, it -> acc + (it.id to it) }
+            val current = retry(10) { substanceDAO.getList(it.map { it.id }) }.fold(mapOf<String, Substance>()) { acc, it -> acc + (it.id to it) }
             it.forEach {
                 val prev = current[it.id]!!
                 it.rev = prev.rev
                 if (it != prev) {
-                    substanceDAO.update(it)
+                    retryOnTimeout(10) { substanceDAO.update(it) }
                 }
             }
         }
         pharmaceuticalForms.filterKeys { currentPharmaceuticalForms.contains(it) }.values.chunked(100).forEach {
-            val current = pharmaceuticalFormDAO.getList(it.map { it.id }).fold(mapOf<String, PharmaceuticalForm>()) { acc, it -> acc + (it.id to it) }
+            val current = retry(10) { pharmaceuticalFormDAO.getList(it.map { it.id })}.fold(mapOf<String, PharmaceuticalForm>()) { acc, it -> acc + (it.id to it) }
             it.forEach {
                 val prev = current[it.id]!!
                 it.rev = prev.rev
                 if (it != prev) {
-                    pharmaceuticalFormDAO.update(it)
+                    retryOnTimeout(10) { pharmaceuticalFormDAO.update(it) }
                 }
             }
         }
@@ -767,17 +774,17 @@ class Samv2v5Import : CliktCommand() {
                 )
             }
         }.chunked(100).map { nmps ->
-            val currentNmpsWithDoc = nmpDAO.getList(nmps.map { it.id }.filter { currentNmps.contains(it) })
+            val currentNmpsWithDoc = retry(10) { nmpDAO.getList(nmps.map { it.id } .filter { currentNmps.contains(it) }) }
             nmps.map { nmp ->
                 if (!currentNmps.contains(nmp.id)) {
                     log.info("New NMP NMP:${nmp.code}:${nmp.from} with id ${nmp.id}")
-                    nmpDAO.create(nmp)
+                    retryOnTimeout(10) { nmpDAO.create(nmp) }
                 } else if (force) {
                     val prev = currentNmpsWithDoc.find { it.id == nmp.id }!!
                     nmp.rev = prev.rev
                     if (prev != nmp) {
                         log.info("Modified NMP NMP:${nmp.code}:${nmp.from} with id ${nmp.id}")
-                        nmpDAO.update(nmp)
+                        retryOnTimeout(10) { nmpDAO.update(nmp) }
                         updatedNmpIds.add(nmp.id)
                     }
                     nmp
