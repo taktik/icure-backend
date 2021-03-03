@@ -1080,6 +1080,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         if (measureValue == null) {
                             stringValue = textValue
                         }
+                        comment = item.texts.firstOrNull {it.value.isNotBlank()}?.value;
                     }
                     ( item.contents.any { it.isBoolean != null } ) -> item.contents.firstOrNull { it.isBoolean != null }?.let {
                         booleanValue = it.isBoolean
