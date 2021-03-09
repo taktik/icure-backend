@@ -102,7 +102,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             null
                         }
                         "pharmaceuticalprescription" -> {
-                            parsePharmaceuticalPrescription(trn, author, res, language, saveToDatabase).let {
+                            parsePharmaceuticalPrescription(trn, author, res, language, saveToDatabase, state).let {
                                 state.prescLinks.add(it)
                             }
                             null
@@ -380,7 +380,8 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                                                 author: User,
                                                 v: ImportResult,
                                                 language: String,
-                                                saveToDatabase: Boolean): Pair<List<Service>, String?> {
+                                                saveToDatabase: Boolean,
+                                                state: InternalState): Pair<List<Service>, String?> {
 
         val trnhcpid = trn.author?.hcparties?.filter { it.cds.any { it.s == CDHCPARTYschemes.CD_HCPARTY && it.value == "persphysician" } }?.mapNotNull {
             createOrProcessHcp(it, saveToDatabase, v)
@@ -398,6 +399,15 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                             CodeStub("CD-ITEM", "treatment", "1")
                     )
             )
+            val oldMedicationServiceLink =  item.lnks.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISATTESTATIONOF }?.map { lnk ->
+                state.serviceVersionLinks.find { it.mfId == extractMFIDFromUrl(lnk.url) }
+            }?.firstOrNull()
+
+            oldMedicationServiceLink?.let {
+                if(it != null){
+                    service.formId = it.service.id
+                }
+            }
             service
         }
         val target = trn.headingsAndItemsAndTexts?.filterIsInstance(LnkType::class.java)?.filter{it.type == CDLNKvalues.ISACHILDOF }?.map { lnk ->
@@ -471,7 +481,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                     }.let { if (saveToDatabase) documentLogic.createDocument(it, author.healthcarePartyId) else it }.id
                     stringValue = docname
                 }
-                label = "document"
+                label = (trn.cds.find { it.s == CDTRANSACTIONschemes.CD_TRANSACTION }?.value)
                 tags.add(CodeStub( "CD-ITEM-EXT", "document", "1"))
                 valueDate = trn.date?.let { Utils.makeFuzzyLongFromDateAndTime(it, trn.time) } ?:
                         trn.findItem { it: ItemType -> it.cds.any { it.s == CDITEMschemes.CD_ITEM && it.value == "encounterdatetime" } }?.let {
@@ -644,7 +654,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         } else if(isMedication(service)) {
                             service.label = "Medication"
                             //decorateMedication(service, contact, v) // forms for medications appear empty, do not create them (do it only for prescriptions)
-                            state.formServices[service.id ?: ""] = service // prevent adding it to main consultation form
 
                             val mfid = getItemMFID(item)
                             state.serviceVersionLinks.add(
@@ -677,26 +686,13 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
         }
     }
 
-    private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) : Boolean {
-        //TODO Dorian : really ???
-
-
-        val user = User()
-        val hcpid = "bla"
-
-        val conid = "bla"
-        val obj1 = parseHealthcareElement("risk", "bla", item, user, hcpid, conid)
-        val obj2 = parseHealthcareElement("risk", "bla", checkItem, user, hcpid, conid)
-        obj1!!.id = null
-        obj1.healthElementId = null
-        obj1.rev = null
-
-        obj2!!.id = null
-        obj2.healthElementId = null
-        obj2.rev = null
-
-        return obj1 == obj2
-    }
+    private fun isHealthElementTypeEqual(item: ItemType, checkItem: ItemType) =
+            item.recorddatetime == checkItem.recorddatetime &&
+                    item.beginmoment == checkItem.beginmoment &&
+                    item.lifecycle == checkItem.lifecycle &&
+                    extractTags(item) == extractTags(checkItem) &&
+                    extractCodes(item) == extractCodes(checkItem) &&
+                    getItemDescription(item, "") == getItemDescription(checkItem, "")
 
     private fun parseHealthcareApproach(cdItem: String, label: String, item: ItemType, author: User, trnAuthorHcpId: String, state: InternalState) {
         PlanOfAction().apply {
@@ -934,7 +930,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun extractCodes(item: ItemType): Set<CodeStub> {
-        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD  }.map { CodeStub(it.s.value(), it.value, it.sv) } +
+        return (item.cds.filter { it.s == CDITEMschemes.ICPC || it.s == CDITEMschemes.ICD }.map { CodeStub(it.s.value(), it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_DRUG_CNK,
@@ -955,7 +951,6 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
 
     private fun extractTags(item: ItemType): Collection<CodeStub> {
         return (item.cds.filter { it.s == CDITEMschemes.CD_PARAMETER || it.s == CDITEMschemes.CD_LAB || it.s == CDITEMschemes.CD_TECHNICAL }.map { CodeStub(it.s.value(), it.value, it.sv) } +
-                item.cds.filter { (it.s == CDITEMschemes.LOCAL && it.sl.equals("LOCAL-PARAMETER")) }.map { CodeStub(it.sl, it.value, it.sv) } +
                 item.contents.filter { it.cds?.size ?: 0 > 0 }.flatMap {
                     it.cds.filter {
                         listOf(CDCONTENTschemes.CD_LAB).contains(it.s)
@@ -1080,6 +1075,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
                         if (measureValue == null) {
                             stringValue = textValue
                         }
+                        comment = item.texts.firstOrNull {it.value.isNotBlank()}?.value;
                     }
                     ( item.contents.any { it.isBoolean != null } ) -> item.contents.firstOrNull { it.isBoolean != null }?.let {
                         booleanValue = it.isBoolean
@@ -1095,7 +1091,7 @@ class SoftwareMedicalFileImport(val patientLogic: PatientLogic,
     }
 
     private fun getItemDescription(item: ItemType, defaultValue: String): String {
-        val descr : String = ( item.texts.map{ it.value } + item.contents.map{ it.texts.map{ it.value }}.flatten() ).let {
+        val descr: String = (item.texts.map{ it.value } + item.contents.map{ it.texts.map{ it.value }}.flatten()).let {
             it.filter{ it != null && it.trim() != "" }.joinToString(", ")
         }
         if(descr.trim() == "") {

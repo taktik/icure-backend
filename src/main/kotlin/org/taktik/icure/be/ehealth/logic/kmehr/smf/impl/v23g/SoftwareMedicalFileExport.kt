@@ -544,6 +544,11 @@ class SoftwareMedicalFileExport : KmehrExport() {
                         }
                         addHistoryLinkAndCacheService(this, svc, config)
                         headingsAndItemsAndTexts.add(this)
+                        svc.formId?.let{
+                            (it != "") && it.let{
+                                this.lnks.add(LnkType().apply { type = CDLNKvalues.ISATTESTATIONOF; url = makeLnkUrl(it) })
+                            }
+                        }
                     }
                 }
                 // FIXME: prescriptions should be linked to medication with a ISATTESTATIONOF link but there is no such link in topaz
@@ -1146,16 +1151,6 @@ class SoftwareMedicalFileExport : KmehrExport() {
                         svc.closingDate == null
                         || svc.closingDate == 0L
                         || svc.closingDate!!.toLong() > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
-                )
-                && (
-                        // medication store end moment in content.medicationValue.endMoment instead of svc.closingDate
-                        svc.content.values.find { content ->
-                            content.medicationValue != null
-                        }?.let { content ->
-                            content.medicationValue!!.endMoment == null
-                            || content.medicationValue!!.endMoment == 0L
-                            || content.medicationValue!!.endMoment!! > FuzzyValues.getFuzzyDate(LocalDateTime.now(), ChronoUnit.SECONDS)
-                        } ?: true
                 )
                 && (
                         // is newest version: there is no history in PMF
