@@ -489,7 +489,7 @@ class SumehrExport : KmehrExport() {
 
 	internal fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
 		patientLogic?.getPatients(pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId })?.forEach { p ->
-			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
+			val rel = pat.partnerships.find { it.partnerId == p.id }?.type.toString()
 			try {
 				rel.let {
 					val items = getAssessment(trn).headingsAndItemsAndTexts
