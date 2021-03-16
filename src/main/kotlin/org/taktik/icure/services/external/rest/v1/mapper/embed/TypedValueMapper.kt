@@ -28,8 +28,8 @@ import java.util.*
 
 @Mapper(componentModel = "spring", uses = [InstantMapper::class], injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 abstract class TypedValueMapper {
-    fun map(typedValueDto: TypedValueDto<*>): TypedValue<*> {
-        return when(typedValueDto.type) {
+    fun map(typedValueDto: TypedValueDto<*>?): TypedValue<*>? {
+        return if (typedValueDto == null) null else when(typedValueDto.type) {
             TypedValuesType.STRING -> TypedValue.withTypeAndValue(typedValueDto.type, typedValueDto.getValue<String>())
             TypedValuesType.DATE -> TypedValue.withTypeAndValue(typedValueDto.type, typedValueDto.getValue<Date>())
             TypedValuesType.INTEGER ->  TypedValue.withTypeAndValue(typedValueDto.type, typedValueDto.getValue<Int>())
@@ -46,8 +46,8 @@ abstract class TypedValueMapper {
             )
         }
     }
-    fun map(typedValue: TypedValue<*>): TypedValueDto<*> {
-        return when(typedValue.type) {
+    fun map(typedValue: TypedValue<*>?): TypedValueDto<*>? {
+        return if (typedValue == null) null else when(typedValue.type) {
             TypedValuesType.STRING -> TypedValueDto.withTypeAndValue(typedValue.type, typedValue.getValue<String>())
             TypedValuesType.DATE -> TypedValueDto.withTypeAndValue(typedValue.type, typedValue.getValue<Date>())
             TypedValuesType.INTEGER ->  TypedValueDto.withTypeAndValue(typedValue.type, typedValue.getValue<Int>())

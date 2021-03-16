@@ -297,16 +297,16 @@ abstract class GenericDAOImpl<T : StoredDocument>(couchDbProperties: CouchDbProp
         }
     }
 
-    override suspend fun <K : Collection<T>> create(entities: K): Flow<T> {
+    override fun <K : Collection<T>> create(entities: K): Flow<T> {
         return save(true, entities)
     }
 
-    override suspend fun <K : Collection<T>> save(entities: K): Flow<T> {
+    override fun <K : Collection<T>> save(entities: K): Flow<T> {
         return save(false, entities)
     }
 
     // TODO SH later: make sure this is correct
-    protected open suspend fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> = flow {
+    protected open fun <K : Collection<T>> save(newEntity: Boolean?, entities: K): Flow<T> = flow {
         val client = couchDbDispatcher.getClient(dbInstanceUrl)
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".save: " + entities.mapNotNull { entity -> entity.id + ":" + entity.rev })

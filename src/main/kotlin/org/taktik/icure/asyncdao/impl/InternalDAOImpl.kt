@@ -20,12 +20,7 @@ package org.taktik.icure.asyncdao.impl
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import org.apache.commons.lang3.ArrayUtils
 import org.taktik.couchdb.support.StdDesignDocumentFactory
 import org.slf4j.LoggerFactory
@@ -131,20 +126,20 @@ open class InternalDAOImpl<T : StoredDocument>(val entityClass: Class<T>, val co
                     .designDocId(designDocName(entityClass))
                     .viewName("all").keys(ids).includeDocs(true), String::class.java, String::class.java, entityClass).map { (it as? ViewRowWithDoc<*, *, T?>)?.doc }.filterNotNull()
 
-    override suspend fun purge(entities: Flow<T>): Flow<BulkUpdateResult> {
+    override fun purge(entities: Flow<T>) = flow {
         val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".purge flow of entities ")
         }
-        return client.bulkDelete(entities.toList())
+        emitAll(client.bulkDelete(entities.toList()))
     }
 
-    override suspend fun remove(entities: Flow<T>): Flow<BulkUpdateResult> {
+    override fun remove(entities: Flow<T>) = flow {
         val client = couchDbDispatcher.getClient(URI(couchDbProperties.url))
         if (log.isDebugEnabled) {
             log.debug(entityClass.simpleName + ".remove flow of entities ")
         }
-        return client.bulkUpdate(entities.map { it.withDeletionDate(System.currentTimeMillis()) as T }.toList(), entityClass)
+        emitAll(client.bulkUpdate(entities.map { it.withDeletionDate(System.currentTimeMillis()) as T }.toList(), entityClass))
     }
 
     override suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean) {

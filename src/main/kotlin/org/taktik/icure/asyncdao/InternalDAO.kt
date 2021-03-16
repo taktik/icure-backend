@@ -37,8 +37,8 @@ interface InternalDAO<T : Identifiable<String>> {
     fun list(ids: List<String>): Flow<T>
 
     fun save(entities: List<T>): Flow<DocIdentifier>
-    suspend fun purge(entities: Flow<T>): Flow<BulkUpdateResult>
-    suspend fun remove(entities: Flow<T>): Flow<BulkUpdateResult>
+    fun purge(entities: Flow<T>): Flow<BulkUpdateResult>
+    fun remove(entities: Flow<T>): Flow<BulkUpdateResult>
 
     suspend fun forceInitStandardDesignDocument(updateIfExists: Boolean)
 }

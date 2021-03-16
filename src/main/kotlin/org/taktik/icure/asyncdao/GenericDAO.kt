@@ -31,8 +31,8 @@ interface GenericDAO<T : Identifiable<String>> : LookupDAO<T> {
     suspend fun createAttachment(documentId: String, attachmentId: String, rev: String, contentType: String, data: Flow<ByteBuffer>): String
     suspend fun deleteAttachment(documentId: String, rev: String, attachmentId: String): String
 
-    suspend fun <K : Collection<T>> create(entities: K): Flow<T>
-    suspend fun <K : Collection<T>> save(entities: K): Flow<T>
+    fun <K : Collection<T>> create(entities: K): Flow<T>
+    fun <K : Collection<T>> save(entities: K): Flow<T>
 
     suspend fun contains(id: String): Boolean
     suspend fun hasAny(): Boolean
