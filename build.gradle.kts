@@ -197,8 +197,8 @@ dependencies {
     implementation(group = "org.jboss.aerogear", name = "aerogear-otp-java", version = "1.0.0")
 
     // Swagger
-    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.3.0")
-    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.3.0")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-webflux-ui", version = "1.5.2")
+    implementation(group = "org.springdoc", name = "springdoc-openapi-kotlin", version = "1.5.2")
 
     //Saxon
     implementation(group = "net.sf.saxon", name = "Saxon-HE", version = "9.6.0-6")
@@ -214,6 +214,8 @@ dependencies {
     implementation(group = "com.sendgrid", name = "sendgrid-java", version = "4.4.7")
 
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.4.2")
+    testImplementation(group = "org.springframework.boot", name = "spring-boot-starter-test", version = "2.3.6.RELEASE")
+
 }
 
 publishing {
