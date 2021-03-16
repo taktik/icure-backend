@@ -190,7 +190,7 @@ class MessageController(
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         val messages = received?.takeIf { it }?.let { messageLogic.findByTransportGuidReceived(hcpId, transportGuid, paginationOffset) }
                 ?: messageLogic.findByTransportGuid(hcpId, transportGuid, paginationOffset)
-        messages.paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
+        messages.paginatedList(messageToMessageDto, realLimit)
     }
 
     @Operation(summary = "Get all messages starting by a prefix between two date")
@@ -226,7 +226,7 @@ class MessageController(
             @RequestParam(required = false) reverse: Boolean?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset<List<Any>>(startKeyElements, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         messageLogic.findByToAddress(hcpId, toAddress, paginationOffset, reverse).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
@@ -241,7 +241,7 @@ class MessageController(
             @RequestParam(required = false) limit: Int?,
             @RequestParam(required = false) hcpId: String?) = mono {
         val realLimit = limit ?: DEFAULT_LIMIT
-        val startKeyElements = objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java))
+        val startKeyElements = startKey?.takeIf { it.isNotEmpty() }?.let { objectMapper.readValue<List<String>>(startKey, objectMapper.typeFactory.constructCollectionType(List::class.java, String::class.java)) }
         val paginationOffset = PaginationOffset<List<Any>>(startKeyElements, startDocumentId, null, realLimit + 1)
         val hcpId = hcpId ?: sessionLogic.getCurrentHealthcarePartyId()
         messageLogic.findByFromAddress(hcpId, fromAddress, paginationOffset).paginatedList<Message, MessageDto>(messageToMessageDto, realLimit)
