@@ -58,6 +58,8 @@ import org.taktik.icure.utils.firstOrNull
 import org.taktik.icure.utils.injectReactorContext
 import org.taktik.icure.utils.paginatedList
 import reactor.core.publisher.Flux
+import java.util.function.Function
+import java.util.stream.Collectors
 import kotlin.streams.toList
 
 
@@ -134,6 +136,10 @@ class MessageController(
                         .also { logger.error(it.message) }
     }
 
+    @Operation(summary = "Get all messages for current HC Party and provided transportGuids")
+    @PostMapping("/byTransportGuid/list")
+    fun listMessagesByTransportGuids(@RequestParam("hcpId") hcpId: String, @RequestBody transportGuids: ListOfIdsDto) =
+            messageLogic.getByTransportGuids(hcpId, transportGuids.ids.toSet()).map { messageMapper.map(it) }.injectReactorContext()
 
     @Operation(summary = "List messages found By Healthcare Party and secret foreign keys.", description = "Keys must be delimited by coma")
     @GetMapping("/byHcPartySecretForeignKeys")
