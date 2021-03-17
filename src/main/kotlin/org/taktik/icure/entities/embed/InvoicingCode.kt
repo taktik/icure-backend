@@ -29,7 +29,7 @@ import org.taktik.icure.utils.invoke
 @JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class InvoicingCode(
-        @JsonProperty("_id") override val id: String,
+        @JsonProperty("_id") val id: String?,
         val dateCode: Long? = null,
         val logicalId: String? = null, //Stays the same when a code is resent to the IO
         val label: String? = null,
@@ -81,7 +81,7 @@ data class InvoicingCode(
         val cancelPatientInterventionReason: Int? = null,
         val status: Long? = null,
         override val encryptedSelf: String? = null
-) : Encrypted, Identifiable<String?>, Comparable<InvoicingCode?> {
+) : Encrypted, Comparable<InvoicingCode?> {
     companion object : DynamicInitializer<InvoicingCode> {
         const val STATUS_PAID: Long = 1
         const val STATUS_PRINTED: Long = 2
