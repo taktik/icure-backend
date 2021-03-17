@@ -29,12 +29,12 @@ interface EntityTemplateLogic : EntityPersister<EntityTemplate, String> {
     suspend fun getEntityTemplate(id: String): EntityTemplate?
     fun getEntityTemplates(selectedIds: Collection<String>): Flow<EntityTemplate>
 
-    suspend fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
 
-    suspend fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
 
-    suspend fun findEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun findEntityTemplatesByKeyword(userId: String, entityType: String, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
 
-    suspend fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
 
 }
