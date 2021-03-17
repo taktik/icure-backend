@@ -32,6 +32,7 @@ import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.queryViewIncludeDocs
 import org.taktik.icure.asyncdao.TimeTableDAO
 import org.taktik.couchdb.id.IDGenerator
+import org.taktik.couchdb.queryViewIncludeDocsNoValue
 import org.taktik.icure.entities.TimeTable
 import org.taktik.icure.properties.CouchDbProperties
 import org.taktik.icure.utils.createQuery
@@ -49,7 +50,7 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
 				.startKey(agendaId)
 				.endKey(agendaId)
 				.includeDocs(true)
-        return client.queryViewIncludeDocs<String, String, TimeTable>(viewQuery).map{it.doc}
+        return client.queryViewIncludeDocsNoValue<String, TimeTable>(viewQuery).map{it.doc}
 	}
 
 	@View(name = "by_agenda_and_startdate", map = "classpath:js/timeTable/by_agenda_and_startdate.js")
@@ -67,7 +68,7 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
-        return client.queryViewIncludeDocs<Array<String>, ComplexKey, TimeTable>(viewQuery).map{it.doc}
+        return client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc}
 	}
 
 	@View(name = "by_agenda_and_enddate", map = "classpath:js/timeTable/by_agenda_and_enddate.js")
@@ -85,7 +86,7 @@ class TimeTableDAOImpl (couchDbProperties: CouchDbProperties,
 				.startKey(from)
 				.endKey(to)
 				.includeDocs(true)
-        return client.queryViewIncludeDocs<Array<String>, ComplexKey, TimeTable>(viewQuery).map{it.doc}
+        return client.queryViewIncludeDocsNoValue<Array<String>, TimeTable>(viewQuery).map{it.doc}
 	}
 
 	override fun listTimeTableByPeriodAndAgendaId(startDate: Long?, endDate: Long?, agendaId: String): Flow<TimeTable> = flow {
