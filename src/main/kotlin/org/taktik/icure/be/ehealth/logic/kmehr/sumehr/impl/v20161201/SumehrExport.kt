@@ -182,11 +182,11 @@ class SumehrExport(
             "datareuseforclinicaltrialsconsent", "euthanasiarequest", "intubationrefusal",
             "organdonationconsent", "vaccinationrefusal", "ntbr"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
-        addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
-            "hos0", "hos1", "hos2"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+        addActiveServicesAsCDPatientWillChoice(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_HOS, listOf(
+            "hospitalisation"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
-        addActiveServicesAsCD(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
-            "dnr0", "dnr1", "dnr2", "dnr3"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
+        addActiveServicesAsCDPatientWillChoice(hcpartyIds, sfks, trn, "patientwill", CDCONTENTschemes.CD_PATIENTWILL_RES, listOf(
+            "resuscitation"), excludedIds, includeIrrelevantInformation, decryptor, services, language)
 
         //vac/med
 		addVaccines(hcpartyIds, sfks, trn, excludedIds, includeIrrelevantInformation, decryptor, services, healthElements, language)
@@ -409,6 +409,29 @@ class SumehrExport(
 		}
 	}
 
+    internal fun addActiveServicesAsCDPatientWillChoice(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, servicesFromClient: List<Service>?, language: String) {
+        val assessment = getAssessment(trn)
+
+        val services = getActiveServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, includeIrrelevantInformation, decryptor, servicesFromClient)
+        val nonConfidentialItems = getNonConfidentialItems(services)
+        addOmissionOfMedicalDataItem(trn, services, nonConfidentialItems)
+
+        values.forEach { value ->
+            nonConfidentialItems.filter { s -> null != s.codes.find { it.type == type.value() && value == it.code } }.forEach {
+                var contentCode = ""
+                for ((key, value) in it.content) {
+                    if (value.stringValue != null) {
+                        contentCode = value.stringValue!!
+                        break
+                    }
+                }
+                createItemWithContent(it, assessment.headingsAndItemsAndTexts.size + 1, cdItem, listOf(ContentType().apply { cds.add(CDCONTENT().apply { s = type; sv = "1.3"; this.value = contentCode }) }), language = language)?.let {
+                    assessment.headingsAndItemsAndTexts.add(it)
+                }
+            }
+        }
+    }
+
 	internal suspend fun addActiveServiceUsingContent(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, language: String, excludedIds: List<String>, treatedServiceIds: Set<String>, decryptor: AsyncDecrypt?, servicesFromClient: List<Service>?, forcePassive: Boolean = false, forceCdItem: String? = null, includeIrrelevantInformation: Boolean = false) {
         try {
 			val services = getActiveServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, includeIrrelevantInformation, decryptor, servicesFromClient)
@@ -497,7 +520,7 @@ class SumehrExport(
 	internal suspend fun addContactPeople(pat: Patient, trn: TransactionType, config: Config, excludedIds: List<String>) {
         pat.partnerships?.filter { s -> !excludedIds.contains(s.partnerId) }?.mapNotNull { it?.partnerId }?.let {
             patientLogic.getPatients(it).toList().forEach { p ->
-			val rel = pat.partnerships.find { it.partnerId == p.id }?.otherToMeRelationshipDescription
+			val rel = pat.partnerships.find { it.partnerId == p.id }?.type.toString()
 			try {
 				rel.let {
 					val items = getAssessment(trn).headingsAndItemsAndTexts
@@ -505,7 +528,7 @@ class SumehrExport(
 						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
 						cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTPERSON.value() })
 						cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = rel })
-						contents.add(ContentType().apply { person = makePerson(p, config) })
+						contents.add(ContentType().apply { person = makePerson(p, config, true) })
 					})
 				}
 			} catch (e: RuntimeException) {
@@ -632,7 +655,7 @@ class SumehrExport(
 
 	internal suspend fun addHealthCareElement(trn: TransactionType, he: HealthElement) {
 		try {
-			val items = if (he.closingDate != null) {
+			val items = if (he.closingDate != null && eds.closingDate != 0L) {
 				getHistory(trn).headingsAndItemsAndTexts
 			} else {
 				getAssessment(trn).headingsAndItemsAndTexts
