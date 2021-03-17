@@ -18,6 +18,7 @@
 
 package org.taktik.icure.entities
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -30,7 +31,7 @@ import org.taktik.icure.utils.DynamicInitializer
 import org.taktik.icure.utils.invoke
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonDeserialize(using = JsonDeserializer.None::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @KotlinBuilder
 data class EntityReference(
         @JsonProperty("_id") override val id: String,
