@@ -625,7 +625,7 @@ class SumehrExport : KmehrExport() {
 
 	internal fun addHealthCareElement(trn: TransactionType, eds: HealthElement) {
 		try {
-			val items = if (eds.closingDate != null) {
+			val items = if (eds.closingDate != null && eds.closingDate != 0L) {
 				getHistory(trn).headingsAndItemsAndTexts
 			} else {
 				getAssessment(trn).headingsAndItemsAndTexts
