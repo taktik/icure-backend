@@ -409,7 +409,7 @@ class SumehrExport(
 		}
 	}
 
-    internal fun addActiveServicesAsCDPatientWillChoice(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, servicesFromClient: List<Service>?, language: String) {
+    internal suspend fun addActiveServicesAsCDPatientWillChoice(hcPartyIds: Set<String>, sfks: List<String>, trn: TransactionType, cdItem: String, type: CDCONTENTschemes, values: List<String>, excludedIds: List<String>, includeIrrelevantInformation: Boolean, decryptor: AsyncDecrypt?, servicesFromClient: List<Service>?, language: String) {
         val assessment = getAssessment(trn)
 
         val services = getActiveServices(hcPartyIds, sfks, listOf(cdItem), excludedIds, includeIrrelevantInformation, decryptor, servicesFromClient)
@@ -655,7 +655,7 @@ class SumehrExport(
 
 	internal suspend fun addHealthCareElement(trn: TransactionType, he: HealthElement) {
 		try {
-			val items = if (he.closingDate != null && eds.closingDate != 0L) {
+			val items = if (he.closingDate != null) {
 				getHistory(trn).headingsAndItemsAndTexts
 			} else {
 				getAssessment(trn).headingsAndItemsAndTexts
