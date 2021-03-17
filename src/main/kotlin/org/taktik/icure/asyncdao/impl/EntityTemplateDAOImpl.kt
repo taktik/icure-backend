@@ -18,6 +18,7 @@
 
 package org.taktik.icure.asyncdao.impl
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
 import org.taktik.couchdb.annotation.View
@@ -39,29 +40,26 @@ import org.taktik.icure.utils.distinctById
 @View(name = "all", map = "function(doc) { if (doc.java_type == 'org.taktik.icure.entities.EntityTemplate' && !doc.deleted) emit( null, doc._id )}")
 class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
                             @Qualifier("healthdataCouchDbDispatcher") couchDbDispatcher: CouchDbDispatcher, idGenerator: IDGenerator, @Qualifier("asyncCacheManager") asyncCacheManager: AsyncCacheManager) : CachedDAOImpl<EntityTemplate>(EntityTemplate::class.java, couchDbProperties, couchDbDispatcher, idGenerator, asyncCacheManager), EntityTemplateDAO {
+    val client = couchDbDispatcher.getClient(dbInstanceUrl)
 
     @View(name = "by_user_type_descr", map = "classpath:js/entitytemplate/By_user_type_descr.js")
-    override suspend fun getByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
+    override suspend fun getByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, descr)).endKey(ComplexKey.of(userId, type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
-        return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
+        return result.mapNotNull { it.value }.distinctById()
     }
 
     @View(name = "by_type_descr", map = "classpath:js/entitytemplate/By_type_descr.js")
-    override suspend fun getByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
-
+    override suspend fun getByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         val descr = if (searchString != null) StringUtils.sanitizeString(searchString) else null
         val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, descr)).endKey(ComplexKey.of(type, (descr
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
-        return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
+        return result.mapNotNull { it.value }.distinctById()
     }
 
     @View(name = "by_user_type_keyword", map = "classpath:js/entitytemplate/By_user_type_keyword.js")
@@ -70,23 +68,21 @@ class EntityTemplateDAOImpl(couchDbProperties: CouchDbProperties,
         type: String?,
         keyword: String?,
         includeEntities: Boolean?
-    ): List<EntityTemplate> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+    ): Flow<EntityTemplate> {
         val viewQuery = createQuery<EntityTemplate>("by_user_type_descr").startKey(ComplexKey.of(userId, type, keyword)).endKey(ComplexKey.of(userId, type, (keyword
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
-        return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
+        return result.mapNotNull { it.value }.distinctById()
     }
 
     @View(name = "by_type_keyword", map = "classpath:js/entitytemplate/By_type_keyword.js")
-    override suspend fun getByTypeKeyword(type: String?, keyword: String?, includeEntities: Boolean?): List<EntityTemplate> {
-        val client = couchDbDispatcher.getClient(dbInstanceUrl)
+    override suspend fun getByTypeKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         val viewQuery = createQuery<EntityTemplate>("by_type_descr").startKey(ComplexKey.of(type, keyword)).endKey(ComplexKey.of(type, (keyword
                 ?: "") + "\ufff0")).includeDocs(includeEntities ?: false)
 
         val result = if (viewQuery.isIncludeDocs) client.queryViewIncludeDocs<ComplexKey, EntityTemplate, EntityTemplate>(viewQuery) else client.queryView(viewQuery)
-        return result.mapNotNull { it.value }.distinctById().toList().sortedWith(compareBy({ it.userId }, { it.entityType }, { it.descr }, { it.id }))
+        return result.mapNotNull { it.value }.distinctById()
     }
 
 }

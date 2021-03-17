@@ -59,11 +59,11 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
         emitAll(entityTemplateDAO.getList(selectedIds))
     }
 
-    override suspend fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {
+    override suspend fun findEntityTemplates(userId: String, entityType: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         return entityTemplateDAO.getByUserIdTypeDescr(userId, entityType, searchString, includeEntities)
     }
 
-    override suspend fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate> {
+    override suspend fun findAllEntityTemplates(entityType: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         return entityTemplateDAO.getByTypeDescr(entityType, searchString, includeEntities)
     }
 
@@ -72,11 +72,11 @@ class EntityTemplateLogicImpl(private val entityTemplateDAO: EntityTemplateDAO,
         entityType: String,
         keyword: String?,
         includeEntities: Boolean?
-    ): List<EntityTemplate> {
+    ): Flow<EntityTemplate> {
         return entityTemplateDAO.getByUserIdTypeKeyword(userId, entityType, keyword, includeEntities)
     }
 
-    override suspend fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?): List<EntityTemplate> {
+    override suspend fun findAllEntityTemplatesByKeyword(entityType: String, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate> {
         return entityTemplateDAO.getByTypeKeyword(entityType, keyword, includeEntities)
     }
 

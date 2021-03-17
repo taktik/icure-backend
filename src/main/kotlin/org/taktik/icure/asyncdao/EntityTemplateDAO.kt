@@ -18,12 +18,13 @@
 
 package org.taktik.icure.asyncdao
 
+import kotlinx.coroutines.flow.Flow
 import org.taktik.icure.entities.EntityTemplate
 
 interface EntityTemplateDAO: GenericDAO<EntityTemplate> {
-    suspend fun getByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate>
-    suspend fun getByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): List<EntityTemplate>
-    suspend fun getByUserIdTypeKeyword(userId: String?, type: String?, keyword: String?, includeEntities: Boolean?): List<EntityTemplate>
-    suspend fun getByTypeKeyword(type: String?, keyword: String?, includeEntities: Boolean?): List<EntityTemplate>
+    suspend fun getByUserIdTypeDescr(userId: String, type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    suspend fun getByTypeDescr(type: String, searchString: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    suspend fun getByUserIdTypeKeyword(userId: String?, type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
+    suspend fun getByTypeKeyword(type: String?, keyword: String?, includeEntities: Boolean?): Flow<EntityTemplate>
 
 }
