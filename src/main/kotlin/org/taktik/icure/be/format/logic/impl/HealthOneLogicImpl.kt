@@ -682,11 +682,12 @@ class HealthOneLogicImpl(healthcarePartyLogic: HealthcarePartyLogic, formLogic: 
             val l: MutableList<String> = ArrayList()
             l.add(m.group(2))
             l.add(m.group(1))
-            l.addAll(Arrays.asList(*m.group(3).split("\\\\|\\|").dropLastWhile { it.isEmpty() }.toTypedArray()))
+            l.addAll(listOf(*m.group(3).split("\\\\").dropLastWhile { it.isEmpty() }.toTypedArray()))
             l.toTypedArray()
         } else {
-            line.split("\\\\|\\|").dropLastWhile { it.isEmpty() }.toTypedArray()
+            line.split("\\\\").dropLastWhile { it.isEmpty() }.toTypedArray()
         }
+
     }
 
     @Throws(IOException::class)
