@@ -141,8 +141,8 @@ open class KmehrExport {
         }
     }
 
-    fun makePerson(p : Patient, config: Config) : PersonType {
-        return makePersonBase(p, config).apply {
+    fun makePerson(p : Patient, config: Config, useINSSId: Boolean? = false) : PersonType {
+        return makePersonBase(p, config, useINSSId).apply {
             p.dateOfDeath?.let { if(it != 0) deathdate = Utils.makeDateTypeFromFuzzyLong(it.toLong()) }
             p.placeOfBirth?.let { birthlocation = AddressTypeBase().apply { city= it }}
             p.placeOfDeath?.let { deathlocation = AddressTypeBase().apply { city= it }}
@@ -156,11 +156,11 @@ open class KmehrExport {
         }
     }
 
-    fun makePersonBase(p : Patient, config: Config) : PersonType {
+    fun makePersonBase(p : Patient, config: Config, useINSSId: Boolean? = false) : PersonType {
         val ssin = p.ssin?.replace("[^0-9]".toRegex(), "")?.let { if (org.taktik.icure.utils.Math.isNissValid(it)) it else null }
 
         return PersonType().apply {
-            ssin?.let { ssin -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
+            ssin?.let { ssin -> if (useINSSId == true) ids.add(IDPATIENT().apply { s = IDPATIENTschemes.INSS; sv = "1.0"; value = ssin }) else ids.add(IDPATIENT().apply { s = IDPATIENTschemes.ID_PATIENT; sv = "1.0"; value = ssin }) }
             p.id?.let { id -> ids.add(IDPATIENT().apply { s = IDPATIENTschemes.LOCAL; sv = config.soft?.version; sl = "${config.soft?.name}-Person-Id"; value = id }) }
             firstnames.add(p.firstName)
             familyname= p.lastName

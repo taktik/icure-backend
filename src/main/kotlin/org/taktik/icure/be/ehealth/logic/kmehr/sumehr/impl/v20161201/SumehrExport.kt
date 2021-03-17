@@ -497,7 +497,7 @@ class SumehrExport : KmehrExport() {
 						ids.add(IDKMEHR().apply { s = IDKMEHRschemes.ID_KMEHR; sv = "1.0"; value = (items.size + 1).toString() })
 						cds.add(CDITEM().apply { s(CDITEMschemes.CD_ITEM); value = CDITEMvalues.CONTACTPERSON.value() })
 						cds.add(CDITEM().apply { s(CDITEMschemes.CD_CONTACT_PERSON); value = rel })
-						contents.add(ContentType().apply { person = makePerson(p, config) })
+						contents.add(ContentType().apply { person = makePerson(p, config, true) })
 					})
 				}
 			} catch (e: RuntimeException) {
