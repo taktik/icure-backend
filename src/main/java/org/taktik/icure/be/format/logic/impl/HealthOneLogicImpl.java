@@ -759,11 +759,11 @@ public class HealthOneLogicImpl extends GenericResultFormatLogicImpl implements 
             List<String> l = new ArrayList<String>();
             l.add(m.group(2));
             l.add(m.group(1));
-            l.addAll(Arrays.asList(m.group(3).split("\\\\|\\|", -1)));
+            l.addAll(Arrays.asList(m.group(3).split("\\\\", -1)));
 
             return l.toArray(new String[l.size()]);
         } else {
-            return line.split("\\\\|\\|", -1);
+            return line.split("\\\\", -1);
         }
     }
 
