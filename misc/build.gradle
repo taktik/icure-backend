@@ -18,6 +18,7 @@ apply plugin: 'groovy'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker-java'
+dockerJava.imageRepoAndName = 'docker.taktik.be/icure/icure-backend-misc'
 
 sourceCompatibility = 1.8
 version = '1.0.21'
@@ -73,10 +74,6 @@ configurations.all {
 springBoot {
     mainClass = 'org.taktik.icure.samv2.Samv2v5ImporterKt'
     // for pricare migration mainClass = 'org.taktik.icure.db.TopazImporter.PricareImporter'
-}
-
-dockerJava {
-    tag = 'docker.taktik.be/icure-backend-misc'
 }
 
 jar {
