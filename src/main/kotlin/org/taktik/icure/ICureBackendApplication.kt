@@ -32,12 +32,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.PropertySource
 import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.TaskScheduler
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.taktik.icure.asyncdao.GenericDAO
 import org.taktik.icure.asynclogic.CodeLogic
 import org.taktik.icure.asynclogic.ICureLogic
 import org.taktik.icure.asynclogic.PropertyLogic
 import org.taktik.icure.properties.CouchDbProperties
-import java.net.URI
 
 @SpringBootApplication(scanBasePackages = [
     "org.springframework.boot.autoconfigure.aop",
@@ -53,7 +53,8 @@ import java.net.URI
     "org.taktik.icure.services.external.http",
     "org.taktik.icure.services.external.rest.v1.controllers",
     "org.taktik.icure.services.external.rest.v1.mapper",
-    "org.taktik.icure.services.external.rest.v1.wscontrollers"
+    "org.taktik.icure.services.external.rest.v1.wscontrollers",
+    "org.taktik.icure.scheduledtask"
 ], exclude = [
     FreeMarkerAutoConfiguration::class,
     CacheAutoConfiguration::class,
@@ -61,6 +62,7 @@ import java.net.URI
     JndiDataSourceAutoConfiguration::class
 ])
 @PropertySource("classpath:icure-default.properties")
+@EnableScheduling
 class ICureBackendApplication {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
