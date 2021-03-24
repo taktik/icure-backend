@@ -105,4 +105,7 @@ class CouchDbConfig(val couchDbProperties: CouchDbProperties) {
 
 	@Bean
 	fun chapIVCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "chapiv", couchDbProperties.username!!, couchDbProperties.password!!, 1)
+
+    @Bean
+    fun systemCouchDbDispatcher(httpClient: WebClient, objectMapper: ObjectMapper) = CouchDbDispatcher(httpClient, objectMapper, "icure", "system", couchDbProperties.username!!, couchDbProperties.password!!, 1)
 }

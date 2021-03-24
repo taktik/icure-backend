@@ -86,7 +86,6 @@ import org.taktik.icure.validation.ValidCode
  * @property encryptedSelf The encrypted fields of this document.
  *
  */
-
 data class Document(
 	@JsonProperty("_id") override val id: String,
 	@JsonProperty("_rev") override val rev: String? = null,
