@@ -22,7 +22,7 @@ class StorageTasksProcessor(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedDelay = 3_600_000)
     fun handleIcureCloudAttachmentTasks() {
         runBlocking {
             cloudStorageTasksDao.getAll()
