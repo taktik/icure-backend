@@ -1,13 +1,18 @@
 package org.taktik.icure.asynclogic.objectstorage
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.reactive.asPublisher
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToFlow
 import org.springframework.web.util.DefaultUriBuilderFactory
 import org.taktik.couchdb.create
 import org.taktik.icure.asyncdao.impl.CouchDbDispatcher
@@ -37,15 +42,29 @@ class IcureObjectStorage(private val systemCouchDbDispatcher: CouchDbDispatcher,
 
     suspend fun storeAttachment(docId: String, content: ByteArray, storeTaskOnError: Boolean = true): String? {
         val authHeader = (sessionLogic.getCurrentSessionContext().getUserDetails() as? DatabaseUserDetails)?.let { "Basic ${Base64.getEncoder().encodeToString((it.username + ":" + it.secret).toByteArray())}" }
+        val request = icureCloudClient.post()
+                .uri(DefaultUriBuilderFactory().builder().path(documentStorageProperties.icureCloudUrl).pathSegment("rest", "v1", "document", docId, "attachment").build())
+                .let { queryBuilder ->
+                    authHeader?.let { queryBuilder.header("Authorization", authHeader) } ?: queryBuilder
+                }
+                .body(BodyInserters.fromValue(content))
+        return doStoreAttachment(docId, request, storeTaskOnError)
+    }
+
+    suspend fun storeAttachment(docId: String, content: Flow<DataBuffer>, storeTaskOnError: Boolean = true): String? {
+        val authHeader = (sessionLogic.getCurrentSessionContext().getUserDetails() as? DatabaseUserDetails)?.let { "Basic ${Base64.getEncoder().encodeToString((it.username + ":" + it.secret).toByteArray())}" }
+        val request = icureCloudClient.post()
+                .uri(DefaultUriBuilderFactory().builder().path(documentStorageProperties.icureCloudUrl).pathSegment("rest", "v1", "document", docId, "attachment").build())
+                .let { queryBuilder ->
+                    authHeader?.let { queryBuilder.header("Authorization", authHeader) } ?: queryBuilder
+                }
+                .body(BodyInserters.fromDataBuffers(content.asPublisher()))
+        return doStoreAttachment(docId, request, storeTaskOnError)
+    }
+
+    private suspend fun doStoreAttachment(docId: String, request: WebClient.RequestHeadersSpec<*>, storeTaskOnError: Boolean = true): String? {
         return try {
-            icureCloudClient.post()
-                    .uri(DefaultUriBuilderFactory().builder().path(documentStorageProperties.icureCloudUrl).pathSegment("rest", "v1", "document", docId, "attachment").build())
-                    .let { queryBuilder ->
-                        authHeader?.let { queryBuilder.header("Authorization", authHeader) } ?: queryBuilder
-                    }
-                    .body(BodyInserters.fromValue(content))
-                    .retrieve()
-                    .awaitBody<Any>()
+            request.retrieve().awaitBody<Any>()
             docId
         } catch (e: Exception) {
             try {
@@ -59,7 +78,7 @@ class IcureObjectStorage(private val systemCouchDbDispatcher: CouchDbDispatcher,
         }
     }
 
-    suspend fun readAttachment(documentId: String, attachmentId: String): ByteArray? {
+    suspend fun readAttachment(documentId: String, attachmentId: String): Flow<DataBuffer> {
         val authHeader = (sessionLogic.getCurrentSessionContext().getUserDetails() as? DatabaseUserDetails)?.let { "Basic ${Base64.getEncoder().encodeToString((it.username + ":" + it.secret).toByteArray())}" }
         return try {
             icureCloudClient.get()
@@ -68,9 +87,9 @@ class IcureObjectStorage(private val systemCouchDbDispatcher: CouchDbDispatcher,
                         authHeader?.let { queryBuilder.header("Authorization", authHeader) } ?: queryBuilder
                     }
                     .retrieve()
-                    .awaitBody()
+                    .bodyToFlow()
         } catch (e: Exception) {
-            null
+            emptyFlow()
         }
     }
 

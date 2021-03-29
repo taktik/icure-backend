@@ -28,14 +28,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asPublisher
+import kotlinx.coroutines.reactive.awaitFirst
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.output.ByteArrayOutputStream
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.stereotype.Repository
 import org.taktik.commons.uti.UTI
 import org.taktik.couchdb.annotation.View
-import org.slf4j.LoggerFactory
-import org.taktik.couchdb.entity.Attachment
 import org.taktik.couchdb.entity.ComplexKey
 import org.taktik.couchdb.id.IDGenerator
 import org.taktik.couchdb.queryViewIncludeDocs
@@ -68,12 +70,11 @@ class DocumentDAOImpl(
 		super.beforeSave(entity).let { document ->
 			if (document.attachment != null) {
 				val newAttachmentId = DigestUtils.sha256Hex(document.attachment)
-
 				if (documentStorageProperties.sizeLimit <= (document.size ?: 0)) {
 					documentCacheService.store(newAttachmentId, document.attachment)
 					document.copy(objectStoreReference = newAttachmentId)
 				} else {
-					beforeSaveSmallAttachment(newAttachmentId, document)
+					embedAttachmentInCouchdbDatabase(newAttachmentId, document)
 				}
 			} else if (document.attachmentId != null && document.rev != null) {
 				document.copy(
@@ -82,13 +83,12 @@ class DocumentDAOImpl(
 					isAttachmentDirty = false
 				)
 			} else if (document.objectStoreReference != null && document.rev != null) {
-				icureCloudStorage.
-					deleteAttachment(document.id)
-					document.copy(objectStoreReference = null)
+				icureCloudStorage.deleteAttachment(document.id)
+				document.copy(objectStoreReference = null)
 			} else document
 		}
 
-	private suspend fun beforeSaveSmallAttachment(newAttachmentId: String?, document: Document) =
+	private suspend fun embedAttachmentInCouchdbDatabase(newAttachmentId: String?, document: Document) =
 			if (newAttachmentId != document.attachmentId && document.rev != null && document.attachmentId != null) {
 				document.attachments?.containsKey(document.attachmentId)?.takeIf { it }?.let {
 					document.copy(
@@ -127,7 +127,9 @@ class DocumentDAOImpl(
 					log.error("Could not read from local cache: ${document.objectStoreReference}.")
 				}
 				document
-			} else document
+			} else {
+				document
+			}
 		}
 
 	override suspend fun postLoad(entity: Document) =
@@ -158,8 +160,10 @@ class DocumentDAOImpl(
 				}
 			} else if (document.objectStoreReference != null) {
 				(documentCacheService.read(document.objectStoreReference)
-					?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference)?.also { documentCacheService.store(document.objectStoreReference, it) })
-					.let { document.copy(attachment = it) }
+					?: icureCloudStorage.readAttachment(document.id, document.objectStoreReference).also { documentCacheService.store(document.objectStoreReference, it) })
+					.let {
+						document.copy(attachment = DataBufferUtils.join(it.asPublisher()).awaitFirst().asByteBuffer().array())
+					}
 			} else document
 		}
 
